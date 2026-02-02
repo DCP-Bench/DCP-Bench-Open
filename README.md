@@ -111,3 +111,17 @@ or (APA format):
 ```
 Michailidis, K., Tsouros, D., & Guns, T. (2025). DCP-Bench-Open [Data set]. Zenodo. https://doi.org/10.5281/zenodo.17800138
 ```
+
+And here is the paper reference:
+
+```bibtex
+@misc{michailidis2026dcpbenchopenevaluatingllmsconstraint,
+      title={DCP-Bench-Open: Evaluating LLMs for Constraint Modelling of Discrete Combinatorial Problems}, 
+      author={Kostis Michailidis and Dimos Tsouros and Tias Guns},
+      year={2026},
+      eprint={2506.06052},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2506.06052}, 
+}
+```
