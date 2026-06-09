@@ -97,24 +97,6 @@ We encourage contributions to expand the benchmark! If you have a new problem yo
 Feel free to cite our work as follows:
 
 ```bibtex
-@dataset{dcpbenchopen,
-  author       = {Michailidis, K. and Tsouros, D. and Guns, T.},
-  title        = {DCP-Bench-Open},
-  year         = {2025},
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.17800138},
-  url          = {https://doi.org/10.5281/zenodo.17800138}
-}
-```
-
-or (APA format):
-```
-Michailidis, K., Tsouros, D., & Guns, T. (2025). DCP-Bench-Open [Data set]. Zenodo. https://doi.org/10.5281/zenodo.17800138
-```
-
-And here is the paper reference:
-
-```bibtex
 @misc{michailidis2026dcpbenchopenevaluatingllmsconstraint,
       title={DCP-Bench-Open: Evaluating LLMs for Constraint Modelling of Discrete Combinatorial Problems}, 
       author={Kostis Michailidis and Dimos Tsouros and Tias Guns},
@@ -123,5 +105,16 @@ And here is the paper reference:
       archivePrefix={arXiv},
       primaryClass={cs.AI},
       url={https://arxiv.org/abs/2506.06052}, 
+}
+```
+
+```bibtex
+@dataset{dcpbenchopen,
+  author       = {Michailidis, K. and Tsouros, D. and Guns, T.},
+  title        = {DCP-Bench-Open},
+  year         = {2025},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.17800138},
+  url          = {https://doi.org/10.5281/zenodo.17800138}
 }
 ```
