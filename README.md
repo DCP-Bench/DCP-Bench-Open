@@ -1,5 +1,8 @@
 # DCP-Bench-Open
 
+[![Release](https://img.shields.io/github/v/release/DCP-Bench/DCP-Bench-Open?label=release)](https://github.com/DCP-Bench/DCP-Bench-Open/releases)
+[![License](https://img.shields.io/github/license/DCP-Bench/DCP-Bench-Open)](LICENSE)
+
 DCP-Bench-Open is a collaborative benchmark of Discrete Combinatorial Problems, with only involving integer and Boolean decision variables. Many problem formulations come from the Constraint Programming (CP) community, as well as the Integer Programming community (no continuous variables), Pseudo-Boolean and Satisfiability communities.
 
 This benchmark has two primary goals:
@@ -9,7 +12,7 @@ This benchmark has two primary goals:
 
 In the repository, the ground-truth models are (currently) using the CPMpy library. The evaluation framework can (currently) evaluate generated models in CPMpy, MiniZinc or Or-Tools CP-SAT and more can be added with limited effort.
 
-This benchmark is an open source project that welcomes additional problems, data instances and evaluation tooling from interested developers. For reproducability, always use a specific 'Release' in your research (see below). This project started as an extension of the original [CP-Bench](https://huggingface.co/datasets/kostis-init/CP-Bench) published at ECAI 2025.
+This benchmark is an open source project that welcomes additional problems, data instances and evaluation tooling from interested developers. For reproducibility, always use a specific 'Release' in your research (see below). This project started as an extension of the original [CP-Bench](https://huggingface.co/datasets/kostis-init/CP-Bench) published at ECAI 2025.
 
 ## Getting the Dataset
 
@@ -19,7 +22,7 @@ There are two main ways to get the benchmark dataset:
 
 This is the best way to get a stable, versioned copy of the dataset and all corresponding evaluation scripts.
 
-1.  Visit the project's [**GitHub Releases page**](https://github.com/kostis-init/CP-Bench-Colab/releases).
+1.  Visit the project's [**GitHub Releases page**](https://github.com/DCP-Bench/DCP-Bench-Open/releases).
 2.  From the latest release, download the `dcp-bench-open.jsonl` file (and if you need more files, e.g. eval scripts etc., then download the `Source code` archive as well).
 
 ### 2. Generate from Source
