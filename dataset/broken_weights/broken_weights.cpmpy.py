@@ -39,8 +39,7 @@ def increasing_strict(args):
 weights = intvar(1, m, shape=n, name="weights")
 x = intvar(-1, 1, shape=(m, n), name="x")
 
-model = Model(minimize=weights[-1])
-# model = Model()
+model = Model()
 
 # constraints
 

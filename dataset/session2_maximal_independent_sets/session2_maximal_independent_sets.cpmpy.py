@@ -13,7 +13,7 @@ Print whether each node is included in the maximal independent set (nodes), as a
 
 # Data
 n = 8  # number of nodes in the graph
-adjacency_list = [  # adjacency list for each node in the graph
+adjacency_list = [  # adjacency list for each node in the graph (1-based)
     [2, 3, 7],
     [1, 4, 8],
     [1, 4, 5],
@@ -36,16 +36,18 @@ nodes = boolvar(shape=n)
 # Model setup
 model = Model()
 
-# Constraint: No two adjacent nodes can both be in the independent set
+# Constraint 1: independent set
+# No edge may have both endpoints selected.
 for i, neighbors in enumerate(adjacency_list):
     for neighbor in neighbors:
-        # Subtract 1 to adjust for 1-based indexing in the data
-        neighbor_idx = neighbor - 1
-        # Ensure that for every edge, at least one of its endpoints is not in the independent set
-        model += ~(nodes[i] & nodes[neighbor_idx])
+        j = neighbor - 1
+        if i < j:  # avoid duplicate constraints
+            model += nodes[i] + nodes[j] <= 1
 
-# Objective: Maximize the number of nodes in the independent set
-model.maximize(sum(nodes))
+# Constraint 2: maximality
+# Every node is either selected, or has at least one selected neighbor.
+for i, neighbors in enumerate(adjacency_list):
+    model += nodes[i] | any(nodes[neighbor - 1] for neighbor in neighbors)
 
 # Solve
 model.solve()

@@ -22,7 +22,7 @@ Print the complete valid isbn (isbn) as a list of integers.
 
 # Data
 isbn_init = [9, 7, 8, 3, 3, 1, 9, 2, 5, 8, 8, 1, -1]  # Example: Find the missing digit (-1)
-# End of Data
+# End of data
 
 from cpmpy import *
 import json
