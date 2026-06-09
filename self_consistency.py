@@ -5,6 +5,18 @@ import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import tempfile
 import re
+import time
+
+
+def remove_temp_file(path, retries=5, delay=0.1):
+    for attempt in range(retries):
+        try:
+            os.remove(path)
+            return
+        except PermissionError:
+            if attempt == retries - 1:
+                raise
+            time.sleep(delay)
 
 
 def run_instance(instance_path):
@@ -118,7 +130,7 @@ print(json.dumps(sols))
 
     command = [sys.executable, temp_instance_path]
     result = subprocess.run(command, capture_output=True, text=True)
-    os.remove(temp_instance_path)
+    remove_temp_file(temp_instance_path)
 
     if result.returncode != 0:
         print(f"Error running modified script for {instance_path}: {result.stderr}")
@@ -144,7 +156,7 @@ def check_consistency_for_solution(script_content, solution, instance_path):
 
     command = [sys.executable, temp_instance_path]
     result = subprocess.run(command, capture_output=True, text=True)
-    os.remove(temp_instance_path)
+    remove_temp_file(temp_instance_path)
 
     if result.returncode != 0:
         print(f"Error running consistency check for {instance_path}: {result.stderr}")
@@ -177,7 +189,7 @@ def check_consistency(instance_path, multi_solution_eval=False):
 
     for solution in solutions:
         if not check_consistency_for_solution(script_content, solution, instance_path):
-            print(f"Inconsistency found for solution: {solution} in file {instance_path} \U0000274C")
+            print(f"Inconsistency found for solution: {solution} in file {instance_path} [FAIL]")
             return instance_path, False
 
     return instance_path, True
@@ -205,9 +217,10 @@ def main():
                 if not res:
                     not_consistent.append(instance_path)
                 else:
-                    print(f"Instance {instance_path} is self-consistent \U00002705")
+                    print(f"Instance {instance_path} is self-consistent [OK]")
             except Exception as e:
                 print(f"Error processing {futures[future]}: {e}")
+                not_consistent.append(futures[future])
 
     print(f"\n{num_instances - len(not_consistent)}/{num_instances} instances are self-consistent.")
     if not_consistent:
@@ -215,7 +228,7 @@ def main():
         for instance in not_consistent:
             print(f"- {instance}")
     else:
-        print("\U0001F973")  # Celebration emoji if all are consistent
+        print("All instances are self-consistent.")
 
 
 def test_single_instance():

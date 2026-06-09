@@ -1,4 +1,4 @@
-# Contributing to CP-Bench-Open
+# Contributing to DCP-Bench-Open
 
 We welcome contributions from the community to help this benchmark grow!
 

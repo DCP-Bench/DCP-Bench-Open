@@ -102,7 +102,7 @@ def extract_input_data(content: str):
     """
     # Input Data: between # Data and # End of data
     # Use regex to find the input data
-    input_data_pattern = re.compile(r'# Data(.*?)# End of data', re.DOTALL)
+    input_data_pattern = re.compile(r'# Data(.*?)# End of data', re.DOTALL | re.IGNORECASE)
     lines = content.splitlines()
     match = input_data_pattern.search("\n".join(lines))
 
@@ -139,8 +139,8 @@ def extract_cpmpy_code_no_data(content: str) -> str:
     # return everything after the first import
 
     content_no_data = extract_cpmpy_code(content)
-    # remove everythin between # Data and # End of data
-    input_data_pattern = re.compile(r'# Data(.*?)# End of data', re.DOTALL)
+    # remove everything between # Data and # End of data
+    input_data_pattern = re.compile(r'# Data(.*?)# End of data', re.DOTALL | re.IGNORECASE)
     content_no_data = input_data_pattern.sub('', content_no_data).strip()
     return content_no_data
 
