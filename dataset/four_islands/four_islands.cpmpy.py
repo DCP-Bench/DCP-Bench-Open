@@ -18,7 +18,7 @@ A, B, C, D are the islands, this is the map showing the bridges and the orientat
  |      |
 (C) -- (D)
 
-This means that A is north of B, C is west of D, etc.
+This means that A is north of C, C is west of D, etc.
 
 1. The island noted for its koala preserve is due south of Pwana.
 2. The island with the largest alabaster quarry is due west of Quero.

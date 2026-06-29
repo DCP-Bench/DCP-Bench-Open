@@ -21,10 +21,19 @@ In particular, we have the following ten 'beats' relationships
 9:  Spock(5) vaporizes Rock(1)
 10: Spock(5) smashes Scissors(3)
 
-Print the dice (dice) as a list of lists where each sublist is a die.
+Each die has six integer-valued faces, and each face value must be between 1 and 12 inclusive.
+Face values may repeat, both within a die and across dice.
+We define the 'beats' relationship between two dice to be the following:
+A has a strictly larger face value than die B in more than half of all possible pairs of faces.
+
+Print the dice (dice) as a list of lists where each sublist is a die; row 0 is Rock, row 1 is Paper, row 2 is Scissors, row 3 is Lizard, and row 4 is Spock.
 """
 
-# Data
+# Import libraries
+from cpmpy import *
+import json
+
+# Parameters
 rock = 0
 paper = 1
 scissors = 2
@@ -33,7 +42,7 @@ spock = 4
 
 m = 5  # number of dice
 n = 6  # number of faces of each die
-f = 2 * n  # max face value of dice
+f = 12  # max face value of dice
 edge = [
     [rock, scissors],  # 1: Rock crushes Scissors
     [rock, lizard],  # etc.
@@ -46,12 +55,6 @@ edge = [
     [spock, rock],
     [spock, scissors]
 ]
-# End of data
-
-# Import libraries
-from cpmpy import *
-import json
-
 
 # Model definition
 model = Model()
