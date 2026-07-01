@@ -59,24 +59,6 @@ def diamond_free(N):
     # Undirected graph
     model += matrix == matrix.T
 
-    # Symmetry breaking
-    # <SYMMETRY_BREAKING_CONSTRAINT_START>
-    # # lexicographic ordering of rows
-    # for r in range(N - 1):
-    #     b = boolvar(N + 1)
-    #     model += b[0] == 1
-    #     model += b == ((matrix[r] <= matrix[r + 1]) &
-    #                    ((matrix[r] < matrix[r + 1]) | b[1:] == 1))
-    #     model += b[-1] == 0
-    # # lexicographic ordering of cols
-    # for c in range(N - 1):
-    #     b = boolvar(N + 1)
-    #     model += b[0] == 1
-    #     model += b == ((matrix.T[c] <= matrix.T[c + 1]) &
-    #                    ((matrix.T[c] < matrix.T[c + 1]) | b[1:] == 1))
-    #     model += b[-1] == 0
-    # <SYMMETRY_BREAKING_CONSTRAINT_END>
-
     return model, matrix
 
 # Example usage

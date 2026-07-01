@@ -47,16 +47,6 @@ def word_design(num_words=8, n=8):
             x_r = x[::-1]  # reversed x
             model += sum(x_r != y_c) >= 4
 
-    # Break symmetry
-    # <SYMMETRY_BREAKING_CONSTRAINT_START>
-    # for r in range(n - 1):
-    #     b = boolvar(shape=(9,))
-    #     model += b[0] == 1
-    #     model += b == ((words[r] <= words[r + 1]) &
-    #                    ((words[r] < words[r + 1]) | (b[1:] == 1)))
-    #     model += b[-1] == 0
-    # <SYMMETRY_BREAKING_CONSTRAINT_END>
-
     return model, (words,)
 
 # Example usage
