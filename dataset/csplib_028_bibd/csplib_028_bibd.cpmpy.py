@@ -53,24 +53,6 @@ def bibd(v, b, r, k, l):
     # The scalar product of every pair of columns adds up to l
     model += [np.dot(row_i, row_j) == l for row_i, row_j in all_pairs(matrix)]
 
-    # Break symmetry
-    # <SYMMETRY_BREAKING_CONSTRAINT_START>
-    # # Lexicographic ordering of rows
-    # for r in range(v - 1):
-    #     bvar = boolvar(shape=(b + 1))
-    #     model += bvar[0] == 1
-    #     model += bvar == ((matrix[r] <= matrix[r + 1]) &
-    #                       ((matrix[r] < matrix[r + 1]) | (bvar[1:] == 1)))
-    #     model += bvar[-1] == 0
-    # # Lexicographic ordering of columns
-    # for c in range(b - 1):
-    #     bvar = boolvar(shape=(v + 1))
-    #     model += bvar[0] == 1
-    #     model += bvar == ((matrix.T[c] <= matrix.T[c + 1]) &
-    #                       ((matrix.T[c] < matrix.T[c + 1]) | (bvar[1:] == 1)))
-    #     model += bvar[-1] == 0
-    # <SYMMETRY_BREAKING_CONSTRAINT_END>
-
     return model, (matrix,)
 
 # Example usage

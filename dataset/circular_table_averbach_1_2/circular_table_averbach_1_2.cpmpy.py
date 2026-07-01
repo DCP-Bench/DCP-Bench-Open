@@ -9,6 +9,7 @@ Determine the nationality of each person.
 
 Print the values of X, Y, Z, American, English, French (x, y, z, american, english, french), such that the
 same value denotes the matching between the person and their nationality. Use 0, 1 or 2.
+Also, assume that 1 is right of 0, and 2 is right of 1 and so on.
 """
 
 # Import libraries

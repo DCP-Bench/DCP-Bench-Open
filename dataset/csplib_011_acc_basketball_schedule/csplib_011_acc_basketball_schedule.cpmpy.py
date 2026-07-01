@@ -109,18 +109,18 @@ def basketball_schedule():
 
     # 3. home/away/bye pattern constraint
     for t in teams:
-        for d in days[:-3]:
+        for d in days[:-2]:
             # No team may have more than two home matches in a row
             model += sum(where[d:d + 3, t] == HOME) <= 2
             # No team may have more than two away matches in a row
             model += sum(where[d:d + 3, t] == AWAY) <= 2
 
-        for d in days[:-4]:
+        for d in days[:-3]:
             # No team may have more than three away matches or byes in a row
             model += sum((where[d:d + 4, t] == AWAY) | (where[d:d + 4, t] == BYE)) <= 3
 
-        for d in days[:-5]:
-            # No team may have more than four home matches or byes in a row.
+        for d in days[:-4]:
+            # No team may have more than four home matches or byes in a row
             model += sum((where[d:d + 5, t] == HOME) | (where[d:d + 5, t] == BYE)) <= 4
 
     # 4. weekend pattern constraint

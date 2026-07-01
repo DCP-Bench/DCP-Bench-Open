@@ -14,7 +14,8 @@ Print the set of words (words) as a list of lists of integers, where each intege
 """
 
 # Data
-n = 8  # Number of words to find
+n = 8  # Length of each word
+num_words = 12  # Number of words to find
 # End of data
 
 # Import libraries
@@ -22,11 +23,11 @@ import json
 from cpmpy import *
 from cpmpy.expressions.utils import all_pairs
 
-def word_design(n=2):
+def word_design(num_words=8, n=8):
     A, C, G, T = 1, 2, 3, 4
 
     # words[i,j] is the j'th letter of the i'th word
-    words = intvar(A, T, shape=(n, 8), name="words")
+    words = intvar(A, T, shape=(num_words, n), name="words")
 
     model = Model()
 
@@ -46,20 +47,10 @@ def word_design(n=2):
             x_r = x[::-1]  # reversed x
             model += sum(x_r != y_c) >= 4
 
-    # Break symmetry
-    # <SYMMETRY_BREAKING_CONSTRAINT_START>
-    # for r in range(n - 1):
-    #     b = boolvar(shape=(9,))
-    #     model += b[0] == 1
-    #     model += b == ((words[r] <= words[r + 1]) &
-    #                    ((words[r] < words[r + 1]) | (b[1:] == 1)))
-    #     model += b[-1] == 0
-    # <SYMMETRY_BREAKING_CONSTRAINT_END>
-
     return model, (words,)
 
 # Example usage
-model, (words,) = word_design(n)
+model, (words,) = word_design(num_words=num_words, n=n)
 model.solve()
 
 # Print
