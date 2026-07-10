@@ -33,9 +33,10 @@ This means that A is north of C, C is west of D, etc.
 
 Determine: Island name -- Export -- Tourist Attraction
 
-Print a number for each island (island), export (export), and attraction (attraction) as lists of integers from 0 to
-3, where the same number represents a mapping between the three categories. Use the same order as mentioned above.
-Also, 0 should represent A in the given map above, 1 should represent B, and so on.
+Print a number for each island (island), export (export), and attraction (attraction) as three lists of integers from 0
+to 3. The value at each index is the map position of that item, encoded as A=0, B=1, C=2, D=3. The list indices refer
+respectively to: island = [Pwana, Quero, Rayou, Skern], export = [alabaster, bananas, coconuts, durian_fruit],
+attraction = [resort_hotel, ice_skating_rink, jai_alai_stadium, koala_preserve].
 """
 
 # Import libraries
