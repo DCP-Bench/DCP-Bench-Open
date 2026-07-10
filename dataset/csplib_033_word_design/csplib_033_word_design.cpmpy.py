@@ -4,7 +4,7 @@
 # Source description: https://www.csplib.org/Problems/prob033/
 
 """
-Find as large a set \( S \) of strings (words) of length `n` over the alphabet \( W = \{ A,C,G,T \} \) with the following properties:
+Find a set \( S \) of `num_words` strings (words) of length `n` over the alphabet \( W = \{ A,C,G,T \} \) with the following properties:
 
 - Each word in \( S \) has 4 symbols from \{ C,G \};
 - Each pair of distinct words in \( S \) differ in at least 4 positions; and
