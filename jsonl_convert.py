@@ -162,7 +162,7 @@ def extract_cpmpy_code_no_data(content: str) -> str:
     return content_no_data
 
 
-def exec_code(code: str, timeout=10):
+def exec_code(code: str, timeout=30):
     with tempfile.TemporaryDirectory() as temp_dir:
         suffix = '.__hidden_py__'
         temp_instance_path = os.path.join(temp_dir, f"script{suffix}")
@@ -197,7 +197,7 @@ def exec_code(code: str, timeout=10):
 
 def extract_example_solution(content: str) -> str:
     # run the model and return the output
-    successfully_executed, output, timeout_occurred = exec_code(content, timeout=10)
+    successfully_executed, output, timeout_occurred = exec_code(content, timeout=30)
     assert successfully_executed, "Model execution failed"
     assert not timeout_occurred, "Model execution timed out"
     return output
@@ -313,7 +313,12 @@ def main():
         with open(OUTPUT_FILE, 'w', encoding='utf-8') as outfile:
             # Iterate through all .cpmpy.py files in the dataset directory recursively
             for filepath in DATASET_ROOT.rglob("*.cpmpy.py"):
-                data = process_file(filepath)
+                try:
+                    data = process_file(filepath)
+                except Exception as e:
+                    logging.error(f"[{filepath.name}] Error processing file, skipping: {e}")
+                    error_count += 1
+                    continue
                 if data:
                     try:
                         # Convert the dictionary to a JSON string
@@ -327,15 +332,14 @@ def main():
                 else:
                     # process_file already logged the read error
                     error_count += 1
-
     except IOError as e:
         logging.error(f"Could not open or write to output file {OUTPUT_FILE}: {e}")
         print(f"Error: Could not write to output file {OUTPUT_FILE}. Check permissions.")
-        return
+        sys.exit(1)
     except Exception as e:
          logging.error(f"An unexpected error occurred during processing: {e}")
          print(f"An unexpected error occurred. Check {LOG_FILE} for details.")
-         return
+         sys.exit(1)
 
     # validate that all ids are unique
     with open(OUTPUT_FILE, 'r', encoding='utf-8') as outfile:
@@ -357,6 +361,9 @@ def main():
     print(f"\n{summary_message}")
     print(f"Output written to: '{OUTPUT_FILE.resolve()}'")
     print(f"Detailed logs available in: '{LOG_FILE.resolve()}'")
+    if error_count > 0:
+        print("ERROR: conversion output is INCOMPLETE, some problems failed.")
+        sys.exit(1)
     # ---
 
 if __name__ == "__main__":
