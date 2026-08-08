@@ -254,6 +254,10 @@ def verdict_badge(metrics: dict) -> str:
     )
 
 
+def framework_dir(fw: str) -> str:
+    return {"CPMpy": "cpmpy", "MiniZinc": "minizinc", "OR-Tools": "ortools"}.get(fw, fw.lower())
+
+
 def generated_model_card(entry: dict) -> str:
     m = entry["metrics"]
     v = m.get("verdict", {})
@@ -263,11 +267,12 @@ def generated_model_card(entry: dict) -> str:
     dataset_version = gen.get("dataset_version") or ""
 
     lines = entry["code"].count("\n") if entry["code"] else 0
+    uid = f"{m.get('problem', '')}-{entry['submission']}"
     if entry["model_file"]:
         lang = "minizinc" if entry["model_file"].endswith(".mzn") else "python"
         code = (
             f'<details class="gmodel"><summary>{esc(entry["model_file"])}'
-            f" ({lines} lines)</summary>{code_block(entry['code'], lang)}</details>"
+            f" ({lines} lines)</summary>{code_block(entry['code'], lang, copy_id=f'gmod-{uid}')}</details>"
         )
     else:
         code = '<p class="desc">Code file not found.</p>'
@@ -277,7 +282,7 @@ def generated_model_card(entry: dict) -> str:
         pretty = json.dumps(v["solution"], indent=2, ensure_ascii=False)
         solution = (
             f'<details class="gmodel"><summary>solution</summary>'
-            f'<pre class="code-block"><code class="language-json">{esc(pretty)}</code></pre></details>'
+            f'{code_block(pretty, "json", copy_id=f"gsol-{uid}")}</details>'
         )
 
     error = ""
@@ -287,6 +292,10 @@ def generated_model_card(entry: dict) -> str:
     links = []
     if src.get("leaderboard"):
         links.append(f'<a href="{esc(src["leaderboard"])}" target="_blank" rel="noopener">Leaderboard</a>')
+    if entry["model_file"]:
+        links.append(
+            f'<a href="{REPO_URL}/blob/main/generated_models/{esc(m.get("problem", ""))}/{esc(framework_dir(m.get("framework", "")))}/{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" rel="noopener">Model file (GitHub)</a>'
+        )
     if src.get("submission_file"):
         links.append(f'<a href="{esc(src["submission_file"])}" target="_blank" rel="noopener">Submission file</a>')
     if src.get("report_file"):
@@ -407,18 +416,19 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
       {code_block(p["model"], "python", copy_id=f"model-{idx}")}
     """
 
-    inst_lines = (p["example_instance"] or "").count("\n") + 1
-    sol_lines = len(json.dumps(p["example_solution"], indent=2, ensure_ascii=False).splitlines()) if p["example_solution"] else 1
+    if p["instances"]:
+        example_inst = json.dumps(p["instances"][0], indent=2, ensure_ascii=False)
+        example_lang = "json"
+    else:
+        example_inst = p["example_instance"] or "# No example instance data."
+        example_lang = "python"
     example_box = f"""
     <details class="card-box example-box">
-      <summary>
-        <h3>Example instance &amp; solution</h3>
-        <span class="badge outline">{inst_lines} lines data · {sol_lines} lines solution</span>
-      </summary>
+      <summary><h3>Example instance &amp; solution</h3></summary>
       <div class="example-grid">
         <div>
           <h4>Instance data</h4>
-          {code_block(p["example_instance"] or "# No example instance data.", "python")}
+          {code_block(example_inst, example_lang, copy_id=f"example-{idx}")}
         </div>
         <div>
           <h4>Solution</h4>
@@ -439,8 +449,11 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
         for i, inst in enumerate(p["instances"], 1):
             pretty = json.dumps(inst, indent=2, ensure_ascii=False)
             instances_html += (
-                f'<details class="instance"><summary>Instance {i}</summary>'
-                f"<pre><code class=\"language-json\">{esc(pretty)}</code></pre></details>"
+                f'<details class="instance"><summary>'
+                f'<button class="copy-mini" type="button" data-copy="inst-{idx}-{i}">Copy</button>'
+                f'Instance {i}</summary>'
+                f'<pre><code id="inst-{idx}-{i}" class="language-json">{esc(pretty)}</code></pre>'
+                f"</details>"
             )
 
     metadata = metadata_html(meta, p)
@@ -484,9 +497,8 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
-      <a class="btn" href="{REPO_URL}/blob/main/dataset/{pid}/{pid}.cpmpy.py" target="_blank" rel="noopener">View source (GitHub)</a>
+      <a class="btn" href="{REPO_URL}/blob/main/dataset/{pid}/{pid}.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
       <a class="btn" href="{REPO_URL}/blob/main/dataset/{pid}/{pid}.json" target="_blank" rel="noopener">Instances JSON</a>
-      <a class="btn" href="{RAW_URL}/dataset/{pid}/{pid}.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
     {prev_next}
     """

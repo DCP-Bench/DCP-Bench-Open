@@ -21,29 +21,177 @@
 
     
     <details class="card-box example-box">
-      <summary>
-        <h3>Example instance &amp; solution</h3>
-        <span class="badge outline">16 lines data · 37 lines solution</span>
-      </summary>
+      <summary><h3>Example instance &amp; solution</h3></summary>
       <div class="example-grid">
         <div>
           <h4>Instance data</h4>
-          <pre class="code-block"><code id="None" class="language-python">nb_workers = 32  # Number of workers
-num_tasks = 15  # Number of tasks
-Qualified = [  # Which worker is qualified for each task (1-based indexing)
-    [1, 9, 19, 22, 25, 28, 31],
-    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
-    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
-    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
-    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
-    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
-    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
-    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
-    [9, 18, 26, 28, 31, 32]]
-Cost = [  # Cost of hiring each worker
-    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
-    5, 6, 6, 6, 7, 8, 9
-]</code></pre>
+          <div class="code-head"><span>json</span><button type="button" data-copy="example-37">Copy</button></div><pre class="code-block"><code id="example-37" class="language-json">{
+  &quot;nb_workers&quot;: 32,
+  &quot;num_tasks&quot;: 15,
+  &quot;Qualified&quot;: [
+    [
+      1,
+      9,
+      19,
+      22,
+      25,
+      28,
+      31
+    ],
+    [
+      2,
+      12,
+      15,
+      19,
+      21,
+      23,
+      27,
+      29,
+      30,
+      31,
+      32
+    ],
+    [
+      3,
+      10,
+      19,
+      24,
+      26,
+      30,
+      32
+    ],
+    [
+      4,
+      21,
+      25,
+      28,
+      32
+    ],
+    [
+      5,
+      11,
+      16,
+      22,
+      23,
+      27,
+      31
+    ],
+    [
+      6,
+      20,
+      24,
+      26,
+      30,
+      32
+    ],
+    [
+      7,
+      12,
+      17,
+      25,
+      30,
+      31
+    ],
+    [
+      8,
+      17,
+      20,
+      22,
+      23
+    ],
+    [
+      9,
+      13,
+      14,
+      26,
+      29,
+      30,
+      31
+    ],
+    [
+      10,
+      21,
+      25,
+      31,
+      32
+    ],
+    [
+      14,
+      15,
+      18,
+      23,
+      24,
+      27,
+      30,
+      32
+    ],
+    [
+      18,
+      19,
+      22,
+      24,
+      26,
+      29,
+      31
+    ],
+    [
+      11,
+      20,
+      25,
+      28,
+      30,
+      32
+    ],
+    [
+      16,
+      19,
+      23,
+      31
+    ],
+    [
+      9,
+      18,
+      26,
+      28,
+      31,
+      32
+    ]
+  ],
+  &quot;Cost&quot;: [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    6,
+    6,
+    6,
+    7,
+    8,
+    9
+  ]
+}</code></pre>
         </div>
         <div>
           <h4>Solution</h4>
@@ -148,7 +296,7 @@ print(json.dumps(solution))
         <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-anonymous_submission" class="language-python"># Import libraries
 from cpmpy import *
 import json
 
@@ -199,7 +347,7 @@ solution = {
 }
 print(json.dumps(solution))
 # End of CPMPy script</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-anonymous_submission" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     false,
@@ -236,7 +384,7 @@ print(json.dumps(solution))
     false
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -248,7 +396,7 @@ print(json.dumps(solution))
         <div><span class="badge" style="background:#dc2626" title="The produced solution does not satisfy the ground-truth constraints">solution not valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+      <details class="gmodel"><summary>model.py (52 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-atest">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-atest" class="language-python">from cpmpy import *
 import json
 
 # Input data
@@ -301,7 +449,7 @@ solution = {
     &quot;workers&quot;: workers.value().tolist()
 }
 print(json.dumps(solution))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-atest">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-atest" class="language-json">{
   &quot;total_cost&quot;: 1,
   &quot;workers&quot;: [
     false,
@@ -338,7 +486,7 @@ print(json.dumps(solution))</code></pre></details>
     true
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/atest/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -350,7 +498,7 @@ print(json.dumps(solution))</code></pre></details>
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (105 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (105 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-cpagent" class="language-python">import cpmpy as cp
 import numpy as np
 import json
 
@@ -456,7 +604,7 @@ if model.solve():
     
 else:
     print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-cpagent" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -493,7 +641,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -505,7 +653,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-documentation_prompt_1">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-documentation_prompt_1" class="language-python">
 import cpmpy as cp
 import json
 
@@ -556,7 +704,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-documentation_prompt_1">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-documentation_prompt_1" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -593,7 +741,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/documentation_prompt_1/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -605,7 +753,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-documentation_prompt_gpt_5_min" class="language-python">
 import cpmpy as cp
 import json
 
@@ -657,7 +805,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-documentation_prompt_gpt_5_min" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -694,7 +842,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -706,7 +854,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (57 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (57 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-guidelines_prompt_cpmpy">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-guidelines_prompt_cpmpy" class="language-python">
 import cpmpy as cp
 import json
 
@@ -764,7 +912,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-guidelines_prompt_cpmpy">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-guidelines_prompt_cpmpy" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -801,7 +949,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/guidelines_prompt_cpmpy/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -813,10 +961,10 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (2 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+      <details class="gmodel"><summary>model.py (2 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-ml_research_loop_p18">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-ml_research_loop_p18" class="language-python">import json
 workers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0]
 print(json.dumps({&#x27;total_cost&#x27;: 14, &#x27;workers&#x27;: workers}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-ml_research_loop_p18">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-ml_research_loop_p18" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -853,7 +1001,7 @@ print(json.dumps({&#x27;total_cost&#x27;: 14, &#x27;workers&#x27;: workers}))</c
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/ml_research_loop_p18/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -865,7 +1013,7 @@ print(json.dumps({&#x27;total_cost&#x27;: 14, &#x27;workers&#x27;: workers}))</c
         <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-sampling_10_and_self_debug_10">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-sampling_10_and_self_debug_10" class="language-python">
 import cpmpy as cp
 import json
 
@@ -917,7 +1065,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-sampling_10_and_self_debug_10">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-sampling_10_and_self_debug_10" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -954,7 +1102,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/sampling_10_and_self_debug_10/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -966,7 +1114,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-sampling_10_and_self_debug_10_" class="language-python">
 import cpmpy as cp
 import json
 
@@ -1018,7 +1166,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-sampling_10_and_self_debug_10_" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1055,7 +1203,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -1067,7 +1215,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (59 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-sampling_10_qwq">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-sampling_10_qwq" class="language-python">
 import cpmpy as cp
 import json
 
@@ -1127,7 +1275,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-sampling_10_qwq">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-sampling_10_qwq" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     false,
@@ -1164,7 +1312,7 @@ else:
     false
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/sampling_10_qwq/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -1176,7 +1324,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (59 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-self_debug_10_qwq">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-self_debug_10_qwq" class="language-python">
 import cpmpy as cp
 import json
 
@@ -1236,7 +1384,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-self_debug_10_qwq">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-self_debug_10_qwq" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1273,7 +1421,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/self_debug_10_qwq/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -1285,7 +1433,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-self_debug_gpt_5" class="language-python">
 import cpmpy as cp
 import json
 import numpy as np
@@ -1336,7 +1484,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-self_debug_gpt_5" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1373,7 +1521,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -1385,7 +1533,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-self_debug_gpt_5_mini" class="language-python">
 import cpmpy as cp
 import json
 
@@ -1437,7 +1585,7 @@ if model.solve():
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-self_debug_gpt_5_mini" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1474,7 +1622,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -1486,7 +1634,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.mzn (49 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+      <details class="gmodel"><summary>model.mzn (49 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-covering_opl-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
 
 % Input data
 int: nb_workers = 32;
@@ -1536,7 +1684,7 @@ output [
     &quot;\&quot;workers\&quot;: &quot;, show(workers),
     &quot;}&quot;
 ];</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-documentation_prompt_mnz" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1573,7 +1721,7 @@ output [
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -1585,7 +1733,7 @@ output [
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.mzn (52 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+      <details class="gmodel"><summary>model.mzn (52 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-covering_opl-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-guidelines_prompt_mnz" class="language-minizinc">
 include &quot;globals.mzn&quot;;
 
 % Input data
@@ -1638,7 +1786,7 @@ output [
   &quot;}&quot;
 ];
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-guidelines_prompt_mnz" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1675,7 +1823,7 @@ output [
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/minizinc/guidelines_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="or-tools">
     <div class="model-card">
@@ -1687,7 +1835,7 @@ output [
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
 import json
 
 # Input data
@@ -1738,7 +1886,7 @@ if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
     print(json.dumps(solution, indent=4))
 else:
     print(&quot;No solution found.&quot;)</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-documentation_prompt_ort" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1775,7 +1923,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/ortools/documentation_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -1787,7 +1935,7 @@ else:
         <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (60 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-guidelines_prompt_ort" class="language-python">
 from ortools.sat.python import cp_model
 import json
 
@@ -1848,7 +1996,7 @@ if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
 else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-guidelines_prompt_ort" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -1885,7 +2033,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/ortools/guidelines_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -1897,7 +2045,7 @@ else:
         <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (73 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Complete, runnable Python code that solves the worker-selection problem
+      <details class="gmodel"><summary>model.py (73 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-multi_agents_requirements_gath">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-multi_agents_requirements_gath" class="language-python"># Complete, runnable Python code that solves the worker-selection problem
 # ---------------------------------------------------------------
 # 1. Imports
 import json
@@ -1971,7 +2119,7 @@ else:
     # Infeasible or unknown status – still output a JSON object indicating failure
     print(json.dumps({&quot;total_cost&quot;: None, &quot;workers&quot;: []}))
 </code></pre></details>
-      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-multi_agents_requirements_gath">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-multi_agents_requirements_gath" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     0,
@@ -2008,10 +2156,10 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/ortools/multi_agents_requirements_gath/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-37-1">Copy</button>Instance 1</summary><pre><code id="inst-37-1" class="language-json">{
   &quot;nb_workers&quot;: 32,
   &quot;num_tasks&quot;: 15,
   &quot;Qualified&quot;: [
@@ -2181,13 +2329,12 @@ else:
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
-      <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/covering_opl/covering_opl.cpmpy.py" target="_blank" rel="noopener">View source (GitHub)</a>
+      <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/covering_opl/covering_opl.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/covering_opl/covering_opl.json" target="_blank" rel="noopener">Instances JSON</a>
-      <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/covering_opl/covering_opl.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="contracting_costs.html">← prev</a><a class="btn" href="crew.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>18eb546</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

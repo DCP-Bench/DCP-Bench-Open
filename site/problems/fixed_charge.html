@@ -21,44 +21,74 @@
 
     
     <details class="card-box example-box">
-      <summary>
-        <h3>Example instance &amp; solution</h3>
-        <span class="badge outline">31 lines data · 3 lines solution</span>
-      </summary>
+      <summary><h3>Example instance &amp; solution</h3></summary>
       <div class="example-grid">
         <div>
           <h4>Instance data</h4>
-          <pre class="code-block"><code id="None" class="language-python">shirtM = 0
-shortM = 1
-pantM = 2
-machines = [shirtM, shortM, pantM]
-num_machines = len(machines)
-renting_cost = [200, 150, 100]
-
-shirt = 0
-shorts = 1
-pants = 2
-products = [shirt, shorts, pants]
-num_products = len(products)
-
-labor = 0
-cloth = 1
-resources = [labor, cloth]
-
-# capacity of labor and cloth
-capacity = [150, 160]
-
-max_production = max(capacity)
-
-# profit, product type
-product = [[6, shirtM],
-           [4, shortM],
-           [7, pantM]]
-
-# resource: labor, cloth
-use = [[3, 4],
-       [2, 3],
-       [6, 4]]</code></pre>
+          <div class="code-head"><span>json</span><button type="button" data-copy="example-99">Copy</button></div><pre class="code-block"><code id="example-99" class="language-json">{
+  &quot;shirtM&quot;: 0,
+  &quot;shortM&quot;: 1,
+  &quot;pantM&quot;: 2,
+  &quot;machines&quot;: [
+    0,
+    1,
+    2
+  ],
+  &quot;num_machines&quot;: 3,
+  &quot;renting_cost&quot;: [
+    200,
+    150,
+    100
+  ],
+  &quot;shirt&quot;: 0,
+  &quot;shorts&quot;: 1,
+  &quot;pants&quot;: 2,
+  &quot;products&quot;: [
+    0,
+    1,
+    2
+  ],
+  &quot;num_products&quot;: 3,
+  &quot;labor&quot;: 0,
+  &quot;cloth&quot;: 1,
+  &quot;resources&quot;: [
+    0,
+    1
+  ],
+  &quot;capacity&quot;: [
+    150,
+    160
+  ],
+  &quot;max_production&quot;: 160,
+  &quot;product&quot;: [
+    [
+      6,
+      0
+    ],
+    [
+      4,
+      1
+    ],
+    [
+      7,
+      2
+    ]
+  ],
+  &quot;use&quot;: [
+    [
+      3,
+      4
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      6,
+      4
+    ]
+  ]
+}</code></pre>
         </div>
         <div>
           <h4>Solution</h4>
@@ -122,7 +152,7 @@ print(json.dumps(solution))</code></pre>
         <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (70 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-fixed_charge-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-fixed_charge-documentation_prompt_gpt_5_min" class="language-python">
 import cpmpy as cp
 import json
 
@@ -194,7 +224,7 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/fixed_charge/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -206,7 +236,7 @@ else:
         <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (70 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-fixed_charge-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-fixed_charge-sampling_10_and_self_debug_10_" class="language-python">
 import cpmpy as cp
 import json
 
@@ -278,7 +308,7 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/fixed_charge/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -290,7 +320,7 @@ else:
         <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (69 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (69 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-fixed_charge-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-fixed_charge-self_debug_gpt_5" class="language-python">
 import cpmpy as cp
 import json
 
@@ -361,7 +391,7 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/fixed_charge/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
@@ -373,7 +403,7 @@ else:
         <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+      <details class="gmodel"><summary>model.py (70 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-fixed_charge-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-fixed_charge-self_debug_gpt_5_mini" class="language-python">
 import cpmpy as cp
 import json
 
@@ -445,10 +475,10 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/fixed_charge/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-99-1">Copy</button>Instance 1</summary><pre><code id="inst-99-1" class="language-json">{
   &quot;shirtM&quot;: 0,
   &quot;shortM&quot;: 1,
   &quot;pantM&quot;: 2,
@@ -515,13 +545,12 @@ else:
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
-      <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/fixed_charge/fixed_charge.cpmpy.py" target="_blank" rel="noopener">View source (GitHub)</a>
+      <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/fixed_charge/fixed_charge.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/fixed_charge/fixed_charge.json" target="_blank" rel="noopener">Instances JSON</a>
-      <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/fixed_charge/fixed_charge.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="five_statements.html">← prev</a><a class="btn" href="flip_rows_cols.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>18eb546</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

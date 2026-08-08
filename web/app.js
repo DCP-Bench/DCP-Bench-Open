@@ -120,14 +120,19 @@
 
   function initCopy() {
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
         var target = document.getElementById(btn.getAttribute("data-copy"));
         if (!target) return;
         var text = target.textContent;
         var done = function () {
           var old = btn.textContent;
-          btn.textContent = "Copied";
-          setTimeout(function () { btn.textContent = old; }, 1500);
+          btn.classList.add("copied");
+          btn.textContent = "Copied ✓";
+          setTimeout(function () {
+            btn.textContent = old;
+            btn.classList.remove("copied");
+          }, 1200);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(done, done);
