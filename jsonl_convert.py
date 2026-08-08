@@ -162,7 +162,7 @@ def extract_cpmpy_code_no_data(content: str) -> str:
     return content_no_data
 
 
-def exec_code(code: str, timeout=30):
+def exec_code(code: str, timeout=60):
     with tempfile.TemporaryDirectory() as temp_dir:
         suffix = '.__hidden_py__'
         temp_instance_path = os.path.join(temp_dir, f"script{suffix}")
@@ -197,9 +197,12 @@ def exec_code(code: str, timeout=30):
 
 def extract_example_solution(content: str) -> str:
     # run the model and return the output
-    successfully_executed, output, timeout_occurred = exec_code(content, timeout=30)
-    assert successfully_executed, "Model execution failed"
-    assert not timeout_occurred, "Model execution timed out"
+    successfully_executed, output, timeout_occurred = exec_code(content, timeout=60)
+    if not successfully_executed:
+        detail = output.strip() if output.strip() else "no output"
+        raise AssertionError(f"Model execution failed: {detail}")
+    if timeout_occurred:
+        raise AssertionError(f"Model execution timed out after 60 seconds")
     return output
 
 
