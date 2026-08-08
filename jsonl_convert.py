@@ -195,14 +195,14 @@ def exec_code(code: str, timeout=60):
     return successfully_executed, output, timeout_occurred
 
 
-def extract_example_solution(content: str) -> str:
+def extract_example_solution(content: str, timeout: int = 60) -> str:
     # run the model and return the output
-    successfully_executed, output, timeout_occurred = exec_code(content, timeout=60)
+    successfully_executed, output, timeout_occurred = exec_code(content, timeout=timeout)
     if not successfully_executed:
         detail = output.strip() if output.strip() else "no output"
         raise AssertionError(f"Model execution failed: {detail}")
     if timeout_occurred:
-        raise AssertionError(f"Model execution timed out after 60 seconds")
+        raise AssertionError(f"Model execution timed out after {timeout} seconds")
     return output
 
 
@@ -254,7 +254,13 @@ def process_file(filepath: Path) -> dict | None:
     decision_variables = extract_dec_vars(description)
     input_data, input_data_json = extract_input_data(content)
     cp_model = extract_cpmpy_code(content)
-    example_solution = extract_example_solution(cp_model)
+    # Optional "# Timeout: N" metadata header overrides the execution timeout (seconds)
+    exec_timeout = 60
+    for line in metadata:
+        m = re.match(r'#\s*Timeout:\s*(\d+)', line, re.IGNORECASE)
+        if m:
+            exec_timeout = int(m.group(1))
+    example_solution = extract_example_solution(cp_model, timeout=exec_timeout)
     all_instances = extract_all_instances(filepath)
 
 

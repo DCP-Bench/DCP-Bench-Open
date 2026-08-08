@@ -24,7 +24,14 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Cache generated dataset jsonl
+        id: cache-jsonl
+        uses: actions/cache@v4
+        with:
+          path: dcp-bench-open.jsonl
+          key: jsonl-${{ hashFiles('dataset/**', 'jsonl_convert.py', 'requirements.txt') }}
       - name: Generate dataset jsonl
+        if: steps.cache-jsonl.outputs.cache-hit != 'true'
         run: python jsonl_convert.py
       - name: Generate website
         run: python generate_site.py

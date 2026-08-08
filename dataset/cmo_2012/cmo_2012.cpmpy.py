@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # Category: hakan_examples
 # Source: http://www.hakank.org/cpmpy/2012_CMO_problem.py
+# Timeout: 120
 
 """
 Given two positive integers a and b, where a - b is a prime number and a × b is a perfect square n^2,

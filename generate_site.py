@@ -515,7 +515,7 @@ def humanize_key(key: str) -> str:
 def metadata_html(meta: dict, p: dict) -> str:
     rows = []
     for key, value in meta.items():
-        if key in ("generated_by", "category"):
+        if key in ("generated_by", "category", "timeout"):
             continue
         rows.append(f"<dt>{esc(humanize_key(key))}</dt><dd>{linkify(value)}</dd>")
     if meta.get("category"):
