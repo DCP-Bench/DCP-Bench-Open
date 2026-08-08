@@ -407,9 +407,14 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
       {code_block(p["model"], "python", copy_id=f"model-{idx}")}
     """
 
+    inst_lines = (p["example_instance"] or "").count("\n") + 1
+    sol_lines = len(json.dumps(p["example_solution"], indent=2, ensure_ascii=False).splitlines()) if p["example_solution"] else 1
     example_box = f"""
-    <div class="card-box">
-      <h3>Example instance &amp; solution</h3>
+    <details class="card-box example-box">
+      <summary>
+        <h3>Example instance &amp; solution</h3>
+        <span class="badge outline">{inst_lines} lines data · {sol_lines} lines solution</span>
+      </summary>
       <div class="example-grid">
         <div>
           <h4>Instance data</h4>
@@ -424,7 +429,7 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
           )}
         </div>
       </div>
-    </div>
+    </details>
     """
 
     instances_html = ""

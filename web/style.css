@@ -309,6 +309,16 @@ details.instance pre code { background: none; padding: 0; }
 .chip-row { margin-bottom: 8px; }
 
 /* ---------- Example instance & solution ---------- */
+details.example-box summary {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+details.example-box summary h3 { margin: 0; }
+details.example-box[open] summary { margin-bottom: 16px; }
 .example-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -318,6 +328,10 @@ details.instance pre code { background: none; padding: 0; }
   margin: 0 0 8px;
   font-size: 0.95rem;
   color: var(--muted);
+}
+.example-grid pre.code-block {
+  max-height: 320px;
+  overflow: auto;
 }
 @media (max-width: 860px) {
   .example-grid { grid-template-columns: 1fr; }
