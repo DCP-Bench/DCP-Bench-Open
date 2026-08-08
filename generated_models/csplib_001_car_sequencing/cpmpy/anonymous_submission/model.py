@@ -1,0 +1,48 @@
+# Import libraries
+from cpmpy import *
+import json
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present
+per_slots = [2, 3, 3, 5, 5]  # The amount of consecutive timeslots
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # The properties per type of car
+
+# Parameters
+n_cars = sum(demand)  # The amount of cars to sequence
+n_options = len(at_most)  # The amount of different options
+n_types = len(demand)  # The amount of different car types
+requires = cpm_array(requires)  # For element constraint
+
+# Decision Variables
+sequence = intvar(0, n_types - 1, shape=n_cars, name="sequence")  # The sequence of car types
+setup = boolvar(shape=(n_cars, n_options), name="setup")  # Sequence of different options based on the car type
+
+# Model
+model = Model()
+
+# The amount of each type of car in the sequence has to be equal to the demand for that type
+model += [sum(sequence == t) == demand[t] for t in range(n_types)]
+
+# Make sure that the options in the setup table correspond to those of the car type
+for s in range(n_cars):
+    model += [setup[s, o] == requires[sequence[s], o] for o in range(n_options)]
+
+# Check that no more than "at most" car options are used per "per_slots" slots
+for o in range(n_options):
+    window_size = per_slots[o]
+    for s in range(n_cars - window_size + 1):
+        slot_range = range(s, s + window_size)
+        model += (sum(setup[slot_range, o]) <= at_most[o])
+
+# Solve
+model.solve()
+
+# Print
+solution = {"sequence": sequence.value().tolist()}
+print(json.dumps(solution))

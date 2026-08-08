@@ -1,0 +1,2 @@
+import json
+print(json.dumps({'indices': [1, 0, 0, 0, 0, 0, 0, 1, 1]}))
