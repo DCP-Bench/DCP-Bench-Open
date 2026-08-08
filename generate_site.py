@@ -25,21 +25,23 @@ RAW_URL = "https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main"
 
 TITLE = "DCP-Bench Open"
 SUBTITLE = (
-    "A collaborative benchmark of Discrete Combinatorial Problems: natural language "
-    "descriptions, instances and executable constraint models — with provenance."
+    "A growing collection of discrete combinatorial problems, with hand-written and "
+    "agent-generated models in many frameworks — instances, solutions, and evaluation "
+    "results for every model."
 )
 
 BADGE_COLORS = {
-    "csplib": "#2563eb",
-    "hakan_examples": "#059669",
-    "cpmpy_examples": "#7c3aed",
-    "complex_or": "#d97706",
-    "aplai_course": "#db2777",
     "CPMpy": "#0d9488",
     "OR-Tools": "#ea580c",
     "MiniZinc": "#2563eb",
     "hand": "#64748b",
 }
+
+ORIGIN_LABELS = {"hand": "hand-written"}
+
+
+def origin_label(origin: str) -> str:
+    return ORIGIN_LABELS.get(origin, origin)
 
 FRAMEWORK_KEYWORDS = {
     "CPMpy": ["from cpmpy import", "import cpmpy"],
@@ -180,7 +182,7 @@ def build_index(problems: list, stats: dict) -> None:
 
     cat_opts = "".join(f'<option value="{c}">{c} ({stats["categories"][c]["problems"]})</option>' for c in categories)
     fw_opts = "".join(f'<option value="{f}">{f} ({stats["frameworks"][f]})</option>' for f in frameworks)
-    origin_opts = "".join(f'<option value="{o}">{o} ({stats["origins"][o]})</option>' for o in origins)
+    origin_opts = "".join(f'<option value="{o}">{origin_label(o)} ({stats["origins"][o]})</option>' for o in origins)
 
     stats_bar = f"""
     <div class="stat-row">
@@ -200,11 +202,6 @@ def build_index(problems: list, stats: dict) -> None:
     </div>
     <p class="result-count" id="result-count"></p>
     <div class="cards" id="cards"></div>
-
-    <div class="section" style="margin-top:44px">
-      <h2>Coverage matrix</h2>
-      <div class="matrix-wrap">{coverage_matrix(problems, frameworks)}</div>
-    </div>
     """
 
     (OUTPUT_DIR / "index.html").write_text(
@@ -228,12 +225,12 @@ def coverage_matrix(problems: list, frameworks: list) -> str:
                     f'<td class="{"yes" if ok else "no"}">{"✓" if ok else "·"}</td>'
                 )
             rows.append(
-                f'<tr><td class="cell-cat">{badge(cat, cat)}</td>'
+                f'<tr><td class="cell-cat">{esc(cat)}</td>'
                 f'<td class="cell-id"><a href="problems/{p["id"]}.html">{esc(p["id"])}</a></td>'
                 f'{"".join(cells)}</tr>'
             )
     return (
-        '<table class="matrix"><thead><tr><th></th><th>problem</th>'
+        '<table class="matrix"><thead><tr><th>category</th><th>problem</th>'
         f"{header}</tr></thead><tbody>{''.join(rows)}</tbody></table>"
     )
 
@@ -268,24 +265,22 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int) -> None:
     )
     var_chips = "".join(f'<span class="chip">{esc(v)}</span>' for v in p["decision_variables"]) or "—"
 
-    provenance = provenance_html(meta, p)
+    provenance = metadata_html(meta, p)
 
     prev_next = ""
     if total > 1:
         prev_next = '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px">'
-        prev_next += f'<a class="btn" href="problems/{problems_list[idx - 1]["id"]}.html">← prev</a>' if idx > 0 else "<span></span>"
-        prev_next += f'<a class="btn" href="problems/{problems_list[idx + 1]["id"]}.html">next →</a>' if idx < total - 1 else "<span></span>"
+        prev_next += f'<a class="btn" href="{problems_list[idx - 1]["id"]}.html">← prev</a>' if idx > 0 else "<span></span>"
+        prev_next += f'<a class="btn" href="{problems_list[idx + 1]["id"]}.html">next →</a>' if idx < total - 1 else "<span></span>"
         prev_next += "</div>"
 
     body = f"""
     <p class="breadcrumbs"><a href="index.html">Problems</a> / {esc(pid)}</p>
     <h1 class="problem-title">{esc(pid)}</h1>
     <div class="tag-row">
-      {badge(meta.get("category", "unknown"), meta.get("category"))}
       {''.join(badge(fw, fw) for fw in p["frameworks"])}
-      {badge(p["origin"], p["origin"])}
+      {badge(origin_label(p["origin"]), p["origin"])}
       <span class="badge outline">{len(p["instances"])} instances</span>
-      <span class="badge outline">vars: {len(p["decision_variables"])}</span>
     </div>
 
     <div class="card-box">
@@ -294,7 +289,7 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int) -> None:
     </div>
 
     <div class="card-box provenance">
-      <h3>Provenance</h3>
+      <h3>Metadata</h3>
       {provenance}
     </div>
 
@@ -326,24 +321,29 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int) -> None:
     )
 
 
-def provenance_html(meta: dict, p: dict) -> str:
+META_LABELS = {
+    "source": "Source",
+    "source_description": "Source description",
+    "problem_instances": "Problem instances",
+    "prompt": "Master prompt",
+    "solver": "Solver",
+    "solve_time": "Solve time (s)",
+}
+
+
+def humanize_key(key: str) -> str:
+    return META_LABELS.get(key, key.replace("_", " ").capitalize())
+
+
+def metadata_html(meta: dict, p: dict) -> str:
     rows = []
+    for key, value in meta.items():
+        if key in ("generated_by", "category"):
+            continue
+        rows.append(f"<dt>{esc(humanize_key(key))}</dt><dd>{linkify(value)}</dd>")
     if meta.get("category"):
-        rows.append(f"<dt>Category</dt><dd>{badge(meta['category'], meta['category'])}</dd>")
-    for key, label in (
-        ("source", "Source"),
-        ("source_description", "Source description"),
-        ("problem_instances", "Problem instances"),
-    ):
-        if meta.get(key):
-            rows.append(f"<dt>{label}</dt><dd>{linkify(meta[key])}</dd>")
-    rows.append(f"<dt>Generated by</dt><dd>{badge(p['origin'], p['origin'])}</dd>")
-    if meta.get("prompt"):
-        rows.append(f"<dt>Master prompt</dt><dd>{linkify(meta['prompt'])}</dd>")
-    if meta.get("solver"):
-        rows.append(f"<dt>Solver</dt><dd>{esc(meta['solver'])}</dd>")
-    if meta.get("solve_time"):
-        rows.append(f"<dt>Solve time (s)</dt><dd>{esc(meta['solve_time'])}</dd>")
+        rows.append(f"<dt>Category</dt><dd>{esc(meta['category'])}</dd>")
+    rows.append(f"<dt>Origin</dt><dd>{esc(origin_label(p['origin']))}</dd>")
     return "<dl>" + "".join(rows) + "</dl>"
 
 
@@ -360,8 +360,7 @@ def build_frameworks(problems: list, stats: dict) -> None:
     sections = []
     for fw in sorted(by_fw):
         items = "".join(
-            f'<li><a href="problems/{p["id"]}.html">{esc(p["id"])}</a>'
-            f' <span class="badge outline">{esc(p["category"])}</span></li>'
+            f'<li><a href="problems/{p["id"]}.html">{esc(p["id"])}</a></li>'
             for p in by_fw[fw]
         )
         sections.append(
@@ -378,18 +377,84 @@ def build_frameworks(problems: list, stats: dict) -> None:
     )
 
 
+def svg_hbar(items: list, colors: list, width: int = 760, row_h: int = 26) -> str:
+    """Horizontal bar chart. items: list of (label, value), colors aligned."""
+    n = len(items)
+    height = n * row_h + 14
+    label_w = 180
+    plot_w = width - label_w - 70
+    max_v = max(v for _, v in items) or 1
+    parts = [f'<svg viewBox="0 0 {width} {height}" width="100%" style="max-width:{width}px" role="img" aria-label="bar chart">']
+    for i, ((label, v), col) in enumerate(zip(items, colors)):
+        y = 10 + i * row_h
+        bar_w = max(2, plot_w * v / max_v)
+        parts.append(
+            f'<text x="{label_w - 10}" y="{y + 15}" text-anchor="end" font-size="13" fill="#1f2430">{esc(label)}</text>'
+        )
+        parts.append(f'<rect x="{label_w}" y="{y}" width="{bar_w:.1f}" height="{row_h - 8}" rx="4" fill="{col}"/>')
+        parts.append(
+            f'<text x="{label_w + bar_w + 8:.1f}" y="{y + 15}" font-size="12.5" fill="#6b7280">{v}</text>'
+        )
+    parts.append("</svg>")
+    return "".join(parts)
+
+
+def svg_hist(items: list, width: int = 760, height: int = 230, color: str = "#4f46e5") -> str:
+    """Vertical bar histogram. items: list of (label, count)."""
+    max_v = max(c for _, c in items) or 1
+    pad_l, pad_b = 42, 36
+    plot_w = width - pad_l - 12
+    plot_h = height - pad_b - 12
+    slot = plot_w / len(items)
+    bar_w = slot * 0.5
+    parts = [f'<svg viewBox="0 0 {width} {height}" width="100%" style="max-width:{width}px" role="img" aria-label="histogram">']
+    for g in range(5):
+        gy = pad_b + plot_h - g * plot_h / 4
+        parts.append(f'<line x1="{pad_l}" y1="{gy:.1f}" x2="{width - 10}" y2="{gy:.1f}" stroke="#e5e7eb" stroke-width="1"/>')
+        parts.append(
+            f'<text x="{pad_l - 8}" y="{gy + 4:.1f}" text-anchor="end" font-size="11" fill="#6b7280">{int(round(g * max_v / 4))}</text>'
+        )
+    for i, (label, c) in enumerate(items):
+        x = pad_l + i * slot + (slot - bar_w) / 2
+        h = plot_h * c / max_v
+        parts.append(f'<rect x="{x:.1f}" y="{pad_b + plot_h - h:.1f}" width="{bar_w:.1f}" height="{max(0, h):.1f}" rx="3" fill="{color}"/>')
+        parts.append(
+            f'<text x="{x + bar_w / 2:.1f}" y="{pad_b + plot_h + 18}" text-anchor="middle" font-size="12" fill="#1f2430">{esc(label)}</text>'
+        )
+    parts.append("</svg>")
+    return "".join(parts)
+
+
 def build_stats(problems: list, stats: dict) -> None:
+    frameworks = sorted({fw for p in problems for fw in p["frameworks"]})
+    categories = sorted(stats["categories"])
+    origins = sorted(stats["origins"])
+
+    cat_items = [(c, stats["categories"][c]["problems"]) for c in categories]
+    cat_colors = [BADGE_COLORS.get(c, "#4f46e5") for c in categories]
+    cat_chart = svg_hbar(cat_items, cat_colors)
     cat_rows = "".join(
-        f'<tr><td>{badge(c, c)}</td><td class="num">{s["problems"]}</td>'
+        f'<tr><td>{esc(c)}</td><td class="num">{s["problems"]}</td>'
         f'<td class="num">{s["instances"]}</td></tr>'
         for c, s in sorted(stats["categories"].items())
     )
+
+    buckets = [("0", 0, 1), ("1", 1, 2), ("2–5", 2, 6), ("6–20", 6, 21), ("21+", 21, None)]
+    hist_items = []
+    for label, lo, hi in buckets:
+        if hi is None:
+            count = sum(1 for p in problems if len(p["instances"]) >= lo)
+        else:
+            count = sum(1 for p in problems if lo <= len(p["instances"]) < hi)
+        hist_items.append((label, count))
+    hist_chart = svg_hist(hist_items)
+
     fw_rows = "".join(
-        f'<tr><td>{badge(f, f)}</td><td class="num">{n}</td></tr>'
+        f'<tr><td>{esc(f)}</td><td class="num">{n}</td></tr>'
         for f, n in sorted(stats["frameworks"].items())
     )
     origin_rows = "".join(
-        f'<tr><td>{badge(o, o)}</td><td class="num">{n}</td></tr>'
+        f'<tr><td>{esc(origin_label(o))}</td><td class="num">{n}</td></tr>'
         for o, n in sorted(stats["origins"].items())
     )
     top = sorted(problems, key=lambda p: -len(p["instances"]))[:10]
@@ -406,13 +471,19 @@ def build_stats(problems: list, stats: dict) -> None:
       <div class="stat"><div class="num">{stats["models"]}</div><div class="lbl">models</div></div>
       <div class="stat"><div class="num">{sum(1 for p in problems if p["instances"])}</div><div class="lbl">problems with instances</div></div>
     </div>
-    <div class="section"><h2>By category</h2>
+    <div class="section"><h2>Coverage matrix</h2>
+      <div class="matrix-wrap">{coverage_matrix(problems, frameworks)}</div></div>
+    <div class="section"><h2>Problems per category</h2>
+      <div class="chart">{cat_chart}</div>
       <table class="plain"><thead><tr><th>Category</th><th class="num">Problems</th><th class="num">Instances</th></tr></thead>
       <tbody>{cat_rows}</tbody></table></div>
+    <div class="section"><h2>Instances per problem</h2>
+      <p class="desc">How many problems have how many instances.</p>
+      <div class="chart">{hist_chart}</div></div>
     <div class="section"><h2>By framework</h2>
       <table class="plain"><thead><tr><th>Framework</th><th class="num">Problems</th></tr></thead>
       <tbody>{fw_rows}</tbody></table></div>
-    <div class="section"><h2>By origin (generated by)</h2>
+    <div class="section"><h2>By origin</h2>
       <table class="plain"><thead><tr><th>Origin</th><th class="num">Problems</th></tr></thead>
       <tbody>{origin_rows}</tbody></table></div>
     <div class="section"><h2>Top problems by number of instances</h2>
@@ -506,6 +577,7 @@ def main() -> None:
                 "category": p["category"],
                 "frameworks": p["frameworks"],
                 "origin": p["origin"],
+                "originLabel": origin_label(p["origin"]),
                 "snippet": p["snippet"],
                 "instances": len(p["instances"]),
             }

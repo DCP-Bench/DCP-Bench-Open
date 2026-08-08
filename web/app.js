@@ -45,9 +45,8 @@
 
       var meta = document.createElement("div");
       meta.className = "meta";
-      meta.appendChild(badge(p.category, p.category));
       (p.frameworks || []).forEach(function (f) { meta.appendChild(badge(f, f)); });
-      meta.appendChild(badge(p.origin || "hand", p.origin || "hand"));
+      meta.appendChild(badge(p.originLabel || p.origin, p.origin));
       var inst = document.createElement("span");
       inst.className = "muted";
       inst.textContent = (p.instances || 0) + " instance" + (p.instances === 1 ? "" : "s");
@@ -76,16 +75,10 @@
 
   function badgeClass(key) {
     var colors = {
-      csplib: "#2563eb",
-      hakan_examples: "#059669",
-      cpmpy_examples: "#7c3aed",
-      complex_or: "#d97706",
-      aplai_course: "#db2777",
       CPMpy: "#0d9488",
       "OR-Tools": "#ea580c",
       MiniZinc: "#2563eb",
-      hand: "#64748b",
-      codex: "#ea580c"
+      hand: "#64748b"
     };
     if (colors[key]) return "";
     return "plain";
