@@ -34,12 +34,23 @@ SUBTITLE = (
 FRAMEWORK_ORDER = ["CPMpy", "MiniZinc", "OR-Tools"]
 
 VERDICT_STYLES = {
-    "solution_valid_and_optimal": ("#16a34a", "solution valid · optimal"),
-    "solution_valid": ("#2563eb", "solution valid"),
-    "solution_valid_not_optimal": ("#d97706", "solution valid · not optimal"),
-    "solution_not_valid": ("#dc2626", "solution not valid"),
-    "unknown": ("#6b7280", "status unknown"),
+    "solution_valid_and_optimal": ("#16a34a", "solution valid · optimal",
+                                   "Model produces a valid solution with the optimal objective value"),
+    "solution_valid": ("#2563eb", "solution valid",
+                       "Model produces a valid solution (satisfaction problem, or optimality not applicable)"),
+    "solution_valid_not_optimal": ("#d97706", "solution valid · not optimal",
+                                   "Model produces a valid solution, but the objective value is not optimal"),
+    "solution_valid_objective_unknown": ("#0891b2", "solution valid · optimality unknown",
+                                         "Model produces a valid solution; optimality was not checked by the evaluation"),
+    "solution_not_valid": ("#dc2626", "solution not valid",
+                           "The produced solution does not satisfy the ground-truth constraints"),
+    "unknown": ("#6b7280", "status unknown",
+                "No verdict available (execution failed, model skipped, or evaluation incomplete)"),
 }
+
+LEGACY_BADGE = ('<span class="badge outline" title="Imported from the CP-Bench leaderboard '
+                '(kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, '
+                'not re-verified in this repository">legacy · CP-Bench leaderboard</span>')
 
 BADGE_COLORS = {
     "CPMpy": "#0d9488",
@@ -236,8 +247,11 @@ def load_generated_models() -> dict:
 
 def verdict_badge(metrics: dict) -> str:
     key = metrics.get("verdict", {}).get("badge", "unknown")
-    color, label = VERDICT_STYLES.get(key, VERDICT_STYLES["unknown"])
-    return f'<span class="badge" style="background:{color}">{esc(label)}</span>'
+    color, label, tooltip = VERDICT_STYLES.get(key, VERDICT_STYLES["unknown"])
+    return (
+        f'<span class="badge" style="background:{color}" title="{esc(tooltip)}">'
+        f"{esc(label)}</span>"
+    )
 
 
 def generated_model_card(entry: dict) -> str:
@@ -275,6 +289,8 @@ def generated_model_card(entry: dict) -> str:
         links.append(f'<a href="{esc(src["leaderboard"])}" target="_blank" rel="noopener">Leaderboard</a>')
     if src.get("submission_file"):
         links.append(f'<a href="{esc(src["submission_file"])}" target="_blank" rel="noopener">Submission file</a>')
+    if src.get("report_file"):
+        links.append(f'<a href="{esc(src["report_file"])}" target="_blank" rel="noopener">Report (PDF)</a>')
     if src.get("result_file"):
         links.append(f'<a href="{esc(src["result_file"])}" target="_blank" rel="noopener">Result summary</a>')
 
@@ -285,7 +301,7 @@ def generated_model_card(entry: dict) -> str:
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">{esc(entry["submission"])}</div>
+          <div class="model-card-title">{esc(entry["submission"])} {LEGACY_BADGE}</div>
           <div class="muted">{" · ".join(meta_bits)}</div>
         </div>
         <div>{verdict_badge(m)}</div>
@@ -301,14 +317,6 @@ def generated_model_card(entry: dict) -> str:
 def generated_tab_html(gen: dict) -> str:
     if not gen:
         return '<p class="desc">No generated models yet.</p>'
-    legend = (
-        '<p class="desc verdict-legend" style="margin-bottom:12px">'
-        + "".join(
-            f'<span class="badge" style="background:{c}">{esc(l)}</span> '
-            for c, l in VERDICT_STYLES.values()
-        )
-        + "</p>"
-    )
     present = [fw for fw in FRAMEWORK_ORDER if fw in gen] + [fw for fw in gen if fw not in FRAMEWORK_ORDER]
     buttons = []
     panes = []
@@ -322,8 +330,7 @@ def generated_tab_html(gen: dict) -> str:
         cards = "".join(generated_model_card(e) for e in gen[fw])
         panes.append(f'<div class="tab-pane{active}" data-pane="{slug}">{cards}</div>')
     return (
-        legend
-        + f'<div class="tab-group"><div class="tab-bar">{"".join(buttons)}</div>'
+        f'<div class="tab-group"><div class="tab-bar">{"".join(buttons)}</div>'
         + "".join(panes)
         + "</div>"
     )
@@ -389,13 +396,35 @@ def coverage_matrix(problems: list, frameworks: list) -> str:
 # Problem pages
 # --------------------------------------------------------------------------
 
+def var_chips_short(vars_list: list) -> str:
+    return "".join(f'<span class="chip">{esc(v)}</span>' for v in vars_list) or ""
+
+
 def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dict) -> None:
     pid = p["id"]
     models = f"""
       <h3>Original model</h3>
       {code_block(p["model"], "python", copy_id=f"model-{idx}")}
-      <h3 style="margin-top:20px">Example instance data</h3>
-      {code_block(p["example_instance"] or "# No example instance data.", "python")}
+    """
+
+    example_box = f"""
+    <div class="card-box">
+      <h3>Example instance &amp; solution</h3>
+      <div class="example-grid">
+        <div>
+          <h4>Instance data</h4>
+          {code_block(p["example_instance"] or "# No example instance data.", "python")}
+        </div>
+        <div>
+          <h4>Solution</h4>
+          <div class="chip-row">{var_chips_short(p["decision_variables"])}</div>
+          {code_block(
+            json.dumps(p["example_solution"], indent=2, ensure_ascii=False) if p["example_solution"] else "{}",
+            "json", copy_id=f"solution-{idx}",
+          )}
+        </div>
+      </div>
+    </div>
     """
 
     instances_html = ""
@@ -409,13 +438,7 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
                 f"<pre><code class=\"language-json\">{esc(pretty)}</code></pre></details>"
             )
 
-    solution = code_block(
-        json.dumps(p["example_solution"], indent=2, ensure_ascii=False) if p["example_solution"] else "{}",
-        "json", copy_id=f"solution-{idx}",
-    )
-    var_chips = "".join(f'<span class="chip">{esc(v)}</span>' for v in p["decision_variables"]) or "—"
-
-    provenance = metadata_html(meta, p)
+    metadata = metadata_html(meta, p)
 
     gen_for_problem = generated.get(pid, {})
     gen_total = sum(len(v) for v in gen_for_problem.values())
@@ -436,25 +459,23 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
       <pre class="description">{esc(p["description"])}</pre>
     </div>
 
-    <div class="card-box provenance">
-      <h3>Metadata</h3>
-      {provenance}
-    </div>
+    {example_box}
 
     <div class="tab-group">
       <div class="tab-bar">
         <button class="tab-btn active" type="button" data-tab="original">Original</button>
         <button class="tab-btn" type="button" data-tab="generated">Generated ({gen_total})</button>
         <button class="tab-btn" type="button" data-tab="instances">Instances ({len(p["instances"])})</button>
-        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
       </div>
-      <div class="tab-pane active" data-pane="original">{models}</div>
+      <div class="tab-pane active" data-pane="original">
+        <div class="card-box provenance">
+          <h3>Metadata</h3>
+          {metadata}
+        </div>
+        {models}
+      </div>
       <div class="tab-pane" data-pane="generated">{generated_tab_html(gen_for_problem)}</div>
       <div class="tab-pane" data-pane="instances">{instances_html}</div>
-      <div class="tab-pane" data-pane="solution">
-        <h3>Decision variables</h3><p>{var_chips}</p>
-        <h3>Example solution</h3>{solution}
-      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -618,7 +639,7 @@ def build_stats(problems: list, stats: dict, generated: dict) -> None:
     badge_items = []
     for key in VERDICT_STYLES:
         if key in gen_by_badge:
-            color, label = VERDICT_STYLES[key]
+            color, label, _ = VERDICT_STYLES[key]
             badge_items.append((label, gen_by_badge[key], color))
     gen_badge_chart = ""
     if badge_items:

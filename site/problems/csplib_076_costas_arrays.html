@@ -19,19 +19,46 @@
       <pre class="description">A Costas array is a pattern of \( n \) marks on an \( n \times n \) grid, one mark per row and one per column, in which the \( n \cdot (n-1)/2 \) vectors between the marks are all different. Such patterns are important as they provide a template for generating radar and sonar signals with ideal ambiguity functions.  A model for Costas Array Problem (CAP) is to define an array of variables \( X_1, \ldots, X_n \) which form a permutation. For each length \( l \in \{1, \ldots, n-1\} \), we add \( n-l \) more variables \( X_{l1}, \ldots, X_{ln-1} \), whereby each of these variables is assigned the difference of \( X_i - X_{i+l} \) for \( i \in \{1, \ldots, n-l\} \). These additional variables form a difference triangle.  Each line of this difference triangle must not contain any value twice. That is, the CAP is simply a collection of all-different constraints on \( X_1, \ldots, X_n \) and \( X_{l1}, \ldots, X_{ln-l} \) for all \( l \in \{1, \ldots, n-1\} \).  Print the Costas array (costas) as a list of n integers, 1-based indexing.</pre>
     </div>
 
-    <div class="card-box provenance">
-      <h3>Metadata</h3>
-      <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob076_costas_arrays.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob076_costas_arrays.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob076/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob076/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
+    
+    <div class="card-box">
+      <h3>Example instance &amp; solution</h3>
+      <div class="example-grid">
+        <div>
+          <h4>Instance data</h4>
+          <pre class="code-block"><code id="None" class="language-python">n = 8  # Size of the Costas array</code></pre>
+        </div>
+        <div>
+          <h4>Solution</h4>
+          <div class="chip-row"><span class="chip">costas</span></div>
+          <div class="code-head"><span>json</span><button type="button" data-copy="solution-78">Copy</button></div><pre class="code-block"><code id="solution-78" class="language-json">{
+  &quot;costas&quot;: [
+    6,
+    4,
+    5,
+    2,
+    8,
+    7,
+    1,
+    3
+  ]
+}</code></pre>
+        </div>
+      </div>
     </div>
+    
 
     <div class="tab-group">
       <div class="tab-bar">
         <button class="tab-btn active" type="button" data-tab="original">Original</button>
         <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
         <button class="tab-btn" type="button" data-tab="instances">Instances (5)</button>
-        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
       </div>
       <div class="tab-pane active" data-pane="original">
+        <div class="card-box provenance">
+          <h3>Metadata</h3>
+          <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob076_costas_arrays.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob076_costas_arrays.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob076/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob076/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
+        </div>
+        
       <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-78">Copy</button></div><pre class="code-block"><code id="model-78" class="language-python"># Import libraries
 import json
@@ -84,17 +111,16 @@ solution = {
 }
 print(json.dumps(solution))
 # End of CPMPy script</code></pre>
-      <h3 style="margin-top:20px">Example instance data</h3>
-      <pre class="code-block"><code id="None" class="language-python">n = 8  # Size of the Costas array</code></pre>
-    </div>
-      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    
+      </div>
+      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">anonymous_submission</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
@@ -130,16 +156,16 @@ solution = {&quot;costas&quot;: costas.value().tolist()}
 print(json.dumps(solution))
 # End of CPMPy script</code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">atest</div>
+          <div class="model-card-title">atest <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: qwen3-32B · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
@@ -180,10 +206,10 @@ print(json.dumps(solution))</code></pre></details>
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -227,16 +253,16 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="model-card-title">sampling_10_and_self_debug_10 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -271,16 +297,16 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -318,16 +344,16 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -372,16 +398,16 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -424,16 +450,16 @@ else:
     print(&quot;No solution found.&quot;)
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.mzn (37 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -475,16 +501,16 @@ output [
   &quot;}&quot;
 ];</code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="or-tools">
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
@@ -525,16 +551,16 @@ if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
 else:
     print(&quot;No solution found.&quot;)</code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="model-card-title">multi_agents_requirements_gath <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
       </div>
       <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
       <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python"># -------------------------------------------------------------
@@ -597,7 +623,7 @@ else:
     print(json.dumps({&quot;costas&quot;: []}))
 </code></pre></details>
       
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div></div></div>
       <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
@@ -611,21 +637,6 @@ else:
 }</code></pre></details><details class="instance"><summary>Instance 5</summary><pre><code class="language-json">{
   &quot;n&quot;: 12
 }</code></pre></details></div>
-      <div class="tab-pane" data-pane="solution">
-        <h3>Decision variables</h3><p><span class="chip">costas</span></p>
-        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-78">Copy</button></div><pre class="code-block"><code id="solution-78" class="language-json">{
-  &quot;costas&quot;: [
-    6,
-    4,
-    5,
-    2,
-    8,
-    7,
-    1,
-    3
-  ]
-}</code></pre>
-      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -635,7 +646,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_074_maximum_clique.html">← prev</a><a class="btn" href="csplib_084_hadamard_matrix.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>b3e3b7f</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

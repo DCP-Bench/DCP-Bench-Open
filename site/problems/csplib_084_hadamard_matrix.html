@@ -19,19 +19,58 @@
       <pre class="description">For every odd positive integer \( \ell \) (and \( m = \frac{\ell - 1}{2} \)) we define the 2cc Hadamard matrix Legendre pairs CSP using the \{V, D, C\} format (Variables, Domains, Constraints) as follows:  - \( V = \{a_1, \ldots, a_\ell, b_1, \ldots, b_\ell\} \), a set of \( 2 \cdot \ell \) variables - \( D = \{D_{a_1}, \ldots, D_{a_\ell}, D_{b_1}, \ldots, D_{b_\ell}\} \), a set of \( 2 \cdot \ell \) domains, all of them equal to \{-1, +1\} - \( C = \{c_1, \ldots, c_m, c_{m+1}, c_{m+2}\} \), a set of \( m+2 \) constraints (\( m \) quadratic constraints and 2 linear constraints)  The \( m \) quadratic constraints are given by: \[ c_s := \text{PAF}(A, s) + \text{PAF}(B, s) = -2, \forall s = 1, \ldots, m \] where PAF denotes the periodic autocorrelation function: (\(i + s\) is taken mod \( \ell \) when it exceeds \( \ell \)) \[ A = [a_1, \ldots, a_\ell], \, \text{PAF}(A, s) = \sum_{i=1}^\ell a_i a_{i+s} \] \[ B = [b_1, \ldots, b_\ell], \, \text{PAF}(B, s) = \sum_{i=1}^\ell b_i b_{i+s} \]  The 2 linear constraints are given by: \[ c_{m+1} := a_1 + \ldots + a_\ell = 1 \] \[ c_{m+2} := b_1 + \ldots + b_\ell = 1 \]  Print the variables a and b (a, b) as lists of l integers, with values either -1 or 1.</pre>
     </div>
 
-    <div class="card-box provenance">
-      <h3>Metadata</h3>
-      <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob084_hadamard_matrix.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob084_hadamard_matrix.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob084/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob084/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
+    
+    <div class="card-box">
+      <h3>Example instance &amp; solution</h3>
+      <div class="example-grid">
+        <div>
+          <h4>Instance data</h4>
+          <pre class="code-block"><code id="None" class="language-python">l = 9  # Value of l (must be an odd positive integer)</code></pre>
+        </div>
+        <div>
+          <h4>Solution</h4>
+          <div class="chip-row"><span class="chip">a</span><span class="chip">b</span></div>
+          <div class="code-head"><span>json</span><button type="button" data-copy="solution-79">Copy</button></div><pre class="code-block"><code id="solution-79" class="language-json">{
+  &quot;a&quot;: [
+    -1,
+    -1,
+    1,
+    -1,
+    1,
+    1,
+    1,
+    1,
+    -1
+  ],
+  &quot;b&quot;: [
+    -1,
+    1,
+    1,
+    -1,
+    1,
+    -1,
+    1,
+    1,
+    -1
+  ]
+}</code></pre>
+        </div>
+      </div>
     </div>
+    
 
     <div class="tab-group">
       <div class="tab-bar">
         <button class="tab-btn active" type="button" data-tab="original">Original</button>
         <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
         <button class="tab-btn" type="button" data-tab="instances">Instances (5)</button>
-        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
       </div>
       <div class="tab-pane active" data-pane="original">
+        <div class="card-box provenance">
+          <h3>Metadata</h3>
+          <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob084_hadamard_matrix.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob084_hadamard_matrix.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob084/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob084/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
+        </div>
+        
       <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-79">Copy</button></div><pre class="code-block"><code id="model-79" class="language-python"># Import libraries
 import json
@@ -70,17 +109,16 @@ model.solve()
 solution = {&quot;a&quot;: a.value().tolist(), &quot;b&quot;: b.value().tolist()}
 print(json.dumps(solution))
 # End of CPMPy script</code></pre>
-      <h3 style="margin-top:20px">Example instance data</h3>
-      <pre class="code-block"><code id="None" class="language-python">l = 9  # Value of l (must be an odd positive integer)</code></pre>
-    </div>
-      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    
+      </div>
+      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">anonymous_submission</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
@@ -144,16 +182,16 @@ print(json.dumps(solution))
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">atest</div>
+          <div class="model-card-title">atest <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: qwen3-32B · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
@@ -220,10 +258,10 @@ print(json.dumps(solution))</code></pre></details>
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent</div>
+          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
@@ -314,16 +352,16 @@ else:
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="model-card-title">documentation_prompt_1 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -388,16 +426,16 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -462,16 +500,16 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="model-card-title">guidelines_prompt_cpmpy <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -539,16 +577,16 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="model-card-title">ml_research_loop_p18 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (12 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
@@ -588,16 +626,16 @@ raise RuntimeError(&#x27;no Hadamard Legendre pair found&#x27;)</code></pre></de
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="model-card-title">sampling_10_and_self_debug_10 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -665,16 +703,16 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -740,16 +778,16 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="model-card-title">sampling_10_qwq <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -813,16 +851,16 @@ else:
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="model-card-title">self_debug_10_qwq <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -888,16 +926,16 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -971,16 +1009,16 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -1045,16 +1083,16 @@ else:
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (35 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -1117,16 +1155,16 @@ output [
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="model-card-title">guidelines_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (36 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
@@ -1190,16 +1228,16 @@ output [
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="or-tools">
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (94 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
@@ -1321,16 +1359,16 @@ else:
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
@@ -1409,16 +1447,16 @@ else:
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="model-card-title">multi_agents_requirements_gath <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (82 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
@@ -1528,7 +1566,7 @@ else:
     -1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div></div></div>
       <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
@@ -1542,33 +1580,6 @@ else:
 }</code></pre></details><details class="instance"><summary>Instance 5</summary><pre><code class="language-json">{
   &quot;l&quot;: 17
 }</code></pre></details></div>
-      <div class="tab-pane" data-pane="solution">
-        <h3>Decision variables</h3><p><span class="chip">a</span><span class="chip">b</span></p>
-        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-79">Copy</button></div><pre class="code-block"><code id="solution-79" class="language-json">{
-  &quot;a&quot;: [
-    -1,
-    -1,
-    1,
-    -1,
-    1,
-    1,
-    1,
-    1,
-    -1
-  ],
-  &quot;b&quot;: [
-    -1,
-    1,
-    1,
-    -1,
-    1,
-    -1,
-    1,
-    1,
-    -1
-  ]
-}</code></pre>
-      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -1578,7 +1589,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_076_costas_arrays.html">← prev</a><a class="btn" href="curious_set_of_integers.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>b3e3b7f</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

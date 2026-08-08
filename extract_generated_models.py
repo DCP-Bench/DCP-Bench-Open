@@ -66,11 +66,27 @@ def list_submissions() -> list[str]:
     return sorted(e["path"].split("/")[-1] for e in entries if e["type"] == "directory")
 
 
-def load_new_ids() -> set[str]:
+def load_new_ids() -> dict:
+    """Return {id: ground-truth model code} from the current dataset."""
     if not DATASET_JSONL.is_file():
         raise SystemExit(f"Missing {DATASET_JSONL}; run `python jsonl_convert.py` first.")
+    out = {}
     with DATASET_JSONL.open(encoding="utf-8") as fh:
-        return {json.loads(line)["id"] for line in fh if line.strip()}
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            d = json.loads(line)
+            out[d["id"]] = d.get("model", "")
+    return out
+
+
+IS_OPT_RE = re.compile(r"\b(minimize|maximize)\s*\(")
+
+
+def is_optimization(problem_id: str, gt_models: dict) -> bool:
+    code = gt_models.get(problem_id, "")
+    return bool(IS_OPT_RE.search(code) or "objective" in code)
 
 
 def map_old_id(old_id: str, new_ids: set[str]) -> str | None:
@@ -141,7 +157,7 @@ def parse_summary(text: str) -> dict:
     return verdicts
 
 
-def derive_badge(v: dict) -> str:
+def derive_badge(v: dict, is_opt: bool = False) -> str:
     if v.get("evaluation") == "skipped":
         return "unknown"
     if v["execution"] == "failed" or v["solution_extracted"] is False:
@@ -152,7 +168,9 @@ def derive_badge(v: dict) -> str:
         return "solution_valid_not_optimal"
     if v["objective"] == "passed":
         return "solution_valid_and_optimal"
-    return "solution_valid" if v["consistency"] == "passed" else "unknown"
+    if is_opt:
+        return "solution_valid_objective_unknown"
+    return "solution_valid"
 
 
 def model_file_name(framework: str) -> str:
@@ -163,13 +181,26 @@ def model_file_name(framework: str) -> str:
 
 
 def write_model(new_id: str, framework: str, submission: str, code: str, verdict: dict,
-                metadata: dict, old_id: str, result_url: str, new_ids: set[str]) -> str:
+                metadata: dict, old_id: str, result_url: str, new_ids: set[str],
+                report_url: str = None, is_opt: bool = False) -> str:
     fw_dir = FRAMEWORK_DIRS.get(framework, framework.lower())
     target_dir = OUTPUT_DIR / new_id / fw_dir / submission
     target_dir.mkdir(parents=True, exist_ok=True)
 
     model_path = target_dir / model_file_name(framework)
     model_path.write_text(code, encoding="utf-8")
+
+    source = {
+        "leaderboard": LEADERBOARD_URL,
+        "submission_file": (
+            f"{HF_BASE}/datasets/{DATASET_REPO}/blob/main/"
+            f"submissions/{VERSION}/{submission}/submission.jsonl"
+        ),
+        "result_file": result_url,
+        "original_id": old_id,
+    }
+    if report_url:
+        source["report_file"] = report_url
 
     metrics = {
         "problem": new_id,
@@ -179,18 +210,11 @@ def write_model(new_id: str, framework: str, submission: str, code: str, verdict
             "base_llm": metadata.get("base_llm"),
             "dataset_version": metadata.get("dataset_version"),
         },
-        "source": {
-            "leaderboard": LEADERBOARD_URL,
-            "submission_file": (
-                f"{HF_BASE}/datasets/{DATASET_REPO}/blob/main/"
-                f"submissions/{VERSION}/{submission}/submission.jsonl"
-            ),
-            "result_file": result_url,
-            "original_id": old_id,
-        },
+        "source": source,
+        "is_optimization": is_opt,
         "verdict": {
             **verdict,
-            "badge": derive_badge(verdict),
+            "badge": derive_badge(verdict, is_opt),
         },
         "instances_checked": [0],  # leaderboard evaluation used the first instance
     }
@@ -200,7 +224,7 @@ def write_model(new_id: str, framework: str, submission: str, code: str, verdict
 
 
 def main() -> int:
-    new_ids = load_new_ids()
+    new_ids = load_new_ids()  # {id: ground-truth model code}
     submissions = list_submissions()
     print(f"Found {len(submissions)} submissions under {VERSION}.")
 
@@ -225,6 +249,16 @@ def main() -> int:
                 f"{HF_BASE}/datasets/{DATASET_REPO}/resolve/main/"
                 f"results/{VERSION}/{submission}/summary.txt"
             ))
+            report_url = None
+            sub_files = json.loads(fetch(
+                f"{HF_BASE}/api/datasets/{DATASET_REPO}/tree/main/"
+                f"submissions/{VERSION}/{submission}"
+            ))
+            if any(f["path"].endswith("report.pdf") for f in sub_files):
+                report_url = (
+                    f"{HF_BASE}/datasets/{DATASET_REPO}/blob/main/"
+                    f"submissions/{VERSION}/{submission}/report.pdf"
+                )
         except Exception as e:
             skipped.append((submission, f"fetch/parse error: {e}"))
             continue
@@ -258,8 +292,9 @@ def main() -> int:
                 "objective": "unknown",
             }
             write_model(new_id, framework, submission, entry["model"], verdict,
-                        metadata, old_id, summary_url, new_ids)
-            badge = derive_badge(verdict)
+                        metadata, old_id, summary_url, new_ids,
+                        report_url=report_url, is_opt=is_optimization(new_id, new_ids))
+            badge = derive_badge(verdict, is_optimization(new_id, new_ids))
             badge_counts[badge] = badge_counts.get(badge, 0) + 1
             count += 1
         total_models += count

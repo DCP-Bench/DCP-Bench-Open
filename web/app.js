@@ -107,8 +107,11 @@
         btn.addEventListener("click", function () {
           var name = btn.getAttribute("data-tab");
           buttons.forEach(function (b) { b.classList.toggle("active", b === btn); });
-          group.querySelectorAll(".tab-pane").forEach(function (pane) {
-            pane.classList.toggle("active", pane.getAttribute("data-pane") === name);
+          // only direct children of this group are this group's panes
+          Array.prototype.forEach.call(group.children, function (el) {
+            if (el.classList.contains("tab-pane")) {
+              el.classList.toggle("active", el.getAttribute("data-pane") === name);
+            }
           });
         });
       });

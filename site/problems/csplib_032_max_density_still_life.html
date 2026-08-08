@@ -19,19 +19,87 @@
       <pre class="description">This problem, arising from Conway&#x27;s Game of Life, seeks to find the most densely populated stable pattern (a &quot;still life&quot;) on an n x m active grid. A still life is a pattern of live and dead cells that does not change from one generation to the next. Life is played on an infinite board. Cells outside the n x m active grid are dead and are not printed, but they are still part of the board.  The rules for a pattern to be a still life are: 1. A live cell must have exactly 2 or 3 live neighbors to remain alive. 2. A dead cell, including any dead cell just outside the active grid, must not have exactly 3 live neighbors (otherwise it would become alive).  The goal is to maximize the number of live cells in the active grid.  Print the stable configuration (grid) as a list of n lists of 0/1 integers, representing the n x m active area, where 1 represents a live cell and 0 represents a dead cell.</pre>
     </div>
 
-    <div class="card-box provenance">
-      <h3>Metadata</h3>
-      <dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob032/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob032/</a></dd><dt>Example model</dt><dd><a href="https://www.csplib.org/Problems/prob032/models/StillLife.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob032/models/StillLife.py.html</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
+    
+    <div class="card-box">
+      <h3>Example instance &amp; solution</h3>
+      <div class="example-grid">
+        <div>
+          <h4>Instance data</h4>
+          <pre class="code-block"><code id="None" class="language-python">n = 6  # The number of rows in the active grid.
+m = 6  # The number of columns in the active grid.</code></pre>
+        </div>
+        <div>
+          <h4>Solution</h4>
+          <div class="chip-row"><span class="chip">grid</span></div>
+          <div class="code-head"><span>json</span><button type="button" data-copy="solution-64">Copy</button></div><pre class="code-block"><code id="solution-64" class="language-json">{
+  &quot;grid&quot;: [
+    [
+      0,
+      1,
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      1,
+      1
+    ]
+  ]
+}</code></pre>
+        </div>
+      </div>
     </div>
+    
 
     <div class="tab-group">
       <div class="tab-bar">
         <button class="tab-btn active" type="button" data-tab="original">Original</button>
         <button class="tab-btn" type="button" data-tab="generated">Generated (0)</button>
         <button class="tab-btn" type="button" data-tab="instances">Instances (5)</button>
-        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
       </div>
       <div class="tab-pane active" data-pane="original">
+        <div class="card-box provenance">
+          <h3>Metadata</h3>
+          <dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob032/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob032/</a></dd><dt>Example model</dt><dd><a href="https://www.csplib.org/Problems/prob032/models/StillLife.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob032/models/StillLife.py.html</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
+        </div>
+        
       <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-64">Copy</button></div><pre class="code-block"><code id="model-64" class="language-python">import cpmpy as cp
 import json
@@ -98,10 +166,8 @@ print(json.dumps(solution))
 #     for row in grid:
 #         print(&quot;&quot;.join([&#x27;#&#x27; if cell else &#x27;.&#x27; for cell in row]))
 # pp(grid.value())</code></pre>
-      <h3 style="margin-top:20px">Example instance data</h3>
-      <pre class="code-block"><code id="None" class="language-python">n = 6  # The number of rows in the active grid.
-m = 6  # The number of columns in the active grid.</code></pre>
-    </div>
+    
+      </div>
       <div class="tab-pane" data-pane="generated"><p class="desc">No generated models yet.</p></div>
       <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 6,
@@ -119,61 +185,6 @@ m = 6  # The number of columns in the active grid.</code></pre>
   &quot;n&quot;: 10,
   &quot;m&quot;: 10
 }</code></pre></details></div>
-      <div class="tab-pane" data-pane="solution">
-        <h3>Decision variables</h3><p><span class="chip">grid</span></p>
-        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-64">Copy</button></div><pre class="code-block"><code id="solution-64" class="language-json">{
-  &quot;grid&quot;: [
-    [
-      0,
-      1,
-      1,
-      0,
-      1,
-      1
-    ],
-    [
-      1,
-      0,
-      1,
-      0,
-      1,
-      1
-    ],
-    [
-      1,
-      1,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      1,
-      1,
-      0,
-      0,
-      1,
-      1
-    ],
-    [
-      1,
-      1,
-      0,
-      0,
-      1,
-      1
-    ]
-  ]
-}</code></pre>
-      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -183,7 +194,7 @@ m = 6  # The number of columns in the active grid.</code></pre>
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_028_bibd.html">← prev</a><a class="btn" href="csplib_033_word_design.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>b3e3b7f</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
