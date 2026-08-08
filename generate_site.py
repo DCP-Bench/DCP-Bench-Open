@@ -43,8 +43,8 @@ BADGE_COLORS = {
 
 FRAMEWORK_KEYWORDS = {
     "CPMpy": ["from cpmpy import", "import cpmpy"],
-    "OR-Tools": ["ortools", "from ortools"],
-    "MiniZinc": ["minizinc", ".mzn"],
+    "OR-Tools": ["from ortools import", "import ortools"],
+    "MiniZinc": ["import minizinc", "from minizinc", ".mzn"],
 }
 
 
