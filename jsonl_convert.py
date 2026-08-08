@@ -13,6 +13,16 @@ import sys
 DATASET_ROOT = Path('dataset')
 OUTPUT_FILE = Path('dcp-bench-open.jsonl')
 
+# Framework is derived from the model file name, e.g. <id>.cpmpy.py -> CPMpy,
+# <id>.ortools.py -> OR-Tools, <id>.mzn -> MiniZinc.
+FRAMEWORK_PATTERNS = (
+    ('.cpmpy.py', 'CPMpy'),
+    ('.ortools.py', 'OR-Tools'),
+    ('.mzn', 'MiniZinc'),
+)
+DEFAULT_FRAMEWORK = 'CPMpy'
+# --- End Configuration ---
+
 # Log file for warnings and errors during conversion
 LOG_FILE = Path('jsonl_conversion.log')
 # --- End Configuration ---
@@ -28,6 +38,13 @@ logging.basicConfig(
     ]
 )
 # ---
+
+def extract_framework(filepath: Path) -> str:
+    for suffix, label in FRAMEWORK_PATTERNS:
+        if filepath.name.endswith(suffix):
+            return label
+    return DEFAULT_FRAMEWORK
+
 
 def extract_metadata(content: str) -> list[str]:
     # extract metadata: all non-empty lines until the first multi-line comment
@@ -269,6 +286,7 @@ def process_file(filepath: Path) -> dict | None:
         "instances": all_instances,
         "model": extract_cpmpy_code_no_data(content),
         # "model": cp_model,
+        "framework": extract_framework(filepath),
         "example_solution": example_solution,
         "decision_variables": decision_variables,
     }

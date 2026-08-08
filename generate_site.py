@@ -91,6 +91,7 @@ def parse_metadata(metadata: list) -> dict:
 
 
 def detect_frameworks(model_code: str) -> list:
+    """Fallback detection used only for jsonl files lacking a `framework` field."""
     found = []
     for fw, keywords in FRAMEWORK_KEYWORDS.items():
         if any(k in model_code for k in keywords):
@@ -450,7 +451,10 @@ def main() -> None:
                 continue
             data = json.loads(line)
             meta = parse_metadata(data.get("metadata", []))
-            frameworks = detect_frameworks(data.get("model", ""))
+            if data.get("framework"):
+                frameworks = [data["framework"]]
+            else:
+                frameworks = detect_frameworks(data.get("model", ""))
             origin = meta.get("generated_by", "hand")
             problems.append(
                 {
