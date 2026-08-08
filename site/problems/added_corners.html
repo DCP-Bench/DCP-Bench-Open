@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>added_corners Â· DCP-Bench Open</title>
-<meta name="description" content="Enter the digits 1 through 8 in the circles and squares such that the number in each square is equal to the sum of the numbers in the adjoining circles. ... Câ€¦">
+<title>added_corners · DCP-Bench Open</title>
+<meta name="description" content="Enter the digits 1 through 8 in the circles and squares such that the number in each square is equal to the sum of the numbers in the adjoining circles. ... C…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/added_corner.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/added_corner.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-1">Copy</button></div><pre class="code-block"><code id="model-1" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -62,10 +63,1199 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">positions</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-1">Copy</button></div><pre class="code-block"><code id="solution-1" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Decision Variables
+positions = intvar(1, 8, shape=8, name=&quot;positions&quot;)  # Values for each position (4 circles and 4 squares)
+
+# Model
+model = Model()
+
+# Constraint: All positions must have distinct values (digits 1-8)
+model += AllDifferent(positions)
+
+# Assuming positions 0,2,5,7 are circles and 1,3,4,6 are squares
+# Constraint: Each square equals sum of adjacent circles
+# Top row: C F C
+model += positions[1] == positions[0] + positions[2]
+# Middle connections
+model += positions[3] == positions[0] + positions[5]  # Vertical connection from top-left
+model += positions[4] == positions[2] + positions[7]  # Vertical connection from top-right
+# Bottom row: C F C
+model += positions[6] == positions[5] + positions[7]
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {&quot;positions&quot;: positions.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+positions = intvar(1, 8, shape=8, name=&quot;positions&quot;)
+
+# Ensure all digits from 1 to 8 are used exactly once
+model = Model(AllDifferent(positions))
+
+# Let&#x27;s assume the positions are arranged as follows:
+# C F C   F   F   C F C
+# where C is a circle and F is a square.
+# We need to define the indices for the squares and their adjacent circles.
+
+# Let&#x27;s assume the positions are indexed as follows:
+# [C0, F0, C1, F1, F2, F3, C2, F4]
+# The squares are at positions 1, 3, 4, 5, 7
+# The adjacent circles for each square are:
+# F0 is between C0 and C1
+# F1 is between C1 and C2
+# F2 is between C0 and C2
+# F3 is between C1 and C2 (this is a mistake in the original code)
+# F4 is between C0 and C2 (this is a mistake in the original code)
+
+# Define the square-circle relationships
+model += [positions[1] == positions[0] + positions[2]]  # F0 = C0 + C1
+model += [positions[3] == positions[2] + positions[6]]  # F1 = C1 + C2
+model += [positions[4] == positions[0] + positions[6]]  # F2 = C0 + C2
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;positions&quot;: positions.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    3,
+    1,
+    7,
+    8,
+    5,
+    6,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (68 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Layout:
+#   0 1 2
+#   3   4  
+#   5 6 7
+# Circles: positions 0, 2, 5, 7
+# Squares: positions 1, 3, 4, 6
+# Constraint: Each square equals sum of adjacent circles
+
+# Step 2: Model with CPMpy
+# Decision variables: positions[i] = digit at position i (1-8)
+positions = cp.intvar(1, 8, shape=8, name=&quot;positions&quot;)
+
+model = cp.Model()
+
+# Constraint 1: All positions must have different digits (use all digits 1-8)
+model += cp.AllDifferent(positions)
+
+# Constraint 2: Each square equals sum of adjacent circles
+square_to_circles = {
+    1: [0, 2],  # Square 1 = Circle 0 + Circle 2
+    3: [0, 5],  # Square 3 = Circle 0 + Circle 5  
+    4: [2, 7],  # Square 4 = Circle 2 + Circle 7
+    6: [5, 7]   # Square 6 = Circle 5 + Circle 7
+}
+
+for square, adj_circles in square_to_circles.items():
+    model += positions[square] == cp.sum([positions[c] for c in adj_circles])
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract solution
+    solution = {
+        &quot;positions&quot;: positions.value().tolist()
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        pos_vals = sol[&quot;positions&quot;]
+        
+        # Structural verification
+        if len(pos_vals) != 8:
+            return False, f&quot;Expected 8 positions, got {len(pos_vals)}&quot;
+        
+        # Logical verification
+        # Check all digits 1-8 are used exactly once
+        if sorted(pos_vals) != list(range(1, 9)):
+            return False, f&quot;Not all digits 1-8 used exactly once&quot;
+        
+        # Check square constraints
+        for square, adj_circles in square_to_circles.items():
+            expected_sum = sum(pos_vals[c] for c in adj_circles)
+            actual_value = pos_vals[square]
+            if actual_value != expected_sum:
+                return False, f&quot;Square {square} constraint violated&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">could not extract JSON solution: No solution found.</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Positions:
+# C = circle, F = square
+# Layout:
+#   C F C
+#   F   F
+#   C F C
+#
+# Let&#x27;s name variables as follows:
+# Circles: c1, c2, c3, c4 (top-left, top-right, bottom-left, bottom-right)
+# Squares: f1, f2, f3, f4, f5 (top-middle, middle-left, middle-right, bottom-middle, center)
+#
+# Adjacencies (square = sum of adjoining circles):
+# f1 = c1 + c2
+# f2 = c1 + c3
+# f3 = c2 + c4
+# f4 = c3 + c4
+# f5 = c1 + c2 + c3 + c4 (center square)
+
+model = cp.Model()
+
+# Decision variables: digits 1..8, all distinct
+c = cp.intvar(1, 8, shape=4, name=&quot;c&quot;)  # circles: c[0]=c1, c[1]=c2, c[2]=c3, c[3]=c4
+f = cp.intvar(1, 8, shape=5, name=&quot;f&quot;)  # squares: f[0]=f1, f[1]=f2, f[2]=f3, f[3]=f4, f[4]=f5
+
+# All digits 1..8 used exactly once
+model += cp.AllDifferent(c.tolist() + f.tolist())
+
+# Constraints for squares equal to sum of adjoining circles
+model += (f[0] == c[0] + c[1])  # f1 = c1 + c2
+model += (f[1] == c[0] + c[2])  # f2 = c1 + c3
+model += (f[2] == c[1] + c[3])  # f3 = c2 + c4
+model += (f[3] == c[2] + c[3])  # f4 = c3 + c4
+model += (f[4] == c[0] + c[1] + c[2] + c[3])  # f5 = c1 + c2 + c3 + c4
+
+if model.solve():
+    positions = {
+        &quot;c1&quot;: int(c[0].value()),
+        &quot;f1&quot;: int(f[0].value()),
+        &quot;c2&quot;: int(c[1].value()),
+        &quot;f2&quot;: int(f[1].value()),
+        &quot;f5&quot;: int(f[4].value()),
+        &quot;f3&quot;: int(f[2].value()),
+        &quot;c3&quot;: int(c[2].value()),
+        &quot;f4&quot;: int(f[3].value()),
+        &quot;c4&quot;: int(c[3].value())
+    }
+    print(json.dumps({&quot;positions&quot;: positions}, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# We model the 3x3 pattern:
+#  positions indices:
+#  0 1 2
+#  3 4 5
+#  6 7 8
+#
+# Where positions with circles: 0,2,6,8
+# Squares: 1,3,5,7
+# Center (4) is empty -&gt; set to 0
+#
+# Each square equals the sum of its two adjacent circles:
+# pos1 = pos0 + pos2
+# pos3 = pos0 + pos6
+# pos5 = pos2 + pos8
+# pos7 = pos6 + pos8
+#
+# Place digits 1..8 in the 8 circle/square positions (center is 0).
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions 0..8, center (index 4) will be fixed to 0
+positions = cp.intvar(0, 8, shape=9, name=&quot;positions&quot;)
+
+# Center is empty
+model += (positions[4] == 0)
+
+# Other positions must be digits 1..8
+for i in range(9):
+    if i != 4:
+        model += (positions[i] &gt;= 1)
+        model += (positions[i] &lt;= 8)
+
+# All non-center values are distinct -&gt; they will form a permutation of 1..8
+noncenter = [positions[i] for i in range(9) if i != 4]
+model += cp.AllDifferent(noncenter)
+
+# Sum constraints for squares
+model += (positions[1] == positions[0] + positions[2])  # top middle
+model += (positions[3] == positions[0] + positions[6])  # middle left
+model += (positions[5] == positions[2] + positions[8])  # middle right
+model += (positions[7] == positions[6] + positions[8])  # bottom middle
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;positions&#x27;: positions.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    0,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: a 3x3 grid, center is blank (0), others will take values 1..8
+positions = cp.intvar(0, 8, shape=(3, 3), name=&quot;positions&quot;)
+
+# Center cell is blank
+model += (positions[1, 1] == 0)
+
+# All other cells must be between 1 and 8
+for (i, j) in [(0,0), (0,1), (0,2),
+               (1,0),         (1,2),
+               (2,0), (2,1), (2,2)]:
+    model += (positions[i, j] &gt;= 1)
+
+# All eight non-blank values must be distinct, and also distinct from 0
+model += cp.allDifferent(positions.flatten())
+
+# Sum constraints for each square (mid-edge cells)
+# Top edge square equals sum of top-left and top-right circles
+model += (positions[0,1] == positions[0,0] + positions[0,2])
+# Left edge square equals sum of top-left and bottom-left circles
+model += (positions[1,0] == positions[0,0] + positions[2,0])
+# Right edge square equals sum of top-right and bottom-right circles
+model += (positions[1,2] == positions[0,2] + positions[2,2])
+# Bottom edge square equals sum of bottom-left and bottom-right circles
+model += (positions[2,1] == positions[2,0] + positions[2,2])
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;positions&quot;: positions.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (11 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
+import json
+for positions in itertools.permutations(range(1, 9)):
+    if (
+        positions[1] == positions[0] + positions[2]
+        and positions[3] == positions[0] + positions[5]
+        and positions[4] == positions[2] + positions[7]
+        and positions[6] == positions[5] + positions[7]
+    ):
+        print(json.dumps({&#x27;positions&#x27;: list(positions)}))
+        raise SystemExit(0)
+raise RuntimeError(&#x27;no added corners solution found&#x27;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    1,
+    4,
+    3,
+    7,
+    5,
+    6,
+    8,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Positions:
+# Circles: C positions are 1,3,6,8 (as per pattern C F C / F   F / C F C)
+# Squares: F positions are 2,4,5,7
+# The grid layout with positions:
+# pos: 1  2  3
+#      4     5
+#      6  7  8
+#
+# Constraints:
+# Each square is sum of adjoining circles
+# Adjoining means orthogonally adjacent (up, down, left, right)
+#
+# Adjacencies:
+# 2(F): adjacent to circles 1(C) and 3(C)
+# 4(F): adjacent to circles 1(C) and 6(C)
+# 5(F): adjacent to circles 3(C) and 8(C)
+# 7(F): adjacent to circles 6(C) and 8(C)
+
+model = cp.Model()
+
+# Variables
+# Positions 1 to 8 are variables with domain 1..8, distinct
+positions = cp.intvar(1, 8, shape=8, name=&quot;pos&quot;)
+
+# All positions must be distinct
+model += cp.AllDifferent(positions)
+
+# Naming convenience
+# Circles: pos[0]=1, pos[2]=3, pos[5]=6, pos[7]=8
+# Squares: pos[1]=2, pos[3]=4, pos[4]=5, pos[6]=7
+
+# Constraints for squares equals sum of adjoining circles
+model += (positions[1] == positions[0] + positions[2])  # pos 2 = pos1 + pos3
+model += (positions[3] == positions[0] + positions[5])  # pos 4 = pos1 + pos6
+model += (positions[4] == positions[2] + positions[7])  # pos 5 = pos3 + pos8
+model += (positions[6] == positions[5] + positions[7])  # pos 7 = pos6 + pos8
+
+if model.solve():
+    solution = {&#x27;positions&#x27;: [int(v) for v in positions.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Positions in reading order (left-to-right, top-to-bottom) skipping the center blank:
+# 0: top-left (circle)
+# 1: top-center (square)
+# 2: top-right (circle)
+# 3: middle-left (square)
+# 4: middle-right (square)
+# 5: bottom-left (circle)
+# 6: bottom-center (square)
+# 7: bottom-right (circle)
+positions = cp.intvar(1, 8, shape=8, name=&quot;positions&quot;)
+
+# Constraints
+model += cp.AllDifferent(positions)
+
+# Circle indices: 0,2,5,7
+# Square indices and their adjoining circles:
+# top-center (1) = top-left (0) + top-right (2)
+model += positions[1] == positions[0] + positions[2]
+# middle-left (3) = top-left (0) + bottom-left (5)
+model += positions[3] == positions[0] + positions[5]
+# middle-right (4) = top-right (2) + bottom-right (7)
+model += positions[4] == positions[2] + positions[7]
+# bottom-center (6) = bottom-left (5) + bottom-right (7)
+model += positions[6] == positions[5] + positions[7]
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;positions&#x27;: positions.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Define variables for each position (0 to 7)
+positions = cp.intvar(1, 8, shape=8, name=&quot;positions&quot;)
+
+model = cp.Model()
+
+# Constraints based on the problem&#x27;s structure
+# Each square (positions 1, 3, 4, 6) must equal the sum of its adjacent circles
+model += (positions[1] == positions[0] + positions[2])  # Position 2 (index 1) = C1 (0) + C3 (2)
+model += (positions[3] == positions[0] + positions[5])  # Position 4 (index 3) = C1 (0) + C6 (5)
+model += (positions[4] == positions[2] + positions[7])  # Position 5 (index 4) = C3 (2) + C8 (7)
+model += (positions[6] == positions[5] + positions[7])  # Position 7 (index 6) = C6 (5) + C8 (7)
+
+# All positions must have distinct values from 1 to 8
+model += (cp.AllDifferent(positions))
+
+# Solve and print the solution
+if model.solve():
+    solution = {&#x27;positions&#x27;: positions.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    6,
+    7,
+    1,
+    8,
+    4,
+    2,
+    5,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Define variables for each position (0 to 7)
+positions = cp.intvar(1, 8, shape=8, name=&quot;positions&quot;)
+
+model = cp.Model()
+
+# Constraints based on the problem&#x27;s structure
+# Each square (positions 1, 3, 4, 6) must equal the sum of its adjacent circles
+model += (positions[1] == positions[0] + positions[2])  # Position 2 (index 1) = C1 (0) + C3 (2)
+model += (positions[3] == positions[0] + positions[5])  # Position 4 (index 3) = C1 (0) + C6 (5)
+model += (positions[4] == positions[2] + positions[7])  # Position 5 (index 4) = C3 (2) + C8 (7)
+model += (positions[6] == positions[5] + positions[7])  # Position 7 (index 6) = C6 (5) + C8 (7)
+
+# All positions must have distinct values from 1 to 8
+model += (cp.AllDifferent(positions))
+
+# Solve and print the solution
+if model.solve():
+    solution = {&#x27;positions&#x27;: positions.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    6,
+    7,
+    1,
+    8,
+    4,
+    2,
+    5,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# positions in reading order (skipping the empty center):
+# [C11, F12, C13, F21, F23, C31, F32, C33]
+positions = cp.intvar(1, 8, shape=8, name=&quot;positions&quot;)
+
+# Indices for convenience
+C11, F12, C13, F21, F23, C31, F32, C33 = range(8)
+
+# Constraints
+# All digits 1..8 used exactly once
+model += cp.AllDifferent(positions)
+
+# Square equals sum of adjoining circles:
+# Top middle square equals sum of top-left and top-right circles
+model += positions[F12] == positions[C11] + positions[C13]
+# Left middle square equals sum of top-left and bottom-left circles
+model += positions[F21] == positions[C11] + positions[C31]
+# Right middle square equals sum of top-right and bottom-right circles
+model += positions[F23] == positions[C13] + positions[C33]
+# Bottom middle square equals sum of bottom-left and bottom-right circles
+model += positions[F32] == positions[C31] + positions[C33]
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;positions&#x27;: positions.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# We model the 3x3 pattern:
+#  positions indices:
+#  0 1 2
+#  3 4 5
+#  6 7 8
+#
+# Where positions with circles: 0,2,6,8
+# Squares: 1,3,5,7
+# Center (4) is empty -&gt; set to 0
+#
+# Each square equals the sum of its two adjacent circles:
+# pos1 = pos0 + pos2
+# pos3 = pos0 + pos6
+# pos5 = pos2 + pos8
+# pos7 = pos6 + pos8
+#
+# Place digits 1..8 in the 8 circle/square positions (center is 0).
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions 0..8, center (index 4) will be fixed to 0
+positions = cp.intvar(0, 8, shape=9, name=&quot;positions&quot;)
+
+# Center is empty
+model += (positions[4] == 0)
+
+# Other positions must be digits 1..8
+for i in range(9):
+    if i != 4:
+        model += (positions[i] &gt;= 1)
+        model += (positions[i] &lt;= 8)
+
+# All non-center values are distinct -&gt; they will form a permutation of 1..8
+noncenter = [positions[i] for i in range(9) if i != 4]
+model += cp.AllDifferent(noncenter)
+
+# Sum constraints for squares
+model += (positions[1] == positions[0] + positions[2])  # top middle
+model += (positions[3] == positions[0] + positions[6])  # middle left
+model += (positions[5] == positions[2] + positions[8])  # middle right
+model += (positions[7] == positions[6] + positions[8])  # bottom middle
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;positions&#x27;: positions.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    0,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">could not extract JSON solution: {&quot;positions&quot; : {,  &quot;c1&quot;: 6,,  &quot;f1&quot;: 8,,  &quot;c2&quot;: 2,,  &quot;f2&quot;: 5,,  &quot;c3&quot;: 3,,  &quot;f3&quot;: 4,,  &quot;c4&quot;: 1,,  &quot;f4&quot;: 7,}}</p>
+      <details class="gmodel"><summary>model.mzn (65 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Positions:
+% C = circle, F = square
+% Layout:
+%   C F C
+%   F   F
+%   C F C
+
+% We have 8 positions: 4 circles (C) and 4 squares (F)
+% Let&#x27;s name them as follows:
+% Circles: c1, c2, c3, c4
+% Squares: f1, f2, f3, f4
+
+% Adjacencies (each square is adjacent to two circles):
+% f1 adjacent to c1 and c2
+% f2 adjacent to c2 and c3
+% f3 adjacent to c3 and c4
+% f4 adjacent to c4 and c1
+
+% All digits 1..8 used exactly once
+
+array[1..4] of var 1..8: c; % circles c[1..4]
+array[1..4] of var 1..8: f; % squares f[1..4]
+
+% All digits 1..8 used exactly once
+constraint alldifferent(c ++ f);
+
+% Each square equals sum of its two adjacent circles
+constraint f[1] = c[1] + c[2];
+constraint f[2] = c[2] + c[3];
+constraint f[3] = c[3] + c[4];
+constraint f[4] = c[4] + c[1];
+
+% Since f[i] must be in 1..8, and sum of two circles can be up to 16,
+% but f[i] domain is 1..8, so we need to relax f domain to 2..16
+% because sum of two circles can be from 1+2=3 to 7+8=15
+% But problem states digits 1..8 in all positions, so squares must be digits 1..8
+% So sum of two circles must be in 1..8, which is only possible if circles are small numbers.
+% This is contradictory because sum of two circles can be up to 15.
+% So the problem likely means that the squares contain digits 1..8, but the sum constraint is that the square&#x27;s number equals the sum of the two adjacent circles.
+% So squares can be numbers from 2 to 16, but digits 1..8 must be placed in circles and squares.
+% So squares must be digits 1..8, but sum of two circles must equal that digit.
+% So sum of two circles must be in 1..8.
+% So circles must be small enough to satisfy this.
+
+% So we keep domain of f as 1..8, c as 1..8, alldifferent over all 8 variables.
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;positions\&quot; : {&quot;,
+        &quot;  \&quot;c1\&quot;: &quot; ++ show(c[1]) ++ &quot;,&quot;,
+        &quot;  \&quot;f1\&quot;: &quot; ++ show(f[1]) ++ &quot;,&quot;,
+        &quot;  \&quot;c2\&quot;: &quot; ++ show(c[2]) ++ &quot;,&quot;,
+        &quot;  \&quot;f2\&quot;: &quot; ++ show(f[2]) ++ &quot;,&quot;,
+        &quot;  \&quot;c3\&quot;: &quot; ++ show(c[3]) ++ &quot;,&quot;,
+        &quot;  \&quot;f3\&quot;: &quot; ++ show(f[3]) ++ &quot;,&quot;,
+        &quot;  \&quot;c4\&quot;: &quot; ++ show(c[4]) ++ &quot;,&quot;,
+        &quot;  \&quot;f4\&quot;: &quot; ++ show(f[4]),
+        &quot;}&quot;
+    ]),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (39 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary library for global constraints
+include &quot;globals.mzn&quot;;
+
+% Decision variables: four circles C1–C4 and four squares F1–F4
+var 1..8: C1;
+var 1..8: C2;
+var 1..8: C3;
+var 1..8: C4;
+var 1..8: F1;
+var 1..8: F2;
+var 1..8: F3;
+var 1..8: F4;
+
+% All positions must be a permutation of 1..8
+constraint all_different([C1,C2,C3,C4,F1,F2,F3,F4]);
+
+% Each square equals the sum of its adjoining circles:
+% F1 at (1,2) touches C1 (1,1) and C2 (1,3)
+constraint F1 = C1 + C2;
+% F2 at (2,1) touches C1 (1,1) and C3 (3,1)
+constraint F2 = C1 + C3;
+% F3 at (2,3) touches C2 (1,3) and C4 (3,3)
+constraint F3 = C2 + C4;
+% F4 at (3,2) touches C3 (3,1) and C4 (3,3)
+constraint F4 = C3 + C4;
+
+solve satisfy;
+
+% Output the 3x3 grid (with 0 in the center) as JSON under key &quot;positions&quot;
+output [
+  &quot;{&quot;,
+  &quot;\&quot;positions\&quot;: [&quot;,
+    &quot;[&quot;, show(C1), &quot;,&quot;, show(F1), &quot;,&quot;, show(C2), &quot;],&quot;,
+    &quot;[&quot;, show(F2), &quot;,0,&quot;,        show(F3), &quot;],&quot;,
+    &quot;[&quot;, show(C3), &quot;,&quot;, show(F4), &quot;,&quot;, show(C4), &quot;]&quot;,
+  &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    [
+      2,
+      8,
+      6
+    ],
+    [
+      5,
+      0,
+      7
+    ],
+    [
+      3,
+      4,
+      1
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Positions:
+# Circles: C1, C2, C3, C4 (corners)
+# Squares: F1, F2, F3, F4 (edges)
+# Layout:
+#   C1 F1 C2
+#   F4    F2
+#   C4 F3 C3
+
+# Decision Variables: digits 1 through 8, all different
+digits = range(1, 9)
+C = [model.NewIntVar(1, 8, f&#x27;C{i+1}&#x27;) for i in range(4)]
+F = [model.NewIntVar(1, 8, f&#x27;F{i+1}&#x27;) for i in range(4)]
+
+# All digits must be different
+model.AddAllDifferent(C + F)
+
+# Constraints: each square equals sum of adjoining circles
+# F1 = C1 + C2
+model.Add(F[0] == C[0] + C[1])
+# F2 = C2 + C3
+model.Add(F[1] == C[1] + C[2])
+# F3 = C3 + C4
+model.Add(F[2] == C[2] + C[3])
+# F4 = C4 + C1
+model.Add(F[3] == C[3] + C[0])
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    positions = {
+        &#x27;C1&#x27;: solver.Value(C[0]),
+        &#x27;F1&#x27;: solver.Value(F[0]),
+        &#x27;C2&#x27;: solver.Value(C[1]),
+        &#x27;F2&#x27;: solver.Value(F[1]),
+        &#x27;C3&#x27;: solver.Value(C[2]),
+        &#x27;F3&#x27;: solver.Value(F[2]),
+        &#x27;C4&#x27;: solver.Value(C[3]),
+        &#x27;F4&#x27;: solver.Value(F[3])
+    }
+    print(json.dumps({&#x27;positions&#x27;: positions}, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: {
+    &quot;C1&quot;: 2,
+    &quot;F1&quot;: 8,
+    &quot;C2&quot;: 6,
+    &quot;F2&quot;: 7,
+    &quot;C3&quot;: 1,
+    &quot;F3&quot;: 4,
+    &quot;C4&quot;: 3,
+    &quot;F4&quot;: 5
+  }
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Create the CP-SAT model
+model = cp_model.CpModel()
+
+# Define decision variables for each circle (C) and square (F) position
+# Positions are labeled by their grid coordinates (row, column)
+circle00 = model.NewIntVar(1, 8, &#x27;circle00&#x27;)  # top-left circle
+square01 = model.NewIntVar(1, 8, &#x27;square01&#x27;)  # top-middle square
+circle02 = model.NewIntVar(1, 8, &#x27;circle02&#x27;)  # top-right circle
+square10 = model.NewIntVar(1, 8, &#x27;square10&#x27;)  # middle-left square
+square12 = model.NewIntVar(1, 8, &#x27;square12&#x27;)  # middle-right square
+circle20 = model.NewIntVar(1, 8, &#x27;circle20&#x27;)  # bottom-left circle
+square21 = model.NewIntVar(1, 8, &#x27;square21&#x27;)  # bottom-middle square
+circle22 = model.NewIntVar(1, 8, &#x27;circle22&#x27;)  # bottom-right circle
+
+# All digits 1 through 8 must be used exactly once
+model.AddAllDifferent([
+    circle00, square01, circle02, square10,
+    square12, circle20, square21, circle22
+])
+
+# Each square equals the sum of its adjacent circles
+# square01 sits between circle00 and circle02
+model.Add(square01 == circle00 + circle02)
+# square10 sits between circle00 and circle20
+model.Add(square10 == circle00 + circle20)
+# square12 sits between circle02 and circle22
+model.Add(square12 == circle02 + circle22)
+# square21 sits between circle20 and circle22
+model.Add(square21 == circle20 + circle22)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Collect values in row-major order, skipping the blank center
+    positions = [
+        circle00, square01, circle02,
+        square10,       square12,
+        circle20, square21, circle22
+    ]
+    solution = {
+        &#x27;positions&#x27;: [solver.Value(var) for var in positions]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# ---------------------------
+# Data parsing (no external input for this puzzle)
+# ---------------------------
+# The set of positions is fixed and implicitly defined by the layout.
+# There are exactly eight positions indexed 1..8.
+
+# ---------------------------
+# CP-SAT model construction
+# ---------------------------
+model = cp_model.CpModel()
+
+# Decision variables: digit placed at each position (1..8)
+positions = [model.NewIntVar(1, 8, f&quot;pos_{i}&quot;) for i in range(1, 9)]
+
+# 1. All digits must be different
+model.AddAllDifferent(positions)
+
+# Convenience aliases that match the mathematical description
+# Indexing in the requirement starts at 1, Python list starts at 0
+p1, p2, p3, p4, p5, p6, p7, p8 = positions
+
+# 2. Square-sum constraints
+model.Add(p2 == p1 + p3)  # square at position 2
+model.Add(p4 == p1 + p6)  # square at position 4
+model.Add(p5 == p3 + p8)  # square at position 5
+model.Add(p7 == p6 + p8)  # square at position 7
+
+# ---------------------------
+# Solve
+# ---------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10  # small safety limit
+status = solver.Solve(model)
+
+# ---------------------------
+# Output
+# ---------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    solution = [solver.Value(var) for var in positions]
+    print(json.dumps({&quot;positions&quot;: solution}))
+else:
+    # If no solution exists, still provide valid JSON (could also raise)
+    print(json.dumps({&quot;positions&quot;: []}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;positions&quot;: [
+    2,
+    8,
+    6,
+    5,
+    7,
+    3,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">positions</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-1">Copy</button></div><pre class="code-block"><code id="solution-1" class="language-json">{
   &quot;positions&quot;: [
     2,
     8,
@@ -77,6 +1267,7 @@ print(json.dumps(solution))
     1
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -84,9 +1275,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/added_corners/added_corners.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/added_corners/added_corners.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="abbots_puzzle.html">â† prev</a><a class="btn" href="ages_of_the_sons.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="abbots_puzzle.html">← prev</a><a class="btn" href="ages_of_the_sons.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>cmo_2012 Â· DCP-Bench Open</title>
-<meta name="description" content="Given two positive integers a and b, where a - b is a prime number and a × b is a perfect square n^2, find the smallest value of a no less than a given minimumâ€¦">
+<title>cmo_2012 · DCP-Bench Open</title>
+<meta name="description" content="Given two positive integers a and b, where a - b is a prime number and a × b is a perfect square n^2, find the smallest value of a no less than a given minimum…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/2012_CMO_problem.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/2012_CMO_problem.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-33">Copy</button></div><pre class="code-block"><code id="model-33" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -81,18 +82,788 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">min_a = 2012
 max_val = 10000</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+import math
+
+# Decision Variables
+a = intvar(2012, 10000, name=&quot;a&quot;)  # a must be ≥2012
+b = intvar(1, 10000, name=&quot;b&quot;)     # b must be positive
+n = intvar(1, 10000, name=&quot;n&quot;)     # n must be positive
+p = intvar(2, 10000, name=&quot;p&quot;)     # p must be prime
+
+# Model
+model = Model()
+
+# Constraints
+# a - b is prime
+model += (a - b == p)
+
+# a × b is perfect square n^2
+model += (a * b == n * n)
+
+# Proper primality check
+model += (p &gt;= 2)
+max_divisor = int(math.sqrt(10000)) + 1
+for d in range(2, max_divisor):
+    model += (p % d != 0) | (p &lt;= d)
+
+# Objective: minimize a
+model.minimize(a)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;a&quot;: a.value(),
+    &quot;b&quot;: b.value(),
+    &quot;n&quot;: n.value(),
+    &quot;p&quot;: p.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+a = intvar(2012, 10000, name=&quot;a&quot;)  # a is at least 2012
+b = intvar(1, 10000, name=&quot;b&quot;)
+n = intvar(0, 10000, name=&quot;n&quot;)
+p = intvar(1, 10000, name=&quot;p&quot;)
+
+# Model
+model = Model()
+
+# a - b is a prime number p
+model += [a - b == p]
+
+# a * b is a perfect square n^2
+model += [a * b == n * n]
+
+# p is a prime number
+# A prime number is greater than 1 and has no divisors other than 1 and itself
+model += [p &gt; 1]
+
+# Define a helper variable for checking primality
+d = intvar(2, 10000, name=&quot;d&quot;)
+model += [d &lt;= p // 2]  # Limit d to be at most half of p
+model += [p % d != 0]  # p must not be divisible by d
+
+# Ensure that for all d in 2 to p-1, p % d != 0
+# This is a simplified approach for CPMPy
+model += [forall([d], p % d != 0)]
+
+# Objective: minimize a
+model.minimize(a)
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {
+    &quot;a&quot;: a.value(),
+    &quot;b&quot;: b.value(),
+    &quot;n&quot;: n.value(),
+    &quot;p&quot;: p.value()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# We use the number-theoretic observation:
+# If a*b is a perfect square and gcd(a,b)=1 then a and b are perfect squares:
+# a = u^2, b = v^2. Then a-b = (u-v)(u+v) is prime, so u-v must be 1.
+# Hence u = v+1, a = u^2, b = v^2, p = 2v+1 = 2u-1 (must be prime), n = u*v.
+# We search for the smallest a &gt;= 2012.
+
+# Parameters for the search
+base = 44              # smallest v we need to consider is 44 (since u &gt;= 45)
+maxU = 1000            # upper bound for u (large enough for this problem)
+
+# Precompute arrays for Element constraints to avoid nonlinear (u*u) in the model
+vals = [k*k for k in range(base, maxU+1)]          # squares for k = base..maxU
+n_vals = [k*(k-1) for k in range(base, maxU+1)]    # n = k*(k-1) for u=k
+
+# Decision variables
+u = cp.intvar(45, maxU, name=&quot;u&quot;)                          # u &gt;= 45 because a = u^2 &gt;= 2012
+a = cp.intvar(2012, maxU*maxU, name=&quot;a&quot;)
+b = cp.intvar(1, maxU*maxU, name=&quot;b&quot;)
+n = cp.intvar(1, maxU*(maxU-1), name=&quot;n&quot;)
+p = cp.intvar(2, 2*maxU, name=&quot;p&quot;)                         # p = 2u-1 upper bounded by 2*maxU
+
+# Model
+model = cp.Model()
+
+# Link a, b, n to u via Element (avoids nonlinear multiplication)
+# a = u^2  -&gt; index for a is (u - base)
+# b = (u-1)^2 -&gt; index for b is (u - base - 1)
+model += cp.Element(vals, u - base) == a
+model += cp.Element(vals, u - base - 1) == b
+model += cp.Element(n_vals, u - base) == n
+
+# p = a - b and a &gt;= 2012 already enforced by domain of &#x27;a&#x27;
+model += p == a - b
+model += p &gt;= 2
+
+# Primality: ensure no divisor d in 2..sqrt(max_p) divides p
+max_p = 2*maxU - 1
+max_check = int(math.isqrt(max_p))
+for d in range(2, max_check + 1):
+    model += (p % d) != 0
+
+# Ensure u-v = 1 implicitly via the Element indexing (b uses u-1 index)
+# Minimize a to get the smallest a &gt;= 2012
+model.minimize(a)
+
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;n&#x27;: int(n.value()),
+        &#x27;p&#x27;: int(p.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (72 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# We want to find positive integers a, b, n, p such that:
+# 1) a - b = p, where p is prime
+# 2) a * b = n^2 (a perfect square)
+# 3) a &gt;= 2012
+# We want to minimize a.
+
+# To model this, we need to consider the domain of variables.
+# Since a &gt;= 2012, let&#x27;s set an upper bound for a to search for a solution.
+# We can try a reasonable upper bound, say 3000, to keep the problem solvable.
+
+# We will generate primes up to the upper bound difference (a-b).
+# The difference p = a - b must be prime and positive.
+# Also, a and b are positive integers.
+
+# Let&#x27;s define the upper bound for a and b
+a_min = 2012
+a_max = 3000
+
+# The difference p = a - b must be positive prime, so p &lt; a_max
+# We&#x27;ll generate primes up to a_max for p.
+
+def sieve_primes(n):
+    sieve = [True]*(n+1)
+    sieve[0] = False
+    sieve[1] = False
+    for i in range(2, int(n**0.5)+1):
+        if sieve[i]:
+            for j in range(i*i, n+1, i):
+                sieve[j] = False
+    return [i for i in range(2, n+1) if sieve[i]]
+
+primes = sieve_primes(a_max)
+
+model = cp.Model()
+
+# Decision variables
+# a, b, n, p
+a = cp.intvar(a_min, a_max, name=&quot;a&quot;)
+b = cp.intvar(1, a_max, name=&quot;b&quot;)  # b positive integer, less than or equal to a_max
+n = cp.intvar(1, a_max, name=&quot;n&quot;)  # n positive integer, n^2 = a*b
+p = cp.intvar(2, a_max, name=&quot;p&quot;)  # p prime difference
+
+# Constraints
+model += (a - b == p)
+model += (a * b == n * n)
+model += (p &gt; 0)
+
+# p must be prime, so p in primes
+# We use a table constraint to restrict p to primes
+model += cp.Table([p], [[pr] for pr in primes])
+
+# b must be positive and less than or equal to a
+model += (b &lt;= a)
+
+# Objective: minimize a
+model.minimize(a)
+
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;n&#x27;: int(n.value()),
+        &#x27;p&#x27;: int(p.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# We use the number-theoretic observation:
+# If a*b is a perfect square and gcd(a,b)=1 then a and b are perfect squares:
+# a = u^2, b = v^2. Then a-b = (u-v)(u+v) is prime, so u-v must be 1.
+# Hence u = v+1, a = u^2, b = v^2, p = 2v+1 = 2u-1 (must be prime), n = u*v.
+# We search for the smallest a &gt;= 2012.
+
+# Parameters for the search
+base = 44              # smallest v we need to consider is 44 (since u &gt;= 45)
+maxU = 1000            # upper bound for u (large enough for this problem)
+
+# Precompute arrays for Element constraints to avoid nonlinear (u*u) in the model
+vals = [k*k for k in range(base, maxU+1)]          # squares for k = base..maxU
+n_vals = [k*(k-1) for k in range(base, maxU+1)]    # n = k*(k-1) for u=k
+
+# Decision variables
+u = cp.intvar(45, maxU, name=&quot;u&quot;)                          # u &gt;= 45 because a = u^2 &gt;= 2012
+a = cp.intvar(2012, maxU*maxU, name=&quot;a&quot;)
+b = cp.intvar(1, maxU*maxU, name=&quot;b&quot;)
+n = cp.intvar(1, maxU*(maxU-1), name=&quot;n&quot;)
+p = cp.intvar(2, 2*maxU, name=&quot;p&quot;)                         # p = 2u-1 upper bounded by 2*maxU
+
+# Model
+model = cp.Model()
+
+# Link a, b, n to u via Element (avoids nonlinear multiplication)
+# a = u^2  -&gt; index for a is (u - base)
+# b = (u-1)^2 -&gt; index for b is (u - base - 1)
+model += cp.Element(vals, u - base) == a
+model += cp.Element(vals, u - base - 1) == b
+model += cp.Element(n_vals, u - base) == n
+
+# p = a - b and a &gt;= 2012 already enforced by domain of &#x27;a&#x27;
+model += p == a - b
+model += p &gt;= 2
+
+# Primality: ensure no divisor d in 2..sqrt(max_p) divides p
+max_p = 2*maxU - 1
+max_check = int(math.isqrt(max_p))
+for d in range(2, max_check + 1):
+    model += (p % d) != 0
+
+# Ensure u-v = 1 implicitly via the Element indexing (b uses u-1 index)
+# Minimize a to get the smallest a &gt;= 2012
+model.minimize(a)
+
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;n&#x27;: int(n.value()),
+        &#x27;p&#x27;: int(p.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Model definition
+model = cp.Model()
+
+# Parameters
+MAX_S = 1000  # sufficient upper bound to find smallest a &gt;= 2012
+P_MAX = 2 * MAX_S + 1
+MAXD = int(math.isqrt(P_MAX))
+
+# Decision Variables
+s = cp.intvar(1, MAX_S, name=&quot;s&quot;)
+a = cp.intvar(0, (MAX_S + 1) * (MAX_S + 1), name=&quot;a&quot;)
+b = cp.intvar(0, MAX_S * MAX_S, name=&quot;b&quot;)
+n = cp.intvar(0, MAX_S * (MAX_S + 1), name=&quot;n&quot;)
+p = cp.intvar(0, P_MAX, name=&quot;p&quot;)
+
+# Constraints
+# a = (s+1)^2, b = s^2, n = s*(s+1), p = a - b
+model += (a == (s + 1) * (s + 1))
+model += (b == s * s)
+model += (n == s * (s + 1))
+model += (p == a - b)
+
+# a &gt;= 2012 and b &gt; 0, p &gt;= 2
+model += (a &gt;= 2012)
+model += (b &gt;= 1)
+model += (p &gt;= 2)
+
+# p is prime: for all 2 &lt;= d &lt;= floor(sqrt(P_MAX)), enforce p == d or p % d != 0
+for d in range(2, MAXD + 1):
+    model += (p == d) | (p % d != 0)
+
+# Objective: minimize a
+model.minimize(a)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;n&#x27;: int(n.value()),
+        &#x27;p&#x27;: int(p.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# We use the number-theoretic observation:
+# If a*b is a perfect square and gcd(a,b)=1 then a and b are perfect squares:
+# a = u^2, b = v^2. Then a-b = (u-v)(u+v) is prime, so u-v must be 1.
+# Hence u = v+1, a = u^2, b = v^2, p = 2v+1 = 2u-1 (must be prime), n = u*v.
+# We search for the smallest a &gt;= 2012.
+
+# Parameters for the search
+base = 44              # smallest v we need to consider is 44 (since u &gt;= 45)
+maxU = 1000            # upper bound for u (large enough for this problem)
+
+# Precompute arrays for Element constraints to avoid nonlinear (u*u) in the model
+vals = [k*k for k in range(base, maxU+1)]          # squares for k = base..maxU
+n_vals = [k*(k-1) for k in range(base, maxU+1)]    # n = k*(k-1) for u=k
+
+# Decision variables
+u = cp.intvar(45, maxU, name=&quot;u&quot;)                          # u &gt;= 45 because a = u^2 &gt;= 2012
+a = cp.intvar(2012, maxU*maxU, name=&quot;a&quot;)
+b = cp.intvar(1, maxU*maxU, name=&quot;b&quot;)
+n = cp.intvar(1, maxU*(maxU-1), name=&quot;n&quot;)
+p = cp.intvar(2, 2*maxU, name=&quot;p&quot;)                         # p = 2u-1 upper bounded by 2*maxU
+
+# Model
+model = cp.Model()
+
+# Link a, b, n to u via Element (avoids nonlinear multiplication)
+# a = u^2  -&gt; index for a is (u - base)
+# b = (u-1)^2 -&gt; index for b is (u - base - 1)
+model += cp.Element(vals, u - base) == a
+model += cp.Element(vals, u - base - 1) == b
+model += cp.Element(n_vals, u - base) == n
+
+# p = a - b and a &gt;= 2012 already enforced by domain of &#x27;a&#x27;
+model += p == a - b
+model += p &gt;= 2
+
+# Primality: ensure no divisor d in 2..sqrt(max_p) divides p
+max_p = 2*maxU - 1
+max_check = int(math.isqrt(max_p))
+for d in range(2, max_check + 1):
+    model += (p % d) != 0
+
+# Ensure u-v = 1 implicitly via the Element indexing (b uses u-1 index)
+# Minimize a to get the smallest a &gt;= 2012
+model.minimize(a)
+
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;n&#x27;: int(n.value()),
+        &#x27;p&#x27;: int(p.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (52 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% We want to find integers a, b, n, p such that:
+% 1) a - b = p, where p is prime
+% 2) a * b = n^2 (a perfect square)
+% 3) a &gt;= 2012
+% 4) a, b, n, p &gt; 0
+
+% We will search for a in a reasonable range starting from 2012.
+% To keep the model finite, we set an upper bound for a.
+% Since the problem asks for the smallest a &gt;= 2012, we will minimize a.
+
+int: a_min = 2012;
+int: a_max = 10000; % upper bound for search, can be increased if needed
+int: p_max = a_max; % upper bound for prime p
+
+% Decision variables
+var a_min..a_max: a;
+var 1..a_max: b;
+var 1..a_max: n;
+var 2..p_max: p; % p is prime and positive difference
+
+% Constraint: a - b = p
+constraint a - b = p;
+
+% Constraint: a * b = n^2 (perfect square)
+constraint a * b = n * n;
+
+% Constraint: p is prime
+% We define a predicate to check primality
+predicate is_prime(int: x) =
+  x &gt; 1 /\
+  forall(i in 2..int(sqrt(float(x)))) (
+    x mod i != 0
+  );
+
+constraint is_prime(p);
+
+% Constraint: a &gt;= 2012 (already ensured by domain)
+
+% Additional constraints to ensure b &gt; 0 and b &lt; a (since p = a - b &gt; 0)
+constraint b &gt; 0 /\ b &lt; a;
+
+solve minimize a;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;a\&quot;: &quot;, show(a), &quot;,&quot;,
+    &quot;\&quot;b\&quot;: &quot;, show(b), &quot;,&quot;,
+    &quot;\&quot;n\&quot;: &quot;, show(n), &quot;,&quot;,
+    &quot;\&quot;p\&quot;: &quot;, show(p),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (95 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+import math
+
+# Model definition
+model = cp_model.CpModel()
+
+# Since a &gt;= 2012 and a, b are positive integers,
+# and a - b = p (prime), and a*b = n^2 (perfect square),
+# we need to find smallest a &gt;= 2012 satisfying these.
+
+# We will set an upper bound for search.
+# Since a*b = n^2, and a-b = p (prime), b = a - p.
+# So a*(a-p) = n^2.
+# For a starting at 2012, we try increasing a and p (prime) to find solution.
+
+# To model this in CP-SAT, we need to fix some bounds.
+# Let&#x27;s set upper bound for a as 10000 (arbitrary large enough).
+# p is prime and less than a (since b = a - p &gt; 0).
+# n can be up to sqrt(a*b) &lt;= a (since b &lt; a).
+
+MAX_A = 10000
+MIN_A = 2012
+
+# Decision variables
+a = model.NewIntVar(MIN_A, MAX_A, &#x27;a&#x27;)
+p = model.NewIntVar(2, MAX_A, &#x27;p&#x27;)  # p is prime, at least 2
+b = model.NewIntVar(1, MAX_A, &#x27;b&#x27;)
+n = model.NewIntVar(1, MAX_A * MAX_A, &#x27;n&#x27;)  # n^2 = a*b, n can be large
+
+# Constraints
+model.Add(b == a - p)
+model.Add(b &gt; 0)
+
+# a*b = n^2
+# We cannot directly model multiplication and perfect square easily in CP-SAT,
+# but we can use a trick: n^2 = a*b
+# We can use a table or a custom constraint.
+# However, CP-SAT does not support nonlinear constraints directly.
+# So we will use a search approach with a callback.
+
+# Instead, we will implement a custom search outside CP-SAT,
+# because CP-SAT is not suitable for nonlinear constraints like perfect squares.
+
+# So we will implement a direct search for the smallest a &gt;= 2012.
+
+def is_prime(x):
+    if x &lt; 2:
+        return False
+    if x == 2:
+        return True
+    if x % 2 == 0:
+        return False
+    r = int(math.isqrt(x))
+    for i in range(3, r + 1, 2):
+        if x % i == 0:
+            return False
+    return True
+
+def is_perfect_square(x):
+    r = int(math.isqrt(x))
+    return r * r == x
+
+# Search for smallest a &gt;= 2012
+found = False
+for a_val in range(MIN_A, MAX_A + 1):
+    # p must be prime and less than a_val
+    # b = a_val - p &gt; 0
+    # So p &lt; a_val
+    # We try all primes p &lt; a_val
+    # To optimize, p must be less than a_val and positive
+    # Also, a_val * b = n^2
+    # So check for each prime p if a_val*(a_val - p) is perfect square
+    for p_val in range(2, a_val):
+        if is_prime(p_val):
+            b_val = a_val - p_val
+            if b_val &lt;= 0:
+                continue
+            product = a_val * b_val
+            if is_perfect_square(product):
+                n_val = int(math.isqrt(product))
+                # Found solution
+                solution = {
+                    &#x27;a&#x27;: a_val,
+                    &#x27;b&#x27;: b_val,
+                    &#x27;n&#x27;: n_val,
+                    &#x27;p&#x27;: p_val
+                }
+                print(json.dumps(solution, indent=4))
+                found = True
+                break
+    if found:
+        break
+
+if not found:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (95 lines)</summary><pre class="code-block"><code id="None" class="language-python"># -------------------------------------------------------------
+# Google OR-Tools CP-SAT model for
+#   min  a  (a &gt;= 2012)
+#   s.t. a - b  = p   (p prime)
+#        a * b  = n^2 (perfect square)
+# -------------------------------------------------------------
+
+from ortools.sat.python import cp_model
+import math
+import json
+
+# ----------------------------
+# Helper: prime generation
+# ----------------------------
+
+def sieve_primes(limit):
+    &quot;&quot;&quot;Simple sieve that returns all primes &lt;= limit.&quot;&quot;&quot;
+    sieve = [True] * (limit + 1)
+    sieve[0:2] = [False, False]
+    for num in range(2, int(math.isqrt(limit)) + 1):
+        if sieve[num]:
+            step = num
+            start = num * num
+            sieve[start: limit + 1: step] = [False] * (((limit - start) // step) + 1)
+    return [p for p, is_prime in enumerate(sieve) if is_prime]
+
+# ----------------------------
+# Model building
+# ----------------------------
+
+model = cp_model.CpModel()
+
+# Search range parameters ----------------------------------------------------
+LOWER_A = 2012       # a &gt;= 2012 (given)
+MAX_X   = 200        # we will search x in [1, MAX_X]; thus a (=x^2) &lt;= MAX_X^2
+UPPER_A = MAX_X ** 2
+
+# Decision variables ---------------------------------------------------------
+# Fundamental representation: let a = x^2, b = y^2 (proved in analysis).  
+# Then n = x * y and p = a - b.
+
+x = model.NewIntVar(1, MAX_X, &#x27;x&#x27;)  # x &gt; y (will add constraint)
+y = model.NewIntVar(1, MAX_X, &#x27;y&#x27;)
+
+# Squares and products
+# a = x * x
+# b = y * y
+# n = x * y
+
+# Upper bounds for auxiliary variables
+MAX_N = MAX_X * MAX_X   # because n = x*y and x,y &lt;= MAX_X
+
+# create variables
+a = model.NewIntVar(LOWER_A, UPPER_A, &#x27;a&#x27;)
+b = model.NewIntVar(1, UPPER_A, &#x27;b&#x27;)
+n = model.NewIntVar(1, MAX_N, &#x27;n&#x27;)
+
+# p must be a prime ----------------------------------------------------------
+# Its maximum value is at most a - 1 &lt;= UPPER_A - 1
+prime_list = sieve_primes(UPPER_A)
+# Filter primes strictly positive (sieve returns that already)
+prime_domain = cp_model.Domain.FromValues(prime_list)
+
+p = model.NewIntVarFromDomain(prime_domain, &#x27;p&#x27;)
+
+# Constraints ----------------------------------------------------------------
+model.AddMultiplicationEquality(a, [x, x])         # a = x^2
+model.AddMultiplicationEquality(b, [y, y])         # b = y^2
+model.AddMultiplicationEquality(n, [x, y])         # n = x*y
+
+model.Add(a - b == p)                              # difference is prime
+model.Add(a &gt;= LOWER_A)                            # a lower bound (redundant via domain)
+model.Add(x &gt; y)                                   # ensures a &gt; b &gt; 0
+
+# Objective ------------------------------------------------------------------
+model.Minimize(a)
+
+# ----------------------------
+# Solve
+# ----------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {
+        &#x27;b&#x27;: solver.Value(b),
+        &#x27;p&#x27;: solver.Value(p),
+        &#x27;a&#x27;: solver.Value(a),
+        &#x27;n&#x27;: solver.Value(n),
+    }
+    print(json.dumps(result))
+else:
+    # If for some reason no solution is found in the current bounds, we still
+    # need to output valid JSON (problem guarantees a solution within range).
+    print(json.dumps({&#x27;b&#x27;: None, &#x27;p&#x27;: None, &#x27;a&#x27;: None, &#x27;n&#x27;: None}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;min_a&quot;: 2012,
   &quot;max_val&quot;: 10000
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">a</span><span class="chip">b</span><span class="chip">n</span><span class="chip">p</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-33">Copy</button></div><pre class="code-block"><code id="solution-33" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">a</span><span class="chip">b</span><span class="chip">n</span><span class="chip">p</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-33">Copy</button></div><pre class="code-block"><code id="solution-33" class="language-json">{
   &quot;a&quot;: 2025,
   &quot;b&quot;: 1936,
   &quot;n&quot;: 1980,
   &quot;p&quot;: 89
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -100,9 +871,9 @@ max_val = 10000</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/cmo_2012/cmo_2012.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/cmo_2012/cmo_2012.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="clock_triplets.html">â† prev</a><a class="btn" href="coin3_application.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="clock_triplets.html">← prev</a><a class="btn" href="coin3_application.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>prod Â· DCP-Bench Open</title>
-<meta name="description" content="Consider a problem where we have a set `P`. For each element `j` in `P`, we have a parameter `a[j]`, a parameter `c[j]`, and a parameter `u[j]`. We also have aâ€¦">
+<title>prod · DCP-Bench Open</title>
+<meta name="description" content="Consider a problem where we have a set `P`. For each element `j` in `P`, we have a parameter `a[j]`, a parameter `c[j]`, and a parameter `u[j]`. We also have a…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/prod" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/prod</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-131">Copy</button></div><pre class="code-block"><code id="model-131" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -76,7 +77,275 @@ c = [5, 10, 8]
 u = [4, 6, 3]
 b = 4</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Data
+input_data = {
+    &quot;a&quot;: [3, 1, 2],
+    &quot;c&quot;: [5, 10, 8],
+    &quot;u&quot;: [4, 6, 3],
+    &quot;b&quot;: 4
+}
+a = input_data[&quot;a&quot;]
+c = input_data[&quot;c&quot;]
+u = input_data[&quot;u&quot;]
+b = input_data[&quot;b&quot;]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Problem size
+n = len(a)
+
+# Decision Variables: x[j] between 0 and u[j]
+# Use a common upper bound and add per-variable upper bound constraints
+x = cp.intvar(0, max(u), shape=n, name=&quot;x&quot;)
+
+# Constraints
+# To avoid fractional coefficients, multiply the constraint by lcm of a&#x27;s
+l = math.lcm(*a)
+coeffs = [l // aj for aj in a]  # integer coefficients
+
+# sum((1/a[j]) * x[j]) &lt;= b  &lt;=&gt;  sum((l/a[j]) * x[j]) &lt;= b * l
+model += cp.sum([coeffs[j] * x[j] for j in range(n)]) &lt;= b * l
+
+# upper bounds per variable
+for j in range(n):
+    model += x[j] &lt;= u[j]
+
+# Objective: maximize total profit sum(c[j] * x[j])
+model.maximize(cp.sum([c[j] * x[j] for j in range(n)]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;x&quot;: x.value().tolist(),
+        &quot;total_profit&quot;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Data
+input_data = {
+    &quot;a&quot;: [3, 1, 2],
+    &quot;c&quot;: [5, 10, 8],
+    &quot;u&quot;: [4, 6, 3],
+    &quot;b&quot;: 4
+}
+a = input_data[&quot;a&quot;]
+c = input_data[&quot;c&quot;]
+u = input_data[&quot;u&quot;]
+b = input_data[&quot;b&quot;]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Problem size
+n = len(a)
+
+# Decision Variables: x[j] between 0 and u[j]
+# Use a common upper bound and add per-variable upper bound constraints
+x = cp.intvar(0, max(u), shape=n, name=&quot;x&quot;)
+
+# Constraints
+# To avoid fractional coefficients, multiply the constraint by lcm of a&#x27;s
+l = math.lcm(*a)
+coeffs = [l // aj for aj in a]  # integer coefficients
+
+# sum((1/a[j]) * x[j]) &lt;= b  &lt;=&gt;  sum((l/a[j]) * x[j]) &lt;= b * l
+model += cp.sum([coeffs[j] * x[j] for j in range(n)]) &lt;= b * l
+
+# upper bounds per variable
+for j in range(n):
+    model += x[j] &lt;= u[j]
+
+# Objective: maximize total profit sum(c[j] * x[j])
+model.maximize(cp.sum([c[j] * x[j] for j in range(n)]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;x&quot;: x.value().tolist(),
+        &quot;total_profit&quot;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (55 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+from math import gcd
+from functools import reduce
+
+# Data (optional)
+input_data = {
+    &quot;a&quot;: [3, 1, 2],
+    &quot;c&quot;: [5, 10, 8],
+    &quot;u&quot;: [4, 6, 3],
+    &quot;b&quot;: 4
+}
+# End of data
+
+# Helper to compute LCM of a list
+def lcm(x, y):
+    return x * y // gcd(x, y)
+
+def lcm_list(lst):
+    return reduce(lcm, lst, 1)
+
+a = input_data[&quot;a&quot;]
+c = input_data[&quot;c&quot;]
+u = input_data[&quot;u&quot;]
+b = input_data[&quot;b&quot;]
+
+n = len(a)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: x[j] in [0, u[j]]
+x = [cp.intvar(0, u[j], name=f&quot;x_{j}&quot;) for j in range(n)]
+
+# Scale constraint to avoid fractions: sum((1/a[j]) * x[j]) &lt;= b
+# Multiply by L = lcm(a): sum((L/a[j]) * x[j]) &lt;= b * L
+L = lcm_list(a)
+weights = [L // a[j] for j in range(n)]
+
+# Constraints
+model += (cp.sum([weights[j] * x[j] for j in range(n)]) &lt;= b * L)
+
+# Objective: maximize total profit sum(c[j] * x[j])
+model.maximize(cp.sum([c[j] * x[j] for j in range(n)]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;x&#x27;: [int(xj.value()) for xj in x],
+        &#x27;total_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Data
+input_data = {
+    &quot;a&quot;: [3, 1, 2],
+    &quot;c&quot;: [5, 10, 8],
+    &quot;u&quot;: [4, 6, 3],
+    &quot;b&quot;: 4
+}
+a = input_data[&quot;a&quot;]
+c = input_data[&quot;c&quot;]
+u = input_data[&quot;u&quot;]
+b = input_data[&quot;b&quot;]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Problem size
+n = len(a)
+
+# Decision Variables: x[j] between 0 and u[j]
+# Use a common upper bound and add per-variable upper bound constraints
+x = cp.intvar(0, max(u), shape=n, name=&quot;x&quot;)
+
+# Constraints
+# To avoid fractional coefficients, multiply the constraint by lcm of a&#x27;s
+l = math.lcm(*a)
+coeffs = [l // aj for aj in a]  # integer coefficients
+
+# sum((1/a[j]) * x[j]) &lt;= b  &lt;=&gt;  sum((l/a[j]) * x[j]) &lt;= b * l
+model += cp.sum([coeffs[j] * x[j] for j in range(n)]) &lt;= b * l
+
+# upper bounds per variable
+for j in range(n):
+    model += x[j] &lt;= u[j]
+
+# Objective: maximize total profit sum(c[j] * x[j])
+model.maximize(cp.sum([c[j] * x[j] for j in range(n)]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;x&quot;: x.value().tolist(),
+        &quot;total_profit&quot;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;a&quot;: [
     3,
     1,
@@ -94,9 +363,9 @@ b = 4</code></pre>
   ],
   &quot;b&quot;: 4
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">total_profit</span><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-131">Copy</button></div><pre class="code-block"><code id="solution-131" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">total_profit</span><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-131">Copy</button></div><pre class="code-block"><code id="solution-131" class="language-json">{
   &quot;x&quot;: [
     4,
     1,
@@ -104,6 +373,7 @@ b = 4</code></pre>
   ],
   &quot;total_profit&quot;: 54
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -111,9 +381,9 @@ b = 4</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/prod/prod.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/prod/prod.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="packing_rectangles.html">â† prev</a><a class="btn" href="pythagorean_triplet.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="packing_rectangles.html">← prev</a><a class="btn" href="pythagorean_triplet.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

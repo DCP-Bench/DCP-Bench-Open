@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>handshaking Â· DCP-Bench Open</title>
-<meta name="description" content="Hilary and Jocelyn are married. They invite a number of couples who are friends for dinner. When they arrive, they shake hands with each other. Nobody shakes hâ€¦">
+<title>handshaking · DCP-Bench Open</title>
+<meta name="description" content="Hilary and Jocelyn are married. They invite a number of couples who are friends for dinner. When they arrive, they shake hands with each other. Nobody shakes h…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/handshaking.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/handshaking.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-110">Copy</button></div><pre class="code-block"><code id="model-110" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
@@ -87,14 +88,267 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">num_couples = 8  # number of couples invited, i.e., excluding Hilary and Jocelyn</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # total people (Hilary(0) and Jocelyn(1) plus 4 other couples)
+hil_index = 0
+jocelyn_index = 1
+couples = [(0,1),(2,3),(4,5),(6,7),(8,9)]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Handshake matrix: H[i,j] = 1 if i shook j&#x27;s hand, else 0
+H = cp.boolvar(shape=(n, n), name=&quot;H&quot;)
+
+# Number of hands each person shook: 0..8 (can&#x27;t shake self or spouse)
+hands = cp.intvar(0, 8, shape=n, name=&quot;hands&quot;)
+
+# Constraints
+# No one shakes their own hand
+for i in range(n):
+    model += (H[i, i] == 0)
+
+# Symmetry: if i shakes j then j shakes i
+for i in range(n):
+    for j in range(i + 1, n):
+        model += (H[i, j] == H[j, i])
+
+# No one shakes their spouse&#x27;s hand
+for (a, b) in couples:
+    model += (H[a, b] == 0)
+    model += (H[b, a] == 0)
+
+# Define hands as the row sums of H
+for i in range(n):
+    model += (hands[i] == cp.sum(H[i, :]))
+
+# Jocelyn asks everyone else (not herself) and gets all different answers.
+# So the counts of the other 9 people are all different (hence 0..8).
+others = [i for i in range(n) if i != jocelyn_index]
+model += cp.AllDifferent([hands[i] for i in others])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hil&#x27;: int(hands[hil_index].value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # total people (Hilary(0) and Jocelyn(1) plus 4 other couples)
+hil_index = 0
+jocelyn_index = 1
+couples = [(0,1),(2,3),(4,5),(6,7),(8,9)]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Handshake matrix: H[i,j] = 1 if i shook j&#x27;s hand, else 0
+H = cp.boolvar(shape=(n, n), name=&quot;H&quot;)
+
+# Number of hands each person shook: 0..8 (can&#x27;t shake self or spouse)
+hands = cp.intvar(0, 8, shape=n, name=&quot;hands&quot;)
+
+# Constraints
+# No one shakes their own hand
+for i in range(n):
+    model += (H[i, i] == 0)
+
+# Symmetry: if i shakes j then j shakes i
+for i in range(n):
+    for j in range(i + 1, n):
+        model += (H[i, j] == H[j, i])
+
+# No one shakes their spouse&#x27;s hand
+for (a, b) in couples:
+    model += (H[a, b] == 0)
+    model += (H[b, a] == 0)
+
+# Define hands as the row sums of H
+for i in range(n):
+    model += (hands[i] == cp.sum(H[i, :]))
+
+# Jocelyn asks everyone else (not herself) and gets all different answers.
+# So the counts of the other 9 people are all different (hence 0..8).
+others = [i for i in range(n) if i != jocelyn_index]
+model += cp.AllDifferent([hands[i] for i in others])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hil&#x27;: int(hands[hil_index].value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Data
+# Indexing people: 0=Jocelyn, 1=Hilary, and 2..9 are the four guest couples
+N = 10
+couples = [(0,1), (2,3), (4,5), (6,7), (8,9)]  # (Jocelyn, Hilary) + 4 guest couples
+
+# Decision Variables
+H = cp.boolvar(shape=(N, N), name=&quot;H&quot;)        # handshake matrix
+D = cp.intvar(0, 8, shape=N, name=&quot;D&quot;)        # handshake counts for each person
+
+# Constraints
+# No one shakes hands with themselves
+for i in range(N):
+    model += (H[i, i] == 0)
+
+# Symmetry of handshakes
+for i in range(N):
+    for j in range(i+1, N):
+        model += (H[i, j] == H[j, i])
+
+# No one shakes hands with their spouse
+for (a, b) in couples:
+    model += (H[a, b] == 0)
+    model += (H[b, a] == 0)
+
+# Define handshake counts
+for i in range(N):
+    model += (D[i] == cp.sum(H[i, :]))
+
+# All answers from the nine people Jocelyn asked (everyone except Jocelyn) are different
+model += cp.AllDifferent([D[i] for i in range(1, N)])
+
+# Solve and print
+if model.solve():
+    hil = int(D[1].value())
+    solution = {&#x27;hil&#x27;: hil}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # total people (Hilary(0) and Jocelyn(1) plus 4 other couples)
+hil_index = 0
+jocelyn_index = 1
+couples = [(0,1),(2,3),(4,5),(6,7),(8,9)]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Handshake matrix: H[i,j] = 1 if i shook j&#x27;s hand, else 0
+H = cp.boolvar(shape=(n, n), name=&quot;H&quot;)
+
+# Number of hands each person shook: 0..8 (can&#x27;t shake self or spouse)
+hands = cp.intvar(0, 8, shape=n, name=&quot;hands&quot;)
+
+# Constraints
+# No one shakes their own hand
+for i in range(n):
+    model += (H[i, i] == 0)
+
+# Symmetry: if i shakes j then j shakes i
+for i in range(n):
+    for j in range(i + 1, n):
+        model += (H[i, j] == H[j, i])
+
+# No one shakes their spouse&#x27;s hand
+for (a, b) in couples:
+    model += (H[a, b] == 0)
+    model += (H[b, a] == 0)
+
+# Define hands as the row sums of H
+for i in range(n):
+    model += (hands[i] == cp.sum(H[i, :]))
+
+# Jocelyn asks everyone else (not herself) and gets all different answers.
+# So the counts of the other 9 people are all different (hence 0..8).
+others = [i for i in range(n) if i != jocelyn_index]
+model += cp.AllDifferent([hands[i] for i in others])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hil&#x27;: int(hands[hil_index].value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;num_couples&quot;: 8
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">hil</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-110">Copy</button></div><pre class="code-block"><code id="solution-110" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">hil</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-110">Copy</button></div><pre class="code-block"><code id="solution-110" class="language-json">{
   &quot;hil&quot;: 8
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -102,9 +356,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/handshaking/handshaking.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/handshaking/handshaking.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="giant_cat_army.html">â† prev</a><a class="btn" href="hanging_weights.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="giant_cat_army.html">← prev</a><a class="btn" href="hanging_weights.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

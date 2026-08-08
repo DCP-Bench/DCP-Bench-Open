@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_013_progressive_party_problem Â· DCP-Bench Open</title>
-<meta name="description" content="The problem is to timetable a party at a yacht club. Certain boats are to be designated hosts, and the crews of the remaining boats in turn visit the host boatâ€¦">
+<title>csplib_013_progressive_party_problem · DCP-Bench Open</title>
+<meta name="description" content="The problem is to timetable a party at a yacht club. Certain boats are to be designated hosts, and the crews of the remaining boats in turn visit the host boat…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source and problem instances</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob013/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob013/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (10)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (10)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-52">Copy</button></div><pre class="code-block"><code id="model-52" class="language-python"># Import libraries
 import json
 from cpmpy import *
@@ -88,7 +89,982 @@ n_periods = 4  # Number of periods
 capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
 crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+
+# Decision Variables
+is_host = boolvar(shape=n_boats, name=&quot;is_host&quot;)  # Whether a boat is a host
+visits = intvar(0, n_boats-1, shape=(n_boats, n_periods), name=&quot;visits&quot;)  # visits[g][p] is host index visited by guest g in period p
+
+# Model
+model = Model()
+
+# Constraint: a boat cannot visit itself
+for g in range(n_boats):
+    for p in range(n_periods):
+        model += (visits[g,p] != g)
+
+# Constraint: a guest can only visit hosts
+for g in range(n_boats):
+    for p in range(n_periods):
+        model += is_host[visits[g,p]]
+
+# Constraint: a guest cannot visit the same host more than once
+for g in range(n_boats):
+    model += (is_host[g]).implies(AllDifferent(visits[g]))
+
+# Constraint: guest crews cannot meet more than once (no two guests visit same host in same period)
+for h in range(n_boats):
+    for p in range(n_periods):
+        model += sum([(visits[g,p] == h) for g in range(n_boats)]) &lt;= 1
+
+# Constraint: capacity constraints for hosts
+for h in range(n_boats):
+    for p in range(n_periods):
+        model += (sum([(visits[g,p] == h) * crew_size[g] for g in range(n_boats)]) + crew_size[h]) &lt;= capacity[h]
+
+# Constraint: if not host, must visit a different host each period
+for g in range(n_boats):
+    model += (~is_host[g]).implies(AllDifferent(visits[g]))
+
+# Objective: minimize the number of host boats
+model.minimize(sum(is_host))
+
+# Solve
+model.solve()
+
+# Prepare solution in correct format
+visit_schedule = []
+for g in range(n_boats):
+    if is_host[g].value():
+        visit_schedule.append([0]*n_periods)  # Hosts don&#x27;t visit others
+    else:
+        visit_schedule.append([visits[g,p].value()+1 for p in range(n_periods)])  # +1 to make indices 1-based
+
+solution = {
+    &quot;is_host&quot;: [bool(val) for val in is_host.value().tolist()],
+    &quot;visits&quot;: visit_schedule
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Data
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+
+# End of data
+
+# Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+# Decision Variables
+is_host = boolvar(shape=n_boats, name=&quot;is_host&quot;)  # Whether a boat is a host
+visits = intvar(-1, n_boats - 1, shape=(n_boats, n_periods), name=&quot;visits&quot;)  # Which host a boat visits in each period
+
+# Model
+model = Model()
+
+# A boat cannot visit itself
+model += [visits[i, p] != i for i in range(n_boats) for p in range(n_periods)]
+
+# A boat cannot revisit a host
+model += [AllDifferent([visits[i, p] for p in range(n_periods)]) for i in range(n_boats)]
+
+# Hosts cannot visit any other boat
+model += [visits[i, p] == -1 for i in range(n_boats) for p in range(n_periods) if is_host[i]]
+
+# Capacity constraint: total people on a boat (host crew + guest crews) must not exceed capacity
+for h in range(n_boats):
+    for p in range(n_periods):
+        guests = [visits[i, p] == h for i in range(n_boats)]
+        total_people = crew_size[h] + sum(crew_size[i] * guests[i] for i in range(n_boats))
+        model += [total_people &lt;= capacity[h]]
+
+# Solve
+model.minimize(sum(is_host))
+
+# Print
+solution = {&quot;is_host&quot;: is_host.value().tolist(), &quot;visits&quot;: visits.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (76 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# visits[p,b] = v means in period p, boat b visits boat v (0-based index)
+visits = cp.intvar(0, n_boats - 1, shape=(n_periods, n_boats), name=&quot;visits&quot;)
+# is_host[b] == 1 means boat b is a host boat
+is_host = cp.boolvar(shape=n_boats, name=&quot;is_host&quot;)
+
+# Constraints list
+constraints = []
+
+# 1) If a boat b visits boat j in any period, then j must be a host
+for p in range(n_periods):
+    for b in range(n_boats):
+        for j in range(n_boats):
+            # (visits[p,b] == j) -&gt; is_host[j]
+            constraints.append((visits[p, b] == j).implies(is_host[j]))
+
+# 2) If a boat is a host, it stays on its own boat each period
+for h in range(n_boats):
+    for p in range(n_periods):
+        constraints.append(is_host[h].implies(visits[p, h] == h))
+
+# 3) A guest boat cannot revisit a host: for non-host boats, visits across periods are all different
+for b in range(n_boats):
+    for p1 in range(n_periods):
+        for p2 in range(p1 + 1, n_periods):
+            # if b is not a host then visits[p1,b] != visits[p2,b]
+            constraints.append((~is_host[b]).implies(visits[p1, b] != visits[p2, b]))
+
+# 4) Guest crews cannot meet more than once:
+# For any pair of boats b1,b2 that are both guests, the number of periods
+# where they visit the same host is &lt;= 1
+for b1 in range(n_boats):
+    for b2 in range(b1 + 1, n_boats):
+        meet_bools = []
+        for p in range(n_periods):
+            meet_bools.append(visits[p, b1] == visits[p, b2])
+        constraints.append(((~is_host[b1]) &amp; (~is_host[b2])).implies(cp.sum(meet_bools) &lt;= 1))
+
+# 5) Capacity constraints: for each period and each boat h, total people aboard &lt;= capacity[h]
+for p in range(n_periods):
+    for h in range(n_boats):
+        # host crew counts if h is a host
+        host_crew = crew_size[h] * is_host[h]
+        # sum of crews of guest boats visiting h in period p (exclude b==h to avoid double counting)
+        visitors_sum = cp.sum([(visits[p, b] == h) * crew_size[b] for b in range(n_boats) if b != h])
+        constraints.append(host_crew + visitors_sum &lt;= capacity[h])
+
+# Add all constraints to the model
+model += constraints
+
+# Objective: minimize the number of hosts
+model.minimize(cp.sum(is_host))
+
+# Solve and print
+if model.solve():
+    # Convert is_host booleans to 0/1 integers
+    is_host_list = [int(is_host[i].value()) for i in range(n_boats)]
+    visits_list = visits.value().tolist()
+    solution = {&#x27;visits&#x27;: visits_list, &#x27;is_host&#x27;: is_host_list}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (89 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+# End of data
+
+model = cp.Model()
+
+# Decision variables
+# is_host[i] = 1 if boat i is a host, else 0
+is_host = cp.boolvar(shape=n_boats, name=&quot;is_host&quot;)
+
+# visits[p, g] = h means guest boat g visits host boat h at period p
+# Domain: 0..n_boats-1, but guest boats cannot visit themselves or non-hosts
+# We will allow domain 0..n_boats-1, but constrain that if g is host, it does not visit anyone
+# Also, guests cannot visit themselves
+visits = cp.intvar(0, n_boats - 1, shape=(n_periods, n_boats), name=&quot;visits&quot;)
+
+# Constraints
+
+# 1) Hosts do not visit anyone (their visits are themselves or a dummy value)
+for g in range(n_boats):
+    # If g is host, then visits[p,g] == g (stay on own boat)
+    for p in range(n_periods):
+        model += (is_host[g].implies(visits[p, g] == g))
+        # If not host, visits[p,g] != g (cannot visit self)
+        model += (~is_host[g]).implies(visits[p, g] != g)
+
+# 2) Only host boats can be visited
+# For all visits[p,g], visits[p,g] must be a host boat
+for p in range(n_periods):
+    for g in range(n_boats):
+        # visits[p,g] is a host
+        # We use element constraint: is_host[visits[p,g]] == 1
+        model += is_host[visits[p, g]] == 1
+
+# 3) Capacity constraints: For each boat h and period p,
+# sum of crew sizes of guests visiting h plus h&#x27;s own crew size &lt;= capacity[h]
+for p in range(n_periods):
+    for h in range(n_boats):
+        # Guests visiting h at period p: those g with visits[p,g] == h and g != h
+        # We create boolean variables for each g: guest_visits_h[p,h,g] = 1 if visits[p,g] == h
+        guest_visits_h = [cp.boolvar() for _ in range(n_boats)]
+        for g in range(n_boats):
+            # guest_visits_h[g] == (visits[p,g] == h)
+            model += guest_visits_h[g] == (visits[p, g] == h)
+        # Sum crew sizes of guests visiting h excluding h itself (host)
+        # So exclude g == h
+        sum_guests = cp.sum([guest_visits_h[g] * crew_size[g] for g in range(n_boats) if g != h])
+        # Total on boat h at period p = host crew size + sum guests
+        model += sum_guests + crew_size[h] &lt;= capacity[h]
+
+# 4) A guest boat cannot revisit the same host more than once
+# For each guest g, the visits over periods are all different (except for hosts who stay on their own boat)
+for g in range(n_boats):
+    # If g is not host, visits over periods are all different
+    # If g is host, visits are all equal to g (already constrained)
+    # So we only enforce all different if not host
+    model += (~is_host[g]).implies(cp.AllDifferent([visits[p, g] for p in range(n_periods)]))
+
+# 5) Guest crews cannot meet more than once
+# For any two distinct guest boats g1 and g2, they cannot be on the same host boat at the same period more than once
+# That means for all pairs (g1,g2), sum over p of (visits[p,g1] == visits[p,g2]) &lt;= 1
+# But only consider g1 != g2 and both not hosts (hosts stay on their own boat)
+for g1 in range(n_boats):
+    for g2 in range(g1 + 1, n_boats):
+        # Only if both are guests (not hosts)
+        model += (~is_host[g1] &amp; ~is_host[g2]).implies(
+            cp.sum([ (visits[p, g1] == visits[p, g2]) for p in range(n_periods)]) &lt;= 1
+        )
+
+# 6) Minimize number of hosts
+model.minimize(cp.sum(is_host))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;visits&#x27;: visits.value().tolist(),
+        &#x27;is_host&#x27;: [int(x) for x in is_host.value().tolist()]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (76 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# visits[p,b] = v means in period p, boat b visits boat v (0-based index)
+visits = cp.intvar(0, n_boats - 1, shape=(n_periods, n_boats), name=&quot;visits&quot;)
+# is_host[b] == 1 means boat b is a host boat
+is_host = cp.boolvar(shape=n_boats, name=&quot;is_host&quot;)
+
+# Constraints list
+constraints = []
+
+# 1) If a boat b visits boat j in any period, then j must be a host
+for p in range(n_periods):
+    for b in range(n_boats):
+        for j in range(n_boats):
+            # (visits[p,b] == j) -&gt; is_host[j]
+            constraints.append((visits[p, b] == j).implies(is_host[j]))
+
+# 2) If a boat is a host, it stays on its own boat each period
+for h in range(n_boats):
+    for p in range(n_periods):
+        constraints.append(is_host[h].implies(visits[p, h] == h))
+
+# 3) A guest boat cannot revisit a host: for non-host boats, visits across periods are all different
+for b in range(n_boats):
+    for p1 in range(n_periods):
+        for p2 in range(p1 + 1, n_periods):
+            # if b is not a host then visits[p1,b] != visits[p2,b]
+            constraints.append((~is_host[b]).implies(visits[p1, b] != visits[p2, b]))
+
+# 4) Guest crews cannot meet more than once:
+# For any pair of boats b1,b2 that are both guests, the number of periods
+# where they visit the same host is &lt;= 1
+for b1 in range(n_boats):
+    for b2 in range(b1 + 1, n_boats):
+        meet_bools = []
+        for p in range(n_periods):
+            meet_bools.append(visits[p, b1] == visits[p, b2])
+        constraints.append(((~is_host[b1]) &amp; (~is_host[b2])).implies(cp.sum(meet_bools) &lt;= 1))
+
+# 5) Capacity constraints: for each period and each boat h, total people aboard &lt;= capacity[h]
+for p in range(n_periods):
+    for h in range(n_boats):
+        # host crew counts if h is a host
+        host_crew = crew_size[h] * is_host[h]
+        # sum of crews of guest boats visiting h in period p (exclude b==h to avoid double counting)
+        visitors_sum = cp.sum([(visits[p, b] == h) * crew_size[b] for b in range(n_boats) if b != h])
+        constraints.append(host_crew + visitors_sum &lt;= capacity[h])
+
+# Add all constraints to the model
+model += constraints
+
+# Objective: minimize the number of hosts
+model.minimize(cp.sum(is_host))
+
+# Solve and print
+if model.solve():
+    # Convert is_host booleans to 0/1 integers
+    is_host_list = [int(is_host[i].value()) for i in range(n_boats)]
+    visits_list = visits.value().tolist()
+    solution = {&#x27;visits&#x27;: visits_list, &#x27;is_host&#x27;: is_host_list}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (68 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import numpy as np
+import json
+
+# Data (optional)
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+boats = range(n_boats)
+periods = range(n_periods)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+visits = cp.intvar(0, n_boats - 1, shape=(n_periods, n_boats), name=&quot;visits&quot;)  # visits[p,b] = host visited by boat b in period p
+is_host = cp.boolvar(shape=n_boats, name=&quot;is_host&quot;)  # 1 if boat is a host
+
+# Constraints
+
+# Hosts stay on their own boat each period; Non-hosts cannot stay on their boat
+for b in boats:
+    # If host, they stay on their own boat every period
+    model += is_host[b].implies(cp.all([visits[p, b] == b for p in periods]))
+    # If not host, they cannot be on their own boat
+    model += (~is_host[b]).implies(cp.all([visits[p, b] != b for p in periods]))
+
+# Visits must be to a host boat (including oneself if host)
+for p in periods:
+    for b in boats:
+        for v in boats:
+            model += (visits[p, b] == v).implies(is_host[v])
+
+# A guest boat cannot revisit a host: all visits over periods must be different for guests
+for b in boats:
+    model += (~is_host[b]).implies(cp.all([visits[p1, b] != visits[p2, b] for p1 in periods for p2 in periods if p1 &lt; p2]))
+
+# Guest crews cannot meet more than once:
+# For any pair of guest boats, they can be at the same host in at most one period
+for b1 in boats:
+    for b2 in boats:
+        if b1 &lt; b2:
+            same_host_per_period = [visits[p, b1] == visits[p, b2] for p in periods]
+            model += ((~is_host[b1]) &amp; (~is_host[b2])).implies(cp.sum(same_host_per_period) &lt;= 1)
+
+# Capacity constraints: total people on a host boat in a period cannot exceed capacity
+# This includes the host crew (counted via visits[p, h] == h) and all guest crews visiting h
+for p in periods:
+    for h in boats:
+        # Sum of crew sizes of all boats visiting h in period p (including h if host)
+        load = cp.sum([(visits[p, b] == h) * crew_size[b] for b in boats])
+        model += load &lt;= capacity[h]
+
+# Objective: minimize the number of host boats
+model.minimize(cp.sum(is_host))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;visits&#x27;: visits.value().tolist(),
+        &#x27;is_host&#x27;: np.array(is_host.value(), dtype=int).tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (76 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# visits[p,b] = v means in period p, boat b visits boat v (0-based index)
+visits = cp.intvar(0, n_boats - 1, shape=(n_periods, n_boats), name=&quot;visits&quot;)
+# is_host[b] == 1 means boat b is a host boat
+is_host = cp.boolvar(shape=n_boats, name=&quot;is_host&quot;)
+
+# Constraints list
+constraints = []
+
+# 1) If a boat b visits boat j in any period, then j must be a host
+for p in range(n_periods):
+    for b in range(n_boats):
+        for j in range(n_boats):
+            # (visits[p,b] == j) -&gt; is_host[j]
+            constraints.append((visits[p, b] == j).implies(is_host[j]))
+
+# 2) If a boat is a host, it stays on its own boat each period
+for h in range(n_boats):
+    for p in range(n_periods):
+        constraints.append(is_host[h].implies(visits[p, h] == h))
+
+# 3) A guest boat cannot revisit a host: for non-host boats, visits across periods are all different
+for b in range(n_boats):
+    for p1 in range(n_periods):
+        for p2 in range(p1 + 1, n_periods):
+            # if b is not a host then visits[p1,b] != visits[p2,b]
+            constraints.append((~is_host[b]).implies(visits[p1, b] != visits[p2, b]))
+
+# 4) Guest crews cannot meet more than once:
+# For any pair of boats b1,b2 that are both guests, the number of periods
+# where they visit the same host is &lt;= 1
+for b1 in range(n_boats):
+    for b2 in range(b1 + 1, n_boats):
+        meet_bools = []
+        for p in range(n_periods):
+            meet_bools.append(visits[p, b1] == visits[p, b2])
+        constraints.append(((~is_host[b1]) &amp; (~is_host[b2])).implies(cp.sum(meet_bools) &lt;= 1))
+
+# 5) Capacity constraints: for each period and each boat h, total people aboard &lt;= capacity[h]
+for p in range(n_periods):
+    for h in range(n_boats):
+        # host crew counts if h is a host
+        host_crew = crew_size[h] * is_host[h]
+        # sum of crews of guest boats visiting h in period p (exclude b==h to avoid double counting)
+        visitors_sum = cp.sum([(visits[p, b] == h) * crew_size[b] for b in range(n_boats) if b != h])
+        constraints.append(host_crew + visitors_sum &lt;= capacity[h])
+
+# Add all constraints to the model
+model += constraints
+
+# Objective: minimize the number of hosts
+model.minimize(cp.sum(is_host))
+
+# Solve and print
+if model.solve():
+    # Convert is_host booleans to 0/1 integers
+    is_host_list = [int(is_host[i].value()) for i in range(n_boats)]
+    visits_list = visits.value().tolist()
+    solution = {&#x27;visits&#x27;: visits_list, &#x27;is_host&#x27;: is_host_list}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (80 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n_boats = 5;          % Number of boats
+int: n_periods = 4;        % Number of periods
+array[1..n_boats] of int: capacity = [6, 8, 12, 12, 12];  % Capacities of the boats
+array[1..n_boats] of int: crew_size = [2, 2, 2, 2, 4];   % Crew sizes of the boats
+
+% Decision variables
+array[1..n_boats] of var bool: is_host; 
+% is_host[b] = true if boat b is a host boat
+
+% visits[p,b] = host boat visited by boat b at period p
+% For host boats, visits[p,b] = b (they stay on their own boat)
+array[1..n_periods, 1..n_boats] of var 1..n_boats: visits;
+
+% Constraints
+
+% 1) Hosts visit themselves at all periods
+constraint
+  forall(b in 1..n_boats, p in 1..n_periods) (
+    is_host[b] -&gt; (visits[p,b] = b)
+  );
+
+% 2) Guests visit only host boats
+constraint
+  forall(b in 1..n_boats, p in 1..n_periods) (
+    not is_host[b] -&gt; is_host[visits[p,b]]
+  );
+
+% 3) Hosts do not visit other boats (already ensured by 1)
+
+% 4) A guest boat cannot visit the same host more than once
+constraint
+  forall(b in 1..n_boats where not is_host[b]) (
+    alldifferent([visits[p,b] | p in 1..n_periods])
+  );
+
+% 5) Capacity constraints: For each boat and period, total people aboard &lt;= capacity
+% Total people aboard = host crew + sum of guest crews visiting that host at that period
+constraint
+  forall(h in 1..n_boats, p in 1..n_periods) (
+    let {
+      var int: total_guests = sum(b in 1..n_boats where b != h) (
+        bool2int(visits[p,b] = h) * crew_size[b]
+      )
+    } in
+      total_guests + (is_host[h] ? crew_size[h] : 0) &lt;= capacity[h]
+  );
+
+% 6) Guests cannot meet more than once: no two guest boats meet more than once
+% Two guest boats meet if they visit the same host at the same period
+% For each pair of distinct guest boats, the number of periods they meet &lt;= 1
+constraint
+  forall(b1, b2 in 1..n_boats where b1 &lt; b2 /\ not is_host[b1] /\ not is_host[b2]) (
+    sum(p in 1..n_periods) (bool2int(visits[p,b1] = visits[p,b2])) &lt;= 1
+  );
+
+% 7) A host boat must be visited by at least one guest boat at some period (to avoid trivial hosts)
+constraint
+  forall(h in 1..n_boats) (
+    is_host[h] -&gt; exists(p in 1..n_periods, b in 1..n_boats where not is_host[b]) (
+      visits[p,b] = h
+    )
+  );
+
+% Objective: minimize number of hosts
+solve minimize sum(b in 1..n_boats)(bool2int(is_host[b]));
+
+% Output the visit schedule and host designations in JSON format
+output [
+  &quot;{&quot;,
+  &quot;\&quot;visits\&quot;: [&quot;,
+  join(&quot;,\n&quot;, [
+    &quot;[&quot; ++ join(&quot;,&quot;, [show(visits[p,b]) | b in 1..n_boats]) ++ &quot;]&quot;
+    | p in 1..n_periods
+  ]),
+  &quot;],&quot;,
+  &quot;\&quot;is_host\&quot;: &quot;, show(is_host),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (143 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# is_host[i] = 1 if boat i is a host, 0 otherwise
+is_host = [model.NewBoolVar(f&#x27;is_host_{i}&#x27;) for i in range(n_boats)]
+
+# visits[p][g] = h means at period p, guest boat g visits host boat h
+# For hosts, visits[p][h] = h (host visits itself)
+# Domain: 0..n_boats-1 (host boat indices)
+visits = []
+for p in range(n_periods):
+    period_visits = []
+    for g in range(n_boats):
+        period_visits.append(model.NewIntVar(0, n_boats - 1, f&#x27;visits_p{p}_g{g}&#x27;))
+    visits.append(period_visits)
+
+# Constraints
+
+# 1) Hosts visit themselves at all periods
+for p in range(n_periods):
+    for b in range(n_boats):
+        # If boat b is host, then visits[p][b] == b
+        # If not host, visits[p][b] != b (cannot visit itself)
+        model.Add(visits[p][b] == b).OnlyEnforceIf(is_host[b])
+        model.Add(visits[p][b] != b).OnlyEnforceIf(is_host[b].Not())
+
+# 2) Guests cannot visit non-host boats
+for p in range(n_periods):
+    for g in range(n_boats):
+        # If g is not host, visits[p][g] must be a host boat
+        # If g is host, visits[p][g] == g (already enforced above)
+        # So for guests:
+        # visits[p][g] in {i | is_host[i] == 1}
+        # We enforce: is_host[visits[p][g]] == 1 for guests
+        # Create boolean variables for hosts to link
+        # We use element constraint: is_host[visits[p][g]] == 1
+        # But is_host is bool var list, visits[p][g] is int var
+        # Use AddElement
+        # Only enforce if g is guest (not host)
+        model.AddElement(visits[p][g], is_host, 1).OnlyEnforceIf(is_host[g].Not())
+
+# 3) A guest boat cannot revisit the same host more than once
+for g in range(n_boats):
+    # Only for guests
+    model.AddBoolOr([is_host[g].Not()])  # just to clarify
+    # Collect visits of guest g over periods
+    guest_visits = [visits[p][g] for p in range(n_periods)]
+    # All visits must be different (no revisits)
+    # For hosts, visits are always the same (themselves), so no need to enforce
+    # For guests, enforce all different
+    # Use implication: if g is guest, then all different
+    # Create a bool var for guest
+    is_guest = is_host[g].Not()
+    # Add AllDifferent only if is_guest is true
+    # OR-Tools does not support conditional AllDifferent directly,
+    # so we enforce pairwise inequality with reification
+    for p1 in range(n_periods):
+        for p2 in range(p1 + 1, n_periods):
+            b = model.NewBoolVar(f&#x27;visit_diff_g{g}_p{p1}_p{p2}&#x27;)
+            model.Add(guest_visits[p1] != guest_visits[p2]).OnlyEnforceIf(b)
+            model.Add(guest_visits[p1] == guest_visits[p2]).OnlyEnforceIf(b.Not())
+            model.AddImplication(is_guest, b)
+
+# 4) Guest crews cannot meet more than once
+# Two guest boats cannot be on the same host at the same period more than once
+# For each pair of guests (g1, g2), g1 &lt; g2
+# For each period p, visits[p][g1] == visits[p][g2] means they meet
+# Sum over periods of meetings &lt;= 1
+for g1 in range(n_boats):
+    for g2 in range(g1 + 1, n_boats):
+        # Only for guests
+        is_guest1 = is_host[g1].Not()
+        is_guest2 = is_host[g2].Not()
+        # Create list of bool vars for meetings at each period
+        meetings = []
+        for p in range(n_periods):
+            meet = model.NewBoolVar(f&#x27;meet_g{g1}_g{g2}_p{p}&#x27;)
+            model.Add(visits[p][g1] == visits[p][g2]).OnlyEnforceIf(meet)
+            model.Add(visits[p][g1] != visits[p][g2]).OnlyEnforceIf(meet.Not())
+            # Only consider if both are guests
+            # meet =&gt; is_guest1 and is_guest2
+            model.AddImplication(meet, is_guest1)
+            model.AddImplication(meet, is_guest2)
+            meetings.append(meet)
+        # Sum of meetings &lt;= 1
+        model.Add(sum(meetings) &lt;= 1)
+
+# 5) Capacity constraints
+# For each boat b and period p:
+# total people aboard = crew_size[b] (host crew) + sum of crew_size of guests visiting b at p
+# &lt;= capacity[b]
+for p in range(n_periods):
+    for b in range(n_boats):
+        # Sum of crew sizes of guests visiting b at p
+        guests_visiting_b = []
+        for g in range(n_boats):
+            if g == b:
+                continue  # host itself
+            # Create bool var: guest g visits b at p
+            visits_b = model.NewBoolVar(f&#x27;visits_b{b}_g{g}_p{p}&#x27;)
+            model.Add(visits[p][g] == b).OnlyEnforceIf(visits_b)
+            model.Add(visits[p][g] != b).OnlyEnforceIf(visits_b.Not())
+            # Only count if g is guest
+            model.AddImplication(visits_b, is_host[g].Not())
+            guests_visiting_b.append((visits_b, crew_size[g]))
+        # Sum of crew sizes of guests visiting b at p
+        # Use linear expression
+        total_guests_crew = sum(visits_b * size for visits_b, size in guests_visiting_b)
+        # total people aboard = host crew + guests crew &lt;= capacity
+        model.Add(total_guests_crew + crew_size[b] &lt;= capacity[b])
+
+# 6) Minimize number of hosts
+model.Minimize(sum(is_host))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Extract visits as list of lists: visits[p][g]
+    visits_sol = []
+    for p in range(n_periods):
+        period_visits = []
+        for g in range(n_boats):
+            period_visits.append(solver.Value(visits[p][g]))
+        visits_sol.append(period_visits)
+    is_host_sol = [solver.Value(h) for h in is_host]
+    solution = {
+        &#x27;visits&#x27;: visits_sol,
+        &#x27;is_host&#x27;: is_host_sol
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (121 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# 1. Immutable input data (exactly as supplied)
+# --------------------------------------------------
+n_boats = 5                    # Number of boats
+n_periods = 4                  # Number of successive half-hour periods
+capacity = [6, 8, 12, 12, 12]  # On-board capacities for every boat
+crew_size = [2, 2, 2, 2, 4]    # Crew sizes (people) for every boat
+
+# Convenience index sets
+BOATS   = range(n_boats)
+PERIODS = range(n_periods)
+
+# --------------------------------------------------
+# 2. CP-SAT model
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# 2.1 Decision variables
+# ----------------------
+# is_host[i] == 1  -&gt; boat i is selected as a host
+is_host = [model.NewBoolVar(f&quot;host[{i}]&quot;) for i in BOATS]
+
+# x[i][t][h] == 1 -&gt; crew i is on host h during period t
+x = [[[model.NewBoolVar(f&quot;x[{i},{t},{h}]&quot;) for h in BOATS]
+       for t in PERIODS]
+       for i in BOATS]
+
+# Auxiliary variables for pair-wise meetings
+# y[i,j,t,h] == 1 -&gt; crews i and j meet on host h in period t (i &lt; j)
+y = {}
+for i in BOATS:
+    for j in BOATS:
+        if i &lt; j:
+            for t in PERIODS:
+                for h in BOATS:
+                    y[(i, j, t, h)] = model.NewBoolVar(f&quot;y[{i},{j},{t},{h}]&quot;)
+
+# --------------------------------------------------
+# 3. Constraints
+# --------------------------------------------------
+# (1) Each crew must be somewhere every period
+for i in BOATS:
+    for t in PERIODS:
+        model.Add(sum(x[i][t][h] for h in BOATS) == 1)
+
+# (2) Only host boats can receive visitors
+for i in BOATS:
+    for t in PERIODS:
+        for h in BOATS:
+            model.Add(x[i][t][h] &lt;= is_host[h])
+
+# (3) Host crews stay on their own boat for all periods
+for i in BOATS:
+    for t in PERIODS:
+        model.Add(x[i][t][i] == is_host[i])
+
+# (4) No crew may visit the same host more than once (excluding its own boat)
+for i in BOATS:
+    for h in BOATS:
+        if i != h:
+            model.Add(sum(x[i][t][h] for t in PERIODS) &lt;= 1)
+
+# (5) At most one meeting between any pair of crews
+for i in BOATS:
+    for j in BOATS:
+        if i &lt; j:
+            for t in PERIODS:
+                for h in BOATS:
+                    # Linking y and x variables
+                    model.Add(y[(i, j, t, h)] &lt;= x[i][t][h])
+                    model.Add(y[(i, j, t, h)] &lt;= x[j][t][h])
+                    model.Add(y[(i, j, t, h)] &gt;= x[i][t][h] + x[j][t][h] - 1)
+            # At most one meeting in total
+            model.Add(sum(y[(i, j, t, h)] for t in PERIODS for h in BOATS) &lt;= 1)
+
+# (6) Capacity of every host in every period must not be exceeded
+for h in BOATS:
+    for t in PERIODS:
+        model.Add(sum(crew_size[i] * x[i][t][h] for i in BOATS) &lt;= capacity[h])
+
+# (7) At least one host boat must be designated
+model.Add(sum(is_host) &gt;= 1)
+
+# --------------------------------------------------
+# 4. Objective: minimise the number of host boats
+# --------------------------------------------------
+model.Minimize(sum(is_host))
+
+# --------------------------------------------------
+# 5. Solve
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 30.0  # safety limit
+status = solver.Solve(model)
+
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise ValueError(&quot;No feasible solution found for the given data.&quot;)
+
+# --------------------------------------------------
+# 6. Extract solution
+# --------------------------------------------------
+solution_is_host = [int(solver.Value(is_host[i])) for i in BOATS]
+
+# visits[i][t] = h – index of host boat occupied by crew i in period t
+visits = [[None for _ in PERIODS] for _ in BOATS]
+for i in BOATS:
+    for t in PERIODS:
+        for h in BOATS:
+            if solver.Value(x[i][t][h]):
+                visits[i][t] = h
+                break
+
+# --------------------------------------------------
+# 7. Output as JSON
+# --------------------------------------------------
+print(json.dumps({
+    &quot;is_host&quot;: solution_is_host,
+    &quot;visits&quot;: visits
+}))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n_boats&quot;: 5,
   &quot;n_periods&quot;: 4,
   &quot;capacity&quot;: [
@@ -414,9 +1390,9 @@ crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats</code></pre>
     4
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">is_host</span><span class="chip">visits</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-52">Copy</button></div><pre class="code-block"><code id="solution-52" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">is_host</span><span class="chip">visits</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-52">Copy</button></div><pre class="code-block"><code id="solution-52" class="language-json">{
   &quot;visits&quot;: [
     [
       0,
@@ -455,6 +1431,7 @@ crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats</code></pre>
     false
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -462,9 +1439,9 @@ crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_013_progressive_party_problem/csplib_013_progressive_party_problem.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_013_progressive_party_problem/csplib_013_progressive_party_problem.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_012_nonogram.html">â† prev</a><a class="btn" href="csplib_014_solitaire_battleships.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_012_nonogram.html">← prev</a><a class="btn" href="csplib_014_solitaire_battleships.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

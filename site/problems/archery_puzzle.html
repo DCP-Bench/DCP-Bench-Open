@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>archery_puzzle Â· DCP-Bench Open</title>
-<meta name="description" content="How close can the young archer come to scoring a total of a target score using as many arrows as she pleases? The targets are given as a list of integers. Prinâ€¦">
+<title>archery_puzzle · DCP-Bench Open</title>
+<meta name="description" content="How close can the young archer come to scoring a total of a target score using as many arrows as she pleases? The targets are given as a list of integers. Prin…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/archery_puzzle.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/archery_puzzle.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-9">Copy</button></div><pre class="code-block"><code id="model-9" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -64,7 +65,1002 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">targets = [16, 17, 23, 24, 39, 40]
 target_score = 100</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+targets = [16, 17, 23, 24, 39, 40]  # Available target values
+max_arrows = 100  # Upper bound on number of arrows
+
+# Decision Variables
+hits = intvar(0, max_arrows, shape=len(targets), name=&quot;hits&quot;)  # Number of hits per target
+total = intvar(0, 100*max_arrows, name=&quot;total&quot;)  # Total score
+
+# Model
+model = Model()
+
+# Calculate total score
+model += total == sum(hits[i] * targets[i] for i in range(len(targets)))
+
+# Objective: minimize the absolute difference from 100
+diff = intvar(0, 100*max_arrows, name=&quot;diff&quot;)
+model += (diff == abs(total - 100))
+model.minimize(diff)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;hits&quot;: hits.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (22 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+# Number of hits on each target
+hits = intvar(0, 100, shape=6, name=&quot;hits&quot;)
+
+# Target scores
+targets = [16, 17, 23, 24, 39, 40]
+
+# Model
+model = Model()
+
+# Total score is as close to 100 as possible
+total_score = sum(hits * targets)
+model.minimize(abs(total_score - 100))
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;hits&quot;: hits.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Find the closest possible score to 100 using archery targets
+# Available targets: 16, 17, 23, 24, 39, 40
+# Can use any number of arrows (including 0) on each target
+# Objective: minimize |total_score - 100|
+# Output: number of hits on each target
+
+targets = [16, 17, 23, 24, 39, 40]
+target_score = 100
+n_targets = len(targets)
+
+# Step 2: Model with CPMpy
+# Upper bound for arrows per target
+max_arrows = target_score // min(targets) + 2
+
+# Decision variables: number of hits on each target
+hits = cp.intvar(0, max_arrows, shape=n_targets, name=&quot;hits&quot;)
+
+# Create the model
+model = cp.Model()
+
+# Calculate total score
+total_score = cp.sum([hits[i] * targets[i] for i in range(n_targets)])
+
+# Minimize absolute difference from target score
+# Use auxiliary variable for |total_score - 100|
+diff = cp.intvar(0, target_score, name=&quot;diff&quot;)
+
+# |total_score - 100| = diff
+# This means: total_score - 100 = diff OR total_score - 100 = -diff
+model += (total_score == target_score + diff) | (total_score == target_score - diff)
+
+# Minimize the difference (optimization problem)
+model.minimize(diff)
+
+# Step 3: Solve and verify
+if model.solve():
+    # Extract solution
+    hits_solution = hits.value()
+    
+    # Create solution in required JSON format
+    solution = {
+        &quot;hits&quot;: hits_solution.tolist()
+    }
+    
+    # Verification: Check that solution is correct
+    def verify_solution(sol, targets, target_score):
+        hits_list = sol[&quot;hits&quot;]
+        
+        # Structural check
+        if len(hits_list) != len(targets):
+            return False
+        
+        # Logical check: calculate total score
+        total_achieved = sum(hits_list[i] * targets[i] for i in range(len(targets)))
+        
+        # All hits should be non-negative
+        if any(h &lt; 0 for h in hits_list):
+            return False
+            
+        return True
+    
+    assert verify_solution(solution, targets, target_score), &quot;Solution verification failed!&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+targets = [16, 17, 23, 24, 39, 40]
+n_targets = len(targets)
+max_arrows = 100  # upper bound on number of arrows (arbitrary large enough)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: number of hits on each target (non-negative integers)
+hits = cp.intvar(0, max_arrows, shape=n_targets, name=&quot;hits&quot;)
+
+# Total score
+total_score = cp.sum([hits[i] * targets[i] for i in range(n_targets)])
+
+# We want to get as close as possible to 100 (either &lt;= or &gt;=)
+# So minimize the absolute difference |total_score - 100|
+diff = cp.intvar(0, 1000, name=&quot;diff&quot;)  # large enough upper bound for difference
+
+model += (diff == cp.Abs(total_score - 100))
+
+# Objective: minimize the difference
+model.minimize(diff)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Targets
+targets = [16, 17, 23, 24, 39, 40]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: number of hits on each target (0..6 is enough since 7*16 &gt; 100)
+hits = cp.intvar(0, 6, shape=6, name=&quot;hits&quot;)
+
+# Total score variable
+total = cp.intvar(0, 100, name=&quot;total&quot;)
+
+# Constraints
+model += (total == cp.sum([targets[i] * hits[i] for i in range(6)]))
+model += (total &lt;= 100)
+
+# Objective: get as close as possible to 100
+model.maximize(total)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+targets = [16, 17, 23, 24, 39, 40]
+n_targets = len(targets)
+# Upper bound on arrows: enough to exceed 100 by a bit
+max_arrows = (100 // min(targets)) + 1
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+hits = cp.intvar(0, max_arrows, shape=n_targets, name=&quot;hits&quot;)
+# Total score
+score = cp.sum([hits[i] * targets[i] for i in range(n_targets)])
+# Absolute deviation from 100
+d = cp.intvar(0, max_arrows * max(targets), name=&quot;d&quot;)
+
+# Constraints
+model += d &gt;= score - 100
+model += d &gt;= 100 - score
+
+# Objective: minimize the distance to 100
+model.minimize(d)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (15 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
+import json
+targets = [16, 17, 23, 24, 39, 40]
+best_hits = None
+best_key = None
+for hits in itertools.product(range(8), repeat=len(targets)):
+    score = sum(hit * target for hit, target in zip(hits, targets, strict=True))
+    key = (abs(100 - score), sum(hits))
+    if best_key is None or key &lt; best_key:
+        best_key = key
+        best_hits = hits
+    if key[0] == 0:
+        break
+if best_hits is None:
+    raise RuntimeError(&#x27;no archery solution found&#x27;)
+print(json.dumps({&#x27;hits&#x27;: list(best_hits)}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+targets = [16, 17, 23, 24, 39, 40]
+n_targets = len(targets)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: number of hits on each target (non-negative integers)
+hits = cp.intvar(0, 100, shape=n_targets, name=&quot;hits&quot;)
+
+# Total score
+total_score = cp.sum([hits[i] * targets[i] for i in range(n_targets)])
+
+# We want to get as close as possible to 100 (either below or above)
+# Introduce a variable for the absolute difference from 100
+diff = cp.intvar(0, 1000, name=&quot;diff&quot;)
+
+# Constraints for diff = |total_score - 100|
+model += (diff &gt;= total_score - 100)
+model += (diff &gt;= 100 - total_score)
+
+# Objective: minimize the difference
+model.minimize(diff)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Targets
+targets = [16, 17, 23, 24, 39, 40]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: number of hits on each target (0..6 is enough since 7*16 &gt; 100)
+hits = cp.intvar(0, 6, shape=6, name=&quot;hits&quot;)
+
+# Total score variable
+total = cp.intvar(0, 100, name=&quot;total&quot;)
+
+# Constraints
+model += (total == cp.sum([targets[i] * hits[i] for i in range(6)]))
+model += (total &lt;= 100)
+
+# Objective: get as close as possible to 100
+model.maximize(total)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+targets = [16, 17, 23, 24, 39, 40]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+hits = cp.intvar(0, 1000, shape=len(targets), name=&quot;hits&quot;)
+
+# Total score calculation
+total = cp.sum(targets[i] * hits[i] for i in range(6))
+
+# Compute the absolute difference from 100
+difference = cp.Abs(total - 100)
+
+# Objective: minimize difference (prioritized) and maximize the number of arrows
+sum_hits = cp.sum(hits)
+objective = difference * 1000000 - sum_hits  # Prioritize difference first
+model.minimize(objective)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+targets = [16, 17, 23, 24, 39, 40]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+hits = cp.intvar(0, 1000, shape=len(targets), name=&quot;hits&quot;)
+
+# Total score calculation
+total = cp.sum(targets[i] * hits[i] for i in range(6))
+
+# Compute the absolute difference from 100
+difference = cp.Abs(total - 100)
+
+# Objective: minimize difference (prioritized) and maximize the number of arrows
+sum_hits = cp.sum(hits)
+objective = difference * 1000000 - sum_hits  # Prioritize difference first
+model.minimize(objective)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+scores = [16, 17, 23, 24, 39, 40]
+target = 100
+n = len(scores)
+
+# Decision variable upper bound (enough to cover all possibilities near target)
+ub = target // min(scores) + 10  # e.g., 16 + 10 = 26
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+hits = cp.intvar(0, ub, shape=n, name=&quot;hits&quot;)
+
+# Constraints and Objective
+total = cp.sum([scores[i] * hits[i] for i in range(n)])
+
+# Objective: minimize the absolute difference to target
+model.minimize(cp.Abs(total - target))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Targets
+targets = [16, 17, 23, 24, 39, 40]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: number of hits on each target (0..6 is enough since 7*16 &gt; 100)
+hits = cp.intvar(0, 6, shape=6, name=&quot;hits&quot;)
+
+# Total score variable
+total = cp.intvar(0, 100, name=&quot;total&quot;)
+
+# Constraints
+model += (total == cp.sum([targets[i] * hits[i] for i in range(6)]))
+model += (total &lt;= 100)
+
+# Objective: get as close as possible to 100
+model.maximize(total)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;hits&#x27;: hits.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: syntax error, unexpected diff, expecting identifier</p>
+      <details class="gmodel"><summary>model.mzn (20 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Targets and their scores
+array[1..6] of int: targets = [16, 17, 23, 24, 39, 40];
+
+% Decision variables: number of hits on each target (non-negative integers)
+array[1..6] of var 0..100: hits;
+
+% Total score from all hits
+var 0..1000: total_score = sum(i in 1..6)(hits[i] * targets[i]);
+
+% Objective: minimize the absolute difference to 100
+var 0..1000: diff = abs(total_score - 100);
+
+solve minimize diff;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;hits\&quot;: &quot;, show(hits),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (31 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include global constraints library (if needed)
+include &quot;globals.mzn&quot;;
+
+% Number of different targets
+int: num_targets = 6;
+
+% The score value for each target
+array[1..num_targets] of int: target = [16, 17, 23, 24, 39, 40];
+
+% Decision variables: number of hits on each target (unbounded above, but
+% effectively bounded by the total-score constraint)
+array[1..num_targets] of var 0..100: hits;
+
+% The total score achieved
+var int: score = sum(i in 1..num_targets)(hits[i] * target[i]);
+
+% Constraint: do not exceed 100 points
+constraint score &lt;= 100;
+
+% Objective: maximize the total score (as close as possible to 100)
+solve maximize score;
+
+% Output the hits array in JSON format
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;&quot; ++ &quot;hits&quot; ++ &quot;\&quot;: [&quot; ++ join(&quot;,&quot;, [show(hits[i]) | i in 1..num_targets]) ++ &quot;]&quot;
+    ]),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Targets and the goal
+targets = [16, 17, 23, 24, 39, 40]
+goal = 100
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: number of hits on each target (non-negative integers)
+hits = [model.NewIntVar(0, 1000, f&#x27;hits_{i}&#x27;) for i in range(len(targets))]
+
+# Calculate total score
+total_score = sum(hits[i] * targets[i] for i in range(len(targets)))
+
+# Auxiliary variable for absolute difference from goal
+diff = model.NewIntVar(0, 1000, &#x27;diff&#x27;)
+
+# Constraints to define diff = |total_score - goal|
+model.Add(diff &gt;= total_score - goal)
+model.Add(diff &gt;= goal - total_score)
+
+# Objective: minimize the difference from 100
+model.Minimize(diff)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;hits&#x27;: [solver.Value(h) for h in hits]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Scores of the six targets
+scores = [16, 17, 23, 24, 39, 40]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: number of hits on each target (unbounded arrows but we set a reasonable upper bound)
+hits = [model.NewIntVar(0, 10, f&#x27;hits_{i}&#x27;) for i in range(len(scores))]
+
+# Auxiliary variable for the total score
+total = model.NewIntVar(0, 1000, &#x27;total&#x27;)
+
+# Auxiliary variable for the absolute difference from 100
+diff = model.NewIntVar(0, 1000, &#x27;diff&#x27;)
+
+# Constraint: total score equals sum of target scores times hits
+model.Add(total == sum(scores[i] * hits[i] for i in range(len(scores))))
+
+# Constraints to model absolute difference: diff &gt;= total - 100 and diff &gt;= 100 - total
+model.Add(diff &gt;= total - 100)
+model.Add(diff &gt;= 100 - total)
+
+# Objective: minimize the difference to 100
+model.Minimize(diff)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;hits&#x27;: [solver.Value(h) for h in hits]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# Immutable problem data
+# --------------------------------------------------
+SCORES = [16, 17, 23, 24, 39, 40]   # points per hit for each target
+TARGET_TOTAL = 100                  # score we want to approximate
+N_TARGETS = len(SCORES)
+
+# --------------------------------------------------
+# CP-SAT model
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: number of hits on each target
+# Upper bound 100 is more than sufficient (100 arrows of value 16 already score 1600)
+HITS_UPPER = 100
+hits = [model.NewIntVar(0, HITS_UPPER, f&quot;hits_{i}&quot;) for i in range(N_TARGETS)]
+
+# Auxiliary variable: total score obtained
+max_total_possible = HITS_UPPER * max(SCORES) * N_TARGETS  # safe upper bound
+total_score = model.NewIntVar(0, max_total_possible, &quot;total_score&quot;)
+model.Add(total_score == sum(SCORES[i] * hits[i] for i in range(N_TARGETS)))
+
+# Auxiliary variable: absolute deviation from 100
+deviation = model.NewIntVar(0, max_total_possible, &quot;deviation&quot;)
+model.Add(deviation &gt;= total_score - TARGET_TOTAL)
+model.Add(deviation &gt;= TARGET_TOTAL - total_score)
+
+# Objective: minimise deviation
+model.Minimize(deviation)
+
+# --------------------------------------------------
+# Solve
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise RuntimeError(&quot;No feasible solution found.&quot;)
+
+solution_hits = [solver.Value(h) for h in hits]
+
+# --------------------------------------------------
+# Output
+# --------------------------------------------------
+print(json.dumps({&quot;hits&quot;: solution_hits}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;hits&quot;: [
+    2,
+    4,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;targets&quot;: [
     16,
     17,
@@ -75,9 +1071,9 @@ target_score = 100</code></pre>
   ],
   &quot;target_score&quot;: 100
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">hits</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-9">Copy</button></div><pre class="code-block"><code id="solution-9" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">hits</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-9">Copy</button></div><pre class="code-block"><code id="solution-9" class="language-json">{
   &quot;hits&quot;: [
     2,
     4,
@@ -87,6 +1083,7 @@ target_score = 100</code></pre>
     0
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -94,9 +1091,9 @@ target_score = 100</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/archery_puzzle/archery_puzzle.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/archery_puzzle/archery_puzzle.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="appointment_scheduling.html">â† prev</a><a class="btn" href="arch_friends.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="appointment_scheduling.html">← prev</a><a class="btn" href="arch_friends.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>building_blocks Â· DCP-Bench Open</title>
-<meta name="description" content="Each of a number of alphabet blocks has a single letter of the alphabet on each of its sides. In all, the blocks contain every letter but Q and Z. By arrangingâ€¦">
+<title>building_blocks · DCP-Bench Open</title>
+<meta name="description" content="Each of a number of alphabet blocks has a single letter of the alphabet on each of its sides. In all, the blocks contain every letter but Q and Z. By arranging…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/building_blocks.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/building_blocks.py</a></dd><dt>Source description</dt><dd><a href="http://brownbuffalo.sourceforge.net/BuildingBlocksClues.html" target="_blank" rel="noopener">http://brownbuffalo.sourceforge.net/BuildingBlocksClues.html</a></dd><dt>Misc</dt><dd><a href="http://www.hakank.org/cpmpy/cpmpy_hakank.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cpmpy_hakank.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (9)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-21">Copy</button></div><pre class="code-block"><code id="model-21" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -100,7 +101,540 @@ words_str = [
 alphabet = &quot;ABCDEFGHIJKLMNOPRSTUVWXY&quot;
 num_letters = 24</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (6)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision Variables
+letters = &quot;ABCDEFGHIJKLMNOPRSTUVWXY&quot;  # All letters except Q and Z, in alphabetical order
+dice = intvar(0, 3, shape=len(letters), name=&quot;dice&quot;)  # dice[letter_idx] = block_num
+
+# Model
+model = Model()
+
+# Words that can be spelled
+words = [&quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;, &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;, &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;]
+
+# Constraint: For each word, all letters must be on different blocks
+for word in words:
+    letter_indices = [letters.index(c) for c in word]
+    model += AllDifferent([dice[i] for i in letter_indices])
+
+# Constraint: Each block must have exactly 6 letters
+for block in range(4):
+    model += sum(dice == block) == 6
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {&quot;dice&quot;: dice.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Letters: all except Q and Z, in alphabetical order
+letters = [chr(i) for i in range(ord(&#x27;A&#x27;), ord(&#x27;Z&#x27;)+1) if chr(i) not in (&#x27;Q&#x27;, &#x27;Z&#x27;)]
+# words to be spelled (given)
+words = [&quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;,
+         &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+         &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: which of the 4 dice (0..3) each letter is on
+dice = cp.intvar(0, 3, shape=len(letters), name=&quot;dice&quot;)
+
+# Helper: map letter to index in &#x27;letters&#x27; list
+idx = {letters[i]: i for i in range(len(letters))}
+
+# Constraints
+# Each die must have exactly 6 letters (4 dice * 6 faces = 24 letters)
+for d in range(4):
+    model += (cp.Count(dice, d) == 6)
+
+# For each word, the letters must be on distinct dice (can&#x27;t reuse a block)
+for w in words:
+    model += cp.AllDifferent([dice[idx[ch]] for ch in w])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;dice&#x27;: dice.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# The problem:
+# We have 4 blocks, each with 6 letters on its sides.
+# The 4 blocks collectively contain every letter except Q and Z.
+# By arranging the blocks in various ways (choosing which side of each block is visible),
+# we can spell all given words.
+# We want to find which block contains each letter. The output is a list of 24 numbers,
+# each number between 0 and 3 indicating the block index for each letter (A to Z without Q and Z).
+
+# Letters involved: all except Q and Z
+# Alphabet without Q and Z: 24 letters
+letters = [chr(c) for c in range(ord(&#x27;A&#x27;), ord(&#x27;Z&#x27;)+1) if chr(c) not in [&#x27;Q&#x27;, &#x27;Z&#x27;]]
+letter_to_idx = {ch: i for i, ch in enumerate(letters)}
+
+# The four blocks have 6 letters each, total 24 letters -&gt; each letter assigned to exactly one block
+# Blocks are numbered 0,1,2,3.
+
+words = [
+    &quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;,
+    &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+    &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;
+]
+
+# Decision variables:
+# dice[i] = block number (0..3) assigned to letter i
+dice = cp.intvar(0, 3, shape=len(letters), name=&quot;dice&quot;)
+
+model = cp.Model()
+
+# Each block has exactly 6 letters
+for b in range(4):
+    model += cp.Count(dice, b) == 6
+
+# For each word:
+# Each letter in the word must be on a different block
+# Because the blocks are distinct dice, we have to use each letter from different blocks to arrange the word
+# so that by picking a side on each block, we can spell the word.
+for word in words:
+    # convert letters to indexes
+    idxs = [letter_to_idx[ch] for ch in word]
+    # all dice for letters in the word are different
+    model += cp.AllDifferent([dice[i] for i in idxs])
+
+# Solve
+if model.solve():
+    # output a list of 24 numbers representing the block (dice) for each letter (in alphabetical order A..Z without Q,Z)
+    solution = {&#x27;dice&#x27;: dice.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Letters: all except Q and Z, in alphabetical order
+letters = [chr(i) for i in range(ord(&#x27;A&#x27;), ord(&#x27;Z&#x27;)+1) if chr(i) not in (&#x27;Q&#x27;, &#x27;Z&#x27;)]
+# words to be spelled (given)
+words = [&quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;,
+         &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+         &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: which of the 4 dice (0..3) each letter is on
+dice = cp.intvar(0, 3, shape=len(letters), name=&quot;dice&quot;)
+
+# Helper: map letter to index in &#x27;letters&#x27; list
+idx = {letters[i]: i for i in range(len(letters))}
+
+# Constraints
+# Each die must have exactly 6 letters (4 dice * 6 faces = 24 letters)
+for d in range(4):
+    model += (cp.Count(dice, d) == 6)
+
+# For each word, the letters must be on distinct dice (can&#x27;t reuse a block)
+for w in words:
+    model += cp.AllDifferent([dice[idx[ch]] for ch in w])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;dice&#x27;: dice.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import string
+
+# Data
+# Letters: all A..Z except Q and Z (total 24 letters)
+letters = [ch for ch in string.ascii_uppercase if ch not in (&#x27;Q&#x27;, &#x27;Z&#x27;)]
+letter_index = {ch: i for i, ch in enumerate(letters)}
+
+# Words that must be spellable (each letter from a different block)
+words = [
+    &quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;,
+    &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+    &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# dice[i] = block index (0..3) for letter letters[i]
+dice = cp.intvar(0, 3, shape=len(letters), name=&quot;dice&quot;)
+
+# Constraints
+
+# 1) Each block must contain exactly 6 letters
+for b in range(4):
+    model += (cp.Count(dice, b) == 6)
+
+# 2) For each word, its four letters must be on four distinct blocks
+for w in words:
+    indices = [letter_index[ch] for ch in w]
+    model += cp.AllDifferent([dice[i] for i in indices])
+
+# Objective (none)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;dice&#x27;: dice.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Letters: all except Q and Z, in alphabetical order
+letters = [chr(i) for i in range(ord(&#x27;A&#x27;), ord(&#x27;Z&#x27;)+1) if chr(i) not in (&#x27;Q&#x27;, &#x27;Z&#x27;)]
+# words to be spelled (given)
+words = [&quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;,
+         &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+         &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: which of the 4 dice (0..3) each letter is on
+dice = cp.intvar(0, 3, shape=len(letters), name=&quot;dice&quot;)
+
+# Helper: map letter to index in &#x27;letters&#x27; list
+idx = {letters[i]: i for i in range(len(letters))}
+
+# Constraints
+# Each die must have exactly 6 letters (4 dice * 6 faces = 24 letters)
+for d in range(4):
+    model += (cp.Count(dice, d) == 6)
+
+# For each word, the letters must be on distinct dice (can&#x27;t reuse a block)
+for w in words:
+    model += cp.AllDifferent([dice[idx[ch]] for ch in w])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;dice&#x27;: dice.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (58 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Letters involved (excluding Q and Z)
+% Alphabet letters except Q and Z: 24 letters total
+% Letters appearing in the words:
+% BAKE ONYX ECHO OVAL
+% GIRD SMUG JUMP TORN
+% LUCK VINY LUSH WRAP
+
+% Extract unique letters from all words:
+% Letters: A B C D E G H I J K L M N O P R S T U V W X Y
+% Total 24 letters
+
+% Map letters to indices 1..24
+enum LETTERS = {A,B,C,D,E,G,H,I,J,K,L,M,N,O,P,R,S,T,U,V,W,X,Y};
+
+int: num_letters = 24;
+int: num_blocks = 4;
+int: faces_per_block = 6;
+
+% Words to be spelled
+array[1..12] of array[int] of LETTERS: words = [
+    [B,A,K,E],
+    [O,N,Y,X],
+    [E,C,H,O],
+    [O,V,A,L],
+    [G,I,R,D],
+    [S,M,U,G],
+    [J,U,M,P],
+    [T,O,R,N],
+    [L,U,C,K],
+    [V,I,N,Y],
+    [L,U,S,H],
+    [W,R,A,P]
+];
+
+% Decision variables:
+% For each letter, which block it is assigned to (0..3)
+array[LETTERS] of var 0..3: dice;
+
+% Each block has exactly 6 letters
+constraint
+    forall(b in 0..3) (
+        sum([bool2int(dice[l] == b) | l in LETTERS]) == faces_per_block
+    );
+
+% For each word, the letters must be on distinct blocks (one letter per block)
+constraint
+    forall(w in 1..12) (
+        alldifferent([dice[l] | l in words[w]])
+    );
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [show(dice[l]) | l in LETTERS]),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Letters involved (all letters except Q and Z)
+letters = [
+    &#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;, &#x27;I&#x27;, &#x27;J&#x27;, &#x27;K&#x27;, &#x27;L&#x27;, &#x27;M&#x27;,
+    &#x27;N&#x27;, &#x27;O&#x27;, &#x27;P&#x27;, &#x27;R&#x27;, &#x27;S&#x27;, &#x27;T&#x27;, &#x27;U&#x27;, &#x27;V&#x27;, &#x27;W&#x27;, &#x27;X&#x27;, &#x27;Y&#x27;
+]
+
+# Words to be spelled
+words = [
+    &quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;,
+    &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+    &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;
+]
+
+# Map letters to indices for easy reference
+letter_to_index = {letter: i for i, letter in enumerate(letters)}
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables:
+# dice[i] = which block (0..3) letter i is assigned to
+dice = [model.NewIntVar(0, 3, f&#x27;dice_{letters[i]}&#x27;) for i in range(len(letters))]
+
+# Each block has 6 sides, so max 6 letters per block
+# Count how many letters assigned to each block
+for block in range(4):
+    model.Add(sum(dice[i] == block for i in range(len(letters))) &lt;= 6)
+
+# For each word, all letters must be on different blocks (since each letter must come from a different block)
+# Because to spell a word, each letter must come from a different block (one letter per block)
+# So letters in the same word must be assigned to distinct blocks
+for word in words:
+    indices = [letter_to_index[ch] for ch in word]
+    # All different blocks for letters in the word
+    for i in range(len(indices)):
+        for j in range(i + 1, len(indices)):
+            model.Add(dice[indices[i]] != dice[indices[j]])
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Output the dice assignments as a list of integers in the order of letters
+    solution = [solver.Value(d) for d in dice]
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (69 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# -----------------------------
+# Data definition
+# -----------------------------
+# Alphabet without Q and Z, in natural alphabetical order
+letters = [ch for ch in &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot; if ch not in (&quot;Q&quot;, &quot;Z&quot;)]
+assert len(letters) == 24  # sanity check
+index_of = {ch: idx for idx, ch in enumerate(letters)}
+
+# List of 4-letter words that must be spellable (each letter on a different block)
+words = [
+    &quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;,
+    &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+    &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;,
+]
+
+# -----------------------------
+# Model construction
+# -----------------------------
+model = cp_model.CpModel()
+
+# Decision variables: dice[l] is the block index (0..3) carrying letter l
+num_blocks = 4
+faces_per_block = 6
+
+dice = [model.NewIntVar(0, num_blocks - 1, f&quot;dice_{l}&quot;) for l in letters]
+
+# Helper boolean matrix: is_letter_on_block[(i,b)] is true iff letter i sits on block b
+is_letter_on_block = {}
+for i, l in enumerate(letters):
+    bools = []
+    for b in range(num_blocks):
+        v = model.NewBoolVar(f&quot;is_{l}_{b}&quot;)
+        is_letter_on_block[(i, b)] = v
+        # Channeling between integer and booleans
+        model.Add(dice[i] == b).OnlyEnforceIf(v)
+        model.Add(dice[i] != b).OnlyEnforceIf(v.Not())
+        bools.append(v)
+    # Each letter is placed on exactly one block
+    model.AddExactlyOne(bools)
+
+# Cardinality: each block must carry exactly six letters
+for b in range(num_blocks):
+    model.Add(sum(is_letter_on_block[(i, b)] for i in range(len(letters))) == faces_per_block)
+
+# Word feasibility: letters of each word must reside on distinct blocks
+for w in words:
+    idxs = [index_of[ch] for ch in w]
+    for i in range(4):
+        for j in range(i + 1, 4):
+            model.Add(dice[idxs[i]] != dice[idxs[j]])
+
+# -----------------------------
+# Solve
+# -----------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 30  # optional time limit
+status = solver.Solve(model)
+
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise RuntimeError(&quot;No feasible assignment found for the given constraints.&quot;)
+
+solution = [int(solver.Value(var)) for var in dice]
+
+# -----------------------------
+# Output
+# -----------------------------
+print(json.dumps({&quot;dice&quot;: solution}))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;num_blocks&quot;: 4,
   &quot;num_sides&quot;: 6,
   &quot;words_str&quot;: [
@@ -120,9 +654,9 @@ num_letters = 24</code></pre>
   &quot;alphabet&quot;: &quot;ABCDEFGHIJKLMNOPRSTUVWXY&quot;,
   &quot;num_letters&quot;: 24
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">dice</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-21">Copy</button></div><pre class="code-block"><code id="solution-21" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">dice</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-21">Copy</button></div><pre class="code-block"><code id="solution-21" class="language-json">{
   &quot;dice&quot;: [
     3,
     2,
@@ -150,6 +684,7 @@ num_letters = 24</code></pre>
     1
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -157,9 +692,9 @@ num_letters = 24</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/building_blocks/building_blocks.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/building_blocks/building_blocks.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="broken_weights.html">â† prev</a><a class="btn" href="bus_scheduling.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="broken_weights.html">← prev</a><a class="btn" href="bus_scheduling.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

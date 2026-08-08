@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_054_n_queens Â· DCP-Bench Open</title>
-<meta name="description" content="Can \( n \) queens (of the same color) be placed on a \( n \times n \) chessboard so that none of the queens can attack each other? In chess, a queen attacks oâ€¦">
+<title>csplib_054_n_queens · DCP-Bench Open</title>
+<meta name="description" content="Can \( n \) queens (of the same color) be placed on a \( n \times n \) chessboard so that none of the queens can attack each other? In chess, a queen attacks o…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob054_n_queens.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob054_n_queens.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob054/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob054/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (6)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (6)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-73">Copy</button></div><pre class="code-block"><code id="model-73" class="language-python"># Import libraries
 import json
 import numpy as np
@@ -61,7 +62,487 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">n = 10  # Size of the chessboard and number of queens</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 10  # Size of the chessboard and number of queens
+
+# Decision Variables
+queens = intvar(1, n, shape=n, name=&quot;queens&quot;)  # Position of queens in each row (1-based indexing)
+
+# Model
+model = Model()
+
+# Constraint: all queens must be on different columns (implicit by array index)
+# Constraint: no two queens can be on the same row
+model += AllDifferent(queens)
+
+# Constraint: no two queens can be on the same diagonal
+for i in range(n):
+    for j in range(i+1, n):
+        model += (queens[i] - queens[j] != i - j)  # Diagonal \
+        model += (queens[i] - queens[j] != j - i)  # Diagonal /
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;queens&quot;: queens.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n = 10  # Size of the chessboard and number of queens
+
+# Decision variables
+# queens[i] represents the row of the queen in column i
+queens = intvar(0, n - 1, shape=n, name=&quot;queens&quot;)
+
+# Model
+model = Model()
+
+# All queens must be in different rows
+model += [AllDifferent(queens)]
+
+# No two queens can be on the same diagonal
+# Use AllDifferent to ensure all \ diagonals (queens[i] - i) are unique
+model += [AllDifferent(queens - arange(n))]
+# Use AllDifferent to ensure all / diagonals (queens[i] + i) are unique
+model += [AllDifferent(queens + arange(n))]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;queens&quot;: queens.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # Size of the chessboard and number of queens
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# queens[i] is the column (1..n) of the queen in row i (rows are 1..n)
+queens = cp.intvar(1, n, shape=n, name=&quot;queens&quot;)
+
+# Constraints
+# 1) No two queens in same column
+model += cp.AllDifferent(queens)
+
+# 2) No two queens on the same diagonals:
+# For queens at rows i and j (1-based), |queens[i]-queens[j]| != |i-j|
+# Equivalent to AllDifferent of queens[i] + i and queens[i] - i
+diag_plus  = [queens[i] + (i + 1) for i in range(n)]
+diag_minus = [queens[i] - (i + 1) for i in range(n)]
+model += cp.AllDifferent(*diag_plus)
+model += cp.AllDifferent(*diag_minus)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;queens&#x27;: queens.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# We represent the solution by an array &#x27;queens&#x27; of length n,
+# where queens[i] = row position of the queen in column i (0-based indexing)
+queens = cp.intvar(0, n-1, shape=n, name=&quot;queens&quot;)
+
+# Constraints
+# 1) All queens must be in different rows
+model += cp.AllDifferent(queens)
+
+# 2) No two queens share the same diagonal
+# For diagonals, the difference (row - column) and sum (row + column) must be all different
+diag1 = [queens[i] + i for i in range(n)]
+diag2 = [queens[i] - i for i in range(n)]
+model += cp.AllDifferent(diag1)
+model += cp.AllDifferent(diag2)
+
+# Solve and print
+if model.solve():
+    # queens[i] is the row of the queen in column i
+    solution = {&#x27;queens&#x27;: [int(queens[i].value()) for i in range(n)]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # Size of the chessboard and number of queens
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# queens[i] = column (1..n) of the queen in row i (0-based index for rows)
+queens = cp.intvar(1, n, shape=n, name=&quot;queens&quot;)
+
+# Constraints
+# 1) All queens are in different columns
+model += cp.AllDifferent(queens)
+
+# 2) No two queens share a diagonal:
+# For each row i, the expressions queens[i] + i and queens[i] - i must all be different
+diag1 = [queens[i] + i for i in range(n)]   # major diagonals
+diag2 = [queens[i] - i for i in range(n)]   # minor diagonals
+model += cp.AllDifferent(*diag1)
+model += cp.AllDifferent(*diag2)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;queens&#x27;: queens.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data (optional)
+n = 10  # Size of the chessboard and number of queens
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+queens = cp.intvar(1, n, shape=n, name=&quot;queens&quot;)
+
+# Constraints
+rows = np.arange(n)
+model += [
+    cp.AllDifferent(queens),          # Different columns
+    cp.AllDifferent(queens + rows),   # Different major diagonals
+    cp.AllDifferent(queens - rows)    # Different minor diagonals
+]
+
+# Objective (optional)
+# None, just find a feasible solution
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;queens&#x27;: queens.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # Size of the chessboard and number of queens
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# queens[i] is the column (1..n) of the queen in row i (rows are 1..n)
+queens = cp.intvar(1, n, shape=n, name=&quot;queens&quot;)
+
+# Constraints
+# 1) No two queens in same column
+model += cp.AllDifferent(queens)
+
+# 2) No two queens on the same diagonals:
+# For queens at rows i and j (1-based), |queens[i]-queens[j]| != |i-j|
+# Equivalent to AllDifferent of queens[i] + i and queens[i] - i
+diag_plus  = [queens[i] + (i + 1) for i in range(n)]
+diag_minus = [queens[i] - (i + 1) for i in range(n)]
+model += cp.AllDifferent(*diag_plus)
+model += cp.AllDifferent(*diag_minus)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;queens&#x27;: queens.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (27 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 10;
+
+% Decision Variables
+% queens[c] = r means the queen in column c is placed in row r
+array[1..n] of var 1..n: queens;
+
+% Constraints
+% 1) All queens must be in different rows
+constraint all_different(queens);
+
+% 2) No two queens share the same diagonal
+% For all pairs of columns c1 &lt; c2:
+% abs(queens[c1] - queens[c2]) != abs(c1 - c2)
+constraint
+  forall(c1, c2 in 1..n where c1 &lt; c2) (
+    abs(queens[c1] - queens[c2]) != abs(c1 - c2)
+  );
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;queens\&quot;: [&quot;, join(&quot;, &quot;, [show(queens[c]) | c in 1..n]), &quot;]&quot;,
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 10  # Size of the chessboard and number of queens
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# queens[col] = row position of the queen in column &#x27;col&#x27;
+queens = [model.NewIntVar(0, n - 1, f&#x27;queen_{col}&#x27;) for col in range(n)]
+
+# Constraints
+# 1. All queens must be in different rows
+model.AddAllDifferent(queens)
+
+# 2. No two queens share the same diagonal
+# For diagonals, we use the fact that queens on the same diagonal have equal (row - col) or (row + col)
+diag1 = []
+diag2 = []
+for col in range(n):
+    diag1.append(model.NewIntVar(-n, n, f&#x27;diag1_{col}&#x27;))
+    diag2.append(model.NewIntVar(0, 2 * n, f&#x27;diag2_{col}&#x27;))
+    model.Add(diag1[col] == queens[col] - col)
+    model.Add(diag2[col] == queens[col] + col)
+
+model.AddAllDifferent(diag1)
+model.AddAllDifferent(diag2)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Extract the positions of the queens as (column, row) pairs
+    # Note: columns are from 0 to n-1, rows are solver.Value(queens[col])
+    solution = {
+        &#x27;queens&#x27;: [[col, solver.Value(queens[col])] for col in range(n)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# -------------------------
+# Input data (immutable)
+# -------------------------
+n = 10  # Size of the chessboard and number of queens
+
+# -------------------------
+# Model creation
+# -------------------------
+model = cp_model.CpModel()
+
+# Decision variables
+# queens[r] represents the column (0..n-1) where the queen is placed in row r.
+queens = [model.NewIntVar(0, n - 1, f&quot;q_{r}&quot;) for r in range(n)]
+
+# -------------------------
+# Constraints
+# -------------------------
+# 1. All columns must be different
+model.AddAllDifferent(queens)
+
+# 2. Diagonal constraints
+#    Major diagonal (row - col)  -&gt; use (queen - row) must be different
+#    Minor diagonal (row + col)  -&gt; use (queen + row) must be different
+model.AddAllDifferent([queens[r] + r for r in range(n)])
+model.AddAllDifferent([queens[r] - r for r in range(n)])
+
+# -------------------------
+# No objective (pure feasibility)
+# -------------------------
+
+# Solver
+solver = cp_model.CpSolver()
+# Optional: limit time or set a log if desired (kept minimal here)
+status = solver.Solve(model)
+
+# -------------------------
+# Output
+# -------------------------
+if status in (cp_model.FEASIBLE, cp_model.OPTIMAL):
+    solution_queens = [solver.Value(var) for var in queens]
+    print(json.dumps({&quot;queens&quot;: solution_queens}))
+else:
+    # According to the problem statement, a solution exists for n = 10;
+    # If not found (e.g. due to unexpected issues), we still output a valid JSON.
+    print(json.dumps({&quot;queens&quot;: []}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 10
 }</code></pre></details><details class="instance"><summary>Instance 2</summary><pre><code class="language-json">{
   &quot;n&quot;: 11
@@ -74,9 +555,9 @@ print(json.dumps(solution))
 }</code></pre></details><details class="instance"><summary>Instance 6</summary><pre><code class="language-json">{
   &quot;n&quot;: 15
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">queens</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-73">Copy</button></div><pre class="code-block"><code id="solution-73" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">queens</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-73">Copy</button></div><pre class="code-block"><code id="solution-73" class="language-json">{
   &quot;queens&quot;: [
     8,
     3,
@@ -90,6 +571,7 @@ print(json.dumps(solution))
     5
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -97,9 +579,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_054_n_queens/csplib_054_n_queens.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_054_n_queens/csplib_054_n_queens.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_053_graceful_graphs.html">â† prev</a><a class="btn" href="csplib_056_sonet.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_053_graceful_graphs.html">← prev</a><a class="btn" href="csplib_056_sonet.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

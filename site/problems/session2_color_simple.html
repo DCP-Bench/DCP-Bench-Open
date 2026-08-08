@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>session2_color_simple Â· DCP-Bench Open</title>
-<meta name="description" content="We want to assign a different colour to the following countries: Belgium, Denmark, France, Germany, Netherlands and Luxembourg. Two neighbouring countries cannâ€¦">
+<title>session2_color_simple · DCP-Bench Open</title>
+<meta name="description" content="We want to assign a different colour to the following countries: Belgium, Denmark, France, Germany, Netherlands and Luxembourg. Two neighbouring countries cann…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/color_simple.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/color_simple.mzn</a></dd><dt>Category</dt><dd>aplai_course</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-143">Copy</button></div><pre class="code-block"><code id="model-143" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -74,7 +75,1192 @@ print(json.dumps(solution))
     [4, 2]
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+graph = [  # the adjacency of the countries, (i, j) means that country i is adjacent to country j
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+n_countries = 6  # Belgium, Denmark, France, Germany, Netherlands, Luxembourg
+
+# Decision Variables
+colors = intvar(1, n_countries, shape=n_countries, name=&quot;colors&quot;)  # Colors assigned to each country
+
+# Model
+model = Model()
+
+# Constraint: all adjacent countries must have different colors
+for (i, j) in graph:
+    model += colors[i-1] != colors[j-1]  # -1 because countries are numbered from 1
+
+# Objective: minimize the maximum color used (which minimizes the number of colors)
+max_color = max(colors)
+model.minimize(max_color)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;colors&quot;: colors.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+graph = [
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+
+# Number of countries
+num_countries = 6
+
+# Decision variables
+# colors[i] is the color assigned to country i (0-indexed)
+colors = intvar(1, num_countries, shape=num_countries, name=&quot;colors&quot;)
+
+# Model
+model = Model()
+
+# Objective: minimize the number of colors used
+model.minimize(max(colors))
+
+# Constraints: adjacent countries must have different colors
+for u, v in graph:
+    model += [colors[u - 1] != colors[v - 1]]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;colors&quot;: colors.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (78 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Graph coloring of 6 countries to minimize colors used
+# Countries: Belgium(1), Denmark(2), France(3), Germany(4), Netherlands(5), Luxembourg(6)
+# Constraint: Adjacent countries must have different colors
+# Objective: Minimize number of colors used
+
+# Input data - adjacency relationships
+graph = [
+    [3, 1],     # France-Belgium
+    [3, 6],     # France-Luxembourg  
+    [3, 4],     # France-Germany
+    [6, 4],     # Luxembourg-Germany
+    [6, 1],     # Luxembourg-Belgium
+    [1, 5],     # Belgium-Netherlands
+    [1, 4],     # Belgium-Germany
+    [4, 5],     # Germany-Netherlands
+    [4, 2]      # Germany-Denmark
+]
+
+# Step 2: Model with CPMpy
+n_countries = 6
+max_colors = n_countries  # Upper bound: worst case each country different color
+
+# Decision variables: colors[i-1] represents color of country i (0-indexed for 1-indexed countries)
+colors = cp.intvar(1, max_colors, shape=n_countries, name=&quot;colors&quot;)
+
+# Create model
+model = cp.Model()
+
+# Constraint: Adjacent countries must have different colors
+for edge in graph:
+    i, j = edge[0] - 1, edge[1] - 1  # Convert to 0-indexed
+    model += colors[i] != colors[j]
+
+# Objective: Minimize maximum color used (minimizes total colors)
+max_color_used = cp.intvar(1, max_colors, name=&quot;max_color&quot;)
+for i in range(n_countries):
+    model += colors[i] &lt;= max_color_used
+
+# Symmetry breaking: assign color 1 to country 1 (Belgium)
+model += colors[0] == 1
+
+# Step 3: Solve and verify
+model.minimize(max_color_used)
+
+if model.solve():
+    # Extract solution
+    color_assignment = colors.value().tolist()
+    
+    # Verification
+    def verify_solution(sol, graph_edges):
+        &quot;&quot;&quot;Verify that the coloring solution is valid&quot;&quot;&quot;
+        colors_list = sol[&quot;colors&quot;]
+        
+        # Structural verification
+        if len(colors_list) != 6:
+            return False, f&quot;Expected 6 colors, got {len(colors_list)}&quot;
+        
+        # Logical verification - check all adjacency constraints
+        for edge in graph_edges:
+            i, j = edge[0] - 1, edge[1] - 1  # Convert to 0-indexed
+            if colors_list[i] == colors_list[j]:
+                return False, f&quot;Adjacent countries {i+1} and {j+1} have same color&quot;
+        
+        return True, &quot;Valid coloring&quot;
+    
+    solution = {&quot;colors&quot;: color_assignment}
+    
+    # Verify solution
+    valid, message = verify_solution(solution, graph)
+    assert valid, f&quot;Verification failed: {message}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    1,
+    1,
+    4,
+    3,
+    2,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+# Countries: 1=Belgium, 2=Denmark, 3=France, 4=Germany, 5=Netherlands, 6=Luxembourg
+graph = [  # adjacency pairs (i, j)
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+# End of data
+
+model = cp.Model()
+
+num_countries = 6
+# Decision variables: color for each country (1-based)
+colors = cp.intvar(1, num_countries, shape=num_countries, name=&quot;colors&quot;)
+
+# Constraints: adjacent countries cannot have the same color
+for (c1, c2) in graph:
+    model += (colors[c1-1] != colors[c2-1])
+
+# Objective: minimize the number of colors used
+# We introduce an auxiliary variable max_color to represent the max color used
+max_color = cp.intvar(1, num_countries, name=&quot;max_color&quot;)
+model += (max_color == cp.Maximum(colors))
+model.minimize(max_color)
+
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [  # adjacency list as given, 1-based indices
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: colors for 6 countries, values start from 1 up to 6 (upper bound large enough)
+colors = cp.intvar(1, 6, shape=6, name=&quot;colors&quot;)
+
+# Constraints: neighboring countries cannot have the same colour
+for (i, j) in graph:
+    # convert 1-based to 0-based indices
+    model += (colors[i - 1] != colors[j - 1])
+
+# Objective: minimize the number of colours used.
+# Minimize the maximum colour value used (labels start at 1, so this equals the count of colours after relabelling)
+model.minimize(cp.Maximum(colors))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [  # the adjacency of the countries, (i, j) means that country i is adjacent to country j
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# There are 6 countries: indices 1..6
+# Decision variables: colors for each country, domain 1..6
+colors = cp.intvar(1, 6, shape=6, name=&quot;colors&quot;)
+
+# Additional variable k: the maximum color used
+k = cp.intvar(1, 6, name=&quot;k&quot;)
+
+# Constraints
+# 1) Adjacent countries must have different colors
+for (i, j) in graph:
+    # convert to 0-based indices
+    model += colors[i-1] != colors[j-1]
+
+# 2) Link k to the colors: all colors &lt;= k
+for i in range(6):
+    model += colors[i] &lt;= k
+
+# Objective: minimize the number of colors (k)
+model.minimize(k)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;colors&#x27;: colors.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (3 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+
+print(json.dumps({&quot;colors&quot;: [1, 2, 2, 3, 2, 4]}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    1,
+    2,
+    2,
+    3,
+    2,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+# Countries: Belgium(1), Denmark(2), France(3), Germany(4), Netherlands(5), Luxembourg(6)
+# graph edges represented as pairs (i,j) of adjacent countries
+graph = [  
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+
+# Number of countries
+n_countries = 6
+
+# Model definition
+model = cp.Model()
+
+# Decision variables
+# colors[i] = color assigned to country i+1, colors domain starts from 1 up to n_countries (worst case all different colors)
+colors = cp.intvar(1, n_countries, shape=n_countries, name=&quot;colors&quot;)
+
+# Auxiliary variable to minimize: max color used
+max_color = cp.intvar(1, n_countries, name=&quot;max_color&quot;)
+
+# Constraints
+# 1. Adjacent countries have different colors
+for (c1, c2) in graph:
+    model += (colors[c1-1] != colors[c2-1])
+
+# 2. max_color is at least the max of assigned colors
+for i in range(n_countries):
+    model += (colors[i] &lt;= max_color)
+
+# Objective: minimize the number of colors used
+model.minimize(max_color)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [  # edges are 1-based indices of the 6 countries
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# colors[i] is the colour (integer starting from 1) assigned to country i (0-based internally)
+colors = cp.intvar(1, 6, shape=6, name=&quot;colors&quot;)
+# m is the maximum colour used; we minimize this to use as few colours as possible
+m = cp.intvar(1, 6, name=&quot;m&quot;)
+
+# Constraints
+# Adjacent countries cannot have the same colour (convert 1-based input to 0-based indices)
+for (i, j) in graph:
+    model += (colors[i - 1] != colors[j - 1])
+
+# m must be at least every assigned colour (so m = max(colors))
+for k in range(6):
+    model += (m &gt;= colors[k])
+
+# Symmetry breaking: assign the first country colour 1 (we can always relabel colours)
+model += (colors[0] == 1)
+
+# Objective: minimize the number of colours used (m)
+model.minimize(m)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    1,
+    1,
+    4,
+    3,
+    2,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+graph = [
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: colors for each country (1-based to 6)
+colors = cp.intvar(1, 6, shape=6, name=&quot;colors&quot;)
+
+# Constraints: adjacent countries have different colors
+for edge in graph:
+    i, j = edge
+    model += (colors[i-1] != colors[j-1])
+
+# Objective: minimize the maximum color used
+model.minimize(cp.max(colors))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+
+model = cp.Model()
+
+# Decision variables: colors for each country (1-based to 6)
+colors = cp.intvar(1, 6, shape=6, name=&quot;colors&quot;)
+
+# Constraints: adjacent countries have different colors
+for i, j in graph:
+    model += (colors[i-1] != colors[j-1])
+
+# Objective: minimize the number of colors used (minimize the maximum color)
+model.minimize(cp.Maximum(colors))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+# Countries: [Belgium, Denmark, France, Germany, Netherlands, Luxembourg] indexed as 1..6
+graph = [
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+n_countries = 6
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+colors = cp.intvar(1, n_countries, shape=n_countries, name=&quot;colors&quot;)  # color of each country
+max_color = cp.intvar(1, n_countries, name=&quot;max_color&quot;)  # maximum color used
+
+# Constraints
+# Adjacent countries must have different colors
+for (i, j) in graph:
+    model += (colors[i-1] != colors[j-1])
+
+# Link max_color to the maximum of assigned colors
+model += (max_color == cp.Maximum(list(colors)))
+
+# Objective: minimize the number of colors used (i.e., the maximum color index)
+model.minimize(max_color)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [  # adjacency list as given, 1-based indices
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: colors for 6 countries, values start from 1 up to 6 (upper bound large enough)
+colors = cp.intvar(1, 6, shape=6, name=&quot;colors&quot;)
+
+# Constraints: neighboring countries cannot have the same colour
+for (i, j) in graph:
+    # convert 1-based to 0-based indices
+    model += (colors[i - 1] != colors[j - 1])
+
+# Objective: minimize the number of colours used.
+# Minimize the maximum colour value used (labels start at 1, so this equals the count of colours after relabelling)
+model.minimize(cp.Maximum(colors))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;colors&#x27;: colors.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    1,
+    1,
+    2,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: syntax error, unexpected &#x27;|&#x27;</p>
+      <details class="gmodel"><summary>model.mzn (37 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Number of countries
+int: n = 6;
+
+% Adjacency list given as pairs (i, j)
+array[1..9, 1..2] of int: graph = [
+    | 3, 1
+    | 3, 6
+    | 3, 4
+    | 6, 4
+    | 6, 1
+    | 1, 5
+    | 1, 4
+    | 4, 5
+    | 4, 2
+];
+
+% Decision variables: colors assigned to each country (1..n)
+array[1..n] of var 1..n: colors;
+
+% The maximum color used
+var 1..n: max_color = max(colors);
+
+% Constraints: adjacent countries must have different colors
+constraint
+    forall(e in 1..length(graph)) (
+        colors[graph[e,1]] != colors[graph[e,2]]
+    );
+
+% Objective: minimize the number of colors used
+solve minimize max_color;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;colors\&quot;: &quot;, show(colors),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: syntax error, unexpected &#x27;|&#x27;</p>
+      <details class="gmodel"><summary>model.mzn (42 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary global constraints
+include &quot;globals.mzn&quot;;
+
+% Number of countries
+int: n = 6;
+
+% Adjacency list: each pair indicates two neighbouring countries
+array[1..9, 1..2] of int: graph = 
+[
+    | 3, 1
+    | 3, 6
+    | 3, 4
+    | 6, 4
+    | 6, 1
+    | 1, 5
+    | 1, 4
+    | 4, 5
+    | 4, 2
+];
+
+% Decision variables: color assigned to each country (1..n)
+array[1..n] of var 1..n: colors;
+
+% Constraint: neighbouring countries must have different colours
+constraint
+    forall(e in 1..9) (
+        colors[ graph[e,1] ] != colors[ graph[e,2] ]
+    );
+
+% Auxiliary variable: the maximum colour used
+var 1..n: max_color = max(colors);
+
+% Objective: minimize the number of colours used
+solve minimize max_color;
+
+% Output the colouring as a JSON list under the key &quot;colors&quot;
+output [
+    &quot;{&quot;,
+    &quot;\&quot;colors\&quot;: [&quot; ++ join(&quot;,&quot;, [ show(colors[i]) | i in 1..n ]) ++ &quot;]&quot;,
+    &quot;}&quot;
+];
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+# Countries: Belgium(1), Denmark(2), France(3), Germany(4), Netherlands(5), Luxembourg(6)
+# graph edges represent adjacency between countries by their indices
+graph = [
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+
+# Number of countries
+num_countries = 6
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# colors[i] is the color assigned to country i+1 (1-based indexing)
+max_colors = num_countries  # upper bound on colors (worst case: all different)
+colors = [model.NewIntVar(1, max_colors, f&#x27;color_{i+1}&#x27;) for i in range(num_countries)]
+
+# Constraints
+# Adjacent countries must have different colors
+for edge in graph:
+    c1, c2 = edge
+    # Adjust for zero-based indexing
+    model.Add(colors[c1 - 1] != colors[c2 - 1])
+
+# Auxiliary variable for the maximum color used
+max_color_used = model.NewIntVar(1, max_colors, &#x27;max_color_used&#x27;)
+model.AddMaxEquality(max_color_used, colors)
+
+# Objective: minimize the number of colors used
+model.Minimize(max_color_used)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;colors&#x27;: [solver.Value(colors[i]) for i in range(num_countries)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (57 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+graph = [  # the adjacency of the countries, (i, j) means that country i is adjacent to country j
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2]
+]
+
+# Number of countries
+num_countries = 6
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# colors[i] is the color assigned to country i+1, using integers starting from 1
+colors = [
+    model.NewIntVar(1, num_countries, f&#x27;colors[{i}]&#x27;) for i in range(num_countries)
+]
+
+# Variable to represent the maximum color used
+max_color = model.NewIntVar(1, num_countries, &#x27;max_color&#x27;)
+
+# Constraints
+# 1. Adjacent countries cannot have the same color
+for (i, j) in graph:
+    # Adjust for zero-based indexing
+    model.Add(colors[i - 1] != colors[j - 1])
+
+# 2. Link max_color with actual colors: max_color &gt;= each color
+for i in range(num_countries):
+    model.Add(colors[i] &lt;= max_color)
+
+# Objective: minimize the number of colors used
+model.Minimize(max_color)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;colors&#x27;: [solver.Value(colors[i]) for i in range(num_countries)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# Input data  (do NOT modify)
+# --------------------------------------------------
+graph = [  # adjacency list: (i, j) means country i borders country j (1-based indices)
+    [3, 1],
+    [3, 6],
+    [3, 4],
+    [6, 4],
+    [6, 1],
+    [1, 5],
+    [1, 4],
+    [4, 5],
+    [4, 2],
+]
+
+# --------------------------------------------------
+# Model construction
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+num_countries = 6  # Belgium, Denmark, France, Germany, Netherlands, Luxembourg (in this order)
+max_possible_colors = num_countries  # upper bound on number of distinct colours
+
+# Decision variables ---------------------------------------------------------
+colors = [
+    model.NewIntVar(1, max_possible_colors, f&quot;color_{i}&quot;) for i in range(num_countries)
+]
+# Auxiliary variable representing the highest colour index actually used
+K = model.NewIntVar(1, max_possible_colors, &quot;K&quot;)
+
+# Constraints ---------------------------------------------------------------
+# 1. Adjacent countries must get different colours
+for edge in graph:
+    i, j = edge  # still 1-based
+    model.Add(colors[i - 1] != colors[j - 1])
+
+# 2. Link K with colour variables so that K is at least the maximum colour used
+for c in colors:
+    model.Add(c &lt;= K)
+
+# Objective -----------------------------------------------------------------
+model.Minimize(K)
+
+# --------------------------------------------------
+# Solve
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    solution_colors = [solver.Value(var) for var in colors]
+    print(json.dumps({&quot;colors&quot;: solution_colors}))
+else:
+    # No solution should not happen for a proper map-colouring instance,
+    # but we still guard against it.
+    print(json.dumps({&quot;colors&quot;: []}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;colors&quot;: [
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;graph&quot;: [
     [
       3,
@@ -114,9 +1300,9 @@ print(json.dumps(solution))
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">colors</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-143">Copy</button></div><pre class="code-block"><code id="solution-143" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">colors</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-143">Copy</button></div><pre class="code-block"><code id="solution-143" class="language-json">{
   &quot;colors&quot;: [
     1,
     4,
@@ -126,6 +1312,7 @@ print(json.dumps(solution))
     4
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -133,9 +1320,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/session2_color_simple/session2_color_simple.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/session2_color_simple/session2_color_simple.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_thick_as_thieves.html">â† prev</a><a class="btn" href="session2_maximal_independent_sets.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_thick_as_thieves.html">← prev</a><a class="btn" href="session2_maximal_independent_sets.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

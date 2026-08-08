@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_001_car_sequencing Â· DCP-Bench Open</title>
-<meta name="description" content="A number of cars are to be produced; they are not identical, because different options are available as variants on the basic model. The assembly line has diffâ€¦">
+<title>csplib_001_car_sequencing · DCP-Bench Open</title>
+<meta name="description" content="A number of cars are to be produced; they are not identical, because different options are available as variants on the basic model. The assembly line has diff…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/car_sequencing.ipynb" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/car_sequencing.ipynb</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob001/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob001/</a></dd><dt>Problem instances</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob001_car_sequence.json" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob001_car_sequence.json</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (75)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (75)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-41">Copy</button></div><pre class="code-block"><code id="model-41" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -81,7 +82,1471 @@ requires = [[1, 0, 1, 1, 0],
             [1, 0, 1, 0, 0],
             [1, 1, 0, 0, 0]]  # The properties per type of car</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present
+per_slots = [2, 3, 3, 5, 5]  # The amount of consecutive timeslots
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # The properties per type of car
+
+# Parameters
+n_cars = sum(demand)  # The amount of cars to sequence
+n_options = len(at_most)  # The amount of different options
+n_types = len(demand)  # The amount of different car types
+requires = cpm_array(requires)  # For element constraint
+
+# Decision Variables
+sequence = intvar(0, n_types - 1, shape=n_cars, name=&quot;sequence&quot;)  # The sequence of car types
+setup = boolvar(shape=(n_cars, n_options), name=&quot;setup&quot;)  # Sequence of different options based on the car type
+
+# Model
+model = Model()
+
+# The amount of each type of car in the sequence has to be equal to the demand for that type
+model += [sum(sequence == t) == demand[t] for t in range(n_types)]
+
+# Make sure that the options in the setup table correspond to those of the car type
+for s in range(n_cars):
+    model += [setup[s, o] == requires[sequence[s], o] for o in range(n_options)]
+
+# Check that no more than &quot;at most&quot; car options are used per &quot;per_slots&quot; slots
+for o in range(n_options):
+    window_size = per_slots[o]
+    for s in range(n_cars - window_size + 1):
+        slot_range = range(s, s + window_size)
+        model += (sum(setup[slot_range, o]) &lt;= at_most[o])
+
+# Solve
+model.solve()
+
+# Print
+solution = {&quot;sequence&quot;: sequence.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    2,
+    4,
+    3,
+    5,
+    1,
+    5,
+    2,
+    4,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Data
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present
+# in a group of consecutive timeslots (see next variable)
+per_slots = [2, 3, 3, 5, 5]  # The amount of consecutive timeslots
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # The properties per type of car
+# End of data
+
+# Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n_cars = sum(demand)  # The amount of cars to sequence
+n_options = len(at_most)  # The amount of different options
+n_types = len(demand)  # The amount of different car types
+requires = cpm_array(requires)  # For element constraint
+
+# Decision Variables
+sequence = intvar(0, n_types - 1, shape=n_cars, name=&quot;sequence&quot;)  # The sequence of car types
+setup = boolvar(shape=(n_cars, n_options), name=&quot;setup&quot;)  # Sequence of different options based on the car type
+
+# Model
+model = Model()
+
+# The amount of each type of car in the sequence has to be equal to the demand for that type
+model += [sum(sequence == t) == demand[t] for t in range(n_types)]
+
+# Make sure that the options in the setup table correspond to those of the car type
+for s in range(n_cars):
+    model += [setup[s, o] == requires[sequence[s], o] for o in range(n_options)]
+
+# Check that no more than &quot;at most&quot; car options are used per &quot;per_slots&quot; slots
+for o in range(n_options):
+    for s in range(n_cars - per_slots[o] + 1):
+        slot_range = range(s, s + per_slots[o])
+        model += (sum(setup[slot_range, o]) &lt;= at_most[o])
+
+# Solve
+model.solve()
+
+# Print
+solution = {&quot;sequence&quot;: sequence.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    2,
+    5,
+    1,
+    5,
+    3,
+    4,
+    2,
+    4,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Problem data
+at_most = [1, 2, 2, 2, 1]  # Max times a property can appear in consecutive slots
+per_slots = [2, 3, 3, 5, 5]  # Size of consecutive slot windows
+demand = [1, 1, 2, 2, 2, 2]  # How many cars of each type to produce
+requires = [[1, 0, 1, 1, 0],  # Which properties each car type requires
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]
+
+num_car_types = len(demand)
+total_cars = sum(demand)
+num_properties = len(at_most)
+
+model = cp.Model()
+
+# Decision variables: sequence[i] = car type at position i
+sequence = cp.intvar(0, num_car_types - 1, shape=total_cars, name=&quot;sequence&quot;)
+
+# Constraint 1: Respect demand for each car type
+for car_type in range(num_car_types):
+    model += cp.Count(sequence, car_type) == demand[car_type]
+
+# Constraint 2: Capacity constraints for each property
+# For each property, check sliding windows
+for prop in range(num_properties):
+    window_size = per_slots[prop]
+    max_in_window = at_most[prop]
+    
+    # For each possible window position
+    for start_pos in range(total_cars - window_size + 1):
+        # Count cars in this window that have this property
+        cars_with_property = []
+        for pos in range(start_pos, start_pos + window_size):
+            # Check if car at position pos has property prop
+            has_property = cp.sum([
+                (sequence[pos] == car_type) * requires[car_type][prop] 
+                for car_type in range(num_car_types)
+            ])
+            cars_with_property.append(has_property)
+        
+        # Sum must not exceed capacity
+        model += cp.sum(cars_with_property) &lt;= max_in_window
+
+# Solve the model
+if model.solve():
+    solution = {&quot;sequence&quot;: sequence.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    5,
+    1,
+    5,
+    3,
+    4,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # max number of cars with option in per_slots window
+per_slots = [2, 3, 3, 5, 5]  # window size for each option
+demand = [1, 1, 2, 2, 2, 2]  # demand per car type
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # properties per car type
+
+num_types = len(demand)
+num_cars = sum(demand)
+num_options = len(at_most)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# sequence[i] = car type at position i in the sequence
+sequence = cp.intvar(0, num_types - 1, shape=num_cars, name=&quot;sequence&quot;)
+
+# Constraints
+
+# 1) Demand constraints: each car type appears exactly demand[type] times
+for t in range(num_types):
+    model += (cp.Count(sequence, t) == demand[t])
+
+# 2) Capacity constraints for each option:
+# For each option, in every window of size per_slots[o], at most at_most[o] cars require that option
+for o in range(num_options):
+    window_size = per_slots[o]
+    max_cars = at_most[o]
+    # For each window of length window_size in the sequence
+    for start in range(num_cars - window_size + 1):
+        # Count how many cars in sequence[start:start+window_size] require option o
+        # We create boolean variables for each position in the window indicating if that car requires option o
+        bool_vars = []
+        for pos in range(start, start + window_size):
+            # Create boolean variable: 1 if sequence[pos] requires option o, else 0
+            # requires[car_type][option] is 0 or 1, so we can use element constraint
+            # We use cp.Element to get requires[sequence[pos]][o]
+            # But cp.Element requires array and index variable, so we create a vector for requires for option o
+            # We&#x27;ll create a vector of requires for option o for all car types
+            # Then bool_var = requires_for_option[sequence[pos]]
+            # Since requires_for_option is constant, we can use cp.Element
+            pass
+        # Instead of creating bool_vars, we can sum cp.Element(requires_for_option, sequence[pos]) for pos in window
+        requires_for_option = [requires[t][o] for t in range(num_types)]
+        sum_option = cp.sum([cp.Element(requires_for_option, sequence[pos]) for pos in range(start, start + window_size)])
+        model += (sum_option &lt;= max_cars)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    4,
+    3,
+    5,
+    1,
+    5,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present in a group of consecutive timeslots
+per_slots = [2, 3, 3, 5, 5]  # The amount of consecutive timeslots (window sizes)
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # The properties per type of car
+
+# Problem sizes
+num_types = len(demand)
+num_properties = len(at_most)
+n = sum(demand)  # total number of cars / sequence length
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+sequence = cp.intvar(0, num_types - 1, shape=n, name=&quot;sequence&quot;)
+
+# Constraints
+
+# 1) Respect demand for each car type: exact count of each type in the sequence
+for t in range(num_types):
+    model += (cp.Count(sequence, t) == demand[t])
+
+# 2) For each property, in every sliding window of length per_slots[prop],
+#    at most at_most[prop] cars in that window may require the property.
+# We use cp.Element to map sequence positions to whether that car type requires the property.
+for p in range(num_properties):
+    window = per_slots[p]
+    cap = at_most[p]
+    # prepare list of requirement flags for this property per car type
+    prop_req = [requires[t][p] for t in range(num_types)]
+    # for each possible window start
+    for start in range(0, n - window + 1):
+        exprs = [cp.Element(prop_req, sequence[start + k]) for k in range(window)]
+        model += (cp.sum(exprs) &lt;= cap)
+
+# Solve
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    4,
+    3,
+    5,
+    1,
+    5,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present in a group of consecutive timeslots
+per_slots = [2, 3, 3, 5, 5]  # The size of each sliding window for the corresponding property
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0]
+]  # The properties per type of car
+# End of data
+
+# Derived data
+num_types = len(demand)
+total_cars = sum(demand)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[p, t] = 1 if at position p we produce a car of type t
+x = cp.boolvar(shape=(total_cars, num_types))
+
+# Constraints
+
+# 1) Each position has exactly one car type
+for p in range(total_cars):
+    model += cp.sum(x[p, :]) == 1
+
+# 2) Satisfy demand for each car type
+for t in range(num_types):
+    model += cp.sum(x[:, t]) == demand[t]
+
+# 3) Sliding window constraints for each option
+for j in range(len(at_most)):
+    window = per_slots[j]
+    capacity = at_most[j]
+    # Identify which car types require option j
+    types_with_option = [t for t in range(num_types) if requires[t][j] == 1]
+    # For each sliding window over positions
+    for start in range(total_cars - window + 1):
+        # Sum of cars in the window requiring this option &lt;= capacity
+        model += cp.sum([x[p, t] for p in range(start, start + window) for t in types_with_option]) &lt;= capacity
+
+# Solve and print
+if model.solve():
+    x_val = x.value().tolist()
+    # Reconstruct the sequence: for each position, find the type with value 1
+    sequence = [row.index(1) for row in x_val]
+    solution = {&#x27;sequence&#x27;: sequence}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    5,
+    1,
+    5,
+    3,
+    4,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+at_most = [1, 2, 2, 2, 1]
+per_slots = [2, 3, 3, 5, 5]
+demand = [1, 1, 2, 2, 2, 2]
+requires = [[1, 0, 1, 1, 0], [0, 0, 0, 1, 0], [0, 1, 0, 0, 1], [0, 1, 0, 1, 0], [1, 0, 1, 0, 0], [1, 1, 0, 0, 0]]
+n_cars = sum(demand)
+n_options = len(at_most)
+def prefix_ok(seq):
+    for option in range(n_options):
+        window = per_slots[option]
+        cap = at_most[option]
+        start = max(0, len(seq) - window)
+        while start + window &lt;= len(seq):
+            used = sum(requires[seq[i]][option] for i in range(start, start + window))
+            if used &gt; cap:
+                return False
+            start += 1
+    return True
+def solve(seq, remaining):
+    if len(seq) == n_cars:
+        return seq
+    for car_type, count in enumerate(remaining):
+        if count &lt;= 0:
+            continue
+        candidate = seq + [car_type]
+        if not prefix_ok(candidate):
+            continue
+        next_remaining = list(remaining)
+        next_remaining[car_type] -= 1
+        result = solve(candidate, next_remaining)
+        if result is not None:
+            return result
+    return None
+sequence = solve([], list(demand))
+if sequence is None:
+    raise RuntimeError(&#x27;no car sequence found&#x27;)
+print(json.dumps({&#x27;sequence&#x27;: sequence}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    1,
+    5,
+    2,
+    4,
+    3,
+    3,
+    4,
+    2,
+    5
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # max number of cars with option in per_slots window
+per_slots = [2, 3, 3, 5, 5]  # window size for each option
+demand = [1, 1, 2, 2, 2, 2]  # demand per car type
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # properties per car type
+
+num_cars = sum(demand)
+num_types = len(demand)
+num_options = len(at_most)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# sequence[i] = car type at position i in the sequence
+sequence = cp.intvar(0, num_types - 1, shape=num_cars, name=&quot;sequence&quot;)
+
+# Constraints
+
+# 1) Demand constraints: each car type appears exactly demand[type] times
+for t in range(num_types):
+    model += (cp.Count(sequence, t) == demand[t])
+
+# 2) Capacity constraints for each option:
+# For each option, in every window of per_slots[option] consecutive cars,
+# the number of cars requiring that option &lt;= at_most[option]
+for opt in range(num_options):
+    window_size = per_slots[opt]
+    max_allowed = at_most[opt]
+    for start in range(num_cars - window_size + 1):
+        # Count how many cars in sequence[start:start+window_size] require option opt
+        # We sum over the window: for each position, if the car requires option opt, count 1 else 0
+        # We use element constraints to check requires[car_type][opt]
+        # We create boolean variables for each position in the window indicating if that car requires option opt
+        bool_vars = []
+        for pos in range(start, start + window_size):
+            # Create boolean variable: 1 if sequence[pos] requires option opt, else 0
+            # We can use element constraint: requires[sequence[pos]][opt]
+            # But requires is a constant matrix, so we can use cp.Element requires with sequence[pos]
+            # However, cp.Element requires index to be intvar, so we do:
+            # bool_var = cp.Element(requires_column, sequence[pos])
+            # requires_column = [requires[t][opt] for t in range(num_types)]
+            requires_column = [requires[t][opt] for t in range(num_types)]
+            bool_var = cp.intvar(0, 1)
+            model += (bool_var == cp.Element(requires_column, sequence[pos]))
+            bool_vars.append(bool_var)
+        model += (cp.sum(bool_vars) &lt;= max_allowed)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    4,
+    3,
+    5,
+    1,
+    5,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present in a group of consecutive timeslots
+per_slots = [2, 3, 3, 5, 5]  # The amount of consecutive timeslots (window sizes)
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # The properties per type of car
+
+# Problem sizes
+num_types = len(demand)
+num_properties = len(at_most)
+n = sum(demand)  # total number of cars / sequence length
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+sequence = cp.intvar(0, num_types - 1, shape=n, name=&quot;sequence&quot;)
+
+# Constraints
+
+# 1) Respect demand for each car type: exact count of each type in the sequence
+for t in range(num_types):
+    model += (cp.Count(sequence, t) == demand[t])
+
+# 2) For each property, in every sliding window of length per_slots[prop],
+#    at most at_most[prop] cars in that window may require the property.
+# We use cp.Element to map sequence positions to whether that car type requires the property.
+for p in range(num_properties):
+    window = per_slots[p]
+    cap = at_most[p]
+    # prepare list of requirement flags for this property per car type
+    prop_req = [requires[t][p] for t in range(num_types)]
+    # for each possible window start
+    for start in range(0, n - window + 1):
+        exprs = [cp.Element(prop_req, sequence[start + k]) for k in range(window)]
+        model += (cp.sum(exprs) &lt;= cap)
+
+# Solve
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    4,
+    3,
+    5,
+    1,
+    5,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+at_most = [1, 2, 2, 2, 1]
+per_slots = [2, 3, 3, 5, 5]
+demand = [1, 1, 2, 2, 2, 2]
+requires = [
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0]
+]
+
+total_cars = sum(demand)
+sequence = cp.intvar(0, 5, shape=total_cars, name=&quot;sequence&quot;)
+
+model = cp.Model()
+
+# Ensure each car type is used exactly demand times
+for t in range(6):
+    model += (cp.Count(sequence, t) == demand[t])
+
+# Add station constraints
+for station in range(5):
+    window_size = per_slots[station]
+    max_count = at_most[station]
+    requires_col = [requires[type_idx][station] for type_idx in range(6)]
+    num_windows = total_cars - window_size + 1
+    for k in range(num_windows):
+        window = sequence[k : k + window_size]
+        sum_expr = cp.sum([cp.Element(requires_col, var) for var in window])
+        model += (sum_expr &lt;= max_count)
+
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    4,
+    3,
+    5,
+    1,
+    5,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+at_most = [1, 2, 2, 2, 1]
+per_slots = [2, 3, 3, 5, 5]
+demand = [1, 1, 2, 2, 2, 2]
+requires = [
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0]
+]
+
+total_length = sum(demand)
+
+model = cp.Model()
+
+# Decision variables: sequence of car types (0-5)
+seq = cp.intvar(0, 5, shape=total_length, name=&quot;seq&quot;)
+
+# Constraint: Each car type&#x27;s count matches demand
+for t in range(6):
+    model += (cp.Count(seq, t) == demand[t])
+
+# Constraints for each station&#x27;s capacity
+for s in range(5):
+    column_s = [requires[t][s] for t in range(6)]
+    W = per_slots[s]
+    max_allowed = at_most[s]
+    for i in range(total_length - W + 1):
+        window = range(i, i + W)
+        sum_expr = sum(cp.Element(column_s, seq[j]) for j in window)
+        model += (sum_expr &lt;= max_allowed)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: seq.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    4,
+    3,
+    5,
+    1,
+    5,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (65 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data (optional)
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present
+per_slots = [2, 3, 3, 5, 5]  # The amount of consecutive timeslots
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0]
+]  # The properties per type of car
+# End of data
+
+# Dimensions
+num_types = len(demand)
+num_options = len(at_most)
+horizon = int(np.sum(demand))
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[p, t] = 1 if at position p we place a car of type t
+x = cp.boolvar(shape=(horizon, num_types), name=&quot;x&quot;)
+# sequence[p] is the car type at position p
+sequence = cp.intvar(0, num_types-1, shape=horizon, name=&quot;sequence&quot;)
+
+# Constraints
+
+# 1) Each position has exactly one type
+for p in range(horizon):
+    model += (cp.sum(x[p, :]) == 1)
+
+# 2) Demand satisfaction per type
+for t in range(num_types):
+    model += (cp.sum(x[:, t]) == demand[t])
+
+# 3) Link sequence variable to x (one-hot -&gt; value)
+for p in range(horizon):
+    model += (sequence[p] == cp.sum([t * x[p, t] for t in range(num_types)]))
+
+# 4) Capacity constraints for each option using sliding windows
+# requires[t][o] = 1 if type t requires option o
+for o in range(num_options):
+    window = per_slots[o]
+    limit = at_most[o]
+    for s in range(horizon - window + 1):
+        # sum over window positions and all types requiring option o
+        window_use = cp.sum([x[p, t] * requires[t][o]
+                             for p in range(s, s + window)
+                             for t in range(num_types)])
+        model += (window_use &lt;= limit)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    2,
+    4,
+    3,
+    5,
+    1,
+    2,
+    4,
+    3,
+    5
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+at_most = [1, 2, 2, 2, 1]  # capacity per sliding window for each property
+per_slots = [2, 3, 3, 5, 5]  # window sizes for each property
+demand = [1, 1, 2, 2, 2, 2]  # demand per car type
+requires = [[1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0]]  # properties per type (fixed to match the problem description)
+
+# Problem sizes
+num_types = len(demand)
+num_properties = len(at_most)
+n = sum(demand)  # total sequence length
+
+# Model definition
+model = cp.Model()
+
+# Decision variables
+# x[i,t] = 1 iff at position i we place a car of type t
+x = cp.boolvar(shape=(n, num_types), name=&quot;x&quot;)
+
+# sequence as an integer view (0..num_types-1)
+sequence = cp.intvar(0, num_types - 1, shape=n, name=&quot;sequence&quot;)
+
+# Constraints
+
+# 1) Each position exactly one type
+for i in range(n):
+    model += (cp.sum(x[i, :]) == 1)
+
+# 2) Demand per type
+for t in range(num_types):
+    model += (cp.sum(x[:, t]) == demand[t])
+
+# 3) Link sequence[i] to x[i,*]: sequence[i] == sum(t * x[i,t])
+for i in range(n):
+    model += (sequence[i] == cp.sum([t * x[i, t] for t in range(num_types)]))
+
+# 4) Sliding window constraints for each property
+for p in range(num_properties):
+    window = per_slots[p]
+    cap = at_most[p]
+    for start in range(0, n - window + 1):
+        window_sum_terms = []
+        for i in range(start, start + window):
+            window_sum_terms.append(cp.sum([requires[t][p] * x[i, t] for t in range(num_types)]))
+        model += (cp.sum(window_sum_terms) &lt;= cap)
+
+# Solve (feasibility)
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    5,
+    1,
+    5,
+    3,
+    4,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: Index set mismatch. Declared index sets of `requires&#x27; are [1..6,1..5], but is assigned to array with index sets [1..1, 1..30]. You may need to coerce the index sets using the array2d function.</p>
+      <details class="gmodel"><summary>model.mzn (42 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: num_options = 5;
+int: num_types = 6;
+array[1..num_options] of int: at_most = [1, 2, 2, 2, 1];
+array[1..num_options] of int: per_slots = [2, 3, 3, 5, 5];
+array[1..num_types] of int: demand = [1, 1, 2, 2, 2, 2];
+array[1..num_types, 1..num_options] of int: requires = 
+  [| 1, 0, 1, 1, 0,
+     0, 0, 0, 1, 0,
+     0, 1, 0, 0, 1,
+     0, 1, 0, 1, 0,
+     1, 0, 1, 0, 0,
+     1, 1, 0, 0, 0 |];
+
+int: num_cars = sum(demand);
+
+% Decision variable: sequence of car types on the assembly line
+array[1..num_cars] of var 0..num_types-1: sequence;
+
+% Constraint: demand fulfillment - each car type appears exactly demand times
+constraint
+  forall(t in 0..num_types-1) (
+    count(sequence, t) == demand[t+1]
+  );
+
+% Constraint: capacity constraints for each option
+% For each option, in every window of length per_slots[o], at most at_most[o] cars require that option
+constraint
+  forall(o in 1..num_options) (
+    forall(i in 1..num_cars - per_slots[o] + 1) (
+      sum([requires[sequence[j]+1, o] | j in i..i+per_slots[o]-1]) &lt;= at_most[o]
+    )
+  );
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;sequence\&quot;: &quot;, show(sequence),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: syntax error, unexpected ], expecting |]</p>
+      <details class="gmodel"><summary>model.mzn (47 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: num_types = 6;
+int: num_props = 5;
+array[1..num_props] of int: at_most = [1, 2, 2, 2, 1];
+array[1..num_props] of int: per_slots = [2, 3, 3, 5, 5];
+array[1..num_types] of int: demand = [1, 1, 2, 2, 2, 2];
+array[1..num_types, 1..num_props] of int: requires = 
+  [| 1, 0, 1, 1, 0
+   | 0, 0, 0, 1, 0
+   | 0, 1, 0, 0, 1
+   | 0, 1, 0, 1, 0
+   | 1, 0, 1, 0, 0
+   | 1, 1, 0, 0, 0 ];
+
+int: total_cars = sum(i in 1..num_types)(demand[i]);
+
+% Decision variable: sequence of cars (indexed 1..total_cars, values 1..num_types)
+array[1..total_cars] of var 1..num_types: sequence;
+
+% Ensure the exact demand for each car type
+array[1..num_types] of var 0..total_cars: occ;
+constraint
+  forall(i in 1..num_types)(
+    occ[i] = sum(p in 1..total_cars)(bool2int(sequence[p] == i))
+  );
+constraint
+  forall(i in 1..num_types)(
+    occ[i] = demand[i]
+  );
+
+% Sequencing constraints: for each property, in every window of per_slots[j], 
+% the number of cars requiring that property ≤ at_most[j]
+constraint
+  forall(j in 1..num_props, p in 1..total_cars - per_slots[j] + 1)(
+    sum(k in p..p+per_slots[j]-1)( requires[sequence[k], j] ) &lt;= at_most[j]
+  );
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;sequence\&quot;: [&quot; ++ join(&quot;,&quot;, [show(sequence[i] - 1) | i in 1..total_cars]) ++ &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">Traceback (most recent call last):</p>
+      <details class="gmodel"><summary>model.py (82 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+at_most = [1, 2, 2, 2, 1]  # max times a property can be present in per_slots window
+per_slots = [2, 3, 3, 5, 5]  # size of the sliding window for each property
+demand = [1, 1, 2, 2, 2, 2]  # demand per car type
+requires = [
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0]
+]  # properties per car type
+
+# Number of cars to produce
+num_cars = sum(demand)
+num_types = len(demand)
+num_props = len(at_most)
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables
+# sequence[i] = car type at position i in the sequence
+sequence = [model.NewIntVar(0, num_types - 1, f&#x27;seq_{i}&#x27;) for i in range(num_cars)]
+
+# Constraints
+
+# 1) Demand constraints: each car type appears exactly demand[type] times
+for t in range(num_types):
+    model.Add(sum(sequence[i] == t for i in range(num_cars)) == demand[t])
+
+# 2) Capacity constraints for each property:
+# For each property p, in every window of size per_slots[p], the number of cars
+# requiring that property is at most at_most[p].
+for p in range(num_props):
+    window_size = per_slots[p]
+    max_allowed = at_most[p]
+    for start in range(num_cars - window_size + 1):
+        # Count how many cars in sequence[start:start+window_size] require property p
+        # We create boolean variables for each position in the window indicating if that car requires property p
+        bool_vars = []
+        for pos in range(start, start + window_size):
+            # Create boolean variables for each car type indicating if sequence[pos] == t
+            # Then sum requires[t][p] * (sequence[pos] == t) over t
+            # We can do this by creating intermediate bool variables for (sequence[pos] == t)
+            # and then sum requires[t][p] * that bool var
+            # But to avoid many bool vars, we use AddAllowedAssignments with a table
+            # Instead, we create a bool var for &quot;car at pos requires property p&quot;
+            b = model.NewBoolVar(f&#x27;pos{pos}_prop{p}&#x27;)
+            # Allowed car types for which requires[t][p] == 1
+            allowed_types = [t for t in range(num_types) if requires[t][p] == 1]
+            # If sequence[pos] in allowed_types then b=1 else b=0
+            # We enforce: b == OR over (sequence[pos] == t for t in allowed_types)
+            # Create bool vars for sequence[pos] == t
+            eq_bools = []
+            for t in allowed_types:
+                eq_bool = model.NewBoolVar(f&#x27;pos{pos}_eq_{t}_prop{p}&#x27;)
+                model.Add(sequence[pos] == t).OnlyEnforceIf(eq_bool)
+                model.Add(sequence[pos] != t).OnlyEnforceIf(eq_bool.Not())
+                eq_bools.append(eq_bool)
+            if eq_bools:
+                model.AddBoolOr(eq_bools).OnlyEnforceIf(b)
+                model.AddBoolAnd([eb.Not() for eb in eq_bools]).OnlyEnforceIf(b.Not())
+            else:
+                # No car type requires this property, so b=0 always
+                model.Add(b == 0)
+            bool_vars.append(b)
+        model.Add(sum(bool_vars) &lt;= max_allowed)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;sequence&#x27;: [solver.Value(sequence[i]) for i in range(num_cars)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (81 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+at_most = [1, 2, 2, 2, 1]  # Max number of cars with option j in any window
+per_slots = [2, 3, 3, 5, 5]  # Window sizes for each option
+demand = [1, 1, 2, 2, 2, 2]  # Demand per car type
+requires = [
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0],
+]  # requires[t][j] = 1 if type t needs option j
+
+# Compute parameters
+num_types = len(demand)
+total_cars = sum(demand)
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables
+# sequence[i] is the car type at position i
+sequence = [
+    model.NewIntVar(0, num_types - 1, f&quot;sequence[{i}]&quot;) for i in range(total_cars)
+]
+
+# is_type[i][t] = 1 if position i has car type t
+is_type = {}
+for i in range(total_cars):
+    for t in range(num_types):
+        is_type[(i, t)] = model.NewBoolVar(f&quot;is_type[{i},{t}]&quot;)
+
+# Link sequence and is_type variables
+for i in range(total_cars):
+    # Exactly one type per position
+    model.Add(sum(is_type[(i, t)] for t in range(num_types)) == 1)
+    for t in range(num_types):
+        # If is_type[i,t] then sequence[i] == t
+        model.Add(sequence[i] == t).OnlyEnforceIf(is_type[(i, t)])
+        # If not is_type[i,t] then sequence[i] != t
+        model.Add(sequence[i] != t).OnlyEnforceIf(is_type[(i, t)].Not())
+
+# Demand constraints: each type t appears exactly demand[t] times
+for t in range(num_types):
+    model.Add(sum(is_type[(i, t)] for i in range(total_cars)) == demand[t])
+
+# Sequencing constraints for each option j
+num_options = len(at_most)
+for j in range(num_options):
+    window = per_slots[j]
+    limit = at_most[j]
+    # Slide over all windows of length &#x27;window&#x27;
+    if window &lt;= total_cars:
+        for start in range(total_cars - window + 1):
+            # Sum of cars in this window that require option j
+            model.Add(
+                sum(
+                    is_type[(i, t)]
+                    for i in range(start, start + window)
+                    for t in range(num_types)
+                    if requires[t][j] == 1
+                )
+                &lt;= limit
+            )
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution as JSON
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &quot;sequence&quot;: [solver.Value(sequence[i]) for i in range(total_cars)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    5,
+    1,
+    5,
+    3,
+    4,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (82 lines)</summary><pre class="code-block"><code id="None" class="language-python"># -------------------------------------------------------------
+#  Feasible car-sequencing with station capacity constraints
+#  Google OR-Tools CP-SAT implementation
+# -------------------------------------------------------------
+
+import json
+from ortools.sat.python import cp_model
+
+# ---------------------- 1. Input data ------------------------
+at_most   = [1, 2, 2, 2, 1]  # maximum number of cars with the option inside any window
+per_slots = [2, 3, 3, 5, 5]  # window size for each option
+
+demand    = [1, 1, 2, 2, 2, 2]  # number of cars of each type that must be produced
+requires  = [
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0],
+]  # requires[type][option] == 1 if car type needs option
+
+# Derived constants
+T = len(demand)          # number of car types
+F = len(at_most)         # number of options / stations
+N = sum(demand)          # length of the final sequence
+
+# ------------------ 2. Build CP-SAT model --------------------
+model = cp_model.CpModel()
+
+# 2.1 Position-type assignment binary variables
+#     x[j][t] == 1  ⇔  car type t is placed at position j
+x = []
+for j in range(N):
+    x.append([model.NewBoolVar(f&quot;x_{j}_{t}&quot;) for t in range(T)])
+
+# 2.2 Exactly one car type per position
+for j in range(N):
+    model.Add(sum(x[j][t] for t in range(T)) == 1)
+
+# 2.3 Satisfy demand for each car type
+for t in range(T):
+    model.Add(sum(x[j][t] for j in range(N)) == demand[t])
+
+# 2.4 Station capacity – sliding-window limits
+for o in range(F):
+    window = per_slots[o]
+    limit  = at_most[o]
+    for start in range(N - window + 1):
+        # Sum of cars requiring option o inside the window ≤ limit
+        window_cars = []
+        for j in range(start, start + window):
+            for t in range(T):
+                if requires[t][o]:
+                    window_cars.append(x[j][t])
+        if window_cars:  # Only add the constraint if someone actually can contribute
+            model.Add(sum(window_cars) &lt;= limit)
+        else:
+            # No type ever needs this option ⇒ constraint always satisfied
+            pass
+
+# 2.5 No objective – pure feasibility
+
+# ---------------------- 3. Solve -----------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10.0  # small time limit just in case
+status = solver.Solve(model)
+
+# --------------------- 4. Output -----------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    sequence = []
+    for j in range(N):
+        for t in range(T):
+            if solver.Value(x[j][t]):
+                sequence.append(t)
+                break
+
+    print(json.dumps({&quot;sequence&quot;: sequence}))
+else:
+    # If no solution is found we still have to print something to satisfy
+    # the required output format. Here we return an empty list.
+    print(json.dumps({&quot;sequence&quot;: []}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    3,
+    4,
+    2,
+    5,
+    1,
+    5,
+    3,
+    4,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;at_most&quot;: [
     1,
     2,
@@ -16043,9 +17508,9 @@ requires = [[1, 0, 1, 1, 0],
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">sequence</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-41">Copy</button></div><pre class="code-block"><code id="solution-41" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">sequence</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-41">Copy</button></div><pre class="code-block"><code id="solution-41" class="language-json">{
   &quot;sequence&quot;: [
     0,
     2,
@@ -16059,6 +17524,7 @@ requires = [[1, 0, 1, 1, 0],
     3
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -16066,9 +17532,9 @@ requires = [[1, 0, 1, 1, 0],
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_001_car_sequencing/csplib_001_car_sequencing.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_001_car_sequencing/csplib_001_car_sequencing.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="crypta.html">â† prev</a><a class="btn" href="csplib_002_template_design.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="crypta.html">← prev</a><a class="btn" href="csplib_002_template_design.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

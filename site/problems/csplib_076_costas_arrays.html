@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_076_costas_arrays Â· DCP-Bench Open</title>
-<meta name="description" content="A Costas array is a pattern of \( n \) marks on an \( n \times n \) grid, one mark per row and one per column, in which the \( n \cdot (n-1)/2 \) vectors betweâ€¦">
+<title>csplib_076_costas_arrays · DCP-Bench Open</title>
+<meta name="description" content="A Costas array is a pattern of \( n \) marks on an \( n \times n \) grid, one mark per row and one per column, in which the \( n \cdot (n-1)/2 \) vectors betwe…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob076_costas_arrays.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob076_costas_arrays.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob076/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob076/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (5)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (5)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-78">Copy</button></div><pre class="code-block"><code id="model-78" class="language-python"># Import libraries
 import json
 import numpy as np
@@ -86,7 +87,520 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">n = 8  # Size of the Costas array</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 8  # Size of the Costas array
+
+# Decision Variables
+costas = intvar(1, n, shape=n, name=&quot;costas&quot;)  # Costas array
+
+# Model
+model = Model()
+
+# Constraint: costas is a permutation (all different)
+model += AllDifferent(costas)
+
+# Constraints for difference triangle
+for l in range(1, n):
+    # Create difference variables for this length
+    diffs = intvar(-n+1, n-1, shape=(n-l,), name=f&quot;diffs_l{l}&quot;)
+    for i in range(n-l):
+        model += (diffs[i] == costas[i] - costas[i+l])  # Corrected subtraction order
+    # Each line in difference triangle must be all different
+    model += AllDifferent(diffs)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {&quot;costas&quot;: costas.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n = 8  # Size of the Costas array
+
+# Decision variables
+costas = intvar(1, n, shape=n, name=&quot;costas&quot;)
+
+# Model
+model = Model()
+
+# Ensure that costas is a permutation (i.e., all values are distinct)
+model += [AllDifferent(costas)]
+
+# Collect all ordered pairwise differences (i != j)
+all_diffs = []
+for i in range(n):
+    for j in range(n):
+        if i != j:
+            all_diffs.append(costas[i] - costas[j])
+
+# Ensure all pairwise differences are distinct
+model += [AllDifferent(all_diffs)]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;costas&quot;: costas.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 8  # Size of the Costas array
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: costas is the permutation X_1..X_n (1-based values)
+costas = cp.intvar(1, n, shape=n, name=&quot;costas&quot;)
+
+# Constraints
+# 1) permutation: all values in costas are different (one mark per column)
+model += cp.AllDifferent(costas)
+
+# 2) difference triangle: for each lag l = 1..n-1, the differences X_i - X_{i+l} (i=1..n-l) are all different
+# We&#x27;ll create difference rows for each l and enforce the equality and all-different constraint.
+for l in range(1, n):
+    row_len = n - l
+    D = cp.intvar(-(n-1), (n-1), shape=row_len)  # differences can be negative
+    # link differences to permutation variables
+    for i in range(row_len):
+        model += (D[i] == costas[i] - costas[i + l])
+    # each row must have all different differences
+    model += cp.AllDifferent(D)
+
+# Optional symmetry breaking: fix one orientation to reduce symmetrical solutions
+# (e.g., first element less than last element)
+model += (costas[0] &lt; costas[-1])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;costas&#x27;: costas.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 8
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# X is a permutation of 0..n-1 representing the column positions of marks in each row
+X = cp.intvar(0, n-1, shape=n, name=&quot;X&quot;)
+
+# Constraints
+# 1. X is a permutation (all different)
+model += cp.AllDifferent(X)
+
+# 2. Difference triangle lines must be all different for each lag l
+for l in range(1, n):
+    diff_line = [X[i] - X[i + l] for i in range(n - l)]
+    model += cp.AllDifferent(diff_line)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;costas&#x27;: X.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 8
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+X = cp.intvar(1, n, shape=n, name=&quot;X&quot;)  # permutation representing the Costas array
+
+# Constraints
+model += cp.AllDifferent(X)
+
+# Build the difference triangle and post all-different on each row
+diffs = []
+for l in range(1, n):
+    # row for difference of length l: X[i] - X[i+l] for i = 0..n-l-1
+    dl = cp.intvar(-(n-1), n-1, shape=(n - l,), name=f&quot;d_{l}&quot;)
+    for i in range(n - l):
+        model += dl[i] == X[i] - X[i + l]
+    model += cp.AllDifferent(dl)
+    diffs.append(dl)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;costas&#x27;: X.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n = 8  # Size of the Costas array
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# costas[i] is the column position (1..n) of the mark in row i (0-based rows, 1-based values)
+costas = cp.intvar(1, n, shape=n, name=&quot;costas&quot;)
+
+# Constraints
+# 1) Permutation constraint: one mark per column
+model += cp.AllDifferent(costas)
+
+# 2) Difference triangle constraints: for each lag l, the differences must be all different
+for l in range(1, n):
+    # Use a tuple for shape to ensure an array is created across environments
+    diffs_l = cp.intvar(-(n-1), (n-1), shape=(n - l,), name=f&quot;diffs_{l}&quot;)
+    # Define the differences Xi - X_{i+l}
+    for i in range(n - l):
+        model += (diffs_l[i] == costas[i] - costas[i + l])
+    # Enforce all-different within this lag line
+    model += cp.AllDifferent(diffs_l)
+
+# (Optional) Mild symmetry breaking to speed up search
+model += (costas[0] &lt; costas[n - 1])
+
+# Objective (none) - feasibility problem
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;costas&#x27;: costas.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 8  # Size of the Costas array
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: costas is the permutation X_1..X_n (1-based values)
+costas = cp.intvar(1, n, shape=(n,), name=&quot;costas&quot;)
+
+# Constraints
+# 1) permutation: all values in costas are different (one mark per column)
+model += cp.AllDifferent(costas)
+
+# 2) difference triangle: for each lag l = 1..n-1, the differences X_i - X_{i+l} (i=1..n-l) are all different
+for l in range(1, n):
+    row_len = n - l
+    # differences can be in range [-(n-1), n-1]
+    D = cp.intvar(-(n - 1), (n - 1), shape=(row_len,))
+    # link differences to permutation variables
+    for i in range(row_len):
+        model += (D[i] == costas[i] - costas[i + l])
+    # each row must have all different differences
+    model += cp.AllDifferent(D)
+
+# Optional symmetry breaking: fix one orientation to reduce symmetrical solutions
+model += (costas[0] &lt; costas[-1])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;costas&#x27;: costas.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (37 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 8;
+
+% Decision Variables
+% X is a permutation of 1..n representing the column positions of marks in each row
+array[1..n] of var 1..n: costas;
+
+% Difference triangle variables
+% For each lag l in 1..n-1, we have n-l differences
+array[1..n-1, 1..n-1] of var int: diff;
+
+% Constraints
+
+% 1) costas is a permutation (one mark per row and column)
+constraint alldifferent(costas);
+
+% 2) Define the difference triangle
+% diff[l,i] = costas[i] - costas[i+l] for i in 1..n-l
+constraint
+  forall(l in 1..n-1, i in 1..n - l) (
+    diff[l,i] = costas[i] - costas[i + l]
+  );
+
+% 3) Each line of the difference triangle must be all different
+constraint
+  forall(l in 1..n-1) (
+    alldifferent([diff[l,i] | i in 1..n - l])
+  );
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;costas\&quot;: &quot;, show(costas),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 8  # Size of the Costas array
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# X: permutation of [0..n-1], representing the column positions of marks in each row
+X = [model.NewIntVar(0, n - 1, f&#x27;X[{i}]&#x27;) for i in range(n)]
+
+# Add permutation constraint: all different
+model.AddAllDifferent(X)
+
+# Difference triangle variables and constraints
+# For each lag l in 1..n-1, define differences D_l[i] = X[i] - X[i+l]
+# Each line of the difference triangle must have all different values
+for l in range(1, n):
+    diff_vars = []
+    for i in range(n - l):
+        diff = model.NewIntVar(-(n - 1), n - 1, f&#x27;Diff_l{l}_i{i}&#x27;)
+        model.Add(diff == X[i] - X[i + l])
+        diff_vars.append(diff)
+    model.AddAllDifferent(diff_vars)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    costas = [solver.Value(x) for x in X]
+    solution = {&#x27;costas&#x27;: costas}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python"># -------------------------------------------------------------
+# Costas Array Construction (n = 8) using Google OR-Tools CP-SAT
+# -------------------------------------------------------------
+# 1. Fully self-contained: just run the script.
+# 2. Reads the fixed input data exactly as specified, nothing else.
+# 3. Builds a CP model that implements *all* CAP constraints.
+# 4. Solves for one feasible Costas permutation and prints it as JSON.
+# -------------------------------------------------------------
+
+import json
+from ortools.sat.python import cp_model
+
+# -------------------------------------------------------------
+# Input data (immutable as provided)
+# -------------------------------------------------------------
+n = 8  # Size of the Costas array
+
+# -------------------------------------------------------------
+# CP-SAT model
+# -------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: costas[i] = column position of the mark in row i (1-based).
+# Domain: 1..n.  AllDifferent enforces permutation property.
+costas = [model.NewIntVar(1, n, f&quot;x_{i}&quot;) for i in range(n)]
+model.AddAllDifferent(costas)
+
+# Difference triangle variables
+y_vars = {}  # key = (l, i) ➜ y_{l,i}
+for l in range(1, n):
+    current_row = []
+    for i in range(n - l):
+        y = model.NewIntVar(-(n - 1), n - 1, f&quot;y_{l}_{i}&quot;)
+        # Definition: y = costas[i] − costas[i+l]
+        model.Add(y == costas[i] - costas[i + l])
+        # Zero can never appear (because permutation implies costas[i] ≠ costas[i+l])
+        model.Add(y != 0)
+        y_vars[(l, i)] = y
+        current_row.append(y)
+    # All differences in the same lag line must be unique.
+    model.AddAllDifferent(current_row)
+
+# -------------------------------------------------------------
+# Solve
+# -------------------------------------------------------------
+solver = cp_model.CpSolver()
+# A time limit can be added if desired, e.g. solver.parameters.max_time_in_seconds = 30
+status = solver.Solve(model)
+
+# -------------------------------------------------------------
+# Output (JSON with key &#x27;costas&#x27; exactly)
+# -------------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    solution = [solver.Value(v) for v in costas]
+    print(json.dumps({&quot;costas&quot;: solution}))
+else:
+    # If no solution is found (theoretically impossible for n=8), output empty list.
+    print(json.dumps({&quot;costas&quot;: []}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 8
 }</code></pre></details><details class="instance"><summary>Instance 2</summary><pre><code class="language-json">{
   &quot;n&quot;: 9
@@ -97,9 +611,9 @@ print(json.dumps(solution))
 }</code></pre></details><details class="instance"><summary>Instance 5</summary><pre><code class="language-json">{
   &quot;n&quot;: 12
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">costas</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-78">Copy</button></div><pre class="code-block"><code id="solution-78" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">costas</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-78">Copy</button></div><pre class="code-block"><code id="solution-78" class="language-json">{
   &quot;costas&quot;: [
     6,
     4,
@@ -111,6 +625,7 @@ print(json.dumps(solution))
     3
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -118,9 +633,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_076_costas_arrays/csplib_076_costas_arrays.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_076_costas_arrays/csplib_076_costas_arrays.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_074_maximum_clique.html">â† prev</a><a class="btn" href="csplib_084_hadamard_matrix.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_074_maximum_clique.html">← prev</a><a class="btn" href="csplib_084_hadamard_matrix.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

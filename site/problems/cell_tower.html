@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>cell_tower Â· DCP-Bench Open</title>
-<meta name="description" content="A telecom company needs to build a set of cell towers to provide signal coverage for the inhabitants of a given city. A number of potential locations where theâ€¦">
+<title>cell_tower · DCP-Bench Open</title>
+<meta name="description" content="A telecom company needs to build a set of cell towers to provide signal coverage for the inhabitants of a given city. A number of potential locations where the…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cell_tower" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cell_tower</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-28">Copy</button></div><pre class="code-block"><code id="model-28" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -82,7 +83,315 @@ cost = [3, 4]  # cost[i] is the cost of building a tower at site i
 population = [100, 200, 150]  # population[j] is the population of region j
 budget = 4  # The total budget allowed for building towers</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (64 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+input_data = {
+    &quot;delta&quot;: [
+        [1, 0, 1], # delta[i][j] is 1 if site i covers region j, 0 otherwise
+        [0, 1, 0]
+    ],
+    &quot;cost&quot;: [3, 4], # cost[i] is the cost of building a tower at site i
+    &quot;population&quot;: [100, 200, 150], # population[j] is the population of region j
+    &quot;budget&quot;: 4 # The total budget allowed for building towers
+}
+# End of data
+
+delta = input_data[&quot;delta&quot;]
+cost = input_data[&quot;cost&quot;]
+population = input_data[&quot;population&quot;]
+budget = input_data[&quot;budget&quot;]
+
+n_sites = len(cost)
+n_regions = len(population)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+build_tower = cp.boolvar(shape=n_sites, name=&quot;build_tower&quot;)         # 1 if we build a tower at site i
+region_covered = cp.boolvar(shape=n_regions, name=&quot;region_covered&quot;) # 1 if region j is covered
+
+# Constraints
+
+# Budget constraint: total cost of built towers &lt;= budget
+model += cp.sum([cost[i] * build_tower[i] for i in range(n_sites)]) &lt;= budget
+
+# Coverage constraints:
+# A region is covered if at least one chosen site that covers it is built.
+for j in range(n_regions):
+    covering_sites = [i for i in range(n_sites) if delta[i][j] == 1]
+    if covering_sites:
+        # If a covering site is built, the region must be marked covered
+        for i in covering_sites:
+            model += build_tower[i].implies(region_covered[j])
+        # If region_covered is true then at least one covering site must be built
+        model += cp.sum([build_tower[i] for i in covering_sites]) &gt;= region_covered[j]
+    else:
+        # No site can cover this region -&gt; cannot be covered
+        model += region_covered[j] == 0
+
+# Objective: maximize total population covered
+model.maximize(cp.sum([population[j] * region_covered[j] for j in range(n_regions)]))
+
+# Solve and print
+if model.solve():
+    # convert boolean list to 0/1 integers
+    build_tower_list = [int(v) for v in build_tower.value().tolist()]
+    solution = {
+        &#x27;build_tower&#x27;: build_tower_list,
+        &#x27;total_population_covered&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (64 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+input_data = {
+    &quot;delta&quot;: [
+        [1, 0, 1], # delta[i][j] is 1 if site i covers region j, 0 otherwise
+        [0, 1, 0]
+    ],
+    &quot;cost&quot;: [3, 4], # cost[i] is the cost of building a tower at site i
+    &quot;population&quot;: [100, 200, 150], # population[j] is the population of region j
+    &quot;budget&quot;: 4 # The total budget allowed for building towers
+}
+# End of data
+
+delta = input_data[&quot;delta&quot;]
+cost = input_data[&quot;cost&quot;]
+population = input_data[&quot;population&quot;]
+budget = input_data[&quot;budget&quot;]
+
+n_sites = len(cost)
+n_regions = len(population)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+build_tower = cp.boolvar(shape=n_sites, name=&quot;build_tower&quot;)         # 1 if we build a tower at site i
+region_covered = cp.boolvar(shape=n_regions, name=&quot;region_covered&quot;) # 1 if region j is covered
+
+# Constraints
+
+# Budget constraint: total cost of built towers &lt;= budget
+model += cp.sum([cost[i] * build_tower[i] for i in range(n_sites)]) &lt;= budget
+
+# Coverage constraints:
+# A region is covered if at least one chosen site that covers it is built.
+for j in range(n_regions):
+    covering_sites = [i for i in range(n_sites) if delta[i][j] == 1]
+    if covering_sites:
+        # If a covering site is built, the region must be marked covered
+        for i in covering_sites:
+            model += build_tower[i].implies(region_covered[j])
+        # If region_covered is true then at least one covering site must be built
+        model += cp.sum([build_tower[i] for i in covering_sites]) &gt;= region_covered[j]
+    else:
+        # No site can cover this region -&gt; cannot be covered
+        model += region_covered[j] == 0
+
+# Objective: maximize total population covered
+model.maximize(cp.sum([population[j] * region_covered[j] for j in range(n_regions)]))
+
+# Solve and print
+if model.solve():
+    # convert boolean list to 0/1 integers
+    build_tower_list = [int(v) for v in build_tower.value().tolist()]
+    solution = {
+        &#x27;build_tower&#x27;: build_tower_list,
+        &#x27;total_population_covered&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+input_data = {
+    &quot;delta&quot;: [
+        [1, 0, 1],  # delta[i][j] is 1 if site i covers region j, 0 otherwise
+        [0, 1, 0]
+    ],
+    &quot;cost&quot;: [3, 4],  # cost[i] is the cost of building a tower at site i
+    &quot;population&quot;: [100, 200, 150],  # population[j] is the population of region j
+    &quot;budget&quot;: 4  # The total budget allowed for building towers
+}
+# End of data
+
+delta = input_data[&quot;delta&quot;]
+cost = input_data[&quot;cost&quot;]
+population = input_data[&quot;population&quot;]
+budget = input_data[&quot;budget&quot;]
+
+n_sites = len(delta)
+n_regions = len(population)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+build_tower = cp.boolvar(shape=n_sites, name=&quot;build_tower&quot;)
+covered = cp.boolvar(shape=n_regions, name=&quot;covered&quot;)
+
+# Constraints
+
+# Budget constraint: sum of costs of built towers &lt;= budget
+model += (cp.sum([build_tower[i] * cost[i] for i in range(n_sites)]) &lt;= budget)
+
+# Coverage constraints: a region is covered if any tower that covers it is built
+for j in range(n_regions):
+    covering_sites = [build_tower[i] for i in range(n_sites) if delta[i][j] == 1]
+    if len(covering_sites) == 0:
+        model += (covered[j] == 0)
+    else:
+        model += (covered[j] == cp.any(covering_sites))
+
+# Objective (optional)
+# Maximize total population covered
+objective = cp.sum([covered[j] * population[j] for j in range(n_regions)])
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    build_tower_list = [int(v) for v in build_tower.value().tolist()]
+    solution = {
+        &#x27;build_tower&#x27;: build_tower_list,
+        &#x27;total_population_covered&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (64 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+input_data = {
+    &quot;delta&quot;: [
+        [1, 0, 1], # delta[i][j] is 1 if site i covers region j, 0 otherwise
+        [0, 1, 0]
+    ],
+    &quot;cost&quot;: [3, 4], # cost[i] is the cost of building a tower at site i
+    &quot;population&quot;: [100, 200, 150], # population[j] is the population of region j
+    &quot;budget&quot;: 4 # The total budget allowed for building towers
+}
+# End of data
+
+delta = input_data[&quot;delta&quot;]
+cost = input_data[&quot;cost&quot;]
+population = input_data[&quot;population&quot;]
+budget = input_data[&quot;budget&quot;]
+
+n_sites = len(cost)
+n_regions = len(population)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+build_tower = cp.boolvar(shape=n_sites, name=&quot;build_tower&quot;)         # 1 if we build a tower at site i
+region_covered = cp.boolvar(shape=n_regions, name=&quot;region_covered&quot;) # 1 if region j is covered
+
+# Constraints
+
+# Budget constraint: total cost of built towers &lt;= budget
+model += cp.sum([cost[i] * build_tower[i] for i in range(n_sites)]) &lt;= budget
+
+# Coverage constraints:
+# A region is covered if at least one chosen site that covers it is built.
+for j in range(n_regions):
+    covering_sites = [i for i in range(n_sites) if delta[i][j] == 1]
+    if covering_sites:
+        # If a covering site is built, the region must be marked covered
+        for i in covering_sites:
+            model += build_tower[i].implies(region_covered[j])
+        # If region_covered is true then at least one covering site must be built
+        model += cp.sum([build_tower[i] for i in covering_sites]) &gt;= region_covered[j]
+    else:
+        # No site can cover this region -&gt; cannot be covered
+        model += region_covered[j] == 0
+
+# Objective: maximize total population covered
+model.maximize(cp.sum([population[j] * region_covered[j] for j in range(n_regions)]))
+
+# Solve and print
+if model.solve():
+    # convert boolean list to 0/1 integers
+    build_tower_list = [int(v) for v in build_tower.value().tolist()]
+    solution = {
+        &#x27;build_tower&#x27;: build_tower_list,
+        &#x27;total_population_covered&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;delta&quot;: [
     [
       1,
@@ -106,15 +415,16 @@ budget = 4  # The total budget allowed for building towers</code></pre>
   ],
   &quot;budget&quot;: 4
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">build_tower</span><span class="chip">total_population_covered</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-28">Copy</button></div><pre class="code-block"><code id="solution-28" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">build_tower</span><span class="chip">total_population_covered</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-28">Copy</button></div><pre class="code-block"><code id="solution-28" class="language-json">{
   &quot;build_tower&quot;: [
     true,
     false
   ],
   &quot;total_population_covered&quot;: 250
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -122,9 +432,9 @@ budget = 4  # The total budget allowed for building towers</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/cell_tower/cell_tower.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/cell_tower/cell_tower.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="car_selection.html">â† prev</a><a class="btn" href="chess_set.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="car_selection.html">← prev</a><a class="btn" href="chess_set.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

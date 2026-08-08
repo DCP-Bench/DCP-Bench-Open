@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_049_number_partitioning Â· DCP-Bench Open</title>
-<meta name="description" content="This problem consists of finding a partition of numbers 1..N into two sets A and B such that: - A and B have the same cardinality - Sum of numbers in A = sum oâ€¦">
+<title>csplib_049_number_partitioning · DCP-Bench Open</title>
+<meta name="description" content="This problem consists of finding a partition of numbers 1..N into two sets A and B such that: - A and B have the same cardinality - Sum of numbers in A = sum o…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob049_number_partitioning.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob049_number_partitioning.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob049/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob049/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (4)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (4)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-70">Copy</button></div><pre class="code-block"><code id="model-70" class="language-python"># Import libraries
 import json
 import numpy as np
@@ -78,7 +79,596 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">n = 8  # The number N</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 12  # The number N
+
+# Decision Variables
+A = boolvar(shape=n, name=&quot;A&quot;)  # Boolean array indicating if number is in set A
+B = boolvar(shape=n, name=&quot;B&quot;)  # Boolean array indicating if number is in set B
+
+# Model
+model = Model()
+
+# Constraint: A and B have the same cardinality
+model += sum(A) == sum(B)
+
+# Constraint: Sum of numbers in A = sum of numbers in B
+numbers = cpm_array(range(1, n+1))
+model += sum(numbers * A) == sum(numbers * B)
+
+# Constraint: Sum of squares of numbers in A = sum of squares of numbers in B
+squares = cpm_array([i*i for i in range(1, n+1)])
+model += sum(squares * A) == sum(squares * B)
+
+# Constraint: Each number is in exactly one set (A or B)
+for i in range(n):
+    model += (A[i] + B[i]) == 1
+
+# Solve
+model.solve()
+
+# Convert boolean arrays to number lists
+A_solution = [i+1 for i in range(n) if A[i].value()]
+B_solution = [i+1 for i in range(n) if B[i].value()]
+
+# Print solution
+solution = {
+    &quot;A&quot;: A_solution,
+    &quot;B&quot;: B_solution
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n = 12  # The number N
+
+# Decision variables
+# We will use a binary variable to indicate which set each number belongs to
+# 0 for set B, 1 for set A
+assignment = boolvar(shape=n, name=&quot;assignment&quot;)
+
+# The numbers 1 to n
+numbers = list(range(1, n + 1))
+
+# Model
+model = Model()
+
+# A and B have the same cardinality
+model += [sum(assignment) == n // 2]
+
+# Sum of numbers in A = sum of numbers in B
+model += [sum(assignment * numbers) == sum((1 - assignment) * numbers)]
+
+# Sum of squares of numbers in A = sum of squares of numbers in B
+squares = [x**2 for x in numbers]
+model += [sum(assignment * squares) == sum((1 - assignment) * squares)]
+
+# Solve the model
+model.solve()
+
+# Extract the sets A and B
+A = [numbers[i] for i in range(n) if assignment[i].value() == 1]
+B = [numbers[i] for i in range(n) if assignment[i].value() == 0]
+
+# Print the solution
+solution = {&quot;A&quot;: A, &quot;B&quot;: B}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12  # The number N
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: x[i] = 1 if (i+1) is in A, 0 if in B
+x = cp.intvar(0, 1, shape=n, name=&quot;x&quot;)
+
+# Precomputed totals
+total_sum = n * (n + 1) // 2
+total_sum_sq = n * (n + 1) * (2 * n + 1) // 6
+
+half_count = n // 2
+half_sum = total_sum // 2
+half_sum_sq = total_sum_sq // 2
+
+# Constraints
+model += cp.sum(x) == half_count
+model += cp.sum([x[i] * (i + 1) for i in range(n)]) == half_sum
+model += cp.sum([x[i] * (i + 1) * (i + 1) for i in range(n)]) == half_sum_sq
+
+# Symmetry breaking: enforce that 1 is in A (safe because A/B are symmetric)
+model += x[0] == 1
+
+# Solve and print
+if model.solve():
+    xv = x.value().tolist()
+    A = [i + 1 for i, val in enumerate(xv) if int(val) == 1]
+    B = [i + 1 for i, val in enumerate(xv) if int(val) == 0]
+    solution = {&#x27;A&#x27;: A, &#x27;B&#x27;: B}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = 0 if i+1 in A, 1 if i+1 in B
+x = cp.intvar(0, 1, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# A and B have the same cardinality
+model += (cp.sum(x) == n // 2)
+
+# Sum of numbers in A = sum of numbers in B
+# sum of numbers in B = sum of numbers in 1..n - sum of numbers in A
+# sum of numbers in A = sum_{i | x[i]==0} (i+1)
+# sum of numbers in B = sum_{i | x[i]==1} (i+1)
+# So sum of A = sum of B = total_sum/2
+total_sum = n * (n + 1) // 2
+model += (cp.sum([(1 - x[i]) * (i + 1) for i in range(n)]) == total_sum // 2)
+
+# Sum of squares of numbers in A = sum of squares of numbers in B
+total_sum_sq = sum((i + 1) ** 2 for i in range(n))
+model += (cp.sum([(1 - x[i]) * (i + 1) ** 2 for i in range(n)]) == total_sum_sq // 2)
+
+# Domain feasibility check (no solution if n &lt; 8 or n % 4 != 0)
+if n &lt; 8 or n % 4 != 0:
+    print(&quot;No solution found.&quot;)
+else:
+    # Solve and print
+    if model.solve():
+        A = [i + 1 for i in range(n) if x[i].value() == 0]
+        B = [i + 1 for i in range(n) if x[i].value() == 1]
+        solution = {&#x27;A&#x27;: A, &#x27;B&#x27;: B}
+        print(json.dumps(solution, indent=4))
+    else:
+        print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12  # The number N
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: x[i] = 1 if (i+1) is in A, 0 if in B
+x = cp.intvar(0, 1, shape=n, name=&quot;x&quot;)
+
+# Precomputed totals
+total_sum = n * (n + 1) // 2
+total_sum_sq = n * (n + 1) * (2 * n + 1) // 6
+
+half_count = n // 2
+half_sum = total_sum // 2
+half_sum_sq = total_sum_sq // 2
+
+# Constraints
+model += cp.sum(x) == half_count
+model += cp.sum([x[i] * (i + 1) for i in range(n)]) == half_sum
+model += cp.sum([x[i] * (i + 1) * (i + 1) for i in range(n)]) == half_sum_sq
+
+# Symmetry breaking: enforce that 1 is in A (safe because A/B are symmetric)
+model += x[0] == 1
+
+# Solve and print
+if model.solve():
+    xv = x.value().tolist()
+    A = [i + 1 for i, val in enumerate(xv) if int(val) == 1]
+    B = [i + 1 for i, val in enumerate(xv) if int(val) == 0]
+    solution = {&#x27;A&#x27;: A, &#x27;B&#x27;: B}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n = 12  # The number N
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = 1 if (i+1) is in set A, 0 otherwise (then it&#x27;s in set B)
+x = cp.intvar(0, 1, shape=n, name=&quot;x&quot;)
+
+# Precompute constants
+numbers = list(range(1, n+1))
+total_sum = n * (n + 1) // 2
+total_sq = sum(i * i for i in numbers)
+
+# Expressions for sums
+sum_A = cp.sum([(i + 1) * x[i] for i in range(n)])
+sum2_A = cp.sum([(i + 1) * (i + 1) * x[i] for i in range(n)])
+
+# Constraints
+# Equal cardinality: |A| = |B| -&gt; 2*|A| = n (handles odd n as unsat)
+model += (2 * cp.sum(x) == n)
+
+# Equal sum: sum(A) = sum(B) -&gt; 2*sum(A) = total_sum
+model += (2 * sum_A == total_sum)
+
+# Equal sum of squares: sum(i^2 in A) = sum(i^2 in B) -&gt; 2*sum2_A = total_sq
+model += (2 * sum2_A == total_sq)
+
+# Solve and print
+if model.solve():
+    x_vals = x.value().tolist()
+    A = [i + 1 for i, v in enumerate(x_vals) if v == 1]
+    B = [i + 1 for i, v in enumerate(x_vals) if v == 0]
+    solution = {&#x27;A&#x27;: A, &#x27;B&#x27;: B}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12  # The number N
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: x[i] = 1 if (i+1) is in A, 0 if in B
+x = cp.intvar(0, 1, shape=n, name=&quot;x&quot;)
+
+# Precomputed totals
+total_sum = n * (n + 1) // 2
+total_sum_sq = n * (n + 1) * (2 * n + 1) // 6
+
+half_count = n // 2
+half_sum = total_sum // 2
+half_sum_sq = total_sum_sq // 2
+
+# Constraints
+model += cp.sum(x) == half_count
+model += cp.sum([x[i] * (i + 1) for i in range(n)]) == half_sum
+model += cp.sum([x[i] * (i + 1) * (i + 1) for i in range(n)]) == half_sum_sq
+
+# Symmetry breaking: enforce that 1 is in A (safe because A/B are symmetric)
+model += x[0] == 1
+
+# Solve and print
+if model.solve():
+    xv = x.value().tolist()
+    A = [i + 1 for i, val in enumerate(xv) if int(val) == 1]
+    B = [i + 1 for i, val in enumerate(xv) if int(val) == 0]
+    solution = {&#x27;A&#x27;: A, &#x27;B&#x27;: B}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (67 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 12;
+
+% Check feasibility conditions
+constraint n &gt;= 8;
+constraint n mod 4 = 0;
+
+% Sets of numbers
+set of int: NUMS = 1..n;
+
+% Decision variables: assign each number to set A (true) or B (false)
+array[NUMS] of var bool: inA;
+
+% Cardinality constraint: A and B have the same size
+constraint sum([bool2int(inA[i]) | i in NUMS]) = n div 2;
+
+% Sum constraints
+constraint sum([i * bool2int(inA[i]) | i in NUMS]) = sum([i * (1 - bool2int(inA[i])) | i in NUMS]);
+
+% Sum of squares constraints
+constraint sum([i*i * bool2int(inA[i]) | i in NUMS]) = sum([i*i * (1 - bool2int(inA[i])) | i in NUMS]);
+
+% Extract sets A and B from inA
+array[1..n div 2] of var int: A;
+array[1..n div 2] of var int: B;
+
+% Assign values to A and B arrays
+% We use the fact that A contains exactly n/2 elements assigned true in inA
+% and B contains the rest
+constraint
+  % A contains all numbers i where inA[i] = true
+  % B contains all numbers i where inA[i] = false
+  % We enforce that A and B are sorted to avoid symmetry
+  forall(i in 1..n div 2) (
+    A[i] in NUMS /\
+    B[i] in NUMS
+  ) /\
+  increasing(A) /\
+  increasing(B);
+
+% Link A and B arrays with inA
+% For each number i, if inA[i] = true then i is in A, else in B
+% We enforce that A and B are exactly the partition of 1..n
+constraint
+  forall(i in NUMS) (
+    (inA[i] -&gt; (exists(j in 1..n div 2)(A[j] = i))) /\
+    (not inA[i] -&gt; (exists(j in 1..n div 2)(B[j] = i)))
+  );
+
+% Ensure A and B are disjoint and cover all numbers
+constraint
+  forall(i,j in 1..n div 2 where i != j) (
+    A[i] != A[j] /\ B[i] != B[j]
+  ) /\
+  forall(i in 1..n div 2, j in 1..n div 2) (
+    A[i] != B[j]
+  );
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;A\&quot;: &quot;, show(A), &quot;,&quot;,
+  &quot;\&quot;B\&quot;: &quot;, show(B),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 12  # The number N
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: x[i] = 1 if number i+1 is in set A, 0 if in set B
+x = [model.NewBoolVar(f&#x27;x_{i+1}&#x27;) for i in range(n)]
+
+# Constraints
+
+# 1) A and B have the same cardinality
+model.Add(sum(x) == n // 2)
+
+# 2) Sum of numbers in A = sum of numbers in B
+# sum of numbers in A = sum of numbers in B = total_sum / 2
+total_sum = n * (n + 1) // 2
+model.Add(sum((i + 1) * x[i] for i in range(n)) == total_sum // 2)
+
+# 3) Sum of squares of numbers in A = sum of squares of numbers in B
+# sum of squares in A = sum of squares in B = total_squares / 2
+total_squares = sum((i + 1) ** 2 for i in range(n))
+model.Add(sum(((i + 1) ** 2) * x[i] for i in range(n)) == total_squares // 2)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    A = [i + 1 for i in range(n) if solver.Value(x[i]) == 1]
+    B = [i + 1 for i in range(n) if solver.Value(x[i]) == 0]
+    solution = {
+        &#x27;A&#x27;: A,
+        &#x27;B&#x27;: B
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;Partition 1..n into two equal‐size subsets with equal sums and equal square sums.
+   Feasibility modelled with Google OR-Tools CP-SAT.
+&quot;&quot;&quot;
+import json
+from ortools.sat.python import cp_model
+
+# ---------------------
+# Input data (immutable)
+# ---------------------
+n = 12  # The number N
+
+# -------------------------------------------------
+# Quick pre-check: necessary arithmetic feasibility
+# -------------------------------------------------
+if n &lt; 8 or n % 4 != 0:
+    # Problem is provably infeasible, print empty solution structure.
+    print(json.dumps({&quot;A&quot;: [], &quot;B&quot;: []}))
+    exit(0)
+
+# ----------------------
+# Derived constant terms
+# ----------------------
+cardinality   = n // 2                              # |A| = |B|
+subset_sum    = n * (n + 1) // 4                    # Required sum of elements in A
+subset_sq_sum = n * (n + 1) * (2 * n + 1) // 12     # Required sum of squares in A
+
+# ----------------------------
+# Build CP-SAT feasibility model
+# ----------------------------
+model = cp_model.CpModel()
+
+# Decision variables: x_i = 1 if i belongs to subset A, else 0 (which means it belongs to B).
+x = [model.NewBoolVar(f&quot;x_{i}&quot;) for i in range(1, n + 1)]
+
+# Constraint 1: correct cardinality
+model.Add(sum(x) == cardinality)
+
+# Constraint 2: equal sum of elements
+model.Add(sum(i * x[i - 1] for i in range(1, n + 1)) == subset_sum)
+
+# Constraint 3: equal sum of squares of elements
+model.Add(sum((i * i) * x[i - 1] for i in range(1, n + 1)) == subset_sq_sum)
+
+# ----------------------------
+# Solve the model (pure feasibility)
+# ----------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10  # small instance; keep a safety cap
+status = solver.Solve(model)
+
+# ----------------------------
+# Extract and print the result
+# ----------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    A = [i for i in range(1, n + 1) if solver.BooleanValue(x[i - 1])]
+    B = [i for i in range(1, n + 1) if not solver.BooleanValue(x[i - 1])]
+    print(json.dumps({&quot;A&quot;: A, &quot;B&quot;: B}))
+else:
+    # No feasible partition found (should not happen for valid n &gt;= 8 divisible by 4)
+    print(json.dumps({&quot;A&quot;: [], &quot;B&quot;: []}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 8
 }</code></pre></details><details class="instance"><summary>Instance 2</summary><pre><code class="language-json">{
   &quot;n&quot;: 12
@@ -87,9 +677,9 @@ print(json.dumps(solution))
 }</code></pre></details><details class="instance"><summary>Instance 4</summary><pre><code class="language-json">{
   &quot;n&quot;: 20
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">A</span><span class="chip">B</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-70">Copy</button></div><pre class="code-block"><code id="solution-70" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">A</span><span class="chip">B</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-70">Copy</button></div><pre class="code-block"><code id="solution-70" class="language-json">{
   &quot;A&quot;: [
     1,
     6,
@@ -103,6 +693,7 @@ print(json.dumps(solution))
     5
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -110,9 +701,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_049_number_partitioning/csplib_049_number_partitioning.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_049_number_partitioning/csplib_049_number_partitioning.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_044_steiner.html">â† prev</a><a class="btn" href="csplib_050_diamond_free.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_044_steiner.html">← prev</a><a class="btn" href="csplib_050_diamond_free.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

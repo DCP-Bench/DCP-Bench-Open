@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>devils_word Â· DCP-Bench Open</title>
-<meta name="description" content="Given an array of integers, insert &#x27;+&#x27; or &#x27;-&#x27; operators before each integer in the array so that summing them up will result in 666. Print the array with the câ€¦">
+<title>devils_word · DCP-Bench Open</title>
+<meta name="description" content="Given an array of integers, insert &#x27;+&#x27; or &#x27;-&#x27; operators before each integer in the array so that summing them up will result in 666. Print the array with the c…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/devils_word.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/devils_word.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-83">Copy</button></div><pre class="code-block"><code id="model-83" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -69,7 +70,198 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">arr = [72, 229, 107, 97, 110, 32, 75, 106, 101, 108, 108, 101, 114, 115, 116, 114, 97, 110, 100]
 total = 666</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+arr = [72, 229, 107, 97, 110, 32, 75, 106, 101, 108, 108, 101, 114, 115, 116, 114, 97, 110, 100]
+total = 666
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = len(arr)
+sum_arr = sum(arr)
+
+# Decision Variables
+# b[i] = 1 means +arr[i], b[i] = 0 means -arr[i]
+b = cp.boolvar(shape=n, name=&quot;b&quot;)
+# result variables: signed values for each element
+result_vars = cp.intvar(-sum_arr, sum_arr, shape=n, name=&quot;result&quot;)
+
+# Constraints
+for i in range(n):
+    # result[i] == arr[i] * (2*b[i] - 1)  -&gt; either +arr[i] or -arr[i]
+    model += (result_vars[i] == arr[i] * (2 * b[i] - 1))
+
+# Sum of signed values equals the target total
+model += cp.sum(result_vars) == total
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;result&#x27;: [int(x) for x in result_vars.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+arr = [72, 229, 107, 97, 110, 32, 75, 106, 101, 108, 108, 101, 114, 115, 116, 114, 97, 110, 100]
+total = 666
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+n = len(arr)
+# sign variables in {-1, 1} (use intvar with exclusion of 0)
+sign = cp.intvar(-1, 1, shape=n, name=&quot;sign&quot;)
+# result variables are the signed values of arr elements
+max_a = max(arr)
+result = cp.intvar(-max_a, max_a, shape=n, name=&quot;result&quot;)
+
+# Constraints
+# Exclude 0 so sign is either -1 or 1
+model += [sign[i] != 0 for i in range(n)]
+# Link result to sign * arr[i]
+model += [result[i] == arr[i] * sign[i] for i in range(n)]
+# Sum constraint
+model += cp.sum([result[i] for i in range(n)]) == total
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;result&#x27;: result.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+arr = [72, 229, 107, 97, 110, 32, 75, 106, 101, 108, 108, 101, 114, 115, 116, 114, 97, 110, 100]
+total = 666
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# b[i] = 1 means &#x27;+&#x27; before arr[i], b[i] = 0 means &#x27;-&#x27; before arr[i]
+b = cp.boolvar(shape=len(arr), name=&quot;b&quot;)
+
+# Constraints
+# Sum of signed numbers equals total
+model += (cp.sum([arr[i] * (2*b[i] - 1) for i in range(len(arr))]) == total)
+
+# Objective (optional)
+# No objective, just find any feasible solution
+
+# Solve and print
+if model.solve():
+    result = [int(arr[i] * (2*int(b[i].value()) - 1)) for i in range(len(arr))]
+    solution = {&#x27;result&#x27;: result}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+arr = [72, 229, 107, 97, 110, 32, 75, 106, 101, 108, 108, 101, 114, 115, 116, 114, 97, 110, 100]
+total = 666
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = len(arr)
+sum_arr = sum(arr)
+
+# Decision Variables
+# b[i] = 1 means +arr[i], b[i] = 0 means -arr[i]
+b = cp.boolvar(shape=n, name=&quot;b&quot;)
+# result variables: signed values for each element
+result_vars = cp.intvar(-sum_arr, sum_arr, shape=n, name=&quot;result&quot;)
+
+# Constraints
+for i in range(n):
+    # result[i] == arr[i] * (2*b[i] - 1)  -&gt; either +arr[i] or -arr[i]
+    model += (result_vars[i] == arr[i] * (2 * b[i] - 1))
+
+# Sum of signed values equals the target total
+model += cp.sum(result_vars) == total
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;result&#x27;: [int(x) for x in result_vars.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;arr&quot;: [
     72,
     229,
@@ -93,9 +285,9 @@ total = 666</code></pre>
   ],
   &quot;total&quot;: 666
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">result</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-83">Copy</button></div><pre class="code-block"><code id="solution-83" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">result</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-83">Copy</button></div><pre class="code-block"><code id="solution-83" class="language-json">{
   &quot;result&quot;: [
     72,
     -229,
@@ -118,6 +310,7 @@ total = 666</code></pre>
     100
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -125,9 +318,9 @@ total = 666</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/devils_word/devils_word.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/devils_word/devils_word.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cutting_stock.html">â† prev</a><a class="btn" href="de_bruijn_sequence.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cutting_stock.html">← prev</a><a class="btn" href="de_bruijn_sequence.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

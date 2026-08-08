@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>general_store Â· DCP-Bench Open</title>
-<meta name="description" content="The owner of a general store, who is something of a puzzlist, has put up this sign to see if any of his mathematical friends can translate it properly. Each diâ€¦">
+<title>general_store · DCP-Bench Open</title>
+<meta name="description" content="The owner of a general store, who is something of a puzzlist, has put up this sign to see if any of his mathematical friends can translate it properly. Each di…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/general_store.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/general_store.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-108">Copy</button></div><pre class="code-block"><code id="model-108" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
@@ -78,10 +79,413 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">A</span><span class="chip">B</span><span class="chip">C</span><span class="chip">E</span><span class="chip">H</span><span class="chip">L</span><span class="chip">O</span><span class="chip">P</span><span class="chip">S</span><span class="chip">W</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-108">Copy</button></div><pre class="code-block"><code id="solution-108" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (97 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Letters: C, H, E, S, A, B, O, W, P, L
+letters = list(&quot;CHESABOWPL&quot;)  # Note: order chosen to match required output keys (C,H,E,S,A,B,O,W,P,L)
+
+# Words to sum (each word is right-aligned under the 7-letter total ALLWOOL)
+words = [
+    &quot;CHESS&quot;,
+    &quot;CASH&quot;,
+    &quot;BOWWOW&quot;,
+    &quot;CHOPS&quot;,
+    &quot;ALSOPS&quot;,
+    &quot;PALEALE&quot;,
+    &quot;COOL&quot;,
+    &quot;BASS&quot;,
+    &quot;HOPS&quot;,
+    &quot;ALES&quot;,
+    &quot;HOES&quot;,
+    &quot;APPLES&quot;,
+    &quot;COWS&quot;,
+    &quot;CHEESE&quot;,
+    &quot;CHSOAP&quot;,
+    &quot;SHEEP&quot;
+]
+
+# Result word ALLWOOL (length 7)
+result_word = &quot;ALLWOOL&quot;
+ncols = len(result_word)  # 7 columns
+
+# Create model
+model = cp.Model()
+
+# Decision variables for letters
+L = {ch: cp.intvar(0, 9, name=ch) for ch in letters}
+
+# All letters different
+model += cp.AllDifferent([L[ch] for ch in letters])
+
+# Leading letters that cannot be zero:
+# Leading letters of addends and of the result (first letter of each word and result)
+leading_letters = set()
+for w in words:
+    leading_letters.add(w[0])
+leading_letters.add(result_word[0])
+# Enforce non-zero for these (they are among our letters)
+for ch in leading_letters:
+    # Some letters might not be in our variable set (but in this puzzle they are)
+    if ch in L:
+        model += (L[ch] &gt;= 1)
+
+# Prepare column contributions: for each column (0..6 left-&gt;right), sum letter values of words aligned to right
+# Right-align each word under the 7-letter result
+cols = [[] for _ in range(ncols)]
+for w in words:
+    offset = ncols - len(w)  # starting column index for this word
+    for i, ch in enumerate(w):
+        col = offset + i
+        # add the variable corresponding to ch to that column
+        cols[col].append(L[ch])
+
+# Convert each column list to a sum expression (empty positions contribute 0)
+col_sums = [cp.sum(col) if len(col) &gt; 0 else 0 for col in cols]
+
+# Result digits per column (A L L W O O L)
+result_digits = [L[ch] for ch in result_word]
+
+# Carry variables c[0..7] where c[7] is carry into rightmost column (set to 0),
+# and constraint: for each column j (0..6 left-&gt;right):
+#   col_sums[j] + c[j+1] == result_digits[j] + 10*c[j]
+c = cp.intvar(0, 20, shape=8, name=&quot;c&quot;)  # upper bound 20 is safe for these sums
+# carry into rightmost column is c[7] and must be 0
+model += (c[7] == 0)
+# also no overflow beyond leftmost: c[0] == 0
+model += (c[0] == 0)
+
+for j in range(ncols):
+    model += (col_sums[j] + c[j+1] == result_digits[j] + 10 * c[j])
+
+# Solve
+if model.solve():
+    solution = {
+        &#x27;C&#x27;: int(L[&#x27;C&#x27;].value()),
+        &#x27;H&#x27;: int(L[&#x27;H&#x27;].value()),
+        &#x27;E&#x27;: int(L[&#x27;E&#x27;].value()),
+        &#x27;S&#x27;: int(L[&#x27;S&#x27;].value()),
+        &#x27;A&#x27;: int(L[&#x27;A&#x27;].value()),
+        &#x27;B&#x27;: int(L[&#x27;B&#x27;].value()),
+        &#x27;O&#x27;: int(L[&#x27;O&#x27;].value()),
+        &#x27;W&#x27;: int(L[&#x27;W&#x27;].value()),
+        &#x27;P&#x27;: int(L[&#x27;P&#x27;].value()),
+        &#x27;L&#x27;: int(L[&#x27;L&#x27;].value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (84 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data: words (right-aligned under result &quot;ALLWOOL&quot;)
+words = [
+    &quot;CHESS&quot;,
+    &quot;CASH&quot;,
+    &quot;BOWWOW&quot;,
+    &quot;CHOPS&quot;,
+    &quot;ALSOPS&quot;,
+    &quot;PALEALE&quot;,
+    &quot;COOL&quot;,
+    &quot;BASS&quot;,
+    &quot;HOPS&quot;,
+    &quot;ALES&quot;,
+    &quot;HOES&quot;,
+    &quot;APPLES&quot;,
+    &quot;COWS&quot;,
+    &quot;CHEESE&quot;,
+    &quot;CHSOAP&quot;,
+    &quot;SHEEP&quot;
+]
+
+result_word = &quot;ALLWOOL&quot;
+ncols = len(result_word)  # 7
+
+# Collect all unique letters used
+unique_letters = sorted({ch for w in words for ch in w} | set(result_word))
+# The problem statement asks to print values for (C, H, E, S, A, B, O, W, P, L)
+# Ensure that exactly these letters are present and in that order for printing
+required_print_order = [&#x27;C&#x27;,&#x27;H&#x27;,&#x27;E&#x27;,&#x27;S&#x27;,&#x27;A&#x27;,&#x27;B&#x27;,&#x27;O&#x27;,&#x27;W&#x27;,&#x27;P&#x27;,&#x27;L&#x27;]
+# Create decision variables for these letters (and any others if present)
+letters = required_print_order[:]  # main letters
+# Ensure all unique letters are included in variables
+for ch in unique_letters:
+    if ch not in letters:
+        letters.append(ch)
+
+# Model
+model = cp.Model()
+
+# Letter variables: each letter is a digit 0..9
+L = {ch: cp.intvar(0, 9, name=ch) for ch in letters}
+
+# All different for the letters that actually represent digits
+model += cp.AllDifferent([L[ch] for ch in letters])
+
+# Leading letters (most significant letter of each addend and of the result) cannot be zero
+leading_letters = set(w[0] for w in words)
+leading_letters.add(result_word[0])
+for ch in leading_letters:
+    if ch in L:
+        model += (L[ch] &gt;= 1)
+
+# Build columns right-to-left (index 0 is rightmost / units column)
+cols = [[] for _ in range(ncols)]
+for w in words:
+    # right-align: last character of w goes to cols[0], second-last to cols[1], etc.
+    for i, ch in enumerate(reversed(w)):
+        cols[i].append(L[ch])
+
+# Result digits right-to-left (result_word last char at index 0)
+result_digits = [L[ch] for ch in reversed(result_word)]
+
+# Carry variables: c[k] is carry into column k (k=0 is into rightmost). c has length ncols+1.
+# We require c[0] == 0 (no carry into rightmost) and c[ncols] == 0 (no overflow beyond leftmost)
+c = cp.intvar(0, 50, shape=ncols + 1, name=&quot;c&quot;)
+model += (c[0] == 0)
+model += (c[ncols] == 0)
+
+# Column constraints (right-to-left):
+# For column k: sum(cols[k]) + c[k] == result_digits[k] + 10 * c[k+1]
+for k in range(ncols):
+    col_sum = cp.sum(cols[k]) if len(cols[k]) &gt; 0 else 0
+    model += (col_sum + c[k] == result_digits[k] + 10 * c[k+1])
+
+# Solve
+if model.solve():
+    # Prepare solution dict with required keys in exact order/names
+    solution = {ch: int(L[ch].value()) for ch in required_print_order}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (88 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data: define all addend words and the result word
+addends = [
+    &quot;CHESS&quot;,
+    &quot;CASH&quot;,
+    &quot;BOWWOW&quot;,
+    &quot;CHOPS&quot;,
+    &quot;ALSOPS&quot;,
+    &quot;PALEALE&quot;,
+    &quot;COOL&quot;,
+    &quot;BASS&quot;,
+    &quot;HOPS&quot;,
+    &quot;ALES&quot;,
+    &quot;HOES&quot;,
+    &quot;APPLES&quot;,
+    &quot;COWS&quot;,
+    &quot;CHEESE&quot;,
+    &quot;CHSOAP&quot;,
+    &quot;SHEEP&quot;
+]
+result_word = &quot;ALLWOOL&quot;
+
+# All distinct letters involved (given explicitly in the problem)
+letters_list = [&#x27;C&#x27;, &#x27;H&#x27;, &#x27;E&#x27;, &#x27;S&#x27;, &#x27;A&#x27;, &#x27;B&#x27;, &#x27;O&#x27;, &#x27;W&#x27;, &#x27;P&#x27;, &#x27;L&#x27;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: each letter is a digit 0..9, all different
+letter_vars = {ch: cp.intvar(0, 9, name=ch) for ch in letters_list}
+model += cp.AllDifferent(list(letter_vars.values()))
+
+# Leading letters must be non-zero (for each addend and the result)
+leading_letters = set([w[0] for w in addends] + [result_word[0]])
+for ch in leading_letters:
+    model += (letter_vars[ch] != 0)
+
+# Column-wise addition constraints with carry
+# result has 7 digits, create carry variables c[0..7], with c[0]=0 and c[7]=0
+num_cols = len(result_word)  # 7
+carry = cp.intvar(0, 20, shape=num_cols + 1, name=&quot;carry&quot;)
+# Initial and final carry constraints
+model += (carry[0] == 0)
+model += (carry[num_cols] == 0)
+
+# Helper to get the k-th (from right) letter of a word, or None if shorter
+def kth_from_right(word, k):
+    # k=0 is units position
+    if k &lt; len(word):
+        return word[len(word) - 1 - k]
+    else:
+        return None
+
+# Map result digits per column from rightmost to leftmost
+result_digits = [result_word[len(result_word) - 1 - k] for k in range(num_cols)]
+
+for k in range(num_cols):
+    # Collect all letters that contribute to column k (from right)
+    col_letters = []
+    for w in addends:
+        ch = kth_from_right(w, k)
+        if ch is not None:
+            col_letters.append(letter_vars[ch])
+    # Sum constraint: sum(column letters) + carry_in = result_digit + 10*carry_out
+    # Use cp.sum for CPMpy
+    col_sum = cp.sum(col_letters) if len(col_letters) &gt; 0 else 0
+    model += (col_sum + carry[k] == letter_vars[result_digits[k]] + 10 * carry[k + 1])
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;C&#x27;: int(letter_vars[&#x27;C&#x27;].value()),
+        &#x27;H&#x27;: int(letter_vars[&#x27;H&#x27;].value()),
+        &#x27;E&#x27;: int(letter_vars[&#x27;E&#x27;].value()),
+        &#x27;S&#x27;: int(letter_vars[&#x27;S&#x27;].value()),
+        &#x27;A&#x27;: int(letter_vars[&#x27;A&#x27;].value()),
+        &#x27;B&#x27;: int(letter_vars[&#x27;B&#x27;].value()),
+        &#x27;O&#x27;: int(letter_vars[&#x27;O&#x27;].value()),
+        &#x27;W&#x27;: int(letter_vars[&#x27;W&#x27;].value()),
+        &#x27;P&#x27;: int(letter_vars[&#x27;P&#x27;].value()),
+        &#x27;L&#x27;: int(letter_vars[&#x27;L&#x27;].value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (77 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+words = [
+    &quot;CHESS&quot;,
+    &quot;CASH&quot;,
+    &quot;BOWWOW&quot;,
+    &quot;CHOPS&quot;,
+    &quot;ALSOPS&quot;,
+    &quot;PALEALE&quot;,
+    &quot;COOL&quot;,
+    &quot;BASS&quot;,
+    &quot;HOPS&quot;,
+    &quot;ALES&quot;,
+    &quot;HOES&quot;,
+    &quot;APPLES&quot;,
+    &quot;COWS&quot;,
+    &quot;CHEESE&quot;,
+    &quot;CHSOAP&quot;,
+    &quot;SHEEP&quot;
+]
+result_word = &quot;ALLWOOL&quot;
+# Letters present in the puzzle (explicit order requested in print statement)
+letters = list(&quot;CHESABOWPL&quot;)  # C, H, E, S, A, B, O, W, P, L
+
+# Model
+model = cp.Model()
+
+# Decision Variables: digits for each letter
+L = {ch: cp.intvar(0, 9, name=ch) for ch in letters}
+
+# All letters different
+model += cp.AllDifferent([L[ch] for ch in letters])
+
+# Leading letters cannot be zero (first letter of each addend and result)
+leading_letters = set(w[0] for w in words)
+leading_letters.add(result_word[0])
+for ch in leading_letters:
+    if ch in L:
+        model += (L[ch] &gt;= 1)
+
+# Helper: compute integer value of a word (most significant digit at index 0)
+def word_value(word):
+    n = len(word)
+    # place value: 10^(n-1-i) for i-th char
+    terms = []
+    for i, ch in enumerate(word):
+        power = 10 ** (n - 1 - i)
+        terms.append(L[ch] * power)
+    return cp.sum(terms)
+
+# Compute integer values for all addends and the result
+addend_values = [word_value(w) for w in words]
+result_value = word_value(result_word)
+
+# Sum of addends equals result
+model += (cp.sum(addend_values) == result_value)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;C&#x27;: int(L[&#x27;C&#x27;].value()),
+        &#x27;H&#x27;: int(L[&#x27;H&#x27;].value()),
+        &#x27;E&#x27;: int(L[&#x27;E&#x27;].value()),
+        &#x27;S&#x27;: int(L[&#x27;S&#x27;].value()),
+        &#x27;A&#x27;: int(L[&#x27;A&#x27;].value()),
+        &#x27;B&#x27;: int(L[&#x27;B&#x27;].value()),
+        &#x27;O&#x27;: int(L[&#x27;O&#x27;].value()),
+        &#x27;W&#x27;: int(L[&#x27;W&#x27;].value()),
+        &#x27;P&#x27;: int(L[&#x27;P&#x27;].value()),
+        &#x27;L&#x27;: int(L[&#x27;L&#x27;].value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">A</span><span class="chip">B</span><span class="chip">C</span><span class="chip">E</span><span class="chip">H</span><span class="chip">L</span><span class="chip">O</span><span class="chip">P</span><span class="chip">S</span><span class="chip">W</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-108">Copy</button></div><pre class="code-block"><code id="solution-108" class="language-json">{
   &quot;C&quot;: 4,
   &quot;H&quot;: 5,
   &quot;E&quot;: 2,
@@ -93,6 +497,7 @@ print(json.dumps(solution))
   &quot;P&quot;: 1,
   &quot;L&quot;: 7
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -100,9 +505,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/general_store/general_store.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/general_store/general_store.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="futoshiki.html">â† prev</a><a class="btn" href="giant_cat_army.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="futoshiki.html">← prev</a><a class="btn" href="giant_cat_army.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

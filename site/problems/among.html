@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>among Â· DCP-Bench Open</title>
-<meta name="description" content="Requires exactly m values in x to take one of the values in v. All other values may be anything larger than or equal to 0 and less than or equal to 7. Print thâ€¦">
+<title>among · DCP-Bench Open</title>
+<meta name="description" content="Requires exactly m values in x to take one of the values in v. All other values may be anything larger than or equal to 0 and less than or equal to 7. Print th…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/among.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/among.py</a></dd><dt>Misc</dt><dd><a href="http://www.hakank.org/cpmpy/cpmpy_hakank.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cpmpy_hakank.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-7">Copy</button></div><pre class="code-block"><code id="model-7" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -66,7 +67,459 @@ print(json.dumps(solution))
 m = 4  # Number of values
 v = [1, 5, 6, 7]  # Values to be among in x</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 5  # Length of x
+m = 3  # Number of values
+v = [1, 5, 8]  # Values to be among in x
+
+# Decision Variables
+x = intvar(0, 10, shape=n, name=&quot;x&quot;)  # Array x with values between 0 and 10
+
+# Model
+model = Model()
+
+# Exactly m variables in x must take one of the values in v
+model += sum([sum([x[i] == val for val in v]) &gt;= 1 for i in range(n)]) == m
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;x&quot;: x.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n = 5  # Length of x
+m = 3  # Number of values
+v = [1, 5, 8]  # Values to be among in x
+
+# Decision variables
+x = intvar(0, 10, shape=n, name=&quot;x&quot;)  # Assuming values in x can be up to 10
+
+# Model
+model = Model()
+
+# Requires exactly m variables in x to take one of the values in v
+# Use logical OR to check if x[i] is in v
+model += [sum([any([x[i] == val for val in v]) for i in range(n)]) == m]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 7  # Length of x
+m = 4  # Number of values
+v = [1, 5, 6, 7]  # Values to be among in x
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 7, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# Exactly m variables of x must take a value in the set v
+model += cp.Among(x, v) == m
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 5
+m = 3
+v = [1, 5, 8]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x variables can take values in v or outside; we assume domain as min and max of v for simplicity plus some range
+# but problem does not restrict domain, so let&#x27;s choose domain from min(v) to max(v) plus some slack
+# For clarity, let&#x27;s allow values from min(v) to max(v) (1 to 8)
+x = cp.intvar(1, 8, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# Exactly m variables in x take one of the values in v
+# Count how many variables in x take values in v
+# cp.Count counts number of occurrences of a single value; here we want number of variables in x belonging to v
+# So we use cp.Among
+model += cp.Among(x, v) == m
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 7  # Length of x
+m = 4  # Number of values
+v = [1, 5, 6, 7]  # Values to be among in x
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 7, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# Exactly m variables of x must take a value in the set v
+model += cp.Among(x, v) == m
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n = 7  # Length of x
+m = 4  # Number of values
+v = [1, 5, 6, 7]  # Values to be among in x
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 7, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# Exactly m values in x must be in the set v; others are within domain [0,7]
+model += (cp.Among(x, v) == m)
+
+# Objective (optional)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 7  # Length of x
+m = 4  # Number of values
+v = [1, 5, 6, 7]  # Values to be among in x
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 7, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# Exactly m variables of x must take a value in the set v
+model += cp.Among(x, v) == m
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (23 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 5;  % Length of x
+int: m = 3;  % Number of values required in x from v
+array[1..m] of int: v = [1, 5, 8];  % Values to be among in x
+
+% Decision variable: array x of length n with domain including values in v and possibly others
+% To keep it simple, we allow x to take values from 1 to max(v) (or larger if needed)
+% Here we choose domain from 1 to max(v) to cover all values in v
+var 1..max(v): x[1..n];
+
+% Constraint: Exactly m variables in x take one of the values in v
+constraint
+    % Count how many variables in x take a value in v
+    sum([bool2int(x[i] in v) | i in 1..n]) == m;
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;x\&quot;: &quot;, show(x),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 5  # Length of x
+m = 3  # Number of values
+v = [1, 5, 8]  # Values to be among in x
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: x[i] can be any integer, but to keep it simple, we limit domain to 0..10
+# (assuming values outside v are allowed but not counted)
+x = [model.NewIntVar(0, 10, f&#x27;x{i}&#x27;) for i in range(n)]
+
+# Create boolean variables indicating if x[i] is in v
+in_v = []
+for i in range(n):
+    b = model.NewBoolVar(f&#x27;in_v_{i}&#x27;)
+    # b is true if x[i] is in v
+    model.AddAllowedAssignments([x[i]], [(val,) for val in v]).OnlyEnforceIf(b)
+    model.AddForbiddenAssignments([x[i]], [(val,) for val in v]).OnlyEnforceIf(b.Not())
+    in_v.append(b)
+
+# Constraint: Exactly m variables in x take one of the values in v
+model.Add(sum(in_v) == m)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;x&#x27;: [solver.Value(var) for var in x]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (65 lines)</summary><pre class="code-block"><code id="None" class="language-python"># -------------------------------------------------------------
+#  Google OR-Tools CP-SAT model for the &quot;exactly m in v&quot; problem
+# -------------------------------------------------------------
+# Requirement recap:
+#   • n = 5 variables x[0..4]
+#   • Exactly m = 3 of them must take a value from the set v = {1, 5, 8}
+#   • Pure feasibility problem – any assignment satisfying the rule is fine
+#   • Output must be JSON with the single key &quot;x&quot;
+# -------------------------------------------------------------
+
+from ortools.sat.python import cp_model
+import json
+
+# -------------------------
+# 1. Input data (immutable)
+# -------------------------
+n = 5            # Length of vector x
+m = 3            # Exactly this many x[i] must be in v
+v = [1, 5, 8]    # The value set that must appear exactly m times
+
+# -------------------------
+# 2. Model creation
+# -------------------------
+model = cp_model.CpModel()
+
+# Decision variables: x[0..n-1]
+# We need a domain that contains both the allowed values in v and some values outside v
+# so that the remaining (n-m) positions can take something not in v.  A small, fixed
+# range 0..10 is sufficient and keeps the model simple.
+X_DOMAIN_MIN = 0
+X_DOMAIN_MAX = 10
+
+x = [model.NewIntVar(X_DOMAIN_MIN, X_DOMAIN_MAX, f&quot;x[{i}]&quot;) for i in range(n)]
+
+# Optional auxiliary indicator variables: y[i] == 1   ⇔   x[i] ∈ v
+y = [model.NewBoolVar(f&quot;y[{i}]&quot;) for i in range(n)]
+
+# Link each (x[i], y[i]) pair via a table (allowed assignments)
+# If the value is in v, y[i] must be 1; otherwise y[i] must be 0.
+allowed_tuples = []
+for val in range(X_DOMAIN_MIN, X_DOMAIN_MAX + 1):
+    in_set = 1 if val in v else 0
+    allowed_tuples.append([val, in_set])
+
+for i in range(n):
+    model.AddAllowedAssignments([x[i], y[i]], allowed_tuples)
+
+# Cardinality constraint: exactly m indices with x[i] in v → sum(y) == m
+model.Add(sum(y) == m)
+
+# -------------------------
+# 3. Solve the model
+# -------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# -------------------------
+# 4. Extract &amp; print result
+# -------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    solution_x = [solver.Value(var) for var in x]
+    print(json.dumps({&quot;x&quot;: solution_x}))
+else:
+    # No feasible solution (should not occur with the given data)
+    print(json.dumps({&quot;x&quot;: []}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 7,
   &quot;m&quot;: 4,
   &quot;v&quot;: [
@@ -76,9 +529,9 @@ v = [1, 5, 6, 7]  # Values to be among in x</code></pre>
     7
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-7">Copy</button></div><pre class="code-block"><code id="solution-7" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-7">Copy</button></div><pre class="code-block"><code id="solution-7" class="language-json">{
   &quot;x&quot;: [
     7,
     7,
@@ -89,6 +542,7 @@ v = [1, 5, 6, 7]  # Values to be among in x</code></pre>
     0
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -96,9 +550,9 @@ v = [1, 5, 6, 7]  # Values to be among in x</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/among/among.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/among/among.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="allergy.html">â† prev</a><a class="btn" href="appointment_scheduling.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="allergy.html">← prev</a><a class="btn" href="appointment_scheduling.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

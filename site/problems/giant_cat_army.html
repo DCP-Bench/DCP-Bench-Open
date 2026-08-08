@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>giant_cat_army Â· DCP-Bench Open</title>
-<meta name="description" content="Basically you start with [0], then you build this list by using one of three operations: adding 5, adding 7, or taking sqrt. You successfully complete the gameâ€¦">
+<title>giant_cat_army · DCP-Bench Open</title>
+<meta name="description" content="Basically you start with [0], then you build this list by using one of three operations: adding 5, adding 7, or taking sqrt. You successfully complete the game…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/giant_cat_army_riddle.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/giant_cat_army_riddle.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-109">Copy</button></div><pre class="code-block"><code id="model-109" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
@@ -76,10 +77,279 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-109">Copy</button></div><pre class="code-block"><code id="solution-109" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (55 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Data
+n = 24  # length of sequence
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 60, shape=n, name=&quot;x&quot;)  # sequence x[0]..x[23]
+pos2 = cp.intvar(0, n - 1, name=&quot;pos2&quot;)
+pos10 = cp.intvar(0, n - 1, name=&quot;pos10&quot;)
+# We know 14 must be at the last position
+# (but we&#x27;ll still enforce pos ordering with pos14 = n-1)
+
+# Constraints
+model += (x[0] == 0)          # start with 0
+model += (x[n - 1] == 14)     # end with 14
+model += cp.AllDifferent(x)   # all elements distinct
+
+# Build allowed transition table according to operations: +5, +7, sqrt (integer)
+allowed = []
+for v in range(0, 61):
+    # +5
+    if v + 5 &lt;= 60:
+        allowed.append([v, v + 5])
+    # +7
+    if v + 7 &lt;= 60:
+        allowed.append([v, v + 7])
+    # sqrt if v is a perfect square (and sqrt is integer)
+    s = int(math.isqrt(v))
+    if s * s == v:
+        allowed.append([v, s])
+
+# Enforce that each consecutive pair (x[i-1], x[i]) is in allowed transitions
+for i in range(1, n):
+    model += cp.Table([x[i - 1], x[i]], allowed)
+
+# Ensure values 2, 10, 14 appear in that order (14 is at the end)
+# Use element constraints to bind positions of 2 and 10
+model += cp.Element(x, pos2) == 2
+model += cp.Element(x, pos10) == 10
+# Order: pos2 &lt; pos10 &lt; last index
+model += pos2 &lt; pos10
+model += pos10 &lt; (n - 1)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (55 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Data
+n = 24  # length of sequence
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 60, shape=n, name=&quot;x&quot;)  # sequence x[0]..x[23]
+pos2 = cp.intvar(0, n - 1, name=&quot;pos2&quot;)
+pos10 = cp.intvar(0, n - 1, name=&quot;pos10&quot;)
+# We know 14 must be at the last position
+# (but we&#x27;ll still enforce pos ordering with pos14 = n-1)
+
+# Constraints
+model += (x[0] == 0)          # start with 0
+model += (x[n - 1] == 14)     # end with 14
+model += cp.AllDifferent(x)   # all elements distinct
+
+# Build allowed transition table according to operations: +5, +7, sqrt (integer)
+allowed = []
+for v in range(0, 61):
+    # +5
+    if v + 5 &lt;= 60:
+        allowed.append([v, v + 5])
+    # +7
+    if v + 7 &lt;= 60:
+        allowed.append([v, v + 7])
+    # sqrt if v is a perfect square (and sqrt is integer)
+    s = int(math.isqrt(v))
+    if s * s == v:
+        allowed.append([v, s])
+
+# Enforce that each consecutive pair (x[i-1], x[i]) is in allowed transitions
+for i in range(1, n):
+    model += cp.Table([x[i - 1], x[i]], allowed)
+
+# Ensure values 2, 10, 14 appear in that order (14 is at the end)
+# Use element constraints to bind positions of 2 and 10
+model += cp.Element(x, pos2) == 2
+model += cp.Element(x, pos10) == 10
+# Order: pos2 &lt; pos10 &lt; last index
+model += pos2 &lt; pos10
+model += pos10 &lt; (n - 1)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (construct allowed transitions)
+# Allowed transitions: (a -&gt; a+5), (a -&gt; a+7), and (sq -&gt; sqrt(sq)) for sq in {0,1,4,9,16,25,36,49}
+allowed_pairs = []
+for a in range(0, 61):
+    if a + 5 &lt;= 60:
+        allowed_pairs.append([a, a + 5])
+    if a + 7 &lt;= 60:
+        allowed_pairs.append([a, a + 7])
+# sqrt transitions
+for i in range(0, 8):  # 0..7, squares up to 49
+    sq = i * i
+    if sq &lt;= 60:
+        allowed_pairs.append([sq, i])
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 60, shape=24, name=&quot;x&quot;)
+
+# Constraints
+model += (x[0] == 0)
+model += (x[-1] == 14)
+model += cp.AllDifferent(x)
+
+# Transition constraints via Table of allowed pairs
+for i in range(1, 24):
+    model += cp.Table([x[i-1], x[i]], allowed_pairs)
+
+# Ensure 2 and 10 appear exactly once; 14 is already fixed at the end
+model += (cp.Count(x, 2) == 1)
+model += (cp.Count(x, 10) == 1)
+model += (cp.Count(x, 14) == 1)
+
+# Enforce order: 2 appears before 10, which appears before 14
+model += cp.Precedence(x, [2, 10, 14])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (55 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Data
+n = 24  # length of sequence
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, 60, shape=n, name=&quot;x&quot;)  # sequence x[0]..x[23]
+pos2 = cp.intvar(0, n - 1, name=&quot;pos2&quot;)
+pos10 = cp.intvar(0, n - 1, name=&quot;pos10&quot;)
+# We know 14 must be at the last position
+# (but we&#x27;ll still enforce pos ordering with pos14 = n-1)
+
+# Constraints
+model += (x[0] == 0)          # start with 0
+model += (x[n - 1] == 14)     # end with 14
+model += cp.AllDifferent(x)   # all elements distinct
+
+# Build allowed transition table according to operations: +5, +7, sqrt (integer)
+allowed = []
+for v in range(0, 61):
+    # +5
+    if v + 5 &lt;= 60:
+        allowed.append([v, v + 5])
+    # +7
+    if v + 7 &lt;= 60:
+        allowed.append([v, v + 7])
+    # sqrt if v is a perfect square (and sqrt is integer)
+    s = int(math.isqrt(v))
+    if s * s == v:
+        allowed.append([v, s])
+
+# Enforce that each consecutive pair (x[i-1], x[i]) is in allowed transitions
+for i in range(1, n):
+    model += cp.Table([x[i - 1], x[i]], allowed)
+
+# Ensure values 2, 10, 14 appear in that order (14 is at the end)
+# Use element constraints to bind positions of 2 and 10
+model += cp.Element(x, pos2) == 2
+model += cp.Element(x, pos10) == 10
+# Order: pos2 &lt; pos10 &lt; last index
+model += pos2 &lt; pos10
+model += pos10 &lt; (n - 1)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-109">Copy</button></div><pre class="code-block"><code id="solution-109" class="language-json">{
   &quot;x&quot;: [
     0,
     5,
@@ -107,6 +377,7 @@ print(json.dumps(solution))
     14
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -114,9 +385,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/giant_cat_army/giant_cat_army.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/giant_cat_army/giant_cat_army.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="general_store.html">â† prev</a><a class="btn" href="handshaking.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="general_store.html">← prev</a><a class="btn" href="handshaking.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

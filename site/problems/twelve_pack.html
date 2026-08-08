@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>twelve_pack Â· DCP-Bench Open</title>
-<meta name="description" content="Given a target number of items, find the closest combination of packs of different sizes that meets or exceeds the target. Print the counts of each pack size uâ€¦">
+<title>twelve_pack · DCP-Bench Open</title>
+<meta name="description" content="Given a target number of items, find the closest combination of packs of different sizes that meets or exceeds the target. Print the counts of each pack size u…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/12_pack_problem.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/12_pack_problem.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-160">Copy</button></div><pre class="code-block"><code id="model-160" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -65,21 +66,939 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">target = 94  # Target number of items
 packs = [7, 13]  # Pack sizes</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+target = 20  # Target number of beers
+max_packs = 100  # Upper bound on number of packs
+
+# Decision Variables
+counts = intvar(0, max_packs, shape=2, name=&quot;counts&quot;)  # [7-packs, 13-packs]
+total = intvar(0, max_packs*(7+13), name=&quot;total&quot;)  # Total number of beers
+
+# Model
+model = Model()
+
+# Calculate total number of beers
+model += total == 7*counts[0] + 13*counts[1]
+
+# Constraint: total must meet or exceed target
+model += total &gt;= target
+
+# Objective: minimize the difference from target (since we already meet it)
+diff = intvar(0, max_packs*(7+13), name=&quot;diff&quot;)
+model += (diff == total - target)
+model.minimize(diff)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;counts&quot;: counts.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+target = 20  # Target number of beers
+
+# Decision variables
+# counts[0] is the number of 7-packs
+# counts[1] is the number of 13-packs
+counts = intvar(0, 100, shape=2, name=&quot;counts&quot;)
+
+# Model
+model = Model()
+
+# Total number of beers must be at least the target
+model += [7 * counts[0] + 13 * counts[1] &gt;= target]
+
+# Objective: minimize the excess over the target
+model.minimize(7 * counts[0] + 13 * counts[1] - target)
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;counts&quot;: counts.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Find closest combination of 7-packs and 13-packs that meets or exceeds target
+# Constraints: 7*sevens + 13*thirteens &gt;= target
+# Objective: minimize excess (total - target)
+
+target = 20
+
+# Step 2: Model with CPMpy
+# Decision variables: counts of 7-packs and 13-packs
+max_sevens = (target // 7) + 2  # Upper bound estimate
+max_thirteens = (target // 13) + 2
+
+sevens = cp.intvar(0, max_sevens, name=&quot;sevens&quot;)
+thirteens = cp.intvar(0, max_thirteens, name=&quot;thirteens&quot;)
+
+model = cp.Model()
+
+# Constraint: total beers must meet or exceed target
+total_beers = sevens * 7 + thirteens * 13
+model += total_beers &gt;= target
+
+# Objective: minimize the excess (total_beers - target)
+excess = total_beers - target
+model.minimize(excess)
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    sevens_val = sevens.value()
+    thirteens_val = thirteens.value()
+    
+    solution = {
+        &quot;counts&quot;: [sevens_val, thirteens_val]
+    }
+    
+    # Verification - independent check
+    def verify_solution(sol):
+        counts = sol[&quot;counts&quot;]
+        if len(counts) != 2:
+            return False, &quot;Solution must have exactly 2 counts&quot;
+        
+        sevens_count, thirteens_count = counts
+        
+        # Check non-negative
+        if sevens_count &lt; 0 or thirteens_count &lt; 0:
+            return False, &quot;Counts must be non-negative&quot;
+        
+        # Check constraint: meets or exceeds target
+        total = sevens_count * 7 + thirteens_count * 13
+        if total &lt; target:
+            return False, f&quot;Total {total} is less than target {target}&quot;
+        
+        return True, &quot;Solution verified&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+target = 20
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of 7-packs and 13-packs
+counts = cp.intvar(0, target, shape=2, name=&quot;counts&quot;)
+
+# Constraints
+# The total number of beers must be at least the target
+model += counts[0]*7 + counts[1]*13 &gt;= target
+
+# Objective: minimize the excess beers above the target
+excess = counts[0]*7 + counts[1]*13 - target
+model.minimize(excess)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;counts&#x27;: counts.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+target = 94  # Target number of beers
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# number of 7-packs (x) and 13-packs (y)
+# bounds chosen generously (0..target) which is safe for this problem size
+x = cp.intvar(0, target, name=&quot;x&quot;)
+y = cp.intvar(0, target, name=&quot;y&quot;)
+
+# auxiliary variables for total beers and excess over target
+total = cp.intvar(0, 7 * target + 13 * target, name=&quot;total&quot;)
+excess = cp.intvar(0, 7 * target + 13 * target, name=&quot;excess&quot;)
+
+# Constraints
+model += (total == 7 * x + 13 * y)
+model += (total &gt;= target)
+model += (excess == total - target)
+
+# Objective: minimize excess (closest meeting or exceeding the target)
+model.minimize(excess)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;counts&#x27;: [int(x.value()), int(y.value())]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    6,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+target = 20
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Upper bounds are set to just above the number of packs needed if using only that pack type
+max7 = (target + 6) // 7 + 1   # ceil(target/7) + 1
+max13 = (target + 12) // 13 + 1  # ceil(target/13) + 1
+x7 = cp.IntVar(0, max7, name=&quot;x7&quot;)     # number of 7-packs
+x13 = cp.IntVar(0, max13, name=&quot;x13&quot;)  # number of 13-packs
+
+# Constraints
+model += 7 * x7 + 13 * x13 &gt;= target
+
+# Objective: minimize the total number of beers (to be as close as possible to target from above)
+model.minimize(7 * x7 + 13 * x13)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;counts&quot;: [int(x7.value()), int(x13.value())]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (1 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+print(json.dumps({&#x27;counts&#x27;: [1, 1]}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+target = 20
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of 7-packs and 13-packs
+counts = cp.intvar(0, target, shape=2, name=&quot;counts&quot;)
+
+# Constraints
+# The total number of beers must be at least the target
+model += counts[0]*7 + counts[1]*13 &gt;= target
+
+# Objective: minimize the total number of beers minus the target (closest meeting or exceeding target)
+total_beers = counts[0]*7 + counts[1]*13
+model.minimize(total_beers - target)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;counts&#x27;: counts.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+target = 94  # Target number of beers
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# number of 7-packs (x) and 13-packs (y)
+# bounds chosen generously (0..target) which is safe for this problem size
+x = cp.intvar(0, target, name=&quot;x&quot;)
+y = cp.intvar(0, target, name=&quot;y&quot;)
+
+# auxiliary variables for total beers and excess over target
+total = cp.intvar(0, 7 * target + 13 * target, name=&quot;total&quot;)
+excess = cp.intvar(0, 7 * target + 13 * target, name=&quot;excess&quot;)
+
+# Constraints
+model += (total == 7 * x + 13 * y)
+model += (total &gt;= target)
+model += (excess == total - target)
+
+# Objective: minimize excess (closest meeting or exceeding the target)
+model.minimize(excess)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;counts&#x27;: [int(x.value()), int(y.value())]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    6,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+target = 20
+
+model = cp.Model()
+
+# Decision variables: counts of 7-packs and 13-packs
+x = cp.intvar(0, 100, name=&quot;x&quot;)  # 7-packs
+y = cp.intvar(0, 100, name=&quot;y&quot;)  # 13-packs
+
+# Constraints: total beers must meet or exceed target
+model += (7 * x + 13 * y &gt;= target)
+
+# Objective: minimize the excess (difference above target)
+model.minimize(7 * x + 13 * y - target)
+
+if model.solve():
+    solution = {
+        &#x27;counts&#x27;: [int(x.value()), int(y.value())]
+    }
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+target = 20
+
+model = cp.Model()
+
+# Decision variables: counts of 7-packs and 13-packs
+x = cp.intvar(0, 100, name=&quot;x&quot;)  # 7-packs
+y = cp.intvar(0, 100, name=&quot;y&quot;)  # 13-packs
+
+# Constraints: total beers must meet or exceed target
+model += (7 * x + 13 * y &gt;= target)
+
+# Objective: minimize the excess (difference above target)
+model.minimize(7 * x + 13 * y - target)
+
+if model.solve():
+    solution = {
+        &#x27;counts&#x27;: [int(x.value()), int(y.value())]
+    }
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+target = 94  # Target number of beers
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Upper bounds based on ceilings to ensure feasibility while keeping domains small
+ub7 = (target + 7 - 1) // 7
+ub13 = (target + 13 - 1) // 13
+x7 = cp.intvar(0, ub7, name=&quot;x7&quot;)     # number of 7-packs
+x13 = cp.intvar(0, ub13, name=&quot;x13&quot;)  # number of 13-packs
+
+# Constraints
+total_beers = 7 * x7 + 13 * x13
+model += (total_beers &gt;= target)
+
+# Objective: minimize total beers (closest meeting or exceeding the target)
+model.minimize(total_beers)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;counts&#x27;: [int(x7.value()), int(x13.value())]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    6,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+target = 94  # Target number of beers
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# number of 7-packs (x) and 13-packs (y)
+# bounds chosen generously (0..target) which is safe for this problem size
+x = cp.intvar(0, target, name=&quot;x&quot;)
+y = cp.intvar(0, target, name=&quot;y&quot;)
+
+# auxiliary variables for total beers and excess over target
+total = cp.intvar(0, 7 * target + 13 * target, name=&quot;total&quot;)
+excess = cp.intvar(0, 7 * target + 13 * target, name=&quot;excess&quot;)
+
+# Constraints
+model += (total == 7 * x + 13 * y)
+model += (total &gt;= target)
+model += (excess == total - target)
+
+# Objective: minimize excess (closest meeting or exceeding the target)
+model.minimize(excess)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;counts&#x27;: [int(x.value()), int(y.value())]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    6,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (23 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: target = 20;
+
+% Decision variables: number of 7-packs and 13-packs
+var 0..target div 7 + 10: count_7;
+var 0..target div 13 + 10: count_13;
+
+% Total beers from the packs
+var int: total_beers = 7 * count_7 + 13 * count_13;
+
+% Constraint: total beers must be at least the target
+constraint total_beers &gt;= target;
+
+% Objective: minimize the excess beers above the target
+var int: excess = total_beers - target;
+solve minimize excess;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;counts\&quot;: [&quot;, show(count_7), &quot;, &quot;, show(count_13), &quot;]&quot;,
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (30 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary libraries
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: target = 20;  % Target number of beers
+
+% Compute upper bounds for decision variables to keep domains finite
+int: max7 = (target + 7 - 1) div 7;    % Maximum number of 7-packs needed
+int: max13 = (target + 13 - 1) div 13; % Maximum number of 13-packs needed
+
+% Decision Variables
+var 0..max7: x7;    % Number of 7-packs
+var 0..max13: x13;  % Number of 13-packs
+
+% Auxiliary variable for total beers
+var int: total = 7 * x7 + 13 * x13;
+
+% Constraint: meet or exceed the target
+constraint total &gt;= target;
+
+% Objective: minimize the total number of beers (closest above target)
+solve minimize total;
+
+% Output in JSON format
+output [
+  &quot;{&quot;,
+    &quot;\&quot;counts\&quot;: [&quot; ++ show(x7) ++ &quot;,&quot; ++ show(x13) ++ &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+target = 20  # Target number of beers
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# Number of 7-packs and 13-packs (non-negative integers)
+packs_7 = model.NewIntVar(0, target, &#x27;packs_7&#x27;)
+packs_13 = model.NewIntVar(0, target, &#x27;packs_13&#x27;)
+
+# Total beers from chosen packs
+total_beers = model.NewIntVar(target, target * 13, &#x27;total_beers&#x27;)
+
+# Constraints
+# total_beers = 7 * packs_7 + 13 * packs_13
+model.Add(total_beers == 7 * packs_7 + 13 * packs_13)
+
+# total_beers must be at least the target
+model.Add(total_beers &gt;= target)
+
+# Objective: minimize the excess beers (total_beers - target)
+excess = model.NewIntVar(0, target * 13, &#x27;excess&#x27;)
+model.Add(excess == total_beers - target)
+model.Minimize(excess)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;counts&#x27;: [solver.Value(packs_7), solver.Value(packs_13)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+target = 20  # Target number of beers
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: number of 7-packs (x) and 13-packs (y)
+# We bound them between 0 and target since more packs than target is unnecessary
+x = model.NewIntVar(0, target, &#x27;x&#x27;)
+y = model.NewIntVar(0, target, &#x27;y&#x27;)
+
+# Constraint: total beers must meet or exceed the target
+model.Add(7 * x + 13 * y &gt;= target)
+
+# Objective: minimize the total number of beers (to get the closest combination)
+model.Minimize(7 * x + 13 * y)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;counts&#x27;: [solver.Value(x), solver.Value(y)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# ---------------------------
+# Input data (immutable)
+# ---------------------------
+target = 20  # Target number of beers
+pack_sizes = [7, 13]
+
+# ---------------------------
+# CP-SAT model construction
+# ---------------------------
+model = cp_model.CpModel()
+
+# A generous upper bound on how many packs of any size could ever be needed.
+# In the worst case we buy only the smallest pack; add the target itself as
+# extra slack to ensure the domain is always large enough.
+max_packs_needed = (target // min(pack_sizes)) + target
+
+# Decision variables: how many packs of each size to buy
+x = [model.NewIntVar(0, max_packs_needed, f&quot;x_{s}&quot;) for s in pack_sizes]
+
+# Linear expression for the total number of beers purchased
+total_beers = sum(s * var for s, var in zip(pack_sizes, x))
+
+# ---------------------------
+# Constraints
+# ---------------------------
+# C2 – satisfy or exceed the requested amount
+model.Add(total_beers &gt;= target)
+
+# ---------------------------
+# Objective (O1 – minimise surplus)
+# ---------------------------
+model.Minimize(total_beers - target)
+
+# ---------------------------
+# Solve
+# ---------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# ---------------------------
+# Output (JSON with key &#x27;counts&#x27;)
+# ---------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    counts = [solver.Value(var) for var in x]
+    print(json.dumps({&quot;counts&quot;: counts}))
+else:
+    raise RuntimeError(&quot;No feasible solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;counts&quot;: [
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;target&quot;: 94,
   &quot;packs&quot;: [
     7,
     13
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">counts</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-160">Copy</button></div><pre class="code-block"><code id="solution-160" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">counts</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-160">Copy</button></div><pre class="code-block"><code id="solution-160" class="language-json">{
   &quot;counts&quot;: [
     6,
     4
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -87,9 +1006,9 @@ packs = [7, 13]  # Pack sizes</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/twelve_pack/twelve_pack.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/twelve_pack/twelve_pack.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="tsp.html">â† prev</a><a class="btn" href="who_killed_agatha.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="tsp.html">← prev</a><a class="btn" href="who_killed_agatha.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

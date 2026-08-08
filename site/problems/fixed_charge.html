@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>fixed_charge Â· DCP-Bench Open</title>
-<meta name="description" content="A company manufactures shirts, shorts, and pants. Each product requires a number of hours of labor and a certain amount of cloth, and the company has a limitedâ€¦">
+<title>fixed_charge · DCP-Bench Open</title>
+<meta name="description" content="A company manufactures shirts, shorts, and pants. Each product requires a number of hours of labor and a certain amount of cloth, and the company has a limited…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/fixed_charge.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/fixed_charge.py</a></dd><dt>Misc</dt><dd>From the OPL documentation, and example model fixed.mod: Fixed-charge problems are another classic application of integer programs (see Applications and Algorithms by W. Winston in the Bibliography). They resemble some of the production problems seen previously but differ in two respects: the production is an integer value (e.g., a factory must produce bikes or toys), and the factories need to rent (or acquire) some tools to produce some of the products.</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-99">Copy</button></div><pre class="code-block"><code id="model-99" class="language-python">from cpmpy import *
 import json
 
@@ -91,7 +92,343 @@ use = [[3, 4],
        [2, 3],
        [6, 4]]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+shirtM = 0
+shortM = 1
+pantM = 2
+machines = [shirtM, shortM, pantM]
+num_machines = len(machines)
+renting_cost = [200, 150, 100]
+
+shirt = 0
+shorts = 1
+pants = 2
+products = [shirt, shorts, pants]
+num_products = len(products)
+
+labor = 0
+cloth = 1
+resources = [labor, cloth]
+
+# capacity of labor and cloth
+capacity = [150, 160]
+
+max_production = max(capacity)
+
+# profit, product type (profit, machine_index)
+product = [[6, shirtM],
+           [4, shortM],
+           [7, pantM]]
+
+# resource usage: labor, cloth per product
+use = [[3, 4],
+       [2, 3],
+       [6, 4]]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# production amounts for each product
+x = cp.intvar(0, max_production, shape=num_products, name=&quot;x&quot;)
+# rent machine or not
+rent = cp.boolvar(shape=num_machines, name=&quot;rent&quot;)
+
+# Constraints
+# Resource capacity constraints (labor and cloth)
+for r in resources:
+    model += (cp.sum([use[p][r] * x[p] for p in products]) &lt;= capacity[r])
+
+# Link production to renting: can only produce if machine rented
+for p in products:
+    machine_idx = product[p][1]
+    model += (x[p] &lt;= max_production * rent[machine_idx])
+
+# Objective: maximize profit from products minus renting costs
+profit_terms = [product[p][0] * x[p] for p in products]
+rent_cost_terms = [renting_cost[m] * rent[m] for m in machines]
+objective = cp.sum(profit_terms) - cp.sum(rent_cost_terms)
+
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+shirtM = 0
+shortM = 1
+pantM = 2
+machines = [shirtM, shortM, pantM]
+num_machines = len(machines)
+renting_cost = [200, 150, 100]
+
+shirt = 0
+shorts = 1
+pants = 2
+products = [shirt, shorts, pants]
+num_products = len(products)
+
+labor = 0
+cloth = 1
+resources = [labor, cloth]
+
+# capacity of labor and cloth
+capacity = [150, 160]
+
+max_production = max(capacity)
+
+# profit, product type (profit, machine_index)
+product = [[6, shirtM],
+           [4, shortM],
+           [7, pantM]]
+
+# resource usage: labor, cloth per product
+use = [[3, 4],
+       [2, 3],
+       [6, 4]]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# production amounts for each product
+x = cp.intvar(0, max_production, shape=num_products, name=&quot;x&quot;)
+# rent machine or not
+rent = cp.boolvar(shape=num_machines, name=&quot;rent&quot;)
+
+# Constraints
+# Resource capacity constraints (labor and cloth)
+for r in resources:
+    model += (cp.sum([use[p][r] * x[p] for p in products]) &lt;= capacity[r])
+
+# Link production to renting: can only produce if machine rented
+for p in products:
+    machine_idx = product[p][1]
+    model += (x[p] &lt;= max_production * rent[machine_idx])
+
+# Objective: maximize profit from products minus renting costs
+profit_terms = [product[p][0] * x[p] for p in products]
+rent_cost_terms = [renting_cost[m] * rent[m] for m in machines]
+objective = cp.sum(profit_terms) - cp.sum(rent_cost_terms)
+
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (69 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+shirtM = 0
+shortM = 1
+pantM = 2
+machines = [shirtM, shortM, pantM]
+num_machines = len(machines)
+renting_cost = [200, 150, 100]
+
+shirt = 0
+shorts = 1
+pants = 2
+products = [shirt, shorts, pants]
+num_products = len(products)
+
+labor = 0
+cloth = 1
+resources = [labor, cloth]
+
+# capacity of labor and cloth
+capacity = [150, 160]
+
+max_production = max(capacity)
+
+# profit, product type
+product = [[6, shirtM],
+           [4, shortM],
+           [7, pantM]]
+
+# resource: labor, cloth
+use = [[3, 4],
+       [2, 3],
+       [6, 4]]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[p]: number of units produced for product p
+x = cp.intvar(0, max_production, shape=num_products, name=&quot;x&quot;)
+# y[m]: whether machine m is rented (1) or not (0)
+y = cp.boolvar(shape=num_machines, name=&quot;y&quot;)
+
+# Constraints
+# Resource capacities
+for r in resources:
+    model += (cp.sum([use[p][r] * x[p] for p in products]) &lt;= capacity[r])
+
+# Production only if corresponding machine is rented
+for p in products:
+    mach = product[p][1]
+    model += (x[p] &lt;= max_production * y[mach])
+
+# Objective: maximize profit from products minus renting costs
+profit_terms = [product[p][0] * x[p] for p in products]
+rent_terms = [renting_cost[m] * y[m] for m in machines]
+objective = cp.sum(profit_terms) - cp.sum(rent_terms)
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+shirtM = 0
+shortM = 1
+pantM = 2
+machines = [shirtM, shortM, pantM]
+num_machines = len(machines)
+renting_cost = [200, 150, 100]
+
+shirt = 0
+shorts = 1
+pants = 2
+products = [shirt, shorts, pants]
+num_products = len(products)
+
+labor = 0
+cloth = 1
+resources = [labor, cloth]
+
+# capacity of labor and cloth
+capacity = [150, 160]
+
+max_production = max(capacity)
+
+# profit, product type (profit, machine_index)
+product = [[6, shirtM],
+           [4, shortM],
+           [7, pantM]]
+
+# resource usage: labor, cloth per product
+use = [[3, 4],
+       [2, 3],
+       [6, 4]]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# production amounts for each product
+x = cp.intvar(0, max_production, shape=num_products, name=&quot;x&quot;)
+# rent machine or not
+rent = cp.boolvar(shape=num_machines, name=&quot;rent&quot;)
+
+# Constraints
+# Resource capacity constraints (labor and cloth)
+for r in resources:
+    model += (cp.sum([use[p][r] * x[p] for p in products]) &lt;= capacity[r])
+
+# Link production to renting: can only produce if machine rented
+for p in products:
+    machine_idx = product[p][1]
+    model += (x[p] &lt;= max_production * rent[machine_idx])
+
+# Objective: maximize profit from products minus renting costs
+profit_terms = [product[p][0] * x[p] for p in products]
+rent_cost_terms = [renting_cost[m] * rent[m] for m in machines]
+objective = cp.sum(profit_terms) - cp.sum(rent_cost_terms)
+
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;shirtM&quot;: 0,
   &quot;shortM&quot;: 1,
   &quot;pantM&quot;: 2,
@@ -155,11 +492,12 @@ use = [[3, 4],
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">z</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-99">Copy</button></div><pre class="code-block"><code id="solution-99" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">z</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-99">Copy</button></div><pre class="code-block"><code id="solution-99" class="language-json">{
   &quot;z&quot;: 75
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -167,9 +505,9 @@ use = [[3, 4],
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/fixed_charge/fixed_charge.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/fixed_charge/fixed_charge.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="five_statements.html">â† prev</a><a class="btn" href="flip_rows_cols.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="five_statements.html">← prev</a><a class="btn" href="flip_rows_cols.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

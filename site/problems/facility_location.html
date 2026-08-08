@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>facility_location Â· DCP-Bench Open</title>
-<meta name="description" content="A company is considering opening warehouses in four cities to meet regional demands at minimal costs. The potential cities for these warehouses are New York, Lâ€¦">
+<title>facility_location · DCP-Bench Open</title>
+<meta name="description" content="A company is considering opening warehouses in four cities to meet regional demands at minimal costs. The potential cities for these warehouses are New York, L…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/facility_location_problem.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/facility_location_problem.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-92">Copy</button></div><pre class="code-block"><code id="model-92" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -96,7 +97,2020 @@ shipping_costs = [
     [24, 50, 35]  # Atlanta to regions 1, 2, 3
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (66 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+
+n_warehouses = len(warehouse_s)
+n_regions = len(demands)
+
+# Decision Variables
+open_warehouse = boolvar(shape=n_warehouses, name=&quot;open_warehouse&quot;)  # Whether warehouse is open
+ships = intvar(0, max_shipping, shape=(n_warehouses, n_regions), name=&quot;ships&quot;)  # Shipping details
+total_cost = intvar(0, sum(fixed_costs) + max_shipping * sum(sum(costs) for costs in shipping_costs), name=&quot;total_cost&quot;)  # Total cost
+
+# Model
+model = Model()
+
+# Constraint 1: If New York is opened, then Los Angeles must also be opened
+model += (open_warehouse[0]).implies(open_warehouse[1])
+
+# Constraint 2: No more than three warehouses can be operational
+model += sum(open_warehouse) &lt;= 3
+
+# Constraint 3: Either Atlanta or Los Angeles must be opened
+model += (open_warehouse[1] | open_warehouse[3])
+
+# Constraint: Demand must be met for each region
+for r in range(n_regions):
+    model += sum(ships[:, r]) &gt;= demands[r]
+
+# Constraint: Can only ship from open warehouses
+for w in range(n_warehouses):
+    for r in range(n_regions):
+        model += (ships[w, r] &gt; 0).implies(open_warehouse[w])
+
+# Objective: Minimize total cost (fixed + shipping)
+model.minimize(
+    sum(open_warehouse * fixed_costs) + 
+    sum(ships[w, r] * shipping_costs[w][r] for w in range(n_warehouses) for r in range(n_regions))
+)
+
+# Link total_cost to the objective expression
+model += (total_cost == sum(open_warehouse * fixed_costs) + 
+          sum(ships[w, r] * shipping_costs[w][r] for w in range(n_warehouses) for r in range(n_regions)))
+
+# Solve
+model.solve()
+
+# Prepare solution with correct key order
+solution = {
+    &quot;total_cost&quot;: int(total_cost.value()),
+    &quot;open_warehouse&quot;: [bool(val) for val in open_warehouse.value()],
+    &quot;ships&quot;: ships.value().tolist()
+}
+
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    true,
+    true,
+    true,
+    false
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (64 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]  # Atlanta to regions 1, 2, 3
+]
+
+# Number of warehouses and regions
+num_warehouses = len(warehouse_s)
+num_regions = len(demands)
+
+# Decision variables
+open_warehouse = boolvar(shape=num_warehouses, name=&quot;open_warehouse&quot;)
+ships = intvar(0, max_shipping, shape=(num_warehouses, num_regions), name=&quot;ships&quot;)
+
+# Model
+model = Model()
+
+# Objective: minimize total cost (fixed + shipping)
+total_fixed_cost = sum(open_warehouse * fixed_costs)
+total_shipping_cost = sum(ships * shipping_costs)
+model.minimize(total_fixed_cost + total_shipping_cost)
+
+# Constraints
+# 1. If New York is opened, then Los Angeles must also be opened
+model += [open_warehouse[0] &lt;= open_warehouse[1]]
+
+# 2. No more than three warehouses can be opened
+model += [sum(open_warehouse) &lt;= 3]
+
+# 3. Either Atlanta or Los Angeles must be opened
+model += [open_warehouse[1] + open_warehouse[3] &gt;= 1]
+
+# 4. Shipments from a warehouse can only occur if it is open
+for w in range(num_warehouses):
+    for r in range(num_regions):
+        model += [ships[w, r] &lt;= open_warehouse[w] * max_shipping]
+
+# 5. Total shipments to each region must meet the demand
+for r in range(num_regions):
+    model += [sum(ships[:, r]) == demands[r]]
+
+# Solve the model
+model.solve()
+
+# Compute total cost
+total_fixed_cost_val = sum(open_warehouse.value() * fixed_costs)
+total_shipping_cost_val = sum(ships.value() * shipping_costs)
+total_cost_val = total_fixed_cost_val + total_shipping_cost_val
+
+# Prepare solution
+solution = {
+    &quot;total_cost&quot;: total_cost_val,
+    &quot;open_warehouse&quot;: [int(open_warehouse[i].value()) for i in range(num_warehouses)],
+    &quot;ships&quot;: ships.value().tolist()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (115 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Input data and problem analysis
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+
+n_warehouses = len(warehouse_s)
+n_regions = len(demands)
+
+# Step 2: Model with CPMpy
+model = cp.Model()
+
+# Decision variables
+# Binary variables for whether each warehouse is open
+open_warehouse = cp.boolvar(shape=n_warehouses, name=&quot;open_warehouse&quot;)
+
+# Integer variables for shipments from each warehouse to each region
+ships = cp.intvar(0, max_shipping, shape=(n_warehouses, n_regions), name=&quot;ships&quot;)
+
+# Constraints
+# 1. If New York (0) is opened, then Los Angeles (1) must be opened
+model += open_warehouse[0].implies(open_warehouse[1])
+
+# 2. No more than 3 warehouses can be operational
+model += cp.sum(open_warehouse) &lt;= 3
+
+# 3. Either Atlanta (3) or Los Angeles (1) must be opened
+model += open_warehouse[3] | open_warehouse[1]
+
+# 4. All regional demands must be satisfied
+for r in range(n_regions):
+    model += cp.sum(ships[w, r] for w in range(n_warehouses)) == demands[r]
+
+# 5. Each warehouse cannot ship more than max_shipping units total
+for w in range(n_warehouses):
+    model += cp.sum(ships[w, r] for r in range(n_regions)) &lt;= max_shipping
+
+# 6. Can only ship from open warehouses
+for w in range(n_warehouses):
+    for r in range(n_regions):
+        model += ships[w, r] &lt;= max_shipping * open_warehouse[w]
+
+# Objective: Minimize total cost
+fixed_cost_total = cp.sum(fixed_costs[w] * open_warehouse[w] for w in range(n_warehouses))
+shipping_cost_total = cp.sum(shipping_costs[w][r] * ships[w, r] 
+                           for w in range(n_warehouses) 
+                           for r in range(n_regions))
+total_cost = fixed_cost_total + shipping_cost_total
+
+model.minimize(total_cost)
+
+# Step 3: Solve and verify
+if model.solve():
+    # Extract solution values
+    open_vals = open_warehouse.value()
+    ships_vals = ships.value()
+    total_cost_val = total_cost.value()
+    
+    # Create solution dictionary
+    solution = {
+        &quot;total_cost&quot;: int(total_cost_val),
+        &quot;open_warehouse&quot;: [int(x) for x in open_vals],
+        &quot;ships&quot;: [[int(ships_vals[w][r]) for r in range(n_regions)] for w in range(n_warehouses)]
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        open_wh = sol[&quot;open_warehouse&quot;]
+        ships_matrix = sol[&quot;ships&quot;]
+        
+        # Check all constraints
+        # 1. NY -&gt; LA implication
+        if open_wh[0] == 1 and open_wh[1] != 1:
+            return False
+        
+        # 2. Max 3 warehouses
+        if sum(open_wh) &gt; 3:
+            return False
+        
+        # 3. Atlanta OR Los Angeles
+        if open_wh[3] == 0 and open_wh[1] == 0:
+            return False
+        
+        # 4. Demand satisfaction
+        for r in range(n_regions):
+            if sum(ships_matrix[w][r] for w in range(n_warehouses)) != demands[r]:
+                return False
+        
+        # 5. Shipping limits
+        for w in range(n_warehouses):
+            if sum(ships_matrix[w][r] for r in range(n_regions)) &gt; max_shipping:
+                return False
+        
+        # 6. Only open warehouses ship
+        for w in range(n_warehouses):
+            if open_wh[w] == 0 and sum(ships_matrix[w][r] for r in range(n_regions)) &gt; 0:
+                return False
+        
+        return True
+    
+    assert verify_solution(solution), &quot;Solution verification failed!&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (68 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+num_warehouses = len(warehouse_s)
+num_regions = len(demands)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# open_warehouse[i] = 1 if warehouse i is open, else 0
+open_warehouse = cp.boolvar(shape=num_warehouses, name=&quot;open_warehouse&quot;)
+
+# ships[i,j] = units shipped from warehouse i to region j
+# domain: 0 to max_shipping (max units per warehouse)
+ships = cp.intvar(0, max_shipping, shape=(num_warehouses, num_regions), name=&quot;ships&quot;)
+
+# Constraints
+
+# 1. If New York warehouse is opened, then Los Angeles warehouse must also be opened.
+# New York index = 0, Los Angeles index = 1
+model += open_warehouse[0] &lt;= open_warehouse[1]
+
+# 2. No more than three warehouses can be operational in any given week.
+model += cp.sum(open_warehouse) &lt;= 3
+
+# 3. Either the Atlanta or the Los Angeles warehouse must be opened.
+# Atlanta index = 3, Los Angeles index = 1
+model += (open_warehouse[3] + open_warehouse[1]) &gt;= 1
+
+# 4. Demand satisfaction: sum of shipments to each region must be at least the demand
+for j in range(num_regions):
+    model += cp.sum(ships[:, j]) &gt;= demands[j]
+
+# 5. Shipments from a warehouse cannot exceed max_shipping if warehouse is open, else zero
+for i in range(num_warehouses):
+    # sum of shipments from warehouse i &lt;= max_shipping * open_warehouse[i]
+    model += cp.sum(ships[i, :]) &lt;= max_shipping * open_warehouse[i]
+
+# Objective: minimize total cost = sum of fixed costs for open warehouses + sum of shipping costs
+fixed_cost_total = cp.sum([fixed_costs[i] * open_warehouse[i] for i in range(num_warehouses)])
+shipping_cost_total = cp.sum([ships[i, j] * shipping_costs[i][j] for i in range(num_warehouses) for j in range(num_regions)])
+total_cost = fixed_cost_total + shipping_cost_total
+
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: open_warehouse.value().astype(int).tolist(),
+        &#x27;ships&#x27;: ships.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (69 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse (total capacity)
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+m = len(warehouse_s)   # number of warehouses (4)
+n = len(demands)       # number of regions (3)
+
+open_warehouse = cp.boolvar(shape=m, name=&quot;open_warehouse&quot;)         # 1 if warehouse i is opened
+ships = cp.intvar(0, max_shipping, shape=(m, n), name=&quot;ships&quot;)     # shipments from warehouse i to region j
+
+# Constraints
+# 1) If New York (index 0) is opened, then Los Angeles (index 1) must be opened
+model += open_warehouse[0].implies(open_warehouse[1])
+
+# 2) No more than three warehouses can be operational in any given week
+model += cp.sum(open_warehouse) &lt;= 3
+
+# 3) Either Atlanta (index 3) or Los Angeles (index 1) must be opened
+model += (open_warehouse[3] + open_warehouse[1] &gt;= 1)
+
+# 4) Demands for each region must be satisfied exactly
+for j in range(n):
+    model += cp.sum([ships[i, j] for i in range(m)]) == demands[j]
+
+# 5) Warehouse capacity: total shipped from a warehouse cannot exceed max_shipping if opened, else 0
+for i in range(m):
+    model += cp.sum([ships[i, j] for j in range(n)]) &lt;= max_shipping * open_warehouse[i]
+
+# 6) If a warehouse is closed, its shipments must be zero (ensured by previous constraint and non-negativity)
+#    Additionally, each individual route cannot exceed max_shipping (already enforced by variable bounds)
+
+# Objective: minimize fixed opening costs plus shipping costs
+fixed_cost_term = cp.sum([fixed_costs[i] * open_warehouse[i] for i in range(m)])
+shipping_cost_term = cp.sum([shipping_costs[i][j] * ships[i, j] for i in range(m) for j in range(n)])
+total_cost_expr = fixed_cost_term + shipping_cost_term
+
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    # Convert boolean list to 0/1 integers as requested
+    open_vals_bool = open_warehouse.value().tolist()
+    open_vals = [int(x) for x in open_vals_bool]
+    ships_vals = ships.value().tolist()
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: open_vals,
+        &#x27;ships&#x27;: ships_vals
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+n_warehouses = len(warehouse_s)
+n_regions = len(demands)
+
+# Binary open decision for each warehouse
+open_warehouse = cp.boolvar(shape=n_warehouses, name=&quot;open_warehouse&quot;)
+
+# Shipment quantities from each warehouse to each region
+ships = cp.intvar(0, max_shipping, shape=(n_warehouses, n_regions), name=&quot;ships&quot;)
+
+# Constraints
+
+# 1. If New York (0) is opened, then Los Angeles (1) must be opened.
+model += [open_warehouse[0] &lt;= open_warehouse[1]]
+
+# 2. No more than three warehouses can be operational.
+model += [cp.sum(open_warehouse) &lt;= 3]
+
+# 3. Either Atlanta (3) or Los Angeles (1) must be opened.
+model += [open_warehouse[1] + open_warehouse[3] &gt;= 1]
+
+# 4. Capacity constraints: each warehouse ships at most max_shipping if opened, else 0.
+for i in range(n_warehouses):
+    model += [cp.sum(ships[i, :]) &lt;= max_shipping * open_warehouse[i]]
+
+# 5. Demand constraints: each region&#x27;s demand must be met.
+for j in range(n_regions):
+    model += [cp.sum(ships[:, j]) &gt;= demands[j]]
+
+# Objective: minimize total cost = fixed costs + shipping costs
+fixed_cost_term = cp.sum([fixed_costs[i] * open_warehouse[i] for i in range(n_warehouses)])
+shipping_cost_term = cp.sum([
+    shipping_costs[i][j] * ships[i, j]
+    for i in range(n_warehouses) for j in range(n_regions)
+])
+model.minimize(fixed_cost_term + shipping_cost_term)
+
+# Solve and print
+if model.solve():
+    open_vals = [int(v) for v in open_warehouse.value().tolist()]
+    ships_vals = ships.value().tolist()
+    total_cost = int(model.objective_value())
+    solution = {
+        &quot;total_cost&quot;: total_cost,
+        &quot;open_warehouse&quot;: open_vals,
+        &quot;ships&quot;: ships_vals
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (3 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+open_warehouse = [1, 1, 1, 0]
+ships = [[80, 0, 0], [0, 70, 0], [0, 0, 40], [0, 0, 0]]
+print(json.dumps({&#x27;total_cost&#x27;: 4570, &#x27;open_warehouse&#x27;: open_warehouse, &#x27;ships&#x27;: ships}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (68 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+num_warehouses = len(warehouse_s)
+num_regions = len(demands)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# open_warehouse[i] = 1 if warehouse i is open, else 0
+open_warehouse = cp.boolvar(shape=num_warehouses, name=&quot;open_warehouse&quot;)
+
+# ships[i][j] = units shipped from warehouse i to region j
+ships = cp.intvar(0, max_shipping, shape=(num_warehouses, num_regions), name=&quot;ships&quot;)
+
+# Constraints
+
+# 1. If New York warehouse is opened, then Los Angeles warehouse must also be opened.
+# New York index = 0, Los Angeles index = 1
+model += open_warehouse[0].implies(open_warehouse[1])
+
+# 2. No more than three warehouses can be operational in any given week.
+model += cp.sum(open_warehouse) &lt;= 3
+
+# 3. Either the Atlanta or the Los Angeles warehouse must be opened.
+# Atlanta index = 3, Los Angeles index = 1
+model += (open_warehouse[3] + open_warehouse[1]) &gt;= 1
+
+# Shipping constraints:
+# - The total shipment from each warehouse cannot exceed max_shipping * open_warehouse[i]
+#   (if warehouse is closed, no shipment)
+for i in range(num_warehouses):
+    model += cp.sum(ships[i, :]) &lt;= max_shipping * open_warehouse[i]
+
+# - The total shipment to each region must meet the demand exactly
+for j in range(num_regions):
+    model += cp.sum(ships[:, j]) == demands[j]
+
+# Objective: minimize total cost = sum of fixed costs for open warehouses + sum of shipping costs
+total_fixed_cost = cp.sum([fixed_costs[i] * open_warehouse[i] for i in range(num_warehouses)])
+total_shipping_cost = cp.sum([ships[i, j] * shipping_costs[i][j] for i in range(num_warehouses) for j in range(num_regions)])
+total_cost = total_fixed_cost + total_shipping_cost
+
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: open_warehouse.value().astype(int).tolist(),
+        &#x27;ships&#x27;: ships.value().astype(int).tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (69 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse (total capacity)
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+m = len(warehouse_s)   # number of warehouses (4)
+n = len(demands)       # number of regions (3)
+
+open_warehouse = cp.boolvar(shape=m, name=&quot;open_warehouse&quot;)         # 1 if warehouse i is opened
+ships = cp.intvar(0, max_shipping, shape=(m, n), name=&quot;ships&quot;)     # shipments from warehouse i to region j
+
+# Constraints
+# 1) If New York (index 0) is opened, then Los Angeles (index 1) must be opened
+model += open_warehouse[0].implies(open_warehouse[1])
+
+# 2) No more than three warehouses can be operational in any given week
+model += cp.sum(open_warehouse) &lt;= 3
+
+# 3) Either Atlanta (index 3) or Los Angeles (index 1) must be opened
+model += (open_warehouse[3] + open_warehouse[1] &gt;= 1)
+
+# 4) Demands for each region must be satisfied exactly
+for j in range(n):
+    model += cp.sum([ships[i, j] for i in range(m)]) == demands[j]
+
+# 5) Warehouse capacity: total shipped from a warehouse cannot exceed max_shipping if opened, else 0
+for i in range(m):
+    model += cp.sum([ships[i, j] for j in range(n)]) &lt;= max_shipping * open_warehouse[i]
+
+# 6) If a warehouse is closed, its shipments must be zero (ensured by previous constraint and non-negativity)
+#    Additionally, each individual route cannot exceed max_shipping (already enforced by variable bounds)
+
+# Objective: minimize fixed opening costs plus shipping costs
+fixed_cost_term = cp.sum([fixed_costs[i] * open_warehouse[i] for i in range(m)])
+shipping_cost_term = cp.sum([shipping_costs[i][j] * ships[i, j] for i in range(m) for j in range(n)])
+total_cost_expr = fixed_cost_term + shipping_cost_term
+
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    # Convert boolean list to 0/1 integers as requested
+    open_vals_bool = open_warehouse.value().tolist()
+    open_vals = [int(x) for x in open_vals_bool]
+    ships_vals = ships.value().tolist()
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: open_vals,
+        &#x27;ships&#x27;: ships_vals
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]
+max_shipping = 100
+demands = [80, 70, 40]
+shipping_costs = [
+    [20, 40, 50],  # New York
+    [48, 15, 26],  # Los Angeles
+    [26, 35, 18],  # Chicago
+    [24, 50, 35]   # Atlanta
+]
+
+# Model definition
+model = cp.Model()
+
+# Decision variables
+open_warehouses = cp.boolvar(shape=4, name=&quot;open_warehouses&quot;)
+ships = cp.intvar(0, max_shipping, shape=(4, 3), name=&quot;ships&quot;)
+
+# Constraints
+
+# 1. Demand constraints for each region
+for region in range(3):
+    model += cp.sum(ships[:, region]) &gt;= demands[region]
+
+# 2. Max shipping per warehouse (sum across regions &lt;= max if open)
+for warehouse in range(4):
+    model += cp.sum(ships[warehouse, :]) &lt;= max_shipping * open_warehouses[warehouse]
+
+# 3. If New York is open, Los Angeles must also be open
+model += open_warehouses[0].implies(open_warehouses[1])
+
+# 4. No more than three warehouses can be open
+model += cp.sum(open_warehouses) &lt;= 3
+
+# 5. Either Atlanta or Los Angeles must be open
+model += (open_warehouses[1] | open_warehouses[3])
+
+# Objective: minimize total cost (fixed + shipping)
+fixed_cost = cp.sum(open_warehouses * fixed_costs)
+shipping_cost = cp.sum(ships[i, j] * shipping_costs[i][j] for i in range(4) for j in range(3))
+total_cost = fixed_cost + shipping_cost
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: [int(v) for v in open_warehouses.value()],
+        &#x27;ships&#x27;: ships.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]
+max_shipping = 100
+demands = [80, 70, 40]
+shipping_costs = [
+    [20, 40, 50],  # New York
+    [48, 15, 26],  # Los Angeles
+    [26, 35, 18],  # Chicago
+    [24, 50, 35]   # Atlanta
+]
+
+# Model definition
+model = cp.Model()
+
+# Decision variables
+open = cp.boolvar(shape=4, name=&quot;open&quot;)
+ships = cp.intvar(0, max_shipping, shape=(4, 3), name=&quot;ships&quot;)
+
+# Constraints
+# 1. If New York is open, then Los Angeles must be open
+model += open[0] &lt;= open[1]
+
+# 2. No more than three warehouses open
+model += cp.sum(open) &lt;= 3
+
+# 3. Either Atlanta or Los Angeles must be open
+model += open[1] + open[3] &gt;= 1
+
+# Demand constraints for each region
+for r in range(3):
+    model += cp.sum(ships[:, r]) == demands[r]
+
+# Shipping capacity per warehouse
+for w in range(4):
+    model += cp.sum(ships[w, :]) &lt;= max_shipping * open[w]
+
+# Objective: minimize total cost
+fixed_cost = cp.sum(open * fixed_costs)
+shipping_cost = cp.sum(ships * np.array(shipping_costs))
+model.minimize(fixed_cost + shipping_cost)
+
+# Solve and print
+if model.solve():
+    # Convert open_warehouse to integers (0/1) instead of booleans
+    open_warehouse = [int(v) for v in open.value().tolist()]
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: open_warehouse,
+        &#x27;ships&#x27;: ships.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import numpy as np
+import json
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+# End of data
+
+# Convert lists to numpy arrays for vectorized operations
+fixed_costs = np.array(fixed_costs)
+demands = np.array(demands)
+shipping_costs = np.array(shipping_costs)
+
+n_w = len(warehouse_s)
+n_r = len(demands)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+open_warehouse = cp.boolvar(shape=n_w, name=&quot;open_warehouse&quot;)
+ships = cp.intvar(0, max_shipping, shape=(n_w, n_r), name=&quot;ships&quot;)
+
+# Constraints
+
+# 1. If New York is opened, then Los Angeles must also be opened
+model += open_warehouse[0].implies(open_warehouse[1])
+
+# 2. No more than three warehouses can be operational
+model += (cp.sum(open_warehouse) &lt;= 3)
+
+# 3. Either Atlanta or Los Angeles must be opened
+model += (cp.sum([open_warehouse[1], open_warehouse[3]]) &gt;= 1)
+
+# 4. Capacity linking: shipments only if warehouse is open, and respect max capacity per warehouse
+for i in range(n_w):
+    model += (cp.sum(ships[i, :]) &lt;= max_shipping * open_warehouse[i])
+
+# 5. Meet regional demands exactly
+for j in range(n_r):
+    model += (cp.sum(ships[:, j]) == demands[j])
+
+# Objective: Minimize total cost = fixed opening costs + shipping costs
+total_fixed_cost = cp.sum(fixed_costs * open_warehouse)
+total_shipping_cost = cp.sum(shipping_costs * ships)
+total_cost_expr = total_fixed_cost + total_shipping_cost
+
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    open_vals = [int(v) for v in open_warehouse.value().tolist()]
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: open_vals,
+        &#x27;ships&#x27;: ships.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (69 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse (total capacity)
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+m = len(warehouse_s)   # number of warehouses (4)
+n = len(demands)       # number of regions (3)
+
+open_warehouse = cp.boolvar(shape=m, name=&quot;open_warehouse&quot;)         # 1 if warehouse i is opened
+ships = cp.intvar(0, max_shipping, shape=(m, n), name=&quot;ships&quot;)     # shipments from warehouse i to region j
+
+# Constraints
+# 1) If New York (index 0) is opened, then Los Angeles (index 1) must be opened
+model += open_warehouse[0].implies(open_warehouse[1])
+
+# 2) No more than three warehouses can be operational in any given week
+model += cp.sum(open_warehouse) &lt;= 3
+
+# 3) Either Atlanta (index 3) or Los Angeles (index 1) must be opened
+model += (open_warehouse[3] + open_warehouse[1] &gt;= 1)
+
+# 4) Demands for each region must be satisfied exactly
+for j in range(n):
+    model += cp.sum([ships[i, j] for i in range(m)]) == demands[j]
+
+# 5) Warehouse capacity: total shipped from a warehouse cannot exceed max_shipping if opened, else 0
+for i in range(m):
+    model += cp.sum([ships[i, j] for j in range(n)]) &lt;= max_shipping * open_warehouse[i]
+
+# 6) If a warehouse is closed, its shipments must be zero (ensured by previous constraint and non-negativity)
+#    Additionally, each individual route cannot exceed max_shipping (already enforced by variable bounds)
+
+# Objective: minimize fixed opening costs plus shipping costs
+fixed_cost_term = cp.sum([fixed_costs[i] * open_warehouse[i] for i in range(m)])
+shipping_cost_term = cp.sum([shipping_costs[i][j] * ships[i, j] for i in range(m) for j in range(n)])
+total_cost_expr = fixed_cost_term + shipping_cost_term
+
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    # Convert boolean list to 0/1 integers as requested
+    open_vals_bool = open_warehouse.value().tolist()
+    open_vals = [int(x) for x in open_vals_bool]
+    ships_vals = ships.value().tolist()
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;open_warehouse&#x27;: open_vals,
+        &#x27;ships&#x27;: ships_vals
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (60 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: num_warehouses = 4;
+int: num_regions = 3;
+
+array[1..num_warehouses] of string: warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;];
+array[1..num_warehouses] of int: fixed_costs = [400, 500, 300, 150];
+int: max_shipping = 100;
+array[1..num_regions] of int: demands = [80, 70, 40];
+array[1..num_warehouses, 1..num_regions] of int: shipping_costs = 
+  [| 20, 40, 50
+   | 48, 15, 26
+   | 26, 35, 18
+   | 24, 50, 35
+  |];
+
+% Decision variables
+array[1..num_warehouses] of var bool: open_warehouse; % Whether each warehouse is open
+array[1..num_warehouses, 1..num_regions] of var 0..max_shipping: ships; % Units shipped from warehouse to region
+
+% Constraints
+
+% 1. If New York warehouse is opened, then Los Angeles warehouse must also be opened.
+constraint open_warehouse[1] -&gt; open_warehouse[2];
+
+% 2. No more than three warehouses can be operational in any given week.
+constraint sum([bool2int(open_warehouse[i]) | i in 1..num_warehouses]) &lt;= 3;
+
+% 3. Either the Atlanta or the Los Angeles warehouse must be opened.
+constraint open_warehouse[2] \/ open_warehouse[4];
+
+% Shipments can only come from open warehouses
+constraint forall(w in 1..num_warehouses, r in 1..num_regions) (
+  ships[w,r] &lt;= max_shipping * bool2int(open_warehouse[w])
+);
+
+% Warehouse capacity constraint: max units per warehouse per week
+constraint forall(w in 1..num_warehouses) (
+  sum([ships[w,r] | r in 1..num_regions]) &lt;= max_shipping
+);
+
+% Demand satisfaction: sum of shipments to each region must meet demand
+constraint forall(r in 1..num_regions) (
+  sum([ships[w,r] | w in 1..num_warehouses]) &gt;= demands[r]
+);
+
+% Objective: minimize total cost = sum of fixed costs for open warehouses + sum of shipping costs
+var int: total_cost = 
+  sum(w in 1..num_warehouses)(fixed_costs[w] * bool2int(open_warehouse[w])) +
+  sum(w in 1..num_warehouses, r in 1..num_regions)(shipping_costs[w,r] * ships[w,r]);
+
+solve minimize total_cost;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;total_cost\&quot;: &quot;, show(total_cost), &quot;,&quot;,
+  &quot;\&quot;open_warehouse\&quot;: &quot;, show(open_warehouse), &quot;,&quot;,
+  &quot;\&quot;ships\&quot;: &quot;, show(ships),
+  &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    true,
+    true,
+    true,
+    false
+  ],
+  &quot;ships&quot;: [
+    80,
+    0,
+    0,
+    0,
+    70,
+    0,
+    0,
+    0,
+    40,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (71 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Warehouse location and shipping model
+
+% Include standard global constraints library
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: num_warehouses = 4;
+int: num_regions = 3;
+array[1..num_warehouses] of string: warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;];
+array[1..num_warehouses] of int: fixed_costs = [400, 500, 300, 150];
+int: max_shipping = 100;
+array[1..num_regions] of int: demands = [80, 70, 40];
+array[1..num_warehouses, 1..num_regions] of int: shipping_costs = 
+    array2d(1..num_warehouses, 1..num_regions, 
+        [20,40,50,  % New York
+         48,15,26,  % Los Angeles
+         26,35,18,  % Chicago
+         24,50,35]  % Atlanta
+    );
+
+% Decision variables
+% 1 if warehouse w is opened, 0 otherwise
+array[1..num_warehouses] of var 0..1: open_warehouse;
+% units shipped from warehouse w to region r
+array[1..num_warehouses, 1..num_regions] of var 0..max_shipping: ships;
+
+% Total cost: fixed + shipping
+var int: total_cost = 
+    sum(w in 1..num_warehouses)(fixed_costs[w] * open_warehouse[w])
+  + sum(w in 1..num_warehouses, r in 1..num_regions)(shipping_costs[w,r] * ships[w,r]);
+
+% Constraints
+
+% 1. If New York (1) is opened then Los Angeles (2) must be opened
+constraint open_warehouse[1] &lt;= open_warehouse[2];
+
+% 2. At most three warehouses can be operational
+constraint sum(w in 1..num_warehouses)(open_warehouse[w]) &lt;= 3;
+
+% 3. Either Atlanta (4) or Los Angeles (2) must be opened
+constraint open_warehouse[2] + open_warehouse[4] &gt;= 1;
+
+% 4. Capacity limit per warehouse
+constraint forall(w in 1..num_warehouses) (
+    sum(r in 1..num_regions)(ships[w,r]) &lt;= max_shipping * open_warehouse[w]
+);
+
+% 5. Demand fulfillment for each region
+constraint forall(r in 1..num_regions) (
+    sum(w in 1..num_warehouses)(ships[w,r]) &gt;= demands[r]
+);
+
+% Solve: minimize total cost
+solve minimize total_cost;
+
+% Output in JSON format
+output [
+    &quot;{&quot;,
+    &quot;\&quot;total_cost\&quot;: &quot; ++ show(total_cost) ++ &quot;,&quot;,
+    &quot;\&quot;open_warehouse\&quot;: [&quot; ++
+        join(&quot;,&quot;, [show(open_warehouse[w]) | w in 1..num_warehouses]) ++
+    &quot;],&quot;,
+    &quot;\&quot;ships\&quot;: [&quot; ++
+        join(&quot;,&quot;, [
+            &quot;[&quot; ++ join(&quot;,&quot;, [show(ships[w,r]) | r in 1..num_regions]) ++ &quot;]&quot;
+            | w in 1..num_warehouses
+        ]) ++
+    &quot;]&quot;,
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (81 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+
+num_warehouses = len(warehouse_s)
+num_regions = len(demands)
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# open_warehouse[i] = 1 if warehouse i is open, 0 otherwise
+open_warehouse = [model.NewBoolVar(f&#x27;open_{warehouse_s[i]}&#x27;) for i in range(num_warehouses)]
+
+# ships[i][j] = units shipped from warehouse i to region j
+# Since max shipping per warehouse is 100, upper bound is max_shipping
+ships = []
+for i in range(num_warehouses):
+    row = []
+    for j in range(num_regions):
+        # Shipments are integers &gt;= 0 and &lt;= max_shipping (warehouse capacity)
+        var = model.NewIntVar(0, max_shipping, f&#x27;ship_{warehouse_s[i]}_to_region{j+1}&#x27;)
+        row.append(var)
+    ships.append(row)
+
+# Constraints
+
+# 1. If New York warehouse is opened, then Los Angeles warehouse must also be opened.
+# New York index = 0, Los Angeles index = 1
+model.AddImplication(open_warehouse[0], open_warehouse[1])
+
+# 2. No more than three warehouses can be operational in any given week.
+model.Add(sum(open_warehouse) &lt;= 3)
+
+# 3. Either the Atlanta or the Los Angeles warehouse must be opened.
+# Atlanta index = 3, Los Angeles index = 1
+model.AddBoolOr([open_warehouse[3], open_warehouse[1]])
+
+# 4. Shipments from a warehouse can only happen if the warehouse is open.
+for i in range(num_warehouses):
+    for j in range(num_regions):
+        # ships[i][j] &lt;= max_shipping * open_warehouse[i]
+        # If warehouse is closed (0), ships[i][j] must be 0
+        model.Add(ships[i][j] &lt;= max_shipping * open_warehouse[i])
+
+# 5. Total shipments from each warehouse cannot exceed max_shipping
+for i in range(num_warehouses):
+    model.Add(sum(ships[i][j] for j in range(num_regions)) &lt;= max_shipping)
+
+# 6. Demand for each region must be met exactly
+for j in range(num_regions):
+    model.Add(sum(ships[i][j] for i in range(num_warehouses)) == demands[j])
+
+# Objective: Minimize total cost = sum of fixed costs for open warehouses + sum of shipping costs
+fixed_cost_term = sum(fixed_costs[i] * open_warehouse[i] for i in range(num_warehouses))
+shipping_cost_term = sum(shipping_costs[i][j] * ships[i][j] for i in range(num_warehouses) for j in range(num_regions))
+model.Minimize(fixed_cost_term + shipping_cost_term)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;total_cost&#x27;: solver.ObjectiveValue(),
+        &#x27;open_warehouse&#x27;: [solver.Value(var) for var in open_warehouse],
+        &#x27;ships&#x27;: [[solver.Value(ships[i][j]) for j in range(num_regions)] for i in range(num_warehouses)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570.0,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (75 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
+max_shipping = 100  # Max units per week per warehouse
+demands = [80, 70, 40]  # Weekly demands for regions 1 to 3
+shipping_costs = [
+    [20, 40, 50],  # New York to regions 1, 2, 3
+    [48, 15, 26],  # Los Angeles to regions 1, 2, 3
+    [26, 35, 18],  # Chicago to regions 1, 2, 3
+    [24, 50, 35]   # Atlanta to regions 1, 2, 3
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# open_warehouse[i] = 1 if warehouse i is open, 0 otherwise
+open_warehouse = [model.NewBoolVar(f&quot;open_warehouse[{i}]&quot;) for i in range(len(warehouse_s))]
+
+# ships[i][j] = units shipped from warehouse i to region j
+ships = []
+for i in range(len(warehouse_s)):
+    row = []
+    for j in range(len(demands)):
+        # Upper bound on shipping is the demand of region j
+        row.append(model.NewIntVar(0, demands[j], f&quot;ships[{i}][{j}]&quot;))
+    ships.append(row)
+
+# Constraints
+
+# 1. If New York is opened (index 0), then Los Angeles (index 1) must be opened
+model.Add(open_warehouse[0] &lt;= open_warehouse[1])
+
+# 2. No more than three warehouses can be operational in any given week
+model.Add(sum(open_warehouse) &lt;= 3)
+
+# 3. Either Atlanta (index 3) or Los Angeles (index 1) must be opened
+model.Add(open_warehouse[3] + open_warehouse[1] &gt;= 1)
+
+# 4. Shipping capacity constraint per warehouse
+for i in range(len(warehouse_s)):
+    model.Add(sum(ships[i][j] for j in range(len(demands))) &lt;= max_shipping * open_warehouse[i])
+
+# 5. Demand satisfaction: each region&#x27;s total shipments must meet demand
+for j in range(len(demands)):
+    model.Add(sum(ships[i][j] for i in range(len(warehouse_s))) == demands[j])
+
+# Objective function: minimize fixed costs + shipping costs
+fixed_cost_term = sum(fixed_costs[i] * open_warehouse[i] for i in range(len(warehouse_s)))
+shipping_cost_term = sum(shipping_costs[i][j] * ships[i][j] 
+                         for i in range(len(warehouse_s)) 
+                         for j in range(len(demands)))
+model.Minimize(fixed_cost_term + shipping_cost_term)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;total_cost&#x27;: solver.ObjectiveValue(),
+        &#x27;open_warehouse&#x27;: [solver.Value(open_warehouse[i]) for i in range(len(warehouse_s))],
+        &#x27;ships&#x27;: [
+            [solver.Value(ships[i][j]) for j in range(len(demands))]
+            for i in range(len(warehouse_s))
+        ]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570.0,
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ],
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (123 lines)</summary><pre class="code-block"><code id="None" class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;Warehouse-location and distribution problem solved with Google OR-Tools CP-SAT.
+
+Outputs a JSON object with keys in the exact order:
+[&#x27;total_cost&#x27;, &#x27;ships&#x27;, &#x27;open_warehouse&#x27;]
+&quot;&quot;&quot;
+import json
+from collections import OrderedDict
+from ortools.sat.python import cp_model
+
+
+def main() -&gt; None:
+    # ------------------------------------------------------------------
+    # 1. Immutable input data (exactly as provided in the statement)
+    # ------------------------------------------------------------------
+    warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
+    fixed_costs = [400, 500, 300, 150]      # weekly fixed costs per warehouse
+    max_shipping = 100                      # capacity (units/week) per warehouse
+
+    demands = [80, 70, 40]                  # weekly demand for regions 1–3
+
+    shipping_costs = [                      # cost per unit shipped
+        [20, 40, 50],   # New York → regions 1,2,3
+        [48, 15, 26],   # Los Angeles
+        [26, 35, 18],   # Chicago
+        [24, 50, 35],   # Atlanta
+    ]
+
+    num_warehouses = len(warehouse_s)
+    num_regions = len(demands)
+
+    # ------------------------------------------------------------------
+    # 2. Build CP-SAT model
+    # ------------------------------------------------------------------
+    model = cp_model.CpModel()
+
+    # 2.1 Decision variables
+    open_warehouse = [model.NewBoolVar(f&quot;open[{j}]&quot;)
+                      for j in range(num_warehouses)]
+
+    # Ship units from warehouse j to region r.
+    # Upper bound: cannot exceed overall warehouse capacity (100) but use a
+    # slightly larger bound to stay safe and future-proof.
+    ship_ub = max(max_shipping, max(demands))  # 100 here
+    ships = [[model.NewIntVar(0, ship_ub, f&quot;ship[{j},{r}]&quot;)
+              for r in range(num_regions)]
+             for j in range(num_warehouses)]
+
+    # Upper bound for total cost: fixed + (worst per-unit cost * max units).
+    max_total_fixed = sum(fixed_costs)                 # = 1350
+    max_per_unit_cost = max(c for row in shipping_costs for c in row)  # = 50
+    max_units_possible = max_shipping * 3              # at most 3 warehouses open
+    total_cost_ub = max_total_fixed + max_per_unit_cost * max_units_possible  # 1350 + 50*300 = 16350
+    total_cost = model.NewIntVar(0, total_cost_ub, &quot;total_cost&quot;)
+
+    # ------------------------------------------------------------------
+    # 3. Constraints
+    # ------------------------------------------------------------------
+    # 3.1 Demand satisfaction (≥ demand)
+    for r in range(num_regions):
+        model.Add(sum(ships[j][r] for j in range(num_warehouses)) &gt;= demands[r])
+
+    # 3.2 Warehouse capacity &amp; linking: shipments out ≤ capacity × open
+    for j in range(num_warehouses):
+        model.Add(sum(ships[j][r] for r in range(num_regions)) &lt;=
+                  max_shipping * open_warehouse[j])
+
+    # 3.3 Logical implication: New York ⇒ Los Angeles (indices 0 ⇒ 1)
+    model.AddImplication(open_warehouse[0], open_warehouse[1])
+
+    # 3.4 No more than 3 warehouses can be opened
+    model.Add(sum(open_warehouse) &lt;= 3)
+
+    # 3.5 Either Atlanta (3) or Los Angeles (1) must be open
+    model.Add(open_warehouse[3] + open_warehouse[1] &gt;= 1)
+
+    # 3.6 Cost definition
+    fixed_cost_term = sum(fixed_costs[j] * open_warehouse[j]
+                          for j in range(num_warehouses))
+    shipping_cost_term = sum(shipping_costs[j][r] * ships[j][r]
+                             for j in range(num_warehouses)
+                             for r in range(num_regions))
+    model.Add(total_cost == fixed_cost_term + shipping_cost_term)
+
+    # ------------------------------------------------------------------
+    # 4. Objective – minimise total weekly cost
+    # ------------------------------------------------------------------
+    model.Minimize(total_cost)
+
+    # ------------------------------------------------------------------
+    # 5. Solve
+    # ------------------------------------------------------------------
+    solver = cp_model.CpSolver()
+    # Optional: small time limit to prevent runaway in pathological cases
+    solver.parameters.max_time_in_seconds = 30
+
+    status = solver.Solve(model)
+    if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        raise RuntimeError(&quot;No feasible solution found.&quot;)
+
+    # ------------------------------------------------------------------
+    # 6. Extract results
+    # ------------------------------------------------------------------
+    open_solution = [int(solver.Value(open_warehouse[j]))
+                     for j in range(num_warehouses)]
+    ships_solution = [[int(solver.Value(ships[j][r]))
+                       for r in range(num_regions)]
+                      for j in range(num_warehouses)]
+
+    # Build result in the required key order
+    result = OrderedDict()
+    result[&quot;total_cost&quot;] = int(solver.Value(total_cost))
+    result[&quot;ships&quot;] = ships_solution
+    result[&quot;open_warehouse&quot;] = open_solution
+
+    # ------------------------------------------------------------------
+    # 7. Output JSON (nothing else)
+    # ------------------------------------------------------------------
+    print(json.dumps(result))
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 4570,
+  &quot;ships&quot;: [
+    [
+      80,
+      0,
+      0
+    ],
+    [
+      0,
+      70,
+      0
+    ],
+    [
+      0,
+      0,
+      40
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  &quot;open_warehouse&quot;: [
+    1,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;warehouse_s&quot;: [
     &quot;New York&quot;,
     &quot;Los Angeles&quot;,
@@ -138,9 +2152,9 @@ shipping_costs = [
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">open_warehouse</span><span class="chip">ships</span><span class="chip">total_cost</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-92">Copy</button></div><pre class="code-block"><code id="solution-92" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">open_warehouse</span><span class="chip">ships</span><span class="chip">total_cost</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-92">Copy</button></div><pre class="code-block"><code id="solution-92" class="language-json">{
   &quot;total_cost&quot;: 4570,
   &quot;open_warehouse&quot;: [
     true,
@@ -171,6 +2185,7 @@ shipping_costs = [
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -178,9 +2193,9 @@ shipping_costs = [
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/facility_location/facility_location.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/facility_location/facility_location.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="equal_sized_groups.html">â† prev</a><a class="btn" href="fancy_dress.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="equal_sized_groups.html">← prev</a><a class="btn" href="fancy_dress.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

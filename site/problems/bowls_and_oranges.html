@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bowls_and_oranges Â· DCP-Bench Open</title>
-<meta name="description" content="You have a number of bowls, all placed in a line at exact intervals of 1 meter. You also have a number of oranges. You wish to place all the oranges in the bowâ€¦">
+<title>bowls_and_oranges · DCP-Bench Open</title>
+<meta name="description" content="You have a number of bowls, all placed in a line at exact intervals of 1 meter. You also have a number of oranges. You wish to place all the oranges in the bow…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/bowls_and_oranges.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/bowls_and_oranges.py</a></dd><dt>Source description</dt><dd><a href="http://surana.wordpress.com/2011/06/01/constraint-programming-example/" target="_blank" rel="noopener">http://surana.wordpress.com/2011/06/01/constraint-programming-example/</a></dd><dt>Misc</dt><dd><a href="http://www.hakank.org/cpmpy/cpmpy_hakank.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cpmpy_hakank.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-19">Copy</button></div><pre class="code-block"><code id="model-19" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -71,13 +72,486 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">n = 40  # Number of bowls
 m = 9  # Number of oranges</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Decision Variables
+x = intvar(1, 40, shape=9, name=&quot;x&quot;)  # Positions of the oranges (bowl numbers)
+
+# Model
+model = Model()
+
+# Constraint: all oranges are in different bowls and in increasing order
+model += AllDifferent(x)
+model += [x[i] &lt; x[i+1] for i in range(8)]
+
+# Constraint: no three oranges form an arithmetic progression
+for i in range(9):
+    for j in range(i+1, 9):
+        for k in range(j+1, 9):
+            model += (x[j] - x[i] != x[k] - x[j])  # Direct difference comparison
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+from itertools import combinations
+
+# Parameters
+n_bowls = 40  # Number of bowls
+n_oranges = 9  # Number of oranges
+
+# Decision variables
+x = intvar(1, n_bowls, shape=n_oranges, name=&quot;x&quot;)
+
+# Model
+model = Model()
+
+# All oranges must be in different bowls
+model += [AllDifferent(x)]
+
+# No three oranges A, B, and C such that the distance between A and B is equal to the distance between B and C
+# This means no arithmetic progression of length 3
+for a, b, c in combinations(range(n_oranges), 3):
+    # Ensure that the three selected positions do not form an arithmetic progression
+    model += [~((x[b] - x[a]) == (x[c] - x[b]))]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: 9 positions (bowls) between 1 and 40
+x = cp.intvar(1, 40, shape=9, name=&quot;x&quot;)
+
+# Constraints
+# Enforce strictly increasing order to break symmetry (and thus AllDifferent)
+model += cp.IncreasingStrict(x)
+
+# No three oranges in arithmetic progression:
+# For all i &lt; j &lt; k: 2*x[j] != x[i] + x[k]
+for i in range(9):
+    for j in range(i+1, 9):
+        for k in range(j+1, 9):
+            model += (2 * x[j] != x[i] + x[k])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_bowls = 40
+num_oranges = 9
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = bowl position of orange i, 1-based index
+x = cp.intvar(1, num_bowls, shape=num_oranges, name=&quot;x&quot;)
+
+# Constraints
+
+# 1) All oranges in distinct bowls
+model += cp.AllDifferent(x)
+
+# 2) No three oranges A, B, C such that distance(A,B) == distance(B,C)
+# This means for any triple (i,j,k) with positions x[i], x[j], x[k]
+# sorted so that x[i]&lt;x[j]&lt;x[k], the difference x[j]-x[i] != x[k]-x[j]
+
+# We must check all triples (i,j,k) with i&lt;j&lt;k
+# Enforce no arithmetic progression of length 3
+for i in range(num_oranges):
+    for j in range(i+1, num_oranges):
+        for k in range(j+1, num_oranges):
+            # Ensure no arithmetic progression:
+            # x[j]*2 != x[i] + x[k]
+            model += (2 * x[j] != x[i] + x[k])
+
+# Objective: None
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: 9 positions (bowls) between 1 and 40
+x = cp.intvar(1, 40, shape=9, name=&quot;x&quot;)
+
+# Constraints
+# Enforce strictly increasing order to break symmetry (and thus AllDifferent)
+model += cp.IncreasingStrict(x)
+
+# No three oranges in arithmetic progression:
+# For all i &lt; j &lt; k: 2*x[j] != x[i] + x[k]
+for i in range(9):
+    for j in range(i+1, 9):
+        for k in range(j+1, 9):
+            model += (2 * x[j] != x[i] + x[k])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_bowls = 40
+num_oranges = 9
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] is the bowl index (1..40) of the i-th orange, strictly increasing to avoid duplicates and enforce order
+x = cp.intvar(1, num_bowls, shape=num_oranges, name=&quot;x&quot;)
+
+# Constraints
+# Strictly increasing ensures no more than one orange per bowl
+model += cp.IncreasingStrict(x)
+
+# No three-term arithmetic progression: for all i&lt;j&lt;k, 2*x[j] != x[i] + x[k]
+for i in range(num_oranges):
+    for j in range(i+1, num_oranges):
+        for k in range(j+1, num_oranges):
+            model += (2 * x[j] != x[i] + x[k])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: 9 positions (bowls) between 1 and 40
+x = cp.intvar(1, 40, shape=9, name=&quot;x&quot;)
+
+# Constraints
+# Enforce strictly increasing order to break symmetry (and thus AllDifferent)
+model += cp.IncreasingStrict(x)
+
+# No three oranges in arithmetic progression:
+# For all i &lt; j &lt; k: 2*x[j] != x[i] + x[k]
+for i in range(9):
+    for j in range(i+1, 9):
+        for k in range(j+1, 9):
+            model += (2 * x[j] != x[i] + x[k])
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (25 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+int: num_bowls = 40;
+int: num_oranges = 9;
+
+% Decision variables: positions of the oranges in the bowls
+array[1..num_oranges] of var 1..num_bowls: x;
+
+% Constraint: all oranges are placed in distinct bowls
+constraint all_different(x);
+
+% Constraint: no three oranges A, B, C such that distance(A,B) = distance(B,C)
+% This means no arithmetic progression of length 3 in the positions
+% For all triples i &lt; j &lt; k, ensure that x[j] - x[i] != x[k] - x[j]
+constraint
+  forall(i, j, k in 1..num_oranges where i &lt; j /\ j &lt; k) (
+    (x[j] - x[i]) != (x[k] - x[j])
+  );
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;x\&quot;: &quot;, show(x),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+num_bowls = 40
+num_oranges = 9
+
+# Decision variables: positions of the oranges in the bowls (1-based indexing)
+# We enforce strictly increasing order to avoid symmetric solutions and simplify constraints
+x = [model.NewIntVar(1, num_bowls, f&#x27;x{i}&#x27;) for i in range(num_oranges)]
+for i in range(num_oranges - 1):
+    model.Add(x[i] &lt; x[i + 1])
+
+# Constraint: no three oranges A, B, C such that distance(A,B) == distance(B,C)
+# For all triples i &lt; j &lt; k, ensure that x[j] - x[i] != x[k] - x[j]
+for i in range(num_oranges):
+    for j in range(i + 1, num_oranges):
+        for k in range(j + 1, num_oranges):
+            # Enforce that (x[j] - x[i]) != (x[k] - x[j])
+            # This can be rewritten as: 2*x[j] != x[i] + x[k]
+            # So we add the constraint: 2*x[j] != x[i] + x[k]
+            # Since CP-SAT does not have direct &quot;not equal&quot; constraints, we use a boolean literal
+            diff_equal = model.NewBoolVar(f&#x27;diff_equal_{i}_{j}_{k}&#x27;)
+            model.Add(2 * x[j] == x[i] + x[k]).OnlyEnforceIf(diff_equal)
+            model.Add(2 * x[j] != x[i] + x[k]).OnlyEnforceIf(diff_equal.Not())
+            model.Add(diff_equal == 0)  # Enforce that diff_equal is false
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;x&#x27;: [solver.Value(var) for var in x]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# ---------------------------------------------------------------------------
+# 1. Input parsing (exactly as provided – here the block is empty)
+# ---------------------------------------------------------------------------
+# The problem instance is fully defined by the statement; no external data to
+# read. Nevertheless, we keep the section for completeness and future-proofing.
+
+# ---------------------------------------------------------------------------
+# 2. Model creation
+# ---------------------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Constants
+NUM_BOWLS = 40    # total bowls, numbered 1..40
+NUM_ORANGES = 9   # oranges to place
+
+# ---------------------------------------------------------------------------
+# 3. Decision variables
+#    x[k] – position (bowl index) of the k-th orange (k = 0..8)
+# ---------------------------------------------------------------------------
+x = [model.NewIntVar(1, NUM_BOWLS, f&quot;x[{k}]&quot;) for k in range(NUM_ORANGES)]
+
+# Optional: enforce increasing order to cut symmetry and speed up search.
+for k in range(NUM_ORANGES - 1):
+    model.Add(x[k] &lt; x[k + 1])
+
+# ---------------------------------------------------------------------------
+# 4. Constraints
+# ---------------------------------------------------------------------------
+# 4.1 All oranges must be in different bowls.
+model.AddAllDifferent(x)
+
+# 4.2 No three selected bowls may form an arithmetic progression.
+#      For every triple i &lt; j &lt; k: 2 * x[j] != x[i] + x[k]
+for i in range(NUM_ORANGES - 2):
+    for j in range(i + 1, NUM_ORANGES - 1):
+        for k in range(j + 1, NUM_ORANGES):
+            model.Add(2 * x[j] != x[i] + x[k])
+
+# ---------------------------------------------------------------------------
+# 5. Objective – none (pure feasibility)
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# 6. Solve
+# ---------------------------------------------------------------------------
+solver = cp_model.CpSolver()
+# You may limit time if desired, e.g.:
+# solver.parameters.max_time_in_seconds = 10
+status = solver.Solve(model)
+
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    solution = [solver.Value(var) for var in x]
+    print(json.dumps({&quot;x&quot;: solution}))
+else:
+    # According to the statement the instance is known to be solvable. If, for
+    # any unexpected reason, no solution is found we emit an empty list so the
+    # JSON output format is still respected.
+    print(json.dumps({&quot;x&quot;: []}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 40,
   &quot;m&quot;: 9
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-19">Copy</button></div><pre class="code-block"><code id="solution-19" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-19">Copy</button></div><pre class="code-block"><code id="solution-19" class="language-json">{
   &quot;x&quot;: [
     1,
     2,
@@ -90,6 +564,7 @@ m = 9  # Number of oranges</code></pre>
     40
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -97,9 +572,9 @@ m = 9  # Number of oranges</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/bowls_and_oranges/bowls_and_oranges.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/bowls_and_oranges/bowls_and_oranges.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="birthday_coins.html">â† prev</a><a class="btn" href="broken_weights.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="birthday_coins.html">← prev</a><a class="btn" href="broken_weights.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

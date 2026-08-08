@@ -49,6 +49,12 @@
       inst.className = "muted";
       inst.textContent = (p.instances || 0) + " instance" + (p.instances === 1 ? "" : "s");
       meta.appendChild(inst);
+      if (p.generated) {
+        var gen = document.createElement("span");
+        gen.className = "muted";
+        gen.textContent = (p.generated === 1 ? "1 generated model" : p.generated + " generated models");
+        meta.appendChild(gen);
+      }
 
       card.appendChild(h3);
       card.appendChild(desc);
@@ -91,15 +97,17 @@
     renderCards();
   }
 
-  /* ---------- Problem page: tabs + copy buttons ---------- */
+  /* ---------- Problem page: nested tabs + copy buttons ---------- */
   function initTabs() {
-    document.querySelectorAll(".tab-bar").forEach(function (bar) {
+    document.querySelectorAll(".tab-group").forEach(function (group) {
+      var bar = group.querySelector(".tab-bar");
+      if (!bar) return;
       var buttons = bar.querySelectorAll(".tab-btn");
       buttons.forEach(function (btn) {
         btn.addEventListener("click", function () {
           var name = btn.getAttribute("data-tab");
           buttons.forEach(function (b) { b.classList.toggle("active", b === btn); });
-          document.querySelectorAll("[data-pane]").forEach(function (pane) {
+          group.querySelectorAll(".tab-pane").forEach(function (pane) {
             pane.classList.toggle("active", pane.getAttribute("data-pane") === name);
           });
         });

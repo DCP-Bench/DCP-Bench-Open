@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>session3_people_in_a_room Â· DCP-Bench Open</title>
-<meta name="description" content="There are 13 people. 4 of them are male. They randomly enter a room one at a time. Find a way that the males and females enter so that the ratio of females toâ€¦">
+<title>session3_people_in_a_room · DCP-Bench Open</title>
+<meta name="description" content="There are 13 people. 4 of them are male. They randomly enter a room one at a time. Find a way that the males and females enter so that the ratio of females to…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Category</dt><dd>aplai_course</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-151">Copy</button></div><pre class="code-block"><code id="model-151" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -65,10 +66,1182 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">sequence</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-151">Copy</button></div><pre class="code-block"><code id="solution-151" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+total_people = 13
+num_males = 4
+num_females = total_people - num_males
+
+# Decision Variables
+sequence = intvar(0, 1, shape=total_people, name=&quot;sequence&quot;)  # 0=male, 1=female
+
+# Model
+model = Model()
+
+# Exactly 4 males and 9 females
+model += sum(sequence == 0) == num_males
+model += sum(sequence == 1) == num_females
+
+# Ratio constraint at every step
+for step in range(1, total_people+1):
+    current_males = sum(sequence[:step] == 0)
+    current_females = sum(sequence[:step] == 1)
+    # Females/males &lt;= 7/3 =&gt; 3*females &lt;= 7*males
+    model += (3 * current_females &lt;= 7 * current_males)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;sequence&quot;: [bool(x) for x in sequence.value().tolist()]
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n_people = 13  # Total number of people
+n_males = 4  # Number of males
+n_females = n_people - n_males  # Number of females
+
+# Decision variables
+sequence = intvar(0, 1, shape=n_people, name=&quot;sequence&quot;)  # 0 for male, 1 for female
+
+# Model
+model = Model()
+
+# Ensure exactly 4 males and 9 females in the sequence
+model += [sum(sequence) == n_females]
+
+# Ensure the ratio of females to males in the room at any one time is no greater than 7/3
+# This means for any prefix of the sequence, the number of females (f) and males (m) must satisfy f/m &lt;= 7/3
+# Which is equivalent to 3*f &lt;= 7*m
+for i in range(1, n_people + 1):
+    prefix = sequence[0:i]
+    f = sum(prefix)
+    m = i - f
+    model += [3 * f &lt;= 7 * m]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;sequence&quot;: [bool(x) for x in sequence.value().tolist()]}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (67 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: 13 people (4 males, 9 females) enter a room one at a time
+# Constraint: At any time, ratio F/M &lt;= 7/3
+# Output: Sequence where 0=male, 1=female
+
+total_people = 13
+males = 4
+females = 9
+
+# Step 2: Model with CPMpy
+# Decision variables: sequence[i] represents the gender of the i-th person to enter
+# 0 = male, 1 = female
+sequence = cp.intvar(0, 1, shape=13, name=&quot;sequence&quot;)
+
+model = cp.Model()
+
+# Constraint 1: Exactly 4 males and 9 females
+model += cp.Count(sequence, 0) == 4  # 4 males
+model += cp.Count(sequence, 1) == 9  # 9 females
+
+# Constraint 2: At any time t, the ratio F/M &lt;= 7/3
+# This means: 3*F &lt;= 7*M at all times, with special handling for M=0
+for t in range(1, 14):  # For each time step (1-indexed)
+    # Count males and females up to time t
+    males_so_far = cp.sum([1 - sequence[i] for i in range(t)])  # Count of 0s
+    females_so_far = cp.sum([sequence[i] for i in range(t)])    # Count of 1s
+    
+    # If no males have entered yet, no females can enter either
+    # If males have entered, then 3*F &lt;= 7*M
+    model += (males_so_far == 0).implies(females_so_far == 0)
+    model += (males_so_far &gt; 0).implies(3 * females_so_far &lt;= 7 * males_so_far)
+
+# Step 3: Solve and verify
+if model.solve():
+    solution_sequence = sequence.value().tolist()
+    
+    # Verification
+    def verify_solution(seq):
+        # Check counts
+        if seq.count(0) != 4 or seq.count(1) != 9 or len(seq) != 13:
+            return False
+        
+        # Check ratio constraint at each step
+        males_count = 0
+        females_count = 0
+        for gender in seq:
+            if gender == 0:
+                males_count += 1
+            else:
+                females_count += 1
+            
+            if males_count == 0 and females_count &gt; 0:
+                return False
+            if males_count &gt; 0 and females_count / males_count &gt; 7/3 + 1e-9:
+                return False
+        
+        return True
+    
+    assert verify_solution(solution_sequence), &quot;Solution verification failed!&quot;
+    
+    # Step 4: Output
+    solution = {&quot;sequence&quot;: solution_sequence}
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 13
+num_males = 4
+num_females = num_people - num_males
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# sequence[i] = 0 if male enters at position i, 1 if female
+sequence = cp.intvar(0, 1, shape=num_people, name=&quot;sequence&quot;)
+
+# Constraints
+# Exactly num_males males and num_females females in the sequence
+model += (cp.sum(sequence) == num_females)
+model += (cp.sum(1 - sequence) == num_males)
+
+# At any time, ratio of females to males in the room &lt;= 7/3
+# For each prefix i, females_i / males_i &lt;= 7/3
+# Handle division carefully: females_i * 3 &lt;= males_i * 7
+# Also, males_i &gt; 0 to avoid division by zero; if males_i == 0, ratio is infinite, so females_i must be 0
+for i in range(num_people):
+    females_i = cp.sum(sequence[:i+1])
+    males_i = (i + 1) - females_i
+    # If males_i == 0, then females_i must be 0 (no females before any male)
+    model += cp.IfThenElse(males_i == 0, females_i == 0, females_i * 3 &lt;= males_i * 7)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13
+total_females = 9  # represented by 1
+total_males = 4    # represented by 0
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+sequence = cp.intvar(0, 1, shape=n, name=&quot;sequence&quot;)  # 1 = female, 0 = male
+
+# Constraints
+# Total counts
+model += cp.sum(sequence) == total_females
+
+# For every prefix, the ratio females:males &lt;= 7/3
+# i.e., 3 * females_prefix &lt;= 7 * males_prefix
+for k in range(1, n + 1):
+    females_prefix = cp.sum(sequence[:k])
+    males_prefix = k - females_prefix
+    model += females_prefix * 3 &lt;= 7 * males_prefix
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: 0=male, 1=female for each of the 13 positions
+x = cp.intvar(0, 1, shape=13, name=&quot;x&quot;)
+
+# Constraint: exactly 9 females (and hence 4 males)
+model += cp.sum(x) == 9
+
+# Prefix constraints: for any prefix of length k+1, 
+# number of females f and males m satisfy 3*f &lt;= 7*m
+for k in range(13):
+    f = cp.sum(x[:k+1])
+    m = (k+1) - f
+    model += 3 * f &lt;= 7 * m
+
+# Solve and print
+if model.solve():
+    solution = {&quot;sequence&quot;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (4 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+
+sequence = [0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
+print(json.dumps({&quot;sequence&quot;: sequence}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    1,
+    1,
+    0,
+    1,
+    1,
+    0,
+    1,
+    1,
+    1,
+    0,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 13
+num_males = 4
+num_females = num_people - num_males
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# sequence[i] = 0 if male enters at position i, 1 if female
+sequence = cp.intvar(0, 1, shape=num_people, name=&quot;sequence&quot;)
+
+# Constraints
+# Exactly num_males males and num_females females in the sequence
+model += cp.Count(sequence, 0) == num_males
+model += cp.Count(sequence, 1) == num_females
+
+# For each prefix of the sequence, the ratio females/males &lt;= 7/3
+# That is: females_in_prefix * 3 &lt;= males_in_prefix * 7
+# Handle the case males_in_prefix = 0 separately (then females_in_prefix must be 0)
+for i in range(1, num_people + 1):
+    prefix = sequence[:i]
+    females_in_prefix = cp.sum(prefix)
+    males_in_prefix = i - females_in_prefix
+    # If males_in_prefix == 0, then females_in_prefix must be 0 (no females before any male)
+    model += (males_in_prefix == 0).implies(females_in_prefix == 0)
+    # If males_in_prefix &gt; 0, then females_in_prefix * 3 &lt;= males_in_prefix * 7
+    model += (males_in_prefix &gt; 0).implies(females_in_prefix * 3 &lt;= males_in_prefix * 7)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13
+total_females = 9  # represented by 1
+total_males = 4    # represented by 0
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+sequence = cp.intvar(0, 1, shape=n, name=&quot;sequence&quot;)  # 1 = female, 0 = male
+
+# Constraints
+# Total counts
+model += cp.sum(sequence) == total_females
+
+# For every prefix, the ratio females:males &lt;= 7/3
+# i.e., 3 * females_prefix &lt;= 7 * males_prefix
+for k in range(1, n + 1):
+    females_prefix = cp.sum(sequence[:k])
+    males_prefix = k - females_prefix
+    model += females_prefix * 3 &lt;= 7 * males_prefix
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+model = cp.Model()
+
+# Decision variables: sequence of 0 (male) and 1 (female)
+seq = cp.intvar(0, 1, shape=13, name=&#x27;sequence&#x27;)
+
+# Constraints
+# Total number of females is 9 (since there are 4 males)
+model += (cp.sum(seq) == 9)
+
+# For each step from 1 to 13, ensure 3*Females ≤ 7*Males
+for k in range(1, 14):
+    current_f = cp.sum(seq[:k])
+    males = k - current_f
+    model += (3 * current_f &lt;= 7 * males)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: seq.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Decision Variables
+sequence = cp.boolvar(shape=13)  # 0 for male, 1 for female
+females_so_far = cp.intvar(0, 9, shape=13)
+
+model = cp.Model()
+
+# Constraints for cumulative females
+for i in range(13):
+    if i == 0:
+        model += (females_so_far[i] == sequence[i])
+    else:
+        model += (females_so_far[i] == females_so_far[i-1] + sequence[i])
+
+# Total females must be 9
+model += (cp.sum(sequence) == 9)
+
+# Ratio constraint at every step: 3*F &lt;=7*M → 3*F &lt;=7*(k+1 - F)
+for k in range(13):
+    model += (3 * females_so_far[k] &lt;= 7 * ( (k + 1) - females_so_far[k] ) )
+
+# Solve and print
+if model.solve():
+    # Convert boolean array to integers (0/1)
+    sequence_val = [int(x) for x in sequence.value()]
+    solution = {&#x27;sequence&#x27;: sequence_val}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    1,
+    1,
+    1,
+    0,
+    1,
+    1,
+    1,
+    0,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# sequence[i] = 0 for male, 1 for female
+sequence = cp.intvar(0, 1, shape=13, name=&quot;sequence&quot;)
+
+# Constraints
+# Exactly 9 females (and thus 4 males)
+model += (cp.sum(sequence) == 9)
+
+# At any time k, ratio females/males &lt;= 7/3
+# Equivalent linear form: 10 * (#females in first k) &lt;= 7 * k
+for k in range(1, 14):
+    model += (10 * cp.sum(sequence[:k]) &lt;= 7 * k)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13
+total_females = 9  # represented by 1
+total_males = 4    # represented by 0
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+sequence = cp.intvar(0, 1, shape=n, name=&quot;sequence&quot;)  # 1 = female, 0 = male
+
+# Constraints
+# Total counts
+model += cp.sum(sequence) == total_females
+
+# For every prefix, the ratio females:males &lt;= 7/3
+# i.e., 3 * females_prefix &lt;= 7 * males_prefix
+for k in range(1, n + 1):
+    females_prefix = cp.sum(sequence[:k])
+    males_prefix = k - females_prefix
+    model += females_prefix * 3 &lt;= 7 * males_prefix
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (38 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Number of people
+int: total_people = 13;
+int: males = 4;
+int: females = total_people - males;
+
+% Decision variable: sequence of people entering the room
+% 0 represents male, 1 represents female
+array[1..total_people] of var 0..1: sequence;
+
+% Constraints:
+
+% Exactly 4 males and 9 females in the sequence
+constraint
+    sum([bool2int(sequence[i] == 0) | i in 1..total_people]) == males /\
+    sum([bool2int(sequence[i] == 1) | i in 1..total_people]) == females;
+
+% For each prefix of the sequence, the ratio of females to males is no greater than 7/3
+% That is, females_in_prefix / males_in_prefix &lt;= 7/3
+% Handle the case when males_in_prefix = 0: then females_in_prefix must be 0 (no males yet, so ratio undefined)
+% So females_in_prefix == 0 when males_in_prefix == 0
+constraint
+    forall(i in 1..total_people) (
+        let {
+            var int: females_in_prefix = sum([bool2int(sequence[j] == 1) | j in 1..i]),
+            var int: males_in_prefix = sum([bool2int(sequence[j] == 0) | j in 1..i])
+        } in
+        (males_in_prefix == 0 -&gt; females_in_prefix == 0) /\
+        (males_in_prefix &gt; 0 -&gt; females_in_prefix * 3 &lt;= males_in_prefix * 7)
+    );
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;sequence\&quot;: &quot;, show(sequence),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    1,
+    1,
+    0,
+    1,
+    1,
+    0,
+    1,
+    1,
+    1,
+    0,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (28 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include globals for sum/forall
+include &quot;globals.mzn&quot;;
+
+% Decision variable: 0 = male, 1 = female
+array[1..13] of var 0..1: sequence;
+
+% Exactly 9 females (and 4 males)
+constraint sum(i in 1..13)(sequence[i]) = 9;
+
+% At any prefix t, ratio females/males &lt;= 7/3
+% i.e., 3 * F_t &lt;= 7 * M_t, where F_t = sum of sequence[1..t], M_t = t - F_t
+constraint
+  forall(t in 1..13) (
+    3 * sum(i in 1..t)(sequence[i])
+    &lt;= 7 * (t - sum(i in 1..t)(sequence[i]))
+  );
+
+solve satisfy;
+
+% Output result as JSON
+output [
+  &quot;{&quot;,
+  join(&quot;,&quot;, [
+    &quot;\&quot;sequence\&quot;: [&quot; ++ join(&quot;,&quot;, [ show(sequence[i]) | i in 1..13 ]) ++ &quot;]&quot;
+  ]),
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">Traceback (most recent call last):</p>
+      <details class="gmodel"><summary>model.py (72 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Number of people
+total_people = 13
+males = 4
+females = total_people - males
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# sequence[i] = 0 if male enters at position i, 1 if female enters at position i
+sequence = [model.NewIntVar(0, 1, f&#x27;seq_{i}&#x27;) for i in range(total_people)]
+
+# Constraints
+# Exactly 4 males and 9 females in the sequence
+model.Add(sum(sequence) == females)  # sum of females = 9
+model.Add(sum(sequence[i] == 0 for i in range(total_people)) == males)  # sum of males = 4
+# The above line is not valid syntax, so we use:
+model.Add(sum(sequence[i].Not() for i in range(total_people)) == males)  # males count
+
+# Prefix sums for females and males
+prefix_females = []
+prefix_males = []
+females_sum = 0
+males_sum = 0
+for i in range(total_people):
+    # Create prefix sum variables
+    pf = model.NewIntVar(0, females, f&#x27;prefix_females_{i}&#x27;)
+    pm = model.NewIntVar(0, males, f&#x27;prefix_males_{i}&#x27;)
+    prefix_females.append(pf)
+    prefix_males.append(pm)
+
+# Define prefix sums
+for i in range(total_people):
+    if i == 0:
+        model.Add(prefix_females[i] == sequence[i])
+        # males = 1 - sequence[i]
+        model.Add(prefix_males[i] == 1 - sequence[i])
+    else:
+        model.Add(prefix_females[i] == prefix_females[i-1] + sequence[i])
+        model.Add(prefix_males[i] == prefix_males[i-1] + (1 - sequence[i]))
+
+# Ratio constraint: females/males &lt;= 7/3 at any time
+# For each prefix i, if males &gt; 0, then females * 3 &lt;= males * 7
+# If males == 0, then females must be 0 (to avoid division by zero and ratio &gt; 7/3)
+for i in range(total_people):
+    # Create boolean variable males_positive
+    males_positive = model.NewBoolVar(f&#x27;males_positive_{i}&#x27;)
+    model.Add(prefix_males[i] &gt; 0).OnlyEnforceIf(males_positive)
+    model.Add(prefix_males[i] == 0).OnlyEnforceIf(males_positive.Not())
+
+    # females * 3 &lt;= males * 7 when males &gt; 0
+    # Use a big-M constraint to enforce this only when males_positive is true
+    # big M can be total_people * 7 (max possible)
+    big_M = total_people * 7
+    model.Add(prefix_females[i] * 3 &lt;= prefix_males[i] * 7).OnlyEnforceIf(males_positive)
+
+    # If males == 0, females must be 0
+    model.Add(prefix_females[i] == 0).OnlyEnforceIf(males_positive.Not())
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;sequence&#x27;: [solver.Value(sequence[i]) for i in range(total_people)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Number of people
+n = 13
+# Number of females (1s) and males (0s)
+num_females = 9
+num_males = 4
+
+# Create the CP model
+model = cp_model.CpModel()
+
+# Decision variables: sequence[i] = 1 if female enters at position i, 0 if male
+sequence = [model.NewBoolVar(f&quot;seq_{i}&quot;) for i in range(n)]
+
+# Constraint: exactly 9 females and 4 males
+model.Add(sum(sequence) == num_females)
+
+# Ensure the first person is male to avoid division by zero and infinite ratio
+model.Add(sequence[0] == 0)
+
+# For each prefix of the sequence, enforce females/males &lt;= 7/3.
+# Let F_j = sum(sequence[0..j]) and M_j = (j+1) - F_j.
+# Constraint: F_j / M_j &lt;= 7/3  &lt;=&gt; 3*F_j &lt;= 7*M_j  &lt;=&gt; 10*F_j &lt;= 7*(j+1)
+for j in range(n):
+    # sum of females in prefix 0..j
+    prefix_females = sum(sequence[: j + 1])
+    model.Add(10 * prefix_females &lt;= 7 * (j + 1))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &quot;sequence&quot;: [solver.Value(sequence[i]) for i in range(n)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# Problem constants (taken from the description)
+# --------------------------------------------------
+N = 13              # total number of entrants
+M_TOTAL = 4         # total males (coded 0)
+F_TOTAL = 9         # total females (coded 1)
+
+# The instantaneous constraint 3·F_k ≤ 7·M_k can be rewritten as
+#            10·F_k ≤ 7·k  →  F_k ≤ ⌊7·k/10⌋
+# so we pre-compute the right-hand side for every prefix length k.
+prefix_female_upper = [ (7 * k) // 10 for k in range(N + 1) ]  # index 0..N
+
+# --------------------------------------------------
+# Build CP-SAT model
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# Binary decision variables: sequence[t] == 1  ⇒  female enters at position t
+sequence = [model.NewBoolVar(f&#x27;seq_{t}&#x27;) for t in range(N)]
+
+# 1. Cardinality constraints
+model.Add(sum(sequence) == F_TOTAL)  # total females = 9
+# (total males automatically enforced because N – females = 4)
+
+# 2. First entrant must be male (0)
+model.Add(sequence[0] == 0)
+
+# 3. Prefix ratio constraints:  F_k ≤ ⌊7·k/10⌋  for every k = 1..N
+for k in range(1, N + 1):
+    # Linear expression for number of females in first k positions
+    female_prefix = sum(sequence[:k])
+    model.Add(female_prefix &lt;= prefix_female_upper[k])
+
+# --------------------------------------------------
+# Solve (pure feasibility, no objective)
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise ValueError(&#x27;No feasible sequence exists under given constraints.&#x27;)
+
+# --------------------------------------------------
+# Extract and print solution as required JSON
+# --------------------------------------------------
+result_sequence = [int(solver.Value(var)) for var in sequence]
+print(json.dumps({&quot;sequence&quot;: result_sequence}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">sequence</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-151">Copy</button></div><pre class="code-block"><code id="solution-151" class="language-json">{
   &quot;sequence&quot;: [
     false,
     false,
@@ -85,6 +1258,7 @@ print(json.dumps(solution))
     true
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -92,9 +1266,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/session3_people_in_a_room/session3_people_in_a_room.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/session3_people_in_a_room/session3_people_in_a_room.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session3_kidney_exchange.html">â† prev</a><a class="btn" href="session5_climbing_stairs.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session3_kidney_exchange.html">← prev</a><a class="btn" href="session5_climbing_stairs.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>jobs_puzzle Â· DCP-Bench Open</title>
-<meta name="description" content="Four people hold eight different jobs. Each person holds exactly two jobs. The jobs are: chef, guard, nurse, clerk, police officer, teacher, actor, and boxer.â€¦">
+<title>jobs_puzzle · DCP-Bench Open</title>
+<meta name="description" content="Four people hold eight different jobs. Each person holds exactly two jobs. The jobs are: chef, guard, nurse, clerk, police officer, teacher, actor, and boxer.…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/jobs_puzzle.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/jobs_puzzle.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-118">Copy</button></div><pre class="code-block"><code id="model-118" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -86,10 +87,312 @@ print(json.dumps(solution, indent=4))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">actor</span><span class="chip">boxer</span><span class="chip">chef</span><span class="chip">clerk</span><span class="chip">guard</span><span class="chip">nurse</span><span class="chip">police_officer</span><span class="chip">teacher</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-118">Copy</button></div><pre class="code-block"><code id="solution-118" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Jobs: chef, guard, nurse, clerk, police_officer, teacher, actor, boxer
+model = cp.Model()
+
+# Decision variables: which person (0-3) holds each job
+chef = cp.intvar(0, 3, name=&quot;chef&quot;)
+guard = cp.intvar(0, 3, name=&quot;guard&quot;)
+nurse = cp.intvar(0, 3, name=&quot;nurse&quot;)
+clerk = cp.intvar(0, 3, name=&quot;clerk&quot;)
+police_officer = cp.intvar(0, 3, name=&quot;police_officer&quot;)
+teacher = cp.intvar(0, 3, name=&quot;teacher&quot;)
+actor = cp.intvar(0, 3, name=&quot;actor&quot;)
+boxer = cp.intvar(0, 3, name=&quot;boxer&quot;)
+
+jobs = [chef, guard, nurse, clerk, police_officer, teacher, actor, boxer]
+
+# Each person holds exactly two jobs
+for p in range(4):
+    model += cp.Count(jobs, p) == 2
+
+# Clues as constraints:
+# 1. The nurse is not a teacher, police officer, or clerk.
+model += teacher != nurse
+model += police_officer != nurse
+model += clerk != nurse
+
+# 2. The clerk is not the chef.
+model += clerk != chef
+
+# 3. Person 0 is not the boxer.
+model += boxer != 0
+
+# 4. Person 3 is not the teacher, police officer, or nurse.
+model += teacher != 3
+model += police_officer != 3
+model += nurse != 3
+
+# 5. Person 0, the chef, and the police officer went golfing together.
+# They are three distinct people, and neither chef nor police_officer is person 0.
+model += chef != 0
+model += police_officer != 0
+model += chef != police_officer
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;chef&#x27;: int(chef.value()),
+        &#x27;guard&#x27;: int(guard.value()),
+        &#x27;nurse&#x27;: int(nurse.value()),
+        &#x27;clerk&#x27;: int(clerk.value()),
+        &#x27;police_officer&#x27;: int(police_officer.value()),
+        &#x27;teacher&#x27;: int(teacher.value()),
+        &#x27;actor&#x27;: int(actor.value()),
+        &#x27;boxer&#x27;: int(boxer.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Jobs: chef, guard, nurse, clerk, police_officer, teacher, actor, boxer
+model = cp.Model()
+
+# Decision variables: which person (0-3) holds each job
+chef = cp.intvar(0, 3, name=&quot;chef&quot;)
+guard = cp.intvar(0, 3, name=&quot;guard&quot;)
+nurse = cp.intvar(0, 3, name=&quot;nurse&quot;)
+clerk = cp.intvar(0, 3, name=&quot;clerk&quot;)
+police_officer = cp.intvar(0, 3, name=&quot;police_officer&quot;)
+teacher = cp.intvar(0, 3, name=&quot;teacher&quot;)
+actor = cp.intvar(0, 3, name=&quot;actor&quot;)
+boxer = cp.intvar(0, 3, name=&quot;boxer&quot;)
+
+jobs = [chef, guard, nurse, clerk, police_officer, teacher, actor, boxer]
+
+# Each person holds exactly two jobs
+for p in range(4):
+    model += cp.Count(jobs, p) == 2
+
+# Clues as constraints:
+# 1. The nurse is not a teacher, police officer, or clerk.
+model += teacher != nurse
+model += police_officer != nurse
+model += clerk != nurse
+
+# 2. The clerk is not the chef.
+model += clerk != chef
+
+# 3. Person 0 is not the boxer.
+model += boxer != 0
+
+# 4. Person 3 is not the teacher, police officer, or nurse.
+model += teacher != 3
+model += police_officer != 3
+model += nurse != 3
+
+# 5. Person 0, the chef, and the police officer went golfing together.
+# They are three distinct people, and neither chef nor police_officer is person 0.
+model += chef != 0
+model += police_officer != 0
+model += chef != police_officer
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;chef&#x27;: int(chef.value()),
+        &#x27;guard&#x27;: int(guard.value()),
+        &#x27;nurse&#x27;: int(nurse.value()),
+        &#x27;clerk&#x27;: int(clerk.value()),
+        &#x27;police_officer&#x27;: int(police_officer.value()),
+        &#x27;teacher&#x27;: int(teacher.value()),
+        &#x27;actor&#x27;: int(actor.value()),
+        &#x27;boxer&#x27;: int(boxer.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+persons = range(4)
+job_names = [&#x27;chef&#x27;, &#x27;guard&#x27;, &#x27;nurse&#x27;, &#x27;clerk&#x27;, &#x27;police_officer&#x27;, &#x27;teacher&#x27;, &#x27;actor&#x27;, &#x27;boxer&#x27;]
+idx = {name: i for i, name in enumerate(job_names)}
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# jobs[j] = person index (0..3) assigned to job j
+jobs = cp.intvar(0, 3, shape=len(job_names), name=&quot;jobs&quot;)
+
+# Constraints
+
+# Each person holds exactly two jobs
+for p in persons:
+    model += (cp.Count(jobs, p) == 2)
+
+# 1. The nurse is not a teacher, police officer, or clerk.
+model += (jobs[idx[&#x27;nurse&#x27;]] != jobs[idx[&#x27;teacher&#x27;]])
+model += (jobs[idx[&#x27;nurse&#x27;]] != jobs[idx[&#x27;police_officer&#x27;]])
+model += (jobs[idx[&#x27;nurse&#x27;]] != jobs[idx[&#x27;clerk&#x27;]])
+
+# 2. The clerk is not the chef.
+model += (jobs[idx[&#x27;clerk&#x27;]] != jobs[idx[&#x27;chef&#x27;]])
+
+# 3. Person 0 is not the boxer.
+model += (jobs[idx[&#x27;boxer&#x27;]] != 0)
+
+# 4. Person 3 is not the teacher, police officer, or nurse.
+model += (jobs[idx[&#x27;teacher&#x27;]] != 3)
+model += (jobs[idx[&#x27;police_officer&#x27;]] != 3)
+model += (jobs[idx[&#x27;nurse&#x27;]] != 3)
+
+# 5. Person 0, the chef, and the police officer went golfing together.
+#    They are three distinct people.
+model += (jobs[idx[&#x27;chef&#x27;]] != 0)
+model += (jobs[idx[&#x27;police_officer&#x27;]] != 0)
+model += (jobs[idx[&#x27;chef&#x27;]] != jobs[idx[&#x27;police_officer&#x27;]])
+
+# Objective (none)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;chef&#x27;: int(jobs[idx[&#x27;chef&#x27;]].value()),
+        &#x27;guard&#x27;: int(jobs[idx[&#x27;guard&#x27;]].value()),
+        &#x27;nurse&#x27;: int(jobs[idx[&#x27;nurse&#x27;]].value()),
+        &#x27;clerk&#x27;: int(jobs[idx[&#x27;clerk&#x27;]].value()),
+        &#x27;police_officer&#x27;: int(jobs[idx[&#x27;police_officer&#x27;]].value()),
+        &#x27;teacher&#x27;: int(jobs[idx[&#x27;teacher&#x27;]].value()),
+        &#x27;actor&#x27;: int(jobs[idx[&#x27;actor&#x27;]].value()),
+        &#x27;boxer&#x27;: int(jobs[idx[&#x27;boxer&#x27;]].value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Jobs: chef, guard, nurse, clerk, police_officer, teacher, actor, boxer
+model = cp.Model()
+
+# Decision variables: which person (0-3) holds each job
+chef = cp.intvar(0, 3, name=&quot;chef&quot;)
+guard = cp.intvar(0, 3, name=&quot;guard&quot;)
+nurse = cp.intvar(0, 3, name=&quot;nurse&quot;)
+clerk = cp.intvar(0, 3, name=&quot;clerk&quot;)
+police_officer = cp.intvar(0, 3, name=&quot;police_officer&quot;)
+teacher = cp.intvar(0, 3, name=&quot;teacher&quot;)
+actor = cp.intvar(0, 3, name=&quot;actor&quot;)
+boxer = cp.intvar(0, 3, name=&quot;boxer&quot;)
+
+jobs = [chef, guard, nurse, clerk, police_officer, teacher, actor, boxer]
+
+# Each person holds exactly two jobs
+for p in range(4):
+    model += cp.Count(jobs, p) == 2
+
+# Clues as constraints:
+# 1. The nurse is not a teacher, police officer, or clerk.
+model += teacher != nurse
+model += police_officer != nurse
+model += clerk != nurse
+
+# 2. The clerk is not the chef.
+model += clerk != chef
+
+# 3. Person 0 is not the boxer.
+model += boxer != 0
+
+# 4. Person 3 is not the teacher, police officer, or nurse.
+model += teacher != 3
+model += police_officer != 3
+model += nurse != 3
+
+# 5. Person 0, the chef, and the police officer went golfing together.
+# They are three distinct people, and neither chef nor police_officer is person 0.
+model += chef != 0
+model += police_officer != 0
+model += chef != police_officer
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;chef&#x27;: int(chef.value()),
+        &#x27;guard&#x27;: int(guard.value()),
+        &#x27;nurse&#x27;: int(nurse.value()),
+        &#x27;clerk&#x27;: int(clerk.value()),
+        &#x27;police_officer&#x27;: int(police_officer.value()),
+        &#x27;teacher&#x27;: int(teacher.value()),
+        &#x27;actor&#x27;: int(actor.value()),
+        &#x27;boxer&#x27;: int(boxer.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">actor</span><span class="chip">boxer</span><span class="chip">chef</span><span class="chip">clerk</span><span class="chip">guard</span><span class="chip">nurse</span><span class="chip">police_officer</span><span class="chip">teacher</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-118">Copy</button></div><pre class="code-block"><code id="solution-118" class="language-json">{
   &quot;chef&quot;: 3,
   &quot;guard&quot;: 3,
   &quot;nurse&quot;: 1,
@@ -99,6 +402,7 @@ print(json.dumps(solution, indent=4))
   &quot;actor&quot;: 0,
   &quot;boxer&quot;: 1
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -106,9 +410,9 @@ print(json.dumps(solution, indent=4))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/jobs_puzzle/jobs_puzzle.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/jobs_puzzle/jobs_puzzle.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="jobshop.html">â† prev</a><a class="btn" href="just_forgotten.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="jobshop.html">← prev</a><a class="btn" href="just_forgotten.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_006_golomb_rulers Â· DCP-Bench Open</title>
-<meta name="description" content="These problems are said to have many practical applications including sensor placements for x-ray crystallography and radio astronomy. A Golomb ruler may be deâ€¦">
+<title>csplib_006_golomb_rulers · DCP-Bench Open</title>
+<meta name="description" content="These problems are said to have many practical applications including sensor placements for x-ray crystallography and radio astronomy. A Golomb ruler may be de…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob006_golomb.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob006_golomb.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob006/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob006/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (3)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (3)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-45">Copy</button></div><pre class="code-block"><code id="model-45" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -72,16 +73,680 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">size = 10  # Number of marks on the Golomb ruler</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+size = 10  # Number of marks on the Golomb ruler
+
+# Decision Variables
+marks = intvar(0, 1000, shape=size, name=&quot;marks&quot;)  # Positions of marks
+length = intvar(0, 1000, name=&quot;length&quot;)  # Total length of the Golomb ruler
+
+# Model
+model = Model()
+
+# Constraint: marks must be in increasing order
+model += [marks[i] &lt; marks[i+1] for i in range(size-1)]
+
+# Constraint: first mark is 0
+model += marks[0] == 0
+
+# Constraint: length is the last mark
+model += length == marks[-1]
+
+# Constraint: all differences between marks must be distinct
+differences = []
+for i in range(size):
+    for j in range(i+1, size):
+        differences.append(marks[j] - marks[i])
+model += AllDifferent(differences)
+
+# Symmetry breaking: first difference is less than last difference
+model += (marks[1] - marks[0]) &lt; (marks[-1] - marks[-2])
+
+# Objective: minimize the length
+model.minimize(length)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;marks&quot;: marks.value().tolist(),
+    &quot;length&quot;: length.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+size = 10  # Number of marks on the Golomb ruler
+
+# Decision variables
+marks = intvar(0, 1000, shape=size, name=&quot;marks&quot;)  # Upper bound 1000 is arbitrary
+
+# Ensure marks are strictly increasing
+model = Model([
+    [marks[i] &lt; marks[i + 1] for i in range(size - 1)]
+])
+
+# Collect all pairwise differences into a single array
+differences = []
+for i in range(size):
+    for j in range(i + 1, size):
+        differences.append(marks[j] - marks[i])
+
+# Convert the list of expressions to a CPMpy array
+differences_array = cpm_array(differences)
+
+# Ensure all differences are distinct
+model += AllDifferent(differences_array)
+
+# Symmetry breaking constraint: first difference &lt; last difference
+model += (marks[1] - marks[0] &lt; marks[-1] - marks[-2])
+
+# Solve the model
+model.solve()
+
+# Prepare the solution
+solution = {
+    &quot;marks&quot;: marks.value().tolist(),
+    &quot;length&quot;: marks[-1].value()
+}
+
+# Print the solution
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+size = 10  # Number of marks on the Golomb ruler
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Upper bound for the last mark (length). A reasonable upper bound is chosen.
+# This can be increased if needed, but keeps the search space manageable.
+ub = 100
+
+# Decision Variables
+marks = cp.intvar(0, ub, shape=size, name=&quot;marks&quot;)  # marks[0] ... marks[size-1]
+
+# Constraints
+# 1) First mark is 0
+model += (marks[0] == 0)
+
+# 2) Marks are strictly increasing
+model += cp.IncreasingStrict(marks)
+
+# 3) All pairwise differences are distinct (Golomb property)
+diffs = []
+for i in range(size):
+    for j in range(i + 1, size):
+        diffs.append(marks[j] - marks[i])
+# Differences must be at least 1 and all different
+model += (cp.AllDifferent(diffs))
+# enforce positive differences (redundant with IncreasingStrict but explicit)
+model += [d &gt;= 1 for d in diffs]
+
+# 4) Symmetry breaking: fix orientation so the second mark is not larger than half the length
+#    2 * marks[1] &lt;= marks[-1]
+model += (2 * marks[1] &lt;= marks[-1])
+
+# Objective: minimize the length (last mark)
+length = marks[-1]
+model.minimize(length)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;marks&#x27;: marks.value().tolist(),
+        &#x27;length&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+size = 10  # Number of marks on the Golomb ruler
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# marks: positions of the marks on the ruler, 0 = a1 &lt; a2 &lt; ... &lt; a_m
+# The first mark is fixed at 0
+marks = cp.intvar(0, 1000, shape=size, name=&quot;marks&quot;)
+model += (marks[0] == 0)
+
+# The marks must be strictly increasing
+for i in range(size - 1):
+    model += (marks[i] &lt; marks[i + 1])
+
+# Differences: all pairwise differences a_j - a_i for 1 &lt;= i &lt; j &lt;= m
+num_diffs = size * (size - 1) // 2
+diffs = cp.intvar(1, 1000, shape=num_diffs, name=&quot;diffs&quot;)
+
+# Fill diffs with all differences a_j - a_i (i &lt; j)
+diff_index = 0
+for i in range(size):
+    for j in range(i + 1, size):
+        model += (diffs[diff_index] == marks[j] - marks[i])
+        diff_index += 1
+
+# All differences must be distinct
+model += cp.AllDifferent(diffs)
+
+# Symmetry breaking: first difference &lt; last difference
+model += (marks[1] - marks[0] &lt; marks[size - 1] - marks[size - 2])
+
+# Objective: minimize the length of the ruler (last mark)
+length = marks[size - 1]
+model.minimize(length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;marks&#x27;: marks.value().tolist(), &#x27;length&#x27;: int(length.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+size = 10  # Number of marks on the Golomb ruler
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Upper bound for the last mark (length). A reasonable upper bound is chosen.
+# This can be increased if needed, but keeps the search space manageable.
+ub = 100
+
+# Decision Variables
+marks = cp.intvar(0, ub, shape=size, name=&quot;marks&quot;)  # marks[0] ... marks[size-1]
+
+# Constraints
+# 1) First mark is 0
+model += (marks[0] == 0)
+
+# 2) Marks are strictly increasing
+model += cp.IncreasingStrict(marks)
+
+# 3) All pairwise differences are distinct (Golomb property)
+diffs = []
+for i in range(size):
+    for j in range(i + 1, size):
+        diffs.append(marks[j] - marks[i])
+# Differences must be at least 1 and all different
+model += (cp.AllDifferent(diffs))
+# enforce positive differences (redundant with IncreasingStrict but explicit)
+model += [d &gt;= 1 for d in diffs]
+
+# 4) Symmetry breaking: fix orientation so the second mark is not larger than half the length
+#    2 * marks[1] &lt;= marks[-1]
+model += (2 * marks[1] &lt;= marks[-1])
+
+# Objective: minimize the length (last mark)
+length = marks[-1]
+model.minimize(length)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;marks&#x27;: marks.value().tolist(),
+        &#x27;length&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+size = 10  # Number of marks on the Golomb ruler
+# End of data
+
+# Helper: triangular number T(n) = n*(n+1)//2
+def triangular(n):
+    return (n * (n + 1)) // 2
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Upper bound heuristic: m^2 is a common constructive upper bound for Golomb rulers
+UB = size * size
+marks = cp.intvar(0, UB, shape=size, name=&quot;marks&quot;)
+
+# Constraints
+# First mark at 0, strictly increasing marks
+model += (marks[0] == 0)
+model += cp.IncreasingStrict(marks)
+
+# Prefix lower bounds using triangular numbers (symmetry breaking and pruning)
+for i in range(size):
+    model += (marks[i] &gt;= triangular(i))
+
+# All pairwise differences must be distinct
+diffs = [marks[j] - marks[i] for i in range(size) for j in range(i + 1, size)]
+model += cp.AllDifferent(diffs)
+
+# Break reflection symmetry: first gap &lt;= last gap
+model += (marks[1] - marks[0] &lt;= marks[-1] - marks[-2])
+
+# Objective (optional)
+model.minimize(marks[-1])
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;marks&#x27;: marks.value().tolist(),
+        &#x27;length&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+size = 10  # Number of marks on the Golomb ruler
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Upper bound for the last mark (length). A reasonable upper bound is chosen.
+# This can be increased if needed, but keeps the search space manageable.
+ub = 100
+
+# Decision Variables
+marks = cp.intvar(0, ub, shape=size, name=&quot;marks&quot;)  # marks[0] ... marks[size-1]
+
+# Constraints
+# 1) First mark is 0
+model += (marks[0] == 0)
+
+# 2) Marks are strictly increasing
+model += cp.IncreasingStrict(marks)
+
+# 3) All pairwise differences are distinct (Golomb property)
+diffs = []
+for i in range(size):
+    for j in range(i + 1, size):
+        diffs.append(marks[j] - marks[i])
+# Differences must be at least 1 and all different
+model += (cp.AllDifferent(diffs))
+# enforce positive differences (redundant with IncreasingStrict but explicit)
+model += [d &gt;= 1 for d in diffs]
+
+# 4) Symmetry breaking: fix orientation so the second mark is not larger than half the length
+#    2 * marks[1] &lt;= marks[-1]
+model += (2 * marks[1] &lt;= marks[-1])
+
+# Objective: minimize the length (last mark)
+length = marks[-1]
+model.minimize(length)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;marks&#x27;: marks.value().tolist(),
+        &#x27;length&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (50 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: size = 10; % Number of marks on the Golomb ruler
+
+% Decision variables
+% marks[i] represents the position of the i-th mark on the ruler
+array[1..size] of var 0..10000: marks;
+
+% The length of the Golomb ruler is the position of the last mark
+var 0..10000: length = marks[size];
+
+% Constraints
+
+% The first mark is at position 0
+constraint marks[1] = 0;
+
+% Marks are strictly increasing
+constraint forall(i in 1..size-1) (
+    marks[i] &lt; marks[i+1]
+);
+
+% All differences a_j - a_i for 1 &lt;= i &lt; j &lt;= size are distinct
+% Collect all differences in an array
+array[1..(size*(size-1)) div 2] of var int: diffs;
+var int: idx = 1;
+constraint
+  forall(i,j in 1..size where i &lt; j) (
+    diffs[idx] = marks[j] - marks[i] /\
+    idx = idx + 1
+  );
+
+% The above cannot be done directly because idx is a var, so we build diffs with a comprehension
+% Instead, we build diffs with a comprehension:
+array[1..(size*(size-1)) div 2] of var int: diffs2 = 
+  [marks[j] - marks[i] | i,j in 1..size where i &lt; j];
+
+constraint all_different(diffs2);
+
+% Symmetry breaking: first difference &lt; last difference
+constraint (marks[2] - marks[1]) &lt; (marks[size] - marks[size-1]);
+
+% Objective: minimize the length of the ruler
+solve minimize length;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;marks\&quot;: &quot;, show(marks), &quot;,&quot;,
+    &quot;\&quot;length\&quot;: &quot;, show(length),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+size = 10  # Number of marks on the Golomb ruler
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# a[i] represents the position of the i-th mark on the ruler
+# The first mark is fixed at 0
+max_length = size * size  # Upper bound for the length (heuristic)
+marks = [model.NewIntVar(0, max_length, f&#x27;mark_{i}&#x27;) for i in range(size)]
+model.Add(marks[0] == 0)
+
+# The marks must be strictly increasing
+for i in range(size - 1):
+    model.Add(marks[i] &lt; marks[i + 1])
+
+# Differences between marks: there are size*(size-1)//2 differences
+num_diffs = size * (size - 1) // 2
+diffs = []
+for i in range(size):
+    for j in range(i + 1, size):
+        diff = model.NewIntVar(1, max_length, f&#x27;diff_{i}_{j}&#x27;)
+        model.Add(diff == marks[j] - marks[i])
+        diffs.append(diff)
+
+# All differences must be distinct
+model.AddAllDifferent(diffs)
+
+# Symmetry breaking: first difference &lt; last difference
+model.Add(marks[1] - marks[0] &lt; marks[-1] - marks[-2])
+
+# Objective: minimize the length of the ruler (position of the last mark)
+length = marks[-1]
+model.Minimize(length)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;marks&#x27;: [solver.Value(m) for m in marks],
+        &#x27;length&#x27;: solver.Value(length)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (86 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# 1. Parse input data (exactly as provided)
+# --------------------------------------------------
+size = 10  # Number of marks on the Golomb ruler (immutable)
+
+# --------------------------------------------------
+# 2. Create the CP-SAT model
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# A loose but safe upper bound for the overall length.
+# The optimal length for 10 marks is known to be 55, so 100 is sufficient.
+MAX_LENGTH = 100
+
+# --------------------------------------------------
+# 3. Decision variables
+# --------------------------------------------------
+marks = []  # positions of the marks (including the first one at 0)
+for i in range(size):
+    # A simple lower bound: with i+1 marks we need at least the sum 1+2+..+i.
+    lower_bound = i * (i + 1) // 2
+    marks.append(model.NewIntVar(lower_bound, MAX_LENGTH, f&quot;mark_{i}&quot;))
+
+length = marks[-1]  # Total length is the position of the last mark
+
+# --------------------------------------------------
+# 4. Constraints
+# --------------------------------------------------
+# 4.1 Fixed first mark
+model.Add(marks[0] == 0)
+
+# 4.2 Strictly increasing coordinates
+for i in range(size - 1):
+    model.Add(marks[i + 1] &gt; marks[i])
+
+# 4.3 All pairwise distances must be different (Golomb property)
+differences = []
+for i in range(size - 1):
+    for j in range(i + 1, size):
+        diff = model.NewIntVar(1, MAX_LENGTH, f&quot;d_{i}_{j}&quot;)
+        # diff = marks[j] - marks[i]
+        model.Add(diff == marks[j] - marks[i])
+        differences.append(diff)
+
+# Use AllDifferent if available; otherwise fall back to pairwise != constraints
+if hasattr(model, &quot;AddAllDifferent&quot;):
+    model.AddAllDifferent(differences)
+else:
+    for i in range(len(differences)):
+        for j in range(i + 1, len(differences)):
+            model.Add(differences[i] != differences[j])
+
+# 4.4 Symmetry breaking: first gap smaller than last gap
+model.Add(marks[1] - marks[0] &lt; marks[-1] - marks[-2])
+
+# --------------------------------------------------
+# 5. Objective: minimise the total length
+# --------------------------------------------------
+model.Minimize(length)
+
+# --------------------------------------------------
+# 6. Solve the model
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 60.0  # time limit (seconds)
+solver.parameters.num_search_workers = 8       # use all available cores
+
+status = solver.Solve(model)
+
+# --------------------------------------------------
+# 7. Output the result in the required JSON format
+# --------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    marks_solution = [solver.Value(m) for m in marks]
+    length_solution = solver.Value(length)
+else:
+    marks_solution = []
+    length_solution = None
+
+print(json.dumps({
+    &quot;marks&quot;: marks_solution,
+    &quot;length&quot;: length_solution
+}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;size&quot;: 8
 }</code></pre></details><details class="instance"><summary>Instance 2</summary><pre><code class="language-json">{
   &quot;size&quot;: 9
 }</code></pre></details><details class="instance"><summary>Instance 3</summary><pre><code class="language-json">{
   &quot;size&quot;: 10
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">length</span><span class="chip">marks</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-45">Copy</button></div><pre class="code-block"><code id="solution-45" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">length</span><span class="chip">marks</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-45">Copy</button></div><pre class="code-block"><code id="solution-45" class="language-json">{
   &quot;marks&quot;: [
     0,
     1,
@@ -96,6 +761,7 @@ print(json.dumps(solution))
   ],
   &quot;length&quot;: 55
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -103,9 +769,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_006_golomb_rulers/csplib_006_golomb_rulers.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_006_golomb_rulers/csplib_006_golomb_rulers.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_005_autocorrelation.html">â† prev</a><a class="btn" href="csplib_007_all_interval.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_005_autocorrelation.html">← prev</a><a class="btn" href="csplib_007_all_interval.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_028_bibd Â· DCP-Bench Open</title>
-<meta name="description" content="Balanced Incomplete Block Design (BIBD) generation is a standard combinatorial problem from design theory, originally used in the design of statistical experimâ€¦">
+<title>csplib_028_bibd · DCP-Bench Open</title>
+<meta name="description" content="Balanced Incomplete Block Design (BIBD) generation is a standard combinatorial problem from design theory, originally used in the design of statistical experim…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob028/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob028/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-63">Copy</button></div><pre class="code-block"><code id="model-63" class="language-python"># Import libraries
 import json
 import numpy as np
@@ -68,16 +69,631 @@ r = 4  # Number of blocks each object occurs in
 k = 3  # Number of objects each block contains
 l = 1  # Number of blocks in which each pair of distinct objects occurs together</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+v = 9  # Number of distinct objects
+b = 12  # Number of blocks
+r = 4  # Number of blocks each object occurs in
+k = 3  # Number of objects each block contains
+l = 1  # Number of blocks in which each pair of distinct objects occurs together
+
+# Decision Variables
+matrix = boolvar(shape=(v, b), name=&quot;matrix&quot;)  # Incidence matrix of the BIBD
+
+# Model
+model = Model()
+
+# Constraint: each block contains exactly k distinct objects
+for j in range(b):
+    model += sum(matrix[:, j]) == k
+
+# Constraint: each object occurs in exactly r different blocks
+for i in range(v):
+    model += sum(matrix[i, :]) == r
+
+# Constraint: every two distinct objects occur together in exactly l blocks
+for i1 in range(v):
+    for i2 in range(i1 + 1, v):
+        model += sum([matrix[i1,j] * matrix[i2,j] for j in range(b)]) == l
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {&quot;matrix&quot;: matrix.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+v = 9  # Number of distinct objects
+b = 12  # Number of blocks
+r = 4  # Number of blocks each object occurs in
+k = 3  # Number of objects each block contains
+l = 1  # Number of blocks in which each pair of distinct objects occurs together
+
+# Decision variables
+matrix = boolvar(shape=(v, b), name=&quot;matrix&quot;)
+
+# Model
+model = Model()
+
+# Each row (object) has exactly r ones
+for i in range(v):
+    model += [sum(matrix[i, :]) == r]
+
+# Each column (block) has exactly k ones
+for j in range(b):
+    model += [sum(matrix[:, j]) == k]
+
+# Any pair of distinct rows has exactly l ones in common (dot product)
+for i in range(v):
+    for j in range(i + 1, v):
+        model += [sum([matrix[i, col] * matrix[j, col] for col in range(b)]) == l]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;matrix&quot;: matrix.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+v = 9  # Number of distinct objects (rows)
+b = 12  # Number of blocks (columns)
+r = 4  # Number of blocks each object occurs in (row sum)
+k = 3  # Number of objects each block contains (column sum)
+l = 1  # Number of blocks in which each pair of distinct objects occurs together (pairwise scalar product)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: incidence matrix v x b of 0/1
+matrix = cp.intvar(0, 1, shape=(v, b), name=&quot;matrix&quot;)
+
+# Constraints
+# Each row has exactly r ones
+for i in range(v):
+    model += cp.sum(matrix[i, :]) == r
+
+# Each column has exactly k ones
+for j in range(b):
+    model += cp.sum(matrix[:, j]) == k
+
+# Any two distinct rows have scalar product equal to l
+for i in range(v):
+    for j in range(i + 1, v):
+        model += cp.sum(matrix[i, :] * matrix[j, :]) == l
+
+# Symmetry breaking: fix the first row to have its r ones in the first r columns
+# (This is safe due to column permutation symmetry)
+for j in range(b):
+    if j &lt; r:
+        model += matrix[0, j] == 1
+    else:
+        model += matrix[0, j] == 0
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+v = 9   # Number of distinct objects (rows)
+b = 12  # Number of blocks (columns)
+r = 4   # Number of blocks each object occurs in (row sum)
+k = 3   # Number of objects each block contains (column sum)
+l = 1   # Number of blocks in which each pair of distinct objects occurs together (scalar product between rows)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# incidence matrix: v x b binary matrix
+matrix = cp.boolvar(shape=(v, b), name=&quot;matrix&quot;)
+
+# Constraints
+# Each row sum is exactly r
+for i in range(v):
+    model += (cp.sum(matrix[i, :]) == r)
+
+# Each column sum is exactly k
+for j in range(b):
+    model += (cp.sum(matrix[:, j]) == k)
+
+# Scalar product (dot product) of any two distinct rows is exactly l
+for i in range(v):
+    for j in range(i + 1, v):
+        # sum over columns of matrix[i][c]*matrix[j][c] == l
+        # Because matrix entries are 0/1, product is AND (logical and)
+        # We can model scalar product as sum of element-wise AND:
+        # Since cpmpy does not support direct multiplication of boolvars, we use cp.logical_and
+        # But cpmpy does not support elementwise logical_and on variables, so we need to use:
+        # scalar product = sum over c of matrix[i,c] * matrix[j,c]
+        # Since variables are 0/1, multiplication is equivalent to and.
+        # cpmpy supports multiplication of boolvars.
+        scalar_prod = cp.sum([matrix[i, c] * matrix[j, c] for c in range(b)])
+        model += (scalar_prod == l)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().astype(int).tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+v = 9  # Number of distinct objects (rows)
+b = 12  # Number of blocks (columns)
+r = 4  # Number of blocks each object occurs in (row sum)
+k = 3  # Number of objects each block contains (column sum)
+l = 1  # Number of blocks in which each pair of distinct objects occurs together (pairwise dot product)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: incidence matrix v x b of 0/1
+matrix = cp.intvar(0, 1, shape=(v, b), name=&quot;matrix&quot;)
+
+# Constraints
+# Each row has exactly r ones
+for i in range(v):
+    model += cp.sum(matrix[i, :]) == r
+
+# Each column has exactly k ones
+for j in range(b):
+    model += cp.sum(matrix[:, j]) == k
+
+# Any two distinct rows have scalar product l
+for i in range(v):
+    for j in range(i + 1, v):
+        model += cp.sum(matrix[i, :] * matrix[j, :]) == l
+
+# Symmetry breaking: lexicographic non-decreasing order of rows to help the solver
+model += cp.LexChainLessEq(matrix)
+
+# Solve
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+v = 9   # Number of distinct objects
+b = 12  # Number of blocks
+r = 4   # Number of blocks each object occurs in
+k = 3   # Number of objects each block contains
+l = 1   # Number of blocks in which each pair of distinct objects occurs together
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: incidence matrix (v x b) with boolean entries
+matrix = cp.boolvar(shape=(v, b), name=&quot;matrix&quot;)
+
+# Constraints
+# 1) Each row has exactly r ones
+for i in range(v):
+    model += (cp.sum(matrix[i, :]) == r)
+
+# 2) Each column has exactly k ones
+for j in range(b):
+    model += (cp.sum(matrix[:, j]) == k)
+
+# 3) Pairwise scalar product between distinct rows equals l
+for i in range(v):
+    for j in range(i + 1, v):
+        model += (cp.sum([matrix[i, c] &amp; matrix[j, c] for c in range(b)]) == l)
+
+# Symmetry breaking: fix the first row to have its r ones in the first r columns
+for c in range(b):
+    model += (matrix[0, c] == (1 if c &lt; r else 0))
+
+# Solve and print
+if model.solve():
+    # Convert boolean matrix to list of lists of integers (0/1)
+    mat_list = [[int(val) for val in row] for row in matrix.value().tolist()]
+    solution = {&#x27;matrix&#x27;: mat_list}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+v = 9  # Number of distinct objects (rows)
+b = 12  # Number of blocks (columns)
+r = 4  # Number of blocks each object occurs in (row sum)
+k = 3  # Number of objects each block contains (column sum)
+l = 1  # Number of blocks in which each pair of distinct objects occurs together (pairwise scalar product)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: incidence matrix v x b of 0/1
+matrix = cp.intvar(0, 1, shape=(v, b), name=&quot;matrix&quot;)
+
+# Constraints
+# Each row has exactly r ones
+for i in range(v):
+    model += cp.sum(matrix[i, :]) == r
+
+# Each column has exactly k ones
+for j in range(b):
+    model += cp.sum(matrix[:, j]) == k
+
+# Any two distinct rows have scalar product equal to l
+for i in range(v):
+    for j in range(i + 1, v):
+        model += cp.sum(matrix[i, :] * matrix[j, :]) == l
+
+# Symmetry breaking: fix the first row to have its r ones in the first r columns
+# (This is safe due to column permutation symmetry)
+for j in range(b):
+    if j &lt; r:
+        model += matrix[0, j] == 1
+    else:
+        model += matrix[0, j] == 0
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (43 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: v = 9;   % Number of distinct objects
+int: b = 12;  % Number of blocks
+int: r = 4;   % Number of blocks each object occurs in
+int: k = 3;   % Number of objects each block contains
+int: l = 1;   % Number of blocks in which each pair of distinct objects occurs together (lambda)
+
+% Decision variable: incidence matrix of size v x b
+array[1..v, 1..b] of var 0..1: matrix;
+
+% Constraints
+
+% Each object occurs in exactly r blocks (row sum)
+constraint
+  forall(i in 1..v) (
+    sum(j in 1..b)(matrix[i,j]) == r
+  );
+
+% Each block contains exactly k objects (column sum)
+constraint
+  forall(j in 1..b) (
+    sum(i in 1..v)(matrix[i,j]) == k
+  );
+
+% For every pair of distinct objects, the scalar product of their rows is exactly l
+constraint
+  forall(i1, i2 in 1..v where i1 &lt; i2) (
+    sum(j in 1..b)(matrix[i1,j] * matrix[i2,j]) == l
+  );
+
+solve satisfy;
+
+output [
+  &quot;{\n&quot;,
+  &quot;  \&quot;matrix\&quot;: [\n&quot;,
+  join(&quot;,\n&quot;, [
+    &quot;    [&quot; ++ join(&quot;, &quot;, [show(matrix[i,j]) | j in 1..b]) ++ &quot;]&quot;
+    | i in 1..v
+  ]),
+  &quot;\n  ]\n&quot;,
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+v = 9  # Number of distinct objects
+b = 12  # Number of blocks
+r = 4  # Number of blocks each object occurs in
+k = 3  # Number of objects each block contains
+l = 1  # Number of blocks in which each pair of distinct objects occurs together
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# matrix[i][j] = 1 if object i is in block j, else 0
+matrix = []
+for i in range(v):
+    row = []
+    for j in range(b):
+        row.append(model.NewBoolVar(f&#x27;matrix_{i}_{j}&#x27;))
+    matrix.append(row)
+
+# Constraints
+
+# Each object occurs in exactly r blocks (row sum = r)
+for i in range(v):
+    model.Add(sum(matrix[i][j] for j in range(b)) == r)
+
+# Each block contains exactly k objects (column sum = k)
+for j in range(b):
+    model.Add(sum(matrix[i][j] for i in range(v)) == k)
+
+# Every two distinct objects occur together in exactly l blocks
+# For each pair of distinct objects (i1, i2), sum over blocks of matrix[i1][j] * matrix[i2][j] == l
+# We linearize the product by introducing auxiliary variables for each block and pair
+for i1 in range(v):
+    for i2 in range(i1 + 1, v):
+        # Auxiliary variables for product matrix[i1][j] * matrix[i2][j]
+        prod_vars = []
+        for j in range(b):
+            prod = model.NewBoolVar(f&#x27;prod_{i1}_{i2}_{j}&#x27;)
+            # prod &lt;= matrix[i1][j]
+            model.Add(prod &lt;= matrix[i1][j])
+            # prod &lt;= matrix[i2][j]
+            model.Add(prod &lt;= matrix[i2][j])
+            # prod &gt;= matrix[i1][j] + matrix[i2][j] - 1
+            model.Add(prod &gt;= matrix[i1][j] + matrix[i2][j] - 1)
+            prod_vars.append(prod)
+        model.Add(sum(prod_vars) == l)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    matrix_sol = []
+    for i in range(v):
+        row_sol = [solver.Value(matrix[i][j]) for j in range(b)]
+        matrix_sol.append(row_sol)
+    solution = {&#x27;matrix&#x27;: matrix_sol}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (74 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# -------------------------------------------------------------
+# Input data (immutable)
+# -------------------------------------------------------------
+v = 9   # number of distinct objects (points)
+b = 12  # number of blocks
+r = 4   # each object occurs in exactly r blocks
+k = 3   # each block contains exactly k objects
+l = 1   # every pair of objects occurs together in exactly λ blocks
+
+# -------------------------------------------------------------
+# Model creation
+# -------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: matrix[i][j] = 1 if object i is in block j
+matrix = []
+for i in range(v):
+    row = []
+    for j in range(b):
+        row.append(model.NewBoolVar(f&quot;x_{i}_{j}&quot;))
+    matrix.append(row)
+
+# -------------------------------------------------------------
+# Constraints
+# -------------------------------------------------------------
+# 1. Row-sum constraint: every object appears in exactly r blocks
+for i in range(v):
+    model.Add(sum(matrix[i][j] for j in range(b)) == r)
+
+# 2. Column-sum constraint: every block contains exactly k objects
+for j in range(b):
+    model.Add(sum(matrix[i][j] for i in range(v)) == k)
+
+# 3. Pairwise balance constraint: every pair of objects appears together
+#    in exactly λ blocks.  We linearise the product with auxiliary booleans.
+for i1 in range(v):
+    for i2 in range(i1 + 1, v):
+        prod_vars = []
+        for j in range(b):
+            p = model.NewBoolVar(f&quot;p_{i1}_{i2}_{j}&quot;)
+            # p == matrix[i1][j] * matrix[i2][j]
+            model.AddMultiplicationEquality(p, [matrix[i1][j], matrix[i2][j]])
+            prod_vars.append(p)
+        model.Add(sum(prod_vars) == l)
+
+# -------------------------------------------------------------
+# (Optional) small symmetry breaking – fixes first block to contain the
+# first k objects.  This dramatically reduces the search space without
+# affecting feasibility.
+# -------------------------------------------------------------
+for i in range(v):
+    if i &lt; k:
+        model.Add(matrix[i][0] == 1)  # objects 0,1,2 are in block 0
+    else:
+        model.Add(matrix[i][0] == 0)
+
+# -------------------------------------------------------------
+# Solve
+# -------------------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 60  # safety cap
+status = solver.Solve(model)
+
+# -------------------------------------------------------------
+# Output
+# -------------------------------------------------------------
+if status in (cp_model.FEASIBLE, cp_model.OPTIMAL):
+    solution_matrix = [[int(solver.Value(matrix[i][j])) for j in range(b)] for i in range(v)]
+    print(json.dumps({&quot;matrix&quot;: solution_matrix}))
+else:
+    print(json.dumps({&quot;matrix&quot;: None}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;v&quot;: 9,
   &quot;b&quot;: 12,
   &quot;r&quot;: 4,
   &quot;k&quot;: 3,
   &quot;l&quot;: 1
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">matrix</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-63">Copy</button></div><pre class="code-block"><code id="solution-63" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">matrix</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-63">Copy</button></div><pre class="code-block"><code id="solution-63" class="language-json">{
   &quot;matrix&quot;: [
     [
       false,
@@ -207,6 +823,7 @@ l = 1  # Number of blocks in which each pair of distinct objects occurs together
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -214,9 +831,9 @@ l = 1  # Number of blocks in which each pair of distinct objects occurs together
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_028_bibd/csplib_028_bibd.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_028_bibd/csplib_028_bibd.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_026_sports_tournament_scheduling.html">â† prev</a><a class="btn" href="csplib_032_max_density_still_life.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_026_sports_tournament_scheduling.html">← prev</a><a class="btn" href="csplib_032_max_density_still_life.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

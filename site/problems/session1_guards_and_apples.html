@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>session1_guards_and_apples Â· DCP-Bench Open</title>
-<meta name="description" content="A boy wants to give an apple to a girl. To get to her, he has to pass through a number of gates, each with a guard. He bribes each guard with half of his appleâ€¦">
+<title>session1_guards_and_apples · DCP-Bench Open</title>
+<meta name="description" content="A boy wants to give an apple to a girl. To get to her, he has to pass through a number of gates, each with a guard. He bribes each guard with half of his apple…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/guards_and_apples.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/guards_and_apples.mzn</a></dd><dt>Category</dt><dd>aplai_course</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-139">Copy</button></div><pre class="code-block"><code id="model-139" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -61,12 +62,1006 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">num_gates = 5</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision Variables
+apples = intvar(0, 10000, shape=6, name=&quot;apples&quot;)  # Apples before each gate and after last gate
+
+# Model
+model = Model()
+
+# Constraints
+# After passing through 5 gates (before giving to girl), he has 1 apple left
+model += (apples[5] == 1)
+
+# For each gate, he gives half his apples plus one (must be integer)
+for i in range(5):
+    model += (apples[i] % 2 == 0)  # Must be even to give half as integer
+    model += (apples[i+1] == apples[i] - (apples[i]//2 + 1))
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;apples&quot;: apples.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n_gates = 5  # Number of gates
+n_apples = n_gates + 1  # Number of apple counts (before each gate and after the last gate)
+
+# Decision variables
+apples = intvar(1, 1000, shape=n_apples, name=&quot;apples&quot;)  # Apples before each gate and after the last gate
+
+# Model
+model = Model()
+
+# After the last gate, the boy has no apples left
+model += [apples[n_gates] == 0]
+
+# For each gate, the number of apples after the bribe is calculated
+for i in range(n_gates):
+    # Apples after bribe = apples_before - (half of apples_before + 1)
+    # Use integer division via multiplication and subtraction
+    model += [2 * apples[i + 1] == apples[i] - 2]  # Derived from apples[i] - (apples[i] // 2 + 1)
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;apples&quot;: apples.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (79 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Boy gives apple to girl, passes through 5 gates
+# At each gate: gives half his apples + 1 to guard
+# Constraint: Must have even number of apples before each gate
+# Final state: 0 apples after giving apple to girl
+# Output: 6 numbers - apples before each gate + apples after last gate
+
+# Step 2: Model with CPMpy
+model = cp.Model()
+
+# Decision variables: apples[i] for i=0,1,2,3,4,5
+# apples[0-4] = apples before gates 1-5
+# apples[5] = apples after gate 5 (before giving to girl)
+apples = cp.intvar(0, 1000, shape=6, name=&quot;apples&quot;)
+
+# Constraint 1: All apples before gates must be even numbers
+for i in range(5):  # Before gates 1-5
+    model += apples[i] % 2 == 0
+
+# Constraint 2: Transition through each gate
+# At gate i: give apples[i-1]/2 + 1, keep apples[i-1] - (apples[i-1]/2 + 1) = apples[i-1]/2 - 1
+for i in range(1, 6):
+    model += apples[i] == apples[i-1] // 2 - 1
+
+# Constraint 3: After giving apple to girl, he has 0 apples left
+# So apples[5] = 1 (he gives 1 apple to girl)
+model += apples[5] == 1
+
+# Step 3: Solve and verify
+if model.solve():
+    solution_values = apples.value().tolist()
+    
+    # Verification
+    def verify_solution(apples_list):
+        &quot;&quot;&quot;Independent verification of the solution&quot;&quot;&quot;
+        # Check structure: should have 6 numbers
+        if len(apples_list) != 6:
+            return False
+        
+        # Check that first 5 are even (before gates)
+        for i in range(5):
+            if apples_list[i] % 2 != 0:
+                return False
+        
+        # Simulate the process
+        current_apples = apples_list[0]
+        
+        for gate in range(1, 6):
+            # Check if current matches expected
+            if current_apples != apples_list[gate-1]:
+                return False
+            
+            # Give half + 1 to guard
+            given = current_apples // 2 + 1
+            current_apples = current_apples - given
+            
+            # Check if this matches next expected value (except for last gate)
+            if gate &lt; 5 and current_apples != apples_list[gate]:
+                return False
+        
+        # Check final state
+        if current_apples != apples_list[5] or current_apples != 1:
+            return False
+        
+        # Give apple to girl - should result in 0
+        return (current_apples - 1) == 0
+    
+    assert verify_solution(solution_values), &quot;Solution verification failed!&quot;
+    
+    # Step 4: Output in required JSON format
+    solution = {
+        &quot;apples&quot;: solution_values
+    }
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# apples[i] = number of apples before gate i (0 to 4), apples[5] = apples after last gate
+apples = cp.intvar(0, 1000, shape=6, name=&quot;apples&quot;)
+
+# Constraints
+# After last gate, no apples left
+model += (apples[5] == 0)
+
+# For each gate i in 0..4:
+# The boy gives half of his apples plus one to the guard (integer number)
+# So apples[i] - (apples[i]//2 + 1) = apples[i+1]
+# Also, apples[i]//2 + 1 must be integer, which is always true since apples[i] is integer
+for i in range(5):
+    # The number given to guard is half of apples[i] plus one, integer
+    # So apples[i] must be even or odd, but the given number must be integer
+    # The given number = apples[i]//2 + 1
+    model += (apples[i+1] == apples[i] - (apples[i]//2 + 1))
+    # The number given must be &gt;= 0 and apples[i+1] &gt;= 0
+    model += (apples[i+1] &gt;= 0)
+    model += ((apples[i]//2 + 1) &gt;= 0)
+
+# The boy must have at least 1 apple before first gate to give
+model += (apples[0] &gt;= 1)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    55,
+    27,
+    13,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: apples before each of the 5 gates and after the last gate (6 values)
+apples = cp.intvar(0, 10000, shape=6, name=&quot;apples&quot;)
+
+# Constraints:
+# For each gate i (0..4), apples[i+1] = apples[i]/2 - 1
+# Rearranged to avoid division: apples[i] == 2*(apples[i+1] + 1)
+for i in range(5):
+    model += (apples[i] == 2 * (apples[i+1] + 1))
+
+# After the last gate he has no apples
+model += (apples[5] == 0)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    62,
+    30,
+    14,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: apples[i] = number of apples before gate i (0-based), apples[5] = after last gate
+apples = cp.intvar(0, 1000, shape=6, name=&quot;apples&quot;)
+
+# Constraints
+# After the last gate, he has 0 apples
+model += (apples[5] == 0)
+
+# For each gate i from 1 to 5:
+# apples[i-1] = 2 * (apples[i] + 1)
+# This encodes giving half his apples plus one to the guard
+for i in range(1, 6):
+    model += (apples[i-1] == 2 * (apples[i] + 1))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    62,
+    30,
+    14,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (9 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+num_gates = 5
+after = 1
+values = [after]
+for _ in range(num_gates):
+    before = 2 * (after + 1)
+    values.append(before)
+    after = before
+print(json.dumps({&quot;apples&quot;: list(reversed(values))}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# apples[i] = number of apples before gate i (0 to 4), apples[5] = apples after last gate
+apples = cp.intvar(0, 1000, shape=6, name=&quot;apples&quot;)
+
+# Constraints
+# After giving bribe at each gate: apples[i+1] = apples[i] - (half of apples[i] + 1)
+# Since the bribe is half of apples[i] plus one, and must be integer,
+# apples[i] must be even (because half must be integer)
+for i in range(5):
+    # half of apples[i] plus one is integer, so apples[i] must be even
+    model += (apples[i] % 2 == 0)
+    # apples[i+1] = apples[i] - (apples[i]//2 + 1)
+    model += (apples[i+1] == apples[i] - (apples[i] // 2 + 1))
+
+# After last gate, no apples left
+model += (apples[5] == 0)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    62,
+    30,
+    14,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: apples before each of the 5 gates and after the last gate (6 values)
+apples = cp.intvar(0, 10000, shape=6, name=&quot;apples&quot;)
+
+# Constraints:
+# For each gate i (0..4), if apples[i] is the number before gate i+1 and apples[i+1] after,
+# then apples[i+1] = apples[i]/2 - 1  =&gt; apples[i] == 2*(apples[i+1] + 1)
+for i in range(5):
+    model += (apples[i] == 2 * (apples[i+1] + 1))
+
+# After the last gate he has one apple (which he then gives to the girl, leaving 0)
+model += (apples[5] == 1)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+model = cp.Model()
+
+apples = cp.intvar(0, 1000, shape=6, name=&quot;apples&quot;)
+
+# Constraints
+model += (apples[5] == 1)  # After last gate, he has 1 apple to give to the girl
+
+for i in range(5):
+    # Each apples[i] must be even and at least 2
+    model += (apples[i] % 2 == 0)
+    model += (apples[i] &gt;= 2)
+    # The next apples value after the gate
+    model += (apples[i+1] == (apples[i] // 2) - 1)
+
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+model = cp.Model()
+
+apples = cp.intvar(0, 1000, shape=6, name=&quot;apples&quot;)
+
+# Constraints
+model += (apples[5] == 1)  # After last gate, he has 1 apple to give to the girl
+
+for i in range(5):
+    # Each apples[i] must be even and at least 2
+    model += (apples[i] % 2 == 0)
+    model += (apples[i] &gt;= 2)
+    # The next apples value after the gate
+    model += (apples[i+1] == (apples[i] // 2) - 1)
+
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+apples = cp.intvar(0, 100000, shape=6, name=&quot;apples&quot;)
+
+# Constraints
+# After the 5th gate, he has 1 apple to give to the girl
+model += (apples[5] == 1)
+
+# Relationship between apples before consecutive gates:
+# If A_i is apples before gate i, then after bribing, apples become A_{i+1} = A_i/2 - 1
+# This is equivalently A_i = 2*(A_{i+1} + 1), ensuring even counts before each gate
+for i in range(5):
+    model += (apples[i] == 2 * (apples[i+1] + 1))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: apples before each of the 5 gates and after the last gate (6 values)
+apples = cp.intvar(0, 10000, shape=6, name=&quot;apples&quot;)
+
+# Constraints:
+# For each gate i (0..4), apples[i+1] = apples[i]/2 - 1
+# Rearranged to avoid division: apples[i] == 2*(apples[i+1] + 1)
+for i in range(5):
+    model += (apples[i] == 2 * (apples[i+1] + 1))
+
+# After the last gate he has no apples
+model += (apples[5] == 0)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;apples&#x27;: apples.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    62,
+    30,
+    14,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">could not extract JSON solution: {62,30,14,6,2,0}</p>
+      <details class="gmodel"><summary>model.mzn (38 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">% The boy passes through 5 gates, bribing each guard with half of his apples plus one.
+% He must give an integer number of apples at each gate.
+% After the last gate, he has no apples left.
+% We want to find the number of apples before each gate and after the last gate (6 numbers in total).
+
+include &quot;globals.mzn&quot;;
+
+int: num_gates = 5;
+
+% apples[i] = number of apples before gate i (for i in 1..5)
+% apples[6] = number of apples after the last gate
+array[1..num_gates+1] of var int: apples;
+
+% Constraints:
+% 1) The number of apples before each gate must be positive (at least 1)
+constraint forall(i in 1..num_gates) (
+    apples[i] &gt;= 1
+);
+
+% 2) After the last gate, no apples remain
+constraint apples[num_gates+1] == 0;
+
+% 3) At each gate i, the boy gives half of his apples plus one to the guard.
+%    The number of apples given must be an integer.
+%    So apples[i] - apples[i+1] = apples[i]/2 + 1
+%    Rearranged: apples[i+1] = apples[i] - (apples[i]/2 + 1)
+%    Since apples[i]/2 must be integer, apples[i] must be even.
+constraint forall(i in 1..num_gates) (
+    apples[i] mod 2 == 0 /\
+    apples[i+1] == apples[i] - (apples[i] div 2 + 1)
+);
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [show(apples[i]) | i in 1..num_gates+1]),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (30 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include global constraints library
+include &quot;globals.mzn&quot;;
+
+% Decision variable: number of apples before gate i (i=0..5, where 0 is start, 5 is after last gate)
+array[0..5] of var int: apples;
+
+% Constraints: after the 5th gate, no apples remain
+constraint apples[5] = 0;
+
+% For each gate i=1..5, the boy gives half of his apples plus one (integer),
+% so apples[i-1] must be even, and the remaining apples is apples[i] = apples[i-1]/2 - 1
+constraint
+  forall(i in 1..5) (
+    apples[i-1] mod 2 = 0 /\
+    apples[i] = apples[i-1] div 2 - 1
+  );
+
+% All apple counts must be non-negative
+constraint forall(i in 0..5)( apples[i] &gt;= 0 );
+
+% Minimize the initial number of apples to find the smallest solution
+solve minimize apples[0];
+
+% Output the list of apples before each gate and after the last gate in JSON format
+output [
+  &quot;{&quot;,
+  &quot;\&quot;apples\&quot;:[&quot; ++ join(&quot;,&quot;, [show(apples[i]) | i in 0..5]) ++ &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    62,
+    30,
+    14,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# apples[i] = number of apples before gate i (0 to 4), apples[5] = apples after last gate
+apples = [model.NewIntVar(0, 1000, f&#x27;apples_{i}&#x27;) for i in range(6)]
+
+# Constraints
+# After last gate, no apples left
+model.Add(apples[5] == 0)
+
+# For each gate i from 0 to 4:
+# The boy bribes the guard with half of his apples plus one (integer number)
+# So apples[i] - (half of apples[i] + 1) = apples[i+1]
+# The bribe must be integer, so half of apples[i] must be integer (apples[i] even)
+for i in range(5):
+    # apples[i] must be even to have half integer
+    model.AddModuloEquality(0, apples[i], 2)
+    # apples[i+1] = apples[i] - (apples[i]//2 + 1)
+    # =&gt; apples[i+1] = apples[i] - apples[i]//2 - 1
+    # =&gt; 2*apples[i+1] = 2*apples[i] - apples[i] - 2
+    # =&gt; 2*apples[i+1] = apples[i] - 2
+    # But better to write directly:
+    half = model.NewIntVar(0, 1000, f&#x27;half_{i}&#x27;)
+    model.AddDivisionEquality(half, apples[i], 2)
+    model.Add(apples[i+1] == apples[i] - half - 1)
+
+# Objective: no objective, just find feasible solution
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;apples&#x27;: [solver.Value(apples[i]) for i in range(6)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    62,
+    30,
+    14,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Define the model
+model = cp_model.CpModel()
+
+# Number of gates
+num_gates = 5
+
+# Decision variables: apples[i] is the number of apples before gate i (0-indexed),
+# and apples[num_gates] is the number after the last gate.
+# We assume an upper bound (e.g., 1000) that&#x27;s large enough to include the solution.
+apples = [
+    model.NewIntVar(0, 1000, f&quot;apples_{i}&quot;) for i in range(num_gates + 1)
+]
+
+# After the last gate, the boy has 0 apples
+model.Add(apples[num_gates] == 0)
+
+# For each gate i from 0 to 4:
+# He gives the guard half of his apples plus one:
+#   guard_gets = apples[i] / 2 + 1
+# Remaining apples: apples[i+1] = apples[i] - guard_gets
+# =&gt; apples[i+1] = apples[i] - (apples[i]/2 + 1) = apples[i]/2 - 1
+# Multiply both sides by 2 to avoid fractions:
+#   2 * apples[i+1] = apples[i] - 2
+# =&gt; apples[i] = 2 * apples[i+1] + 2
+for i in range(num_gates):
+    model.Add(apples[i] == 2 * (apples[i + 1] + 1))
+
+# Create a solver and solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;apples&#x27;: [solver.Value(apples[i]) for i in range(num_gates + 1)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    62,
+    30,
+    14,
+    6,
+    2,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (54 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# Apple-gate puzzle solved with Google OR-Tools CP-SAT
+# --------------------------------------------------
+# A boy passes 5 gates; at each gate he pays half his apples plus one.
+# After the last gate he keeps exactly one apple for the girl.
+# The task is to find the apple counts immediately before each gate
+# and directly after the last gate.
+# --------------------------------------------------
+
+def main():
+    # -------------------------
+    # 1. Create the CP-SAT model
+    # -------------------------
+    model = cp_model.CpModel()
+
+    G = 5                     # number of gates
+    MAX_A = 10 ** 6           # generous upper bound for apples
+
+    # Decision variables: apples_before_gate_1 .. apples_before_gate_5, apples_after_gate_5
+    apples = [model.NewIntVar(0, MAX_A, f&quot;apples_{i+1}&quot;) for i in range(G + 1)]
+
+    # -------------------------
+    # 2. Add constraints
+    # -------------------------
+    # Final apple for the girl
+    model.Add(apples[-1] == 1)      # A_6 = 1
+
+    # Gate transfer constraints
+    # Derived equality:      2 * A_{i+1} = A_i - 2      (i = 1..5)
+    for i in range(G):
+        model.Add(apples[i] - 2 * apples[i + 1] == 2)
+
+    # -------------------------
+    # 3. Solve (pure feasibility)
+    # -------------------------
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+
+    # -------------------------
+    # 4. Output solution as JSON
+    # -------------------------
+    if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        solution = [solver.Value(a) for a in apples]
+        print(json.dumps({&quot;apples&quot;: solution}))
+    else:
+        # Theoretically unreachable for this puzzle, but kept for completeness
+        print(json.dumps({&quot;apples&quot;: []}))
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;apples&quot;: [
+    94,
+    46,
+    22,
+    10,
+    4,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;num_gates&quot;: 5
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">apples</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-139">Copy</button></div><pre class="code-block"><code id="solution-139" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">apples</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-139">Copy</button></div><pre class="code-block"><code id="solution-139" class="language-json">{
   &quot;apples&quot;: [
     94,
     46,
@@ -76,6 +1071,7 @@ print(json.dumps(solution))
     1
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -83,9 +1079,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/session1_guards_and_apples/session1_guards_and_apples.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/session1_guards_and_apples/session1_guards_and_apples.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_five_floors.html">â† prev</a><a class="btn" href="session1_magic_square.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_five_floors.html">← prev</a><a class="btn" href="session1_magic_square.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

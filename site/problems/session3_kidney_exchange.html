@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>session3_kidney_exchange Â· DCP-Bench Open</title>
-<meta name="description" content="At the hospital n people are on a waiting list for a kidney’s transplant. We have the information about the compatibility between these people as a directed grâ€¦">
+<title>session3_kidney_exchange · DCP-Bench Open</title>
+<meta name="description" content="At the hospital n people are on a waiting list for a kidney’s transplant. We have the information about the compatibility between these people as a directed gr…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/kidney_exchange.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/kidney_exchange.mzn</a></dd><dt>Category</dt><dd>aplai_course</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-150">Copy</button></div><pre class="code-block"><code id="model-150" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -80,7 +81,2682 @@ compatible = [  # 1-based indexing, compatible[i] is the list of people to which
     [3]
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+num_people = 8
+compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+
+# Decision Variables
+transplants = boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)  # transplants[i][j] is 1 if i donates to j
+
+# Model
+model = Model()
+
+# Constraints
+# No self-donation
+for i in range(num_people):
+    model += transplants[i][i] == 0
+
+# Only donate to compatible people
+for i in range(num_people):
+    for j in range(num_people):
+        if (j+1) not in compatible[i]:  # +1 because of 1-based indexing in input
+            model += transplants[i][j] == 0
+
+# Each person can receive at most one kidney
+for j in range(num_people):
+    model += sum(transplants[i][j] for i in range(num_people)) &lt;= 1
+
+# If a person donates, they must receive a kidney
+for i in range(num_people):
+    model += (sum(transplants[i][j] for j in range(num_people)) == 
+              sum(transplants[k][i] for k in range(num_people)))
+
+# Objective: maximize the number of transplants (which equals the number of people receiving kidneys)
+model.maximize(sum(transplants.flatten()))
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;transplants&quot;: transplants.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+num_people = 8  # number of people
+compatible = [  # 1-based indexing, compatible[i] is the list of people to which i can donate
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+
+# Adjust to 0-based indexing
+compatible = [[x - 1 for x in lst] for lst in compatible]
+
+# Decision variables
+transplants = boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)
+
+# Model
+model = Model()
+
+# Each person can give at most one kidney
+for i in range(num_people):
+    model += [sum(transplants[i, :]) &lt;= 1]
+
+# Each person can receive at most one kidney
+for j in range(num_people):
+    model += [sum(transplants[:, j]) &lt;= 1]
+
+# A person can only donate to compatible people
+for i in range(num_people):
+    for j in range(num_people):
+        if j not in compatible[i]:
+            model += [transplants[i, j] == 0]
+
+# A person who gives a kidney must also receive one
+for i in range(num_people):
+    model += [sum(transplants[i, :]) == sum(transplants[:, i])]
+
+# Objective: maximize the number of transplants
+model.maximize(sum(transplants))
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;transplants&quot;: transplants.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (126 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Kidney exchange to maximize transplants
+# Constraints:
+# 1. Compatibility: can only donate to compatible people
+# 2. No self-donation
+# 3. Each person donates at most one kidney
+# 4. Each person receives at most one kidney
+# 5. Anyone who gives a kidney must receive one
+
+# Input data
+num_people = 8
+compatible = [  # 1-based indexing, compatible[i] is the list of people to which i can donate
+    [2, 3],     # Person 1 can donate to persons 2, 3
+    [1, 6],     # Person 2 can donate to persons 1, 6
+    [1, 4, 7],  # Person 3 can donate to persons 1, 4, 7
+    [2],        # Person 4 can donate to person 2
+    [2],        # Person 5 can donate to person 2
+    [5],        # Person 6 can donate to person 5
+    [8],        # Person 7 can donate to person 8
+    [3]         # Person 8 can donate to person 3
+]
+
+# Convert to 0-based indexing for easier processing
+compatible_0based = []
+for person_targets in compatible:
+    compatible_0based.append([t-1 for t in person_targets])
+
+# Step 2: Model with CPMpy
+# Decision variables: transplants[i][j] = 1 if person i donates to person j
+transplants = cp.boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)
+
+model = cp.Model()
+
+# Constraint 1: Compatibility - can only donate to compatible people
+for i in range(num_people):
+    for j in range(num_people):
+        if j not in compatible_0based[i]:
+            model += transplants[i, j] == 0
+
+# Constraint 2: No self-donation
+for i in range(num_people):
+    model += transplants[i, i] == 0
+
+# Constraint 3: Each person donates at most one kidney
+for i in range(num_people):
+    model += cp.sum(transplants[i, :]) &lt;= 1
+
+# Constraint 4: Each person receives at most one kidney
+for j in range(num_people):
+    model += cp.sum(transplants[:, j]) &lt;= 1
+
+# Constraint 5: Anyone who gives a kidney must receive one
+for i in range(num_people):
+    gives = cp.sum(transplants[i, :])  # Number of kidneys person i gives
+    receives = cp.sum(transplants[:, i])  # Number of kidneys person i receives
+    model += gives == receives  # If gives 1, must receive 1; if gives 0, receives 0
+
+# Objective: Maximize number of people who receive a kidney
+total_transplants = cp.sum(transplants)
+model.maximize(total_transplants)
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract solution
+    transplant_matrix = transplants.value()
+    
+    # Convert boolean matrix to integer matrix (0/1) for output format
+    transplant_matrix_int = transplant_matrix.astype(int)
+    
+    solution = {
+        &quot;transplants&quot;: transplant_matrix_int.tolist()
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        &quot;&quot;&quot;Independent verification of the solution&quot;&quot;&quot;
+        transplant_matrix = np.array(sol[&quot;transplants&quot;])
+        
+        # Structural verification
+        if transplant_matrix.shape != (num_people, num_people):
+            return False, f&quot;Wrong shape: {transplant_matrix.shape}&quot;
+        
+        # Logical verification
+        # Check compatibility constraints
+        for i in range(num_people):
+            for j in range(num_people):
+                if transplant_matrix[i, j] == 1:
+                    if j not in compatible_0based[i]:
+                        return False, f&quot;Incompatible donation: Person {i+1} to Person {j+1}&quot;
+        
+        # Check no self-donation
+        for i in range(num_people):
+            if transplant_matrix[i, i] == 1:
+                return False, f&quot;Self-donation detected for Person {i+1}&quot;
+        
+        # Check each person donates at most one kidney
+        for i in range(num_people):
+            donations = np.sum(transplant_matrix[i, :])
+            if donations &gt; 1:
+                return False, f&quot;Person {i+1} donates {donations} kidneys&quot;
+        
+        # Check each person receives at most one kidney
+        for j in range(num_people):
+            received = np.sum(transplant_matrix[:, j])
+            if received &gt; 1:
+                return False, f&quot;Person {j+1} receives {received} kidneys&quot;
+        
+        # Check constraint: anyone who gives must receive
+        for i in range(num_people):
+            gives = np.sum(transplant_matrix[i, :])
+            receives = np.sum(transplant_matrix[:, i])
+            if gives != receives:
+                return False, f&quot;Person {i+1} gives {gives} but receives {receives}&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8
+compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+# End of data
+
+model = cp.Model()
+
+# Decision variables: transplants[i][j] = 1 if person i donates to person j, else 0
+# Using 0-based indexing internally
+transplants = cp.boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)
+
+# Constraints
+
+# 1) Only allow transplants if compatible
+for i in range(num_people):
+    allowed = set(x-1 for x in compatible[i])  # convert to 0-based
+    for j in range(num_people):
+        if j not in allowed:
+            model += (transplants[i, j] == 0)
+
+# 2) Anyone who gives a kidney must receive one
+# sum of row i (donations by i) == sum of column i (kidneys received by i)
+for i in range(num_people):
+    model += (cp.sum(transplants[i, :]) == cp.sum(transplants[:, i]))
+
+# 3) No person receives more than one kidney
+for j in range(num_people):
+    model += (cp.sum(transplants[:, j]) &lt;= 1)
+
+# Objective: maximize the number of people that receive a kidney
+# This is sum over j of sum over i transplants[i][j], which equals sum of all transplants
+# Because each transplant corresponds to one kidney received
+model.maximize(cp.sum(transplants))
+
+if model.solve():
+    solution = {&#x27;transplants&#x27;: transplants.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (54 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8  # number of people
+compatible = [  # 1-based indexing, compatible[i] is the list of people to which i can donate
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = num_people
+
+# Decision Variables: transplants[i][j] = 1 if i donates to j, else 0
+transplants = cp.intvar(0, 1, shape=(n, n), name=&quot;transplants&quot;)
+
+# Constraints
+# Only allow donations if compatible (input uses 1-based person indices)
+for i in range(n):
+    allowed = set([j-1 for j in compatible[i]])  # convert to 0-based indices
+    for j in range(n):
+        if j not in allowed:
+            model += (transplants[i, j] == 0)
+
+# Each person donates to at most one person, and receives from at most one person
+for i in range(n):
+    model += (cp.sum(transplants[i, :]) &lt;= 1)   # outdegree &lt;= 1
+    model += (cp.sum(transplants[:, i]) &lt;= 1)   # indegree &lt;= 1
+    # Ensure that anyone who gives must also receive =&gt; outdeg == indeg (0 or 1)
+    model += (cp.sum(transplants[i, :]) == cp.sum(transplants[:, i]))
+
+# Objective: maximize number of people that receive a kidney (sum of indegrees)
+objective = cp.sum([cp.sum(transplants[:, i]) for i in range(n)])
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    t_val = transplants.value().tolist()
+    # Ensure integers (0/1) in the output
+    t_int = [[int(v) for v in row] for row in t_val]
+    solution = {&#x27;transplants&#x27;: t_int}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8  # number of people
+compatible = [  # 1-based indexing, compatible[i] is the list of people to which i can donate
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+# convert to 0-based indexing
+compatible0 = [[j-1 for j in donors] for donors in compatible]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: transplants[i][j] = 1 if i donates to j
+transplants = cp.boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)
+
+# Constraints
+# 1) Only allow transplants where compatible
+for i in range(num_people):
+    for j in range(num_people):
+        if j not in compatible0[i]:
+            model += (transplants[i, j] == 0)
+
+# 2) For each person i: sum of out-transplants == sum of in-transplants (either 0 or 1)
+# and sum of out-transplants &lt;= 1
+for i in range(num_people):
+    out_i = cp.sum(transplants[i, :])
+    in_i = cp.sum(transplants[:, i])
+    model += (out_i == in_i)
+    model += (out_i &lt;= 1)
+
+# Objective: maximize total number of transplants
+model.maximize(cp.sum(transplants))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;transplants&#x27;: transplants.value().tolist()
+    }
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
+import json
+
+num_people = 8
+compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3],
+]
+choices = [[0] + donors for donors in compatible]
+best = None
+for recipients in itertools.product(*choices):
+    incoming = [0] * (num_people + 1)
+    valid = True
+    for donor, recipient in enumerate(recipients, start=1):
+        if recipient:
+            incoming[recipient] += 1
+            if incoming[recipient] &gt; 1:
+                valid = False
+                break
+    if not valid:
+        continue
+    for person, recipient in enumerate(recipients, start=1):
+        if bool(recipient) != bool(incoming[person]):
+            valid = False
+            break
+    if not valid:
+        continue
+    count = sum(1 for recipient in recipients if recipient)
+    if best is None or count &gt; best[0]:
+        best = (count, recipients)
+matrix = [[0] * num_people for _ in range(num_people)]
+for donor, recipient in enumerate(best[1], start=1):
+    if recipient:
+        matrix[donor - 1][recipient - 1] = 1
+print(json.dumps({&quot;transplants&quot;: matrix}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8
+compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+# End of data
+
+model = cp.Model()
+
+# Decision variables: transplants[i][j] = 1 if person i donates to person j, else 0
+# Using 0-based indexing internally
+transplants = cp.boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)
+
+# Constraints
+
+# 1) Only allow transplants if compatible
+for i in range(num_people):
+    allowed = set(x-1 for x in compatible[i])  # convert to 0-based
+    for j in range(num_people):
+        if j not in allowed:
+            model += (transplants[i, j] == 0)
+
+# 2) Anyone who gives a kidney must receive one
+# sum of row i (donations by i) == sum of column i (receives by i)
+for i in range(num_people):
+    model += (cp.sum(transplants[i, :]) == cp.sum(transplants[:, i]))
+
+# 3) No person receives more than one kidney
+for j in range(num_people):
+    model += (cp.sum(transplants[:, j]) &lt;= 1)
+
+# Objective: maximize the number of people that receive a kidney
+# This is sum of all transplants (each transplant corresponds to one receiver)
+model.maximize(cp.sum(transplants))
+
+if model.solve():
+    # Convert boolean matrix to integer matrix for JSON output
+    solution = {&#x27;transplants&#x27;: [[int(x) for x in row] for row in transplants.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8  # number of people
+compatible = [  # 1-based indexing, compatible[i] is the list of people to which i can donate
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = num_people
+
+# Decision Variables: transplants[i][j] = 1 if i donates to j, else 0
+transplants = cp.intvar(0, 1, shape=(n, n), name=&quot;transplants&quot;)
+
+# Constraints
+# Only allow donations if compatible (input uses 1-based person indices)
+for i in range(n):
+    allowed = set([j - 1 for j in compatible[i]])  # convert to 0-based indices
+    for j in range(n):
+        if j not in allowed:
+            model += (transplants[i, j] == 0)
+
+# Each person donates to at most one person, and receives from at most one person
+for i in range(n):
+    outdeg = cp.sum(transplants[i, :])
+    indeg = cp.sum(transplants[:, i])
+    model += (outdeg &lt;= 1)   # outdegree &lt;= 1 (donates to at most one)
+    model += (indeg &lt;= 1)    # indegree &lt;= 1 (receives at most one)
+    # Ensure that anyone who gives must also receive =&gt; outdeg &lt;= indeg
+    model += (outdeg &lt;= indeg)
+
+# Objective: maximize number of people that receive a kidney (sum of indegrees)
+objective = cp.sum([cp.sum(transplants[:, i]) for i in range(n)])
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    t_val = transplants.value().tolist()
+    # Ensure integers (0/1) in the output
+    t_int = [[int(v) for v in row] for row in t_val]
+    solution = {&#x27;transplants&#x27;: t_int}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8
+compatible = [
+    [2,3],
+    [1,6],
+    [1,4,7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+
+# Convert compatible to 0-based indices
+compatible = [[x-1 for x in sublist] for sublist in compatible]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+transplants = cp.boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)
+
+# Constraints
+# Compatibility constraints: transplants[i][j] can only be 1 if j is in compatible[i]
+for i in range(num_people):
+    for j in range(num_people):
+        if j not in compatible[i]:
+            model += transplants[i, j] == 0
+
+# Each person donates at most once
+model += [cp.sum(transplants[i, :]) &lt;= 1 for i in range(num_people)]
+
+# Each person receives at most once
+model += [cp.sum(transplants[:, j]) &lt;= 1 for j in range(num_people)]
+
+# For each person, donations equal receptions
+model += [cp.sum(transplants[i, :]) == cp.sum(transplants[:, i]) for i in range(num_people)]
+
+# Objective: maximize the total number of transplants
+model.maximize(cp.sum(transplants))
+
+# Solve and print
+if model.solve():
+    transplants_val = transplants.value().tolist()
+    solution = {&#x27;transplants&#x27;: transplants_val}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8
+compatible = [
+    [2,3],
+    [1,6],
+    [1,4,7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+
+# Convert compatible to 0-based indices
+compatible = [[x-1 for x in sublist] for sublist in compatible]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+transplants = cp.boolvar(shape=(num_people, num_people), name=&quot;transplants&quot;)
+
+# Constraints
+# Compatibility constraints
+for i in range(num_people):
+    for j in range(num_people):
+        if j not in compatible[i]:
+            model += transplants[i, j] == 0
+
+# Each person donates at most once
+model += [cp.sum(transplants[i, :]) &lt;= 1 for i in range(num_people)]
+
+# Each person receives at most once
+model += [cp.sum(transplants[:, j]) &lt;= 1 for j in range(num_people)]
+
+# Donations equal receptions for each person
+model += [cp.sum(transplants[i, :]) == cp.sum(transplants[:, i]) for i in range(num_people)]
+
+# Objective: maximize total transplants
+model.maximize(cp.sum(transplants))
+
+# Solve and print
+if model.solve():
+    # Convert boolean values to integers (0/1)
+    transplants_val = transplants.value().astype(int).tolist()
+    solution = {&#x27;transplants&#x27;: transplants_val}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+num_people = 8  # number of people
+compatible = [  # 1-based indexing, compatible[i] is the list of people to which i can donate
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+# End of data
+
+# Convert compatibility to 0-based indexing and build allowed adjacency matrix
+n = num_people
+allowed = [[0 for _ in range(n)] for _ in range(n)]
+for i in range(n):
+    for j in compatible[i]:
+        j0 = j - 1  # convert to 0-based
+        if 0 &lt;= j0 &lt; n and j0 != i:  # disallow self donations explicitly
+            allowed[i][j0] = 1
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+transplants = cp.intvar(0, 1, shape=(n, n), name=&quot;transplants&quot;)
+
+# Constraints
+
+# 1) Only allow edges present in the compatibility graph, and forbid self-loops
+for i in range(n):
+    for j in range(n):
+        if allowed[i][j] == 0:
+            model += (transplants[i, j] == 0)
+
+# 2) Each person donates at most once (row sum &lt;= 1)
+for i in range(n):
+    model += (cp.sum(transplants[i, :]) &lt;= 1)
+
+# 3) Each person receives at most one kidney (column sum &lt;= 1)
+for j in range(n):
+    model += (cp.sum(transplants[:, j]) &lt;= 1)
+
+# 4) Anyone who gives must receive, and vice versa (flow balance per node)
+for k in range(n):
+    model += (cp.sum(transplants[k, :]) == cp.sum(transplants[:, k]))
+
+# Objective (maximize number of people receiving a kidney == total number of transplants)
+model.maximize(cp.sum(transplants))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;transplants&#x27;: transplants.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (54 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_people = 8  # number of people
+compatible = [  # 1-based indexing, compatible[i] is the list of people to which i can donate
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = num_people
+
+# Decision Variables: transplants[i][j] = 1 if i donates to j, else 0
+transplants = cp.intvar(0, 1, shape=(n, n), name=&quot;transplants&quot;)
+
+# Constraints
+# Only allow donations if compatible (input uses 1-based person indices)
+for i in range(n):
+    allowed = set([j-1 for j in compatible[i]])  # convert to 0-based indices
+    for j in range(n):
+        if j not in allowed:
+            model += (transplants[i, j] == 0)
+
+# Each person donates to at most one person, and receives from at most one person
+for i in range(n):
+    model += (cp.sum(transplants[i, :]) &lt;= 1)   # outdegree &lt;= 1
+    model += (cp.sum(transplants[:, i]) &lt;= 1)   # indegree &lt;= 1
+    # Ensure that anyone who gives must also receive =&gt; outdeg == indeg (0 or 1)
+    model += (cp.sum(transplants[i, :]) == cp.sum(transplants[:, i]))
+
+# Objective: maximize number of people that receive a kidney (sum of indegrees)
+objective = cp.sum([cp.sum(transplants[:, i]) for i in range(n)])
+model.maximize(objective)
+
+# Solve and print
+if model.solve():
+    t_val = transplants.value().tolist()
+    # Ensure integers (0/1) in the output
+    t_int = [[int(v) for v in row] for row in t_val]
+    solution = {&#x27;transplants&#x27;: t_int}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: syntax error, unexpected /, expecting end of file</p>
+      <details class="gmodel"><summary>model.mzn (48 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+int: num_people = 8;
+array[1..num_people] of array[int] of int: compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+];
+
+// Decision variables: transplants[i,j] = 1 if person i donates to person j, 0 otherwise
+array[1..num_people, 1..num_people] of var 0..1: transplants;
+
+// Constraint: transplants[i,j] can be 1 only if j is in compatible[i]
+constraint
+  forall(i in 1..num_people, j in 1..num_people) (
+    transplants[i,j] = 1 -&gt; (j in compatible[i])
+  );
+
+// Constraint: no person receives more than one kidney
+constraint
+  forall(j in 1..num_people) (
+    sum(i in 1..num_people)(transplants[i,j]) &lt;= 1
+  );
+
+// Constraint: anyone who gives a kidney must receive one
+constraint
+  forall(i in 1..num_people) (
+    sum(j in 1..num_people)(transplants[i,j]) = sum(k in 1..num_people)(transplants[k,i])
+  );
+
+// Objective: maximize the number of people that receive a new kidney
+var int: total_transplants = sum(i,j in 1..num_people)(transplants[i,j]);
+solve maximize total_transplants;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;transplants\&quot;: [&quot;,
+  join(&quot;,\n&quot;, [
+    &quot;[&quot; ++ join(&quot;, &quot;, [show(transplants[i,j]) | j in 1..num_people]) ++ &quot;]&quot;
+    | i in 1..num_people
+  ]),
+  &quot;]&quot;,
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (52 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: num_people = 8;
+array[1..num_people] of array[int] of int: compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+];
+
+% Decision variables: transplants[i,j] = 1 if i donates to j, else 0
+array[1..num_people, 1..num_people] of var 0..1: transplants;
+
+% Compatibility constraint: only allow a transplant if compatible
+constraint
+  forall(i in 1..num_people, j in 1..num_people where not (j in compatible[i])) (
+    transplants[i,j] = 0
+  );
+
+% Each person gives at most one kidney, receives at most one kidney,
+% and must give iff they receive (row_sum = col_sum)
+constraint
+  forall(i in 1..num_people) (
+    let {
+      var int: out_i = sum(j in 1..num_people)(transplants[i,j]),
+      var int: in_i  = sum(j in 1..num_people)(transplants[j,i])
+    } in
+      out_i &lt;= 1 /\
+      in_i &lt;= 1 /\
+      out_i = in_i
+  );
+
+% Objective: maximize the total number of transplants
+solve maximize sum(i,j in 1..num_people)(transplants[i,j]);
+
+% Output in JSON format
+output [
+    &quot;{&quot;,
+    &quot;\&quot;transplants\&quot;: [&quot; ++
+      join(&quot;,&quot;,
+        [ &quot;[&quot; ++ join(&quot;,&quot;, [ show(transplants[i,j]) | j in 1..num_people ]) ++ &quot;]&quot;
+          | i in 1..num_people
+        ]
+      ) ++ &quot;]&quot;,
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">Traceback (most recent call last):</p>
+      <details class="gmodel"><summary>model.py (84 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+num_people = 8
+compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# transplants[i][j] = 1 if person i donates to person j, 0 otherwise
+# Using 0-based indexing internally, but compatible is 1-based
+transplants = []
+for i in range(num_people):
+    row = []
+    for j in range(num_people):
+        # Only create variable if j+1 in compatible[i], else 0
+        if (j + 1) in compatible[i]:
+            row.append(model.NewBoolVar(f&#x27;transplant_{i}_{j}&#x27;))
+        else:
+            # No edge, fixed 0 variable (not a variable, just 0)
+            row.append(0)
+    transplants.append(row)
+
+# Constraints
+
+# 1) Anyone who gives a kidney must receive one
+# sum of transplants out of i == sum of transplants into i
+for i in range(num_people):
+    # sum out
+    out_vars = [transplants[i][j] for j in range(num_people) if transplants[i][j] != 0]
+    # sum in
+    in_vars = [transplants[k][i] for k in range(num_people) if transplants[k][i] != 0]
+    # sum out == sum in
+    # If no out_vars and no in_vars, sum is zero, so constraint is trivial
+    # If one side is empty and other not, sum is zero on one side, so equality holds only if both zero
+    model.Add(sum(out_vars) == sum(in_vars))
+
+# 2) No person receives more than one kidney
+for j in range(num_people):
+    in_vars = [transplants[i][j] for i in range(num_people) if transplants[i][j] != 0]
+    model.Add(sum(in_vars) &lt;= 1)
+
+# Objective: maximize the number of people that receive a kidney
+# Number of people receiving a kidney = sum over j of (sum of transplants into j &gt;= 1)
+# Since sum of transplants into j &lt;= 1, sum of transplants into j is 0 or 1
+# So sum over j of sum_in_vars is the number of people receiving kidneys
+# We can sum all transplants variables (each transplant corresponds to one recipient)
+total_recipients = []
+for j in range(num_people):
+    in_vars = [transplants[i][j] for i in range(num_people) if transplants[i][j] != 0]
+    if in_vars:
+        total_recipients.append(sum(in_vars))
+# total_recipients is a list of sums, sum them all
+model.Maximize(sum(total_recipients))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Build the solution matrix as list of lists of integers 0/1
+    solution_transplants = []
+    for i in range(num_people):
+        row = []
+        for j in range(num_people):
+            if transplants[i][j] == 0:
+                row.append(0)
+            else:
+                row.append(solver.Value(transplants[i][j]))
+        solution_transplants.append(row)
+    solution = {&#x27;transplants&#x27;: solution_transplants}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (67 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+num_people = 8  # number of people
+# 1-based indexing: compatible[i] is the list of people to which person (i+1) can donate
+compatible = [
+    [2, 3],
+    [1, 6],
+    [1, 4, 7],
+    [2],
+    [2],
+    [5],
+    [8],
+    [3]
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# transplants[i][j] = 1 if person (i+1) donates to person (j+1), else 0
+transplants = []
+for i in range(num_people):
+    row = []
+    for j in range(num_people):
+        var = model.NewBoolVar(f&quot;t_{i}_{j}&quot;)
+        # If j+1 not in compatible[i], force var to 0
+        if (j + 1) not in compatible[i]:
+            model.Add(var == 0)
+        row.append(var)
+    transplants.append(row)
+
+# Constraints
+# 1. Each person donates at most one kidney
+for i in range(num_people):
+    model.Add(sum(transplants[i][j] for j in range(num_people)) &lt;= 1)
+
+# 2. Conservation: a person who donates must also receive exactly one kidney
+#    and vice versa: sum_out(i) == sum_in(i)
+for i in range(num_people):
+    out_flow = sum(transplants[i][j] for j in range(num_people))
+    in_flow = sum(transplants[j][i] for j in range(num_people))
+    model.Add(out_flow == in_flow)
+
+# Objective: maximize the total number of transplants
+model.Maximize(sum(transplants[i][j] for i in range(num_people) for j in range(num_people)))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    result = []
+    for i in range(num_people):
+        row = []
+        for j in range(num_people):
+            row.append(solver.Value(transplants[i][j]))
+        result.append(row)
+    solution = {
+        &#x27;transplants&#x27;: result
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (85 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# Input data (exactly as provided by the exercise)
+# --------------------------------------------------
+num_people = 8  # number of people
+compatible = [                 # 1-based indexing in the raw list
+    [2, 3],                    # patient 1 can donate to 2, 3
+    [1, 6],                    # patient 2 → 1, 6
+    [1, 4, 7],                 # patient 3 → 1, 4, 7
+    [2],                      
+    [2],
+    [5],
+    [8],
+    [3]
+]
+
+# --------------------------------------------------
+# Pre-processing: convert every ID from 1-based → 0-based
+# --------------------------------------------------
+compatible_0 = []
+for donor, recipients in enumerate(compatible):
+    # shift indices and remove any accidental self-loop
+    new_list = [r - 1 for r in recipients if (r - 1) != donor]
+    compatible_0.append(new_list)
+
+# --------------------------------------------------
+# Create CP-SAT model
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: x[(i,j)] is 1 if patient i donates to patient j
+x = {}
+for i in range(num_people):
+    for j in compatible_0[i]:
+        x[(i, j)] = model.NewBoolVar(f&quot;x_{i}_{j}&quot;)
+
+# 1. Each donor donates at most one kidney
+for i in range(num_people):
+    out_vars = [x[(i, j)] for j in compatible_0[i]]
+    if out_vars:                       # skip if patient cannot donate to anyone
+        model.Add(sum(out_vars) &lt;= 1)
+
+# 2. Each recipient receives at most one kidney
+for j in range(num_people):
+    in_vars = [x[(i, j)] for i in range(num_people) if (i, j) in x]
+    if in_vars:                        # skip if no one can donate to j
+        model.Add(sum(in_vars) &lt;= 1)
+
+# 3. Donate  ⇔  Receive  (balance incoming and outgoing)
+for k in range(num_people):
+    out_vars = [x[(k, j)] for j in compatible_0[k]]
+    in_vars  = [x[(i, k)] for i in range(num_people) if (i, k) in x]
+    # Only post when the equality is not trivially 0 == 0 to avoid bool constant
+    if out_vars or in_vars:
+        model.Add(sum(out_vars) == sum(in_vars))
+
+# Objective: maximise total number of actual transplants
+model.Maximize(sum(x.values()))
+
+# --------------------------------------------------
+# Solve the model
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 30  # safety time-out
+status = solver.Solve(model)
+
+# --------------------------------------------------
+# Extract solution into full num_people × num_people matrix
+# --------------------------------------------------
+transplants = [[0 for _ in range(num_people)] for _ in range(num_people)]
+
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    for (i, j), var in x.items():
+        transplants[i][j] = int(solver.Value(var))
+else:
+    # If no solution was found (should not occur for the given data),
+    # an all-zero matrix is still a valid JSON according to spec.
+    pass
+
+# --------------------------------------------------
+# Output: JSON with the required key
+# --------------------------------------------------
+print(json.dumps({&quot;transplants&quot;: transplants}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;transplants&quot;: [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;num_people&quot;: 8,
   &quot;compatible&quot;: [
     [
@@ -113,9 +2789,9 @@ compatible = [  # 1-based indexing, compatible[i] is the list of people to which
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">transplants</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-150">Copy</button></div><pre class="code-block"><code id="solution-150" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">transplants</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-150">Copy</button></div><pre class="code-block"><code id="solution-150" class="language-json">{
   &quot;transplants&quot;: [
     [
       false,
@@ -199,6 +2875,7 @@ compatible = [  # 1-based indexing, compatible[i] is the list of people to which
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -206,9 +2883,9 @@ compatible = [  # 1-based indexing, compatible[i] is the list of people to which
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/session3_kidney_exchange/session3_kidney_exchange.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/session3_kidney_exchange/session3_kidney_exchange.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session3_farmer_and_cows.html">â† prev</a><a class="btn" href="session3_people_in_a_room.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session3_farmer_and_cows.html">← prev</a><a class="btn" href="session3_people_in_a_room.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

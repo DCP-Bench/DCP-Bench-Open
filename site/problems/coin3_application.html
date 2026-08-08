@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>coin3_application Â· DCP-Bench Open</title>
-<meta name="description" content="Find the minimum number of coins that allows one to pay exactly any amount smaller than a given maximum amount using a given set of denominations. Print the nuâ€¦">
+<title>coin3_application · DCP-Bench Open</title>
+<meta name="description" content="Find the minimum number of coins that allows one to pay exactly any amount smaller than a given maximum amount using a given set of denominations. Print the nu…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/coins3.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/coins3.py</a></dd><dt>Source description</dt><dd>From &#x27;Constraint Logic Programming using ECLiPSe&#x27; pages 99f and 234 ff. The solution in ECLiPSe is at page 236.</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-34">Copy</button></div><pre class="code-block"><code id="model-34" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -67,7 +68,1111 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">denominations = [1, 2, 5, 10, 20, 50]  # Euro cent denominations
 max_amount_to_pay = 100  # maximum amount to pay in cents</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+denominations = [1, 2, 5, 10, 20, 50]  # Available coin denominations in cents
+max_amount = 99  # Maximum amount to pay (99 cents = less than 1 Euro)
+max_coins = 99  # Upper bound on number of coins per denomination
+
+# Decision Variables
+x = intvar(0, max_coins, shape=len(denominations), name=&quot;x&quot;)  # Number of each coin type
+
+# Model
+model = Model()
+
+# For each amount from 1 to 99 cents, ensure it can be paid exactly
+for amount in range(1, max_amount + 1):
+    # Variables to represent the coins used for this specific amount
+    y = intvar(0, max_coins, shape=len(denominations), name=f&quot;y_{amount}&quot;)
+    
+    # Constraint: the sum of coins*y equals the amount
+    model += sum(y[i] * denominations[i] for i in range(len(denominations))) == amount
+    
+    # Constraint: we can&#x27;t use more coins than we have available
+    model += [y[i] &lt;= x[i] for i in range(len(denominations))]
+
+# Objective: minimize total number of coins
+model.minimize(sum(x))
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;x&quot;: x.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Denominations of coins in cents
+denominations = [1, 2, 5, 10, 20, 50]
+
+# Number of different coin denominations
+num_coins = len(denominations)
+
+# Decision variables: number of each type of coin used
+x = intvar(0, 100, shape=num_coins, name=&quot;x&quot;)
+
+# Model
+model = Model()
+
+# Objective: minimize the total number of coins
+model.minimize(sum(x))
+
+# Constraints: For each amount from 1 to 99 cents, we must be able to form it using the coins
+for amount in range(1, 100):
+    # Binary variables to indicate if a coin is used in forming the amount
+    use_coin = boolvar(shape=num_coins, name=f&quot;use_coin_{amount}&quot;)
+    
+    # The total value of the selected coins must equal the amount
+    model += [sum(denominations[i] * use_coin[i] for i in range(num_coins)) == amount]
+    
+    # The number of coins used for this amount must not exceed the available number of coins
+    for i in range(num_coins):
+        model += [use_coin[i] &lt;= x[i]]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Problem: Find minimum number of coins to pay exactly any amount &lt; 1 Euro (100 cents)
+# Denominations: 1, 2, 5, 10, 20, 50 cents
+# Objective: Minimize total number of coins
+
+denominations = [1, 2, 5, 10, 20, 50]
+n_denoms = len(denominations)
+max_amount = 99  # Any amount smaller than 100 cents (1 Euro)
+
+model = cp.Model()
+
+# Decision variables: x[i] = number of coins of denomination denominations[i]
+# Upper bound: worst case is paying 99 cents with 1-cent coins = 99 coins
+max_coins_per_denom = max_amount
+x = cp.intvar(0, max_coins_per_denom, shape=n_denoms, name=&quot;x&quot;)
+
+# Constraint: Must be able to pay exactly any amount from 1 to 99 cents
+# For each amount, we need auxiliary variables representing how many coins of each type to use
+for amount in range(1, max_amount + 1):
+    # For this amount, create variables for how many coins of each denomination to use
+    coins_used = cp.intvar(0, max_coins_per_denom, shape=n_denoms, name=f&quot;coins_used_{amount}&quot;)
+    
+    # The coins used for this amount must sum to the amount
+    model += cp.sum([coins_used[i] * denominations[i] for i in range(n_denoms)]) == amount
+    
+    # The coins used cannot exceed the coins we have
+    for i in range(n_denoms):
+        model += coins_used[i] &lt;= x[i]
+
+# Objective: Minimize total number of coins
+total_coins = cp.sum(x)
+model.minimize(total_coins)
+
+# Solve the model
+if model.solve():
+    # Extract solution
+    solution_values = x.value()
+    solution = {&quot;x&quot;: solution_values.tolist()}
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+denominations = [1, 2, 5, 10, 20, 50]
+max_amount = 99  # amounts smaller than one Euro (1 to 99 cents)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = number of coins of denomination denominations[i]
+x = cp.intvar(0, max_amount, shape=len(denominations), name=&quot;x&quot;)
+
+# Constraints
+# For every amount from 1 to 99, it must be possible to pay exactly using the coins chosen
+# We model this by introducing auxiliary variables y[a][i] = number of coins of denomination i used to pay amount a
+y = cp.intvar(0, max_amount, shape=(max_amount, len(denominations)), name=&quot;y&quot;)
+
+# For each amount a, sum of y[a][i]*denominations[i] == a+1 (since a in 0..98 means amount a+1)
+for a in range(max_amount):
+    model += (cp.sum([y[a, i] * denominations[i] for i in range(len(denominations))]) == a + 1)
+    # The number of coins used for amount a cannot exceed the coins available
+    for i in range(len(denominations)):
+        model += (y[a, i] &lt;= x[i])
+
+# Objective: minimize total number of coins
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Denominations as requested in the print statement: 1,2,5,10,25,50 cents
+denoms = [1, 2, 5, 10, 25, 50]
+n_denoms = len(denoms)
+
+# Targets: every amount from 1 to 99 cents (smaller than one Euro)
+targets = list(range(1, 100))
+
+# Upper bounds for number of coins of each denomination:
+# No more of a given coin is needed than floor(99 / denom)
+ub_per_denom = [99 // d for d in denoms]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: number of each coin available
+x = cp.intvar([0]*n_denoms, ub_per_denom, name=&quot;x&quot;)  # shape (6,)
+
+# For each target amount t, we have selection variables y[t,i] indicating how many of coin i are used to pay t.
+# Bounds for y are same per-denomination upper bounds (tightened), and we will constrain y[t,i] &lt;= x[i]
+y = cp.intvar(0, ub_per_denom, shape=(len(targets), n_denoms), name=&quot;y&quot;)
+
+# Constraints:
+# 1) For each target amount, the weighted sum of coins equals the target
+for ti, t in enumerate(targets):
+    model += cp.sum([y[ti, i] * denoms[i] for i in range(n_denoms)]) == t
+
+# 2) For each target and denomination, cannot use more coins than available
+for ti in range(len(targets)):
+    for i in range(n_denoms):
+        model += y[ti, i] &lt;= x[i]
+
+# Objective: minimize total number of coins
+model.minimize(cp.sum(x))
+
+# Solve
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Denominations in cents
+denoms = [1, 2, 5, 10, 20, 50]
+max_amount = 99  # we need to pay any amount from 1 to 99 cents
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of each coin type we include
+# Upper bound for each coin type is ceil(max_amount / denom)
+x = cp.intvar(0, [ (max_amount + d - 1) // d for d in denoms ], shape=len(denoms), name=&quot;x&quot;)
+
+# For each target amount v in 1..99, we have auxiliary variables y[v][i]
+# indicating how many coins of type i we use to make amount v
+y = []
+for v in range(1, max_amount+1):
+    # y_v_i in [0, x[i]], but we give them a loose upper bound = x[i]&#x27;s max
+    y_v = cp.intvar(0, [ (max_amount + d - 1) // d for d in denoms ], shape=len(denoms))
+    y.append(y_v)
+
+# Constraints
+# For each amount v, the sum of chosen coins equals v
+for idx, v in enumerate(range(1, max_amount+1)):
+    model += cp.sum([y[idx][i] * denoms[i] for i in range(len(denoms))]) == v
+    # And we cannot use more coins of each type than we actually have
+    for i in range(len(denoms)):
+        model += y[idx][i] &lt;= x[i]
+
+# Objective: minimize total number of coins
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (1 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+print(json.dumps({&#x27;x&#x27;: [1, 2, 1, 1, 2, 1]}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data: coin denominations in cents
+coins = [1, 2, 5, 10, 20, 50]
+
+# Model definition
+model = cp.Model()
+
+# Decision variables: number of each coin type used
+x = cp.intvar(0, 100, shape=len(coins), name=&quot;x&quot;)
+
+# We want to be able to pay exactly any amount from 1 to 99 cents
+# For each amount, there must be a way to pay it exactly using the chosen coins.
+# We model this by introducing auxiliary variables for each amount and coin count.
+
+# For each amount, define auxiliary variables: how many of each coin to use
+pay = []
+for amount in range(1, 100):
+    # For each coin type, number used to pay this amount, max could be amount//coin value
+    pay_coins = cp.intvar(0, 100, shape=len(coins))
+    pay.append(pay_coins)
+
+    # The sum of coin values must equal amount
+    model += (cp.sum([pay_coins[i]*coins[i] for i in range(len(coins))]) == amount)
+
+    # For each coin used in paying amount, it must not exceed the total coins available
+    for i in range(len(coins)):
+        model += (pay_coins[i] &lt;= x[i])
+
+# Objective: minimize total number of coins used
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Denominations in cents as required by the problem description:
+# 1, 2, 5, 10, 20, 50
+denoms = [1, 2, 5, 10, 20, 50]
+
+# Amounts to cover: 1..99 cents
+amounts = list(range(1, 100))
+num_amounts = len(amounts)
+
+# Upper bounds for variables (safe overestimates)
+max_coins_total = 99  # worst case all 1-cent coins
+max_y = 99
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = number of coins available of denomination denoms[i]
+x = cp.intvar(0, max_coins_total, shape=6, name=&quot;x&quot;)
+
+# y[i,a] = number of coins of denom i used to pay amount a (for each amount)
+y = cp.intvar(0, max_y, shape=(6, num_amounts), name=&quot;y&quot;)
+
+# Constraints
+
+# For each amount, the weighted sum of used coins must equal the amount
+for j, a in enumerate(amounts):
+    model += cp.sum([denoms[i] * y[i, j] for i in range(6)]) == a
+
+# For each denom and amount, cannot use more coins than available,
+# and also no need to use more than floor(99/denom) of that denom for any amount
+for i, d in enumerate(denoms):
+    max_needed_for_d = 99 // d
+    for j in range(num_amounts):
+        model += y[i, j] &lt;= x[i]
+        model += y[i, j] &lt;= max_needed_for_d
+
+# Objective: minimize total number of coins available
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Define variables for the number of each coin type (1,2,5,10,20,50 cents)
+x1, x2, x5, x10, x20, x50 = cp.intvar(0, 100, shape=6)
+
+model = cp.Model()
+
+# Constraints based on the greedy algorithm&#x27;s requirements to cover all amounts 1-99
+model += x1 &gt;= 1         # At least 1 of 1c
+model += x2 &gt;= 2         # At least 2 of 2c
+model += x5 &gt;= 1         # At least 1 of 5c
+model += x10 &gt;= 1        # At least 1 of 10c
+model += x20 &gt;= 2        # At least 2 of 20c
+model += x50 &gt;= 1        # At least 1 of 50c
+
+# Objective: minimize the total number of coins
+model.minimize(x1 + x2 + x5 + x10 + x20 + x50)
+
+if model.solve():
+    solution = {
+        &#x27;x&#x27;: [int(x1.value()), int(x2.value()), int(x5.value()), 
+              int(x10.value()), int(x20.value()), int(x50.value())]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+coins = [1, 2, 5, 10, 20, 50]
+
+# Decision variables: counts for each coin denomination
+x = cp.intvar(0, 100, shape=len(coins), name=&quot;x&quot;)
+
+model = cp.Model()
+
+# For each amount from 1 to 99, ensure there exists a combination of coins that sums to it
+for a in range(1, 100):
+    # Variables for the counts used in this amount&#x27;s combination
+    c = cp.intvar(0, 100, shape=len(coins), name=f&quot;c_{a}&quot;)
+    
+    # Constraint: combination must sum to the current amount
+    model += (cp.sum(coins[i] * c[i] for i in range(6)) == a)
+    
+    # Constraints: combination counts cannot exceed the available coin counts
+    for i in range(6):
+        model += (c[i] &lt;= x[i])
+
+# Objective: minimize the total number of coins
+model.minimize(cp.sum(x))
+
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import numpy as np
+import json
+
+# Data
+denoms = np.array([1, 2, 5, 10, 20, 50], dtype=int)  # denominations in cents
+max_amount = 99
+n_den = len(denoms)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i]: number of coins available of denomination denoms[i]
+# Use a safe uniform upper bound and tighten with constraints
+x = cp.intvar(0, max_amount, shape=n_den, name=&quot;x&quot;)
+
+# y[a_idx, i]: number of coins of denom i used to make amount a_idx+1
+y = cp.intvar(0, max_amount, shape=(max_amount, n_den), name=&quot;y&quot;)
+
+# Constraints
+
+# 1) For each amount a (1..99), the selected coins must sum exactly to a
+for a_idx in range(max_amount):
+    a = a_idx + 1
+    model += (cp.sum(y[a_idx, :] * denoms) == a)
+
+# 2) You cannot use more coins of a type than you have: y[a, i] &lt;= x[i]
+for i in range(n_den):
+    model += [y[a_idx, i] &lt;= x[i] for a_idx in range(max_amount)]
+
+# 3) For each amount a and denom i, you cannot use more coins than the amount allows:
+#    y[a, i] &lt;= floor(a/denom_i)
+for a_idx in range(max_amount):
+    a = a_idx + 1
+    for i in range(n_den):
+        model += (y[a_idx, i] &lt;= a // denoms[i])
+
+# 4) Tighten upper bounds on x: x[i] &lt;= floor(99/denoms[i])
+for i in range(n_den):
+    model += (x[i] &lt;= max_amount // denoms[i])
+
+# Objective: minimize total number of coins
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Denominations as requested in the print statement: 1,2,5,10,20,50 cents
+denoms = [1, 2, 5, 10, 20, 50]
+n_denoms = len(denoms)
+
+# Targets: every amount from 1 to 99 cents (smaller than one Euro)
+targets = list(range(1, 100))
+n_targets = len(targets)
+
+# Upper bounds for number of coins of each denomination:
+# No more of a given coin is needed than floor(99 / denom)
+ub_per_denom = [99 // d for d in denoms]
+max_ub = max(ub_per_denom)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: number of each coin available
+# Use scalar bounds and shape parameter, then add per-variable upper bounds
+x = cp.intvar(0, max_ub, shape=n_denoms, name=&quot;x&quot;)  # shape (6,)
+
+# For each target amount t, selection variables y[t,i] indicating how many of coin i are used to pay t.
+y = cp.intvar(0, max_ub, shape=(n_targets, n_denoms), name=&quot;y&quot;)
+
+# Constraints:
+# 1) Per-denomination upper bounds for x (since ub_per_denom may vary)
+for i in range(n_denoms):
+    model += x[i] &lt;= ub_per_denom[i]
+
+# 2) For each target amount, the weighted sum of coins equals the target
+for ti, t in enumerate(targets):
+    model += cp.sum([y[ti, i] * denoms[i] for i in range(n_denoms)]) == t
+    # 3) For each target and denomination, cannot use more coins than available
+    for i in range(n_denoms):
+        model += y[ti, i] &lt;= x[i]
+        # also can respect the per-denomination absolute bound for y (not strictly necessary because x is bounded)
+        model += y[ti, i] &lt;= ub_per_denom[i]
+
+# Objective: minimize total number of coins
+model.minimize(cp.sum(x))
+
+# Solve
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    2,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (35 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Coin denominations in cents
+array[1..6] of int: coins = [1, 2, 5, 10, 20, 50];
+
+% Decision variables: number of each coin used
+array[1..6] of var 0..100: x;
+
+% Maximum amount to pay (less than one Euro)
+int: max_amount = 99;
+
+% For each amount from 1 to 99, we must be able to pay exactly using the coins chosen
+% We model this by checking that for each amount, there exists a combination of coins (y)
+% with y[i] &lt;= x[i] that sums to the amount.
+
+% To model this, we introduce auxiliary variables y[a,i] for each amount a and coin i
+array[1..max_amount, 1..6] of var 0..100: y;
+
+% Constraints:
+constraint
+  forall(a in 1..max_amount) (
+    % sum of y[a,i]*coins[i] = a
+    sum(i in 1..6)(y[a,i] * coins[i]) = a /\
+    % y[a,i] &lt;= x[i]
+    forall(i in 1..6)(y[a,i] &lt;= x[i])
+  );
+
+% Objective: minimize total number of coins used
+var int: total_coins = sum(i in 1..6)(x[i]);
+solve minimize total_coins;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;x\&quot;: &quot;, show(x),
+  &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    2,
+    1,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (36 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary library for global constraints (not strictly needed here but good practice)
+include &quot;globals.mzn&quot;;
+
+% Data
+int: num_den = 6;
+array[1..num_den] of int: den = [1,2,5,10,20,50];
+int: max_amount = 99;
+
+% Decision variables: how many coins of each denomination
+array[1..num_den] of var 0..max_amount: x;
+
+% Auxiliary vars: for each amount a, how many coins of each denom we use to pay exactly a
+array[1..max_amount, 1..num_den] of var 0..max_amount: y;
+
+% Ensure that for every amount from 1 to 99 we can pay exactly that amount
+constraint
+  forall(a in 1..max_amount) (
+    % sum of denominations times counts equals the amount
+    sum(i in 1..num_den)( y[a,i] * den[i] ) = a
+    /\
+    % cannot use more coins of a type than we have
+    forall(i in 1..num_den)( y[a,i] &lt;= x[i] )
+  );
+
+% Objective: minimize total number of coins
+var 0..max_amount * num_den: total_coins = sum(i in 1..num_den)( x[i] );
+
+solve minimize total_coins;
+
+% Output the list x in JSON format
+output [
+  &quot;{&quot;,
+    &quot;\&quot;x\&quot;: [&quot; ++ join(&quot;,&quot;, [show(x[i]) | i in 1..num_den]) ++ &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    2,
+    1,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Coin denominations in cents
+denominations = [1, 2, 5, 10, 20, 50]
+
+# Maximum amount to pay (less than one Euro = 99 cents)
+max_amount = 99
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: number of each coin type used
+x = [model.NewIntVar(0, max_amount, f&#x27;x_{d}&#x27;) for d in denominations]
+
+# For each amount from 1 to 99, we must be able to pay exactly using the chosen coins
+# We model this by introducing auxiliary variables for each amount and coin type,
+# representing how many coins of each type are used to pay that amount.
+# These auxiliary variables must be &lt;= the total coins available of that type.
+
+# Create auxiliary variables: pay[a][c] = number of coins of denomination c used to pay amount a
+pay = []
+for a in range(1, max_amount + 1):
+    pay.append([model.NewIntVar(0, max_amount, f&#x27;pay_{a}_{d}&#x27;) for d in denominations])
+
+# Constraints for each amount:
+for a in range(1, max_amount + 1):
+    # Sum of coins * denomination = amount a
+    model.Add(sum(pay[a-1][i] * denominations[i] for i in range(len(denominations))) == a)
+    # For each coin type, the number used to pay amount a cannot exceed total coins available
+    for i in range(len(denominations)):
+        model.Add(pay[a-1][i] &lt;= x[i])
+
+# Objective: minimize total number of coins
+model.Minimize(sum(x))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;x&#x27;: [solver.Value(coin) for coin in x]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Denominations in cents
+denoms = [1, 2, 5, 10, 20, 50]
+max_amount = 99  # we need to cover all amounts from 1 to 99 cents
+
+# Create the CP model
+model = cp_model.CpModel()
+
+# Decision variables: number of coins of each denomination
+# Upper bound for each coin type is max_amount // denomination
+x = []
+for i, d in enumerate(denoms):
+    ub = max_amount // d
+    x_var = model.NewIntVar(0, ub, f&#x27;x[{i}]&#x27;)
+    x.append(x_var)
+
+# Auxiliary variables y[i,t]: how many coins of type i are used to pay amount t
+# Domain 0..ub and constrained by y[i,t] &lt;= x[i]
+y = {}
+for i, d in enumerate(denoms):
+    ub = max_amount // d
+    for t in range(1, max_amount + 1):
+        y_var = model.NewIntVar(0, ub, f&#x27;y[{i},{t}]&#x27;)
+        model.Add(y_var &lt;= x[i])
+        y[(i, t)] = y_var
+
+# For each amount t, the sum of coins used must equal t
+for t in range(1, max_amount + 1):
+    model.Add(
+        sum(y[(i, t)] * denoms[i] for i in range(len(denoms)))
+        == t
+    )
+
+# Objective: minimize total number of coins
+model.Minimize(sum(x))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;x&#x27;: [solver.Value(x[i]) for i in range(len(denoms))]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# -------------------------------------------------------------
+# Problem data (fixed, no external input)
+# -------------------------------------------------------------
+DENOM = [1, 2, 5, 10, 20, 50]  # coin values in cents (ascending)
+MAX_PAYABLE = 99               # we must be able to pay any value 1..99
+NUM_DENOMS = len(DENOM)
+
+# -------------------------------------------------------------
+# CP-SAT model
+# -------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: x[d] = number of coins of denomination DENOM[d]
+# Upper bound: with value v we can never need more than 99 // v coins.
+x = [model.NewIntVar(0, MAX_PAYABLE // val, f&quot;x_{val}&quot;) for val in DENOM]
+
+# Auxiliary variables: y[v][d] = coins of denom d used to pay amount v
+# Needed to enforce that every value 1..99 can be paid with existing stock.
+y = {}
+for v in range(1, MAX_PAYABLE + 1):
+    row = []
+    for d, val in enumerate(DENOM):
+        y_vd = model.NewIntVar(0, v // val, f&quot;y_{v}_{val}&quot;)  # cannot exceed v/val
+        row.append(y_vd)
+        # cannot use more coins than available
+        model.Add(y_vd &lt;= x[d])
+    # exact payment constraint for amount v
+    model.Add(sum(y_vd * val for y_vd, val in zip(row, DENOM)) == v)
+    y[v] = row  # (kept only to preserve handles; not used after build)
+
+# Objective: minimise total number of coins kept
+model.Minimize(sum(x))
+
+# -------------------------------------------------------------
+# Solve model
+# -------------------------------------------------------------
+solver = cp_model.CpSolver()
+# allow parallel search for speed
+solver.parameters.num_search_workers = 8
+status = solver.Solve(model)
+
+# -------------------------------------------------------------
+# Output in required JSON format
+# -------------------------------------------------------------
+if status == cp_model.OPTIMAL:
+    result = [solver.Value(var) for var in x]
+    print(json.dumps({&quot;x&quot;: result}))
+else:
+    # No feasible solution found (should not happen); return empty list
+    print(json.dumps({&quot;x&quot;: []}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    1,
+    2,
+    1,
+    1,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;denominations&quot;: [
     1,
     2,
@@ -78,9 +1183,9 @@ max_amount_to_pay = 100  # maximum amount to pay in cents</code></pre>
   ],
   &quot;max_amount_to_pay&quot;: 100
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-34">Copy</button></div><pre class="code-block"><code id="solution-34" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-34">Copy</button></div><pre class="code-block"><code id="solution-34" class="language-json">{
   &quot;x&quot;: [
     1,
     2,
@@ -90,6 +1195,7 @@ max_amount_to_pay = 100  # maximum amount to pay in cents</code></pre>
     1
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -97,9 +1203,9 @@ max_amount_to_pay = 100  # maximum amount to pay in cents</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/coin3_application/coin3_application.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/coin3_application/coin3_application.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cmo_2012.html">â† prev</a><a class="btn" href="coins_grid.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cmo_2012.html">← prev</a><a class="btn" href="coins_grid.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

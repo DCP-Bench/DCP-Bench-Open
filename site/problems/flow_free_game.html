@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>flow_free_game Â· DCP-Bench Open</title>
-<meta name="description" content="Connect matching colors with pipe to create a flow. Pair all colors, and cover the entire board to solve each puzzle in Flow Free. But watch out, pipes will brâ€¦">
+<title>flow_free_game · DCP-Bench Open</title>
+<meta name="description" content="Connect matching colors with pipe to create a flow. Pair all colors, and cover the entire board to solve each puzzle in Flow Free. But watch out, pipes will br…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/flow_free_game.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/flow_free_game.py</a></dd><dt>Source description</dt><dd><a href="https://www.bigduckgames.com/flowfree" target="_blank" rel="noopener">https://www.bigduckgames.com/flowfree</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-102">Copy</button></div><pre class="code-block"><code id="model-102" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -65,7 +66,435 @@ board = [[1, 0, 0, 2, 3],
          [0, 2, 3, 0, 5],
          [0, 1, 5, 0, 0]]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (75 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+board = [[1, 0, 0, 2, 3],
+         [0, 0, 0, 4, 0],
+         [0, 0, 4, 0, 0],
+         [0, 2, 3, 0, 5],
+         [0, 1, 5, 0, 0]]
+
+n = len(board)
+m = len(board[0])
+C = 5  # colors 1..5
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.intvar(1, C, shape=(n, m), name=&quot;B&quot;)  # board colors 1..5
+# x[c,i,j] == 1 iff cell (i,j) has color c+1
+x = cp.boolvar(shape=(C, n, m), name=&quot;x&quot;)
+
+# Constraints
+
+# Fix given endpoints in B
+for i in range(n):
+    for j in range(m):
+        if board[i][j] != 0:
+            model += (B[i, j] == board[i][j])
+
+# Link x and B: x[c,i,j] == (B[i,j] == c+1)
+for c in range(C):
+    val = c + 1
+    for i in range(n):
+        for j in range(m):
+            model += (x[c, i, j] == (B[i, j] == val))
+
+# Each cell has exactly one color (redundant with linking above, but safe)
+for i in range(n):
+    for j in range(m):
+        model += cp.sum([x[c, i, j] for c in range(C)]) == 1
+
+# Helper: neighbors (orthogonal)
+def neighbors(i, j):
+    for di, dj in ((-1,0),(1,0),(0,-1),(0,1)):
+        ni, nj = i+di, j+dj
+        if 0 &lt;= ni &lt; n and 0 &lt;= nj &lt; m:
+            yield ni, nj
+
+# Degree/connectivity constraints per color
+# Endpoints (given cells) must have degree 1 for their color.
+# Other colored cells must have degree 2. Non-colored cells must have degree 0.
+for c in range(C):
+    val = c + 1
+    for i in range(n):
+        for j in range(m):
+            neigh_vars = [x[c, ni, nj] for (ni, nj) in neighbors(i, j)]
+            deg = cp.sum(neigh_vars)
+            if board[i][j] == val:
+                # This is a fixed endpoint for color val
+                model += x[c, i, j] == 1
+                model += deg == 1
+            else:
+                # If this cell has color c -&gt; must have degree 2
+                model += x[c, i, j].implies(deg == 2)
+                # If not color c -&gt; degree 0 (no neighbors of that color)
+                model += (~x[c, i, j]).implies(deg == 0)
+
+# Solve
+if model.solve():
+    solution = {&#x27;B&#x27;: B.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (113 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+board = [[1, 0, 0, 2, 3],
+         [0, 0, 0, 4, 0],
+         [0, 0, 4, 0, 0],
+         [0, 2, 3, 0, 5],
+         [0, 1, 5, 0, 0]]
+n = 5
+colors = 5  # colors numbered 1..5
+maxcells = n * n
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.intvar(1, colors, shape=(n, n), name=&quot;B&quot;)  # board colors to output
+
+# X[c,i,j] is True iff cell (i,j) has color c+1
+X = cp.boolvar(shape=(colors, n, n), name=&quot;X&quot;)
+
+# dist[c,i,j]: distance along the path from the chosen root endpoint (0..maxcells-1)
+dist = cp.intvar(0, maxcells - 1, shape=(colors, n, n), name=&quot;dist&quot;)
+
+# succ[c,i,j,k]: for cell (i,j), k in [0..3] corresponds to neighbor directions
+# order of directions: 0=up,1=right,2=down,3=left
+succ = cp.boolvar(shape=(colors, n, n, 4), name=&quot;succ&quot;)
+
+# Helper: neighbor directions
+dirs = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+opp = [2, 3, 0, 1]  # opposite direction index
+
+# Add basic channeling between B and X, and fix pre-filled cells
+for i in range(n):
+    for j in range(n):
+        if board[i][j] != 0:
+            # fixed prefilled value
+            model += (B[i, j] == board[i][j])
+        # Channel X variables with B
+        for c in range(colors):
+            model += (X[c, i, j] == (B[i, j] == (c + 1)))
+
+# For succ variables, set them to 0 when neighbor doesn&#x27;t exist, and basic linking
+for c in range(colors):
+    for i in range(n):
+        for j in range(n):
+            for k, (di, dj) in enumerate(dirs):
+                ni, nj = i + di, j + dj
+                s = succ[c, i, j, k]
+                if not (0 &lt;= ni &lt; n and 0 &lt;= nj &lt; n):
+                    # invalid neighbor: no successor allowed
+                    model += (s == 0)
+                else:
+                    # successor implies both source and target cells have the color
+                    model += (s &lt;= X[c, i, j])
+                    model += (s &lt;= X[c, ni, nj])
+                    # if s is true then dist[ni,nj] == dist[i,j] + 1
+                    model += s.implies(dist[c, ni, nj] == dist[c, i, j] + 1)
+
+# Identify endpoints (the two given cells) for each color, choose the first as root, second as sink
+endpoints = {}
+for c in range(1, colors + 1):
+    pts = []
+    for i in range(n):
+        for j in range(n):
+            if board[i][j] == c:
+                pts.append((i, j))
+    if len(pts) != 2:
+        raise ValueError(f&quot;Color {c} does not have exactly 2 endpoints in the input.&quot;)
+    endpoints[c] = (pts[0], pts[1])
+
+# Constraints to enforce single non-branching path connecting the two endpoints for each color
+for c in range(colors):
+    col = c + 1
+    (r_i, r_j), (s_i, s_j) = endpoints[col]
+    for i in range(n):
+        for j in range(n):
+            # compute prev_sum: number of incoming succs from neighbors into (i,j)
+            incoming = []
+            outgoing = []
+            for k, (di, dj) in enumerate(dirs):
+                ni, nj = i + di, j + dj
+                if 0 &lt;= ni &lt; n and 0 &lt;= nj &lt; n:
+                    incoming.append(succ[c, ni, nj, opp[k]])
+                    outgoing.append(succ[c, i, j, k])
+            prev_sum = cp.sum(incoming)
+            next_sum = cp.sum(outgoing)
+
+            # If this cell is the chosen root for this color
+            if (i, j) == (r_i, r_j):
+                model += (X[c, i, j] == 1)  # must be the color
+                model += (dist[c, i, j] == 0)
+                model += (prev_sum == 0)
+                model += (next_sum == 1)
+            # If this cell is the sink endpoint
+            elif (i, j) == (s_i, s_j):
+                model += (X[c, i, j] == 1)
+                model += (prev_sum == 1)
+                model += (next_sum == 0)
+            else:
+                # For other cells: if they are of this color they must have exactly one incoming and one outgoing
+                model += X[c, i, j].implies(prev_sum == 1)
+                model += X[c, i, j].implies(next_sum == 1)
+                # If not of this color, there should be no incoming or outgoing succ edges (these are enforced by succ &lt;= X constraints)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;B&#x27;: B.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (101 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+board = [[1, 0, 0, 2, 3],
+         [0, 0, 0, 4, 0],
+         [0, 0, 4, 0, 0],
+         [0, 2, 3, 0, 5],
+         [0, 1, 5, 0, 0]]
+# End of data
+
+n = len(board)
+m = len(board[0])
+colors = sorted(list({board[i][j] for i in range(n) for j in range(m)} - {0}))
+if not colors:
+    colors = list(range(1, 6))  # fallback, but here we have colors 1..5
+
+# Find terminal positions for each color
+terminals = {k: [] for k in colors}
+for i in range(n):
+    for j in range(m):
+        if board[i][j] != 0:
+            terminals[board[i][j]].append((i, j))
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.intvar(1, len(colors), shape=(n, m), name=&quot;B&quot;)  # color for each cell
+
+# Path position variables for each color: Pk[u] = position along the path from the chosen source (0 if not color k)
+max_len = n * m
+P = {k: cp.intvar(0, max_len, shape=(n, m), name=f&quot;P{k}&quot;) for k in colors}
+
+# Constraints
+
+# Fix given cells and assure all cells are colored 1..|colors|
+for i in range(n):
+    for j in range(m):
+        if board[i][j] != 0:
+            model += (B[i, j] == board[i][j])
+
+# Helper: neighbors within grid
+def neighbors(i, j):
+    for di, dj in [(-1,0), (1,0), (0,-1), (0,1)]:
+        ni, nj = i+di, j+dj
+        if 0 &lt;= ni &lt; n and 0 &lt;= nj &lt; m:
+            yield ni, nj
+
+# For each color, connect terminals with a single non-branching path that covers all cells of that color
+for k in colors:
+    # Identify the two terminals (source, sink)
+    if len(terminals[k]) != 2:
+        # If input malformed, no solution
+        model += (1 == 0)
+        continue
+    (si, sj), (ti, tj) = terminals[k][0], terminals[k][1]
+
+    # Channeling between B and Pk:
+    # - If cell is color k then Pk&gt;=1, else Pk==0
+    for i in range(n):
+        for j in range(m):
+            is_k = (B[i, j] == k)
+            model += is_k.implies(P[k][i, j] &gt;= 1)
+            model += (~is_k).implies(P[k][i, j] == 0)
+
+    # Source has path position 1
+    model += (P[k][si, sj] == 1)
+
+    # Degree/orientation constraints using position differences:
+    # For source: exactly one neighbor with +1, none with -1
+    plus_source = cp.sum([ (B[ni, nj] == k) &amp; (P[k][ni, nj] == P[k][si, sj] + 1) for (ni, nj) in neighbors(si, sj) ])
+    minus_source = cp.sum([ (B[ni, nj] == k) &amp; (P[k][ni, nj] == P[k][si, sj] - 1) for (ni, nj) in neighbors(si, sj) ])
+    model += (plus_source == 1)
+    model += (minus_source == 0)
+
+    # For sink: exactly one neighbor with -1, none with +1
+    plus_sink = cp.sum([ (B[ni, nj] == k) &amp; (P[k][ni, nj] == P[k][ti, tj] + 1) for (ni, nj) in neighbors(ti, tj) ])
+    minus_sink = cp.sum([ (B[ni, nj] == k) &amp; (P[k][ni, nj] == P[k][ti, tj] - 1) for (ni, nj) in neighbors(ti, tj) ])
+    model += (plus_sink == 0)
+    model += (minus_sink == 1)
+
+    # For non-terminal cells of color k: exactly one neighbor at +1 and one at -1
+    for i in range(n):
+        for j in range(m):
+            if (i, j) == (si, sj) or (i, j) == (ti, tj):
+                continue
+            is_k = (B[i, j] == k)
+            plus_cnt = cp.sum([ (B[ni, nj] == k) &amp; (P[k][ni, nj] == P[k][i, j] + 1) for (ni, nj) in neighbors(i, j) ])
+            minus_cnt = cp.sum([ (B[ni, nj] == k) &amp; (P[k][ni, nj] == P[k][i, j] - 1) for (ni, nj) in neighbors(i, j) ])
+            model += is_k.implies((plus_cnt == 1) &amp; (minus_cnt == 1))
+
+# Objective (none, just find a solution that satisfies all constraints)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;B&#x27;: B.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (82 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+board = [[1, 0, 0, 2, 3],
+         [0, 0, 0, 4, 0],
+         [0, 0, 4, 0, 0],
+         [0, 2, 3, 0, 5],
+         [0, 1, 5, 0, 0]]
+
+n = len(board)
+m = len(board[0])
+C = 5  # colors 1..5
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.intvar(1, C, shape=(n, m), name=&quot;B&quot;)  # board colors 1..5
+# x[c,i,j] == 1 iff cell (i,j) has color c+1
+x = cp.boolvar(shape=(C, n, m), name=&quot;x&quot;)
+
+# Constraints
+
+# Fix given endpoints in B
+for i in range(n):
+    for j in range(m):
+        if board[i][j] != 0:
+            model += (B[i, j] == board[i][j])
+
+# Link x and B: x[c,i,j] == (B[i,j] == c+1)
+for c in range(C):
+    val = c + 1
+    for i in range(n):
+        for j in range(m):
+            model += (x[c, i, j] == (B[i, j] == val))
+
+# Each cell has exactly one color
+for i in range(n):
+    for j in range(m):
+        model += cp.sum([x[c, i, j] for c in range(C)]) == 1
+
+# Helper: neighbors (orthogonal)
+def neighbors(i, j):
+    for di, dj in ((-1,0),(1,0),(0,-1),(0,1)):
+        ni, nj = i+di, j+dj
+        if 0 &lt;= ni &lt; n and 0 &lt;= nj &lt; m:
+            yield ni, nj
+
+# Degree/connectivity constraints per color
+for c in range(C):
+    val = c + 1
+    # Per-cell degree constraints
+    for i in range(n):
+        for j in range(m):
+            neigh_vars = [x[c, ni, nj] for (ni, nj) in neighbors(i, j)]
+            deg_ij = cp.sum(neigh_vars)  # number of same-color neighbors of cell (i,j)
+            if board[i][j] == val:
+                # This is a fixed endpoint for color val
+                model += x[c, i, j] == 1
+                model += deg_ij == 1
+            else:
+                # If this cell has color c -&gt; must have degree 2 (internal node)
+                model += x[c, i, j].implies(deg_ij == 2)
+
+    # Connectivity/uniqueness constraint: ensure exactly one connected component per color
+    # k = number of cells colored c
+    k = cp.sum([x[c, i, j] for i in range(n) for j in range(m)])
+    # sum_deg = sum over colored cells of their degree (i.e., count degrees only for cells that are colored)
+    sum_deg = cp.sum([ x[c, i, j] * cp.sum([x[c, ni, nj] for (ni, nj) in neighbors(i, j)]) 
+                       for i in range(n) for j in range(m) ])
+    # For a single connected component (tree-like path between two endpoints), we must have:
+    # sum_deg == 2 * (k - 1)  (this forces exactly one connected component; cycles are thereby prevented)
+    model += sum_deg == 2 * (k - 1)
+
+# Solve
+if model.solve():
+    solution = {&#x27;B&#x27;: B.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;board&quot;: [
     [
       1,
@@ -104,9 +533,9 @@ board = [[1, 0, 0, 2, 3],
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">B</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-102">Copy</button></div><pre class="code-block"><code id="solution-102" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">B</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-102">Copy</button></div><pre class="code-block"><code id="solution-102" class="language-json">{
   &quot;B&quot;: [
     [
       1,
@@ -145,6 +574,7 @@ board = [[1, 0, 0, 2, 3],
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -152,9 +582,9 @@ board = [[1, 0, 0, 2, 3],
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/flow_free_game/flow_free_game.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/flow_free_game/flow_free_game.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="flowshop_scheduling.html">â† prev</a><a class="btn" href="football.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="flowshop_scheduling.html">← prev</a><a class="btn" href="football.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>session1_five_floors Â· DCP-Bench Open</title>
-<meta name="description" content="Baker, Cooper, Fletcher, Miller, and Smith live on the first five floors of an apartment house. Baker does not live on the fifth floor. Cooper does not live onâ€¦">
+<title>session1_five_floors · DCP-Bench Open</title>
+<meta name="description" content="Baker, Cooper, Fletcher, Miller, and Smith live on the first five floors of an apartment house. Baker does not live on the fifth floor. Cooper does not live on…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/five_floors.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/five_floors.py</a></dd><dt>Category</dt><dd>aplai_course</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (17)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-138">Copy</button></div><pre class="code-block"><code id="model-138" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -64,16 +65,1012 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">B</span><span class="chip">C</span><span class="chip">F</span><span class="chip">M</span><span class="chip">S</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-138">Copy</button></div><pre class="code-block"><code id="solution-138" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (12)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n_floors = 5  # Number of floors in the apartment house
+people = [&#x27;B&#x27;, &#x27;C&#x27;, &#x27;F&#x27;, &#x27;M&#x27;, &#x27;S&#x27;]  # Baker, Cooper, Fletcher, Miller, Smith
+
+# Decision Variables
+floors = intvar(1, n_floors, shape=len(people), name=&quot;floors&quot;)  # Floors where each person lives
+B, C, F, M, S = floors  # Assign variables for each person
+
+# Model
+model = Model()
+
+# Constraint: all live on different floors
+model += AllDifferent(floors)
+
+# Individual constraints
+model += B != 5  # Baker does not live on the fifth floor
+model += C != 1  # Cooper does not live on the first floor
+model += (F != 1) &amp; (F != 5)  # Fletcher does not live on first or fifth floor
+model += M &gt; C  # Miller lives on a higher floor than Cooper
+
+# Adjacency constraints
+model += abs(S - F) &gt; 1  # Smith not adjacent to Fletcher
+model += abs(F - C) &gt; 1  # Fletcher not adjacent to Cooper
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;B&quot;: B.value(),
+    &quot;C&quot;: C.value(),
+    &quot;F&quot;: F.value(),
+    &quot;M&quot;: M.value(),
+    &quot;S&quot;: S.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Five Floors Problem: Assign Baker, Cooper, Fletcher, Miller, and Smith to floors 1-5
+# with the given constraints
+
+# Decision variables: floor number for each person (1-5)
+B = cp.intvar(1, 5, name=&quot;Baker&quot;)     # Baker&#x27;s floor
+C = cp.intvar(1, 5, name=&quot;Cooper&quot;)    # Cooper&#x27;s floor  
+F = cp.intvar(1, 5, name=&quot;Fletcher&quot;)  # Fletcher&#x27;s floor
+M = cp.intvar(1, 5, name=&quot;Miller&quot;)    # Miller&#x27;s floor
+S = cp.intvar(1, 5, name=&quot;Smith&quot;)     # Smith&#x27;s floor
+
+model = cp.Model()
+
+# Add all constraints
+# 1. Baker does not live on the fifth floor
+model += B != 5
+
+# 2. Cooper does not live on the first floor  
+model += C != 1
+
+# 3. Fletcher does not live on either the fifth or the first floor
+model += F != 1
+model += F != 5
+
+# 4. Miller lives on a higher floor than Cooper
+model += M &gt; C
+
+# 5. Smith does not live on a floor adjacent to Fletcher&#x27;s
+model += cp.abs(S - F) != 1
+
+# 6. Fletcher does not live on a floor adjacent to Cooper&#x27;s
+model += cp.abs(F - C) != 1
+
+# 7. They all live on different floors
+model += cp.AllDifferent([B, C, F, M, S])
+
+# Solve the model
+if model.solve():
+    # Create solution in required JSON format
+    solution = {
+        &quot;B&quot;: B.value(),
+        &quot;C&quot;: C.value(),
+        &quot;F&quot;: F.value(),
+        &quot;M&quot;: M.value(),
+        &quot;S&quot;: S.value()
+    }
+    
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: floors for each person (1 to 5)
+B = cp.intvar(1, 5, name=&quot;B&quot;)
+C = cp.intvar(1, 5, name=&quot;C&quot;)
+F = cp.intvar(1, 5, name=&quot;F&quot;)
+M = cp.intvar(1, 5, name=&quot;M&quot;)
+S = cp.intvar(1, 5, name=&quot;S&quot;)
+
+# Constraints
+model += (B != 5)          # Baker does not live on the fifth floor
+model += (C != 1)          # Cooper does not live on the first floor
+model += (F != 1) &amp; (F != 5)  # Fletcher does not live on first or fifth floor
+model += (M &gt; C)           # Miller lives on a higher floor than Cooper
+model += (cp.abs(S - F) &gt; 1)  # Smith does not live adjacent to Fletcher
+model += (cp.abs(F - C) &gt; 1)  # Fletcher does not live adjacent to Cooper
+model += cp.AllDifferent([B, C, F, M, S])  # All live on different floors
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.intvar(1, 5, name=&quot;B&quot;)  # Baker
+C = cp.intvar(1, 5, name=&quot;C&quot;)  # Cooper
+F = cp.intvar(1, 5, name=&quot;F&quot;)  # Fletcher
+M = cp.intvar(1, 5, name=&quot;M&quot;)  # Miller
+S = cp.intvar(1, 5, name=&quot;S&quot;)  # Smith
+
+# Constraints
+model += cp.AllDifferent([B, C, F, M, S])     # all live on different floors
+model += (B != 5)                              # Baker does not live on the fifth floor
+model += (C != 1)                              # Cooper does not live on the first floor
+model += (F != 1) &amp; (F != 5)                   # Fletcher does not live on either the fifth or the first floor
+model += (M &gt; C)                               # Miller lives on a higher floor than Cooper
+model += (cp.Abs(S - F) != 1)                  # Smith does not live adjacent to Fletcher
+model += (cp.Abs(F - C) != 1)                  # Fletcher does not live adjacent to Cooper
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.IntVar(1, 5, name=&quot;B&quot;)  # Baker
+C = cp.IntVar(1, 5, name=&quot;C&quot;)  # Cooper
+F = cp.IntVar(1, 5, name=&quot;F&quot;)  # Fletcher
+M = cp.IntVar(1, 5, name=&quot;M&quot;)  # Miller
+S = cp.IntVar(1, 5, name=&quot;S&quot;)  # Smith
+
+# Constraints
+model += cp.AllDifferent([B, C, F, M, S])
+model += (B != 5)          # Baker does not live on the fifth floor
+model += (C != 1)          # Cooper does not live on the first floor
+model += (F != 1)          # Fletcher does not live on the first floor
+model += (F != 5)          # Fletcher does not live on the fifth floor
+model += (M &gt; C)           # Miller lives on a higher floor than Cooper
+model += (cp.abs(S - F) != 1)  # Smith does not live adjacent to Fletcher
+model += (cp.abs(F - C) != 1)  # Fletcher does not live adjacent to Cooper
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (12 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
+import json
+
+for B, C, F, M, S in itertools.permutations(range(1, 6)):
+    if B == 5 or C == 1 or F in {1, 5}:
+        continue
+    if M &lt;= C:
+        continue
+    if abs(S - F) == 1 or abs(F - C) == 1:
+        continue
+    print(json.dumps({&quot;B&quot;: B, &quot;C&quot;: C, &quot;F&quot;: F, &quot;M&quot;: M, &quot;S&quot;: S}))
+    break
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: floors for each person (1 to 5)
+B = cp.intvar(1, 5, name=&quot;B&quot;)
+C = cp.intvar(1, 5, name=&quot;C&quot;)
+F = cp.intvar(1, 5, name=&quot;F&quot;)
+M = cp.intvar(1, 5, name=&quot;M&quot;)
+S = cp.intvar(1, 5, name=&quot;S&quot;)
+
+# Constraints
+model += (B != 5)  # Baker does not live on the fifth floor
+model += (C != 1)  # Cooper does not live on the first floor
+model += (F != 1) &amp; (F != 5)  # Fletcher does not live on the first or fifth floor
+model += (M &gt; C)  # Miller lives on a higher floor than Cooper
+model += (cp.abs(S - F) &gt; 1)  # Smith does not live adjacent to Fletcher
+model += (cp.abs(F - C) &gt; 1)  # Fletcher does not live adjacent to Cooper
+model += cp.AllDifferent([B, C, F, M, S])  # All live on different floors
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.intvar(1, 5, name=&quot;B&quot;)  # Baker
+C = cp.intvar(1, 5, name=&quot;C&quot;)  # Cooper
+F = cp.intvar(1, 5, name=&quot;F&quot;)  # Fletcher
+M = cp.intvar(1, 5, name=&quot;M&quot;)  # Miller
+S = cp.intvar(1, 5, name=&quot;S&quot;)  # Smith
+
+# Constraints
+model += cp.AllDifferent([B, C, F, M, S])     # all live on different floors
+model += (B != 5)                              # Baker does not live on the fifth floor
+model += (C != 1)                              # Cooper does not live on the first floor
+model += (F != 1) &amp; (F != 5)                   # Fletcher does not live on either the fifth or the first floor
+model += (M &gt; C)                               # Miller lives on a higher floor than Cooper
+model += (cp.Abs(S - F) != 1)                  # Smith does not live adjacent to Fletcher
+model += (cp.Abs(F - C) != 1)                  # Fletcher does not live adjacent to Cooper
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Variables with their domains based on constraints
+B = cp.intvar(1, 4, name=&quot;B&quot;)  # Baker cannot be on 5th floor
+C = cp.intvar(2, 5, name=&quot;C&quot;)  # Cooper cannot be on 1st floor
+F = cp.intvar(2, 4, name=&quot;F&quot;)  # Fletcher cannot be on 1st or 5th floor
+M = cp.intvar(1, 5, name=&quot;M&quot;)  # Miller&#x27;s floor (constrained by M &gt; C)
+S = cp.intvar(1, 5, name=&quot;S&quot;)  # Smith&#x27;s floor
+
+model = cp.Model()
+
+# All different floors constraint
+model += cp.AllDifferent([B, C, F, M, S])
+
+# Miller lives higher than Cooper
+model += (M &gt; C)
+
+# Smith not adjacent to Fletcher
+model += (cp.abs(S - F) != 1)
+
+# Fletcher not adjacent to Cooper
+model += (cp.abs(F - C) != 1)
+
+# Solve and print solution
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Variables with their domains based on constraints
+B = cp.intvar(1, 4, name=&quot;B&quot;)  # Baker cannot be on 5th floor
+C = cp.intvar(2, 5, name=&quot;C&quot;)  # Cooper cannot be on 1st floor
+F = cp.intvar(2, 4, name=&quot;F&quot;)  # Fletcher cannot be on 1st or 5th floor
+M = cp.intvar(1, 5, name=&quot;M&quot;)  # Miller&#x27;s floor (constrained by M &gt; C)
+S = cp.intvar(1, 5, name=&quot;S&quot;)  # Smith&#x27;s floor
+
+model = cp.Model()
+
+# All different floors constraint
+model += cp.AllDifferent([B, C, F, M, S])
+
+# Miller lives higher than Cooper
+model += (M &gt; C)
+
+# Smith not adjacent to Fletcher
+model += (cp.abs(S - F) != 1)
+
+# Fletcher not adjacent to Cooper
+model += (cp.abs(F - C) != 1)
+
+# Solve and print solution
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: floors 1 (lowest) to 5 (highest)
+B = cp.intvar(1, 5, name=&quot;B&quot;)
+C = cp.intvar(1, 5, name=&quot;C&quot;)
+F = cp.intvar(1, 5, name=&quot;F&quot;)
+M = cp.intvar(1, 5, name=&quot;M&quot;)
+S = cp.intvar(1, 5, name=&quot;S&quot;)
+
+# Constraints
+model += cp.AllDifferent([B, C, F, M, S])  # all live on different floors
+model += (B != 5)                          # Baker not on 5th
+model += (C != 1)                          # Cooper not on 1st
+model += (F != 1) &amp; (F != 5)               # Fletcher not on 1st or 5th
+model += (M &gt; C)                           # Miller above Cooper
+model += (cp.Abs(S - F) &gt;= 2)              # Smith not adjacent to Fletcher
+model += (cp.Abs(F - C) &gt;= 2)              # Fletcher not adjacent to Cooper
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+B = cp.intvar(1, 5, name=&quot;B&quot;)  # Baker
+C = cp.intvar(1, 5, name=&quot;C&quot;)  # Cooper
+F = cp.intvar(1, 5, name=&quot;F&quot;)  # Fletcher
+M = cp.intvar(1, 5, name=&quot;M&quot;)  # Miller
+S = cp.intvar(1, 5, name=&quot;S&quot;)  # Smith
+
+# Constraints
+model += cp.AllDifferent([B, C, F, M, S])     # all live on different floors
+model += (B != 5)                              # Baker does not live on the fifth floor
+model += (C != 1)                              # Cooper does not live on the first floor
+model += (F != 1) &amp; (F != 5)                   # Fletcher does not live on either the fifth or the first floor
+model += (M &gt; C)                               # Miller lives on a higher floor than Cooper
+model += (cp.Abs(S - F) != 1)                  # Smith does not live adjacent to Fletcher
+model += (cp.Abs(F - C) != 1)                  # Fletcher does not live adjacent to Cooper
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;B&#x27;: int(B.value()),
+        &#x27;C&#x27;: int(C.value()),
+        &#x27;F&#x27;: int(F.value()),
+        &#x27;M&#x27;: int(M.value()),
+        &#x27;S&#x27;: int(S.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (34 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">% Include necessary library for global constraints
+include &quot;globals.mzn&quot;;
+
+% Define the floors range
+set of int: Floors = 1..5;
+
+% Decision variables: floors where each person lives
+var Floors: B; % Baker
+var Floors: C; % Cooper
+var Floors: F; % Fletcher
+var Floors: M; % Miller
+var Floors: S; % Smith
+
+% Constraints
+constraint B != 5; % Baker does not live on the fifth floor
+constraint C != 1; % Cooper does not live on the first floor
+constraint F != 1 /\ F != 5; % Fletcher does not live on first or fifth floor
+constraint M &gt; C; % Miller lives on a higher floor than Cooper
+constraint abs(S - F) &gt; 1; % Smith does not live adjacent to Fletcher
+constraint abs(F - C) &gt; 1; % Fletcher does not live adjacent to Cooper
+constraint alldifferent([B, C, F, M, S]); % All live on different floors
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;B\&quot;: &quot; ++ show(B),
+        &quot;\&quot;C\&quot;: &quot; ++ show(C),
+        &quot;\&quot;F\&quot;: &quot; ++ show(F),
+        &quot;\&quot;M\&quot;: &quot; ++ show(M),
+        &quot;\&quot;S\&quot;: &quot; ++ show(S)
+    ]),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (34 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Decision variables: floors for Baker(B), Cooper(C), Fletcher(F), Miller(M), Smith(S)
+var 1..5: B;
+var 1..5: C;
+var 1..5: F;
+var 1..5: M;
+var 1..5: S;
+
+% All live on different floors
+constraint alldifferent([B, C, F, M, S]);
+
+% Given constraints:
+constraint B != 5;           % Baker does not live on the 5th floor
+constraint C != 1;           % Cooper does not live on the 1st floor
+constraint F != 5 /\ F != 1; % Fletcher does not live on the 1st or 5th floor
+constraint M &gt; C;            % Miller lives on a higher floor than Cooper
+constraint abs(S - F) != 1;  % Smith not adjacent to Fletcher
+constraint abs(F - C) != 1;  % Fletcher not adjacent to Cooper
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;B\&quot;: &quot; ++ show(B),
+        &quot;\&quot;C\&quot;: &quot; ++ show(C),
+        &quot;\&quot;F\&quot;: &quot; ++ show(F),
+        &quot;\&quot;M\&quot;: &quot; ++ show(M),
+        &quot;\&quot;S\&quot;: &quot; ++ show(S)
+    ]),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: floors for each person (1 to 5)
+B = model.NewIntVar(1, 5, &#x27;B&#x27;)  # Baker
+C = model.NewIntVar(1, 5, &#x27;C&#x27;)  # Cooper
+F = model.NewIntVar(1, 5, &#x27;F&#x27;)  # Fletcher
+M = model.NewIntVar(1, 5, &#x27;M&#x27;)  # Miller
+S = model.NewIntVar(1, 5, &#x27;S&#x27;)  # Smith
+
+# All live on different floors
+model.AddAllDifferent([B, C, F, M, S])
+
+# Constraints from the problem
+model.Add(B != 5)  # Baker does not live on the fifth floor
+model.Add(C != 1)  # Cooper does not live on the first floor
+model.Add(F != 1)  # Fletcher does not live on the first floor
+model.Add(F != 5)  # Fletcher does not live on the fifth floor
+model.Add(M &gt; C)   # Miller lives on a higher floor than Cooper
+
+# Smith does not live on a floor adjacent to Fletcher&#x27;s
+model.AddAbsEquality(model.NewIntVar(1, 4, &#x27;abs_SF&#x27;), S - F)
+model.Add(S - F != 1)
+model.Add(F - S != 1)
+
+# Fletcher does not live on a floor adjacent to Cooper&#x27;s
+model.AddAbsEquality(model.NewIntVar(1, 4, &#x27;abs_FC&#x27;), F - C)
+model.Add(F - C != 1)
+model.Add(C - F != 1)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;B&#x27;: solver.Value(B),
+        &#x27;C&#x27;: solver.Value(C),
+        &#x27;F&#x27;: solver.Value(F),
+        &#x27;M&#x27;: solver.Value(M),
+        &#x27;S&#x27;: solver.Value(S)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Create the model
+model = cp_model.CpModel()
+
+# Decision variables: floors 1 through 5
+B = model.NewIntVar(1, 5, &#x27;B&#x27;)  # Baker
+C = model.NewIntVar(1, 5, &#x27;C&#x27;)  # Cooper
+F = model.NewIntVar(1, 5, &#x27;F&#x27;)  # Fletcher
+M = model.NewIntVar(1, 5, &#x27;M&#x27;)  # Miller
+S = model.NewIntVar(1, 5, &#x27;S&#x27;)  # Smith
+
+# All must live on different floors
+model.AddAllDifferent([B, C, F, M, S])
+
+# Constraints from the problem
+model.Add(B != 5)         # Baker does not live on the fifth floor
+model.Add(C != 1)         # Cooper does not live on the first floor
+model.Add(F != 1)         # Fletcher does not live on the first floor
+model.Add(F != 5)         # Fletcher does not live on the fifth floor
+model.Add(M &gt; C)          # Miller lives on a higher floor than Cooper
+# Smith does not live adjacent to Fletcher
+model.Add(S != F + 1)
+model.Add(S != F - 1)
+# Fletcher does not live adjacent to Cooper
+model.Add(F != C + 1)
+model.Add(F != C - 1)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;B&#x27;: solver.Value(B),
+        &#x27;C&#x27;: solver.Value(C),
+        &#x27;F&#x27;: solver.Value(F),
+        &#x27;M&#x27;: solver.Value(M),
+        &#x27;S&#x27;: solver.Value(S)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;B&quot;: 3,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;M&quot;: 5,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (70 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# -------------------------------------------------------------
+# 1. Parse input data (empty in this particular task)
+# -------------------------------------------------------------
+# The problem statement provides no dynamic input; all parameters
+# are hard-coded according to the specification.
+
+# -------------------------------------------------------------
+# 2. Build the CP-SAT model
+# -------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: floor (1..5) for each resident
+B = model.NewIntVar(1, 5, &#x27;B&#x27;)  # Baker
+C = model.NewIntVar(1, 5, &#x27;C&#x27;)  # Cooper
+F = model.NewIntVar(1, 5, &#x27;F&#x27;)  # Fletcher
+M = model.NewIntVar(1, 5, &#x27;M&#x27;)  # Miller
+S = model.NewIntVar(1, 5, &#x27;S&#x27;)  # Smith
+
+# All residents live on different floors
+model.AddAllDifferent([B, C, F, M, S])
+
+# -------------------------------------------------------------
+# 3. Add constraints from the specification
+# -------------------------------------------------------------
+# 3.1 Specific floor exclusions
+model.Add(B != 5)        # Baker not on 5th
+model.Add(C != 1)        # Cooper not on 1st
+model.Add(F != 1)        # Fletcher not on 1st
+model.Add(F != 5)        # Fletcher not on 5th
+
+# 3.2 Relative floor constraints
+model.Add(M &gt; C)         # Miller on a higher floor than Cooper
+
+# 3.3 Non-adjacency constraints using absolute differences
+# Create auxiliary variables for absolute differences
+sf_diff = model.NewIntVar(0, 4, &#x27;sf_diff&#x27;)  # |S − F|
+fc_diff = model.NewIntVar(0, 4, &#x27;fc_diff&#x27;)  # |F − C|
+
+# Link auxiliary vars with absolute value constraints
+model.AddAbsEquality(sf_diff, S - F)
+model.AddAbsEquality(fc_diff, F - C)
+
+# Enforce non-adjacency (difference cannot be 1)
+model.Add(sf_diff != 1)
+model.Add(fc_diff != 1)
+
+# -------------------------------------------------------------
+# 4. Solve the model (pure feasibility, no objective)
+# -------------------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# -------------------------------------------------------------
+# 5. Extract and print results as JSON
+# -------------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {
+        &#x27;M&#x27;: solver.Value(M),
+        &#x27;C&#x27;: solver.Value(C),
+        &#x27;F&#x27;: solver.Value(F),
+        &#x27;B&#x27;: solver.Value(B),
+        &#x27;S&#x27;: solver.Value(S)
+    }
+    print(json.dumps(result))
+else:
+    # If no solution exists, output an empty JSON object (contractually JSON output only)
+    print(json.dumps({}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;M&quot;: 5,
+  &quot;C&quot;: 2,
+  &quot;F&quot;: 4,
+  &quot;B&quot;: 3,
+  &quot;S&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">B</span><span class="chip">C</span><span class="chip">F</span><span class="chip">M</span><span class="chip">S</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-138">Copy</button></div><pre class="code-block"><code id="solution-138" class="language-json">{
   &quot;B&quot;: 3,
   &quot;C&quot;: 2,
   &quot;F&quot;: 4,
   &quot;M&quot;: 5,
   &quot;S&quot;: 1
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -81,9 +1078,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/session1_five_floors/session1_five_floors.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/session1_five_floors/session1_five_floors.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_bank_card.html">â† prev</a><a class="btn" href="session1_guards_and_apples.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_bank_card.html">← prev</a><a class="btn" href="session1_guards_and_apples.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

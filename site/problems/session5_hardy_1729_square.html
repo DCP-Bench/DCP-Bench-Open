@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>session5_hardy_1729_square Â· DCP-Bench Open</title>
-<meta name="description" content="Find a combination of 4 different numbers between 1 and 100, such that the sum of the squares of the two first numbers is equal to the sum of the squares of thâ€¦">
+<title>session5_hardy_1729_square · DCP-Bench Open</title>
+<meta name="description" content="Find a combination of 4 different numbers between 1 and 100, such that the sum of the squares of the two first numbers is equal to the sum of the squares of th…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/hardy_1729.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/hardy_1729.mzn</a></dd><dt>Category</dt><dd>aplai_course</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-154">Copy</button></div><pre class="code-block"><code id="model-154" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -62,15 +63,988 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">a</span><span class="chip">b</span><span class="chip">c</span><span class="chip">d</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-154">Copy</button></div><pre class="code-block"><code id="solution-154" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Decision Variables
+a = intvar(1, 100, name=&quot;a&quot;)  # First number
+b = intvar(1, 100, name=&quot;b&quot;)  # Second number
+c = intvar(1, 100, name=&quot;c&quot;)  # Third number
+d = intvar(1, 100, name=&quot;d&quot;)  # Fourth number
+
+# Model
+model = Model()
+
+# Constraint: All numbers must be distinct
+model += AllDifferent([a, b, c, d])
+
+# Constraint: a^2 + b^2 = c^2 + d^2
+model += (a**2 + b**2) == (c**2 + d**2)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;a&quot;: a.value(),
+    &quot;b&quot;: b.value(),
+    &quot;c&quot;: c.value(),
+    &quot;d&quot;: d.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+a = intvar(1, 100, name=&quot;a&quot;)
+b = intvar(1, 100, name=&quot;b&quot;)
+c = intvar(1, 100, name=&quot;c&quot;)
+d = intvar(1, 100, name=&quot;d&quot;)
+
+# Model
+model = Model()
+
+# All numbers are different
+model += [AllDifferent([a, b, c, d])]
+
+# The sum of the squares of the first two numbers is equal to the sum of the squares of the other two numbers
+model += [a**2 + b**2 == c**2 + d**2]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;a&quot;: a.value(), &quot;b&quot;: b.value(), &quot;c&quot;: c.value(), &quot;d&quot;: d.value()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Problem: Find 4 different numbers a, b, c, d in {1, 2, ..., 100} 
+# such that a^2 + b^2 = c^2 + d^2
+
+# Decision variables: a, b, c, d are integers between 1 and 100
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;) 
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+# Create the model
+model = cp.Model()
+
+# Constraint 1: All four numbers must be different
+model += cp.AllDifferent([a, b, c, d])
+
+# Constraint 2: Mathematical constraint a^2 + b^2 = c^2 + d^2
+model += a*a + b*b == c*c + d*d
+
+# Performance improvement: Add symmetry breaking
+# Order a &lt; b and c &lt; d to reduce search space
+model += a &lt; b
+model += c &lt; d
+
+# Order the pairs: ensure (a,b) comes before (c,d) lexicographically
+model += (a &lt; c) | ((a == c) &amp; (b &lt; d))
+
+# Solve the model (satisfaction problem)
+if model.solve():
+    # Extract solution values
+    solution = {
+        &quot;a&quot;: a.value(),
+        &quot;b&quot;: b.value(),
+        &quot;c&quot;: c.value(),
+        &quot;d&quot;: d.value()
+    }
+    
+    # Output the solution in the required JSON format
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: four different numbers between 1 and 100
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+# Constraints
+model += (a != b)
+model += (a != c)
+model += (a != d)
+model += (b != c)
+model += (b != d)
+model += (c != d)
+
+# Sum of squares equality
+model += (a*a + b*b == c*c + d*d)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;a&#x27;: int(a.value()), &#x27;b&#x27;: int(b.value()), &#x27;c&#x27;: int(c.value()), &#x27;d&#x27;: int(d.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 100,
+  &quot;b&quot;: 1,
+  &quot;c&quot;: 65,
+  &quot;d&quot;: 76
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+# Constraints
+# all numbers are different
+model += cp.AllDifferent(a, b, c, d)
+
+# sum of squares equality
+model += (a * a + b * b == c * c + d * d)
+
+# Symmetry breaking (optional) to reduce equivalent permutations
+model += a &lt; b
+model += c &lt; d
+# enforce an ordering between the pairs to avoid swapped pair solutions
+model += cp.lex_less([a, b], [c, d])  # requires the first pair to be lexicographically smaller
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;c&#x27;: int(c.value()),
+        &#x27;d&#x27;: int(d.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+a = cp.IntVar(1, 100, name=&quot;a&quot;)
+b = cp.IntVar(1, 100, name=&quot;b&quot;)
+c = cp.IntVar(1, 100, name=&quot;c&quot;)
+d = cp.IntVar(1, 100, name=&quot;d&quot;)
+
+# Constraints
+# All four numbers must be different
+model += cp.all_different([a, b, c, d])
+# Sum of squares of the first two equals sum of squares of the last two
+model += a*a + b*b == c*c + d*d
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;a&quot;: int(a.value()),
+        &quot;b&quot;: int(b.value()),
+        &quot;c&quot;: int(c.value()),
+        &quot;d&quot;: int(d.value())
+    }
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (7 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
+import json
+
+for a, b, c, d in itertools.permutations(range(1, 101), 4):
+    if a * a + b * b == c * c + d * d:
+        print(json.dumps({&quot;a&quot;: a, &quot;b&quot;: b, &quot;c&quot;: c, &quot;d&quot;: d}))
+        break
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: four different numbers between 1 and 100
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+# All four numbers must be different
+model += cp.AllDifferent([a, b, c, d])
+
+# Constraint: sum of squares of first two equals sum of squares of last two
+model += (a * a + b * b == c * c + d * d)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;a&#x27;: int(a.value()), &#x27;b&#x27;: int(b.value()), &#x27;c&#x27;: int(c.value()), &#x27;d&#x27;: int(d.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+squares = [i*i for i in range(1, 101)]  # squares[0] = 1^2, ..., squares[99] = 100^2
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+sa = cp.intvar(1, 10000, name=&quot;sa&quot;)
+sb = cp.intvar(1, 10000, name=&quot;sb&quot;)
+sc = cp.intvar(1, 10000, name=&quot;sc&quot;)
+sd = cp.intvar(1, 10000, name=&quot;sd&quot;)
+
+# Constraints
+# map variables to their squares using Element (zero-based index)
+model += (sa == cp.Element(squares, a - 1))
+model += (sb == cp.Element(squares, b - 1))
+model += (sc == cp.Element(squares, c - 1))
+model += (sd == cp.Element(squares, d - 1))
+
+# equality of sums of squares
+model += (sa + sb == sc + sd)
+
+# all four numbers must be distinct
+model += cp.AllDifferent(a, b, c, d)
+
+# symmetry breaking: order each pair and order pairs lexicographically
+model += (a &lt; b)
+model += (c &lt; d)
+model += cp.LexLess([a, b], [c, d])
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;c&#x27;: int(c.value()),
+        &#x27;d&#x27;: int(d.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Variables
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+model = cp.Model()
+
+# Constraints
+model += cp.AllDifferent([a, b, c, d])
+model += (a*a + b*b == c*c + d*d)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;c&#x27;: int(c.value()),
+        &#x27;d&#x27;: int(d.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Variables
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+model = cp.Model()
+
+# Constraints
+model += cp.AllDifferent([a, b, c, d])
+model += (a*a + b*b == c*c + d*d)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;c&#x27;: int(c.value()),
+        &#x27;d&#x27;: int(d.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+# Auxiliary variables for squares (avoid non-linear var*var by using Element)
+a2 = cp.intvar(1, 10000, name=&quot;a2&quot;)
+b2 = cp.intvar(1, 10000, name=&quot;b2&quot;)
+c2 = cp.intvar(1, 10000, name=&quot;c2&quot;)
+d2 = cp.intvar(1, 10000, name=&quot;d2&quot;)
+
+# Precompute squares array for Element constraint (index 0 unused)
+squares = [i*i for i in range(101)]  # squares[0]=0, squares[1]=1, ..., squares[100]=10000
+
+# Constraints
+model += cp.AllDifferent(a, b, c, d)
+
+# Link variables to their squares via Element constraints
+model += (a2 == cp.Element(squares, a))
+model += (b2 == cp.Element(squares, b))
+model += (c2 == cp.Element(squares, c))
+model += (d2 == cp.Element(squares, d))
+
+# Sum of squares equality
+model += (a2 + b2 == c2 + d2)
+
+# Optional symmetry breaking to speed up search (not required by problem)
+model += (a &lt; b)
+model += (c &lt; d)
+model += ((a &lt; c) | ((a == c) &amp; (b &lt;= d)))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;c&#x27;: int(c.value()),
+        &#x27;d&#x27;: int(d.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+a = cp.intvar(1, 100, name=&quot;a&quot;)
+b = cp.intvar(1, 100, name=&quot;b&quot;)
+c = cp.intvar(1, 100, name=&quot;c&quot;)
+d = cp.intvar(1, 100, name=&quot;d&quot;)
+
+# Constraints
+# all numbers are different
+model += cp.AllDifferent(a, b, c, d)
+
+# sum of squares equality
+model += (a * a + b * b == c * c + d * d)
+
+# Symmetry breaking to reduce equivalent permutations
+model += a &lt; b
+model += c &lt; d
+# enforce an ordering between the pairs to avoid swapped pair solutions
+model += cp.LexLess([a, b], [c, d])  # use cp.LexLess (capital L)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;a&#x27;: int(a.value()),
+        &#x27;b&#x27;: int(b.value()),
+        &#x27;c&#x27;: int(c.value()),
+        &#x27;d&#x27;: int(d.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (25 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Define the domain for the numbers
+set of int: NUMS = 1..100;
+
+% Decision variables: four different numbers a, b, c, d
+array[1..4] of var NUMS: x;
+
+% All numbers must be different
+constraint all_different(x);
+
+% Constraint: sum of squares of first two equals sum of squares of last two
+constraint x[1]*x[1] + x[2]*x[2] = x[3]*x[3] + x[4]*x[4];
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;a\&quot;: &quot; ++ show(x[1]),
+        &quot;\&quot;b\&quot;: &quot; ++ show(x[2]),
+        &quot;\&quot;c\&quot;: &quot; ++ show(x[3]),
+        &quot;\&quot;d\&quot;: &quot; ++ show(x[4])
+    ]),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 7,
+  &quot;b&quot;: 4,
+  &quot;c&quot;: 8,
+  &quot;d&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (28 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Decision variables: four different integers between 1 and 100
+var 1..100: a;
+var 1..100: b;
+var 1..100: c;
+var 1..100: d;
+
+% All four numbers must be distinct
+constraint all_different([a, b, c, d]);
+
+% Sum of squares constraint
+constraint a*a + b*b = c*c + d*d;
+
+solve satisfy;
+
+% Output in JSON format with keys exactly as &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;a\&quot;: &quot; ++ show(a),
+        &quot;\&quot;b\&quot;: &quot; ++ show(b),
+        &quot;\&quot;c\&quot;: &quot; ++ show(c),
+        &quot;\&quot;d\&quot;: &quot; ++ show(d)
+    ]),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 7,
+  &quot;b&quot;: 4,
+  &quot;c&quot;: 8,
+  &quot;d&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: four different numbers between 1 and 100
+a = model.NewIntVar(1, 100, &#x27;a&#x27;)
+b = model.NewIntVar(1, 100, &#x27;b&#x27;)
+c = model.NewIntVar(1, 100, &#x27;c&#x27;)
+d = model.NewIntVar(1, 100, &#x27;d&#x27;)
+
+# Constraint: all numbers must be different
+model.AddAllDifferent([a, b, c, d])
+
+# Constraint: a^2 + b^2 = c^2 + d^2
+# Since OR-tools does not support direct multiplication of variables,
+# we create auxiliary variables for squares and add constraints accordingly.
+
+a_sq = model.NewIntVar(1, 10000, &#x27;a_sq&#x27;)
+b_sq = model.NewIntVar(1, 10000, &#x27;b_sq&#x27;)
+c_sq = model.NewIntVar(1, 10000, &#x27;c_sq&#x27;)
+d_sq = model.NewIntVar(1, 10000, &#x27;d_sq&#x27;)
+
+# Add multiplication constraints for squares
+model.AddMultiplicationEquality(a_sq, [a, a])
+model.AddMultiplicationEquality(b_sq, [b, b])
+model.AddMultiplicationEquality(c_sq, [c, c])
+model.AddMultiplicationEquality(d_sq, [d, d])
+
+# Sum of squares equality
+model.Add(a_sq + b_sq == c_sq + d_sq)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;a&#x27;: solver.Value(a),
+        &#x27;b&#x27;: solver.Value(b),
+        &#x27;c&#x27;: solver.Value(c),
+        &#x27;d&#x27;: solver.Value(d)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Create the model
+model = cp_model.CpModel()
+
+# Decision variables: four different numbers between 1 and 100
+a = model.NewIntVar(1, 100, &#x27;a&#x27;)
+b = model.NewIntVar(1, 100, &#x27;b&#x27;)
+c = model.NewIntVar(1, 100, &#x27;c&#x27;)
+d = model.NewIntVar(1, 100, &#x27;d&#x27;)
+
+# Auxiliary variables for squares
+a_sq = model.NewIntVar(1, 10000, &#x27;a_sq&#x27;)
+b_sq = model.NewIntVar(1, 10000, &#x27;b_sq&#x27;)
+c_sq = model.NewIntVar(1, 10000, &#x27;c_sq&#x27;)
+d_sq = model.NewIntVar(1, 10000, &#x27;d_sq&#x27;)
+
+# Define squares via multiplication equality
+model.AddMultiplicationEquality(a_sq, [a, a])
+model.AddMultiplicationEquality(b_sq, [b, b])
+model.AddMultiplicationEquality(c_sq, [c, c])
+model.AddMultiplicationEquality(d_sq, [d, d])
+
+# Constraint: sum of squares of a and b equals sum of squares of c and d
+model.Add(a_sq + b_sq == c_sq + d_sq)
+
+# All four numbers must be different
+model.AddAllDifferent([a, b, c, d])
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;a&#x27;: solver.Value(a),
+        &#x27;b&#x27;: solver.Value(b),
+        &#x27;c&#x27;: solver.Value(c),
+        &#x27;d&#x27;: solver.Value(d)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;a&quot;: 1,
+  &quot;b&quot;: 8,
+  &quot;c&quot;: 4,
+  &quot;d&quot;: 7
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (78 lines)</summary><pre class="code-block"><code id="None" class="language-python"># -*- coding: utf-8 -*-
+&quot;&quot;&quot;
+Feasibility model for finding four distinct integers in the range 1..100 such that
+    a^2 + b^2 = c^2 + d^2
+The script uses Google OR-Tools CP-SAT.  All constraints from the specification are
+implemented exactly; the only objective is to obtain any feasible assignment.
+The final result is printed as JSON with the mandatory keys [&#x27;b&#x27;, &#x27;d&#x27;, &#x27;c&#x27;, &#x27;a&#x27;].
+&quot;&quot;&quot;
+
+import json
+from ortools.sat.python import cp_model
+
+
+def main():
+    # ------------------------------------------------------------------
+    # 1. Model creation
+    # ------------------------------------------------------------------
+    model = cp_model.CpModel()
+
+    L, U = 1, 100  # domain limits (inclusive)
+    max_square = U * U
+
+    # ------------------------------------------------------------------
+    # 2. Decision variables (domains are 1..100)
+    # ------------------------------------------------------------------
+    a = model.NewIntVar(L, U, &#x27;a&#x27;)
+    b = model.NewIntVar(L, U, &#x27;b&#x27;)
+    c = model.NewIntVar(L, U, &#x27;c&#x27;)
+    d = model.NewIntVar(L, U, &#x27;d&#x27;)
+
+    # Squares of each variable (auxiliary variables)
+    a_sq = model.NewIntVar(L * L, max_square, &#x27;a_sq&#x27;)
+    b_sq = model.NewIntVar(L * L, max_square, &#x27;b_sq&#x27;)
+    c_sq = model.NewIntVar(L * L, max_square, &#x27;c_sq&#x27;)
+    d_sq = model.NewIntVar(L * L, max_square, &#x27;d_sq&#x27;)
+
+    # ------------------------------------------------------------------
+    # 3. Constraint set
+    # ------------------------------------------------------------------
+    # 3.1 Pairwise distinctness
+    model.AddAllDifferent([a, b, c, d])
+
+    # 3.2 Link each variable with its square using a table (allowed assignments)
+    square_table = [[i, i * i] for i in range(L, U + 1)]
+    model.AddAllowedAssignments([a, a_sq], square_table)
+    model.AddAllowedAssignments([b, b_sq], square_table)
+    model.AddAllowedAssignments([c, c_sq], square_table)
+    model.AddAllowedAssignments([d, d_sq], square_table)
+
+    # 3.3 Equal-sum-of-squares: a^2 + b^2 = c^2 + d^2
+    model.Add(a_sq + b_sq == c_sq + d_sq)
+
+    # ------------------------------------------------------------------
+    # 4. Objective (none) and solver invocation
+    # ------------------------------------------------------------------
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = 10.0  # soft limit for safety
+
+    status = solver.Solve(model)
+
+    # ------------------------------------------------------------------
+    # 5. Output handling – print JSON with required keys only
+    # ------------------------------------------------------------------
+    if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        result = {
+            &#x27;b&#x27;: solver.Value(b),
+            &#x27;d&#x27;: solver.Value(d),
+            &#x27;c&#x27;: solver.Value(c),
+            &#x27;a&#x27;: solver.Value(a),
+        }
+        print(json.dumps(result))
+    else:
+        # According to spec, we still need to output something – raise exception
+        raise RuntimeError(&#x27;No feasible solution found.&#x27;)
+
+
+if __name__ == &#x27;__main__&#x27;:
+    main()
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;b&quot;: 98,
+  &quot;d&quot;: 100,
+  &quot;c&quot;: 2,
+  &quot;a&quot;: 20
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">a</span><span class="chip">b</span><span class="chip">c</span><span class="chip">d</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-154">Copy</button></div><pre class="code-block"><code id="solution-154" class="language-json">{
   &quot;a&quot;: 1,
   &quot;b&quot;: 8,
   &quot;c&quot;: 4,
   &quot;d&quot;: 7
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -78,9 +1052,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/session5_hardy_1729_square/session5_hardy_1729_square.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/session5_hardy_1729_square/session5_hardy_1729_square.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session5_grocery.html">â† prev</a><a class="btn" href="set_game.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session5_grocery.html">← prev</a><a class="btn" href="set_game.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

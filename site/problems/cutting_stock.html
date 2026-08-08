@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>cutting_stock Â· DCP-Bench Open</title>
-<meta name="description" content="This is a cutting stock problem. Given a roll of width `RollWidth` and a set of widths to be cut. Each width has a certain number of Orders. There are `NumPattâ€¦">
+<title>cutting_stock · DCP-Bench Open</title>
+<meta name="description" content="This is a cutting stock problem. Given a roll of width `RollWidth` and a set of widths to be cut. Each width has a certain number of Orders. There are `NumPatt…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cutting_stock" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cutting_stock</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-82">Copy</button></div><pre class="code-block"><code id="model-82" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -75,7 +76,211 @@ num_rolls_width = [
     [0, 0, 1]
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+input_data = {
+    &quot;roll_width&quot;: 10, # The width of the raw rolls
+    &quot;widths&quot;: [2, 3, 5], # The widths of the smaller pieces to be cut
+    &quot;orders&quot;: [4, 2, 2], # orders[i] is the number of pieces of width widths[i] needed
+    &quot;num_patterns&quot;: 2, # The number of available cutting patterns
+    &quot;num_rolls_width&quot;: [
+        [1, 2, 0], # num_rolls_width[i][j] is the number of pieces of width widths[j] in pattern i
+        [0, 0, 1]
+    ]
+}
+# End of data
+
+# Extract data
+roll_width = input_data[&quot;roll_width&quot;]
+widths = input_data[&quot;widths&quot;]
+orders = input_data[&quot;orders&quot;]
+num_patterns = input_data[&quot;num_patterns&quot;]
+num_rolls_width = input_data[&quot;num_rolls_width&quot;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Upper bound for number of times a pattern is used: sum of all orders (safe upper bound)
+sum_orders = sum(orders)
+patterns_used = cp.intvar(0, sum_orders, shape=num_patterns, name=&quot;patterns_used&quot;)
+
+# Constraints
+# For each width j, the total pieces produced across patterns must be &gt;= orders[j]
+for j in range(len(widths)):
+    model += cp.sum([num_rolls_width[i][j] * patterns_used[i] for i in range(num_patterns)]) &gt;= orders[j]
+
+# Objective: minimize total number of raw rolls used
+model.minimize(cp.sum(patterns_used))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;patterns_used&#x27;: patterns_used.value().tolist(),
+        &#x27;min_rolls_cut&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+input_data = {
+    &quot;roll_width&quot;: 10, # The width of the raw rolls
+    &quot;widths&quot;: [2, 3, 5], # The widths of the smaller pieces to be cut
+    &quot;orders&quot;: [4, 2, 2], # orders[i] is the number of pieces of width widths[i] needed
+    &quot;num_patterns&quot;: 2, # The number of available cutting patterns
+    &quot;num_rolls_width&quot;: [
+        [1, 2, 0], # num_rolls_width[i][j] is the number of pieces of width widths[j] in pattern i
+        [0, 0, 1]
+    ]
+}
+# End of data
+
+# Extract data
+roll_width = input_data[&quot;roll_width&quot;]
+widths = input_data[&quot;widths&quot;]
+orders = input_data[&quot;orders&quot;]
+num_patterns = input_data[&quot;num_patterns&quot;]
+num_rolls_width = input_data[&quot;num_rolls_width&quot;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Upper bound for number of times a pattern is used: sum of all orders (safe upper bound)
+sum_orders = sum(orders)
+patterns_used = cp.intvar(0, sum_orders, shape=num_patterns, name=&quot;patterns_used&quot;)
+
+# Constraints
+# For each width j, the total pieces produced across patterns must be &gt;= orders[j]
+for j in range(len(widths)):
+    model += cp.sum([num_rolls_width[i][j] * patterns_used[i] for i in range(num_patterns)]) &gt;= orders[j]
+
+# Objective: minimize total number of raw rolls used
+model.minimize(cp.sum(patterns_used))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;patterns_used&#x27;: patterns_used.value().tolist(),
+        &#x27;min_rolls_cut&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (0 lines)</summary><pre class="code-block"><code id="None" class="language-python">Error while calling LLM</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+input_data = {
+    &quot;roll_width&quot;: 10, # The width of the raw rolls
+    &quot;widths&quot;: [2, 3, 5], # The widths of the smaller pieces to be cut
+    &quot;orders&quot;: [4, 2, 2], # orders[i] is the number of pieces of width widths[i] needed
+    &quot;num_patterns&quot;: 2, # The number of available cutting patterns
+    &quot;num_rolls_width&quot;: [
+        [1, 2, 0], # num_rolls_width[i][j] is the number of pieces of width widths[j] in pattern i
+        [0, 0, 1]
+    ]
+}
+# End of data
+
+# Extract data
+roll_width = input_data[&quot;roll_width&quot;]
+widths = input_data[&quot;widths&quot;]
+orders = input_data[&quot;orders&quot;]
+num_patterns = input_data[&quot;num_patterns&quot;]
+num_rolls_width = input_data[&quot;num_rolls_width&quot;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Upper bound for number of times a pattern is used: sum of all orders (safe upper bound)
+sum_orders = sum(orders)
+patterns_used = cp.intvar(0, sum_orders, shape=num_patterns, name=&quot;patterns_used&quot;)
+
+# Constraints
+# For each width j, the total pieces produced across patterns must be &gt;= orders[j]
+for j in range(len(widths)):
+    model += cp.sum([num_rolls_width[i][j] * patterns_used[i] for i in range(num_patterns)]) &gt;= orders[j]
+
+# Objective: minimize total number of raw rolls used
+model.minimize(cp.sum(patterns_used))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;patterns_used&#x27;: patterns_used.value().tolist(),
+        &#x27;min_rolls_cut&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;roll_width&quot;: 10,
   &quot;widths&quot;: [
     2,
@@ -101,15 +306,16 @@ num_rolls_width = [
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">min_rolls_cut</span><span class="chip">patterns_used</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-82">Copy</button></div><pre class="code-block"><code id="solution-82" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">min_rolls_cut</span><span class="chip">patterns_used</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-82">Copy</button></div><pre class="code-block"><code id="solution-82" class="language-json">{
   &quot;patterns_used&quot;: [
     4,
     2
   ],
   &quot;min_rolls_cut&quot;: 6
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -117,9 +323,9 @@ num_rolls_width = [
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/cutting_stock/cutting_stock.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/cutting_stock/cutting_stock.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cur_num.html">â† prev</a><a class="btn" href="devils_word.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cur_num.html">← prev</a><a class="btn" href="devils_word.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

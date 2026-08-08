@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>three_coins Â· DCP-Bench Open</title>
-<meta name="description" content="Three coins lie on a table in the order tails, heads, tails. In precisely three moves make them face either all heads or all tails. Each move consists of choosâ€¦">
+<title>three_coins · DCP-Bench Open</title>
+<meta name="description" content="Three coins lie on a table in the order tails, heads, tails. In precisely three moves make them face either all heads or all tails. Each move consists of choos…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/3_coins.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/3_coins.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-157">Copy</button></div><pre class="code-block"><code id="model-157" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -65,7 +66,593 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">num_moves = 3  # Number of moves to make all coins face either all heads or all tails
 init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 means heads</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+num_moves = 3  # Number of moves to make all coins face either all heads or all tails
+init = [1, 0, 1]  # Initial configuration of the coins
+
+# Decision Variables
+# Each step is a list of 3 coins (0=tails, 1=heads)
+steps = intvar(0, 1, shape=(num_moves+1, 3), name=&quot;steps&quot;)  # +1 to include initial state
+
+# Model
+model = Model()
+
+# Initial state constraint
+model += (steps[0] == init)
+
+# Transition constraints between steps
+for move in range(num_moves):
+    # Exactly one coin changes between steps
+    model += sum(steps[move+1][c] != steps[move][c] for c in range(3)) == 1
+    # If a coin changes, it must flip (0-&gt;1 or 1-&gt;0)
+    for c in range(3):
+        model += (steps[move+1][c] != steps[move][c]).implies(
+            (steps[move+1][c] == 1 - steps[move][c])
+        )
+
+# Final state must be all heads or all tails
+model += (sum(steps[num_moves]) == 0) | (sum(steps[num_moves]) == 3)
+
+# Solve
+model.solve()
+
+# Convert 1/0 to True/False before printing
+solution = {
+    &quot;steps&quot;: [[bool(coin) for coin in step] for step in steps.value().tolist()]
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+num_moves = 3  # Number of moves to make all coins face either all heads or all tails
+init = [1, 0, 1]  # Initial configuration of the coins (1 = tails, 0 = heads)
+
+# Parameters
+n_coins = len(init)  # Number of coins
+n_moves = num_moves  # Number of moves
+
+# Decision variables
+steps = intvar(0, n_coins - 1, shape=n_moves, name=&quot;steps&quot;)  # The coin to flip in each move
+
+# Model
+model = Model()
+
+# Simulate the flipping process
+# We will track the state of the coins after each move
+# Let&#x27;s define a variable to represent the state of the coins after each move
+state = intvar(0, 1, shape=(n_moves + 1, n_coins), name=&quot;state&quot;)
+
+# Initialize the state with the initial configuration
+model += [state[0, :] == init]
+
+# Update the state after each move
+for move in range(n_moves):
+    # Copy the previous state
+    model += [state[move + 1, :] == state[move, :]]
+    # Flip the coin at the position specified by steps[move]
+    model += [state[move + 1, steps[move]] == 1 - state[move, steps[move]]]
+
+# After all moves, all coins must be either all heads or all tails
+all_heads = [0] * n_coins
+all_tails = [1] * n_coins
+model += (state[n_moves, :] == all_heads) | (state[n_moves, :] == all_tails)
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;steps&quot;: steps.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_moves = 3  # Number of moves to make all coins face either all heads or all tails
+init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 means heads
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# states[t][i] is the state of coin i after t moves (0=heads, 1=tails)
+n_coins = len(init)
+states = cp.intvar(0, 1, shape=(num_moves + 1, n_coins), name=&quot;states&quot;)
+
+# Constraints
+# Initial configuration
+for i in range(n_coins):
+    model += (states[0, i] == init[i])
+
+# Each move flips exactly one coin: Hamming distance between consecutive states == 1
+for t in range(num_moves):
+    diff_sum = cp.sum([cp.Abs(states[t, i] - states[t + 1, i]) for i in range(n_coins)])
+    model += (diff_sum == 1)
+
+# Final state must be all heads (all 0) or all tails (all 1)
+final_sum = cp.sum([states[num_moves, i] for i in range(n_coins)])
+model += ((final_sum == 0) | (final_sum == n_coins))
+
+# Solve and print
+if model.solve():
+    # The problem requested booleans where True means tails (1) and False means heads (0).
+    # As per the printing guidelines, we output integers 0/1.
+    solution = {&#x27;steps&#x27;: states.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_moves = 3
+init = [1, 0, 1]  # 1 = tails, 0 = heads (given order tails, heads, tails)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# steps[i][j] = 1 if coin j is flipped at move i, else 0
+steps = cp.intvar(0, 1, shape=(num_moves, 3), name=&quot;steps&quot;)
+
+# coins[i][j] = state of coin j after move i (0=heads, 1=tails)
+coins = cp.intvar(0, 1, shape=(num_moves + 1, 3), name=&quot;coins&quot;)
+
+# Initial configuration
+model += (coins[0, :] == init)
+
+# State transition: flipping coin j toggles its state
+for i in range(num_moves):
+    for j in range(3):
+        # coin state after flip: coins[i+1,j] = coins[i,j] xor steps[i,j]
+        model += (coins[i+1, j] == coins[i, j] + steps[i, j] - 2*(coins[i, j]*steps[i, j]))
+
+# At the end, all coins face same side: all heads (0) or all tails (1)
+# We enforce all equal coins[num_moves, :]
+model += ( (coins[num_moves, 0] == coins[num_moves, 1]) &amp; 
+           (coins[num_moves, 1] == coins[num_moves, 2]) )
+
+# Solve the model
+if model.solve():
+    solution = {&#x27;steps&#x27;: steps.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_moves = 3  # Number of moves to make all coins face either all heads or all tails
+init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 means heads
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# steps[t][j] is the state of coin j after move t (0=heads, 1=tails)
+steps = cp.intvar(0, 1, shape=(num_moves, 3), name=&quot;steps&quot;)
+# flips[t][j] is 1 if coin j is flipped on move t, else 0
+flips = cp.intvar(0, 1, shape=(num_moves, 3), name=&quot;flips&quot;)
+# carry[t][j] represents whether prev+flip &gt;= 2 (i.e., both 1) to model modulo 2
+carry = cp.intvar(0, 1, shape=(num_moves, 3), name=&quot;carry&quot;)
+
+# Constraints
+for t in range(num_moves):
+    # Exactly one coin flipped per move
+    model += cp.sum(flips[t, :]) == 1
+
+    for j in range(3):
+        if t == 0:
+            prev_val = init[j]
+            # carry constraints: carry == prev &amp; flip
+            model += carry[t, j] &lt;= flips[t, j]
+            model += carry[t, j] &lt;= prev_val
+            model += carry[t, j] &gt;= prev_val + flips[t, j] - 1
+            # steps = (prev + flip) % 2 -&gt; steps = prev + flip - 2*carry
+            model += steps[t, j] == prev_val + flips[t, j] - 2 * carry[t, j]
+        else:
+            # prev is steps[t-1, j]
+            prev = steps[t - 1, j]
+            model += carry[t, j] &lt;= flips[t, j]
+            model += carry[t, j] &lt;= prev
+            model += carry[t, j] &gt;= prev + flips[t, j] - 1
+            model += steps[t, j] == prev + flips[t, j] - 2 * carry[t, j]
+
+# Final configuration must be all heads (all 0) or all tails (all 1)
+final_sum = cp.sum(steps[num_moves - 1, :])
+model += (final_sum == 0) | (final_sum == 3)
+
+# Solve and print
+if model.solve():
+    # As requested, represent booleans as 1 for True (tails) and 0 for False (heads)
+    solution = {&#x27;steps&#x27;: steps.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+num_moves = 3  # Number of moves to make all coins face either all heads or all tails
+init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 means heads
+# End of data
+
+n_coins = len(init)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# steps[t][i] is the state (0=heads, 1=tails) of coin i after t moves
+steps = cp.boolvar(shape=(num_moves + 1, n_coins), name=&quot;steps&quot;)
+
+# Constraints
+
+# Initial configuration
+for i in range(n_coins):
+    model += (steps[0, i] == init[i])
+
+# Each move flips exactly one coin (Hamming distance between consecutive steps is 1)
+for t in range(1, num_moves + 1):
+    model += (cp.sum(steps[t, :] != steps[t - 1, :]) == 1)
+
+# Final configuration should be all heads or all tails (all equal)
+model += cp.AllEqual(steps[num_moves, :])
+
+# Objective (optional)
+# No objective, just find any feasible sequence
+
+# Solve and print
+if model.solve():
+    # Convert booleans to integers (0/1) for JSON serialization
+    steps_val_bool = steps.value().tolist()
+    steps_val_int = [[int(b) for b in row] for row in steps_val_bool]
+    solution = {&#x27;steps&#x27;: steps_val_int}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+num_moves = 3  # Number of moves to make all coins face either all heads or all tails
+init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 means heads
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# states[t][i] is the state of coin i after t moves (0=heads, 1=tails)
+n_coins = len(init)
+states = cp.intvar(0, 1, shape=(num_moves + 1, n_coins), name=&quot;states&quot;)
+
+# Constraints
+# Initial configuration
+for i in range(n_coins):
+    model += (states[0, i] == init[i])
+
+# Each move flips exactly one coin: Hamming distance between consecutive states == 1
+for t in range(num_moves):
+    diff_sum = cp.sum([cp.Abs(states[t, i] - states[t + 1, i]) for i in range(n_coins)])
+    model += (diff_sum == 1)
+
+# Final state must be all heads (all 0) or all tails (all 1)
+final_sum = cp.sum([states[num_moves, i] for i in range(n_coins)])
+model += ((final_sum == 0) | (final_sum == n_coins))
+
+# Solve and print
+if model.solve():
+    # The problem requested booleans where True means tails (1) and False means heads (0).
+    # As per the printing guidelines, we output integers 0/1.
+    solution = {&#x27;steps&#x27;: states.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (34 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+int: num_moves = 3;  % Number of moves to make all coins face either all heads or all tails
+array[1..3] of int: init = [1, 0, 1];  % Initial configuration of the coins (1=heads, 0=tails)
+
+% We represent the coins as 0 (tails) or 1 (heads)
+% Each move flips exactly one coin (0-&gt;1 or 1-&gt;0)
+% We want to find a sequence of moves (steps) that leads to all heads or all tails after num_moves moves
+
+% Decision variables: steps[i] is the index of the coin flipped at move i (1-based)
+array[1..num_moves] of var 1..3: steps;
+
+% State of coins after each move: coins_state[m] is the configuration after m moves
+array[0..num_moves, 1..3] of var 0..1: coins_state;
+
+% Initial state
+constraint forall(c in 1..3) (coins_state[0,c] = init[c]);
+
+% State transitions: flipping the coin at steps[m]
+constraint forall(m in 1..num_moves, c in 1..3) (
+    coins_state[m,c] = if c = steps[m] then 1 - coins_state[m-1,c] else coins_state[m-1,c]
+);
+
+% Final state must be all heads (1) or all tails (0)
+constraint
+    (forall(c in 1..3) (coins_state[num_moves,c] = 0)) \/
+    (forall(c in 1..3) (coins_state[num_moves,c] = 1));
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;steps\&quot;: &quot;, show(steps),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (68 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+num_moves = 3  # Number of moves to make all coins face either all heads or all tails
+init = [1, 0, 1]  # Initial configuration of the coins (1 = tails, 0 = heads)
+
+# Model definition
+model = cp_model.CpModel()
+
+# We have 3 coins, indexed 0,1,2
+num_coins = len(init)
+
+# Decision variables:
+# steps[m][c] = 1 if coin c is flipped at move m, else 0
+steps = []
+for m in range(num_moves):
+    step_vars = []
+    for c in range(num_coins):
+        step_vars.append(model.NewBoolVar(f&#x27;step_{m}_coin_{c}&#x27;))
+    steps.append(step_vars)
+
+# After all moves, the coins should be all heads (0) or all tails (1)
+# Let&#x27;s define final state variables for each coin
+final_state = []
+for c in range(num_coins):
+    final_state.append(model.NewBoolVar(f&#x27;final_state_coin_{c}&#x27;))
+
+# The final state coins are either all 0 or all 1
+# We enforce that all final_state are equal
+for c in range(1, num_coins):
+    model.Add(final_state[c] == final_state[0])
+
+# final_state[0] can be 0 or 1 (heads or tails)
+# final_state[c] = init[c] XOR (sum of flips on coin c mod 2)
+# sum of flips mod 2 = parity of flips on coin c
+for c in range(num_coins):
+    # sum flips on coin c
+    sum_flips = model.NewIntVar(0, num_moves, f&#x27;sum_flips_coin_{c}&#x27;)
+    model.Add(sum_flips == sum(steps[m][c] for m in range(num_moves)))
+    # parity variable for flips on coin c
+    parity = model.NewBoolVar(f&#x27;parity_coin_{c}&#x27;)
+    model.AddModuloEquality(parity, sum_flips, 2)
+    # final_state[c] = init[c] XOR parity
+    # XOR can be expressed as final_state[c] == init[c] + parity (mod 2)
+    if init[c] == 0:
+        model.Add(final_state[c] == parity)
+    else:
+        # final_state[c] == 1 - parity
+        model.Add(final_state[c] == 1 - parity)
+
+# No objective, just find a feasible solution
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Extract steps as list of lists of 0/1
+    steps_sol = []
+    for m in range(num_moves):
+        step_m = []
+        for c in range(num_coins):
+            step_m.append(solver.Value(steps[m][c]))
+        steps_sol.append(step_m)
+    solution = {
+        &#x27;steps&#x27;: steps_sol
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# ------------------ Input data (immutable) ------------------
+num_moves = 3                 # exact number of flips to perform
+init = [1, 0, 1]              # 0 = heads, 1 = tails
+num_coins = len(init)         # = 3
+
+# ------------------ Model creation ------------------
+model = cp_model.CpModel()
+
+# Decision variables: steps[m] = index of coin flipped at move m
+steps = [model.NewIntVar(0, num_coins - 1, f&quot;step_{m}&quot;) for m in range(num_moves)]
+
+# Auxiliary Booleans: flip[m][i] == 1  &lt;=&gt;  coin i is flipped at move m
+flip = [[model.NewBoolVar(f&quot;flip_{m}_{i}&quot;) for i in range(num_coins)]
+        for m in range(num_moves)]
+
+# 1) Exactly one coin is flipped in each move and link to steps[m]
+for m in range(num_moves):
+    # exactly one coin chosen
+    model.Add(sum(flip[m][i] for i in range(num_coins)) == 1)
+    # channeling flip[m][i] &lt;-&gt; (steps[m] == i)
+    for i in range(num_coins):
+        # If flip[m][i] is true  =&gt;  steps[m] == i
+        model.Add(steps[m] == i).OnlyEnforceIf(flip[m][i])
+        # If flip[m][i] is false =&gt;  steps[m] != i
+        model.Add(steps[m] != i).OnlyEnforceIf(flip[m][i].Not())
+
+# 2) Uniform final orientation constraint
+z = model.NewBoolVar(&quot;common_face&quot;)  # 0=heads, 1=tails
+
+for i in range(num_coins):
+    total_flips_on_i = sum(flip[m][i] for m in range(num_moves))
+    # init[i] + total_flips_on_i  must have the same parity as z
+    # =&gt; init[i] + total_flips_on_i - z is even
+    k = model.NewIntVar(-num_moves, num_moves, f&quot;k_{i}&quot;)  # integer slack
+    model.Add(init[i] + total_flips_on_i - z == 2 * k)
+
+# ------------------ Solve ------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# ------------------ Output ------------------
+if status in (cp_model.FEASIBLE, cp_model.OPTIMAL):
+    result_steps = [int(solver.Value(var)) for var in steps]
+    print(json.dumps({&quot;steps&quot;: result_steps}))
+else:
+    # Should not happen for this tiny instance; still, stay compliant
+    print(json.dumps({&quot;steps&quot;: None}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;num_moves&quot;: 3,
   &quot;init&quot;: [
     1,
@@ -73,9 +660,9 @@ init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 mean
     1
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">steps</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-157">Copy</button></div><pre class="code-block"><code id="solution-157" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">steps</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-157">Copy</button></div><pre class="code-block"><code id="solution-157" class="language-json">{
   &quot;steps&quot;: [
     [
       true,
@@ -99,6 +686,7 @@ init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 mean
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -106,9 +694,9 @@ init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 mean
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/three_coins/three_coins.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/three_coins/three_coins.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="sudoku.html">â† prev</a><a class="btn" href="three_sum.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="sudoku.html">← prev</a><a class="btn" href="three_sum.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

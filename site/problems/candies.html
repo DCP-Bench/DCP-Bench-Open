@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>candies Â· DCP-Bench Open</title>
-<meta name="description" content="Alice is a kindergarden teacher. She wants to give some candies to the children in her class. All the children sit in a line, and each of them has a rating scoâ€¦">
+<title>candies · DCP-Bench Open</title>
+<meta name="description" content="Alice is a kindergarden teacher. She wants to give some candies to the children in her class. All the children sit in a line, and each of them has a rating sco…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/candies.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/candies.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-25">Copy</button></div><pre class="code-block"><code id="model-25" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -64,7 +65,1041 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+n = len(ratings)
+
+# Decision Variables
+candies = intvar(1, 100, shape=n, name=&quot;candies&quot;)  # Candies for each child
+z = intvar(1, 100*n, name=&quot;z&quot;)  # Total number of candies
+
+# Model
+model = Model()
+
+# Each child gets at least 1 candy
+model += [candies[i] &gt;= 1 for i in range(n)]
+
+# Children with higher ratings get more candies than their neighbors
+for i in range(n-1):
+    if ratings[i] &gt; ratings[i+1]:
+        model += candies[i] &gt; candies[i+1]
+    elif ratings[i] &lt; ratings[i+1]:
+        model += candies[i] &lt; candies[i+1]
+
+# Total candies to minimize
+model += z == sum(candies)
+
+# Objective: minimize total candies
+model.minimize(z)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;z&quot;: z.value(),
+    &quot;x&quot;: candies.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18,
+  &quot;x&quot;: [
+    1,
+    2,
+    3,
+    1,
+    3,
+    2,
+    1,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+num_children = len(ratings)
+
+# Decision variables
+# candies[i] = number of candies given to child i
+candies = intvar(1, 100, shape=num_children, name=&quot;candies&quot;)
+
+# Model
+model = Model()
+
+# Each child must get at least 1 candy
+model += [candies &gt;= 1]
+
+# If a child has a higher rating than the left neighbor, they must get more candies
+for i in range(1, num_children):
+    model += (ratings[i] &gt; ratings[i - 1]).implies(candies[i] &gt; candies[i - 1])
+
+# If a child has a higher rating than the right neighbor, they must get more candies
+for i in range(num_children - 1):
+    model += (ratings[i] &gt; ratings[i + 1]).implies(candies[i] &gt; candies[i + 1])
+
+# Objective: minimize the total number of candies
+total_candies = sum(candies)
+model.minimize(total_candies)
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;z&quot;: total_candies.value()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (85 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Problem Analysis
+# - Children sit in a line with given ratings
+# - Each child gets at least 1 candy
+# - If adjacent children have different ratings, the one with higher rating gets more candies
+# - Minimize total candies
+
+# Input data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+n = len(ratings)
+
+# Step 2: Model with CPMpy
+# Decision variables: x[i] = number of candies for child i
+# Each child gets at least 1 candy, upper bound is n (worst case)
+x = cp.intvar(1, n, shape=n, name=&quot;candies&quot;)
+
+model = cp.Model()
+
+# Constraints: If adjacent children have different ratings, 
+# the one with higher rating must get more candies
+for i in range(n-1):
+    if ratings[i] &gt; ratings[i+1]:
+        # Child i has higher rating than child i+1
+        model += x[i] &gt; x[i+1]
+    elif ratings[i] &lt; ratings[i+1]:
+        # Child i+1 has higher rating than child i
+        model += x[i+1] &gt; x[i]
+    # If ratings[i] == ratings[i+1], no constraint needed
+
+# Objective: minimize total candies
+total_candies = cp.sum(x)
+model.minimize(total_candies)
+
+# Step 3: Solve and verify
+if model.solve():
+    # Extract solution
+    candies_solution = x.value()
+    total_solution = total_candies.value()
+    
+    # Create solution in required format
+    solution = {
+        &quot;z&quot;: int(total_solution),
+        &quot;x&quot;: candies_solution.tolist()
+    }
+    
+    # Verification
+    def verify_solution(sol, ratings):
+        candies = sol[&quot;x&quot;]
+        total = sol[&quot;z&quot;]
+        n = len(candies)
+        
+        # Structural verification
+        if len(candies) != len(ratings):
+            return False, f&quot;Length mismatch: {len(candies)} candies vs {len(ratings)} children&quot;
+        
+        if sum(candies) != total:
+            return False, f&quot;Total mismatch: sum={sum(candies)} vs reported={total}&quot;
+        
+        # Logical verification
+        # Check minimum candy constraint
+        for i, candy_count in enumerate(candies):
+            if candy_count &lt; 1:
+                return False, f&quot;Child {i} has {candy_count} candies, but minimum is 1&quot;
+        
+        # Check adjacent rating constraints
+        for i in range(n-1):
+            if ratings[i] &gt; ratings[i+1]:
+                if candies[i] &lt;= candies[i+1]:
+                    return False, f&quot;Child {i} (rating {ratings[i]}) should have more candies than child {i+1} (rating {ratings[i+1]})&quot;
+            elif ratings[i] &lt; ratings[i+1]:
+                if candies[i] &gt;= candies[i+1]:
+                    return False, f&quot;Child {i+1} (rating {ratings[i+1]}) should have more candies than child {i} (rating {ratings[i]})&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    # Verify the solution
+    valid, msg = verify_solution(solution, ratings)
+    assert valid, f&quot;Solution verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18,
+  &quot;x&quot;: [
+    1,
+    2,
+    3,
+    1,
+    3,
+    2,
+    1,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+n = len(ratings)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: candies for each child, at least 1 candy
+candies = cp.intvar(1, 1000, shape=n, name=&quot;candies&quot;)  # upper bound large enough
+
+# Constraints
+for i in range(n - 1):
+    if ratings[i] &gt; ratings[i + 1]:
+        model += candies[i] &gt; candies[i + 1]
+    elif ratings[i] &lt; ratings[i + 1]:
+        model += candies[i] &lt; candies[i + 1]
+    else:
+        # If ratings are equal, no constraint on candies relative to neighbors
+        pass
+
+# Objective: minimize total candies
+total_candies = cp.sum(candies)
+model.minimize(total_candies)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(total_candies.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+n = len(ratings)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: at least 1 candy, upper bound n is safe
+x = cp.intvar(1, n, shape=n, name=&quot;x&quot;)
+
+# Constraints:
+# If a child has higher rating than an immediate neighbor, they must get more candies.
+for i in range(n - 1):
+    if ratings[i] &gt; ratings[i + 1]:
+        model += x[i] &gt; x[i + 1]
+    elif ratings[i] &lt; ratings[i + 1]:
+        model += x[i] &lt; x[i + 1]
+    # if equal, no constraint between them
+
+# Objective: minimize total candies
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;z&#x27;: int(model.objective_value()),
+        &#x27;x&#x27;: x.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18,
+  &quot;x&quot;: [
+    1,
+    2,
+    3,
+    1,
+    3,
+    2,
+    1,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = len(ratings)
+# Decision Variables: candies for each child, at least 1, at most n
+c = cp.intvar(1, n, shape=n, name=&quot;c&quot;)
+
+# Constraints:
+# If a child has a higher rating than the next, they must get more candies, and vice versa
+for i in range(n-1):
+    if ratings[i] &lt; ratings[i+1]:
+        model += [c[i] &lt; c[i+1]]
+    elif ratings[i] &gt; ratings[i+1]:
+        model += [c[i] &gt; c[i+1]]
+    # if ratings are equal, no constraint
+
+# Objective: minimize total number of candies
+z = cp.sum(c)
+model.minimize(z)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (9 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+candies = [1 for _ in ratings]
+for idx in range(1, len(ratings)):
+    if ratings[idx] &gt; ratings[idx - 1]:
+        candies[idx] = candies[idx - 1] + 1
+for idx in range(len(ratings) - 2, -1, -1):
+    if ratings[idx] &gt; ratings[idx + 1]:
+        candies[idx] = max(candies[idx], candies[idx + 1] + 1)
+print(json.dumps({&#x27;z&#x27;: sum(candies)}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+n = len(ratings)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# candies[i]: number of candies given to child i, at least 1
+candies = cp.intvar(1, n, shape=n, name=&quot;candies&quot;)
+
+# Constraints
+for i in range(n - 1):
+    if ratings[i] &gt; ratings[i + 1]:
+        # left child has higher rating, must have more candies
+        model += candies[i] &gt; candies[i + 1]
+    elif ratings[i] &lt; ratings[i + 1]:
+        # right child has higher rating, must have more candies
+        model += candies[i] &lt; candies[i + 1]
+    else:
+        # equal rating, no constraint on candies
+        pass
+
+# Objective: minimize total candies
+total_candies = cp.sum(candies)
+model.minimize(total_candies)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(total_candies.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+n = len(ratings)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: at least 1 candy, upper bound n is safe
+x = cp.intvar(1, n, shape=n, name=&quot;x&quot;)
+
+# Constraints:
+# If a child has higher rating than an immediate neighbor, they must get more candies.
+for i in range(n - 1):
+    if ratings[i] &gt; ratings[i + 1]:
+        model += x[i] &gt; x[i + 1]
+    elif ratings[i] &lt; ratings[i + 1]:
+        model += x[i] &lt; x[i + 1]
+    # if equal, no constraint between them
+
+# Objective: minimize total candies
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;z&#x27;: int(model.objective_value()),
+        &#x27;x&#x27;: x.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18,
+  &quot;x&quot;: [
+    1,
+    2,
+    3,
+    1,
+    3,
+    2,
+    1,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+
+n = len(ratings)
+candies = cp.intvar(1, n, shape=n)
+
+model = cp.Model()
+
+for i in range(n - 1):
+    current = ratings[i]
+    next_r = ratings[i + 1]
+    if current &gt; next_r:
+        model += (candies[i] &gt; candies[i + 1])
+    elif current &lt; next_r:
+        model += (candies[i] &lt; candies[i + 1])
+
+model.minimize(cp.sum(candies))
+
+if model.solve():
+    solution = {&#x27;z&#x27;: int(model.objective_value())}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+
+n = len(ratings)
+candies = cp.intvar(1, n, shape=n)
+
+model = cp.Model()
+
+for i in range(n - 1):
+    current = ratings[i]
+    next_r = ratings[i + 1]
+    if current &gt; next_r:
+        model += (candies[i] &gt; candies[i + 1])
+    elif current &lt; next_r:
+        model += (candies[i] &lt; candies[i + 1])
+
+model.minimize(cp.sum(candies))
+
+if model.solve():
+    solution = {&#x27;z&#x27;: int(model.objective_value())}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+n = len(ratings)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(1, n, shape=n, name=&quot;x&quot;)  # candies for each child, at least 1, at most n
+
+# Constraints
+# Neighbor constraints based on ratings
+for i in range(n - 1):
+    if ratings[i] &lt; ratings[i + 1]:
+        model += (x[i] &lt; x[i + 1])
+    elif ratings[i] &gt; ratings[i + 1]:
+        model += (x[i] &gt; x[i + 1])
+    # equal ratings: no constraint between neighbors
+
+# Objective: minimize total candies
+total_candies = cp.sum(x)
+model.minimize(total_candies)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;z&#x27;: int(model.objective_value()),
+        &#x27;x&#x27;: x.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18,
+  &quot;x&quot;: [
+    1,
+    2,
+    3,
+    1,
+    3,
+    2,
+    1,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+n = len(ratings)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: at least 1 candy, upper bound n is safe
+x = cp.intvar(1, n, shape=n, name=&quot;x&quot;)
+
+# Constraints:
+# If a child has higher rating than an immediate neighbor, they must get more candies.
+for i in range(n - 1):
+    if ratings[i] &gt; ratings[i + 1]:
+        model += x[i] &gt; x[i + 1]
+    elif ratings[i] &lt; ratings[i + 1]:
+        model += x[i] &lt; x[i + 1]
+    # if equal, no constraint between them
+
+# Objective: minimize total candies
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;z&#x27;: int(model.objective_value()),
+        &#x27;x&#x27;: x.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18,
+  &quot;x&quot;: [
+    1,
+    2,
+    3,
+    1,
+    3,
+    2,
+    1,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#d97706">solution valid · not optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (26 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+array[1..9] of int: ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4];
+int: n = length(ratings);
+
+% Decision variables: candies given to each child
+array[1..n] of var 1..n: candies;
+
+% Constraints
+% Each child must have at least 1 candy (already ensured by domain)
+% If a child has a higher rating than the immediate neighbor, must have more candies
+constraint
+  forall(i in 1..n-1) (
+    (ratings[i] &gt; ratings[i+1]) -&gt; (candies[i] &gt; candies[i+1]) /\
+    (ratings[i] &lt; ratings[i+1]) -&gt; (candies[i] &lt; candies[i+1])
+  );
+
+% Objective: minimize total candies
+var int: z = sum(i in 1..n)(candies[i]);
+solve minimize z;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;z\&quot;: &quot;, show(z),
+  &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 22
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (42 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary global constraints library
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 9;
+array[1..n] of int: ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4];
+
+% Decision variables: candies for each child, at least 1 and at most n
+array[1..n] of var 1..n: candies;
+
+% Total candies
+var int: z;
+
+% Each child gets at least one candy
+constraint forall(i in 1..n)(
+  candies[i] &gt;= 1
+);
+
+% Neighbour constraints: the higher-rated child must get more candies
+constraint forall(i in 2..n)(
+  if ratings[i] &gt; ratings[i-1] then
+    candies[i] &gt; candies[i-1]
+  elseif ratings[i] &lt; ratings[i-1] then
+    candies[i] &lt; candies[i-1]
+  else
+    true
+  endif
+);
+
+% Define total candies
+constraint z = sum(i in 1..n)(candies[i]);
+
+% Minimize the total number of candies
+solve minimize z;
+
+% Output result in JSON format with key &quot;z&quot;
+output [
+  &quot;{&quot;,
+    &quot;\&quot;z\&quot;: &quot; ++ show(z),
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+
+# Model definition
+model = cp_model.CpModel()
+
+n = len(ratings)
+
+# Decision Variables: candies for each child, at least 1 candy
+candies = [model.NewIntVar(1, n, f&#x27;candies_{i}&#x27;) for i in range(n)]
+
+# Constraints:
+# If a child has a higher rating than the immediate neighbor, he/she must get more candies
+for i in range(n - 1):
+    if ratings[i] &gt; ratings[i + 1]:
+        model.Add(candies[i] &gt; candies[i + 1])
+    elif ratings[i] &lt; ratings[i + 1]:
+        model.Add(candies[i] &lt; candies[i + 1])
+    # If ratings are equal, no constraint on candies
+
+# Objective: minimize total candies
+model.Minimize(sum(candies))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    z = solver.ObjectiveValue()
+    solution = {&#x27;z&#x27;: int(z)}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]
+n = len(ratings)
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: candies for each child, at least 1 and at most n
+candies = [model.NewIntVar(1, n, f&quot;candies_{i}&quot;) for i in range(n)]
+
+# Constraints: neighbor jealousy based on ratings
+for i in range(1, n):
+    if ratings[i] &gt; ratings[i - 1]:
+        # If current rating higher than previous, must have more candies
+        model.Add(candies[i] &gt;= candies[i - 1] + 1)
+    elif ratings[i] &lt; ratings[i - 1]:
+        # If current rating lower than previous, must have fewer candies
+        model.Add(candies[i] + 1 &lt;= candies[i - 1])
+    # If equal ratings, no constraint
+
+# Objective: minimize total candies
+z = model.NewIntVar(0, n * n, &quot;z&quot;)
+model.Add(z == sum(candies))
+model.Minimize(z)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;z&#x27;: solver.Value(z)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (66 lines)</summary><pre class="code-block"><code id="None" class="language-python"># -*- coding: utf-8 -*-
+&quot;&quot;&quot;
+Google OR-Tools CP-SAT solution for the candy distribution (rating) problem.
+The program:
+  • sets up decision variables for the number of candies per child and the
+    total candies (z),
+  • imposes all problem constraints, and
+  • minimises the total number of candies.
+Finally, it prints the optimal value of z as a JSON object – exactly
+matching the required output specification.
+&quot;&quot;&quot;
+
+import json
+from ortools.sat.python import cp_model
+
+# ---------------------------------------------------------------------------
+# Input data (immutable – do not modify)
+# ---------------------------------------------------------------------------
+ratings = [2, 3, 4, 4, 4, 2, 1, 3, 4]  # Ratings of the children
+n = len(ratings)
+
+# ---------------------------------------------------------------------------
+# Model creation
+# ---------------------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables ---------------------------------------------------------
+# candies[i] – candies given to child i (at least 1, at most n – see analysis)
+candies = [model.NewIntVar(1, n, f&quot;candies_{i}&quot;) for i in range(n)]
+
+# z – total candies; upper-bounded by n*(n+1)//2 (worst-case 1..n assignment)
+max_total_candies = n * (n + 1) // 2
+z = model.NewIntVar(0, max_total_candies, &quot;z&quot;)
+
+# Constraints ----------------------------------------------------------------
+# Neighbour jealousy constraints
+for i in range(n - 1):
+    if ratings[i] &gt; ratings[i + 1]:
+        # Child i has a higher rating -&gt; must receive strictly more candies
+        model.Add(candies[i] &gt;= candies[i + 1] + 1)
+    elif ratings[i] &lt; ratings[i + 1]:
+        # Child i+1 has a higher rating -&gt; must receive strictly more candies
+        model.Add(candies[i + 1] &gt;= candies[i] + 1)
+    # If ratings are equal, no extra constraint is necessary.
+
+# Definition of total candies
+model.Add(z == sum(candies))
+
+# Objective ------------------------------------------------------------------
+model.Minimize(z)
+
+# ---------------------------------------------------------------------------
+# Solve the model
+# ---------------------------------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# ---------------------------------------------------------------------------
+# Output the result as required (JSON with key &#x27;z&#x27;)
+# ---------------------------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {&quot;z&quot;: solver.Value(z)}
+else:
+    result = {&quot;z&quot;: None}  # Infeasible/unknown (should not occur for this task)
+
+print(json.dumps(result))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;z&quot;: 18
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;ratings&quot;: [
     2,
     3,
@@ -77,9 +1112,9 @@ print(json.dumps(solution))
     4
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span><span class="chip">z</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-25">Copy</button></div><pre class="code-block"><code id="solution-25" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span><span class="chip">z</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-25">Copy</button></div><pre class="code-block"><code id="solution-25" class="language-json">{
   &quot;z&quot;: 18,
   &quot;x&quot;: [
     1,
@@ -93,6 +1128,7 @@ print(json.dumps(solution))
     3
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -100,9 +1136,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/candies/candies.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/candies/candies.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="calvin_puzzle.html">â† prev</a><a class="btn" href="capital_budget.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="calvin_puzzle.html">← prev</a><a class="btn" href="capital_budget.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

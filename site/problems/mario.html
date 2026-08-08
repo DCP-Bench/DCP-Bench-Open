@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>mario Â· DCP-Bench Open</title>
-<meta name="description" content="Mario needs to collect as much gold as possible by visiting different houses. He starts at Mario&#x27;s house and ends at Luigi&#x27;s house. Each house has a certain amâ€¦">
+<title>mario · DCP-Bench Open</title>
+<meta name="description" content="Mario needs to collect as much gold as possible by visiting different houses. He starts at Mario&#x27;s house and ends at Luigi&#x27;s house. Each house has a certain am…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/mario.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/mario.py</a></dd><dt>Category</dt><dd>cpmpy_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-124">Copy</button></div><pre class="code-block"><code id="model-124" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -110,7 +111,1356 @@ arc_fuel = [
 ]
 goldInHouse = [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (74 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 1,
+    &#x27;LuigiHouse&#x27;: 2,
+    &#x27;fuelMax&#x27;: 2000,
+    &#x27;goldTotalAmount&#x27;: 1500,
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+
+# Decision Variables
+s = intvar(0, data[&#x27;nbHouses&#x27;]-1, shape=data[&#x27;nbHouses&#x27;], name=&quot;s&quot;)  # Successor for each house
+total_fuel = intvar(0, data[&#x27;fuelMax&#x27;], name=&quot;total_fuel&quot;)
+total_gold = intvar(0, data[&#x27;goldTotalAmount&#x27;], name=&quot;total_gold&quot;)
+
+# Model
+model = Model()
+
+# Circuit constraint to ensure a valid path
+model += Circuit(s)
+
+# Start at Mario&#x27;s house (house 1)
+model += s[0] != 0  # Mario&#x27;s house can&#x27;t point to itself
+
+# Calculate total fuel and gold
+fuel_terms = []
+gold_terms = []
+for i in range(data[&#x27;nbHouses&#x27;]):
+    for j in range(data[&#x27;nbHouses&#x27;]):
+        if i != j:
+            fuel_terms.append((s[i] == j) * data[&#x27;conso&#x27;][i][j])
+            gold_terms.append((s[i] == j) * data[&#x27;goldInHouse&#x27;][i])
+
+model += total_fuel == sum(fuel_terms)
+model += total_gold == sum(gold_terms)
+
+# Constraints
+model += total_fuel &lt;= data[&#x27;fuelMax&#x27;]
+model += total_gold &lt;= data[&#x27;goldTotalAmount&#x27;]
+
+# Objective: maximize gold collected
+model.maximize(total_gold)
+
+# Solve
+model.solve()
+
+# Print solution
+if model.status().exitstatus.name == &#x27;OPTIMAL&#x27;:
+    solution = {
+        &quot;s&quot;: [val+1 for val in s.value().tolist()]  # Convert to 1-based indexing
+    }
+else:
+    solution = {&quot;s&quot;: []}  # Return empty list if no solution found
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (80 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 1,
+    &#x27;LuigiHouse&#x27;: 2,
+    &#x27;fuelMax&#x27;: 2000,
+    &#x27;goldTotalAmount&#x27;: 1500,
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+
+# Number of houses
+nbHouses = data[&#x27;nbHouses&#x27;]
+MarioHouse = data[&#x27;MarioHouse&#x27;]
+LuigiHouse = data[&#x27;LuigiHouse&#x27;]
+fuelMax = data[&#x27;fuelMax&#x27;]
+goldInHouse = data[&#x27;goldInHouse&#x27;]
+conso = data[&#x27;conso&#x27;]
+
+# Convert conso and goldInHouse to CPMPy arrays
+conso = cpm_array(conso)
+goldInHouse = cpm_array(goldInHouse)
+
+# Decision variables
+# x[i] = 1 if house i is visited, 0 otherwise
+x = boolvar(shape=nbHouses, name=&quot;x&quot;)
+
+# s[i] = the i-th house in the path (only for visited houses)
+max_visited = 15  # Maximum number of houses Mario can visit
+s = intvar(0, nbHouses - 1, shape=max_visited, name=&quot;s&quot;)
+
+# Model
+model = Model()
+
+# Objective: maximize the total gold collected
+model.maximize(sum(goldInHouse[i] * x[i] for i in range(nbHouses)))
+
+# Constraint: Mario starts at his house
+model += [s[0] == MarioHouse]
+
+# Constraint: Luigi is the last house
+model += [s[sum(x)] == LuigiHouse]
+
+# Constraint: All visited houses are unique
+model += [AllDifferent(s[:sum(x) + 1])]
+
+# Constraint: Fuel consumption does not exceed the maximum
+total_fuel = 0
+for i in range(max_visited - 1):
+    total_fuel += conso[s[i], s[i + 1]] * (x[s[i]] &amp; x[s[i + 1]])
+model += [total_fuel &lt;= fuelMax]
+
+# Constraint: Ensure that the path only includes visited houses
+for i in range(max_visited):
+    model += [x[s[i]] == 1]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;s&quot;: s.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (124 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 0,  # 0-indexed
+    &#x27;LuigiHouse&#x27;: 1,  # 0-indexed
+    &#x27;fuelMax&#x27;: 600,
+    # fuel consumption between houses, conso[i][j] = fuel from i to j
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],  # Mario&#x27;s house
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],  # Luigi&#x27;s house
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+# End of data
+
+n = data[&#x27;nbHouses&#x27;]
+Mario = data[&#x27;MarioHouse&#x27;]
+Luigi = data[&#x27;LuigiHouse&#x27;]
+fuelMax = data[&#x27;fuelMax&#x27;]
+conso = data[&#x27;conso&#x27;]
+gold = data[&#x27;goldInHouse&#x27;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# &quot;next&quot; represents the real route successor for modeling the path:
+# For i != Luigi: next[i] == i means not visited; next[i] != i means visited and successor is next[i].
+# For Luigi: next[Luigi] will be fixed to Luigi (end of the path). For printing we will set s[Luigi]=Mario as required.
+next_vars = cp.intvar(0, n-1, shape=n, name=&quot;next&quot;)
+
+# visited boolean: v[i] = 1 if house i is visited (on the path)
+v = cp.boolvar(shape=n, name=&quot;v&quot;)
+
+# rank variables to order nodes on the path, r[Mario] = 0 and ranks increase along the path until Luigi
+r = cp.intvar(0, n-1, shape=n, name=&quot;r&quot;)
+
+# Constraints
+
+# 1) Domain and visitation linking
+for i in range(n):
+    if i == Luigi:
+        # Luigi is visited and is the end: next[Luigi] = Luigi, but visited=1
+        model += (next_vars[i] == i)
+        model += (v[i] == 1)
+    else:
+        # visited iff next[i] != i
+        model += (v[i] == (next_vars[i] != i))
+
+# Mario must be visited and must have a successor different from itself (start of path)
+model += (v[Mario] == 1)
+model += (next_vars[Mario] != Mario)
+
+# 2) Incoming constraints (exclude self-loops from counting incoming)
+# For each house j, number of incoming arcs from other houses equals v[j], except Mario has indegree 0.
+for j in range(n):
+    incoming = []
+    for i in range(n):
+        if i == j:
+            continue  # exclude self-loop
+        incoming.append(next_vars[i] == j)
+    if j == Mario:
+        model += (cp.sum(incoming) == 0)
+    else:
+        # If v[j]==1 then exactly one predecessor points to j; if v[j]==0 then none.
+        model += (cp.sum(incoming) == v[j])
+
+# 3) Rank ordering to avoid subtours: r[Mario] = 0 and along every used arc (except from Luigi) ranks increase by 1.
+model += (r[Mario] == 0)
+for i in range(n):
+    if i == Luigi:
+        continue
+    # If i is visited, then r[next[i]] == r[i] + 1
+    # Use cp.Element to index r by variable next_vars[i]
+    model += v[i].implies(cp.Element(r, next_vars[i]) == r[i] + 1)
+
+# 4) Fuel constraint: sum of fuel along traveled edges (excluding Luigi -&gt; Mario fake link) &lt;= fuelMax
+# For i != Luigi, if visited, we include conso[i][next[i]] in total fuel.
+edge_costs = []
+for i in range(n):
+    if i == Luigi:
+        continue
+    # cost_i = Element(conso[i], next[i])
+    cost_i = cp.Element(conso[i], next_vars[i])
+    # only count if visited
+    edge_costs.append(cost_i * v[i])
+fuel_used = cp.sum(edge_costs)
+model += (fuel_used &lt;= fuelMax)
+
+# Objective: maximize collected gold (sum of gold for visited houses)
+total_gold = cp.sum([gold[i] * v[i] for i in range(n)])
+model.maximize(total_gold)
+
+# Solve and print
+if model.solve():
+    # build printed successor list s:
+    s = [0] * n
+    for i in range(n):
+        if i == Luigi:
+            # As required in the problem statement, Luigi&#x27;s successor should be Mario&#x27;s house
+            s[i] = Mario
+        else:
+            s[i] = int(next_vars[i].value())
+    solution = {&#x27;s&#x27;: s}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (111 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 1,
+    &#x27;LuigiHouse&#x27;: 2,
+    &#x27;fuelMax&#x27;: 2000,
+    &#x27;goldTotalAmount&#x27;: 1500,
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+# End of data
+
+nbHouses = data[&#x27;nbHouses&#x27;]
+MarioHouse = data[&#x27;MarioHouse&#x27;] - 1  # zero-based index
+LuigiHouse = data[&#x27;LuigiHouse&#x27;] - 1  # zero-based index
+fuelMax = data[&#x27;fuelMax&#x27;]
+conso = np.array(data[&#x27;conso&#x27;])
+goldInHouse = data[&#x27;goldInHouse&#x27;]
+
+model = cp.Model()
+
+# Decision variables:
+# s[i] = successor house of house i (0-based index)
+# The successor of LuigiHouse is itself (end)
+s = cp.intvar(0, nbHouses - 1, shape=nbHouses, name=&quot;s&quot;)
+
+# order[i] = visiting order of house i, nbHouses means not visited
+order = cp.intvar(0, nbHouses, shape=nbHouses, name=&quot;order&quot;)
+
+# Constraints:
+
+# 1) The successor of LuigiHouse is LuigiHouse itself (end of route)
+model += (s[LuigiHouse] == LuigiHouse)
+
+# 2) The successor of MarioHouse cannot be MarioHouse (no loop start)
+model += (s[MarioHouse] != MarioHouse)
+
+# 3) No house can point to MarioHouse (start) except LuigiHouse pointing to itself
+for i in range(nbHouses):
+    if i != LuigiHouse:
+        model += (s[i] != MarioHouse)
+
+# 4) Order constraints
+model += (order[MarioHouse] == 0)
+model += (order[LuigiHouse] &gt; 0)
+model += (order[LuigiHouse] &lt;= nbHouses - 1)
+
+for i in range(nbHouses):
+    if i != LuigiHouse:
+        model += ((order[i] &lt; order[LuigiHouse]) | (order[i] == nbHouses))
+
+# 5) Successor and order relation
+for i in range(nbHouses):
+    if i != LuigiHouse:
+        bools = []
+        for j in range(nbHouses):
+            b = (s[i] == j)
+            bools.append(b)
+            model += b.implies(order[j] == order[i] + 1)
+        model += cp.sum(bools) == 1
+    else:
+        model += (s[i] == i)
+
+# 6) Fuel consumption constraint using cp.Element
+fuel_used = cp.intvar(0, 1000000, name=&quot;fuel_used&quot;)
+
+# For each house except LuigiHouse, define fuel_i = conso[i][s[i]]
+fuel_i_vars = []
+for i in range(nbHouses):
+    if i != LuigiHouse:
+        fuel_i = cp.intvar(0, np.max(conso), name=f&quot;fuel_{i}&quot;)
+        model += (fuel_i == cp.Element(conso[i], s[i]))
+        fuel_i_vars.append(fuel_i)
+
+model += (fuel_used == cp.sum(fuel_i_vars))
+model += (fuel_used &lt;= fuelMax)
+
+# 7) Gold collected
+gold_collected = cp.intvar(0, 1000000, name=&quot;gold_collected&quot;)
+model += (gold_collected == cp.sum([goldInHouse[i] * (order[i] != nbHouses) for i in range(nbHouses)]))
+
+model.maximize(gold_collected)
+
+# Solve and print
+if model.solve():
+    s_sol = [int(s[i].value()) + 1 for i in range(nbHouses)]
+    solution = {&#x27;s&#x27;: s_sol}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (124 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 0,  # 0-indexed
+    &#x27;LuigiHouse&#x27;: 1,  # 0-indexed
+    &#x27;fuelMax&#x27;: 600,
+    # fuel consumption between houses, conso[i][j] = fuel from i to j
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],  # Mario&#x27;s house
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],  # Luigi&#x27;s house
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+# End of data
+
+n = data[&#x27;nbHouses&#x27;]
+Mario = data[&#x27;MarioHouse&#x27;]
+Luigi = data[&#x27;LuigiHouse&#x27;]
+fuelMax = data[&#x27;fuelMax&#x27;]
+conso = data[&#x27;conso&#x27;]
+gold = data[&#x27;goldInHouse&#x27;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# &quot;next&quot; represents the real route successor for modeling the path:
+# For i != Luigi: next[i] == i means not visited; next[i] != i means visited and successor is next[i].
+# For Luigi: next[Luigi] will be fixed to Luigi (end of the path). For printing we will set s[Luigi]=Mario as required.
+next_vars = cp.intvar(0, n-1, shape=n, name=&quot;next&quot;)
+
+# visited boolean: v[i] = 1 if house i is visited (on the path)
+v = cp.boolvar(shape=n, name=&quot;v&quot;)
+
+# rank variables to order nodes on the path, r[Mario] = 0 and ranks increase along the path until Luigi
+r = cp.intvar(0, n-1, shape=n, name=&quot;r&quot;)
+
+# Constraints
+
+# 1) Domain and visitation linking
+for i in range(n):
+    if i == Luigi:
+        # Luigi is visited and is the end: next[Luigi] = Luigi, but visited=1
+        model += (next_vars[i] == i)
+        model += (v[i] == 1)
+    else:
+        # visited iff next[i] != i
+        model += (v[i] == (next_vars[i] != i))
+
+# Mario must be visited and must have a successor different from itself (start of path)
+model += (v[Mario] == 1)
+model += (next_vars[Mario] != Mario)
+
+# 2) Incoming constraints (exclude self-loops from counting incoming)
+# For each house j, number of incoming arcs from other houses equals v[j], except Mario has indegree 0.
+for j in range(n):
+    incoming = []
+    for i in range(n):
+        if i == j:
+            continue  # exclude self-loop
+        incoming.append(next_vars[i] == j)
+    if j == Mario:
+        model += (cp.sum(incoming) == 0)
+    else:
+        # If v[j]==1 then exactly one predecessor points to j; if v[j]==0 then none.
+        model += (cp.sum(incoming) == v[j])
+
+# 3) Rank ordering to avoid subtours: r[Mario] = 0 and along every used arc (except from Luigi) ranks increase by 1.
+model += (r[Mario] == 0)
+for i in range(n):
+    if i == Luigi:
+        continue
+    # If i is visited, then r[next[i]] == r[i] + 1
+    # Use cp.Element to index r by variable next_vars[i]
+    model += v[i].implies(cp.Element(r, next_vars[i]) == r[i] + 1)
+
+# 4) Fuel constraint: sum of fuel along traveled edges (excluding Luigi -&gt; Mario fake link) &lt;= fuelMax
+# For i != Luigi, if visited, we include conso[i][next[i]] in total fuel.
+edge_costs = []
+for i in range(n):
+    if i == Luigi:
+        continue
+    # cost_i = Element(conso[i], next[i])
+    cost_i = cp.Element(conso[i], next_vars[i])
+    # only count if visited
+    edge_costs.append(cost_i * v[i])
+fuel_used = cp.sum(edge_costs)
+model += (fuel_used &lt;= fuelMax)
+
+# Objective: maximize collected gold (sum of gold for visited houses)
+total_gold = cp.sum([gold[i] * v[i] for i in range(n)])
+model.maximize(total_gold)
+
+# Solve and print
+if model.solve():
+    # build printed successor list s:
+    s = [0] * n
+    for i in range(n):
+        if i == Luigi:
+            # As required in the problem statement, Luigi&#x27;s successor should be Mario&#x27;s house
+            s[i] = Mario
+        else:
+            s[i] = int(next_vars[i].value())
+    solution = {&#x27;s&#x27;: s}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (131 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 0,  # 0-indexed
+    &#x27;LuigiHouse&#x27;: 1,  # 0-indexed
+    &#x27;fuelMax&#x27;: 600,
+    # fuel consumption between houses, conso[i][j] = fuel from i to j
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],  # Mario&#x27;s house
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],  # Luigi&#x27;s house
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+# End of data
+
+n = data[&#x27;nbHouses&#x27;]
+M = data[&#x27;MarioHouse&#x27;]
+L = data[&#x27;LuigiHouse&#x27;]
+fuelMax = data[&#x27;fuelMax&#x27;]
+conso = data[&#x27;conso&#x27;]
+gold = data[&#x27;goldInHouse&#x27;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# s[i] is the successor of house i (s[i]==i if not in the route). For Luigi, s[L]==M.
+s = cp.intvar(0, n-1, shape=n, name=&quot;s&quot;)
+
+# inroute[i] is 1 if house i is part of Mario&#x27;s route (visited), 0 otherwise
+inroute = cp.boolvar(shape=n, name=&quot;inroute&quot;)
+
+# x[i][j] = 1 iff s[i] == j (channeling matrix for convenience)
+x = cp.boolvar(shape=(n, n), name=&quot;x&quot;)
+
+# position along the path from Mario to Luigi (only meaningful for inroute nodes; Mario at 0)
+pos = cp.intvar(0, n-1, shape=n, name=&quot;pos&quot;)
+
+# Constraints
+
+# Channeling between s and x; each row has exactly one successor
+for i in range(n):
+    # Exactly one successor (including possibly itself)
+    model += (cp.sum(x[i, :]) == 1)
+    # Channel x[i,j] &lt;-&gt; (s[i] == j)
+    for j in range(n):
+        model += (x[i, j] == (s[i] == j))
+
+# Route membership and self-loop for non-route nodes
+for i in range(n):
+    # If not in route, then self-loop; if in route, no self-loop
+    model += (~inroute[i]).implies(s[i] == i)
+    model += inroute[i].implies(s[i] != i)
+
+# Mario and Luigi must be in the route
+model += (inroute[M] == 1)
+model += (inroute[L] == 1)
+
+# Luigi&#x27;s successor must be Mario
+model += (s[L] == M)
+
+# Non-self edges only exist between route nodes
+for i in range(n):
+    for j in range(n):
+        if i != j:
+            model += (x[i, j] &lt;= inroute[i])
+            model += (x[i, j] &lt;= inroute[j])
+
+# In-degree constraints (counting only non-self incoming edges):
+# - For Mario: exactly one incoming (from Luigi), and specifically x[L, M] == 1
+# - For other nodes j != Mario: inroute[j] -&gt; exactly one incoming; ~inroute[j] -&gt; zero incoming
+for j in range(n):
+    incoming_nonself = cp.sum([x[i, j] for i in range(n) if i != j])
+    if j == M:
+        model += (incoming_nonself == 1)
+        model += (x[L, M] == 1)
+    else:
+        model += (incoming_nonself == inroute[j])
+
+# Positional ordering to enforce a single chain from Mario to Luigi
+model += (pos[M] == 0)
+for i in range(n):
+    # Non-route nodes have pos 0; route nodes (except Mario) have pos &gt;= 1
+    model += (~inroute[i]).implies(pos[i] == 0)
+    if i != M:
+        model += inroute[i].implies(pos[i] &gt;= 1)
+    # For all route nodes except Luigi: pos[succ(i)] = pos[i] + 1
+    if i != L:
+        model += inroute[i].implies(cp.Element(pos, s[i]) == (pos[i] + 1))
+
+# Fuel budget: sum of fuel on traversed non-self edges, excluding the artificial closing edge (Luigi-&gt;Mario)
+fuel_terms = []
+for i in range(n):
+    for j in range(n):
+        if i != j:
+            if not (i == L and j == M):
+                fuel_terms.append(x[i, j] * conso[i][j])
+if fuel_terms:
+    model += (cp.sum(fuel_terms) &lt;= fuelMax)
+else:
+    # No traversed edges other than possible Luigi-&gt;Mario (edge case)
+    model += (0 &lt;= fuelMax)
+
+# Objective: maximize gold collected in visited houses
+# Gold of Mario and Luigi are zero in provided data, but included for generality
+total_gold = cp.sum([inroute[i] * gold[i] for i in range(n)])
+model.maximize(total_gold)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;s&#x27;: s.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (124 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 0,  # 0-indexed
+    &#x27;LuigiHouse&#x27;: 1,  # 0-indexed
+    &#x27;fuelMax&#x27;: 600,
+    # fuel consumption between houses, conso[i][j] = fuel from i to j
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],  # Mario&#x27;s house
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],  # Luigi&#x27;s house
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+# End of data
+
+n = data[&#x27;nbHouses&#x27;]
+Mario = data[&#x27;MarioHouse&#x27;]
+Luigi = data[&#x27;LuigiHouse&#x27;]
+fuelMax = data[&#x27;fuelMax&#x27;]
+conso = data[&#x27;conso&#x27;]
+gold = data[&#x27;goldInHouse&#x27;]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# &quot;next&quot; represents the real route successor for modeling the path:
+# For i != Luigi: next[i] == i means not visited; next[i] != i means visited and successor is next[i].
+# For Luigi: next[Luigi] will be fixed to Luigi (end of the path). For printing we will set s[Luigi]=Mario as required.
+next_vars = cp.intvar(0, n-1, shape=n, name=&quot;next&quot;)
+
+# visited boolean: v[i] = 1 if house i is visited (on the path)
+v = cp.boolvar(shape=n, name=&quot;v&quot;)
+
+# rank variables to order nodes on the path, r[Mario] = 0 and ranks increase along the path until Luigi
+r = cp.intvar(0, n-1, shape=n, name=&quot;r&quot;)
+
+# Constraints
+
+# 1) Domain and visitation linking
+for i in range(n):
+    if i == Luigi:
+        # Luigi is visited and is the end: next[Luigi] = Luigi, but visited=1
+        model += (next_vars[i] == i)
+        model += (v[i] == 1)
+    else:
+        # visited iff next[i] != i
+        model += (v[i] == (next_vars[i] != i))
+
+# Mario must be visited and must have a successor different from itself (start of path)
+model += (v[Mario] == 1)
+model += (next_vars[Mario] != Mario)
+
+# 2) Incoming constraints (exclude self-loops from counting incoming)
+# For each house j, number of incoming arcs from other houses equals v[j], except Mario has indegree 0.
+for j in range(n):
+    incoming = []
+    for i in range(n):
+        if i == j:
+            continue  # exclude self-loop
+        incoming.append(next_vars[i] == j)
+    if j == Mario:
+        model += (cp.sum(incoming) == 0)
+    else:
+        # If v[j]==1 then exactly one predecessor points to j; if v[j]==0 then none.
+        model += (cp.sum(incoming) == v[j])
+
+# 3) Rank ordering to avoid subtours: r[Mario] = 0 and along every used arc (except from Luigi) ranks increase by 1.
+model += (r[Mario] == 0)
+for i in range(n):
+    if i == Luigi:
+        continue
+    # If i is visited, then r[next[i]] == r[i] + 1
+    # Use cp.Element to index r by variable next_vars[i]
+    model += v[i].implies(cp.Element(r, next_vars[i]) == r[i] + 1)
+
+# 4) Fuel constraint: sum of fuel along traveled edges (excluding Luigi -&gt; Mario fake link) &lt;= fuelMax
+# For i != Luigi, if visited, we include conso[i][next[i]] in total fuel.
+edge_costs = []
+for i in range(n):
+    if i == Luigi:
+        continue
+    # cost_i = Element(conso[i], next[i])
+    cost_i = cp.Element(conso[i], next_vars[i])
+    # only count if visited
+    edge_costs.append(cost_i * v[i])
+fuel_used = cp.sum(edge_costs)
+model += (fuel_used &lt;= fuelMax)
+
+# Objective: maximize collected gold (sum of gold for visited houses)
+total_gold = cp.sum([gold[i] * v[i] for i in range(n)])
+model.maximize(total_gold)
+
+# Solve and print
+if model.solve():
+    # build printed successor list s:
+    s = [0] * n
+    for i in range(n):
+        if i == Luigi:
+            # As required in the problem statement, Luigi&#x27;s successor should be Mario&#x27;s house
+            s[i] = Mario
+        else:
+            s[i] = int(next_vars[i].value())
+    solution = {&#x27;s&#x27;: s}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (120 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: nbHouses = 15;
+int: MarioHouse = 1;
+int: LuigiHouse = 2;
+int: fuelMax = 2000;
+int: goldTotalAmount = 1500;
+
+array[1..nbHouses, 1..nbHouses] of int: conso = [
+    | 0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322
+    | 0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712
+    | 274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73
+    | 808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753
+    | 13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294
+    | 677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938
+    | 670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501
+    | 921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118
+    | 943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420
+    | 969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528
+    | 13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859
+    | 18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375
+    | 217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491
+    | 86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143
+    | 322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0
+];
+
+array[1..nbHouses] of int: goldInHouse = [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14];
+
+% Decision variables
+% We model the route as a successor array: for each house s, succ[s] is the next house visited after s.
+array[1..nbHouses] of var 1..nbHouses: succ;
+
+% We want a path starting at MarioHouse and ending at LuigiHouse.
+% To model this, we will:
+% - enforce that LuigiHouse has no successor (succ[LuigiHouse] = LuigiHouse)
+% - enforce that MarioHouse is the start (no other house points to MarioHouse)
+% - ensure the route is a path (no cycles except the LuigiHouse self-loop)
+
+% Constraints
+
+% LuigiHouse is the end: it points to itself (no successor)
+constraint succ[LuigiHouse] = LuigiHouse;
+
+% No house points to MarioHouse (except MarioHouse itself if needed)
+% We want MarioHouse to be the start, so no other house can have succ = MarioHouse
+constraint forall(h in 1..nbHouses where h != MarioHouse) (
+    succ[h] != MarioHouse
+);
+
+% The route forms a path from MarioHouse to LuigiHouse:
+% We use a subcircuit constraint to allow a subcircuit (a cycle or self-loop)
+% We want exactly one cycle: the LuigiHouse self-loop
+% So the subcircuit formed by succ should have exactly one cycle of length 1 at LuigiHouse,
+% and the rest is a path from MarioHouse to LuigiHouse.
+
+% To enforce this, we use subcircuit(succ) and ensure that the only cycle is LuigiHouse&#x27;s self-loop.
+
+% subcircuit(succ) means the graph formed by succ is a set of disjoint cycles covering all nodes.
+% We want exactly one cycle of length 1 at LuigiHouse, and the rest is a path starting at MarioHouse.
+
+% We enforce that the cycle count is 1 and that cycle is LuigiHouse&#x27;s self-loop.
+
+% We can enforce that for all houses except LuigiHouse, succ[s] != s (no self-loop except LuigiHouse)
+constraint forall(s in 1..nbHouses where s != LuigiHouse) (
+    succ[s] != s
+);
+
+% subcircuit constraint
+constraint subcircuit(succ);
+
+% To ensure the path starts at MarioHouse, we enforce that MarioHouse is not pointed to by any other house
+% (already done above), and that from MarioHouse we can reach LuigiHouse by following succ.
+
+% We define an array to represent the order of houses visited in the path
+array[1..nbHouses] of var 0..nbHouses: position; % 0 means not visited
+
+% MarioHouse is at position 1
+constraint position[MarioHouse] = 1;
+
+% LuigiHouse is visited and has position &gt; 0
+constraint position[LuigiHouse] &gt; 0;
+
+% For all houses except LuigiHouse, if position[s] &gt; 0 then position[succ[s]] = position[s] + 1
+constraint forall(s in 1..nbHouses where s != LuigiHouse) (
+    (position[s] &gt; 0) -&gt; (position[succ[s]] = position[s] + 1)
+);
+
+% For houses not in the path, position = 0
+% This is ensured by the above constraints and subcircuit.
+
+% The path length is position[LuigiHouse]
+var 1..nbHouses: pathLength = position[LuigiHouse];
+
+% Fuel consumption along the path must not exceed fuelMax
+var 0..fuelMax: totalFuel;
+
+constraint totalFuel = sum(s in 1..nbHouses where position[s] &gt; 0 /\ s != LuigiHouse) (
+    conso[s, succ[s]]
+);
+
+constraint totalFuel &lt;= fuelMax;
+
+% Gold collected is sum of gold in visited houses (position &gt; 0)
+var 0..goldTotalAmount: goldCollected;
+
+constraint goldCollected = sum(s in 1..nbHouses where position[s] &gt; 0) (
+    goldInHouse[s]
+);
+
+% Objective: maximize goldCollected
+solve maximize goldCollected;
+
+% Output the successor list as a list of 15 integers
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;&quot; ++ &quot;s&quot; ++ &quot;\&quot;: [&quot; ++ join(&quot;,&quot;, [show(succ[i]) | i in 1..nbHouses]) ++ &quot;]&quot;
+    ]),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (155 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 1,
+    &#x27;LuigiHouse&#x27;: 2,
+    &#x27;fuelMax&#x27;: 2000,
+    &#x27;goldTotalAmount&#x27;: 1500,
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+
+nbHouses = data[&#x27;nbHouses&#x27;]
+MarioHouse = data[&#x27;MarioHouse&#x27;] - 1  # zero-based index
+LuigiHouse = data[&#x27;LuigiHouse&#x27;] - 1  # zero-based index
+fuelMax = data[&#x27;fuelMax&#x27;]
+conso = data[&#x27;conso&#x27;]
+goldInHouse = data[&#x27;goldInHouse&#x27;]
+
+model = cp_model.CpModel()
+
+# Decision variables:
+# s[i] = successor house of house i (0-based index)
+s = [model.NewIntVar(0, nbHouses - 1, f&#x27;s_{i}&#x27;) for i in range(nbHouses)]
+
+# We want to model a path from MarioHouse to LuigiHouse visiting houses without cycles except the end.
+# The path starts at MarioHouse and ends at LuigiHouse.
+# LuigiHouse has no successor (we can set s[LuigiHouse] = LuigiHouse to indicate end).
+
+# Add constraint that LuigiHouse is the end (no successor)
+model.Add(s[LuigiHouse] == LuigiHouse)
+
+# To avoid cycles and ensure a path, we use a circuit constraint.
+# Circuit constraint requires arcs in the form (tail, head, literal)
+# We create arcs for all possible edges except from LuigiHouse (which has no successor except itself).
+
+# Create literals for arcs
+arc_literals = {}
+for i in range(nbHouses):
+    for j in range(nbHouses):
+        # Allow self-loop only for LuigiHouse
+        if i == LuigiHouse and j == LuigiHouse:
+            continue
+        # No self-loop except LuigiHouse
+        if i == j and i != LuigiHouse:
+            continue
+        arc_literals[(i, j)] = model.NewBoolVar(f&#x27;arc_{i}_{j}&#x27;)
+
+# Add exactly one successor for each house except LuigiHouse
+for i in range(nbHouses):
+    if i == LuigiHouse:
+        # Already fixed s[LuigiHouse] == LuigiHouse
+        continue
+    model.AddExactlyOne(arc_literals[(i, j)] for j in range(nbHouses) if (i, j) in arc_literals)
+
+# Link s[i] with arc_literals
+for i in range(nbHouses):
+    if i == LuigiHouse:
+        continue
+    # s[i] == j &lt;=&gt; arc_literals[(i,j)] == True
+    # We enforce equivalence by:
+    # s[i] == j =&gt; arc_literals[(i,j)] == True
+    # arc_literals[(i,j)] == True =&gt; s[i] == j
+    # We do this by reification constraints
+    for j in range(nbHouses):
+        if (i, j) not in arc_literals:
+            continue
+        model.Add(s[i] == j).OnlyEnforceIf(arc_literals[(i, j)])
+        model.Add(s[i] != j).OnlyEnforceIf(arc_literals[(i, j)].Not())
+
+# Circuit constraint to ensure the arcs form a single cycle covering all nodes except LuigiHouse
+# We create a list of arcs for the circuit constraint
+# The circuit constraint requires arcs in the form of (tail, head, literal)
+# We add the self-loop arc for LuigiHouse with literal True
+arc_list = []
+for (i, j), lit in arc_literals.items():
+    arc_list.append(cp_model.Arc(i, j, lit))
+# Add self-loop arc for LuigiHouse with literal True
+arc_list.append(cp_model.Arc(LuigiHouse, LuigiHouse, model.NewConstant(1)))
+
+model.AddCircuit(arc_list)
+
+# The path must start at MarioHouse
+# We enforce that no other house points to MarioHouse (except LuigiHouse can point to itself)
+# So MarioHouse has no incoming arcs except from LuigiHouse if LuigiHouse == MarioHouse (not the case here)
+# We enforce that MarioHouse has no incoming arcs except from LuigiHouse if any
+for i in range(nbHouses):
+    if i == MarioHouse:
+        continue
+    # sum of arcs (i -&gt; MarioHouse) == 0
+    if (i, MarioHouse) in arc_literals:
+        model.Add(arc_literals[(i, MarioHouse)] == 0)
+
+# Fuel consumption calculation
+# We sum the fuel consumption for each arc chosen
+fuel_consumption = model.NewIntVar(0, fuelMax, &#x27;fuel_consumption&#x27;)
+fuel_terms = []
+for (i, j), lit in arc_literals.items():
+    fuel_terms.append(lit * conso[i][j])
+model.Add(fuel_consumption == sum(fuel_terms))
+model.Add(fuel_consumption &lt;= fuelMax)
+
+# Gold collected is sum of gold in visited houses except MarioHouse (start) and LuigiHouse (end)
+# We create a boolean variable visited[i] indicating if house i is visited (except MarioHouse and LuigiHouse)
+visited = []
+for i in range(nbHouses):
+    if i == MarioHouse or i == LuigiHouse:
+        visited.append(model.NewConstant(0))
+    else:
+        # visited[i] = 1 if some arc points to i (i.e. i is visited)
+        incoming_arcs = []
+        for k in range(nbHouses):
+            if (k, i) in arc_literals:
+                incoming_arcs.append(arc_literals[(k, i)])
+        if incoming_arcs:
+            visited_i = model.NewBoolVar(f&#x27;visited_{i}&#x27;)
+            model.AddMaxEquality(visited_i, incoming_arcs)
+            visited.append(visited_i)
+        else:
+            visited.append(model.NewConstant(0))
+
+gold_collected = model.NewIntVar(0, data[&#x27;goldTotalAmount&#x27;], &#x27;gold_collected&#x27;)
+model.Add(gold_collected == sum(visited[i] * goldInHouse[i] for i in range(nbHouses)))
+
+# Objective: maximize gold collected
+model.Maximize(gold_collected)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Extract successors s as list of 15 integers (1-based indexing)
+    s_sol = [solver.Value(s[i]) + 1 for i in range(nbHouses)]
+    solution = {&#x27;s&#x27;: s_sol}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (165 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# ---------------------
+# Input data (immutable)
+# ---------------------
+
+data = {
+    &#x27;nbHouses&#x27;: 15,
+    &#x27;MarioHouse&#x27;: 1,
+    &#x27;LuigiHouse&#x27;: 2,
+    &#x27;fuelMax&#x27;: 2000,
+    &#x27;goldTotalAmount&#x27;: 1500,
+    &#x27;conso&#x27;: [
+        [0, 221, 274, 808, 13, 677, 670, 921, 943, 969, 13, 18, 217, 86, 322],
+        [0, 0, 702, 83, 813, 679, 906, 246, 335, 529, 719, 528, 451, 242, 712],
+        [274, 702, 0, 127, 110, 72, 835, 5, 161, 430, 686, 664, 799, 523, 73],
+        [808, 83, 127, 0, 717, 80, 31, 71, 683, 668, 248, 826, 916, 467, 753],
+        [13, 813, 110, 717, 0, 951, 593, 579, 706, 579, 101, 551, 280, 414, 294],
+        [677, 679, 72, 80, 951, 0, 262, 12, 138, 222, 146, 571, 907, 225, 938],
+        [670, 906, 835, 31, 593, 262, 0, 189, 558, 27, 287, 977, 226, 454, 501],
+        [921, 246, 5, 71, 579, 12, 189, 0, 504, 221, 483, 226, 38, 314, 118],
+        [943, 335, 161, 683, 706, 138, 558, 504, 0, 949, 393, 721, 267, 167, 420],
+        [969, 529, 430, 668, 579, 222, 27, 221, 949, 0, 757, 747, 980, 589, 528],
+        [13, 719, 686, 248, 101, 146, 287, 483, 393, 757, 0, 633, 334, 492, 859],
+        [18, 528, 664, 826, 551, 571, 977, 226, 721, 747, 633, 0, 33, 981, 375],
+        [217, 451, 799, 916, 280, 907, 226, 38, 267, 980, 334, 33, 0, 824, 491],
+        [86, 242, 523, 467, 414, 225, 454, 314, 167, 589, 492, 981, 824, 0, 143],
+        [322, 712, 73, 753, 294, 938, 501, 118, 420, 528, 859, 375, 491, 143, 0]
+    ],
+    &#x27;goldInHouse&#x27;: [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]
+}
+
+# ---------------------
+# Model creation
+# ---------------------
+
+nb = data[&#x27;nbHouses&#x27;]
+start = data[&#x27;MarioHouse&#x27;]
+end = data[&#x27;LuigiHouse&#x27;]
+fuel_max = data[&#x27;fuelMax&#x27;]
+c = data[&#x27;conso&#x27;]
+G = data[&#x27;goldInHouse&#x27;]
+
+model = cp_model.CpModel()
+
+# Binary arc variables x[i][j] for i != j
+x = {}
+for i in range(nb):
+    for j in range(nb):
+        if i == j:
+            continue
+        x[i, j] = model.NewBoolVar(f&#x27;x_{i}_{j}&#x27;)
+
+# Visit indicator y[i]
+y = [model.NewBoolVar(f&#x27;y_{i}&#x27;) for i in range(nb)]
+
+# MTZ ordering variables u[i]
+# They need integer domain 0..nb
+u = [model.NewIntVar(0, nb, f&#x27;u_{i}&#x27;) for i in range(nb)]
+
+# ---------------------
+# Constraints
+# ---------------------
+
+# 1. Self-loops forbidden (already no variable for i==j)
+
+# 2. Start node degree constraints
+model.Add(sum(x[start, j] for j in range(nb) if j != start) == 1)
+model.Add(sum(x[i, start] for i in range(nb) if i != start) == 0)
+
+# 3. End node degree constraints
+model.Add(sum(x[i, end] for i in range(nb) if i != end) == 1)
+model.Add(sum(x[end, j] for j in range(nb) if j != end) == 0)
+
+# 4. Intermediate nodes: in-degree = out-degree = y[i]
+for i in range(nb):
+    if i in (start, end):
+        continue
+    in_deg = sum(x[j, i] for j in range(nb) if j != i)
+    out_deg = sum(x[i, j] for j in range(nb) if j != i)
+    model.Add(in_deg == y[i])
+    model.Add(out_deg == y[i])
+    # Equality between in and out automatically implied but add explicitly
+    model.Add(in_deg == out_deg)
+
+# 5. Mandatory visits to start and end
+model.Add(y[start] == 1)
+model.Add(y[end] == 1)
+
+# 6. Link arcs to y for start and end (optional but tighten)
+#    Start: out-degree 1, in-degree 0, so y[start] already 1.
+#    End: in-degree 1, out-degree 0.
+
+# 7. Fuel budget
+fuel_consumption = []
+coefficients = []
+for (i, j), var in x.items():
+    fuel_consumption.append(var)
+    coefficients.append(c[i][j])
+model.Add(sum(coefficients[k] * fuel_consumption[k] for k in range(len(fuel_consumption))) &lt;= fuel_max)
+
+# 8. MTZ subtour elimination (path version)
+model.Add(u[start] == 0)
+for i in range(nb):
+    if i == start:
+        continue
+    model.Add(u[i] &gt;= 0)
+    model.Add(u[i] &lt;= nb)
+
+big_M = nb
+for i in range(nb):
+    for j in range(nb):
+        if i == j:
+            continue
+        # u_j &gt;= u_i + 1 - big_M * (1 - x_ij)
+        model.Add(u[j] &gt;= u[i] + 1 - big_M * (1 - x[i, j]))
+
+# 9. Link y with arcs for start and end to keep model tight
+#    y[end] already 1. Ensure arcs linking.
+model.Add(sum(x[j, end] for j in range(nb) if j != end) == 1)  # already exists
+model.Add(sum(x[start, j] for j in range(nb) if j != start) == 1)  # already exists
+
+# 10. Visit indicators for start and end fixed to 1 (already done)
+
+# 11. Out/In degree bound for start and end vs y (tightening)
+model.Add(sum(x[start, j] for j in range(nb) if j != start) &lt;= y[start])
+model.Add(sum(x[j, end] for j in range(nb) if j != end) &lt;= y[end])
+
+# ---------------------
+# Objective: Maximize collected gold
+# ---------------------
+
+model.Maximize(sum(G[i] * y[i] for i in range(nb)))
+
+# ---------------------
+# Solve
+# ---------------------
+
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 30  # safety limit
+status = solver.Solve(model)
+
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    # In the very unlikely event that no solution is found, still output identity successors
+    s = list(range(nb))
+    print(json.dumps({&#x27;s&#x27;: s}))
+    exit()
+
+# ---------------------
+# Extract successor list s
+# ---------------------
+
+s = [i for i in range(nb)]  # default self-loops
+for i in range(nb):
+    for j in range(nb):
+        if i == j:
+            continue
+        if solver.Value(x[i, j]):
+            s[i] = j
+            break  # unique successor
+# Ensure Luigi (end) has self-loop
+s[end] = end
+
+print(json.dumps({&#x27;s&#x27;: s}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;nHouses&quot;: 15,
   &quot;marioHouse&quot;: 0,
   &quot;luigiHouse&quot;: 1,
@@ -390,9 +1740,9 @@ goldInHouse = [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]</code></
     14
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">s</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-124">Copy</button></div><pre class="code-block"><code id="solution-124" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">s</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-124">Copy</button></div><pre class="code-block"><code id="solution-124" class="language-json">{
   &quot;s&quot;: [
     10,
     0,
@@ -411,6 +1761,7 @@ goldInHouse = [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]</code></
     14
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -418,9 +1769,9 @@ goldInHouse = [0, 0, 40, 67, 89, 50, 6, 19, 47, 68, 94, 86, 34, 14, 14]</code></
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/mario/mario.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/mario/mario.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="knights_tour.html">â† prev</a><a class="btn" href="media_selection.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="knights_tour.html">← prev</a><a class="btn" href="media_selection.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

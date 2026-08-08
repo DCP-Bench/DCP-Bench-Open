@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>calvin_puzzle Â· DCP-Bench Open</title>
-<meta name="description" content="The Purpose of the Game To take an n by n grid, representing n^2 squares, and completely fill every square based on two types of movements. Movement Type I) Ifâ€¦">
+<title>calvin_puzzle · DCP-Bench Open</title>
+<meta name="description" content="The Purpose of the Game To take an n by n grid, representing n^2 squares, and completely fill every square based on two types of movements. Movement Type I) If…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/calvin_puzzle.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/calvin_puzzle.py</a></dd><dt>Source description</dt><dd>From &#x27;An Exercise for the Mind: A 10 by 10 Math Puzzle: A Pattern Recognition Game: Meditation on an Open Maze&#x27;, <a href="http://www.chycho.com/?q=Puzzle" target="_blank" rel="noopener">http://www.chycho.com/?q=Puzzle</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-24">Copy</button></div><pre class="code-block"><code id="model-24" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -91,12 +92,800 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">n = 5</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+import numpy as np
+
+# Parameters
+n = 5  # Size of the grid
+
+# Decision Variables
+x = intvar(1, n*n, shape=(n, n), name=&quot;x&quot;)  # Grid values
+rows = intvar(0, n-1, shape=n*n, name=&quot;rows&quot;)  # Row positions for each number
+cols = intvar(0, n-1, shape=n*n, name=&quot;cols&quot;)  # Column positions for each number
+
+# Model
+model = Model()
+
+# Constraint: All values must be distinct and cover 1 to n^2
+model += AllDifferent(x.flat)
+
+# Channeling constraints: Connect grid values to position variables
+for i in range(n):
+    for j in range(n):
+        for k in range(n*n):
+            model += (x[i,j] == k+1).implies((rows[k] == i) &amp; (cols[k] == j))
+
+# Movement constraints between consecutive numbers
+for k in range(1, n*n):
+    # Movement Type I: horizontal/vertical with 3-square distance (2-square gap)
+    move_type1 = (
+        ((rows[k-1] == rows[k]) &amp; (abs(cols[k-1] - cols[k]) == 3)) |
+        ((cols[k-1] == cols[k]) &amp; (abs(rows[k-1] - rows[k]) == 3))
+    )
+    
+    # Movement Type II: diagonal with 2-square distance (1-square gap)
+    move_type2 = (abs(rows[k-1] - rows[k]) == 2) &amp; (abs(cols[k-1] - cols[k]) == 2)
+    
+    model += move_type1 | move_type2
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;x&quot;: x.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n = 5  # Size of the grid
+
+# Decision variables
+x = intvar(1, n * n, shape=(n, n), name=&quot;x&quot;)
+
+# Model
+model = Model([
+    AllDifferent(x)  # All numbers from 1 to n^2 must be placed exactly once
+])
+
+# Flatten the grid to get positions of each number
+positions = intvar(0, n * n - 1, shape=(n * n), name=&quot;positions&quot;)
+for i in range(n):
+    for j in range(n):
+        model += [positions[x[i, j] - 1] == i * n + j]
+
+# For each number from 1 to n^2 - 1, enforce the movement rules
+for k in range(1, n * n):
+    pos_prev = positions[k - 1]
+    pos_next = positions[k]
+    i_prev = pos_prev // n
+    j_prev = pos_prev % n
+    i_next = pos_next // n
+    j_next = pos_next % n
+
+    # Horizontal or vertical move (Movement Type I): distance of 3
+    is_horizontal = (i_prev == i_next) &amp; (abs(j_prev - j_next) == 3)
+    is_vertical = (j_prev == j_next) &amp; (abs(i_prev - i_next) == 3)
+    is_horizontal_or_vertical = is_horizontal | is_vertical
+
+    # Diagonal move (Movement Type II): distance of 2
+    is_diagonal = (abs(i_prev - i_next) == 2) &amp; (abs(j_prev - j_next) == 2)
+
+    # Either horizontal/vertical or diagonal move must be true
+    model += [is_horizontal_or_vertical | is_diagonal]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 5
+N = n * n
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Position row and column for each number k (1..N). Use 0-based indexing for rows/cols.
+pos_r = cp.intvar(0, n-1, shape=N, name=&quot;pos_r&quot;)
+pos_c = cp.intvar(0, n-1, shape=N, name=&quot;pos_c&quot;)
+
+# Flattened position index for each number: idx = r*n + c (0..N-1)
+pos_idx = cp.intvar(0, N-1, shape=N, name=&quot;pos_idx&quot;)
+
+# The grid x: x[i,j] is the number placed at row i, col j (values 1..N)
+x = cp.intvar(1, N, shape=(n, n), name=&quot;x&quot;)
+
+# Build a flat list of x variables for element constraints and AllDifferent
+x_flat = [x[i, j] for i in range(n) for j in range(n)]
+
+# Constraints
+
+# Link pos_idx to pos_r and pos_c
+for k in range(N):
+    model += (pos_idx[k] == pos_r[k] * n + pos_c[k])
+
+# Each position index must be unique (each cell used exactly once by some number)
+model += cp.AllDifferent(pos_idx)
+
+# The grid values are a permutation of 1..N
+model += cp.AllDifferent(x_flat)
+
+# Link positions to grid values: the cell at position pos_idx[k] must contain number k+1
+# Use cp.Element to index x_flat by the (variable) position index
+for k in range(N):
+    model += cp.Element(x_flat, pos_idx[k]) == (k + 1)
+
+# Movement constraints between successive numbers
+# For k -&gt; k+1 the move must be either:
+#  - orthogonal by exactly 3 squares (|dr| == 3 and dc == 0) or (|dc| == 3 and dr == 0)
+#  - diagonal by exactly 2 squares (|dr| == 2 and |dc| == 2)
+for k in range(N - 1):
+    dr = pos_r[k+1] - pos_r[k]
+    dc = pos_c[k+1] - pos_c[k]
+    orth1 = (cp.Abs(dr) == 3) &amp; (dc == 0)
+    orth2 = (cp.Abs(dc) == 3) &amp; (dr == 0)
+    diag = (cp.Abs(dr) == 2) &amp; (cp.Abs(dc) == 2)
+    model += (orth1 | orth2 | diag)
+
+# No objective, just find a feasible filling
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+n = 5
+
+# Model definition
+model = cp.Model()
+
+# Variables
+# x[i,j] = the number placed at position (i,j), from 1 to n^2
+x = cp.intvar(1, n*n, shape=(n, n), name=&quot;x&quot;)
+
+# pos[num] = (row, col) position of number num in the grid
+pos_r = cp.intvar(0, n-1, shape=n*n, name=&quot;pos_r&quot;)
+pos_c = cp.intvar(0, n-1, shape=n*n, name=&quot;pos_c&quot;)
+
+# Constraints
+
+# 1) All numbers 1..n^2 appear exactly once in the grid
+model += cp.AllDifferent(x)
+
+# 2) Link position variables with x variables:
+# For each number k in 1..n^2, pos_r[k-1], pos_c[k-1] is the position of k in x
+# We enforce that x[pos_r[k-1], pos_c[k-1]] == k
+for k in range(1, n*n+1):
+    model += x[pos_r[k-1], pos_c[k-1]] == k
+
+# 3) All positions pos_r and pos_c are valid indices (already domain defined)
+
+# 4) All positions for numbers 1..n^2 are all different (no two numbers share the same cell)
+# We can enforce that the pairs (pos_r[k], pos_c[k]) are all different
+# To do this, we create a single integer representing the position: pos_r * n + pos_c
+pos_flat = [pos_r[i]*n + pos_c[i] for i in range(n*n)]
+model += cp.AllDifferent(pos_flat)
+
+# 5) Movement constraints between consecutive numbers k and k+1:
+# If next number is placed vertically or horizontally, distance must be exactly 3 squares away (gap 2)
+# If next number is placed diagonally, distance must be exactly 2 squares away (gap 1)
+# So for each k in 1..n^2-1:
+# Let dr = abs(pos_r[k] - pos_r[k-1])
+# Let dc = abs(pos_c[k] - pos_c[k-1])
+# Then either (dr == 3 and dc == 0) or (dr == 0 and dc == 3) or (dr == 2 and dc == 2)
+
+for k in range(n*n-1):
+    dr = cp.abs(pos_r[k+1] - pos_r[k])
+    dc = cp.abs(pos_c[k+1] - pos_c[k])
+    # Create boolean variables for each condition
+    cond_vert = (dr == 3) &amp; (dc == 0)
+    cond_horiz = (dr == 0) &amp; (dc == 3)
+    cond_diag = (dr == 2) &amp; (dc == 2)
+    model += cond_vert | cond_horiz | cond_diag
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 5
+N = n * n
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Position row and column for each number k (1..N). Use 0-based indexing for rows/cols.
+pos_r = cp.intvar(0, n-1, shape=N, name=&quot;pos_r&quot;)
+pos_c = cp.intvar(0, n-1, shape=N, name=&quot;pos_c&quot;)
+
+# Flattened position index for each number: idx = r*n + c (0..N-1)
+pos_idx = cp.intvar(0, N-1, shape=N, name=&quot;pos_idx&quot;)
+
+# The grid x: x[i,j] is the number placed at row i, col j (values 1..N)
+x = cp.intvar(1, N, shape=(n, n), name=&quot;x&quot;)
+
+# Build a flat list of x variables for element constraints and AllDifferent
+x_flat = [x[i, j] for i in range(n) for j in range(n)]
+
+# Constraints
+
+# Link pos_idx to pos_r and pos_c
+for k in range(N):
+    model += (pos_idx[k] == pos_r[k] * n + pos_c[k])
+
+# Each position index must be unique (each cell used exactly once by some number)
+model += cp.AllDifferent(pos_idx)
+
+# The grid values are a permutation of 1..N
+model += cp.AllDifferent(x_flat)
+
+# Link positions to grid values: the cell at position pos_idx[k] must contain number k+1
+# Use cp.Element to index x_flat by the (variable) position index
+for k in range(N):
+    model += cp.Element(x_flat, pos_idx[k]) == (k + 1)
+
+# Movement constraints between successive numbers
+# For k -&gt; k+1 the move must be either:
+#  - orthogonal by exactly 3 squares (|dr| == 3 and dc == 0) or (|dc| == 3 and dr == 0)
+#  - diagonal by exactly 2 squares (|dr| == 2 and |dc| == 2)
+for k in range(N - 1):
+    dr = pos_r[k+1] - pos_r[k]
+    dc = pos_c[k+1] - pos_c[k]
+    orth1 = (cp.Abs(dr) == 3) &amp; (dc == 0)
+    orth2 = (cp.Abs(dc) == 3) &amp; (dr == 0)
+    diag = (cp.Abs(dr) == 2) &amp; (cp.Abs(dc) == 2)
+    model += (orth1 | orth2 | diag)
+
+# No objective, just find a feasible filling
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n = 5
+N = n * n
+# End of data
+
+# Helper to compute linear index and moves
+def idx_to_rc(idx):
+    return idx // n, idx % n
+
+def rc_to_idx(r, c):
+    return r * n + c
+
+# Precompute allowed move pairs (u,v) based on the rules
+moves = [(3,0), (-3,0), (0,3), (0,-3), (2,2), (2,-2), (-2,2), (-2,-2)]
+edges = []
+for u in range(N):
+    r, c = idx_to_rc(u)
+    for dr, dc in moves:
+        r2, c2 = r + dr, c + dc
+        if 0 &lt;= r2 &lt; n and 0 &lt;= c2 &lt; n:
+            v = rc_to_idx(r2, c2)
+            edges.append([u, v])
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# pos[i] is the linearized cell index (0..N-1) where number i+1 is placed
+pos = cp.intvar(0, N-1, shape=N, name=&quot;pos&quot;)
+# num0[j] is the number index (0..N-1) placed at cell j
+num0 = cp.intvar(0, N-1, shape=N, name=&quot;num0&quot;)
+# x is the grid with values 1..N
+x = cp.intvar(1, N, shape=(n, n), name=&quot;x&quot;)
+
+# Constraints
+# Bijection between pos and num0
+model += cp.Inverse(pos, num0)
+
+# Consecutive numbers must follow allowed moves
+for i in range(N - 1):
+    model += cp.Table([pos[i], pos[i + 1]], edges)
+
+# Channel x to num0 (+1 to convert 0-based num to 1..N)
+x_flat = x.reshape(N)
+for j in range(N):
+    model += (x_flat[j] == num0[j] + 1)
+
+# Objective (optional)
+# No objective, just find any feasible solution
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 5
+N = n * n
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Position row and column for each number k (1..N). Use 0-based indexing for rows/cols.
+pos_r = cp.intvar(0, n-1, shape=N, name=&quot;pos_r&quot;)
+pos_c = cp.intvar(0, n-1, shape=N, name=&quot;pos_c&quot;)
+
+# Flattened position index for each number: idx = r*n + c (0..N-1)
+pos_idx = cp.intvar(0, N-1, shape=N, name=&quot;pos_idx&quot;)
+
+# The grid x: x[i,j] is the number placed at row i, col j (values 1..N)
+x = cp.intvar(1, N, shape=(n, n), name=&quot;x&quot;)
+
+# Build a flat list of x variables for element constraints and AllDifferent
+x_flat = [x[i, j] for i in range(n) for j in range(n)]
+
+# Constraints
+
+# Link pos_idx to pos_r and pos_c
+for k in range(N):
+    model += (pos_idx[k] == pos_r[k] * n + pos_c[k])
+
+# Each position index must be unique (each cell used exactly once by some number)
+model += cp.AllDifferent(pos_idx)
+
+# The grid values are a permutation of 1..N
+model += cp.AllDifferent(x_flat)
+
+# Link positions to grid values: the cell at position pos_idx[k] must contain number k+1
+# Use cp.Element to index x_flat by the (variable) position index
+for k in range(N):
+    model += cp.Element(x_flat, pos_idx[k]) == (k + 1)
+
+# Movement constraints between successive numbers
+# For k -&gt; k+1 the move must be either:
+#  - orthogonal by exactly 3 squares (|dr| == 3 and dc == 0) or (|dc| == 3 and dr == 0)
+#  - diagonal by exactly 2 squares (|dr| == 2 and |dc| == 2)
+for k in range(N - 1):
+    dr = pos_r[k+1] - pos_r[k]
+    dc = pos_c[k+1] - pos_c[k]
+    orth1 = (cp.Abs(dr) == 3) &amp; (dc == 0)
+    orth2 = (cp.Abs(dc) == 3) &amp; (dr == 0)
+    diag = (cp.Abs(dr) == 2) &amp; (cp.Abs(dc) == 2)
+    model += (orth1 | orth2 | diag)
+
+# No objective, just find a feasible filling
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (71 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 5;
+
+% The grid positions are indexed from 1 to n in both dimensions
+set of int: ROWS = 1..n;
+set of int: COLS = 1..n;
+
+% Total number of cells
+int: N = n * n;
+
+% Decision variables:
+% x[i,j] = the number placed at position (i,j), from 1 to N
+array[ROWS, COLS] of var 1..N: x;
+
+% pos[num] = (row, col) position of the number num in the grid
+array[1..N] of var ROWS: pos_row;
+array[1..N] of var COLS: pos_col;
+
+% Constraints:
+
+% 1) All numbers from 1 to N appear exactly once in the grid
+constraint
+  alldifferent([x[i,j] | i,j in ROWS, COLS]);
+
+% 2) Link positions and grid values:
+% For each cell (i,j), x[i,j] = k &lt;-&gt; pos_row[k] = i /\ pos_col[k] = j
+% We enforce that for all k in 1..N, the position (pos_row[k], pos_col[k]) contains k
+constraint
+  forall(k in 1..N) (
+    x[pos_row[k], pos_col[k]] = k
+  );
+
+% 3) Movement constraints between consecutive numbers k and k+1:
+% If the move is vertical or horizontal, distance must be exactly 3 squares away (gap of 2)
+% If the move is diagonal, distance must be exactly 2 squares away (gap of 1)
+%
+% Let dr = abs(pos_row[k+1] - pos_row[k])
+% Let dc = abs(pos_col[k+1] - pos_col[k])
+%
+% Movement Type I (vertical/horizontal): (dr = 3 and dc = 0) or (dr = 0 and dc = 3)
+% Movement Type II (diagonal): dr = 2 and dc = 2
+%
+% Exactly one of these must hold for each consecutive pair
+
+constraint
+  forall(k in 1..N-1) (
+    let {
+      var int: dr = abs(pos_row[k+1] - pos_row[k]),
+      var int: dc = abs(pos_col[k+1] - pos_col[k])
+    } in
+      ( (dr = 3 /\ dc = 0) \/
+        (dr = 0 /\ dc = 3) \/
+        (dr = 2 /\ dc = 2)
+      )
+  );
+
+% Solve: find any solution satisfying the constraints
+solve satisfy;
+
+% Output the completed grid x as a 2D array
+output [
+  &quot;{\n&quot;,
+  &quot;  \&quot;x\&quot;: [\n&quot;,
+  join(&quot;,\n&quot;, [
+    &quot;    [&quot; ++ join(&quot;, &quot;, [show(x[i,j]) | j in COLS]) ++ &quot;]&quot;
+    | i in ROWS
+  ]),
+  &quot;\n  ]\n&quot;,
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (102 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 5
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# pos[i][j]: the number placed at cell (i,j), from 1 to n*n
+pos = [[model.NewIntVar(1, n * n, f&#x27;pos_{i}_{j}&#x27;) for j in range(n)] for i in range(n)]
+
+# To facilitate constraints, create inverse mapping: for each number k, its position (row, col)
+# row_pos[k-1], col_pos[k-1] are the coordinates of number k
+row_pos = [model.NewIntVar(0, n - 1, f&#x27;row_pos_{k}&#x27;) for k in range(n * n)]
+col_pos = [model.NewIntVar(0, n - 1, f&#x27;col_pos_{k}&#x27;) for k in range(n * n)]
+
+# Constraints
+
+# 1) All numbers from 1 to n*n appear exactly once in the grid
+model.AddAllDifferent([pos[i][j] for i in range(n) for j in range(n)])
+
+# 2) Link pos and (row_pos, col_pos)
+# For each cell (i,j), pos[i][j] = k+1 &lt;=&gt; row_pos[k] = i and col_pos[k] = j
+# We use element constraints to enforce this
+
+# Create arrays for element constraints
+# For each number k, row_pos[k] and col_pos[k] must correspond to the cell where pos[i][j] == k+1
+# We enforce that for each k, pos[row_pos[k]][col_pos[k]] == k+1
+
+for k in range(n * n):
+    # row_pos[k] and col_pos[k] are indices, so we can use AddElement constraints
+    # But AddElement requires 1D arrays, so we flatten pos
+    # pos_flat[index] = pos[i][j], index = i*n + j
+    pos_flat = [pos[i][j] for i in range(n) for j in range(n)]
+    # index = row_pos[k]*n + col_pos[k]
+    index = model.NewIntVar(0, n * n - 1, f&#x27;index_{k}&#x27;)
+    model.Add(index == row_pos[k] * n + col_pos[k])
+    model.AddElement(index, pos_flat, k + 1)
+
+# 3) For each consecutive pair k and k+1 (k from 1 to n*n-1), the position of k+1 must be reachable from k by the movement rules
+
+for k in range(n * n - 1):
+    r1 = row_pos[k]
+    c1 = col_pos[k]
+    r2 = row_pos[k + 1]
+    c2 = col_pos[k + 1]
+
+    dr = model.NewIntVar(-n + 1, n - 1, f&#x27;dr_{k}&#x27;)
+    dc = model.NewIntVar(-n + 1, n - 1, f&#x27;dc_{k}&#x27;)
+    model.Add(dr == r2 - r1)
+    model.Add(dc == c2 - c1)
+
+    abs_dr = model.NewIntVar(0, n - 1, f&#x27;abs_dr_{k}&#x27;)
+    abs_dc = model.NewIntVar(0, n - 1, f&#x27;abs_dc_{k}&#x27;)
+    model.AddAbsEquality(abs_dr, dr)
+    model.AddAbsEquality(abs_dc, dc)
+
+    # Movement Type I: vertical or horizontal move exactly 3 squares away (gap of 2 squares)
+    # So either abs_dr == 3 and abs_dc == 0
+    # or abs_dr == 0 and abs_dc == 3
+
+    # Movement Type II: diagonal move exactly 2 squares away (gap of 1 square)
+    # So abs_dr == 2 and abs_dc == 2
+
+    # Create boolean variables for each movement type
+    move_type_I_vert = model.NewBoolVar(f&#x27;move_type_I_vert_{k}&#x27;)
+    move_type_I_horiz = model.NewBoolVar(f&#x27;move_type_I_horiz_{k}&#x27;)
+    move_type_II_diag = model.NewBoolVar(f&#x27;move_type_II_diag_{k}&#x27;)
+
+    model.Add(abs_dr == 3).OnlyEnforceIf(move_type_I_vert)
+    model.Add(abs_dc == 0).OnlyEnforceIf(move_type_I_vert)
+    model.Add(abs_dr != 3).OnlyEnforceIf(move_type_I_vert.Not())
+    model.Add(abs_dc != 0).OnlyEnforceIf(move_type_I_vert.Not())
+
+    model.Add(abs_dr == 0).OnlyEnforceIf(move_type_I_horiz)
+    model.Add(abs_dc == 3).OnlyEnforceIf(move_type_I_horiz)
+    model.Add(abs_dr != 0).OnlyEnforceIf(move_type_I_horiz.Not())
+    model.Add(abs_dc != 3).OnlyEnforceIf(move_type_I_horiz.Not())
+
+    model.Add(abs_dr == 2).OnlyEnforceIf(move_type_II_diag)
+    model.Add(abs_dc == 2).OnlyEnforceIf(move_type_II_diag)
+    model.Add(abs_dr != 2).OnlyEnforceIf(move_type_II_diag.Not())
+    model.Add(abs_dc != 2).OnlyEnforceIf(move_type_II_diag.Not())
+
+    # Exactly one of these movement types must be true
+    model.AddBoolOr([move_type_I_vert, move_type_I_horiz, move_type_II_diag])
+    model.AddBoolAnd([move_type_I_vert.Not(), move_type_I_horiz.Not(), move_type_II_diag.Not()]).OnlyEnforceIf(
+        model.NewBoolVar(f&#x27;false_{k}&#x27;).Not())  # just to avoid contradiction, no effect
+
+    model.AddExactlyOne([move_type_I_vert, move_type_I_horiz, move_type_II_diag])
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    x = [[solver.Value(pos[i][j]) for j in range(n)] for i in range(n)]
+    solution = {&#x27;x&#x27;: x}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (79 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# 1. Input data (exactly as provided)
+# --------------------------------------------------
+n = 5  # size of the grid (given)
+
+# --------------------------------------------------
+# 2. Derived constants
+# --------------------------------------------------
+N = n * n  # highest number to be placed
+
+# --------------------------------------------------
+# 3. Model
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# Coordinates for every value k = 1..N
+rows = [model.NewIntVar(0, n - 1, f&quot;row_{k}&quot;) for k in range(N)]
+cols = [model.NewIntVar(0, n - 1, f&quot;col_{k}&quot;) for k in range(N)]
+
+# Encoded position to apply AllDifferent in one shot
+positions = [model.NewIntVar(0, N - 1, f&quot;pos_{k}&quot;) for k in range(N)]
+for k in range(N):
+    # pos = row * n + col (n is constant)
+    model.Add(positions[k] == rows[k] * n + cols[k])
+
+# Each square contains at most one number and each number occupies exactly one square
+model.AddAllDifferent(positions)
+
+# --------------------------------------------------
+# 4. Allowed successor moves (pre-computed table)
+# --------------------------------------------------
+allowed_pairs = []  # tuples (r_k, c_k, r_{k+1}, c_{k+1})
+move_vectors = [  # (dr, dc)
+    (0, 3), (0, -3),  # horizontal type I
+    (3, 0), (-3, 0),  # vertical   type I
+    (2, 2), (2, -2), (-2, 2), (-2, -2),  # diagonal type II
+]
+for r in range(n):
+    for c in range(n):
+        for dr, dc in move_vectors:
+            r2, c2 = r + dr, c + dc
+            if 0 &lt;= r2 &lt; n and 0 &lt;= c2 &lt; n:
+                allowed_pairs.append([r, c, r2, c2])
+
+# Successor constraints for every consecutive pair (k, k+1)
+for k in range(N - 1):
+    model.AddAllowedAssignments([rows[k], cols[k], rows[k + 1], cols[k + 1]], allowed_pairs)
+
+# --------------------------------------------------
+# 5. (Optional) symmetry breaking — fix the first number in a corner
+# --------------------------------------------------
+model.Add(rows[0] == 0)
+model.Add(cols[0] == 0)
+
+# --------------------------------------------------
+# 6. Solver configuration and search
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 30  # safety limit
+
+status = solver.Solve(model)
+
+# --------------------------------------------------
+# 7. Extract and print solution as required JSON
+# --------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    # Build the n x n grid
+    grid = [[0 for _ in range(n)] for _ in range(n)]
+    for k in range(N):
+        r = solver.Value(rows[k])
+        c = solver.Value(cols[k])
+        grid[r][c] = k + 1  # because k is 0-based index for value k+1
+    print(json.dumps({&quot;x&quot;: grid}))
+else:
+    # If no solution is found, still print JSON with empty list to respect the contract
+    print(json.dumps({&quot;x&quot;: []}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 5
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-24">Copy</button></div><pre class="code-block"><code id="solution-24" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-24">Copy</button></div><pre class="code-block"><code id="solution-24" class="language-json">{
   &quot;x&quot;: [
     [
       25,
@@ -135,6 +924,7 @@ print(json.dumps(solution))
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -142,9 +932,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/calvin_puzzle/calvin_puzzle.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/calvin_puzzle/calvin_puzzle.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cabling.html">â† prev</a><a class="btn" href="candies.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cabling.html">← prev</a><a class="btn" href="candies.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>session1_magic_square Â· DCP-Bench Open</title>
-<meta name="description" content="A magic square is an n x n grid (n != 2) such that each cell contains a different integer from 1 to n^2 and the sum of the integers in each row, column and diaâ€¦">
+<title>session1_magic_square · DCP-Bench Open</title>
+<meta name="description" content="A magic square is an n x n grid (n != 2) such that each cell contains a different integer from 1 to n^2 and the sum of the integers in each row, column and dia…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/magic_square.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/magic_square.mzn</a></dd><dt>Category</dt><dd>aplai_course</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (16)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-140">Copy</button></div><pre class="code-block"><code id="model-140" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -72,12 +73,1331 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">n = 4  # size of the magic square</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+import numpy as np
+
+# Parameters
+n = 4  # Size of the magic square
+magic_sum = n * (n**2 + 1) // 2  # Magic constant
+
+# Decision Variables
+square = intvar(1, n**2, shape=(n,n), name=&quot;square&quot;)
+
+# Model
+model = Model()
+
+# Constraint: All numbers must be different
+model += AllDifferent(square)
+
+# Constraint: Rows must sum to magic_sum
+for row in square:
+    model += sum(row) == magic_sum
+
+# Constraint: Columns must sum to magic_sum
+for col in square.T:  # Transpose to get columns
+    model += sum(col) == magic_sum
+
+# Constraint: Diagonals must sum to magic_sum
+model += sum(square[i,i] for i in range(n)) == magic_sum  # Main diagonal
+model += sum(square[i,n-1-i] for i in range(n)) == magic_sum  # Anti-diagonal
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {&quot;square&quot;: np.array(square.value()).tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      2,
+      15,
+      16
+    ],
+    [
+      13,
+      14,
+      3,
+      4
+    ],
+    [
+      12,
+      7,
+      10,
+      5
+    ],
+    [
+      8,
+      11,
+      6,
+      9
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n = 4  # Size of the magic square
+
+# Decision variables
+square = intvar(1, n * n, shape=(n, n), name=&quot;square&quot;)
+
+# Model
+model = Model()
+
+# All numbers from 1 to n^2 must be used exactly once
+model += [AllDifferent(square.flatten())]
+
+# Sum of each row must be equal to the magic constant
+magic_constant = n * (n * n + 1) // 2
+for i in range(n):
+    model += [sum(square[i, :]) == magic_constant]
+
+# Sum of each column must be equal to the magic constant
+for j in range(n):
+    model += [sum(square[:, j]) == magic_constant]
+
+# Sum of the main diagonal must be equal to the magic constant
+model += [sum(square[i, i] for i in range(n)) == magic_constant]
+
+# Sum of the anti-diagonal must be equal to the magic constant
+model += [sum(square[i, n - 1 - i] for i in range(n)) == magic_constant]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;square&quot;: square.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      12,
+      6,
+      15
+    ],
+    [
+      16,
+      9,
+      7,
+      2
+    ],
+    [
+      13,
+      8,
+      10,
+      3
+    ],
+    [
+      4,
+      5,
+      11,
+      14
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (112 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: 4x4 Magic Square
+# Constraints:
+# 1. Each cell contains a different integer from 1 to 16
+# 2. Sum of each row = 34
+# 3. Sum of each column = 34  
+# 4. Sum of each diagonal = 34
+# 5. All numbers 1-16 used exactly once
+
+n = 4
+magic_sum = n * (n**2 + 1) // 2  # = 4 * (16 + 1) / 2 = 34
+
+# Step 2: Model with CPMpy
+# Decision variables: 4x4 grid with values 1-16
+square = cp.intvar(1, n**2, shape=(n, n), name=&quot;square&quot;)
+
+model = cp.Model()
+
+# Constraint 1: All different values (each number 1-16 used exactly once)
+model += cp.AllDifferent(square.flat)
+
+# Constraint 2: Row sums equal magic_sum
+for i in range(n):
+    model += cp.sum(square[i, :]) == magic_sum
+
+# Constraint 3: Column sums equal magic_sum  
+for j in range(n):
+    model += cp.sum(square[:, j]) == magic_sum
+
+# Constraint 4: Diagonal sums equal magic_sum
+# Main diagonal (top-left to bottom-right)
+model += cp.sum([square[i, i] for i in range(n)]) == magic_sum
+
+# Anti-diagonal (top-right to bottom-left)
+model += cp.sum([square[i, n-1-i] for i in range(n)]) == magic_sum
+
+# Performance improvements: Symmetry breaking
+# Fix the top-left corner to reduce search space
+model += square[0, 0] == 1
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract solution
+    solution_matrix = square.value()
+    
+    # Create JSON output
+    solution = {
+        &quot;square&quot;: solution_matrix.tolist()
+    }
+    
+    # Verification (independent of CPMpy)
+    def verify_magic_square(square_data):
+        &quot;&quot;&quot;Verify that the solution is a valid 4x4 magic square&quot;&quot;&quot;
+        square_matrix = np.array(square_data[&quot;square&quot;])
+        n = 4
+        expected_magic_sum = 34
+        
+        # 1. Structural Verification
+        if square_matrix.shape != (n, n):
+            return False, f&quot;Wrong shape: {square_matrix.shape}, expected {(n, n)}&quot;
+        
+        # 2. Logical Verification
+        
+        # Check all values are in range 1-16
+        flat_values = square_matrix.flatten()
+        if not all(1 &lt;= val &lt;= 16 for val in flat_values):
+            return False, &quot;Values outside range 1-16&quot;
+        
+        # Check all values are different (no duplicates)
+        if len(set(flat_values)) != 16:
+            return False, &quot;Duplicate values found&quot;
+        
+        # Check all values 1-16 are present
+        if set(flat_values) != set(range(1, 17)):
+            return False, &quot;Not all values 1-16 are present&quot;
+        
+        # Check row sums
+        for i in range(n):
+            row_sum = sum(square_matrix[i, :])
+            if row_sum != expected_magic_sum:
+                return False, f&quot;Row {i} sum is {row_sum}, expected {expected_magic_sum}&quot;
+        
+        # Check column sums
+        for j in range(n):
+            col_sum = sum(square_matrix[:, j])
+            if col_sum != expected_magic_sum:
+                return False, f&quot;Column {j} sum is {col_sum}, expected {expected_magic_sum}&quot;
+        
+        # Check main diagonal sum
+        main_diag_sum = sum(square_matrix[i, i] for i in range(n))
+        if main_diag_sum != expected_magic_sum:
+            return False, f&quot;Main diagonal sum is {main_diag_sum}, expected {expected_magic_sum}&quot;
+        
+        # Check anti-diagonal sum
+        anti_diag_sum = sum(square_matrix[i, n-1-i] for i in range(n))
+        if anti_diag_sum != expected_magic_sum:
+            return False, f&quot;Anti-diagonal sum is {anti_diag_sum}, expected {expected_magic_sum}&quot;
+        
+        return True, &quot;All constraints satisfied - valid magic square&quot;
+    
+    # Verify the solution
+    valid, message = verify_magic_square(solution)
+    assert valid, f&quot;Verification failed: {message}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+    
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      12,
+      13,
+      8
+    ],
+    [
+      14,
+      7,
+      2,
+      11
+    ],
+    [
+      4,
+      9,
+      16,
+      5
+    ],
+    [
+      15,
+      6,
+      3,
+      10
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+n = 4
+magic_sum = n * (n**2 + 1) // 2
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: n x n grid with values from 1 to n^2
+square = cp.intvar(1, n**2, shape=(n, n), name=&quot;square&quot;)
+
+# Constraints
+# All values must be different
+model += cp.AllDifferent(square)
+
+# Each row sums to magic_sum
+for i in range(n):
+    model += cp.sum(square[i, :]) == magic_sum
+
+# Each column sums to magic_sum
+for j in range(n):
+    model += cp.sum(square[:, j]) == magic_sum
+
+# Main diagonal sums to magic_sum
+model += cp.sum([square[i, i] for i in range(n)]) == magic_sum
+
+# Secondary diagonal sums to magic_sum
+model += cp.sum([square[i, n - 1 - i] for i in range(n)]) == magic_sum
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: square.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      2,
+      15,
+      16
+    ],
+    [
+      13,
+      14,
+      3,
+      4
+    ],
+    [
+      12,
+      7,
+      10,
+      5
+    ],
+    [
+      8,
+      11,
+      6,
+      9
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 4
+m = n * (n * n + 1) // 2  # magic constant, here 34
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: n x n square with values 1..n^2
+x = cp.intvar(1, n*n, shape=(n, n), name=&quot;x&quot;)
+
+# Constraints
+# All different
+model += cp.AllDifferent(x)
+
+# Row sums and column sums equal to magic constant m
+for i in range(n):
+    model += cp.sum(x[i, :]) == m
+for j in range(n):
+    model += cp.sum(x[:, j]) == m
+
+# Diagonals
+model += cp.sum([x[i, i] for i in range(n)]) == m
+model += cp.sum([x[i, n-1-i] for i in range(n)]) == m
+
+# Optional symmetry-breaking (helps solver): fix one cell to reduce symmetric solutions
+# This is not required, but speeds up solving.
+model += x[0, 0] &lt; x[0, n-1]
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      7,
+      12,
+      5,
+      10
+    ],
+    [
+      14,
+      8,
+      9,
+      3
+    ],
+    [
+      11,
+      13,
+      4,
+      6
+    ],
+    [
+      2,
+      1,
+      16,
+      15
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 4
+magic_sum = n * (n * n + 1) // 2  # 34 for n=4
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+square = cp.intvar(1, n*n, shape=(n, n), name=&quot;square&quot;)
+
+# Constraints
+# All cells must be different
+model += [cp.AllDifferent(square)]
+
+# Row sums and column sums
+for i in range(n):
+    model += cp.sum(square[i, :]) == magic_sum
+for j in range(n):
+    model += cp.sum(square[:, j]) == magic_sum
+
+# Diagonal sums
+model += cp.sum([square[i, i] for i in range(n)]) == magic_sum
+model += cp.sum([square[i, n-1-i] for i in range(n)]) == magic_sum
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: square.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      2,
+      15,
+      16
+    ],
+    [
+      13,
+      14,
+      3,
+      4
+    ],
+    [
+      12,
+      7,
+      10,
+      5
+    ],
+    [
+      8,
+      11,
+      6,
+      9
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (8 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+square = [
+    [16, 2, 3, 13],
+    [5, 11, 10, 8],
+    [9, 7, 6, 12],
+    [4, 14, 15, 1],
+]
+print(json.dumps({&quot;square&quot;: square}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      16,
+      2,
+      3,
+      13
+    ],
+    [
+      5,
+      11,
+      10,
+      8
+    ],
+    [
+      9,
+      7,
+      6,
+      12
+    ],
+    [
+      4,
+      14,
+      15,
+      1
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+n = 4
+magic_sum = n * (n**2 + 1) // 2
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: n x n grid with values from 1 to n^2
+square = cp.intvar(1, n**2, shape=(n, n), name=&quot;square&quot;)
+
+# Constraints
+# All values must be different
+model += cp.AllDifferent(square)
+
+# Each row sums to magic_sum
+for i in range(n):
+    model += cp.sum(square[i, :]) == magic_sum
+
+# Each column sums to magic_sum
+for j in range(n):
+    model += cp.sum(square[:, j]) == magic_sum
+
+# Main diagonal sums to magic_sum
+model += cp.sum([square[i, i] for i in range(n)]) == magic_sum
+
+# Secondary diagonal sums to magic_sum
+model += cp.sum([square[i, n - 1 - i] for i in range(n)]) == magic_sum
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: square.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      16,
+      7,
+      10
+    ],
+    [
+      11,
+      5,
+      12,
+      6
+    ],
+    [
+      14,
+      4,
+      13,
+      3
+    ],
+    [
+      8,
+      9,
+      2,
+      15
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 4
+M = n * (n*n + 1) // 2  # magic constant = 34 for n=4
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: n x n square with values 1..n^2
+square = cp.intvar(1, n*n, shape=(n, n), name=&quot;square&quot;)
+
+# Constraints
+# All cells are different and within 1..n^2 (domain already enforces range)
+model += cp.AllDifferent(square)
+
+# Each row sums to M
+for i in range(n):
+    model += cp.sum(square[i, :]) == M
+
+# Each column sums to M
+for j in range(n):
+    model += cp.sum(square[:, j]) == M
+
+# Main diagonal sums to M
+model += cp.sum([square[i, i] for i in range(n)]) == M
+
+# Anti-diagonal sums to M
+model += cp.sum([square[i, n-1-i] for i in range(n)]) == M
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: square.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      2,
+      15,
+      16
+    ],
+    [
+      13,
+      14,
+      3,
+      4
+    ],
+    [
+      12,
+      7,
+      10,
+      5
+    ],
+    [
+      8,
+      11,
+      6,
+      9
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+model = cp.Model()
+
+# Decision Variables
+square = cp.intvar(1, 16, shape=(4,4), name=&quot;square&quot;)
+
+# Constraints
+# All elements must be distinct
+model += cp.AllDifferent(square.flat)
+
+# Each row must sum to 34
+for row in square:
+    model += cp.sum(row) == 34
+
+# Each column must sum to 34
+for col in range(4):
+    model += cp.sum(square[:, col]) == 34
+
+# Diagonals must also sum to 34
+model += (square[0,0] + square[1,1] + square[2,2] + square[3,3] == 34)
+model += (square[0,3] + square[1,2] + square[2,1] + square[3,0] == 34)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: square.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      2,
+      15,
+      16
+    ],
+    [
+      13,
+      14,
+      3,
+      4
+    ],
+    [
+      12,
+      7,
+      10,
+      5
+    ],
+    [
+      8,
+      11,
+      6,
+      9
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+model = cp.Model()
+
+# Decision Variables
+square = cp.intvar(1, 16, shape=(4,4), name=&quot;square&quot;)
+
+# Constraints
+# All elements must be distinct
+model += cp.AllDifferent(square.flat)
+
+# Each row must sum to 34
+for row in square:
+    model += cp.sum(row) == 34
+
+# Each column must sum to 34
+for col in range(4):
+    model += cp.sum(square[:, col]) == 34
+
+# Diagonals must also sum to 34
+model += (square[0,0] + square[1,1] + square[2,2] + square[3,3] == 34)
+model += (square[0,3] + square[1,2] + square[2,1] + square[3,0] == 34)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: square.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      16,
+      7,
+      10
+    ],
+    [
+      11,
+      5,
+      12,
+      6
+    ],
+    [
+      14,
+      4,
+      13,
+      3
+    ],
+    [
+      8,
+      9,
+      2,
+      15
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+n = 4
+magic_sum = n * (n*n + 1) // 2  # n(n^2+1)/2
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+square = cp.intvar(1, n*n, shape=(n, n), name=&quot;square&quot;)
+
+# Constraints
+# All numbers are different
+model += cp.AllDifferent(square.flatten())
+
+# Row sums
+for i in range(n):
+    model += (cp.sum(square[i, :]) == magic_sum)
+
+# Column sums
+for j in range(n):
+    model += (cp.sum(square[:, j]) == magic_sum)
+
+# Main diagonal sum
+model += (cp.sum([square[i, i] for i in range(n)]) == magic_sum)
+
+# Anti-diagonal sum
+model += (cp.sum([square[i, n - 1 - i] for i in range(n)]) == magic_sum)
+
+# Objective (none, satisfaction problem)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: square.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      16,
+      7,
+      10
+    ],
+    [
+      11,
+      5,
+      12,
+      6
+    ],
+    [
+      14,
+      4,
+      13,
+      3
+    ],
+    [
+      8,
+      9,
+      2,
+      15
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 4
+m = n * (n * n + 1) // 2  # magic constant, here 34
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: n x n square with values 1..n^2
+x = cp.intvar(1, n*n, shape=(n, n), name=&quot;x&quot;)
+
+# Constraints
+# All different
+model += cp.AllDifferent(x)
+
+# Row sums and column sums equal to magic constant m
+for i in range(n):
+    model += cp.sum(x[i, :]) == m
+for j in range(n):
+    model += cp.sum(x[:, j]) == m
+
+# Diagonals
+model += cp.sum([x[i, i] for i in range(n)]) == m
+model += cp.sum([x[i, n-1-i] for i in range(n)]) == m
+
+# Optional symmetry-breaking (helps solver): fix one cell to reduce symmetric solutions
+# This is not required, but speeds up solving.
+model += x[0, 0] &lt; x[0, n-1]
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;square&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      7,
+      1,
+      16,
+      10
+    ],
+    [
+      11,
+      8,
+      9,
+      6
+    ],
+    [
+      14,
+      13,
+      4,
+      3
+    ],
+    [
+      2,
+      12,
+      5,
+      15
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (40 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Magic Square of size 4
+include &quot;globals.mzn&quot;;
+
+int: n = 4;
+int: target = n * (n*n + 1) div 2;  % Magic constant: 34 for n=4
+
+% Decision variables: a 4x4 matrix with values 1..16
+array[1..n, 1..n] of var 1..n*n: square;
+
+% All cells must be distinct
+constraint
+    all_different([ square[i,j] | i,j in 1..n ]);
+
+% Row sums and column sums must equal target
+constraint
+    forall(i in 1..n) (
+        sum(j in 1..n)( square[i,j] ) == target
+    ) /\
+    forall(j in 1..n) (
+        sum(i in 1..n)( square[i,j] ) == target
+    );
+
+% Both main diagonals must sum to target
+constraint
+    sum(i in 1..n)( square[i,i] ) == target /\
+    sum(i in 1..n)( square[i, n+1-i] ) == target;
+
+solve satisfy;
+
+% Output the solution in JSON: &quot;square&quot; : list of lists
+output [
+    &quot;{&quot;
+    ++ &quot;\&quot;square\&quot;: &quot;
+    ++ &quot;[&quot;
+    ++ join(&quot;,&quot;, [ &quot;[&quot; ++ join(&quot;,&quot;, [ show(square[i,j]) | j in 1..n ]) ++ &quot;]&quot;
+                  | i in 1..n ])
+    ++ &quot;]&quot;
+    ++ &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      16,
+      2,
+      9,
+      7
+    ],
+    [
+      3,
+      13,
+      6,
+      12
+    ],
+    [
+      5,
+      11,
+      4,
+      14
+    ],
+    [
+      10,
+      8,
+      15,
+      1
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Size of the magic square
+n = 4
+magic_sum = n * (n * n + 1) // 2  # Magic constant
+
+# Create the model
+model = cp_model.CpModel()
+
+# Decision variables: square[i][j] in 1..n^2
+square = [
+    [model.NewIntVar(1, n * n, f&#x27;square[{i}][{j}]&#x27;) for j in range(n)]
+    for i in range(n)
+]
+
+# All cells must take different values
+model.AddAllDifferent(sum(square, []))
+
+# Row sum constraints
+for i in range(n):
+    model.Add(sum(square[i][j] for j in range(n)) == magic_sum)
+
+# Column sum constraints
+for j in range(n):
+    model.Add(sum(square[i][j] for i in range(n)) == magic_sum)
+
+# Diagonal sum constraints
+model.Add(sum(square[i][i] for i in range(n)) == magic_sum)
+model.Add(sum(square[i][n - 1 - i] for i in range(n)) == magic_sum)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution as JSON
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;square&#x27;: [
+            [solver.Value(square[i][j]) for j in range(n)]
+            for i in range(n)
+        ]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      16,
+      7,
+      10
+    ],
+    [
+      11,
+      5,
+      12,
+      6
+    ],
+    [
+      14,
+      4,
+      13,
+      3
+    ],
+    [
+      8,
+      9,
+      2,
+      15
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Complete, runnable code to build a 4×4 magic square with OR-Tools CP-SAT
+
+from ortools.sat.python import cp_model
+import json
+
+
+def main():
+    # -------------------------------
+    # Problem constants
+    # -------------------------------
+    n = 4  # size of the square
+    max_val = n * n  # 16
+    magic_sum = n * (max_val + 1) // 2  # 34 for n = 4
+
+    # -------------------------------
+    # Model definition
+    # -------------------------------
+    model = cp_model.CpModel()
+
+    # Decision variables: square[i][j] ∈ {1,…,16}
+    square = [[model.NewIntVar(1, max_val, f&quot;cell_{i}_{j}&quot;) for j in range(n)] for i in range(n)]
+
+    # All-different over the whole grid
+    model.AddAllDifferent([square[i][j] for i in range(n) for j in range(n)])
+
+    # Row and column sum constraints
+    for i in range(n):
+        model.Add(sum(square[i][j] for j in range(n)) == magic_sum)  # row i
+    for j in range(n):
+        model.Add(sum(square[i][j] for i in range(n)) == magic_sum)  # column j
+
+    # Main diagonal
+    model.Add(sum(square[i][i] for i in range(n)) == magic_sum)
+
+    # Secondary diagonal
+    model.Add(sum(square[i][n - 1 - i] for i in range(n)) == magic_sum)
+
+    # -------------------------------
+    # Invoke solver
+    # -------------------------------
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = 10  # Reasonable time limit
+
+    status = solver.Solve(model)
+
+    if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        raise RuntimeError(&quot;No feasible magic square found&quot;)
+
+    # Extract solution
+    result_square = [[solver.Value(square[i][j]) for j in range(n)] for i in range(n)]
+
+    # -------------------------------
+    # Output as JSON
+    # -------------------------------
+    print(json.dumps({&quot;square&quot;: result_square}))
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;square&quot;: [
+    [
+      1,
+      16,
+      7,
+      10
+    ],
+    [
+      11,
+      5,
+      12,
+      6
+    ],
+    [
+      14,
+      4,
+      13,
+      3
+    ],
+    [
+      8,
+      9,
+      2,
+      15
+    ]
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 4
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">square</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-140">Copy</button></div><pre class="code-block"><code id="solution-140" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">square</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-140">Copy</button></div><pre class="code-block"><code id="solution-140" class="language-json">{
   &quot;square&quot;: [
     [
       1,
@@ -105,6 +1425,7 @@ print(json.dumps(solution))
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -112,9 +1433,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/session1_magic_square/session1_magic_square.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/session1_magic_square/session1_magic_square.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_guards_and_apples.html">â† prev</a><a class="btn" href="session1_money_change.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_guards_and_apples.html">← prev</a><a class="btn" href="session1_money_change.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

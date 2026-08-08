@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bananas Â· DCP-Bench Open</title>
-<meta name="description" content="Five bananas cost three dollars, seven oranges cost five dollars, nine mangoes cost seven dollars, and three apples cost nine dollars. I need to purchase 100 fâ€¦">
+<title>bananas · DCP-Bench Open</title>
+<meta name="description" content="Five bananas cost three dollars, seven oranges cost five dollars, nine mangoes cost seven dollars, and three apples cost nine dollars. I need to purchase 100 f…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/bananas.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/bananas.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-14">Copy</button></div><pre class="code-block"><code id="model-14" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -66,15 +67,612 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">apples</span><span class="chip">bananas</span><span class="chip">mangoes</span><span class="chip">oranges</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-14">Copy</button></div><pre class="code-block"><code id="solution-14" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+total_fruits = 100
+total_dollars = 100
+
+# Decision Variables
+bananas = intvar(0, total_fruits, name=&quot;bananas&quot;)
+oranges = intvar(0, total_fruits, name=&quot;oranges&quot;)
+mangoes = intvar(0, total_fruits, name=&quot;mangoes&quot;)
+apples = intvar(0, total_fruits, name=&quot;apples&quot;)
+
+# Model
+model = Model()
+
+# Constraints
+# Fruit quantity must be exact multiples of their bundle sizes
+model += (bananas % 5) == 0
+model += (oranges % 7) == 0
+model += (mangoes % 9) == 0
+model += (apples % 3) == 0
+
+# Total fruits and dollars constraints
+model += bananas + oranges + mangoes + apples == total_fruits
+model += (3 * (bananas // 5)) + (5 * (oranges // 7)) + (7 * (mangoes // 9)) + (9 * (apples // 3)) == total_dollars
+
+# All types must be purchased (at least 1 fruit each)
+model += bananas &gt;= 1
+model += oranges &gt;= 1
+model += mangoes &gt;= 1
+model += apples &gt;= 1
+
+# Minimize disliked fruits (bananas and apples)
+disliked_fruits = bananas + apples
+model.minimize(disliked_fruits)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;bananas&quot;: bananas.value(),
+    &quot;oranges&quot;: oranges.value(),
+    &quot;mangoes&quot;: mangoes.value(),
+    &quot;apples&quot;: apples.value()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+oranges = intvar(0, 100, name=&quot;oranges&quot;)
+bananas = intvar(0, 100, name=&quot;bananas&quot;)
+mangoes = intvar(0, 100, name=&quot;mangoes&quot;)
+apples = intvar(0, 100, name=&quot;apples&quot;)
+
+# Model
+model = Model()
+
+# Total number of fruits is 100
+model += [oranges + bananas + mangoes + apples == 100]
+
+# Total cost is 100 dollars (correct cost per fruit)
+model += [3/5 * bananas + 5/7 * oranges + 7/9 * mangoes + 3 * apples == 100]
+
+# All types of fruits must be purchased (at least one of each)
+model += [oranges &gt;= 1]
+model += [bananas &gt;= 1]
+model += [mangoes &gt;= 1]
+model += [apples &gt;= 1]
+
+# Bananas and apples should be of minimum quantity
+# Use constraints to enforce bananas and apples are the smallest
+model += [bananas &lt;= oranges]
+model += [bananas &lt;= mangoes]
+model += [bananas &lt;= apples]
+model += [apples &lt;= oranges]
+model += [apples &lt;= mangoes]
+model += [apples &lt;= bananas]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {
+    &quot;oranges&quot;: oranges.value(),
+    &quot;bananas&quot;: bananas.value(),
+    &quot;apples&quot;: apples.value(),
+    &quot;mangoes&quot;: mangoes.value()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: quantities of each fruit (at least 1 of each)
+bananas = cp.intvar(1, 100, name=&quot;bananas&quot;)
+oranges = cp.intvar(1, 100, name=&quot;oranges&quot;)
+mangoes = cp.intvar(1, 100, name=&quot;mangoes&quot;)
+apples = cp.intvar(1, 100, name=&quot;apples&quot;)
+
+# Constraints:
+# 1) Total fruits = 100
+model += (bananas + oranges + mangoes + apples == 100)
+
+# 2) Total cost = $100
+# Prices:
+# 5 bananas cost $3  =&gt; cost per banana = 3/5
+# 7 oranges cost $5  =&gt; cost per orange = 5/7
+# 9 mangoes cost $7  =&gt; cost per mango = 7/9
+# 3 apples cost $9   =&gt; cost per apple = 9/3 = 3
+# Multiply cost equation by 315 (LCM of 5,7,9) to keep integers:
+# 189*b + 225*o + 245*m + 945*a = 31500
+model += (189*bananas + 225*oranges + 245*mangoes + 945*apples == 31500)
+
+# Objective: minimize bananas and apples (user dislikes them)
+model.minimize(cp.sum([bananas, apples]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;bananas&#x27;: int(bananas.value()),
+        &#x27;oranges&#x27;: int(oranges.value()),
+        &#x27;mangoes&#x27;: int(mangoes.value()),
+        &#x27;apples&#x27;: int(apples.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+# Prices and fruit counts per bundle
+# 3 dollars for 5 bananas
+# 5 dollars for 7 oranges
+# 7 dollars for 9 mangoes
+# 9 dollars for 3 apples
+
+# Model definition
+model = cp.Model()
+
+# Decision variables: number of bundles bought for each fruit type
+# Since we want to minimize bananas and apples, but they must be at least 1 bundle each (minimum quantity)
+bananas_bundles = cp.intvar(1, 100, name=&quot;bananas_bundles&quot;)
+oranges_bundles = cp.intvar(1, 100, name=&quot;oranges_bundles&quot;)
+mangoes_bundles = cp.intvar(1, 100, name=&quot;mangoes_bundles&quot;)
+apples_bundles = cp.intvar(1, 100, name=&quot;apples_bundles&quot;)
+
+# Total fruits and total cost
+total_fruits = (5 * bananas_bundles) + (7 * oranges_bundles) + (9 * mangoes_bundles) + (3 * apples_bundles)
+total_cost = (3 * bananas_bundles) + (5 * oranges_bundles) + (7 * mangoes_bundles) + (9 * apples_bundles)
+
+# Constraints
+model += (total_fruits == 100)
+model += (total_cost == 100)
+
+# Objective: minimize bananas and apples quantities (in bundles)
+# Since the problem states bananas and apples should be minimum quantity,
+# we minimize the sum of their bundles
+model.minimize(bananas_bundles + apples_bundles)
+
+# Solve and print
+if model.solve():
+    bananas = 5 * bananas_bundles.value()
+    oranges = 7 * oranges_bundles.value()
+    mangoes = 9 * mangoes_bundles.value()
+    apples = 3 * apples_bundles.value()
+    solution = {
+        &#x27;bananas&#x27;: int(bananas),
+        &#x27;oranges&#x27;: int(oranges),
+        &#x27;mangoes&#x27;: int(mangoes),
+        &#x27;apples&#x27;: int(apples)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: quantities of each fruit (at least 1 of each)
+bananas = cp.intvar(1, 100, name=&quot;bananas&quot;)
+oranges = cp.intvar(1, 100, name=&quot;oranges&quot;)
+mangoes = cp.intvar(1, 100, name=&quot;mangoes&quot;)
+apples = cp.intvar(1, 100, name=&quot;apples&quot;)
+
+# Constraints:
+# 1) Total fruits = 100
+model += (bananas + oranges + mangoes + apples == 100)
+
+# 2) Total cost = $100
+# Prices:
+# 5 bananas cost $3  =&gt; cost per banana = 3/5
+# 7 oranges cost $5  =&gt; cost per orange = 5/7
+# 9 mangoes cost $7  =&gt; cost per mango = 7/9
+# 3 apples cost $9   =&gt; cost per apple = 9/3 = 3
+# Multiply cost equation by 315 (LCM of 5,7,9) to keep integers:
+# 189*b + 225*o + 245*m + 945*a = 31500
+model += (189*bananas + 225*oranges + 245*mangoes + 945*apples == 31500)
+
+# Objective: minimize bananas and apples (user dislikes them)
+model.minimize(cp.sum([bananas, apples]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;bananas&#x27;: int(bananas.value()),
+        &#x27;oranges&#x27;: int(oranges.value()),
+        &#x27;mangoes&#x27;: int(mangoes.value()),
+        &#x27;apples&#x27;: int(apples.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables (at least 1 of each fruit)
+bananas = cp.intvar(1, 100, name=&quot;bananas&quot;)
+oranges = cp.intvar(1, 100, name=&quot;oranges&quot;)
+mangoes = cp.intvar(1, 100, name=&quot;mangoes&quot;)
+apples = cp.intvar(1, 100, name=&quot;apples&quot;)
+
+# Constraints
+# Total fruits
+model += (cp.sum([bananas, oranges, mangoes, apples]) == 100)
+
+# Total cost: scale prices to integers by multiplying by LCM(5,7,9)=315
+# 5 bananas cost 3 dollars  -&gt; per banana 3/5 -&gt; 189 per banana after scaling (3/5 * 315 = 189)
+# 7 oranges cost 5 dollars  -&gt; per orange 5/7 -&gt; 225 per orange after scaling (5/7 * 315 = 225)
+# 9 mangoes cost 7 dollars  -&gt; per mango 7/9 -&gt; 245 per mango after scaling (7/9 * 315 = 245)
+# 3 apples cost 9 dollars   -&gt; per apple 3     -&gt; 945 per apple after scaling (3 * 315 = 945)
+model += (189*bananas + 225*oranges + 245*mangoes + 945*apples == 31500)
+
+# Objective: minimize bananas and apples (disliked fruits)
+model.minimize(bananas + apples)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;bananas&#x27;: int(bananas.value()),
+        &#x27;oranges&#x27;: int(oranges.value()),
+        &#x27;mangoes&#x27;: int(mangoes.value()),
+        &#x27;apples&#x27;: int(apples.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: quantities of each fruit (at least 1 of each)
+bananas = cp.intvar(1, 100, name=&quot;bananas&quot;)
+oranges = cp.intvar(1, 100, name=&quot;oranges&quot;)
+mangoes = cp.intvar(1, 100, name=&quot;mangoes&quot;)
+apples = cp.intvar(1, 100, name=&quot;apples&quot;)
+
+# Constraints:
+# 1) Total fruits = 100
+model += (bananas + oranges + mangoes + apples == 100)
+
+# 2) Total cost = $100
+# Prices:
+# 5 bananas cost $3  =&gt; cost per banana = 3/5
+# 7 oranges cost $5  =&gt; cost per orange = 5/7
+# 9 mangoes cost $7  =&gt; cost per mango = 7/9
+# 3 apples cost $9   =&gt; cost per apple = 9/3 = 3
+# Multiply cost equation by 315 (LCM of 5,7,9) to keep integers:
+# 189*b + 225*o + 245*m + 945*a = 31500
+model += (189*bananas + 225*oranges + 245*mangoes + 945*apples == 31500)
+
+# Objective: minimize bananas and apples (user dislikes them)
+model.minimize(cp.sum([bananas, apples]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;bananas&#x27;: int(bananas.value()),
+        &#x27;oranges&#x27;: int(oranges.value()),
+        &#x27;mangoes&#x27;: int(mangoes.value()),
+        &#x27;apples&#x27;: int(apples.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (30 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">% Include necessary library
+include &quot;globals.mzn&quot;;
+
+% Decision variables: quantities of each fruit
+var 0..100: bananas;
+var 0..100: oranges;
+var 0..100: mangoes;
+var 0..100: apples;
+
+% Constraints
+constraint bananas + oranges + mangoes + apples == 100; % total fruits
+constraint 3 * bananas + 5 * oranges + 7 * mangoes + 9 * apples == 100; % total cost
+
+% All types of fruits need to be purchased
+constraint bananas &gt;= 1;
+constraint oranges &gt;= 1;
+constraint mangoes &gt;= 1;
+constraint apples &gt;= 1;
+
+% Minimize bananas and apples since user dislikes them
+% We minimize the sum of bananas and apples
+solve minimize bananas + apples;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;bananas\&quot;: &quot;, show(bananas), &quot;,&quot;,
+    &quot;\&quot;oranges\&quot;: &quot;, show(oranges), &quot;,&quot;,
+    &quot;\&quot;mangoes\&quot;: &quot;, show(mangoes), &quot;,&quot;,
+    &quot;\&quot;apples\&quot;: &quot;, show(apples),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: quantities of each fruit
+# Since we want to minimize bananas and apples but still buy at least one of each fruit,
+# we set the lower bound to 1 for bananas and apples.
+bananas = model.NewIntVar(1, 100, &#x27;bananas&#x27;)
+oranges = model.NewIntVar(1, 100, &#x27;oranges&#x27;)
+mangoes = model.NewIntVar(1, 100, &#x27;mangoes&#x27;)
+apples = model.NewIntVar(1, 100, &#x27;apples&#x27;)
+
+# Constraints
+
+# Total fruits must be 100
+model.Add(bananas + oranges + mangoes + apples == 100)
+
+# Total cost must be 100 dollars
+# Cost per fruit:
+# 3 dollars for 5 bananas =&gt; 3/5 dollars per banana
+# 5 dollars for 7 oranges =&gt; 5/7 dollars per orange
+# 7 dollars for 9 mangoes =&gt; 7/9 dollars per mango
+# 9 dollars for 3 apples =&gt; 9/3 = 3 dollars per apple
+# To avoid floating point, multiply all costs by 63 (LCM of denominators 5,7,9,1)
+# bananas cost: 3/5 * 63 = 3*63/5 = 37.8 -&gt; 38 (approx)
+# oranges cost: 5/7 * 63 = 5*63/7 = 45
+# mangoes cost: 7/9 * 63 = 7*63/9 = 49
+# apples cost: 3 * 63 = 189
+# We&#x27;ll use exact fractions by multiplying quantities accordingly.
+
+# Let&#x27;s multiply quantities by their cost numerator and divide by denominator:
+# To keep integer arithmetic, we can multiply the entire cost equation by 315 (LCM of 5,7,9,1)
+# 315/5 = 63, 315/7=45, 315/9=35, 315/1=315
+# So cost equation:
+# bananas * 3 * 63 + oranges * 5 * 45 + mangoes * 7 * 35 + apples * 3 * 315 = 100 * 315
+# Simplify:
+# bananas * 189 + oranges * 225 + mangoes * 245 + apples * 945 = 31500
+
+model.Add(bananas * 189 + oranges * 225 + mangoes * 245 + apples * 945 == 31500)
+
+# Objective: minimize bananas + apples (since user dislikes these)
+model.Minimize(bananas + apples)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;bananas&#x27;: solver.Value(bananas),
+        &#x27;oranges&#x27;: solver.Value(oranges),
+        &#x27;mangoes&#x27;: solver.Value(mangoes),
+        &#x27;apples&#x27;: solver.Value(apples)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (67 lines)</summary><pre class="code-block"><code id="None" class="language-python"># complete, runnable Python program solving the fruit-purchase puzzle using Google OR-Tools
+from ortools.sat.python import cp_model
+import json
+
+# ----------------------------
+# Model construction
+# ----------------------------
+model = cp_model.CpModel()
+
+# Bundle parameters (size and cost per bundle)
+BUNDLE_SIZE = {
+    &#x27;bananas&#x27;: 5,
+    &#x27;oranges&#x27;: 7,
+    &#x27;mangoes&#x27;: 9,
+    &#x27;apples&#x27;: 3,
+}
+BUNDLE_COST = {
+    &#x27;bananas&#x27;: 3,
+    &#x27;oranges&#x27;: 5,
+    &#x27;mangoes&#x27;: 7,
+    &#x27;apples&#x27;: 9,
+}
+TOTAL_FRUITS = 100
+BUDGET = 100
+
+# Decision variables – number of bundles purchased (must be at least one of each)
+max_bundles = {fruit: TOTAL_FRUITS // size for fruit, size in BUNDLE_SIZE.items()}
+y = {
+    fruit: model.NewIntVar(1, max_bundles[fruit], f&#x27;y_{fruit}&#x27;) for fruit in BUNDLE_SIZE
+}
+
+# Constraint: total number of fruits
+model.Add(
+    sum(BUNDLE_SIZE[f] * y[f] for f in BUNDLE_SIZE) == TOTAL_FRUITS
+)
+
+# Constraint: total cost matches budget
+model.Add(
+    sum(BUNDLE_COST[f] * y[f] for f in BUNDLE_COST) == BUDGET
+)
+
+# Objective: minimise disliked fruits (bananas + apples counted in individual pieces)
+disliked = model.NewIntVar(0, TOTAL_FRUITS, &#x27;disliked&#x27;)
+model.Add(disliked == BUNDLE_SIZE[&#x27;bananas&#x27;] * y[&#x27;bananas&#x27;] + BUNDLE_SIZE[&#x27;apples&#x27;] * y[&#x27;apples&#x27;])
+model.Minimize(disliked)
+
+# ----------------------------
+# Solve model
+# ----------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10  # small instance; keep default search otherwise
+status = solver.Solve(model)
+
+# ----------------------------
+# Extract and print solution
+# ----------------------------
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise ValueError(&#x27;No feasible solution found&#x27;)
+
+result = {
+    &#x27;oranges&#x27;: BUNDLE_SIZE[&#x27;oranges&#x27;] * solver.Value(y[&#x27;oranges&#x27;]),
+    &#x27;bananas&#x27;: BUNDLE_SIZE[&#x27;bananas&#x27;] * solver.Value(y[&#x27;bananas&#x27;]),
+    &#x27;apples&#x27;:  BUNDLE_SIZE[&#x27;apples&#x27;]  * solver.Value(y[&#x27;apples&#x27;]),
+    &#x27;mangoes&#x27;: BUNDLE_SIZE[&#x27;mangoes&#x27;] * solver.Value(y[&#x27;mangoes&#x27;]),
+}
+
+print(json.dumps(result))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">apples</span><span class="chip">bananas</span><span class="chip">mangoes</span><span class="chip">oranges</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-14">Copy</button></div><pre class="code-block"><code id="solution-14" class="language-json">{
   &quot;bananas&quot;: 5,
   &quot;oranges&quot;: 21,
   &quot;mangoes&quot;: 63,
   &quot;apples&quot;: 11
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -82,9 +680,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/bananas/bananas.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/bananas/bananas.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="bales_of_hay.html">â† prev</a><a class="btn" href="best_host.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="bales_of_hay.html">← prev</a><a class="btn" href="best_host.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bus_scheduling Â· DCP-Bench Open</title>
-<meta name="description" content="Progress City is considering a mass-transit bus system to reduce in-city driving. The goal is to determine the minimum number of buses required to meet the traâ€¦">
+<title>bus_scheduling · DCP-Bench Open</title>
+<meta name="description" content="Progress City is considering a mass-transit bus system to reduce in-city driving. The goal is to determine the minimum number of buses required to meet the tra…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/bus_schedule.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/bus_schedule.py</a></dd><dt>Source description</dt><dd>Problem from Taha &quot;Introduction to Operations Research&quot;, page 58.</dd><dt>Category</dt><dd>cpmpy_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-22">Copy</button></div><pre class="code-block"><code id="model-22" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -66,7 +67,1049 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+n_slots = len(demands)
+
+# Decision Variables
+x = intvar(0, max(demands), shape=n_slots, name=&quot;x&quot;)  # Number of buses starting in each time slot
+
+# Model
+model = Model()
+
+# Constraint: Available buses in each time slot must meet demand
+for i in range(n_slots):
+    # Buses available in this slot are those starting in this slot and previous slot
+    available_buses = x[i] + x[(i-1) % n_slots]
+    model += available_buses &gt;= demands[i]
+
+# Objective: minimize the total number of buses used
+model.minimize(sum(x))
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;x&quot;: x.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    12,
+    0,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+
+# Number of time slots (4-hour intervals)
+num_slots = len(demands)
+
+# Decision variables
+# x[i] is the number of buses scheduled to start at time slot i
+x = intvar(0, 100, shape=num_slots, name=&quot;x&quot;)
+
+# Model
+model = Model()
+
+# Each bus works for 8 hours, which is 2 consecutive 4-hour time slots
+# For each time slot i, the number of buses available is the sum of buses starting at i and i-1
+# Ensure that the number of buses available in each time slot meets the demand
+for i in range(num_slots):
+    if i == 0:
+        model += [x[i] + x[i + 1] &gt;= demands[i]]
+    else:
+        model += [x[i] + x[i - 1] &gt;= demands[i]]
+
+# Objective: minimize the total number of buses scheduled
+model.minimize(sum(x))
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    10,
+    0,
+    8,
+    4,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Problem Analysis
+# We have 6 time slots of 4 hours each (24 hours total)
+# Each bus works 8 consecutive hours = 2 consecutive time slots
+# Need to minimize total buses while meeting demand in each slot
+
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+n_slots = len(demands)
+
+# Step 2: Model with CPMpy
+# Decision variables: x[i] = number of buses starting their shift at time slot i
+x = cp.intvar(0, 20, shape=n_slots, name=&quot;x&quot;)
+
+model = cp.Model()
+
+# Constraints: For each time slot, available buses must meet demand
+# A bus starting at slot i works in slots i and (i+1) % n_slots
+for slot in range(n_slots):
+    # Buses available in this slot come from:
+    # 1. Buses that started in this slot (first 4 hours of their 8-hour shift)
+    # 2. Buses that started in the previous slot (second 4 hours of their 8-hour shift)
+    prev_slot = (slot - 1) % n_slots
+    available_buses = x[slot] + x[prev_slot]
+    model += available_buses &gt;= demands[slot]
+
+# Objective: minimize total number of buses
+total_buses = cp.sum(x)
+model.minimize(total_buses)
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    solution_x = x.value()
+    
+    # Create solution in required format
+    solution = {
+        &quot;x&quot;: solution_x.tolist() if hasattr(solution_x, &#x27;tolist&#x27;) else list(solution_x)
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        x_vals = sol[&quot;x&quot;]
+        n = len(x_vals)
+        
+        # Check all demand constraints
+        for slot in range(n):
+            prev_slot = (slot - 1) % n
+            available = x_vals[slot] + x_vals[prev_slot]
+            required = demands[slot]
+            
+            if available &lt; required:
+                return False, f&quot;Slot {slot}: available={available} &lt; required={required}&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    5,
+    7,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+n_slots = len(demands)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Let y[i] be the number of buses starting their 8-hour shift at time slot i
+# Since each bus works 8 successive hours = 2 consecutive 4-hour slots,
+# a bus starting at slot i covers slot i and slot (i+1) mod n_slots
+y = cp.intvar(0, sum(demands), shape=n_slots, name=&quot;y&quot;)
+
+# Constraints
+# For each time slot, the sum of buses covering that slot must be &gt;= demand
+# Buses starting at slot i cover slots i and (i+1) mod n_slots
+for t in range(n_slots):
+    # Buses covering slot t are those starting at t and those starting at (t-1) mod n_slots
+    prev = (t - 1) % n_slots
+    model += (y[prev] + y[t] &gt;= demands[t])
+
+# Objective: minimize total number of buses scheduled
+model.minimize(cp.sum(y))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: y.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    4,
+    6,
+    1,
+    11,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+n = len(demands)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = number of buses that start operating at time slot i and therefore cover slots i and i+1 (mod n)
+max_buses = sum(demands)
+x = cp.intvar(0, max_buses, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each time slot j, the available buses are those that started at j and those that started at j-1 (with wrap-around)
+for j in range(n):
+    model += x[j] + x[(j - 1) % n] &gt;= demands[j]
+
+# Objective: minimize total number of buses scheduled (sum of starts)
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    5,
+    7,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#d97706">solution valid · not optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision variables
+# b[s] = number of buses starting at slot s, for s = 0..4 (each works 2 consecutive slots)
+b = cp.intvar(0, max(demands), shape=5, name=&#x27;b&#x27;)
+
+# x[i] = number of buses operating in slot i, for i = 0..5
+x = cp.intvar(0, sum(demands), shape=6, name=&#x27;x&#x27;)
+
+# Constraints
+# Link x to b: each bus starting at s covers slots s and s+1
+model += [
+    x[0] == b[0],           # slot 0 covered only by b[0]
+    x[5] == b[4]            # slot 5 covered only by b[4]
+]
+for i in range(1, 5):
+    model += x[i] == b[i-1] + b[i]
+
+# Meet demand in each slot
+for i in range(6):
+    model += x[i] &gt;= demands[i]
+
+# Objective: minimize total number of buses (counted by their start times)
+model.minimize(cp.sum(b))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    14,
+    10,
+    8,
+    12,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (11 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
+import json
+
+demands = [4, 8, 10, 7, 12, 4]
+best = None
+for x in itertools.product(range(max(demands) + 1), repeat=len(demands)):
+    if all(x[i] + x[(i - 1) % len(x)] &gt;= demands[i] for i in range(len(x))):
+        total = sum(x)
+        if best is None or total &lt; best[0]:
+            best = (total, list(x))
+print(json.dumps({&quot;x&quot;: best[1]}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    5,
+    7,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+n = len(demands)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = number of buses starting a shift at interval i (4-hour interval)
+x = cp.intvar(0, sum(demands), shape=n, name=&quot;x&quot;)
+
+# Constraints
+# Each bus operates 8 successive hours = 2 consecutive intervals
+# The number of buses available at interval i is the sum of buses starting at interval i and at interval i-1 (mod n)
+# For interval 0, it includes buses starting at interval 0 and those started at interval n-1 (for circular shift coverage)
+for i in range(n):
+    # available buses at interval i
+    available = x[i] + x[i-1] if i &gt; 0 else x[0] + x[n-1]
+    model += (available &gt;= demands[i])
+
+# Objective: minimize total buses used (sum of all x)
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    5,
+    7,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+n = len(demands)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = number of buses that start operating at time slot i and therefore cover slots i and i+1 (mod n)
+max_buses = sum(demands)
+x = cp.intvar(0, max_buses, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each time slot j, the available buses are those that started at j and those that started at j-1 (with wrap-around)
+for j in range(n):
+    model += x[j] + x[(j - 1) % n] &gt;= demands[j]
+
+# Objective: minimize total number of buses scheduled (sum of starts)
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    5,
+    7,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+demands = [4, 8, 10, 7, 12, 4]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: x[i] is the number of buses starting at interval i
+x = cp.intvar(0, 100, shape=6, name=&quot;x&quot;)
+
+# Constraints
+for j in range(6):
+    prev = (j - 1) % 6
+    model += (x[prev] + x[j] &gt;= demands[j])
+
+# Objective: minimize total buses
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    4,
+    6,
+    1,
+    11,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (27 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+demands = [4, 8, 10, 7, 12, 4]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: x[i] is the number of buses starting at interval i
+x = cp.intvar(0, 100, shape=6, name=&quot;x&quot;)
+
+# Constraints
+for j in range(6):
+    prev = (j - 1) % 6
+    model += (x[prev] + x[j] &gt;= demands[j])
+
+# Objective: minimize total buses
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    4,
+    6,
+    1,
+    11,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+n = len(demands)
+# x[t]: number of buses starting at time slot t (each bus covers two consecutive slots)
+x = cp.intvar(0, sum(demands), shape=n, name=&quot;x&quot;)
+
+# Constraints
+# Coverage in each slot t is from buses starting at t and t-1 (wrap-around for cyclic day)
+for t in range(n):
+    model += (x[t] + x[(t - 1) % n] &gt;= demands[t])
+
+# Objective (optional)
+# Minimize total number of buses scheduled
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    5,
+    7,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+n = len(demands)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# x[i] = number of buses that start operating at time slot i and therefore cover slots i and i+1 (mod n)
+max_buses = sum(demands)
+x = cp.intvar(0, max_buses, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each time slot j, the available buses are those that started at j and those that started at j-1 (with wrap-around)
+for j in range(n):
+    model += x[j] + x[(j - 1) % n] &gt;= demands[j]
+
+# Objective: minimize total number of buses scheduled (sum of starts)
+model.minimize(cp.sum(x))
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    0,
+    8,
+    2,
+    12,
+    0,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (36 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: num_slots = 6;
+array[1..num_slots] of int: demands = [4, 8, 10, 7, 12, 4];
+
+% Each bus can operate 8 successive hours = 2 successive 4-hour slots
+% Decision variables:
+% x[i] = number of buses starting their 8-hour shift at time slot i
+array[1..num_slots] of var 0..sum(demands): x;
+
+% Constraints:
+% For each time slot j, the number of buses available is the sum of buses
+% that started at slot j and at slot j-1 (if j &gt; 1)
+% Because shifts last 2 slots, buses starting at slot i cover slots i and i+1
+% For the last slot, only buses starting at that slot count (no next slot)
+% We consider the schedule cyclic or not? Problem does not specify cyclic shifts,
+% so no wrap-around.
+
+constraint
+  forall(j in 1..num_slots) (
+    let {
+      var int: buses_available = x[j] + if j &gt; 1 then x[j-1] else 0 endif
+    } in
+    buses_available &gt;= demands[j]
+  );
+
+% Objective: minimize total number of buses scheduled
+solve minimize sum(x);
+
+output [
+  &quot;{&quot;,
+  join(&quot;,&quot;, [
+    &quot;\&quot;&quot; ++ &quot;x&quot; ++ &quot;\&quot;: &quot; ++ show(x)
+  ]),
+  &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    10,
+    0,
+    8,
+    4,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (34 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary library (globals for sum if needed)
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 6;
+array[1..n] of int: demands = [4, 8, 10, 7, 12, 4];
+
+% Number of possible shift start times (each shift covers 2 consecutive slots)
+int: m = n - 1;
+
+% Decision Variables
+% x[i] = number of buses starting at time slot i (covers slots i and i+1)
+array[1..m] of var 0..sum(demands): x;
+
+% Constraints
+% 1) First slot covered by shifts starting at 1
+constraint x[1] &gt;= demands[1];
+% 2) Intermediate slots covered by overlapping shifts
+constraint forall(i in 2..n-1) (
+    x[i-1] + x[i] &gt;= demands[i]
+);
+% 3) Last slot covered by shifts starting at m
+constraint x[m] &gt;= demands[n];
+
+% Objective: minimize total number of buses scheduled
+solve minimize sum(i in 1..m)(x[i]);
+
+% Output the solution in JSON format
+output [
+    &quot;{&quot;,
+    &quot;\&quot;x\&quot;: [&quot; ++ join(&quot;,&quot;, [show(x[i]) | i in 1..m]) ++ &quot;]&quot;,
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    4,
+    6,
+    1,
+    11
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour time slot
+
+# Model definition
+model = cp_model.CpModel()
+
+num_intervals = len(demands)
+
+# Decision variables:
+# x[i] = number of buses starting their 8-hour shift at interval i
+# Since each bus operates 8 successive hours = 2 intervals,
+# a bus starting at interval i covers intervals i and i+1.
+# For the last interval, no bus can start because it would exceed the day length.
+x = [model.NewIntVar(0, sum(demands), f&#x27;x[{i}]&#x27;) for i in range(num_intervals)]
+
+# Constraints:
+# For each interval j, the total buses operating must be &gt;= demand[j].
+# Buses operating in interval j are those starting at j and those starting at j-1 (if j-1 &gt;= 0).
+for j in range(num_intervals):
+    operating_buses = []
+    operating_buses.append(x[j])  # buses starting at j cover interval j
+    if j - 1 &gt;= 0:
+        operating_buses.append(x[j - 1])  # buses starting at j-1 also cover interval j
+    model.Add(sum(operating_buses) &gt;= demands[j])
+
+# Buses cannot start at the last interval because they would operate beyond the day
+model.Add(x[num_intervals - 1] == 0)
+
+# Objective: minimize total number of buses scheduled (sum of x)
+model.Minimize(sum(x))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {&#x27;x&#x27;: [solver.Value(var) for var in x]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    10,
+    0,
+    8,
+    4,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#d97706">solution valid · not optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+demands = [4, 8, 10, 7, 12, 4]
+num_slots = len(demands)
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# y[t]: number of buses starting a shift at slot t (covering t and t+1)
+y = [model.NewIntVar(0, sum(demands), f&#x27;y[{t}]&#x27;) for t in range(num_slots - 1)]
+# x[t]: number of buses scheduled in slot t
+x = [model.NewIntVar(0, sum(demands), f&#x27;x[{t}]&#x27;) for t in range(num_slots)]
+
+# Constraints: link x and y
+# For slot 0: only y[0] covers
+model.Add(x[0] == y[0])
+# For slots 1 to num_slots-2: covered by y[t-1] and y[t]
+for t in range(1, num_slots - 1):
+    model.Add(x[t] == y[t - 1] + y[t])
+# For last slot: only y[num_slots-2]
+model.Add(x[num_slots - 1] == y[num_slots - 2])
+
+# Demand constraints: each slot must meet its demand
+for t in range(num_slots):
+    model.Add(x[t] &gt;= demands[t])
+
+# Objective: minimize total buses (each bus runs one 8-hour shift y)
+model.Minimize(sum(y))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;x&#x27;: [solver.Value(x[t]) for t in range(num_slots)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    14,
+    10,
+    8,
+    12,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (49 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# -----------------------------
+# Input data (immutable)
+# -----------------------------
+demands = [4, 8, 10, 7, 12, 4]  # Demand for buses in each 4-hour slot
+n_slots = len(demands)          # Number of 4-hour intervals (6)
+shift_len = 2                   # Each bus covers 2 consecutive slots (8 hours)
+
+# -----------------------------
+# Model creation
+# -----------------------------
+model = cp_model.CpModel()
+
+# Decision variables: x[i] = buses starting in slot i
+# Upper bound: worst case each bus serves only one demand unit
+upper_bound = sum(demands)
+x = [model.NewIntVar(0, upper_bound, f&quot;x[{i}]&quot;) for i in range(n_slots)]
+
+# -----------------------------
+# Constraints
+# -----------------------------
+for i in range(n_slots):
+    # Coverage: buses starting in current or previous slot must meet demand
+    prev = (i - 1) % n_slots
+    model.Add(x[i] + x[prev] &gt;= demands[i])
+
+# -----------------------------
+# Objective: minimise total fleet size
+# -----------------------------
+model.Minimize(sum(x))
+
+# -----------------------------
+# Solve the model
+# -----------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10  # small timeout safeguard
+status = solver.Solve(model)
+
+# -----------------------------
+# Output processing
+# -----------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {&quot;x&quot;: [int(solver.Value(var)) for var in x]}
+    print(json.dumps(result))
+else:
+    # If no solution, return empty allocation (per spec we must print JSON)
+    print(json.dumps({&quot;x&quot;: []}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;x&quot;: [
+    4,
+    4,
+    6,
+    1,
+    11,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;demands&quot;: [
     4,
     8,
@@ -76,9 +1119,9 @@ print(json.dumps(solution))
     4
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-22">Copy</button></div><pre class="code-block"><code id="solution-22" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-22">Copy</button></div><pre class="code-block"><code id="solution-22" class="language-json">{
   &quot;x&quot;: [
     0,
     8,
@@ -88,6 +1131,7 @@ print(json.dumps(solution))
     4
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -95,9 +1139,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/bus_scheduling/bus_scheduling.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/bus_scheduling/bus_scheduling.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="building_blocks.html">â† prev</a><a class="btn" href="cabling.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="building_blocks.html">← prev</a><a class="btn" href="cabling.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_011_acc_basketball_schedule Â· DCP-Bench Open</title>
-<meta name="description" content="The problem is finding a timetable for the 1997/98 Atlantic Coast Conference (ACC) in basketball. The 9 basketball teams in the tournament are Clemson (Clem),â€¦">
+<title>csplib_011_acc_basketball_schedule · DCP-Bench Open</title>
+<meta name="description" content="The problem is finding a timetable for the 1997/98 Atlantic Coast Conference (ACC) in basketball. The 9 basketball teams in the tournament are Clemson (Clem),…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob011_basketball_schedule.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob011_basketball_schedule.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob011/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob011/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-50">Copy</button></div><pre class="code-block"><code id="model-50" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
@@ -190,13 +191,1934 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">n_teams = 9
 n_days = 18</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (137 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n_teams = 9
+n_days = 18
+teams = [&quot;Clem&quot;, &quot;Duke&quot;, &quot;FSU&quot;, &quot;GT&quot;, &quot;UMD&quot;, &quot;UNC&quot;, &quot;NCSt&quot;, &quot;UVA&quot;, &quot;Wake&quot;]
+mirroring_scheme = [(1, 8), (2, 9), (3, 12), (4, 13), (5, 14), (6, 15), (7, 16), (10, 17), (11, 18)]
+rival_pairs = [(&quot;Duke&quot;, &quot;UNC&quot;), (&quot;Clem&quot;, &quot;GT&quot;), (&quot;NCSt&quot;, &quot;Wake&quot;), (&quot;UMD&quot;, &quot;UVA&quot;)]
+
+# Decision Variables
+config = intvar(0, n_teams-1, shape=(n_days, n_teams), name=&quot;config&quot;)  # Match configuration
+where = intvar(0, 2, shape=(n_days, n_teams), name=&quot;where&quot;)  # 0=home, 1=away, 2=bye
+
+# Model
+model = Model()
+
+# Double round robin constraints
+for t1 in range(n_teams):
+    for t2 in range(n_teams):
+        if t1 != t2:
+            # Each team plays every other team exactly twice (once home, once away)
+            home_games = sum((config[d, t1] == t2) &amp; (where[d, t1] == 0) for d in range(n_days))
+            away_games = sum((config[d, t2] == t1) &amp; (where[d, t2] == 1) for d in range(n_days))
+            model += home_games == 1
+            model += away_games == 1
+
+# Mirroring constraint
+for (r1, r2) in mirroring_scheme:
+    for t in range(n_teams):
+        model += config[r1-1, t] == config[r2-1, t]
+
+# No Two Final Aways
+for t in range(n_teams):
+    model += (where[n_days-1, t] != 1) | (where[n_days-2, t] != 1)
+
+# Home/Away/Bye Pattern Constraints
+for t in range(n_teams):
+    for d in range(n_days-2):
+        # No more than two away matches in a row
+        model += (where[d, t] != 1) | (where[d+1, t] != 1) | (where[d+2, t] != 1)
+        # No more than two home matches in a row
+        model += (where[d, t] != 0) | (where[d+1, t] != 0) | (where[d+2, t] != 0)
+    for d in range(n_days-3):
+        # No more than three away matches or byes in a row
+        model += (where[d, t] == 0) | (where[d+1, t] == 0) | (where[d+2, t] == 0) | (where[d+3, t] == 0)
+    for d in range(n_days-4):
+        # No more than four home matches or byes in a row
+        model += (where[d, t] == 1) | (where[d+1, t] == 1) | (where[d+2, t] == 1) | (where[d+3, t] == 1) | (where[d+4, t] == 1)
+
+# Weekend Pattern
+weekend_days = [d for d in range(1, n_days+1) if d % 2 == 0]
+for t in range(n_teams):
+    home_weekends = sum(where[d-1, t] == 0 for d in weekend_days)
+    away_weekends = sum(where[d-1, t] == 1 for d in weekend_days)
+    bye_weekends = sum(where[d-1, t] == 2 for d in weekend_days)
+    model += home_weekends == 4
+    model += away_weekends == 4
+    model += bye_weekends == 1
+
+# First Weekends
+first_weekends = [d for d in range(1, 6) if d % 2 == 0]
+for t in range(n_teams):
+    model += sum(where[d-1, t] != 1 for d in first_weekends) &gt;= 2
+
+# Rival Matches
+for (t1, t2) in rival_pairs:
+    t1_idx = teams.index(t1)
+    t2_idx = teams.index(t2)
+    model += (config[n_days-1, t1_idx] == t2_idx) | (config[n_days-1, t1_idx] == teams.index(&quot;FSU&quot;)) | (where[n_days-1, t1_idx] == 2)
+    model += (config[n_days-1, t2_idx] == t1_idx) | (config[n_days-1, t2_idx] == teams.index(&quot;FSU&quot;)) | (where[n_days-1, t2_idx] == 2)
+
+# Constrained Matches
+constrained_pairs = [(&quot;Wake&quot;, &quot;UNC&quot;), (&quot;Wake&quot;, &quot;Duke&quot;), (&quot;GT&quot;, &quot;UNC&quot;), (&quot;GT&quot;, &quot;Duke&quot;)]
+for (t1, t2) in constrained_pairs:
+    t1_idx = teams.index(t1)
+    t2_idx = teams.index(t2)
+    model += sum((config[d, t1_idx] == t2_idx) | (config[d, t2_idx] == t1_idx) for d in range(10, 18)) &gt;= 1
+
+# Opponent Sequence Constraints
+for t in range(n_teams):
+    for d in range(n_days-1):
+        model += ~((config[d, t] == teams.index(&quot;UNC&quot;)) &amp; (where[d, t] == 1) &amp; (config[d+1, t] == teams.index(&quot;Duke&quot;)) &amp; (where[d+1, t] == 1))
+    for d in range(n_days-2):
+        model += ~((config[d, t] == teams.index(&quot;UNC&quot;)) &amp; (config[d+1, t] == teams.index(&quot;Duke&quot;)) &amp; (config[d+2, t] == teams.index(&quot;Wake&quot;)))
+
+# Other Constraints
+unc_idx = teams.index(&quot;UNC&quot;)
+duke_idx = teams.index(&quot;Duke&quot;)
+wake_idx = teams.index(&quot;Wake&quot;)
+clem_idx = teams.index(&quot;Clem&quot;)
+fsu_idx = teams.index(&quot;FSU&quot;)
+gt_idx = teams.index(&quot;GT&quot;)
+umd_idx = teams.index(&quot;UMD&quot;)
+ncst_idx = teams.index(&quot;NCSt&quot;)
+uva_idx = teams.index(&quot;UVA&quot;)
+
+# UNC plays Duke in last date and date 11
+model += config[n_days-1, unc_idx] == duke_idx
+model += config[10, unc_idx] == duke_idx
+
+# UNC plays Clem in second date
+model += config[1, unc_idx] == clem_idx
+
+# Duke has a bye in date 16
+model += where[15, duke_idx] == 2
+
+# Wake does not play home in date 17
+model += where[16, wake_idx] != 0
+
+# Wake has a bye in first date
+model += where[0, wake_idx] == 2
+
+# Clem, Duke, UMD and Wake do not play away in last date
+for t in [clem_idx, duke_idx, umd_idx, wake_idx]:
+    model += where[n_days-1, t] != 1
+
+# Clem, FSU, GT and Wake do not play away in first date
+for t in [clem_idx, fsu_idx, gt_idx, wake_idx]:
+    model += where[0, t] != 1
+
+# Neither FSU nor NCSt have a bye in last date
+for t in [fsu_idx, ncst_idx]:
+    model += where[n_days-1, t] != 2
+
+# UNC does not have a bye in first date
+model += where[0, unc_idx] != 2
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;config&quot;: config.value().tolist(),
+    &quot;where&quot;: where.value().tolist()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (216 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n_teams = 9  # Number of teams
+n_days = 18  # Number of days
+n_matches_per_day = 4  # Number of matches per day (9 teams, 18 days, 4 matches per day)
+
+# Teams
+teams = [&quot;Clem&quot;, &quot;Duke&quot;, &quot;FSU&quot;, &quot;GT&quot;, &quot;UMD&quot;, &quot;UNC&quot;, &quot;NCSt&quot;, &quot;UVA&quot;, &quot;Wake&quot;]
+
+# Mirroring scheme
+mirroring = [(1, 8), (2, 9), (3, 12), (4, 13), (5, 14), (6, 15), (7, 16), (10, 17), (11, 18)]
+
+# Rival pairs
+rival_pairs = [(&quot;Duke&quot;, &quot;UNC&quot;), (&quot;Clem&quot;, &quot;GT&quot;), (&quot;NCSt&quot;, &quot;Wake&quot;), (&quot;UMD&quot;, &quot;UVA&quot;)]
+
+# Constrained matches
+constrained_matches = [(&quot;Wake&quot;, &quot;UNC&quot;), (&quot;Wake&quot;, &quot;Duke&quot;), (&quot;GT&quot;, &quot;UNC&quot;), (&quot;GT&quot;, &quot;Duke&quot;)]
+
+# Decision variables
+# config[i][j] = (home_team, away_team) for match j on day i
+config = intvar(0, n_teams - 1, shape=(n_days, n_matches_per_day, 2), name=&quot;config&quot;)
+
+# where[i][j][k] = 0 if team k is home in match j on day i, 1 if away, 2 if bye
+where = intvar(0, 2, shape=(n_days, n_matches_per_day, n_teams), name=&quot;where&quot;)
+
+# Model
+model = Model()
+
+# Constraint 1: Each team plays each other team twice (once at home, once away)
+for i in range(n_teams):
+    for j in range(i + 1, n_teams):
+        # Count how many times team i plays team j at home
+        home_count = sum((config[:, :, 0] == i) &amp; (config[:, :, 1] == j))
+        # Count how many times team i plays team j away
+        away_count = sum((config[:, :, 0] == j) &amp; (config[:, :, 1] == i))
+        # Each pair must play twice (once at home, once away)
+        model += [home_count == 1, away_count == 1]
+
+# Constraint 2: No Two Final Aways
+# No team can play away on both last dates
+for t in range(n_teams):
+    model += [sum(where[n_days - 1, :, t] == 1) &lt;= 1]
+
+# Constraint 3: Home/Away/Bye Pattern Constraints
+# No team may have more than two away matches in a row
+# No team may have more than two home matches in a row
+# No team may have more than three away matches or byes in a row
+# No team may have more than four home matches or byes in a row
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        # No more than two away matches in a row
+        model += [sum(where[d:d + 3, :, t] == 1) &lt;= 2]
+        # No more than two home matches in a row
+        model += [sum(where[d:d + 3, :, t] == 0) &lt;= 2]
+        # No more than three away matches or byes in a row
+        model += [sum((where[d:d + 3, :, t] == 1) | (where[d:d + 3, :, t] == 2)) &lt;= 3]
+        # No more than four home matches or byes in a row
+        model += [sum((where[d:d + 4, :, t] == 0) | (where[d:d + 4, :, t] == 2)) &lt;= 4]
+
+# Constraint 4: Weekend Pattern
+# Of the weekends, each team plays four at home, four away, and one bye
+# Even days are weekends
+weekends = [d for d in range(n_days) if d % 2 == 1]
+for t in range(n_teams):
+    home_weekends = sum(where[weekends, :, t] == 0)
+    away_weekends = sum(where[weekends, :, t] == 1)
+    bye_weekends = sum(where[weekends, :, t] == 2)
+    model += [home_weekends == 4, away_weekends == 4, bye_weekends == 1]
+
+# Constraint 5: First Weekends
+# Each team must have home matches or byes at least on two of the first five weekends
+first_five_weekends = [d for d in range(n_days) if d % 2 == 1 and d &lt; 10]
+for t in range(n_teams):
+    home_or_bye_first_five_weekends = sum((where[first_five_weekends, :, t] == 0) | (where[first_five_weekends, :, t] == 2))
+    model += [home_or_bye_first_five_weekends &gt;= 2]
+
+# Constraint 6: Rival Matches
+# Every team except FSU has a traditional rival. The rival pairs are Duke-UNC, Clem-GT, NCSt-Wake, and UMD-UVA.
+# In the last date, every team except FSU plays against its rival, unless it plays against FSU or has a bye.
+for t in range(n_teams):
+    if teams[t] != &quot;FSU&quot;:
+        rival = None
+        if teams[t] == &quot;Duke&quot;:
+            rival = &quot;UNC&quot;
+        elif teams[t] == &quot;UNC&quot;:
+            rival = &quot;Duke&quot;
+        elif teams[t] == &quot;Clem&quot;:
+            rival = &quot;GT&quot;
+        elif teams[t] == &quot;GT&quot;:
+            rival = &quot;Clem&quot;
+        elif teams[t] == &quot;NCSt&quot;:
+            rival = &quot;Wake&quot;
+        elif teams[t] == &quot;Wake&quot;:
+            rival = &quot;NCSt&quot;
+        elif teams[t] == &quot;UMD&quot;:
+            rival = &quot;UVA&quot;
+        elif teams[t] == &quot;UVA&quot;:
+            rival = &quot;UMD&quot;
+        # Get the index of the rival team
+        rival_index = teams.index(rival)
+        # On the last date, team t plays against its rival unless it plays against FSU or has a bye
+        model += [((config[n_days - 1, :, 0] == t) &amp; (config[n_days - 1, :, 1] == rival_index)) |
+                  ((config[n_days - 1, :, 0] == rival_index) &amp; (config[n_days - 1, :, 1] == t)) |
+                  ((config[n_days - 1, :, 0] == t) &amp; (config[n_days - 1, :, 1] == teams.index(&quot;FSU&quot;))) |
+                  ((config[n_days - 1, :, 0] == teams.index(&quot;FSU&quot;)) &amp; (config[n_days - 1, :, 1] == t)) |
+                  (where[n_days - 1, :, t] == 2)]
+
+# Constraint 7: Constrained Matches
+# The following pairings must occur at least once in dates 11 to 18: Wake-UNC, Wake-Duke, GT-UNC, and GT-Duke.
+constrained_dates = [10, 11, 12, 13, 14, 15, 16, 17]  # 0-indexed
+for pair in constrained_matches:
+    team1 = teams.index(pair[0])
+    team2 = teams.index(pair[1])
+    # Count how many times the pair plays in constrained dates
+    count = sum(((config[constrained_dates, :, 0] == team1) &amp; (config[constrained_dates, :, 1] == team2)) |
+                ((config[constrained_dates, :, 0] == team2) &amp; (config[constrained_dates, :, 1] == team1)))
+    model += [count &gt;= 1]
+
+# Constraint 8: Opponent Sequence Constraints
+# No team plays in two consecutive dates away against UNC and Duke.
+# No team plays in three consecutive dates against UNC, Duke and Wake (independent of home/away).
+for t in range(n_teams):
+    for d in range(n_days - 1):
+        # No team plays in two consecutive dates away against UNC and Duke
+        model += [((config[d, :, 1] == teams.index(&quot;UNC&quot;)) &amp; (config[d + 1, :, 1] == teams.index(&quot;Duke&quot;))) |
+                  ((config[d, :, 1] == teams.index(&quot;Duke&quot;)) &amp; (config[d + 1, :, 1] == teams.index(&quot;UNC&quot;))) |
+                  ((config[d, :, 0] == t) &amp; (config[d + 1, :, 0] == t))]
+    for d in range(n_days - 2):
+        # No team plays in three consecutive dates against UNC, Duke and Wake (independent of home/away)
+        model += [((config[d, :, 0] == teams.index(&quot;UNC&quot;)) | (config[d, :, 1] == teams.index(&quot;UNC&quot;))) &amp;
+                  ((config[d + 1, :, 0] == teams.index(&quot;Duke&quot;)) | (config[d + 1, :, 1] == teams.index(&quot;Duke&quot;))) &amp;
+                  ((config[d + 2, :, 0] == teams.index(&quot;Wake&quot;)) | (config[d + 2, :, 1] == teams.index(&quot;Wake&quot;))) |
+                  ((config[d, :, 0] == teams.index(&quot;Duke&quot;)) | (config[d, :, 1] == teams.index(&quot;Duke&quot;))) &amp;
+                  ((config[d + 1, :, 0] == teams.index(&quot;UNC&quot;)) | (config[d + 1, :, 1] == teams.index(&quot;UNC&quot;))) &amp;
+                  ((config[d + 2, :, 0] == teams.index(&quot;Wake&quot;)) | (config[d + 2, :, 1] == teams.index(&quot;Wake&quot;))) |
+                  ((config[d, :, 0] == teams.index(&quot;UNC&quot;)) | (config[d, :, 1] == teams.index(&quot;UNC&quot;))) &amp;
+                  ((config[d + 1, :, 0] == teams.index(&quot;Wake&quot;)) | (config[d + 1, :, 1] == teams.index(&quot;Wake&quot;))) &amp;
+                  ((config[d + 2, :, 0] == teams.index(&quot;Duke&quot;)) | (config[d + 2, :, 1] == teams.index(&quot;Duke&quot;))) |
+                  ((config[d, :, 0] == teams.index(&quot;Duke&quot;)) | (config[d, :, 1] == teams.index(&quot;Duke&quot;))) &amp;
+                  ((config[d + 1, :, 0] == teams.index(&quot;Wake&quot;)) | (config[d + 1, :, 1] == teams.index(&quot;Wake&quot;))) &amp;
+                  ((config[d + 2, :, 0] == teams.index(&quot;UNC&quot;)) | (config[d + 2, :, 1] == teams.index(&quot;UNC&quot;)))]
+
+# Constraint 9: Other Constraints
+# UNC plays its rival Duke in the last date and in date 11.
+# UNC plays Clem in the second date.
+# Duke has a bye in date 16.
+# Wake does not play home in date 17.
+# Wake has a bye in the first date.
+# Clem, Duke, UMD and Wake do not play away in the last date.
+# Clem, FSU, GT and Wake do not play away in the first date.
+# Neither FSU nor NCSt have a bye in the last date.
+# UNC does not have a bye in the first date.
+
+# UNC plays its rival Duke in the last date and in date 11
+unc_index = teams.index(&quot;UNC&quot;)
+duke_index = teams.index(&quot;Duke&quot;)
+clem_index = teams.index(&quot;Clem&quot;)
+fsu_index = teams.index(&quot;FSU&quot;)
+gt_index = teams.index(&quot;GT&quot;)
+umd_index = teams.index(&quot;UMD&quot;)
+ncst_index = teams.index(&quot;NCSt&quot;)
+uva_index = teams.index(&quot;UVA&quot;)
+wake_index = teams.index(&quot;Wake&quot;)
+
+# UNC plays Duke in the last date
+model += [(config[n_days - 1, :, 0] == unc_index) &amp; (config[n_days - 1, :, 1] == duke_index) |
+          (config[n_days - 1, :, 0] == duke_index) &amp; (config[n_days - 1, :, 1] == unc_index)]
+
+# UNC plays Duke in date 11
+model += [(config[10, :, 0] == unc_index) &amp; (config[10, :, 1] == duke_index) |
+          (config[10, :, 0] == duke_index) &amp; (config[10, :, 1] == unc_index)]
+
+# UNC plays Clem in the second date
+model += [(config[1, :, 0] == unc_index) &amp; (config[1, :, 1] == clem_index) |
+          (config[1, :, 0] == clem_index) &amp; (config[1, :, 1] == unc_index)]
+
+# Duke has a bye in date 16
+model += [where[15, :, duke_index] == 2]
+
+# Wake does not play home in date 17
+model += [where[16, :, wake_index] != 0]
+
+# Wake has a bye in the first date
+model += [where[0, :, wake_index] == 2]
+
+# Clem, Duke, UMD and Wake do not play away in the last date
+model += [where[n_days - 1, :, clem_index] != 1]
+model += [where[n_days - 1, :, duke_index] != 1]
+model += [where[n_days - 1, :, umd_index] != 1]
+model += [where[n_days - 1, :, wake_index] != 1]
+
+# Clem, FSU, GT and Wake do not play away in the first date
+model += [where[0, :, clem_index] != 1]
+model += [where[0, :, fsu_index] != 1]
+model += [where[0, :, gt_index] != 1]
+model += [where[0, :, wake_index] != 1]
+
+# Neither FSU nor NCSt have a bye in the last date
+model += [where[n_days - 1, :, fsu_index] != 2]
+model += [where[n_days - 1, :, ncst_index] != 2]
+
+# UNC does not have a bye in the first date
+model += [where[0, :, unc_index] != 2]
+
+# Solve
+model.solve()
+
+# Print the solution
+solution = {
+    &quot;config&quot;: config.value().tolist(),
+    &quot;where&quot;: where.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (187 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_teams = 9
+n_days = 18
+
+# Team indices (for clarity in constraints)
+# 0:Clem,1:Duke,2:FSU,3:GT,4:UMD,5:UNC,6:NCSt,7:UVA,8:Wake
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# config[d,i] = j means team i plays team j on day d. A bye is represented by config[d,i] == i
+config = cp.intvar(0, n_teams - 1, shape=(n_days, n_teams), name=&quot;config&quot;)
+
+# where[d,i] in {-1,0,2}: -1 = bye, 0 = home, 2 = away
+where = cp.intvar(-1, 2, shape=(n_days, n_teams), name=&quot;where&quot;)
+
+# Boolean indicators for clarity and linking
+is_bye = cp.boolvar(shape=(n_days, n_teams), name=&quot;is_bye&quot;)
+is_home = cp.boolvar(shape=(n_days, n_teams), name=&quot;is_home&quot;)
+is_away = cp.boolvar(shape=(n_days, n_teams), name=&quot;is_away&quot;)
+
+# Constraints
+
+# Exactly one of bye/home/away per (day,team) and link where variable
+for d in range(n_days):
+    for t in range(n_teams):
+        model += (is_bye[d, t] + is_home[d, t] + is_away[d, t] == 1)
+        # where = -1*is_bye + 2*is_away (is_home contributes 0)
+        model += (where[d, t] == -1 * is_bye[d, t] + 2 * is_away[d, t])
+        # bye implies self in config; non-bye implies not self
+        model += is_bye[d, t].implies(config[d, t] == t)
+        model += (~is_bye[d, t]).implies(config[d, t] != t)
+
+# Each day exactly one bye (odd number of teams)
+for d in range(n_days):
+    model += (cp.sum(is_bye[d, :]) == 1)
+
+# Matches are symmetric and home/away complementary
+for d in range(n_days):
+    for i in range(n_teams):
+        for j in range(n_teams):
+            if i == j:
+                continue
+            # If i is scheduled to play j on day d then j plays i
+            model += (config[d, i] == j).implies(config[d, j] == i)
+            # If i plays j then neither is a bye
+            model += (config[d, i] == j).implies(~is_bye[d, i])
+            model += (config[d, i] == j).implies(~is_bye[d, j])
+            # If i plays j then home/away sum to 2 (one home (0) + one away (2) = 2)
+            model += (config[d, i] == j).implies(where[d, i] + where[d, j] == 2)
+
+# Each pair of distinct teams meet exactly twice (double round-robin)
+for i in range(n_teams):
+    for j in range(i+1, n_teams):
+        model += cp.sum([(config[d, i] == j) for d in range(n_days)]) == 2
+
+# Each team has exactly 2 byes (18 dates, 16 matches)
+for t in range(n_teams):
+    model += cp.sum([is_bye[d, t] for d in range(n_days)]) == 2
+
+# Each team has 8 home and 8 away matches (16 games)
+for t in range(n_teams):
+    model += cp.sum([is_home[d, t] for d in range(n_days)]) == 8
+    model += cp.sum([is_away[d, t] for d in range(n_days)]) == 8
+
+# Mirroring scheme (given, converted to 0-based indices)
+mirror_pairs = [(0,7),(1,8),(2,11),(3,12),(4,13),(5,14),(6,15),(9,16),(10,17)]
+for (r1, r2) in mirror_pairs:
+    for t in range(n_teams):
+        # same opponent in mirrored dates
+        model += (config[r1, t] == config[r2, t])
+        # if not a bye in those dates, home/away swapped (sum == 2)
+        model += (~is_bye[r1, t]).implies(where[r1, t] + where[r2, t] == 2)
+        # if bye on r1 then bye also on r2 (since config equal and config==t implies bye)
+        model += is_bye[r1, t].implies(is_bye[r2, t])
+        model += is_bye[r2, t].implies(is_bye[r1, t])
+
+# No Two Final Aways: no team can play away on both of the last two dates (dates 17 and 18 -&gt; indices 16,17)
+for t in range(n_teams):
+    model += (is_away[16, t] + is_away[17, t] &lt;= 1)
+
+# Home/Away/Bye Pattern Constraints
+# No more than two away matches in a row (i.e., no run of 3 all away)
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        model += (is_away[d, t] + is_away[d+1, t] + is_away[d+2, t] &lt;= 2)
+# No more than two home matches in a row
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        model += (is_home[d, t] + is_home[d+1, t] + is_home[d+2, t] &lt;= 2)
+# No more than three away matches or byes in a row (window 4)
+for t in range(n_teams):
+    for d in range(n_days - 3):
+        model += ( (is_away[d, t] + is_bye[d, t]) + (is_away[d+1, t] + is_bye[d+1, t]) +
+                   (is_away[d+2, t] + is_bye[d+2, t]) + (is_away[d+3, t] + is_bye[d+3, t]) &lt;= 3 )
+# No more than four home matches or byes in a row (window 5)
+for t in range(n_teams):
+    for d in range(n_days - 4):
+        model += ( (is_home[d, t] + is_bye[d, t]) + (is_home[d+1, t] + is_bye[d+1, t]) +
+                   (is_home[d+2, t] + is_bye[d+2, t]) + (is_home[d+3, t] + is_bye[d+3, t]) +
+                   (is_home[d+4, t] + is_bye[d+4, t]) &lt;= 4 )
+
+# Weekend pattern: weekends are even dates (2,4,...,18) -&gt; zero-based indices 1,3,...,17
+weekend_days = [d for d in range(n_days) if (d % 2) == 1]  # 1,3,5,...,17
+for t in range(n_teams):
+    model += cp.sum([is_home[d, t] for d in weekend_days]) == 4
+    model += cp.sum([is_away[d, t] for d in weekend_days]) == 4
+    model += cp.sum([is_bye[d, t] for d in weekend_days]) == 1
+
+# First Weekends: first five weekends are the first five weekend days (indices 1,3,5,7,9)
+first_five_weekends = weekend_days[:5]
+for t in range(n_teams):
+    # home matches or byes at least on two of these weekends
+    model += cp.sum([is_home[d, t] + is_bye[d, t] for d in first_five_weekends]) &gt;= 2
+
+# Rival Matches: rivals map (except FSU which has none)
+rivals = {1:5, 5:1, 0:3, 3:0, 6:8, 8:6, 4:7, 7:4}  # symmetric
+# In the last date (index 17), every team except FSU (2) plays their rival unless they play FSU or have a bye.
+for t, r in rivals.items():
+    # allow rival OR playing FSU OR bye
+    model += ( (config[17, t] == r) | (config[17, t] == 2) | (is_bye[17, t]) )
+
+# Constrained Matches: the following pairings must occur at least once in dates 11..18 (indices 10..17)
+required_pairs = [(8,5), (8,1), (3,5), (3,1)]  # (Wake-UNC), (Wake-Duke), (GT-UNC), (GT-Duke)
+for (i,j) in required_pairs:
+    model += cp.sum([ (config[d, i] == j) for d in range(10, 18) ]) &gt;= 1
+
+# Opponent Sequence Constraints
+# No team plays in two consecutive dates away against UNC(5) and Duke(1) (in either order).
+for t in range(n_teams):
+    for d in range(n_days - 1):
+        # forbid UNC away then Duke away
+        model += ~( (config[d, t] == 5) &amp; (is_away[d, t]) &amp; (config[d+1, t] == 1) &amp; (is_away[d+1, t]) )
+        # forbid Duke away then UNC away
+        model += ~( (config[d, t] == 1) &amp; (is_away[d, t]) &amp; (config[d+1, t] == 5) &amp; (is_away[d+1, t]) )
+
+# No team plays in three consecutive dates against UNC(5), Duke(1), and Wake(8) (any order, home/away irrelevant).
+special_set = {1,5,8}
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        model += ~( (config[d, t] .isin(list(special_set))) &amp;
+                    (config[d+1, t] .isin(list(special_set))) &amp;
+                    (config[d+2, t] .isin(list(special_set))) )
+
+# Other specific constraints (as listed)
+# UNC plays its rival Duke in the last date, and in date 11 (indices 17 and 10)
+model += (config[17, 5] == 1)
+model += (config[10, 5] == 1)
+# UNC plays Clem in the second date (index 1)
+model += (config[1, 5] == 0)
+# Duke has a bye in date 16 (index 15)
+model += is_bye[15, 1]
+model += (config[15, 1] == 1)
+# Wake does not play home in date 17 (index 16)
+model += (is_home[16, 8] == 0)
+# Wake has a bye in the first date (index 0)
+model += is_bye[0, 8]
+model += (config[0, 8] == 8)
+# Clem, Duke, UMD and Wake do not play away in the last date (index 17)
+for t in [0, 1, 4, 8]:
+    model += (is_away[17, t] == 0)
+# Clem, FSU, GT and Wake do not play away in the first date (index 0)
+for t in [0, 2, 3, 8]:
+    model += (is_away[0, t] == 0)
+# Neither FSU nor NCSt have a bye in the last date (index 17)
+for t in [2, 6]:
+    model += (is_bye[17, t] == 0)
+# UNC does not have a bye in the first date (index 0)
+model += (is_bye[0, 5] == 0)
+
+# Solve the model
+if model.solve():
+    # Prepare outputs: config as list of lists, where as list of lists
+    config_sol = config.value().tolist()
+    where_sol = where.value().tolist()
+    # Ensure integers (they already are), but cast inner elements explicitly
+    config_sol = [[int(x) for x in row] for row in config_sol]
+    where_sol = [[int(x) for x in row] for row in where_sol]
+    solution = {&#x27;config&#x27;: config_sol, &#x27;where&#x27;: where_sol}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (194 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+n_teams = 9
+n_days = 18
+teams = [&quot;Clem&quot;, &quot;Duke&quot;, &quot;FSU&quot;, &quot;GT&quot;, &quot;UMD&quot;, &quot;UNC&quot;, &quot;NCSt&quot;, &quot;UVA&quot;, &quot;Wake&quot;]
+
+# Mirroring scheme pairs (1-based to 0-based)
+mirroring_pairs = [(0,7), (1,8), (2,11), (3,12), (4,13), (5,14), (6,15), (9,16), (10,17)]
+
+# Rival pairs (team indices)
+rivals = {
+    1: 5,  # Duke - UNC
+    0: 3,  # Clem - GT
+    6: 8,  # NCSt - Wake
+    4: 7   # UMD - UVA
+}
+# FSU (2) has no rival
+
+# Weekend dates (0-based even dates)
+weekends = [d for d in range(n_days) if (d+1) % 2 == 0]
+
+# Weekday dates (0-based odd dates)
+weekdays = [d for d in range(n_days) if (d+1) % 2 == 1]
+
+# Model definition
+model = cp.Model()
+
+# Decision variables
+# config[d,t]: opponent team index or -1 if bye
+config = cp.intvar(-1, n_teams-1, shape=(n_days, n_teams), name=&quot;config&quot;)
+# where[d,t]: 0=bye, 1=home, 2=away
+where = cp.intvar(0, 2, shape=(n_days, n_teams), name=&quot;where&quot;)
+
+# 1) Each team plays each other twice: once home once away
+for i in range(n_teams):
+    for j in range(i+1, n_teams):
+        count_i_home_j_away = cp.sum([(config[d,i] == j) &amp; (where[d,i] == 1) &amp; (where[d,j] == 2) for d in range(n_days)])
+        count_j_home_i_away = cp.sum([(config[d,j] == i) &amp; (where[d,j] == 1) &amp; (where[d,i] == 2) for d in range(n_days)])
+        model += (count_i_home_j_away == 1)
+        model += (count_j_home_i_away == 1)
+
+# 2) Consistency between config and where
+for d in range(n_days):
+    for t in range(n_teams):
+        model += (config[d,t] == -1).implies(where[d,t] == 0)
+        model += (config[d,t] != -1).implies((where[d,t] == 1) | (where[d,t] == 2))
+
+# 3) Opponent consistency
+for d in range(n_days):
+    for t in range(n_teams):
+        opp = config[d,t]
+        # If opp == -1 (bye), no constraint
+        # Else config[d, opp] == t
+        model += cp.IfThenElse(
+            opp == -1,
+            True,
+            cp.Element(config[d], opp) == t
+        )
+        # Home/away consistency:
+        model += cp.IfThenElse(
+            opp == -1,
+            True,
+            (where[d,t] == 1).implies(where[d, opp] == 2)
+        )
+        model += cp.IfThenElse(
+            opp == -1,
+            True,
+            (where[d,t] == 2).implies(where[d, opp] == 1)
+        )
+
+# 4) No self-play
+for d in range(n_days):
+    for t in range(n_teams):
+        model += (config[d,t] != t)
+
+# 5) Mirroring scheme
+for (r1, r2) in mirroring_pairs:
+    for t in range(n_teams):
+        model += (config[r1,t] == config[r2,t])
+        model += ((where[r1,t] == 1) == (where[r2,t] == 2))
+
+# 6) No two final aways (last two dates: days 16 and 17 zero-based)
+for t in range(n_teams):
+    model += ~((where[16,t] == 2) &amp; (where[17,t] == 2))
+
+# 7) Home/Away/Bye pattern constraints
+for t in range(n_teams):
+    # No more than two away matches in a row
+    for start in range(n_days-2):
+        model += cp.sum([(where[start+i,t] == 2) for i in range(3)]) &lt;= 2
+    # No more than two home matches in a row
+    for start in range(n_days-2):
+        model += cp.sum([(where[start+i,t] == 1) for i in range(3)]) &lt;= 2
+    # No more than three away or byes in a row
+    for start in range(n_days-3):
+        model += cp.sum([(where[start+i,t] == 2) | (where[start+i,t] == 0) for i in range(4)]) &lt;= 3
+    # No more than four home or byes in a row
+    for start in range(n_days-4):
+        model += cp.sum([(where[start+i,t] == 1) | (where[start+i,t] == 0) for i in range(5)]) &lt;= 4
+
+# 8) Weekend pattern: each team plays 4 home, 4 away, 1 bye on weekends
+for t in range(n_teams):
+    model += cp.sum([where[d,t] == 1 for d in weekends]) == 4
+    model += cp.sum([where[d,t] == 2 for d in weekends]) == 4
+    model += cp.sum([where[d,t] == 0 for d in weekends]) == 1
+
+# 9) First weekends: each team must have home or bye at least on two of the first five weekends
+first_five_weekends = [d for d in weekends if d &lt; 10]  # first 5 weekends (dates 2,4,6,8,10 zero-based: 1,3,5,7,9 one-based)
+for t in range(n_teams):
+    model += cp.sum([(where[d,t] == 1) | (where[d,t] == 0) for d in first_five_weekends]) &gt;= 2
+
+# 10) Rival matches on last date (day 17 zero-based)
+last_day = 17
+for t in range(n_teams):
+    if t == 2:  # FSU has no rival
+        continue
+    r = rivals[t]
+    # Team t plays rival r on last date, unless plays FSU or has bye
+    # So if config[last_day,t] != 2 and config[last_day,t] != -1 then config[last_day,t] == r
+    # Equivalently: if config[last_day,t] != 2 and config[last_day,t] != -1 then config[last_day,t] == r
+    # So config[last_day,t] in {r, 2, -1}
+    model += (config[last_day,t] == r) | (config[last_day,t] == 2) | (config[last_day,t] == -1)
+
+# 11) Constrained matches: Wake-UNC, Wake-Duke, GT-UNC, GT-Duke at least once in dates 10-17 (11-18 one-based)
+constrained_pairs = [(8,5), (8,1), (3,5), (3,1)]  # zero-based team indices
+for (a,b) in constrained_pairs:
+    # At least one date d in 10..17 where a plays b or b plays a
+    model += cp.sum([( (config[d,a] == b) | (config[d,b] == a) ) for d in range(10,18)]) &gt;= 1
+
+# 12) Opponent sequence constraints
+# No team plays in two consecutive dates away against UNC (5) and Duke (1)
+for t in range(n_teams):
+    for d in range(n_days-1):
+        cond1 = (config[d,t] == 5) &amp; (where[d,t] == 2)
+        cond2 = (config[d+1,t] == 1) &amp; (where[d+1,t] == 2)
+        model += ~(cond1 &amp; cond2)
+        cond3 = (config[d,t] == 1) &amp; (where[d,t] == 2)
+        cond4 = (config[d+1,t] == 5) &amp; (where[d+1,t] == 2)
+        model += ~(cond3 &amp; cond4)
+# No team plays in three consecutive dates against UNC (5), Duke (1), and Wake (8) (home/away doesn&#x27;t matter)
+for t in range(n_teams):
+    for d in range(n_days-2):
+        conds = [
+            (config[d,t] == 5) | (config[d,t] == 1) | (config[d,t] == 8),
+            (config[d+1,t] == 5) | (config[d+1,t] == 1) | (config[d+1,t] == 8),
+            (config[d+2,t] == 5) | (config[d+2,t] == 1) | (config[d+2,t] == 8)
+        ]
+        model += ~(conds[0] &amp; conds[1] &amp; conds[2])
+
+# 13) Other constraints
+# UNC plays rival Duke in last date and in date 10 (11 one-based)
+model += (config[17,5] == 1)  # last date UNC(5) plays Duke(1)
+model += (config[10,5] == 1)  # date 11 UNC(5) plays Duke(1)
+
+# UNC plays Clem in second date (date 1 zero-based)
+model += (config[1,5] == 0)  # UNC(5) plays Clem(0)
+
+# Duke has a bye in date 15 (16 one-based)
+model += (config[15,1] == -1)
+
+# Wake does not play home in date 16 (17 one-based)
+model += (where[16,8] != 1)
+
+# Wake has a bye in first date (0 zero-based)
+model += (config[0,8] == -1)
+
+# Clem, Duke, UMD and Wake do not play away in last date (17 zero-based)
+for t in [0,1,4,8]:
+    model += (where[17,t] != 2)
+
+# Clem, FSU, GT and Wake do not play away in first date (0 zero-based)
+for t in [0,2,3,8]:
+    model += (where[0,t] != 2)
+
+# Neither FSU nor NCSt have a bye in last date (17 zero-based)
+for t in [2,6]:
+    model += (config[17,t] != -1)
+
+# UNC does not have a bye in first date (0 zero-based)
+model += (config[0,5] != -1)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;config&#x27;: config.value().tolist(),
+        &#x27;where&#x27;: where.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (199 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_teams = 9
+n_days = 18
+
+# Team indexing (0-based)
+teams = [&quot;Clem&quot;, &quot;Duke&quot;, &quot;FSU&quot;, &quot;GT&quot;, &quot;UMD&quot;, &quot;UNC&quot;, &quot;NCSt&quot;, &quot;UVA&quot;, &quot;Wake&quot;]
+idx = {teams[i]: i for i in range(n_teams)}
+
+# Mirroring scheme given (1-based in problem), convert to 0-based
+mirrors_1based = [(1,8), (2,9), (3,12), (4,13), (5,14), (6,15), (7,16), (10,17), (11,18)]
+mirrors = [(a-1, b-1) for (a, b) in mirrors_1based]
+
+# Weekend days (1-based even dates are weekends -&gt; 0-based odd indices)
+weekends = [d for d in range(n_days) if d % 2 == 1]
+first_five_weekends = weekends[:5]  # first five weekend dates
+
+# Model
+model = cp.Model()
+
+# Decision variables
+# config[d,i] = opponent team index 0..8 or -1 for bye
+config = cp.intvar(-1, n_teams-1, shape=(n_days, n_teams), name=&quot;config&quot;)
+
+# where[d,i] = -1 for bye, 0 for home, 2 for away
+where = cp.intvar(-1, 2, shape=(n_days, n_teams), name=&quot;where&quot;)
+
+# Restrict where to values in {-1,0,2}
+for d in range(n_days):
+    for t in range(n_teams):
+        model += cp.InDomain(where[d, t], [-1, 0, 2])
+
+# Basic consistency constraints
+
+# 1) No self-play
+for d in range(n_days):
+    for i in range(n_teams):
+        model += (config[d, i] != i)
+
+# 2) Symmetry: if i plays j on day d then j plays i on day d
+for d in range(n_days):
+    for i in range(n_teams):
+        for j in range(n_teams):
+            if i != j:
+                model += (config[d, i] == j).implies(config[d, j] == i)
+
+# 3) If team has a bye, where must be -1; if config != -1 then where cannot be -1 (i.e., playing implies not bye)
+for d in range(n_days):
+    for i in range(n_teams):
+        model += (config[d, i] == -1).implies(where[d, i] == -1)
+        model += (where[d, i] != -1).implies(config[d, i] != -1)
+
+# 4) For any scheduled match (i vs j) on day d, their where values must be complementary (0 vs 2)
+for d in range(n_days):
+    for i in range(n_teams):
+        for j in range(n_teams):
+            if i != j:
+                # if i plays j, then where[i] + where[j] == 2 (0 + 2)
+                model += (config[d, i] == j).implies(where[d, i] + where[d, j] == 2)
+
+# 5) Each day exactly one bye (since odd number of teams)
+for d in range(n_days):
+    model += cp.sum([config[d, i] == -1 for i in range(n_teams)]) == 1
+
+# 6) Each team has exactly 2 byes over the season (18 days, double round robin =&gt; 16 games + 2 byes)
+for i in range(n_teams):
+    model += cp.sum([config[d, i] == -1 for d in range(n_days)]) == 2
+
+# 7) Double round-robin: each pair plays twice (once each home)
+for i in range(n_teams):
+    for j in range(i+1, n_teams):
+        # They must meet exactly twice across the season
+        model += cp.sum([config[d, i] == j for d in range(n_days)]) == 2
+        # And each team hosts the other exactly once
+        model += cp.sum([(config[d, i] == j) &amp; (where[d, i] == 0) for d in range(n_days)]) == 1
+
+# Mirroring constraint: for each mirror pair, opponents are the same and home/away are swapped (when not bye)
+for (r1, r2) in mirrors:
+    for i in range(n_teams):
+        model += (config[r1, i] == config[r2, i])
+        # If it&#x27;s not a bye, the where values should be complementary (0+2)
+        model += (config[r1, i] != -1).implies(where[r1, i] + where[r2, i] == 2)
+        # If it&#x27;s a bye on r1 then where r1 must be -1 (already enforced globally), and equality of config implies bye on r2 too
+
+# Constraint 2: No team away on both last dates (last two days)
+last1 = n_days - 2
+last2 = n_days - 1
+for i in range(n_teams):
+    model += cp.sum([(where[last1, i] == 2), (where[last2, i] == 2)]) &lt;= 1
+
+# Constraint 3: Home/Away/Bye pattern constraints
+# No more than two away in a row -&gt; any window of length 3: away-count &lt;= 2
+for i in range(n_teams):
+    for start in range(n_days - 3 + 1):
+        model += cp.sum([(where[start + k, i] == 2) for k in range(3)]) &lt;= 2
+
+# No more than two home in a row -&gt; any window of length 3: home-count &lt;= 2
+for i in range(n_teams):
+    for start in range(n_days - 3 + 1):
+        model += cp.sum([(where[start + k, i] == 0) for k in range(3)]) &lt;= 2
+
+# No more than three away or byes in a row -&gt; any window of length 4: (away or bye) count &lt;= 3
+for i in range(n_teams):
+    for start in range(n_days - 4 + 1):
+        model += cp.sum([((where[start + k, i] == 2) | (where[start + k, i] == -1)) for k in range(4)]) &lt;= 3
+
+# No more than four home or byes in a row -&gt; any window of length 5: (home or bye) count &lt;=4
+for i in range(n_teams):
+    for start in range(n_days - 5 + 1):
+        model += cp.sum([((where[start + k, i] == 0) | (where[start + k, i] == -1)) for k in range(5)]) &lt;= 4
+
+# Constraint 4: Weekend pattern - on weekends each team: 4 home, 4 away, 1 bye
+for i in range(n_teams):
+    model += cp.sum([(where[d, i] == 0) for d in weekends]) == 4
+    model += cp.sum([(where[d, i] == 2) for d in weekends]) == 4
+    model += cp.sum([(where[d, i] == -1) for d in weekends]) == 1
+
+# Constraint 5: First five weekends: each team must have home or bye on at least two of these weekends
+for i in range(n_teams):
+    model += cp.sum([((where[d, i] == 0) | (where[d, i] == -1)) for d in first_five_weekends]) &gt;= 2
+
+# Constraint 6: Rival matches on last date except FSU (unless playing FSU or bye)
+rivals = {
+    idx[&quot;Duke&quot;]: idx[&quot;UNC&quot;],
+    idx[&quot;Clem&quot;]: idx[&quot;GT&quot;],
+    idx[&quot;NCSt&quot;]: idx[&quot;Wake&quot;],
+    idx[&quot;UMD&quot;]: idx[&quot;UVA&quot;],
+    # UNC is covered as Duke-UNC pair via symmetric relation already; we ensure both sides by checking each team with its rival
+}
+# For teams with rivals, except FSU (index 2)
+for t, r in rivals.items():
+    # if not playing FSU and not bye, must play rival on last day
+    model += ((config[last2, t] != idx[&quot;FSU&quot;]) &amp; (config[last2, t] != -1)).implies(config[last2, t] == r)
+
+# Constraint 7: Constrained matches must occur at least once in dates 11 to 18 (0-based 10..17)
+req_pairs = [(idx[&quot;Wake&quot;], idx[&quot;UNC&quot;]), (idx[&quot;Wake&quot;], idx[&quot;Duke&quot;]), (idx[&quot;GT&quot;], idx[&quot;UNC&quot;]), (idx[&quot;GT&quot;], idx[&quot;Duke&quot;])]
+for (a, b) in req_pairs:
+    model += cp.sum([(config[d, a] == b) for d in range(10, 18)]) &gt;= 1
+
+# Constraint 8: Opponent sequence constraints
+# (a) No team plays in two consecutive dates away against UNC and Duke
+target_set = {idx[&quot;UNC&quot;], idx[&quot;Duke&quot;]}
+for i in range(n_teams):
+    for d in range(n_days - 1):
+        model += cp.sum([((config[d, i] == opp) &amp; (where[d, i] == 2)) for opp in target_set] + \
+                        [((config[d+1, i] == opp) &amp; (where[d+1, i] == 2)) for opp in target_set]) &lt;= 1
+
+# (b) No team plays in three consecutive dates against UNC, Duke and Wake (independent of home/away)
+target_set3 = {idx[&quot;UNC&quot;], idx[&quot;Duke&quot;], idx[&quot;Wake&quot;]}
+for i in range(n_teams):
+    for d in range(n_days - 2):
+        model += cp.sum([ (config[d + k, i] == opp) for k in range(3) for opp in target_set3 ]) &lt;= 2
+
+# Constraint 9: Other specific constraints
+# UNC plays Duke in last date and in date 11 (0-based 10 and 17)
+model += config[17, idx[&quot;UNC&quot;]] == idx[&quot;Duke&quot;]
+model += config[10, idx[&quot;UNC&quot;]] == idx[&quot;Duke&quot;]
+
+# UNC plays Clem in the second date (date 2 -&gt; index 1)
+model += config[1, idx[&quot;UNC&quot;]] == idx[&quot;Clem&quot;]
+
+# Duke has a bye in date 16 (0-based 15)
+model += config[15, idx[&quot;Duke&quot;]] == -1
+model += where[15, idx[&quot;Duke&quot;]] == -1
+
+# Wake does not play home in date 17 (0-based 16)
+model += (where[16, idx[&quot;Wake&quot;]] != 0)
+
+# Wake has a bye in the first date (date 1 -&gt; index 0)
+model += config[0, idx[&quot;Wake&quot;]] == -1
+model += where[0, idx[&quot;Wake&quot;]] == -1
+
+# Clem, Duke, UMD and Wake do not play away in the last date
+for name in [&quot;Clem&quot;, &quot;Duke&quot;, &quot;UMD&quot;, &quot;Wake&quot;]:
+    model += (where[17, idx[name]] != 2)
+
+# Clem, FSU, GT and Wake do not play away in the first date
+for name in [&quot;Clem&quot;, &quot;FSU&quot;, &quot;GT&quot;, &quot;Wake&quot;]:
+    model += (where[0, idx[name]] != 2)
+
+# Neither FSU nor NCSt have a bye in the last date
+for name in [&quot;FSU&quot;, &quot;NCSt&quot;]:
+    model += (config[17, idx[name]] != -1)
+
+# UNC does not have a bye in the first date
+model += (config[0, idx[&quot;UNC&quot;]] != -1)
+
+# Solve
+if model.solve():
+    solution = {
+        &#x27;config&#x27;: config.value().tolist(),
+        &#x27;where&#x27;: where.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (0 lines)</summary><pre class="code-block"><code id="None" class="language-python"></code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (189 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_teams = 9
+n_days = 18
+
+# Team indices (for clarity in constraints)
+# 0:Clem,1:Duke,2:FSU,3:GT,4:UMD,5:UNC,6:NCSt,7:UVA,8:Wake
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# config[d,i] = j means team i plays team j on day d. A bye is represented by config[d,i] == i
+config = cp.intvar(0, n_teams - 1, shape=(n_days, n_teams), name=&quot;config&quot;)
+
+# where[d,i] in {-1,0,2}: -1 = bye, 0 = home, 2 = away
+# (intvar must have contiguous range; 1 is included but will be excluded by constraints)
+where = cp.intvar(-1, 2, shape=(n_days, n_teams), name=&quot;where&quot;)
+
+# Boolean indicators for clarity and linking
+is_bye = cp.boolvar(shape=(n_days, n_teams), name=&quot;is_bye&quot;)
+is_home = cp.boolvar(shape=(n_days, n_teams), name=&quot;is_home&quot;)
+is_away = cp.boolvar(shape=(n_days, n_teams), name=&quot;is_away&quot;)
+
+# Constraints
+
+# Exactly one of bye/home/away per (day,team) and link where variable
+for d in range(n_days):
+    for t in range(n_teams):
+        model += (is_bye[d, t] + is_home[d, t] + is_away[d, t] == 1)
+        # where = -1*is_bye + 2*is_away (is_home contributes 0)
+        model += (where[d, t] == -1 * is_bye[d, t] + 2 * is_away[d, t])
+        # bye implies self in config; non-bye implies not self
+        model += is_bye[d, t].implies(config[d, t] == t)
+        model += (~is_bye[d, t]).implies(config[d, t] != t)
+
+# Each day exactly one bye (odd number of teams)
+for d in range(n_days):
+    model += (cp.sum(is_bye[d, :]) == 1)
+
+# Matches are symmetric and home/away complementary
+for d in range(n_days):
+    for i in range(n_teams):
+        for j in range(n_teams):
+            if i == j:
+                continue
+            # If i is scheduled to play j on day d then j plays i
+            model += (config[d, i] == j).implies(config[d, j] == i)
+            # If i plays j then neither is a bye
+            model += (config[d, i] == j).implies(~is_bye[d, i])
+            model += (config[d, i] == j).implies(~is_bye[d, j])
+            # If i plays j then home/away sum to 2 (one home (0) + one away (2) = 2)
+            model += (config[d, i] == j).implies(where[d, i] + where[d, j] == 2)
+
+# Each pair of distinct teams meet exactly twice (double round-robin)
+for i in range(n_teams):
+    for j in range(i+1, n_teams):
+        model += cp.sum([(config[d, i] == j) for d in range(n_days)]) == 2
+
+# Each team has exactly 2 byes (18 dates, 16 matches)
+for t in range(n_teams):
+    model += cp.sum([is_bye[d, t] for d in range(n_days)]) == 2
+
+# Each team has 8 home and 8 away matches (16 games)
+for t in range(n_teams):
+    model += cp.sum([is_home[d, t] for d in range(n_days)]) == 8
+    model += cp.sum([is_away[d, t] for d in range(n_days)]) == 8
+
+# Mirroring scheme (given, converted to 0-based indices)
+mirror_pairs = [(0,7),(1,8),(2,11),(3,12),(4,13),(5,14),(6,15),(9,16),(10,17)]
+for (r1, r2) in mirror_pairs:
+    for t in range(n_teams):
+        # same opponent in mirrored dates
+        model += (config[r1, t] == config[r2, t])
+        # if not a bye in those dates, home/away swapped (sum == 2)
+        model += (~is_bye[r1, t]).implies(where[r1, t] + where[r2, t] == 2)
+        # if bye on r1 then bye also on r2 (since config equal and config==t implies bye)
+        model += is_bye[r1, t].implies(is_bye[r2, t])
+        model += is_bye[r2, t].implies(is_bye[r1, t])
+
+# No Two Final Aways: no team can play away on both of the last two dates (dates 17 and 18 -&gt; indices 16,17)
+for t in range(n_teams):
+    model += (is_away[16, t] + is_away[17, t] &lt;= 1)
+
+# Home/Away/Bye Pattern Constraints
+# No more than two away matches in a row (i.e., no run of 3 all away)
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        model += (is_away[d, t] + is_away[d+1, t] + is_away[d+2, t] &lt;= 2)
+# No more than two home matches in a row
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        model += (is_home[d, t] + is_home[d+1, t] + is_home[d+2, t] &lt;= 2)
+# No more than three away matches or byes in a row (window 4)
+for t in range(n_teams):
+    for d in range(n_days - 3):
+        model += ( (is_away[d, t] + is_bye[d, t]) + (is_away[d+1, t] + is_bye[d+1, t]) +
+                   (is_away[d+2, t] + is_bye[d+2, t]) + (is_away[d+3, t] + is_bye[d+3, t]) &lt;= 3 )
+# No more than four home matches or byes in a row (window 5)
+for t in range(n_teams):
+    for d in range(n_days - 4):
+        model += ( (is_home[d, t] + is_bye[d, t]) + (is_home[d+1, t] + is_bye[d+1, t]) +
+                   (is_home[d+2, t] + is_bye[d+2, t]) + (is_home[d+3, t] + is_bye[d+3, t]) +
+                   (is_home[d+4, t] + is_bye[d+4, t]) &lt;= 4 )
+
+# Weekend pattern: weekends are even dates (2,4,...,18) -&gt; zero-based indices 1,3,...,17
+weekend_days = [d for d in range(n_days) if (d % 2) == 1]  # 1,3,5,...,17
+for t in range(n_teams):
+    model += cp.sum([is_home[d, t] for d in weekend_days]) == 4
+    model += cp.sum([is_away[d, t] for d in weekend_days]) == 4
+    model += cp.sum([is_bye[d, t] for d in weekend_days]) == 1
+
+# First Weekends: first five weekends are the first five weekend days (indices 1,3,5,7,9)
+first_five_weekends = weekend_days[:5]
+for t in range(n_teams):
+    # home matches or byes at least on two of these weekends
+    model += cp.sum([is_home[d, t] + is_bye[d, t] for d in first_five_weekends]) &gt;= 2
+
+# Rival Matches: rivals map (except FSU which has none)
+rivals = {1:5, 5:1, 0:3, 3:0, 6:8, 8:6, 4:7, 7:4}  # symmetric
+# In the last date (index 17), every team except FSU (2) plays their rival unless they play FSU or have a bye.
+for t, r in rivals.items():
+    # allow rival OR playing FSU OR bye
+    model += ( (config[17, t] == r) | (config[17, t] == 2) | (is_bye[17, t]) )
+
+# Constrained Matches: the following pairings must occur at least once in dates 11..18 (indices 10..17)
+required_pairs = [(8,5), (8,1), (3,5), (3,1)]  # (Wake-UNC), (Wake-Duke), (GT-UNC), (GT-Duke)
+for (i,j) in required_pairs:
+    model += cp.sum([ (config[d, i] == j) for d in range(10, 18) ]) &gt;= 1
+
+# Opponent Sequence Constraints
+# No team plays in two consecutive dates away against UNC(5) and Duke(1) (in either order).
+for t in range(n_teams):
+    for d in range(n_days - 1):
+        # forbid UNC away then Duke away
+        model += ~( (config[d, t] == 5) &amp; (is_away[d, t]) &amp; (config[d+1, t] == 1) &amp; (is_away[d+1, t]) )
+        # forbid Duke away then UNC away
+        model += ~( (config[d, t] == 1) &amp; (is_away[d, t]) &amp; (config[d+1, t] == 5) &amp; (is_away[d+1, t]) )
+
+# No team plays in three consecutive dates against UNC(5), Duke(1), and Wake(8) (any order, home/away irrelevant).
+special_set = {1,5,8}
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        # Use cp.InDomain to check membership in a non-interval domain
+        model += ~( cp.InDomain(config[d, t], list(special_set)) &amp;
+                    cp.InDomain(config[d+1, t], list(special_set)) &amp;
+                    cp.InDomain(config[d+2, t], list(special_set)) )
+
+# Other specific constraints (as listed)
+# UNC plays its rival Duke in the last date, and in date 11 (indices 17 and 10)
+model += (config[17, 5] == 1)
+model += (config[10, 5] == 1)
+# UNC plays Clem in the second date (index 1)
+model += (config[1, 5] == 0)
+# Duke has a bye in date 16 (index 15)
+model += is_bye[15, 1]
+model += (config[15, 1] == 1)
+# Wake does not play home in date 17 (index 16)
+model += (is_home[16, 8] == 0)
+# Wake has a bye in the first date (index 0)
+model += is_bye[0, 8]
+model += (config[0, 8] == 8)
+# Clem, Duke, UMD and Wake do not play away in the last date (index 17)
+for t in [0, 1, 4, 8]:
+    model += (is_away[17, t] == 0)
+# Clem, FSU, GT and Wake do not play away in the first date (index 0)
+for t in [0, 2, 3, 8]:
+    model += (is_away[0, t] == 0)
+# Neither FSU nor NCSt have a bye in the last date (index 17)
+for t in [2, 6]:
+    model += (is_bye[17, t] == 0)
+# UNC does not have a bye in the first date (index 0)
+model += (is_bye[0, 5] == 0)
+
+# Solve the model
+if model.solve():
+    # Prepare outputs: config as list of lists, where as list of lists
+    config_sol = config.value().tolist()
+    where_sol = where.value().tolist()
+    # Ensure integers (they already are), but cast inner elements explicitly
+    config_sol = [[int(x) for x in row] for row in config_sol]
+    where_sol = [[int(x) for x in row] for row in where_sol]
+    solution = {&#x27;config&#x27;: config_sol, &#x27;where&#x27;: where_sol}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (198 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n_teams = 9;
+int: n_days = 18;
+
+% Teams indexed 1..9
+% 1: Clem, 2: Duke, 3: FSU, 4: GT, 5: UMD, 6: UNC, 7: NCSt, 8: UVA, 9: Wake
+
+% Mirroring pairs (r1,r2)
+array[1..9,1..2] of int: mirroring = array2d(1..9,1..2,
+  [1,8, 2,9, 3,12, 4,13, 5,14, 6,15, 7,16, 10,17, 11,18]);
+
+% Rival pairs (team1, team2)
+array[1..4,1..2] of int: rivals = array2d(1..4,1..2,
+  [2,6, 1,4, 7,9, 5,8]); % Duke-UNC, Clem-GT, NCSt-Wake, UMD-UVA
+
+% Days that are weekends (even days)
+set of int: weekends = {d | d in 1..n_days where d mod 2 = 0};
+set of int: weekdays = {d | d in 1..n_days where d mod 2 = 1};
+
+% Decision variables
+% config[d,t] = opponent team or 0 if bye
+array[1..n_days, 1..n_teams] of var 0..n_teams: config;
+
+% where[d,t] = 0 bye, 1 home, 2 away
+array[1..n_days, 1..n_teams] of var 0..2: where;
+
+% Constraints
+
+% 1) Double round robin: each pair plays twice, once home once away
+% For each pair (i&lt;j), must appear exactly twice in config, once i home j away, once j home i away
+% Count occurrences of matches
+predicate match_occurs(int: d, int: t1, int: t2) =
+  (config[d,t1] = t2 /\ where[d,t1] = 1 /\ where[d,t2] = 2);
+
+% Each team plays exactly one match or bye per day
+constraint forall(d in 1..n_days) (
+  forall(t in 1..n_teams) (
+    % config[d,t] = 0 means bye
+    % if config[d,t] != 0 then config[d,config[d,t]] = t and where[d,t] != 0
+    (config[d,t] = 0 -&gt; where[d,t] = 0) /\
+    (config[d,t] != 0 -&gt; (config[d,config[d,t]] = t /\ where[d,t] != 0 /\ where[d,config[d,t]] != 0))
+  )
+);
+
+% No self matches
+constraint forall(d in 1..n_days, t in 1..n_teams) (
+  config[d,t] != t
+);
+
+% Each pair plays exactly twice, once home once away
+constraint forall(t1, t2 in 1..n_teams where t1 &lt; t2) (
+  sum(d in 1..n_days)(bool2int(match_occurs(d,t1,t2))) = 1 /\
+  sum(d in 1..n_days)(bool2int(match_occurs(d,t2,t1))) = 1
+);
+
+% Each team plays exactly one match or bye per day
+constraint forall(d in 1..n_days) (
+  forall(t in 1..n_teams) (
+    (config[d,t] = 0 \/ (config[d,t] != 0 /\ config[d,config[d,t]] = t))
+  )
+);
+
+% 1) Mirroring scheme: pairs of dates have same matches (same pairs)
+% For each mirroring pair (r1,r2), for all teams t: config[r1,t] = config[r2,t]
+constraint forall(i in 1..9) (
+  let {int: r1 = mirroring[i,1], r2 = mirroring[i,2]} in
+  forall(t in 1..n_teams) (
+    % config[r1,t] = config[r2,t]
+    config[r1,t] = config[r2,t] /\
+    % where[r1,t] != where[r2,t] (home/away reversed)
+    (where[r1,t] = 1 -&gt; where[r2,t] = 2) /\
+    (where[r1,t] = 2 -&gt; where[r2,t] = 1) /\
+    (where[r1,t] = 0 -&gt; where[r2,t] = 0)
+  )
+);
+
+% 2) No two final aways: no team plays away on both last dates (17,18)
+constraint forall(t in 1..n_teams) (
+  not (where[17,t] = 2 /\ where[18,t] = 2)
+);
+
+% 3) Home/Away/Bye pattern constraints
+% No more than two away matches in a row
+constraint forall(t in 1..n_teams, d in 1..n_days-2) (
+  not (where[d,t] = 2 /\ where[d+1,t] = 2 /\ where[d+2,t] = 2)
+);
+% No more than two home matches in a row
+constraint forall(t in 1..n_teams, d in 1..n_days-2) (
+  not (where[d,t] = 1 /\ where[d+1,t] = 1 /\ where[d+2,t] = 1)
+);
+% No more than three away or byes in a row
+constraint forall(t in 1..n_teams, d in 1..n_days-3) (
+  not (forall(i in d..d+3) (where[i,t] = 2 \/ where[i,t] = 0))
+);
+% No more than four home or byes in a row
+constraint forall(t in 1..n_teams, d in 1..n_days-4) (
+  not (forall(i in d..d+4) (where[i,t] = 1 \/ where[i,t] = 0))
+);
+
+% 4) Weekend pattern: each team plays 4 home, 4 away, 1 bye on weekends
+constraint forall(t in 1..n_teams) (
+  sum(d in weekends)(bool2int(where[d,t] = 1)) = 4 /\
+  sum(d in weekends)(bool2int(where[d,t] = 2)) = 4 /\
+  sum(d in weekends)(bool2int(where[d,t] = 0)) = 1
+);
+
+% 5) First weekends: each team has home or bye at least on two of first five weekends
+constraint forall(t in 1..n_teams) (
+  sum(d in {2,4,6,8,10})(bool2int(where[d,t] = 1 \/ where[d,t] = 0)) &gt;= 2
+);
+
+% 6) Rival matches: last date (18), every team except FSU (3) plays rival unless plays FSU or bye
+constraint forall(i in 1..4) (
+  let {int: t1 = rivals[i,1], t2 = rivals[i,2]} in
+  (
+    % If t1 plays FSU or bye on day 18, no constraint
+    (config[18,t1] = 3 \/ config[18,t1] = 0) \/
+    % else t1 plays rival t2 on day 18
+    (config[18,t1] = t2)
+  ) /\
+  (
+    (config[18,t2] = 3 \/ config[18,t2] = 0) \/
+    (config[18,t2] = t1)
+  )
+);
+
+% 7) Constrained matches: pairings must occur at least once in dates 11..18
+array[1..4,1..2] of int: constrained_pairs = array2d(1..4,1..2,
+  [9,6, 9,2, 4,6, 4,2]); % Wake-UNC, Wake-Duke, GT-UNC, GT-Duke
+
+constraint forall(i in 1..4) (
+  let {int: t1 = constrained_pairs[i,1], t2 = constrained_pairs[i,2]} in
+  sum(d in 11..18)(bool2int(match_occurs(d,t1,t2) \/ match_occurs(d,t2,t1))) &gt;= 1
+);
+
+% 8) Opponent sequence constraints
+% No team plays in two consecutive dates away against UNC(6) and Duke(2)
+constraint forall(t in 1..n_teams) (
+  forall(d in 1..n_days-1) (
+    not (
+      where[d,t] = 2 /\ config[d,t] in {6,2} /\
+      where[d+1,t] = 2 /\ config[d+1,t] in {6,2}
+    )
+  )
+);
+
+% No team plays in three consecutive dates against UNC(6), Duke(2), Wake(9) (home/away doesn&#x27;t matter)
+constraint forall(t in 1..n_teams) (
+  forall(d in 1..n_days-2) (
+    not (
+      (config[d,t] in {6,2,9}) /\
+      (config[d+1,t] in {6,2,9}) /\
+      (config[d+2,t] in {6,2,9})
+    )
+  )
+);
+
+% 9) Other constraints
+% UNC(6) plays rival Duke(2) in last date(18) and date 11
+constraint config[18,6] = 2 /\ config[11,6] = 2;
+% UNC(6) plays Clem(1) in second date(2)
+constraint config[2,6] = 1;
+% Duke(2) has bye in date 16
+constraint config[16,2] = 0 /\ where[16,2] = 0;
+% Wake(9) does not play home in date 17
+constraint where[17,9] != 1;
+% Wake(9) has bye in first date(1)
+constraint config[1,9] = 0 /\ where[1,9] = 0;
+% Clem(1), Duke(2), UMD(5), Wake(9) do not play away in last date(18)
+constraint forall(t in {1,2,5,9}) (
+  where[18,t] != 2
+);
+% Clem(1), FSU(3), GT(4), Wake(9) do not play away in first date(1)
+constraint forall(t in {1,3,4,9}) (
+  where[1,t] != 2
+);
+% FSU(3), NCSt(7) have no bye in last date(18)
+constraint forall(t in {3,7}) (
+  config[18,t] != 0 /\ where[18,t] != 0
+);
+% UNC(6) does not have bye in first date(1)
+constraint config[1,6] != 0 /\ where[1,6] != 0;
+
+% Solve
+solve satisfy;
+
+% Output
+output [
+  &quot;{&quot;,
+  &quot;\&quot;config\&quot;: [&quot;,
+  join(&quot;,\n&quot;, [ &quot;[&quot; ++ join(&quot;,&quot;, [show(config[d,t]) | t in 1..n_teams]) ++ &quot;]&quot; | d in 1..n_days ]),
+  &quot;],&quot;,
+  &quot;\&quot;where\&quot;: [&quot;,
+  join(&quot;,\n&quot;, [ &quot;[&quot; ++ join(&quot;,&quot;, [show(where[d,t]) | t in 1..n_teams]) ++ &quot;]&quot; | d in 1..n_days ]),
+  &quot;]&quot;,
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (207 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n_teams = 9
+n_days = 18
+teams = [&#x27;Clem&#x27;, &#x27;Duke&#x27;, &#x27;FSU&#x27;, &#x27;GT&#x27;, &#x27;UMD&#x27;, &#x27;UNC&#x27;, &#x27;NCSt&#x27;, &#x27;UVA&#x27;, &#x27;Wake&#x27;]
+
+# Map team names to indices for convenience
+team_idx = {team: i for i, team in enumerate(teams)}
+
+# Mirroring pairs (1-based to 0-based)
+mirroring_pairs = [(0, 7), (1, 8), (2, 11), (3, 12), (4, 13), (5, 14), (6, 15), (9, 16), (10, 17)]
+
+# Rival pairs (team indices)
+rivals = {
+    team_idx[&#x27;Duke&#x27;]: team_idx[&#x27;UNC&#x27;],
+    team_idx[&#x27;Clem&#x27;]: team_idx[&#x27;GT&#x27;],
+    team_idx[&#x27;NCSt&#x27;]: team_idx[&#x27;Wake&#x27;],
+    team_idx[&#x27;UMD&#x27;]: team_idx[&#x27;UVA&#x27;],
+}
+
+# Constrained matches in dates 11 to 18 (0-based: 10 to 17)
+constrained_pairs = [
+    (team_idx[&#x27;Wake&#x27;], team_idx[&#x27;UNC&#x27;]),
+    (team_idx[&#x27;Wake&#x27;], team_idx[&#x27;Duke&#x27;]),
+    (team_idx[&#x27;GT&#x27;], team_idx[&#x27;UNC&#x27;]),
+    (team_idx[&#x27;GT&#x27;], team_idx[&#x27;Duke&#x27;]),
+]
+
+# Weekend dates (even dates 2,4,...18 are weekends, 0-based: 1,3,...17)
+weekend_dates = [d for d in range(n_days) if (d + 1) % 2 == 0]
+weekday_dates = [d for d in range(n_days) if (d + 1) % 2 == 1]
+
+model = cp_model.CpModel()
+
+# Decision variables:
+# config[d][t]: opponent team index or -1 if bye on day d for team t
+# where[d][t]: 0=home, 1=away, 2=bye
+config = []
+where = []
+for d in range(n_days):
+    config.append([model.NewIntVar(-1, n_teams - 1, f&#x27;config_d{d}_t{t}&#x27;) for t in range(n_teams)])
+    where.append([model.NewIntVar(0, 2, f&#x27;where_d{d}_t{t}&#x27;) for t in range(n_teams)])
+
+# Helper: team plays or not on day d
+def plays(d, t):
+    # True if not bye
+    return model.NewBoolVar(f&#x27;plays_d{d}_t{t}&#x27;)
+
+for d in range(n_days):
+    for t in range(n_teams):
+        # plays[d][t] = (where[d][t] != 2)
+        model.Add(where[d][t] != 2).OnlyEnforceIf(plays(d, t))
+        model.Add(where[d][t] == 2).OnlyEnforceIf(plays(d, t).Not())
+
+# 1. Mirroring: For each pair (r1, r2), each team plays same opponent
+for (r1, r2) in mirroring_pairs:
+    for t in range(n_teams):
+        model.Add(config[r1][t] == config[r2][t])
+        model.Add(where[r1][t] == where[r2][t])
+
+# 2. No Two Final Aways: no team plays away on both last dates (17 and 18, 0-based 16 and 17)
+for t in range(n_teams):
+    away_16 = model.NewBoolVar(f&#x27;away_16_t{t}&#x27;)
+    away_17 = model.NewBoolVar(f&#x27;away_17_t{t}&#x27;)
+    model.Add(where[16][t] == 1).OnlyEnforceIf(away_16)
+    model.Add(where[16][t] != 1).OnlyEnforceIf(away_16.Not())
+    model.Add(where[17][t] == 1).OnlyEnforceIf(away_17)
+    model.Add(where[17][t] != 1).OnlyEnforceIf(away_17.Not())
+    model.AddBoolOr([away_16.Not(), away_17.Not()])  # not both away
+
+# 3. Home/Away/Bye Pattern Constraints
+# No more than two away matches in a row
+for t in range(n_teams):
+    for start in range(n_days - 2):
+        # sum of where[d][t] == 1 for d in start..start+2 &lt;= 2
+        model.Add(sum(where[d][t] == 1 for d in range(start, start + 3)) &lt;= 2)
+# No more than two home matches in a row
+for t in range(n_teams):
+    for start in range(n_days - 2):
+        model.Add(sum(where[d][t] == 0 for d in range(start, start + 3)) &lt;= 2)
+# No more than three away matches or byes in a row
+for t in range(n_teams):
+    for start in range(n_days - 3):
+        # where[d][t] in {1,2} means away or bye
+        model.Add(sum((where[d][t] == 1) + (where[d][t] == 2) for d in range(start, start + 4)) &lt;= 3)
+# No more than four home matches or byes in a row
+for t in range(n_teams):
+    for start in range(n_days - 4):
+        # where[d][t] in {0,2} means home or bye
+        model.Add(sum((where[d][t] == 0) + (where[d][t] == 2) for d in range(start, start + 5)) &lt;= 4)
+
+# 4. Weekend Pattern: each team plays 4 home, 4 away, 1 bye on weekends
+for t in range(n_teams):
+    home_count = sum(where[d][t] == 0 for d in weekend_dates)
+    away_count = sum(where[d][t] == 1 for d in weekend_dates)
+    bye_count = sum(where[d][t] == 2 for d in weekend_dates)
+    model.Add(home_count == 4)
+    model.Add(away_count == 4)
+    model.Add(bye_count == 1)
+
+# 5. First Weekends: each team must have home or bye at least on two of first five weekends
+first_five_weekends = [d for d in weekend_dates if d &lt; 10]  # first 5 weekends (dates 2,4,6,8,10)
+for t in range(n_teams):
+    home_or_bye = [model.NewBoolVar(f&#x27;home_or_bye_d{d}_t{t}&#x27;) for d in first_five_weekends]
+    for i, d in enumerate(first_five_weekends):
+        model.AddBoolOr([where[d][t] == 0, where[d][t] == 2]).OnlyEnforceIf(home_or_bye[i])
+        model.AddBoolAnd([where[d][t] != 0, where[d][t] != 2]).OnlyEnforceIf(home_or_bye[i].Not())
+    model.Add(sum(home_or_bye) &gt;= 2)
+
+# 6. Rival Matches: last date (17) every team except FSU plays against rival unless plays FSU or bye
+last_date = 17
+for t in range(n_teams):
+    if t == team_idx[&#x27;FSU&#x27;]:
+        continue
+    if t in rivals:
+        rival = rivals[t]
+        # If team t plays FSU or bye, no constraint
+        plays_fsu = model.NewBoolVar(f&#x27;plays_fsu_last_t{t}&#x27;)
+        model.Add(config[last_date][t] == team_idx[&#x27;FSU&#x27;]).OnlyEnforceIf(plays_fsu)
+        model.Add(config[last_date][t] != team_idx[&#x27;FSU&#x27;]).OnlyEnforceIf(plays_fsu.Not())
+        bye_last = model.NewBoolVar(f&#x27;bye_last_t{t}&#x27;)
+        model.Add(where[last_date][t] == 2).OnlyEnforceIf(bye_last)
+        model.Add(where[last_date][t] != 2).OnlyEnforceIf(bye_last.Not())
+        # If not plays FSU and not bye, must play rival
+        model.Add(config[last_date][t] == rival).OnlyEnforceIf([plays_fsu.Not(), bye_last.Not()])
+
+# 7. Constrained Matches: pairings must occur at least once in dates 11 to 18 (10 to 17)
+for (t1, t2) in constrained_pairs:
+    occurs = []
+    for d in range(10, 18):
+        # team t1 plays t2 or t2 plays t1 on day d
+        plays_pair = model.NewBoolVar(f&#x27;plays_pair_{t1}_{t2}_d{d}&#x27;)
+        model.AddBoolOr([
+            config[d][t1] == t2,
+            config[d][t2] == t1,
+        ]).OnlyEnforceIf(plays_pair)
+        model.AddBoolAnd([
+            config[d][t1] != t2,
+            config[d][t2] != t1,
+        ]).OnlyEnforceIf(plays_pair.Not())
+        occurs.append(plays_pair)
+    model.Add(sum(occurs) &gt;= 1)
+
+# 8. Opponent Sequence Constraints
+# No team plays in two consecutive dates away against UNC and Duke
+unc = team_idx[&#x27;UNC&#x27;]
+duke = team_idx[&#x27;Duke&#x27;]
+for t in range(n_teams):
+    for d in range(n_days - 1):
+        # away against UNC on d and away against Duke on d+1 not allowed
+        cond1 = model.NewBoolVar(f&#x27;away_unc_d{d}_t{t}&#x27;)
+        cond2 = model.NewBoolVar(f&#x27;away_duke_d{d+1}_t{t}&#x27;)
+        model.Add(config[d][t] == unc).OnlyEnforceIf(cond1)
+        model.Add(config[d][t] != unc).OnlyEnforceIf(cond1.Not())
+        model.Add(where[d][t] == 1).OnlyEnforceIf(cond1)
+        model.Add(where[d][t] != 1).OnlyEnforceIf(cond1.Not())
+        model.Add(config[d+1][t] == duke).OnlyEnforceIf(cond2)
+        model.Add(config[d+1][t] != duke).OnlyEnforceIf(cond2.Not())
+        model.Add(where[d+1][t] == 1).OnlyEnforceIf(cond2)
+        model.Add(where[d+1][t] != 1).OnlyEnforceIf(cond2.Not())
+        model.AddBoolOr([cond1.Not(), cond2.Not()])
+
+# No team plays in three consecutive dates against UNC, Duke and Wake (any home/away)
+wake = team_idx[&#x27;Wake&#x27;]
+for t in range(n_teams):
+    for d in range(n_days - 2):
+        conds = []
+        conds.append(model.NewBoolVar(f&#x27;plays_unc_d{d}_t{t}&#x27;))
+        conds.append(model.NewBoolVar(f&#x27;plays_duke_d{d+1}_t{t}&#x27;))
+        conds.append(model.NewBoolVar(f&#x27;plays_wake_d{d+2}_t{t}&#x27;))
+        model.AddBoolOr([config[d][t] != unc]).OnlyEnforceIf(conds[0].Not())
+        model.Add(config[d][t] == unc).OnlyEnforceIf(conds[0])
+        model.AddBoolOr([config[d+1][t] != duke]).OnlyEnforceIf(conds[1].Not())
+        model.Add(config[d+1][t] == duke).OnlyEnforceIf(conds[1])
+        model.AddBoolOr([config[d+2][t] != wake]).OnlyEnforceIf(conds[2].Not())
+        model.Add(config[d+2][t] == wake).OnlyEnforceIf(conds[2])
+        model.AddBoolOr([conds[0].Not(), conds[1].Not(), conds[2].Not()])
+
+# 9. Other Constraints
+# UNC plays rival Duke in last date and date 11 (0-based 10)
+model.Add(config[last_date][unc] == duke)
+model.Add(config[10][unc] == duke)
+# UNC plays Clem in second date (1-based 2, 0-based 1)
+model.Add(config[1][unc] == team_idx[&#x27;Clem&#x27;])
+# Duke has a bye in date 16 (0-based 15)
+model.Add(where[15][duke] == 2)
+model.Add(config[15][duke] == -1)
+# Wake does not play home in date 17 (0-based 16)
+model.Add(where[16][team_idx[&#x27;Wake&#x27;]] != 0)
+# Wake has a bye in first date (0-based 0)
+model.Add(where[0][team_idx[&#x27;Wake&#x27;]] == 2)
+model.Add(config[0][team_idx[&#x27;Wake&#x27;]] == -1)
+# Clem, Duke, UMD and Wake do not play away in last date (17)
+for t in [team_idx[&#x27;Clem&#x27;], team_idx[&#x27;Duke&#x27;], team_idx[&#x27;UMD&#x27;], team_idx[&#x27;Wake&#x27;]]:
+    model.Add(where[last_date][t] != 1)
+# Clem, FSU, GT and Wake do not play away in first date (0)
+for t in [team_idx[&#x27;Clem&#x27;], team_idx[&#x27;FSU&#x27;], team_idx[&#x27;GT&#x27;], team_idx[&#x27;Wake&#x27;]]:
+    model.Add(where[0][t] != 1)
+# Neither FSU nor NCSt have a bye in last date (17)
+for t in [team_idx[&#x27;FSU&#x27;], team_idx[&#x27;NCSt&#x27;]]:
+    model.Add(where[last_date][t] != 2)
+# UNC does not have a bye in first date (0)
+model.Add(where[0][unc] != 2)
+
+# Additional constraints to ensure consistency of config and where:
+# If config[d][t] == -1 then where[d][t] ==</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (253 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+import os
+from ortools.sat.python import cp_model
+
+# ------------------------------------------------------------
+# 1997/98 ACC men’s basketball – double round-robin timetable
+# ------------------------------------------------------------
+# A pure feasibility model: any schedule that fulfils every rule is OK.
+# ------------------------------------------------------------
+
+# -------------- fixed input (exactly as provided) ------------
+# The statement literally says:  n_teams = 9 n_days = 18
+n_teams = 9
+n_days  = 18
+teams    = range(n_teams)
+
+# symbolic names for readability
+CLEM, DUKE, FSU, GT, UMD, UNC, NCST, UVA, WAKE = range(9)
+
+# ------------------------------------------------------------
+# Static data
+# ------------------------------------------------------------
+weekend_idx      = [1, 3, 5, 7, 9, 11, 13, 15, 17]   # even dates in 0-base
+first5_weekends  = [1, 3, 5, 7, 9]
+
+# mirroring pairs – already 0-based
+mirror_pairs = [(0, 7), (1, 8), (2, 11), (3, 12), (4, 13),
+                (5, 14), (6, 15), (9, 16), (10, 17)]
+
+# rival dictionary  (-1 = no rival)
+rival = [-1] * n_teams
+rival[CLEM] = GT;   rival[GT]   = CLEM
+rival[DUKE] = UNC;  rival[UNC]  = DUKE
+rival[NCST] = WAKE; rival[WAKE] = NCST
+rival[UMD]  = UVA;  rival[UVA]  = UMD
+# FSU has no traditional rival
+
+# Pairings that must occur at least once in dates 11-18 (unordered)
+special_pairs = [(WAKE, UNC), (WAKE, DUKE), (GT, UNC), (GT, DUKE)]
+
+# ------------------------------------------------------------
+# Model
+# ------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Oriented HOME variables  H[t,s,d]  – t plays HOME vs s on date d (t≠s)
+home = {}
+for t in teams:
+    for s in teams:
+        if t == s:
+            continue
+        for d in range(n_days):
+            home[(t, s, d)] = model.NewBoolVar(f&quot;H_{t}_{s}_{d}&quot;)
+
+# Bye variables
+bye = {(t, d): model.NewBoolVar(f&quot;B_{t}_{d}&quot;) for t in teams for d in range(n_days)}
+
+# Derived single-bit indicators  isHome / isAway per team &amp; date
+is_home = {}
+is_away = {}
+for t in teams:
+    for d in range(n_days):
+        ih = model.NewBoolVar(f&quot;isH_{t}_{d}&quot;)
+        ia = model.NewBoolVar(f&quot;isA_{t}_{d}&quot;)
+        is_home[(t, d)] = ih
+        is_away[(t, d)] = ia
+
+        # exactly one status each day
+        model.Add(ih + ia + bye[(t, d)] == 1)
+
+        # link to oriented vars
+        model.Add(ih == sum(home[(t, s, d)] for s in teams if s != t))
+        model.Add(ia == sum(home[(s, t, d)] for s in teams if s != t))
+
+# At most one orientation for every unordered pair &amp; date
+for t in teams:
+    for s in teams:
+        if t &lt; s:
+            for d in range(n_days):
+                model.Add(home[(t, s, d)] + home[(s, t, d)] &lt;= 1)
+
+# ---------------- round-robin totals &amp; daily balance ----------------
+# 4 homes, 4 aways, 1 bye per date
+for d in range(n_days):
+    model.Add(sum(is_home[(t, d)] for t in teams) == 4)
+    model.Add(sum(is_away[(t, d)] for t in teams) == 4)
+    model.Add(sum(bye[(t, d)]    for t in teams) == 1)
+
+# each unordered pair meets twice, once at each venue
+for t in teams:
+    for s in teams:
+        if t &lt; s:
+            model.Add(sum(home[(t, s, d)] for d in range(n_days)) == 1)
+            model.Add(sum(home[(s, t, d)] for d in range(n_days)) == 1)
+
+# exactly two byes per team
+for t in teams:
+    model.Add(sum(bye[(t, d)] for d in range(n_days)) == 2)
+
+# ---------------- mirroring ----------------
+for r1, r2 in mirror_pairs:
+    for t in teams:
+        model.Add(bye[(t, r1)] == bye[(t, r2)])
+    for t in teams:
+        for s in teams:
+            if t &lt; s:
+                model.Add(home[(t, s, r1)] == home[(s, t, r2)])
+                model.Add(home[(s, t, r1)] == home[(t, s, r2)])
+
+# ---------------- pattern constraints ----------------
+for t in teams:
+    # max 2 consecutive homes / aways
+    for d in range(n_days - 2):
+        model.Add(is_home[(t, d)] + is_home[(t, d+1)] + is_home[(t, d+2)] &lt;= 2)
+        model.Add(is_away[(t, d)] + is_away[(t, d+1)] + is_away[(t, d+2)] &lt;= 2)
+    # max 4 consecutive (Home ∨ Bye)
+    for d in range(n_days - 4):
+        model.Add(sum(is_home[(t, d+k)] + bye[(t, d+k)] for k in range(5)) &lt;= 4)
+    # max 3 consecutive (Away ∨ Bye)
+    for d in range(n_days - 3):
+        model.Add(sum(is_away[(t, d+k)] + bye[(t, d+k)] for k in range(4)) &lt;= 3)
+
+    # weekend quotas 4-4-1
+    model.Add(sum(is_home[(t, d)] for d in weekend_idx) == 4)
+    model.Add(sum(is_away[(t, d)] for d in weekend_idx) == 4)
+    model.Add(sum(bye[(t, d)]    for d in weekend_idx) == 1)
+
+    # at least two (Home ∨ Bye) among first five weekends
+    model.Add(sum(is_home[(t, d)] + bye[(t, d)] for d in first5_weekends) &gt;= 2)
+
+# no two final aways (dates 17 &amp; 18 → indices 16,17)
+for t in teams:
+    model.Add(is_away[(t, 16)] + is_away[(t, 17)] &lt;= 1)
+
+# ---------------- helper: plays_vs[t,o,d] ----------------
+plays_vs = {}
+for t in teams:
+    for o in teams:
+        if t == o:
+            continue
+        for d in range(n_days):
+            v = model.NewBoolVar(f&quot;P_{t}_{o}_{d}&quot;)
+            plays_vs[(t, o, d)] = v
+            model.Add(v == home[(t, o, d)] + home[(o, t, d)])
+
+# ---------------- opponent-sequence constraints ----------------
+# (a) no consecutive AWAY at UNC and Duke (either order)
+for t in teams:
+    if t in (UNC, DUKE):
+        continue
+    for d in range(n_days - 1):
+        model.Add(home[(UNC, t, d)] + home[(DUKE, t, d+1)] &lt;= 1)
+        model.Add(home[(DUKE, t, d)] + home[(UNC, t, d+1)] &lt;= 1)
+
+# (b) forbid window of 3 consecutive dates containing ALL THREE opponents {UNC,DUKE,WAKE}
+for t in teams:
+    for d in range(n_days - 2):
+        # sums of appearances of each specific opponent in the 3-day window
+        sumU = plays_vs[(t, UNC,  d)] + plays_vs[(t, UNC,  d+1)] + plays_vs[(t, UNC,  d+2)]
+        sumD = plays_vs[(t, DUKE, d)] + plays_vs[(t, DUKE, d+1)] + plays_vs[(t, DUKE, d+2)]
+        sumW = plays_vs[(t, WAKE, d)] + plays_vs[(t, WAKE, d+1)] + plays_vs[(t, WAKE, d+2)]
+
+        bU = model.NewBoolVar(f&quot;pU_{t}_{d}&quot;)
+        bD = model.NewBoolVar(f&quot;pD_{t}_{d}&quot;)
+        bW = model.NewBoolVar(f&quot;pW_{t}_{d}&quot;)
+
+        # channel  presence &lt;-&gt; sum ≥ 1   (both directions)
+        model.Add(bU &lt;= sumU)
+        model.Add(sumU &lt;= 3 * bU)
+        model.Add(bD &lt;= sumD)
+        model.Add(sumD &lt;= 3 * bD)
+        model.Add(bW &lt;= sumW)
+        model.Add(sumW &lt;= 3 * bW)
+
+        # forbid all three present
+        model.Add(bU + bD + bW &lt;= 2)
+
+# ---------------- last-date (date 18 / idx17) rival rule ----------------
+for t in teams:
+    if t == FSU:
+        continue  # rule exempt
+    r_terms = [bye[(t, 17)]]
+    if rival[t] != -1:
+        r = rival[t]
+        r_terms.extend([home[(t, r, 17)], home[(r, t, 17)]])
+    r_terms.extend([home[(t, FSU, 17)], home[(FSU, t, 17)]])
+    model.Add(sum(r_terms) == 1)
+
+# ---------------- mandatory fixtures ----------------
+# UNC vs Duke on dates 11 (idx10) and 18 (idx17)
+model.Add(home[(UNC, DUKE, 10)] + home[(DUKE, UNC, 10)] == 1)
+model.Add(home[(UNC, DUKE, 17)] + home[(DUKE, UNC, 17)] == 1)
+
+# UNC vs Clemson on date 2 (idx1)
+model.Add(home[(UNC, CLEM, 1)] + home[(CLEM, UNC, 1)] == 1)
+
+# special pairs at least once in dates 11-18
+for u, v in special_pairs:
+    model.Add(sum(home[(u, v, d)] + home[(v, u, d)] for d in range(10, 18)) &gt;= 1)
+
+# ---------------- explicit fixed / forbidden events ----------------
+model.Add(bye[(DUKE, 15)] == 1)         # Duke bye date 16 (idx15)
+model.Add(bye[(WAKE, 0)] == 1)          # Wake bye date 1
+model.Add(is_home[(WAKE, 16)] == 0)     # Wake not home date 17 (idx16)
+
+for t in (CLEM, DUKE, UMD, WAKE):       # no away on date 18 (idx17)
+    model.Add(is_away[(t, 17)] == 0)
+for t in (CLEM, FSU, GT, WAKE):         # no away on date 1 (idx0)
+    model.Add(is_away[(t, 0)] == 0)
+
+model.Add(bye[(FSU, 17)] == 0)          # FSU not bye last date
+model.Add(bye[(NCST, 17)] == 0)         # NCSt not bye last date
+model.Add(bye[(UNC, 0)] == 0)           # UNC no bye first date
+
+# ------------------------------------------------------------
+# Solve
+# ------------------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 300.0  # 5-minute safety cap
+solver.parameters.num_search_workers  = min(8, os.cpu_count() or 1)
+result = solver.Solve(model)
+
+if result not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise RuntimeError(&quot;No feasible timetable could be produced within the time limit.&quot;)
+
+# ------------------------------------------------------------
+# Extract solution into required arrays
+# ------------------------------------------------------------
+config = [[-1] * n_days for _ in teams]
+where  = [[&quot;B&quot;] * n_days for _ in teams]  # default bye – overwritten for games
+
+for t in teams:
+    for d in range(n_days):
+        if solver.Value(bye[(t, d)]) == 1:
+            continue  # already filled with (-1, &#x27;B&#x27;)
+        # locate opponent &amp; orientation
+        for s in teams:
+            if t == s:
+                continue
+            if solver.Value(home[(t, s, d)]) == 1:
+                config[t][d] = s
+                where[t][d]  = &quot;H&quot;
+                break
+            if solver.Value(home[(s, t, d)]) == 1:
+                config[t][d] = s
+                where[t][d]  = &quot;A&quot;
+                break
+        else:
+            raise RuntimeError(f&quot;Extraction error: team {t} on date {d} has no opponent.&quot;)
+
+# ------------------------------------------------------------
+# Output JSON
+# ------------------------------------------------------------
+print(json.dumps({&quot;config&quot;: config, &quot;where&quot;: where}))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n_teams&quot;: 9,
   &quot;n_days&quot;: 18
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">config</span><span class="chip">where</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-50">Copy</button></div><pre class="code-block"><code id="solution-50" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">config</span><span class="chip">where</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-50">Copy</button></div><pre class="code-block"><code id="solution-50" class="language-json">{
   &quot;config&quot;: [
     [
       7,
@@ -598,6 +2520,7 @@ n_days = 18</code></pre>
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -605,9 +2528,9 @@ n_days = 18</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_011_acc_basketball_schedule/csplib_011_acc_basketball_schedule.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_011_acc_basketball_schedule/csplib_011_acc_basketball_schedule.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_010_social_golfers_problem.html">â† prev</a><a class="btn" href="csplib_012_nonogram.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_010_social_golfers_problem.html">← prev</a><a class="btn" href="csplib_012_nonogram.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

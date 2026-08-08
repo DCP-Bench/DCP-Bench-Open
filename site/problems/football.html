@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>football Â· DCP-Bench Open</title>
-<meta name="description" content="Statistics show that, in the Premiership, there is a strong correlation between the value of a team&#x27;s players and their final position in that league - so youâ€¦">
+<title>football · DCP-Bench Open</title>
+<meta name="description" content="Statistics show that, in the Premiership, there is a strong correlation between the value of a team&#x27;s players and their final position in that league - so you…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/football.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/football.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-103">Copy</button></div><pre class="code-block"><code id="model-103" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
@@ -90,12 +91,255 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">z</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-103">Copy</button></div><pre class="code-block"><code id="solution-103" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Prices in GBP thousands (integers)
+g_prices = [730, 1280, 3880]  # goalkeepers
+d_prices = [920, 1310, 1620, 2410, 2790, 3280, 3910, 4570]  # defenders
+m_prices = [1800, 2630, 3170, 3769, 4140, 4750, 5380, 5930, 6780, 7130]  # midfielders
+s_prices = [4460, 6470, 7780, 8390, 9500]  # strikers
+
+# Decision variables: 0/1 whether to buy each player
+g = cp.boolvar(shape=len(g_prices), name=&quot;g&quot;)
+d = cp.boolvar(shape=len(d_prices), name=&quot;d&quot;)
+m = cp.boolvar(shape=len(m_prices), name=&quot;m&quot;)
+s = cp.boolvar(shape=len(s_prices), name=&quot;s&quot;)
+
+# Total price variable (in thousands)
+z = cp.intvar(0, 30000, name=&quot;z&quot;)  # cannot exceed 30,000 (i.e., 30 million)
+
+# Build model
+model = cp.Model()
+
+# Group constraints
+model += (cp.sum(g) == 1)       # exactly 1 goalkeeper
+model += (cp.sum(d) &gt;= 2)       # at least 2 defenders
+model += (cp.sum(m) &gt;= 3)       # at least 3 midfielders
+model += (cp.sum(s) &gt;= 2)       # at least 2 strikers
+
+# At least 11 players in total
+model += (cp.sum(g) + cp.sum(d) + cp.sum(m) + cp.sum(s) &gt;= 11)
+
+# Total price calculation and budget constraint (&lt;= 30 million =&gt; 30000 thousands)
+all_prices = g_prices + d_prices + m_prices + s_prices
+all_vars = list(g) + list(d) + list(m) + list(s)
+model += (z == cp.sum([p * x for p, x in zip(all_prices, all_vars)]))
+model += (z &lt;= 30000)
+
+# Objective: maximize spending (z)
+model.maximize(z)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(z.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Prices in GBP thousands (integers)
+g_prices = [730, 1280, 3880]  # goalkeepers
+d_prices = [920, 1310, 1620, 2410, 2790, 3280, 3910, 4570]  # defenders
+m_prices = [1800, 2630, 3170, 3769, 4140, 4750, 5380, 5930, 6780, 7130]  # midfielders
+s_prices = [4460, 6470, 7780, 8390, 9500]  # strikers
+
+# Decision variables: 0/1 whether to buy each player
+g = cp.boolvar(shape=len(g_prices), name=&quot;g&quot;)
+d = cp.boolvar(shape=len(d_prices), name=&quot;d&quot;)
+m = cp.boolvar(shape=len(m_prices), name=&quot;m&quot;)
+s = cp.boolvar(shape=len(s_prices), name=&quot;s&quot;)
+
+# Total price variable (in thousands)
+z = cp.intvar(0, 30000, name=&quot;z&quot;)  # cannot exceed 30,000 (i.e., 30 million)
+
+# Build model
+model = cp.Model()
+
+# Group constraints
+model += (cp.sum(g) == 1)       # exactly 1 goalkeeper
+model += (cp.sum(d) &gt;= 2)       # at least 2 defenders
+model += (cp.sum(m) &gt;= 3)       # at least 3 midfielders
+model += (cp.sum(s) &gt;= 2)       # at least 2 strikers
+
+# At least 11 players in total
+model += (cp.sum(g) + cp.sum(d) + cp.sum(m) + cp.sum(s) &gt;= 11)
+
+# Total price calculation and budget constraint (&lt;= 30 million =&gt; 30000 thousands)
+all_prices = g_prices + d_prices + m_prices + s_prices
+all_vars = list(g) + list(d) + list(m) + list(s)
+model += (z == cp.sum([p * x for p, x in zip(all_prices, all_vars)]))
+model += (z &lt;= 30000)
+
+# Objective: maximize spending (z)
+model.maximize(z)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(z.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import numpy as np
+import json
+
+# Data
+GK_PRICES = np.array([730, 1280, 3880])  # in GBP thousands
+D_PRICES = np.array([920, 1310, 1620, 2410, 2790, 3280, 3910, 4570])
+M_PRICES = np.array([1800, 2630, 3170, 3769, 4140, 4750, 5380, 5930, 6780, 7130])
+S_PRICES = np.array([4460, 6470, 7780, 8390, 9500])
+
+BUDGET = 30000  # GBP thousands
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables (1 if the player is selected, else 0)
+gk = cp.boolvar(shape=len(GK_PRICES), name=&quot;gk&quot;)
+defs = cp.boolvar(shape=len(D_PRICES), name=&quot;defs&quot;)
+mid = cp.boolvar(shape=len(M_PRICES), name=&quot;mid&quot;)
+strk = cp.boolvar(shape=len(S_PRICES), name=&quot;strk&quot;)
+
+# Total spend variable (in GBP thousands)
+z = cp.intvar(0, BUDGET, name=&quot;z&quot;)
+
+# Constraints
+model += (cp.sum(gk) == 1)          # exactly 1 goalkeeper
+model += (cp.sum(defs) &gt;= 2)        # at least 2 defenders
+model += (cp.sum(mid) &gt;= 3)         # at least 3 midfielders
+model += (cp.sum(strk) &gt;= 2)        # at least 2 strikers
+
+total_players = cp.sum(gk) + cp.sum(defs) + cp.sum(mid) + cp.sum(strk)
+model += (total_players &gt;= 11)      # at least 11 players in total
+
+total_cost = cp.sum(gk * GK_PRICES) + cp.sum(defs * D_PRICES) + cp.sum(mid * M_PRICES) + cp.sum(strk * S_PRICES)
+model += (total_cost == z)          # define z as the total spend
+model += (z &lt;= BUDGET)              # cannot exceed the budget
+
+# Objective: spend as much as possible without exceeding the budget
+model.maximize(z)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(z.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Prices in GBP thousands (integers)
+g_prices = [730, 1280, 3880]  # goalkeepers
+d_prices = [920, 1310, 1620, 2410, 2790, 3280, 3910, 4570]  # defenders
+m_prices = [1800, 2630, 3170, 3769, 4140, 4750, 5380, 5930, 6780, 7130]  # midfielders
+s_prices = [4460, 6470, 7780, 8390, 9500]  # strikers
+
+# Decision variables: 0/1 whether to buy each player
+g = cp.boolvar(shape=len(g_prices), name=&quot;g&quot;)
+d = cp.boolvar(shape=len(d_prices), name=&quot;d&quot;)
+m = cp.boolvar(shape=len(m_prices), name=&quot;m&quot;)
+s = cp.boolvar(shape=len(s_prices), name=&quot;s&quot;)
+
+# Total price variable (in thousands)
+z = cp.intvar(0, 30000, name=&quot;z&quot;)  # cannot exceed 30,000 (i.e., 30 million)
+
+# Build model
+model = cp.Model()
+
+# Group constraints
+model += (cp.sum(g) == 1)       # exactly 1 goalkeeper
+model += (cp.sum(d) &gt;= 2)       # at least 2 defenders
+model += (cp.sum(m) &gt;= 3)       # at least 3 midfielders
+model += (cp.sum(s) &gt;= 2)       # at least 2 strikers
+
+# At least 11 players in total
+model += (cp.sum(g) + cp.sum(d) + cp.sum(m) + cp.sum(s) &gt;= 11)
+
+# Total price calculation and budget constraint (&lt;= 30 million =&gt; 30000 thousands)
+all_prices = g_prices + d_prices + m_prices + s_prices
+all_vars = list(g) + list(d) + list(m) + list(s)
+model += (z == cp.sum([p * x for p, x in zip(all_prices, all_vars)]))
+model += (z &lt;= 30000)
+
+# Objective: maximize spending (z)
+model.maximize(z)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;z&#x27;: int(z.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">z</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-103">Copy</button></div><pre class="code-block"><code id="solution-103" class="language-json">{
   &quot;z&quot;: 29999
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -103,9 +347,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/football/football.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/football/football.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="flow_free_game.html">â† prev</a><a class="btn" href="four_islands.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="flow_free_game.html">← prev</a><a class="btn" href="four_islands.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

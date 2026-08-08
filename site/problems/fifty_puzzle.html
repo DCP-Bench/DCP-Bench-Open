@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>fifty_puzzle Â· DCP-Bench Open</title>
-<meta name="description" content="A side show is described as follows: &quot;There were a number of little dummies which you were to knock over with baseballs. The man said: &#x27;Take as many throws asâ€¦">
+<title>fifty_puzzle · DCP-Bench Open</title>
+<meta name="description" content="A side show is described as follows: &quot;There were a number of little dummies which you were to knock over with baseballs. The man said: &#x27;Take as many throws as…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/50_puzzle.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/50_puzzle.py</a></dd><dt>Source description</dt><dd><a href="http://www.chlond.demon.co.uk/puzzles/puzzles1.html," target="_blank" rel="noopener">http://www.chlond.demon.co.uk/puzzles/puzzles1.html,</a> puzzle nr. 5.</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-95">Copy</button></div><pre class="code-block"><code id="model-95" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -58,7 +59,923 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">target_sum = 50  # Target sum to achieve
 values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]  # Numbers on the dummies</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+dummy_numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]  # Numbers on the dummies
+target_sum = 50  # Required sum to win the cigar
+
+# Decision Variables
+dummies = boolvar(shape=len(dummy_numbers), name=&quot;dummies&quot;)  # Whether each dummy is knocked over
+
+# Model
+model = Model()
+
+# Constraint: Sum of knocked-over dummies must equal target_sum
+model += sum(cpm_array(dummy_numbers) * dummies) == target_sum
+
+# Solve
+model.solve()
+
+# Convert boolean array to list of boolean values
+solution_dummies = [bool(dummies[i].value()) for i in range(len(dummy_numbers))]
+
+# Print solution
+solution = {
+    &quot;dummies&quot;: solution_dummies
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    true,
+    true,
+    false
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (21 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Numbers on the dummies
+dummies_numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+
+# Decision variables
+# selected[i] = 1 if dummy i is knocked over, 0 otherwise
+selected = boolvar(shape=len(dummies_numbers), name=&quot;dummies&quot;)
+
+# Model
+model = Model()
+
+# The sum of the numbers on the knocked over dummies must be exactly 50
+model += [sum([dummies_numbers[i] * selected[i] for i in range(len(dummies_numbers))]) == 50]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;dummies&quot;: selected.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    true,
+    true,
+    false
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Find subset of dummies whose numbers sum to exactly 50
+# Constraints:
+# 1. Each dummy can be knocked down (1) or not (0)
+# 2. Sum of knocked down dummy values must equal exactly 50
+
+# Given data
+dummy_values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+target_sum = 50
+n_dummies = len(dummy_values)
+
+# Step 2: Model with CPMpy
+# Decision variables: binary variables for each dummy
+# dummies[i] = 1 if dummy i is knocked down, 0 otherwise
+dummies = cp.boolvar(shape=n_dummies, name=&quot;dummies&quot;)
+
+# Create model
+model = cp.Model()
+
+# Constraint: Sum of knocked down dummy values must equal exactly 50
+model += cp.sum([dummies[i] * dummy_values[i] for i in range(n_dummies)]) == target_sum
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract solution
+    solution_values = dummies.value()
+    
+    # Convert to boolean list for JSON output
+    solution_bools = [bool(val) for val in solution_values]
+    
+    # Create the required JSON format
+    solution = {&quot;dummies&quot;: solution_bools}
+    
+    # Verification - independent check
+    def verify_solution(sol):
+        dummies_knocked = sol[&quot;dummies&quot;]
+        
+        # 1. Structural Verification
+        if len(dummies_knocked) != n_dummies:
+            return False, f&quot;Wrong length: got {len(dummies_knocked)}, expected {n_dummies}&quot;
+        
+        if not all(isinstance(d, bool) for d in dummies_knocked):
+            return False, &quot;All elements must be boolean&quot;
+        
+        # 2. Logical Verification
+        total = sum(dummy_values[i] for i in range(n_dummies) if dummies_knocked[i])
+        if total != target_sum:
+            return False, f&quot;Sum is {total}, expected {target_sum}&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    true,
+    true,
+    false
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: binary variables indicating if a dummy is knocked over (1) or not (0)
+dummies = cp.boolvar(shape=len(numbers), name=&quot;dummies&quot;)
+
+# Constraints
+# The sum of the numbers on the knocked down dummies must be exactly 50
+model += (cp.sum([dummies[i] * numbers[i] for i in range(len(numbers))]) == 50)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;dummies&#x27;: dummies.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    true,
+    true,
+    false
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+n = len(numbers)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: whether each dummy is knocked over (boolean)
+dummies = cp.boolvar(shape=n, name=&quot;dummies&quot;)
+
+# Constraints: sum of numbers on knocked-over dummies must be exactly 50
+model += cp.sum([numbers[i] * dummies[i] for i in range(n)]) == 50
+
+# Solve and print
+if model.solve():
+    # Convert booleans to 0/1 integers as required
+    solution = {&#x27;dummies&#x27;: [int(v) for v in dummies.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.boolvar(shape=len(values), name=&quot;x&quot;)
+
+# Constraints
+model += cp.sum(x * values) == 50
+
+# Solve and print
+if model.solve():
+    xval = x.value().tolist()
+    chosen = [values[i] for i, v in enumerate(xval) if v == 1]
+    solution = {&#x27;dummies&#x27;: chosen}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    19,
+    6,
+    25
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (2 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+dummies = [0, 0, 0, 0, 1, 0, 0, 1, 1, 0]
+print(json.dumps({&#x27;dummies&#x27;: dummies}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: binary variables indicating if a dummy is knocked over (1) or not (0)
+dummies = cp.boolvar(shape=len(numbers), name=&quot;dummies&quot;)
+
+# Constraints
+# The sum of the numbers on the knocked down dummies must be exactly 50
+model += (cp.sum([dummies[i] * numbers[i] for i in range(len(numbers))]) == 50)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;dummies&#x27;: [int(x) for x in dummies.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+n = len(numbers)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: whether each dummy is knocked over (boolean)
+dummies = cp.boolvar(shape=n, name=&quot;dummies&quot;)
+
+# Constraints: sum of numbers on knocked-over dummies must be exactly 50
+model += cp.sum([numbers[i] * dummies[i] for i in range(n)]) == 50
+
+# Solve and print
+if model.solve():
+    # Convert booleans to 0/1 integers as required
+    solution = {&#x27;dummies&#x27;: [int(v) for v in dummies.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (24 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+numbers = np.array([15, 9, 30, 21, 19, 3, 12, 6, 25, 27])
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.boolvar(shape=len(numbers), name=&#x27;x&#x27;)
+
+# Constraints
+model += (cp.sum(numbers * x) == 50)
+
+# Solve and print
+if model.solve():
+    selected = numbers[x.value() == 1].tolist()
+    solution = {&#x27;dummies&#x27;: selected}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    19,
+    6,
+    25
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (24 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data
+numbers = np.array([15, 9, 30, 21, 19, 3, 12, 6, 25, 27])
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.boolvar(shape=len(numbers), name=&#x27;x&#x27;)
+
+# Constraints
+model += (cp.sum(numbers * x) == 50)
+
+# Solve and print
+if model.solve():
+    selected = numbers[x.value() == 1].tolist()
+    solution = {&#x27;dummies&#x27;: selected}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    19,
+    6,
+    25
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import numpy as np
+import json
+
+# Data
+nums = np.array([15, 9, 30, 21, 19, 3, 12, 6, 25, 27], dtype=int)
+n = len(nums)
+target = 50
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+dummies = cp.boolvar(shape=n, name=&quot;dummies&quot;)
+
+# Constraints
+# Sum of selected dummies equals target
+model += (cp.sum([nums[i] * dummies[i] for i in range(n)]) == target)
+
+# Objective (none, feasibility problem)
+
+# Solve and print
+if model.solve():
+    dummies_list = [int(v) for v in dummies.value().tolist()]
+    solution = {&#x27;dummies&#x27;: dummies_list}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+n = len(numbers)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: whether each dummy is knocked over (boolean)
+dummies = cp.boolvar(shape=n, name=&quot;dummies&quot;)
+
+# Constraints: sum of numbers on knocked-over dummies must be exactly 50
+model += cp.sum([numbers[i] * dummies[i] for i in range(n)]) == 50
+
+# Solve and print
+if model.solve():
+    # Convert booleans to 0/1 integers as required
+    solution = {&#x27;dummies&#x27;: [int(v) for v in dummies.value().tolist()]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (17 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% The numbers on the ten dummies
+array[1..10] of int: dummy_values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27];
+
+% Decision variables: whether each dummy is knocked over (1) or not (0)
+array[1..10] of var 0..1: dummies;
+
+% Constraint: sum of knocked over dummies&#x27; values must be exactly 50
+constraint sum(i in 1..10)(dummies[i] * dummy_values[i]) = 50;
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;dummies\&quot;: &quot;, show(dummies),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: if-then-else with var condition cannot have type `string&#x27;</p>
+      <details class="gmodel"><summary>model.mzn (24 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% A side show at Coney Island problem: choose dummies summing to exactly 50
+
+% Input data: numbers on the ten dummies
+array[1..10] of int: weights = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27];
+
+% Decision variables: whether each dummy is knocked over
+array[1..10] of var bool: dummies;
+
+% Constraint: the sum of chosen dummy weights must be exactly 50
+constraint
+  sum(i in 1..10)( if dummies[i] then weights[i] else 0 endif ) = 50;
+
+% Find any solution
+solve satisfy;
+
+% Output the boolean selection as a JSON list under the key &quot;dummies&quot;
+output [
+  &quot;{&quot;,
+    &quot;\&quot;dummies\&quot;: [&quot;,
+    join(&quot;,&quot;, [ if dummies[i] then &quot;true&quot; else &quot;false&quot; endif | i in 1..10 ]),
+    &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Numbers on the ten dummies
+numbers = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: whether each dummy is knocked over (1) or not (0)
+dummies = [model.NewBoolVar(f&#x27;dummy_{i}&#x27;) for i in range(len(numbers))]
+
+# Constraint: sum of numbers on knocked down dummies must be exactly 50
+model.Add(sum(dummies[i] * numbers[i] for i in range(len(numbers))) == 50)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;dummies&#x27;: [solver.Value(d) for d in dummies]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data: values on the ten dummies
+values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]
+
+# Create the CP-SAT model
+model = cp_model.CpModel()
+
+# Decision variables: x[i] is 1 if dummy i is knocked over, 0 otherwise
+x = [model.NewBoolVar(f&#x27;x[{i}]&#x27;) for i in range(len(values))]
+
+# Constraint: the sum of knocked-over dummy values must be exactly 50
+model.Add(sum(x[i] * values[i] for i in range(len(values))) == 50)
+
+# Solve the model (no objective; just find a feasible solution)
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the knocked-over dummies in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;dummies&#x27;: [values[i] for i in range(len(values)) if solver.Value(x[i]) == 1]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    19,
+    6,
+    25
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;Coney-Island dummy subset problem solved with Google OR-Tools CP-SAT.
+
+A carnival booth displays 10 dummies whose printed numbers are
+[15, 9, 30, 21, 19, 3, 12, 6, 25, 27].  The player wins if the sum of
+numbers on the knocked-down dummies is exactly 50.  The program below
+models the task as a simple feasibility problem and prints one valid
+subset (if any) as JSON under the key &quot;dummies&quot;.
+&quot;&quot;&quot;
+
+import json
+from ortools.sat.python import cp_model
+
+# ---------------------------------------------------------------------------
+# Immutable data (problem instance)
+# ---------------------------------------------------------------------------
+VALUES = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]  # Numbers printed on dummies
+TARGET = 50                                      # Desired exact total
+NUM_DUMMIES = len(VALUES)
+
+# ---------------------------------------------------------------------------
+# Model definition
+# ---------------------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: x[i] == 1 if dummy i is knocked down, 0 otherwise
+x = [model.NewBoolVar(f&quot;x_{i}&quot;) for i in range(NUM_DUMMIES)]
+
+# Exact-sum constraint
+model.Add(sum(VALUES[i] * x[i] for i in range(NUM_DUMMIES)) == TARGET)
+
+# No objective: pure feasibility
+
+# ---------------------------------------------------------------------------
+# Solve
+# ---------------------------------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# ---------------------------------------------------------------------------
+# Output
+# ---------------------------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    selected = [VALUES[i] for i in range(NUM_DUMMIES) if solver.Value(x[i])]
+    print(json.dumps({&quot;dummies&quot;: selected}))
+else:
+    # Problem guarantees at least one solution; this branch should never execute.
+    print(json.dumps({&quot;dummies&quot;: []}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;dummies&quot;: [
+    19,
+    6,
+    25
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;target_sum&quot;: 50,
   &quot;values&quot;: [
     15,
@@ -73,9 +990,9 @@ values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]  # Numbers on the dummies</code><
     27
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">dummies</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-95">Copy</button></div><pre class="code-block"><code id="solution-95" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">dummies</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-95">Copy</button></div><pre class="code-block"><code id="solution-95" class="language-json">{
   &quot;dummies&quot;: [
     false,
     false,
@@ -89,6 +1006,7 @@ values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]  # Numbers on the dummies</code><
     false
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -96,9 +1014,9 @@ values = [15, 9, 30, 21, 19, 3, 12, 6, 25, 27]  # Numbers on the dummies</code><
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/fifty_puzzle/fifty_puzzle.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/fifty_puzzle/fifty_puzzle.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="fibonacci_even.html">â† prev</a><a class="btn" href="finding_celebrities.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="fibonacci_even.html">← prev</a><a class="btn" href="finding_celebrities.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

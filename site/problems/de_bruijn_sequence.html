@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>de_bruijn_sequence Â· DCP-Bench Open</title>
-<meta name="description" content="In combinatorial mathematics, a de Bruijn sequence of order n on a size-k alphabet A is a cyclic sequence in which every possible length-n string on A occurs eâ€¦">
+<title>de_bruijn_sequence · DCP-Bench Open</title>
+<meta name="description" content="In combinatorial mathematics, a de Bruijn sequence of order n on a size-k alphabet A is a cyclic sequence in which every possible length-n string on A occurs e…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/debruijn.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/debruijn.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-84">Copy</button></div><pre class="code-block"><code id="model-84" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -74,13 +75,191 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">base = 2 # size of the alphabet
 n = 4 # order</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# We want a de Bruijn sequence B(2,4): a cyclic binary sequence of length 2^4 = 16
+# such that every binary string of length 4 occurs exactly once as a cyclic substring.
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+de_bruijn = cp.intvar(0, 1, shape=16, name=&quot;de_bruijn&quot;)   # sequence bits (0/1)
+substr = cp.intvar(0, 15, shape=16, name=&quot;substr&quot;)        # integer encoding of each length-4 substring
+
+# Constraints
+# For each position i, substr[i] encodes de_bruijn[i..i+3] (cyclically) as a 4-bit integer
+weights = [8, 4, 2, 1]
+for i in range(16):
+    model += (substr[i] == cp.sum([weights[j] * de_bruijn[(i + j) % 16] for j in range(4)]))
+
+# All 16 substrings must be distinct (cover all 0..15 exactly once)
+model += cp.AllDifferent(substr)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;de_bruijn&#x27;: de_bruijn.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# We want a de Bruijn sequence B(2,4): a cyclic binary sequence of length 2^4 = 16
+# such that every binary string of length 4 occurs exactly once as a cyclic substring.
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+de_bruijn = cp.intvar(0, 1, shape=16, name=&quot;de_bruijn&quot;)   # sequence bits (0/1)
+substr = cp.intvar(0, 15, shape=16, name=&quot;substr&quot;)        # integer encoding of each length-4 substring
+
+# Constraints
+# For each position i, substr[i] encodes de_bruijn[i..i+3] (cyclically) as a 4-bit integer
+weights = [8, 4, 2, 1]
+for i in range(16):
+    model += (substr[i] == cp.sum([weights[j] * de_bruijn[(i + j) % 16] for j in range(4)]))
+
+# All 16 substrings must be distinct (cover all 0..15 exactly once)
+model += cp.AllDifferent(substr)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;de_bruijn&#x27;: de_bruijn.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+k = 2
+n = 4
+L = k ** n  # 16
+weights = [8, 4, 2, 1]  # binary weights for 4-bit window
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+de_bruijn = cp.intvar(0, 1, shape=L, name=&quot;de_bruijn&quot;)
+
+# Constraints
+# Encode each cyclic 4-bit window as an integer in 0..15 and enforce all are different
+windows = [cp.sum([weights[j] * de_bruijn[(i + j) % L] for j in range(n)]) for i in range(L)]
+model += cp.AllDifferent(windows)
+
+# Symmetry breaking: fix the first 4 bits to 0 to anchor rotation (place &#x27;0000&#x27; at position 0)
+model += (de_bruijn[0] == 0)
+model += (de_bruijn[1] == 0)
+model += (de_bruijn[2] == 0)
+model += (de_bruijn[3] == 0)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;de_bruijn&#x27;: de_bruijn.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# We want a de Bruijn sequence B(2,4): a cyclic binary sequence of length 2^4 = 16
+# such that every binary string of length 4 occurs exactly once as a cyclic substring.
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+de_bruijn = cp.intvar(0, 1, shape=16, name=&quot;de_bruijn&quot;)   # sequence bits (0/1)
+substr = cp.intvar(0, 15, shape=16, name=&quot;substr&quot;)        # integer encoding of each length-4 substring
+
+# Constraints
+# For each position i, substr[i] encodes de_bruijn[i..i+3] (cyclically) as a 4-bit integer
+weights = [8, 4, 2, 1]
+for i in range(16):
+    model += (substr[i] == cp.sum([weights[j] * de_bruijn[(i + j) % 16] for j in range(4)]))
+
+# All 16 substrings must be distinct (cover all 0..15 exactly once)
+model += cp.AllDifferent(substr)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;de_bruijn&#x27;: de_bruijn.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;base&quot;: 2,
   &quot;n&quot;: 4
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">de_bruijn</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-84">Copy</button></div><pre class="code-block"><code id="solution-84" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">de_bruijn</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-84">Copy</button></div><pre class="code-block"><code id="solution-84" class="language-json">{
   &quot;de_bruijn&quot;: [
     0,
     0,
@@ -100,6 +279,7 @@ n = 4 # order</code></pre>
     1
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -107,9 +287,9 @@ n = 4 # order</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/de_bruijn_sequence/de_bruijn_sequence.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/de_bruijn_sequence/de_bruijn_sequence.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="devils_word.html">â† prev</a><a class="btn" href="diet.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="devils_word.html">← prev</a><a class="btn" href="diet.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

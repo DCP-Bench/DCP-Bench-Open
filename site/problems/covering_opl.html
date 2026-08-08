@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>covering_opl Â· DCP-Bench Open</title>
-<meta name="description" content="Select a set of workers to perform all the tasks, while minimizing the cost. Each worker can perform certain tasks and has a hiring cost. Ensure that all tasksâ€¦">
+<title>covering_opl · DCP-Bench Open</title>
+<meta name="description" content="Select a set of workers to perform all the tasks, while minimizing the cost. Each worker can perform certain tasks and has a hiring cost. Ensure that all tasks…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/covering_opl.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/covering_opl.py</a></dd><dt>Source description</dt><dd>This example is from the OPL example covering.mod</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-37">Copy</button></div><pre class="code-block"><code id="model-37" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -83,7 +84,1880 @@ Cost = [  # Cost of hiring each worker
     5, 6, 6, 6, 7, 8, 9
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+
+# Decision Variables
+workers = boolvar(shape=nb_workers, name=&quot;workers&quot;)  # Whether each worker is selected
+total_cost = intvar(0, sum(Cost), name=&quot;total_cost&quot;)  # Total hiring cost
+
+# Model
+model = Model()
+
+# Constraint: all tasks must be performed by at least one qualified worker
+for task in range(num_tasks):
+    qualified_workers = [workers[w-1] for w in Qualified[task]]  # Convert to 0-based index
+    model += sum(qualified_workers) &gt;= 1
+
+# Calculate total cost
+model += total_cost == sum(workers * Cost)
+
+# Objective: minimize total cost
+model.minimize(total_cost)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;total_cost&quot;: total_cost.value(),
+    &quot;workers&quot;: workers.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Input data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32],
+    [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31],
+    [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31],
+    [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31],
+    [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32],
+    [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32],
+    [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+
+# Decision variables
+# workers[i] = 1 if worker i is selected, 0 otherwise
+workers = boolvar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Model
+model = Model()
+
+# Objective: minimize the total cost
+total_cost = sum([Cost[i] * workers[i] for i in range(len(Cost))])
+model.minimize(total_cost)
+
+# Each task must be assigned to at least one qualified worker
+for task in range(num_tasks):
+    qualified_workers = [i for i in range(nb_workers) if (i + 1) in Qualified[task]]
+    model += [sum([workers[i] for i in qualified_workers]) &gt;= 1]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {
+    &quot;total_cost&quot;: total_cost.value(),
+    &quot;workers&quot;: workers.value().tolist()
+}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 1,
+  &quot;workers&quot;: [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (105 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# This is a Set Cover problem:
+# - Select minimum cost set of workers to cover all tasks
+# - Each worker has a hiring cost and can perform certain tasks
+# - Goal: Minimize total cost while ensuring all tasks are performed
+
+# Input data
+nb_workers = 32
+num_tasks = 15
+
+# Which worker is qualified for each task (1-based indexing)
+Qualified = [
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32],
+    [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31],
+    [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31],
+    [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31],
+    [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32],
+    [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32],
+    [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+
+Cost = [
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+
+# Step 2: Model with CPMpy
+# Decision variables: select[i] = 1 if worker i is selected
+select = cp.boolvar(shape=nb_workers, name=&quot;select&quot;)
+
+model = cp.Model()
+
+# Constraints: Each task must be covered by at least one selected worker
+for task_id in range(num_tasks):
+    # Find all workers qualified for this task
+    qualified_workers = Qualified[task_id]
+    # Convert to 0-based indexing and create constraint
+    qualified_indices = [w - 1 for w in qualified_workers]
+    model += cp.sum([select[w] for w in qualified_indices]) &gt;= 1
+
+# Objective: Minimize total hiring cost
+total_cost = cp.sum([select[i] * Cost[i] for i in range(nb_workers)])
+model.minimize(total_cost)
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract solution
+    selected_workers = select.value()
+    optimal_cost = total_cost.value()
+    
+    solution = {
+        &quot;total_cost&quot;: int(optimal_cost),
+        &quot;workers&quot;: [int(x) for x in selected_workers]
+    }
+    
+    # Verification: Check that all tasks are covered
+    def verify_solution(sol):
+        workers_selected = sol[&quot;workers&quot;]
+        
+        # 1. Structural verification
+        if len(workers_selected) != nb_workers:
+            return False, f&quot;Wrong number of workers: {len(workers_selected)} vs {nb_workers}&quot;
+        
+        if not all(w in [0, 1] for w in workers_selected):
+            return False, &quot;Workers array should contain only 0s and 1s&quot;
+        
+        # 2. Logical verification: Check all tasks are covered
+        for task_id in range(num_tasks):
+            qualified_workers = Qualified[task_id]
+            task_covered = False
+            for worker_1based in qualified_workers:
+                worker_0based = worker_1based - 1
+                if workers_selected[worker_0based] == 1:
+                    task_covered = True
+                    break
+            
+            if not task_covered:
+                return False, f&quot;Task {task_id} is not covered by any selected worker&quot;
+        
+        # 3. Verify cost calculation
+        calculated_cost = sum(Cost[i] for i in range(nb_workers) if workers_selected[i] == 1)
+        if calculated_cost != sol[&quot;total_cost&quot;]:
+            return False, f&quot;Cost mismatch: calculated {calculated_cost} vs reported {sol[&#x27;total_cost&#x27;]}&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+    
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# workers[i] = 1 if worker i is selected, else 0
+workers = cp.boolvar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Constraints
+# For each task, at least one qualified worker must be selected
+for t in range(num_tasks):
+    # Convert 1-based indexing to 0-based
+    qualified_workers = [w-1 for w in Qualified[t]]
+    model += cp.sum(workers[qualified_workers]) &gt;= 1
+
+# Objective: minimize total cost of selected workers
+total_cost = cp.sum([workers[i] * Cost[i] for i in range(nb_workers)])
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;workers&#x27;: workers.value().astype(int).tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# workers[i] == 1 if worker i (0-based) is hired, else 0
+workers = cp.boolvar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Constraints
+# Each task must be performed by at least one qualified worker
+for task_quals in Qualified:
+    # task_quals contains 1-based worker indices; convert to 0-based
+    model += cp.sum([workers[w - 1] for w in task_quals]) &gt;= 1
+
+# Objective: minimize total hiring cost
+total_cost_expr = cp.sum([Cost[i] * workers[i] for i in range(nb_workers)])
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    # Convert boolean values to 0/1 integers as required
+    workers_list = [int(v) for v in workers.value().tolist()]
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;workers&#x27;: workers_list
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (57 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32  # Number of workers
+num_tasks = 15   # Number of tasks
+Qualified = [    # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32],
+    [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31],
+    [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31],
+    [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31],
+    [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32],
+    [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32],
+    [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [         # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+workers = cp.BoolVar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Constraints: each task must be covered by at least one qualified worker
+for t in range(num_tasks):
+    qualified_indices = [w - 1 for w in Qualified[t]]  # convert to 0-based
+    model += cp.sum(workers[qi] for qi in qualified_indices) &gt;= 1
+
+# Objective: minimize total hiring cost
+model.minimize(cp.sum(workers[i] * Cost[i] for i in range(nb_workers)))
+
+# Solve and print
+if model.solve():
+    selected = workers.value().tolist()
+    # convert booleans to 0/1
+    selected_int = [int(v) for v in selected]
+    total = int(model.objective_value())
+    solution = {
+        &quot;total_cost&quot;: total,
+        &quot;workers&quot;: selected_int
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (2 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+workers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0]
+print(json.dumps({&#x27;total_cost&#x27;: 14, &#x27;workers&#x27;: workers}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# workers[i] = 1 if worker i is selected, else 0
+workers = cp.boolvar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Constraints
+# For each task, at least one qualified worker must be selected
+for t in range(num_tasks):
+    # Convert 1-based worker indices to 0-based
+    qualified_workers = [w-1 for w in Qualified[t]]
+    # Sum of selected qualified workers for task t &gt;= 1
+    model += cp.sum([workers[w] for w in qualified_workers]) &gt;= 1
+
+# Objective: minimize total cost of selected workers
+total_cost = cp.sum([workers[i] * Cost[i] for i in range(nb_workers)])
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;workers&#x27;: workers.value().astype(int).tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# workers[i] == 1 if worker i (0-based) is hired, else 0
+workers = cp.boolvar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Constraints
+# Each task must be performed by at least one qualified worker
+for task_quals in Qualified:
+    # task_quals contains 1-based worker indices; convert to 0-based
+    model += cp.sum([workers[w - 1] for w in task_quals]) &gt;= 1
+
+# Objective: minimize total hiring cost
+total_cost_expr = cp.sum([Cost[i] * workers[i] for i in range(nb_workers)])
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    # Convert boolean values to 0/1 integers as required
+    workers_list = [int(v) for v in workers.value().tolist()]
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;workers&#x27;: workers_list
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32
+num_tasks = 15
+Qualified = [
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32],
+    [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31],
+    [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31],
+    [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31],
+    [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32],
+    [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32],
+    [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+
+# Convert Qualified to 0-based indices
+qualified_0based = []
+for task_list in Qualified:
+    qualified_0based.append([w - 1 for w in task_list])
+
+model = cp.Model()
+
+# Decision Variables
+selected = cp.boolvar(shape=nb_workers, name=&quot;selected&quot;)
+
+# Constraints: Each task must be covered by at least one worker
+for task in range(num_tasks):
+    workers_for_task = qualified_0based[task]
+    model += cp.sum(selected[workers_for_task]) &gt;= 1
+
+# Objective: Minimize total cost
+total_cost_expr = cp.sum(Cost[i] * selected[i] for i in range(nb_workers))
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    total_cost = int(model.objective_value())
+    workers = selected.value().tolist()
+    solution = {
+        &#x27;total_cost&#x27;: total_cost,
+        &#x27;workers&#x27;: workers
+    }
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32
+num_tasks = 15
+Qualified = [
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32],
+    [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31],
+    [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31],
+    [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31],
+    [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32],
+    [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32],
+    [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+
+# Convert Qualified to 0-based indices
+qualified_0based = []
+for task_list in Qualified:
+    qualified_0based.append([w - 1 for w in task_list])
+
+model = cp.Model()
+
+# Decision Variables
+selected = cp.boolvar(shape=nb_workers, name=&quot;selected&quot;)
+
+# Constraints: Each task must be covered by at least one worker
+for task in range(num_tasks):
+    workers_for_task = qualified_0based[task]
+    model += cp.sum(selected[workers_for_task]) &gt;= 1
+
+# Objective: Minimize total cost
+total_cost_expr = cp.sum(Cost[i] * selected[i] for i in range(nb_workers))
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    total_cost = int(model.objective_value())
+    workers = [int(x) for x in selected.value().tolist()]  # Convert booleans to 0/1
+    solution = {
+        &#x27;total_cost&#x27;: total_cost,
+        &#x27;workers&#x27;: workers
+    }
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Data (optional)
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+workers = cp.boolvar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Constraints
+# Ensure each task is covered by at least one qualified hired worker
+for t in range(num_tasks):
+    qualified_indices = [w - 1 for w in Qualified[t]]  # convert to 0-based
+    model += (cp.sum([workers[w] for w in qualified_indices]) &gt;= 1)
+
+# Objective (optional)
+total_cost_expr = cp.sum([Cost[i] * workers[i] for i in range(nb_workers)])
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;workers&#x27;: np.array(workers.value(), dtype=int).tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# workers[i] == 1 if worker i (0-based) is hired, else 0
+workers = cp.boolvar(shape=nb_workers, name=&quot;workers&quot;)
+
+# Constraints
+# Each task must be performed by at least one qualified worker
+for task_quals in Qualified:
+    # task_quals contains 1-based worker indices; convert to 0-based
+    model += cp.sum([workers[w - 1] for w in task_quals]) &gt;= 1
+
+# Objective: minimize total hiring cost
+total_cost_expr = cp.sum([Cost[i] * workers[i] for i in range(nb_workers)])
+model.minimize(total_cost_expr)
+
+# Solve and print
+if model.solve():
+    # Convert boolean values to 0/1 integers as required
+    workers_list = [int(v) for v in workers.value().tolist()]
+    solution = {
+        &#x27;total_cost&#x27;: int(model.objective_value()),
+        &#x27;workers&#x27;: workers_list
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (49 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: nb_workers = 32;
+int: num_tasks = 15;
+
+array[1..num_tasks] of set of int: Qualified = [
+    {1, 9, 19, 22, 25, 28, 31},
+    {2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32},
+    {3, 10, 19, 24, 26, 30, 32},
+    {4, 21, 25, 28, 32},
+    {5, 11, 16, 22, 23, 27, 31},
+    {6, 20, 24, 26, 30, 32},
+    {7, 12, 17, 25, 30, 31},
+    {8, 17, 20, 22, 23},
+    {9, 13, 14, 26, 29, 30, 31},
+    {10, 21, 25, 31, 32},
+    {14, 15, 18, 23, 24, 27, 30, 32},
+    {18, 19, 22, 24, 26, 29, 31},
+    {11, 20, 25, 28, 30, 32},
+    {16, 19, 23, 31},
+    {9, 18, 26, 28, 31, 32}
+];
+
+array[1..nb_workers] of int: Cost = [
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+];
+
+% Decision variables
+array[1..nb_workers] of var 0..1: workers; % 1 if worker is selected, 0 otherwise
+
+% Constraints
+% For each task, at least one qualified worker must be selected
+constraint
+    forall(t in 1..num_tasks) (
+        sum([workers[w] | w in Qualified[t]]) &gt;= 1
+    );
+
+% Objective: minimize total cost of selected workers
+var int: total_cost = sum(w in 1..nb_workers)(Cost[w] * workers[w]);
+
+solve minimize total_cost;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;total_cost\&quot;: &quot;, show(total_cost), &quot;,&quot;,
+    &quot;\&quot;workers\&quot;: &quot;, show(workers),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (52 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: nb_workers = 32;
+int: num_tasks = 15;
+
+array[1..num_tasks] of set of 1..nb_workers: Qualified = [
+  {1, 9, 19, 22, 25, 28, 31},
+  {2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32},
+  {3, 10, 19, 24, 26, 30, 32},
+  {4, 21, 25, 28, 32},
+  {5, 11, 16, 22, 23, 27, 31},
+  {6, 20, 24, 26, 30, 32},
+  {7, 12, 17, 25, 30, 31},
+  {8, 17, 20, 22, 23},
+  {9, 13, 14, 26, 29, 30, 31},
+  {10, 21, 25, 31, 32},
+  {14, 15, 18, 23, 24, 27, 30, 32},
+  {18, 19, 22, 24, 26, 29, 31},
+  {11, 20, 25, 28, 30, 32},
+  {16, 19, 23, 31},
+  {9, 18, 26, 28, 31, 32}
+];
+
+array[1..nb_workers] of int: Cost = [
+  1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3,
+  3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 8, 9
+];
+
+% Decision variables: whether to hire each worker
+array[1..nb_workers] of var 0..1: workers;
+
+% Total cost of hired workers
+var int: total_cost = sum(w in 1..nb_workers)(workers[w] * Cost[w]);
+
+% Each task must be covered by at least one qualified worker
+constraint
+  forall(t in 1..num_tasks) (
+    sum(w in Qualified[t])(workers[w]) &gt;= 1
+  );
+
+% Minimize the hiring cost
+solve minimize total_cost;
+
+% JSON output
+output [
+  &quot;{&quot;,
+    &quot;\&quot;total_cost\&quot;: &quot; ++ show(total_cost) ++ &quot;,&quot;,
+    &quot;\&quot;workers\&quot;: [&quot; ++ join(&quot;,&quot;, [ show(workers[w]) | w in 1..nb_workers ]) ++ &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: workers[i] = 1 if worker i is selected, 0 otherwise
+workers = [model.NewBoolVar(f&#x27;worker_{i}&#x27;) for i in range(nb_workers)]
+
+# Constraints: Each task must be performed by at least one qualified selected worker
+for t in range(num_tasks):
+    # Convert 1-based worker indices to 0-based
+    qualified_workers = [w - 1 for w in Qualified[t]]
+    # Sum of selected qualified workers for task t &gt;= 1
+    model.Add(sum(workers[w] for w in qualified_workers) &gt;= 1)
+
+# Objective: minimize total cost of selected workers
+total_cost = model.NewIntVar(0, sum(Cost), &#x27;total_cost&#x27;)
+model.Add(total_cost == sum(workers[i] * Cost[i] for i in range(nb_workers)))
+model.Minimize(total_cost)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;total_cost&#x27;: solver.Value(total_cost),
+        &#x27;workers&#x27;: [solver.Value(w) for w in workers]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32],
+    [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31],
+    [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31],
+    [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31],
+    [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32],
+    [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32],
+    [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [  # Cost of hiring each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+    5, 6, 6, 6, 7, 8, 9
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: workers[i] == 1 if worker i is selected, else 0
+workers = [model.NewBoolVar(f&#x27;worker_{i}&#x27;) for i in range(nb_workers)]
+
+# Constraints: each task must be covered by at least one selected worker
+for t in range(num_tasks):
+    # Convert 1-based indices in Qualified to 0-based
+    model.Add(
+        sum(workers[w-1] for w in Qualified[t]) &gt;= 1
+    )
+
+# Objective: minimize total hiring cost
+model.Minimize(sum(Cost[i] * workers[i] for i in range(nb_workers)))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    selected_workers = [solver.Value(workers[i]) for i in range(nb_workers)]
+    total_cost = sum(Cost[i] * selected_workers[i] for i in range(nb_workers))
+    solution = {
+        &#x27;total_cost&#x27;: total_cost,
+        &#x27;workers&#x27;: selected_workers
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (73 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Complete, runnable Python code that solves the worker-selection problem
+# ---------------------------------------------------------------
+# 1. Imports
+import json
+from ortools.sat.python import cp_model
+
+# ---------------------------------------------------------------
+# 2. Input data (exactly as provided)
+nb_workers = 32  # Number of workers
+num_tasks = 15   # Number of tasks
+Qualified = [    # Workers qualified for each task (1-based indexing)
+    [1, 9, 19, 22, 25, 28, 31],
+    [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
+    [3, 10, 19, 24, 26, 30, 32],
+    [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31],
+    [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31],
+    [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31],
+    [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32],
+    [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32],
+    [16, 19, 23, 31],
+    [9, 18, 26, 28, 31, 32]
+]
+Cost = [  # Hiring cost of each worker
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2,
+    3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 8, 9
+]
+
+# ---------------------------------------------------------------
+# 3. Model construction
+model = cp_model.CpModel()
+
+# Decision variables: workers[i] == 1 if worker i is hired (0-based index)
+workers = [model.NewBoolVar(f&quot;worker_{i+1}&quot;) for i in range(nb_workers)]
+
+# total_cost variable explicitly defined for clarity (optional but matches spec)
+max_total_cost = sum(Cost)
+total_cost = model.NewIntVar(0, max_total_cost, &quot;total_cost&quot;)
+
+# ---------------------------------------------------------------
+# 4. Constraints
+# 4.1 Coverage: every task must be covered by at least one selected worker
+for task_idx in range(num_tasks):
+    qualified_workers = [workers[w-1] for w in Qualified[task_idx]]  # convert to 0-based indices
+    model.Add(sum(qualified_workers) &gt;= 1)
+
+# 4.2 Cost definition: link total_cost with selected workers
+model.Add(total_cost == sum(Cost[i] * workers[i] for i in range(nb_workers)))
+
+# ---------------------------------------------------------------
+# 5. Objective: minimize total_cost
+model.Minimize(total_cost)
+
+# ---------------------------------------------------------------
+# 6. Solve the model
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 30  # optional time limit
+status = solver.Solve(model)
+
+# ---------------------------------------------------------------
+# 7. Extract and print solution as JSON
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    solution_cost = int(solver.Value(total_cost))
+    solution_workers = [int(solver.Value(w)) for w in workers]
+    result = {&quot;total_cost&quot;: solution_cost, &quot;workers&quot;: solution_workers}
+    print(json.dumps(result))
+else:
+    # Infeasible or unknown status – still output a JSON object indicating failure
+    print(json.dumps({&quot;total_cost&quot;: None, &quot;workers&quot;: []}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;total_cost&quot;: 14,
+  &quot;workers&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;nb_workers&quot;: 32,
   &quot;num_tasks&quot;: 15,
   &quot;Qualified&quot;: [
@@ -250,9 +2124,9 @@ Cost = [  # Cost of hiring each worker
     9
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">total_cost</span><span class="chip">workers</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-37">Copy</button></div><pre class="code-block"><code id="solution-37" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">total_cost</span><span class="chip">workers</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-37">Copy</button></div><pre class="code-block"><code id="solution-37" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
     false,
@@ -289,6 +2163,7 @@ Cost = [  # Cost of hiring each worker
     false
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -296,9 +2171,9 @@ Cost = [  # Cost of hiring each worker
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/covering_opl/covering_opl.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/covering_opl/covering_opl.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="contracting_costs.html">â† prev</a><a class="btn" href="crew.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="contracting_costs.html">← prev</a><a class="btn" href="crew.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

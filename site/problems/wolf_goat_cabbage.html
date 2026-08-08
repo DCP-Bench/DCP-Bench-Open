@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>wolf_goat_cabbage Â· DCP-Bench Open</title>
-<meta name="description" content="The wolf, goat and cabbage problem is a river crossing puzzle. It dates back to at least the 9th century, and has entered the folklore of several cultures. Theâ€¦">
+<title>wolf_goat_cabbage · DCP-Bench Open</title>
+<meta name="description" content="The wolf, goat and cabbage problem is a river crossing puzzle. It dates back to at least the 9th century, and has entered the folklore of several cultures. The…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/wolf_goat_cabbage.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/wolf_goat_cabbage.py</a></dd><dt>Description</dt><dd><a href="https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem</a></dd><dt>Category</dt><dd>cpmpy_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (17)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-162">Copy</button></div><pre class="code-block"><code id="model-162" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -79,12 +80,2225 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">stage = 8  # Number of stages</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (12)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (78 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+stage = 8  # Number of stages
+
+# Decision Variables
+wolf_pos = intvar(0, 1, shape=stage, name=&quot;wolf_pos&quot;)  # 0: starting shore, 1: destination shore
+goat_pos = intvar(0, 1, shape=stage, name=&quot;goat_pos&quot;)  # 0: starting shore, 1: destination shore
+cabbage_pos = intvar(0, 1, shape=stage, name=&quot;cabbage_pos&quot;)  # 0: starting shore, 1: destination shore
+boat_pos = intvar(0, 1, shape=stage, name=&quot;boat_pos&quot;)  # 0: starting shore, 1: destination shore
+
+# Model
+model = Model()
+
+# Initial state: all on starting shore
+model += wolf_pos[0] == 0
+model += goat_pos[0] == 0
+model += cabbage_pos[0] == 0
+model += boat_pos[0] == 0
+
+# Final state: all on destination shore
+model += wolf_pos[-1] == 1
+model += goat_pos[-1] == 1
+model += cabbage_pos[-1] == 1
+model += boat_pos[-1] == 1
+
+# Constraints for each transition between stages
+for i in range(stage - 1):
+    # The boat must change sides
+    model += boat_pos[i+1] != boat_pos[i]
+    
+    # Only one item can be moved with the boat (or none)
+    moved_wolf = (wolf_pos[i+1] != wolf_pos[i]) &amp; (boat_pos[i] == wolf_pos[i])
+    moved_goat = (goat_pos[i+1] != goat_pos[i]) &amp; (boat_pos[i] == goat_pos[i])
+    moved_cabbage = (cabbage_pos[i+1] != cabbage_pos[i]) &amp; (boat_pos[i] == cabbage_pos[i])
+    model += (moved_wolf + moved_goat + moved_cabbage) &lt;= 1
+    
+    # Safety constraints: wolf and goat cannot be left alone, goat and cabbage cannot be left alone
+    wolf_goat_unsafe = (wolf_pos[i+1] == goat_pos[i+1]) &amp; (boat_pos[i+1] != goat_pos[i+1])
+    goat_cabbage_unsafe = (goat_pos[i+1] == cabbage_pos[i+1]) &amp; (boat_pos[i+1] != goat_pos[i+1])
+    model += ~wolf_goat_unsafe
+    model += ~goat_cabbage_unsafe
+
+# Additional sequencing constraints to ensure correct order of moves
+# First move must be the goat
+model += (goat_pos[1] == 1) &amp; (wolf_pos[1] == 0) &amp; (cabbage_pos[1] == 0)
+
+# After first move, farmer must return alone
+model += (boat_pos[2] == 0) &amp; (goat_pos[2] == 1) &amp; (wolf_pos[2] == 0) &amp; (cabbage_pos[2] == 0)
+
+# Then move either cabbage or wolf (but with proper safety)
+# For example, next move should be cabbage
+model += (cabbage_pos[3] == 1) &amp; (goat_pos[3] == 1) &amp; (wolf_pos[3] == 0)
+
+# Then bring goat back
+model += (boat_pos[4] == 0) &amp; (goat_pos[4] == 0) &amp; (cabbage_pos[4] == 1) &amp; (wolf_pos[4] == 0)
+
+# Then move wolf
+model += (wolf_pos[5] == 1) &amp; (goat_pos[5] == 0) &amp; (cabbage_pos[5] == 1)
+
+# Then return alone
+model += (boat_pos[6] == 0) &amp; (wolf_pos[6] == 1) &amp; (cabbage_pos[6] == 1) &amp; (goat_pos[6] == 0)
+
+# Finally move goat
+model += (goat_pos[7] == 1) &amp; (wolf_pos[7] == 1) &amp; (cabbage_pos[7] == 1)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;wolf_pos&quot;: [bool(x) for x in wolf_pos.value()],
+    &quot;goat_pos&quot;: [bool(x) for x in goat_pos.value()],
+    &quot;cabbage_pos&quot;: [bool(x) for x in cabbage_pos.value()],
+    &quot;boat_pos&quot;: [bool(x) for x in boat_pos.value()]
+}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true
+  ],
+  &quot;goat_pos&quot;: [
+    false,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    true
+  ],
+  &quot;cabbage_pos&quot;: [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  &quot;boat_pos&quot;: [
+    false,
+    true,
+    false,
+    true,
+    false,
+    true,
+    false,
+    true
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (140 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Wolf, Goat, and Cabbage river crossing puzzle
+# - 8 stages (time steps)
+# - Each entity can be on shore 0 (start) or shore 1 (destination)
+# - Constraints:
+#   1. Wolf and goat cannot be alone together (without farmer)
+#   2. Goat and cabbage cannot be alone together (without farmer)
+#   3. Farmer is always with the boat
+#   4. Only farmer can move items (boat constraint)
+#   5. At most one item can move with farmer per step
+#   6. Start: all on shore 0, End: all on shore 1
+
+# Step 2: Model with CPMpy
+stages = 8
+
+# Decision variables: position of each entity at each stage
+# 0 = starting shore, 1 = destination shore
+wolf_pos = cp.boolvar(shape=stages, name=&quot;wolf_pos&quot;)
+goat_pos = cp.boolvar(shape=stages, name=&quot;goat_pos&quot;) 
+cabbage_pos = cp.boolvar(shape=stages, name=&quot;cabbage_pos&quot;)
+boat_pos = cp.boolvar(shape=stages, name=&quot;boat_pos&quot;)  # farmer is always with boat
+
+model = cp.Model()
+
+# Initial conditions: all start on shore 0
+model += wolf_pos[0] == 0
+model += goat_pos[0] == 0
+model += cabbage_pos[0] == 0
+model += boat_pos[0] == 0
+
+# Final conditions: all end on shore 1
+model += wolf_pos[stages-1] == 1
+model += goat_pos[stages-1] == 1
+model += cabbage_pos[stages-1] == 1
+model += boat_pos[stages-1] == 1
+
+# Movement constraints: only farmer (boat) can transport items
+for t in range(1, stages):
+    # If wolf moves, boat must move
+    model += (wolf_pos[t] != wolf_pos[t-1]).implies(boat_pos[t] != boat_pos[t-1])
+    
+    # If goat moves, boat must move  
+    model += (goat_pos[t] != goat_pos[t-1]).implies(boat_pos[t] != boat_pos[t-1])
+    
+    # If cabbage moves, boat must move
+    model += (cabbage_pos[t] != cabbage_pos[t-1]).implies(boat_pos[t] != boat_pos[t-1])
+    
+    # At most one item can move with the boat at each step
+    wolf_moved = (wolf_pos[t] != wolf_pos[t-1])
+    goat_moved = (goat_pos[t] != goat_pos[t-1])
+    cabbage_moved = (cabbage_pos[t] != cabbage_pos[t-1])
+    
+    model += wolf_moved + goat_moved + cabbage_moved &lt;= 1
+
+# Safety constraints: prevent conflicts when farmer is not present
+for t in range(stages):
+    # Wolf and goat cannot be alone together (both on same side, farmer on other side)
+    wolf_goat_together = (wolf_pos[t] == goat_pos[t])
+    farmer_elsewhere = (boat_pos[t] != wolf_pos[t])
+    model += ~(wolf_goat_together &amp; farmer_elsewhere)
+    
+    # Goat and cabbage cannot be alone together
+    goat_cabbage_together = (goat_pos[t] == cabbage_pos[t])
+    farmer_elsewhere_2 = (boat_pos[t] != goat_pos[t])
+    model += ~(goat_cabbage_together &amp; farmer_elsewhere_2)
+
+# Step 3: Solve and verify
+if model.solve():
+    # Extract solution
+    wolf_solution = [int(x) for x in wolf_pos.value()]
+    goat_solution = [int(x) for x in goat_pos.value()]
+    cabbage_solution = [int(x) for x in cabbage_pos.value()]
+    boat_solution = [int(x) for x in boat_pos.value()]
+    
+    solution = {
+        &quot;wolf_pos&quot;: wolf_solution,
+        &quot;goat_pos&quot;: goat_solution,
+        &quot;cabbage_pos&quot;: cabbage_solution,
+        &quot;boat_pos&quot;: boat_solution
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        wolf_pos = sol[&quot;wolf_pos&quot;]
+        goat_pos = sol[&quot;goat_pos&quot;] 
+        cabbage_pos = sol[&quot;cabbage_pos&quot;]
+        boat_pos = sol[&quot;boat_pos&quot;]
+        
+        # 1. Structural verification
+        if len(wolf_pos) != stages or len(goat_pos) != stages or len(cabbage_pos) != stages or len(boat_pos) != stages:
+            return False, &quot;Wrong number of stages&quot;
+        
+        # 2. Initial and final conditions
+        if not (wolf_pos[0] == 0 and goat_pos[0] == 0 and cabbage_pos[0] == 0 and boat_pos[0] == 0):
+            return False, &quot;Initial condition violated&quot;
+        
+        if not (wolf_pos[-1] == 1 and goat_pos[-1] == 1 and cabbage_pos[-1] == 1 and boat_pos[-1] == 1):
+            return False, &quot;Final condition violated&quot;
+        
+        # 3. Movement constraints
+        for t in range(1, stages):
+            movements = 0
+            if wolf_pos[t] != wolf_pos[t-1]:
+                movements += 1
+                if boat_pos[t] == boat_pos[t-1]:
+                    return False, f&quot;Wolf moved at stage {t} but boat didn&#x27;t&quot;
+            
+            if goat_pos[t] != goat_pos[t-1]:
+                movements += 1
+                if boat_pos[t] == boat_pos[t-1]:
+                    return False, f&quot;Goat moved at stage {t} but boat didn&#x27;t&quot;
+            
+            if cabbage_pos[t] != cabbage_pos[t-1]:
+                movements += 1
+                if boat_pos[t] == boat_pos[t-1]:
+                    return False, f&quot;Cabbage moved at stage {t} but boat didn&#x27;t&quot;
+            
+            if movements &gt; 1:
+                return False, f&quot;Too many items moved at stage {t}&quot;
+        
+        # 4. Safety constraints
+        for t in range(stages):
+            if wolf_pos[t] == goat_pos[t] and boat_pos[t] != wolf_pos[t]:
+                return False, f&quot;Wolf and goat alone together at stage {t}&quot;
+            
+            if goat_pos[t] == cabbage_pos[t] and boat_pos[t] != goat_pos[t]:
+                return False, f&quot;Goat and cabbage alone together at stage {t}&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (103 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+stage = 8  # Number of stages
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Positions: 0 = starting shore, 1 = destination shore
+wolf_pos = cp.intvar(0, 1, shape=stage, name=&quot;wolf_pos&quot;)
+goat_pos = cp.intvar(0, 1, shape=stage, name=&quot;goat_pos&quot;)
+cabbage_pos = cp.intvar(0, 1, shape=stage, name=&quot;cabbage_pos&quot;)
+boat_pos = cp.intvar(0, 1, shape=stage, name=&quot;boat_pos&quot;)
+
+# Constraints
+# Initial positions: all on starting shore
+model += (wolf_pos[0] == 0)
+model += (goat_pos[0] == 0)
+model += (cabbage_pos[0] == 0)
+model += (boat_pos[0] == 0)
+
+# Final positions: all on destination shore
+model += (wolf_pos[-1] == 1)
+model += (goat_pos[-1] == 1)
+model += (cabbage_pos[-1] == 1)
+model += (boat_pos[-1] == 1)
+
+for t in range(stage - 1):
+    # The boat moves each stage (cannot stay in place)
+    model += (boat_pos[t] != boat_pos[t+1])
+
+    # At each stage, only the farmer and at most one item can move
+    # Items can only move if they are on the same side as the boat at time t
+    # The farmer always moves with the boat
+    # So the difference in position for each item is either 0 or 1 (if moved)
+    # The boat moves, so boat_pos[t] != boat_pos[t+1]
+    # The item moves if it is on the same side as the boat at time t and moves with the boat
+
+    # Define boolean variables for whether each item moves at step t
+    wolf_moves = cp.boolvar(name=f&quot;wolf_moves_{t}&quot;)
+    goat_moves = cp.boolvar(name=f&quot;goat_moves_{t}&quot;)
+    cabbage_moves = cp.boolvar(name=f&quot;cabbage_moves_{t}&quot;)
+
+    # Item moves if and only if it changes position
+    model += (wolf_moves == (wolf_pos[t] != wolf_pos[t+1]))
+    model += (goat_moves == (goat_pos[t] != goat_pos[t+1]))
+    model += (cabbage_moves == (cabbage_pos[t] != cabbage_pos[t+1]))
+
+    # If item moves, it must be on the same side as the boat at time t
+    model += wolf_moves.implies(wolf_pos[t] == boat_pos[t])
+    model += goat_moves.implies(goat_pos[t] == boat_pos[t])
+    model += cabbage_moves.implies(cabbage_pos[t] == boat_pos[t])
+
+    # At most one item moves with the boat
+    model += (cp.sum([wolf_moves, goat_moves, cabbage_moves]) &lt;= 1)
+
+    # Items that do not move stay in the same position
+    # (Already enforced by definition of moves variables)
+
+    # Safety constraints: no eating on either shore at any stage
+    # If wolf and goat are alone on a shore without the farmer (boat), wolf eats goat
+    # If goat and cabbage are alone on a shore without the farmer (boat), goat eats cabbage
+
+    # For each shore (0 and 1), check if wolf and goat alone without farmer
+    # wolf and goat on same shore, farmer not on that shore
+    for shore in [0, 1]:
+        # wolf and goat on shore
+        wolf_goat_same_shore = (wolf_pos[t] == shore) &amp; (goat_pos[t] == shore)
+        # farmer not on shore
+        farmer_not_on_shore = (boat_pos[t] != shore)
+        # wolf eats goat forbidden
+        model += ~(wolf_goat_same_shore &amp; farmer_not_on_shore)
+
+        # goat and cabbage on shore
+        goat_cabbage_same_shore = (goat_pos[t] == shore) &amp; (cabbage_pos[t] == shore)
+        # farmer not on shore
+        # goat eats cabbage forbidden
+        model += ~(goat_cabbage_same_shore &amp; farmer_not_on_shore)
+
+# Also check safety at final stage
+for shore in [0, 1]:
+    wolf_goat_same_shore = (wolf_pos[-1] == shore) &amp; (goat_pos[-1] == shore)
+    farmer_not_on_shore = (boat_pos[-1] != shore)
+    model += ~(wolf_goat_same_shore &amp; farmer_not_on_shore)
+
+    goat_cabbage_same_shore = (goat_pos[-1] == shore) &amp; (cabbage_pos[-1] == shore)
+    model += ~(goat_cabbage_same_shore &amp; farmer_not_on_shore)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf_pos.value().tolist(),
+        &#x27;goat_pos&#x27;: goat_pos.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage_pos.value().tolist(),
+        &#x27;boat_pos&#x27;: boat_pos.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (81 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+stage = 8  # Number of stages
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions over time (0 = starting shore, 1 = destination shore)
+wolf = cp.intvar(0, 1, shape=stage, name=&quot;wolf&quot;)
+goat = cp.intvar(0, 1, shape=stage, name=&quot;goat&quot;)
+cabbage = cp.intvar(0, 1, shape=stage, name=&quot;cabbage&quot;)
+boat = cp.intvar(0, 1, shape=stage, name=&quot;boat&quot;)
+
+# Movement indicator variables for each step (True if that item moves with the boat this step)
+move_w = cp.boolvar(shape=stage - 1, name=&quot;move_w&quot;)
+move_g = cp.boolvar(shape=stage - 1, name=&quot;move_g&quot;)
+move_c = cp.boolvar(shape=stage - 1, name=&quot;move_c&quot;)
+
+# Constraints
+# Initial positions: everything at starting shore (0)
+model += (wolf[0] == 0)
+model += (goat[0] == 0)
+model += (cabbage[0] == 0)
+model += (boat[0] == 0)
+
+# Final positions: everything at destination shore (1)
+model += (wolf[stage - 1] == 1)
+model += (goat[stage - 1] == 1)
+model += (cabbage[stage - 1] == 1)
+model += (boat[stage - 1] == 1)
+
+# Safety constraints at every stage:
+# If wolf and goat are together, the boat (farmer) must be with them; otherwise wolf eats goat.
+# If goat and cabbage are together, the boat (farmer) must be with them; otherwise goat eats cabbage.
+for t in range(stage):
+    model += ( (wolf[t] == goat[t]).implies(boat[t] == goat[t]) )
+    model += ( (goat[t] == cabbage[t]).implies(boat[t] == goat[t]) )
+
+# Transition constraints between successive stages
+for t in range(stage - 1):
+    # Boat must move each step (farmer crosses each time): boat flips shore
+    model += (boat[t] + boat[t + 1] == 1)
+
+    # Define move booleans as XOR of positions at t and t+1 (true iff item toggles shore)
+    model += (move_w[t] == cp.Xor([wolf[t], wolf[t + 1]]))
+    model += (move_g[t] == cp.Xor([goat[t], goat[t + 1]]))
+    model += (move_c[t] == cp.Xor([cabbage[t], cabbage[t + 1]]))
+
+    # At most one item can be carried by the boat per crossing
+    model += (cp.sum([move_w[t], move_g[t], move_c[t]]) &lt;= 1)
+
+    # If an item moves, it must have been on the same shore as the boat before crossing,
+    # and it must end up on the same shore as the boat after crossing.
+    # If an item does not move, it stays on the same shore.
+    model += ( move_w[t].implies(wolf[t] == boat[t]) )
+    model += ( move_w[t].implies(wolf[t + 1] == boat[t + 1]) )
+    model += ( (~move_w[t]).implies(wolf[t + 1] == wolf[t]) )
+
+    model += ( move_g[t].implies(goat[t] == boat[t]) )
+    model += ( move_g[t].implies(goat[t + 1] == boat[t + 1]) )
+    model += ( (~move_g[t]).implies(goat[t + 1] == goat[t]) )
+
+    model += ( move_c[t].implies(cabbage[t] == boat[t]) )
+    model += ( move_c[t].implies(cabbage[t + 1] == boat[t + 1]) )
+    model += ( (~move_c[t]).implies(cabbage[t + 1] == cabbage[t]) )
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf.value().tolist(),
+        &#x27;goat_pos&#x27;: goat.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage.value().tolist(),
+        &#x27;boat_pos&#x27;: boat.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (83 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+stage = 8  # Number of stages
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions at each stage (0=start shore, 1=destination shore)
+wolf_pos = cp.intvar(0, 1, shape=stage, name=&quot;wolf_pos&quot;)
+goat_pos = cp.intvar(0, 1, shape=stage, name=&quot;goat_pos&quot;)
+cabbage_pos = cp.intvar(0, 1, shape=stage, name=&quot;cabbage_pos&quot;)
+boat_pos = cp.intvar(0, 1, shape=stage, name=&quot;boat_pos&quot;)
+
+# For each transition, whether an item moves (wolf, goat, cabbage)
+# moved[s,0] for wolf moving between s and s+1, etc.
+moved = cp.boolvar((stage - 1, 3), name=&quot;moved&quot;)
+
+# Initial positions: all at starting shore (0)
+model += (wolf_pos[0] == 0)
+model += (goat_pos[0] == 0)
+model += (cabbage_pos[0] == 0)
+model += (boat_pos[0] == 0)
+
+# Goal positions: all at destination shore (1)
+model += (wolf_pos[stage - 1] == 1)
+model += (goat_pos[stage - 1] == 1)
+model += (cabbage_pos[stage - 1] == 1)
+model += (boat_pos[stage - 1] == 1)
+
+# Constraints for each move between stage s and s+1
+for s in range(stage - 1):
+    # Boat must move each time
+    model += (boat_pos[s] != boat_pos[s + 1])
+    
+    # Link movement indicators for wolf, goat, cabbage
+    # moved[s,0] &lt;-&gt; (wolf_pos[s] != wolf_pos[s+1]), etc.
+    model += ((wolf_pos[s] != wolf_pos[s + 1]) == moved[s, 0])
+    model += ((goat_pos[s] != goat_pos[s + 1]) == moved[s, 1])
+    model += ((cabbage_pos[s] != cabbage_pos[s + 1]) == moved[s, 2])
+    
+    # At most one item moves with the boat
+    model += (cp.sum(moved[s, :]) &lt;= 1)
+    
+    # If an item moves, it must be on the same shore as the boat before and after
+    # Wolf
+    model += cp.implies(moved[s, 0], wolf_pos[s] == boat_pos[s])
+    model += cp.implies(moved[s, 0], wolf_pos[s + 1] == boat_pos[s + 1])
+    # Goat
+    model += cp.implies(moved[s, 1], goat_pos[s] == boat_pos[s])
+    model += cp.implies(moved[s, 1], goat_pos[s + 1] == boat_pos[s + 1])
+    # Cabbage
+    model += cp.implies(moved[s, 2], cabbage_pos[s] == boat_pos[s])
+    model += cp.implies(moved[s, 2], cabbage_pos[s + 1] == boat_pos[s + 1])
+    
+    # Safety constraints at stage s: no eating when farmer (boat) is absent
+    # If goat and cabbage alone without boat =&gt; forbidden
+    model += cp.implies(goat_pos[s] == cabbage_pos[s],
+                         boat_pos[s] == goat_pos[s])
+    # If wolf and goat alone without boat =&gt; forbidden
+    model += cp.implies(wolf_pos[s] == goat_pos[s],
+                         boat_pos[s] == goat_pos[s])
+
+# Also apply safety at the final stage
+model += cp.implies(goat_pos[stage - 1] == cabbage_pos[stage - 1],
+                     boat_pos[stage - 1] == goat_pos[stage - 1])
+model += cp.implies(wolf_pos[stage - 1] == goat_pos[stage - 1],
+                     boat_pos[stage - 1] == goat_pos[stage - 1])
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf_pos.value().tolist(),
+        &#x27;goat_pos&#x27;: goat_pos.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage_pos.value().tolist(),
+        &#x27;boat_pos&#x27;: boat_pos.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (11 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+wolf_pos = [0, 0, 0, 1, 1, 1, 1, 1]
+goat_pos = [0, 1, 1, 1, 0, 0, 0, 1]
+cabbage_pos = [0, 0, 0, 0, 0, 1, 1, 1]
+boat_pos = [0, 1, 0, 1, 0, 1, 0, 1]
+print(json.dumps({
+    &quot;wolf_pos&quot;: wolf_pos,
+    &quot;goat_pos&quot;: goat_pos,
+    &quot;cabbage_pos&quot;: cabbage_pos,
+    &quot;boat_pos&quot;: boat_pos,
+}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (96 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+stage = 8  # Number of stages
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Positions of wolf, goat, cabbage, boat at each stage: 0=starting shore, 1=destination shore
+wolf_pos = cp.intvar(0, 1, shape=stage, name=&quot;wolf_pos&quot;)
+goat_pos = cp.intvar(0, 1, shape=stage, name=&quot;goat_pos&quot;)
+cabbage_pos = cp.intvar(0, 1, shape=stage, name=&quot;cabbage_pos&quot;)
+boat_pos = cp.intvar(0, 1, shape=stage, name=&quot;boat_pos&quot;)
+
+# Constraints
+
+# Initial positions: all on starting shore
+model += (wolf_pos[0] == 0)
+model += (goat_pos[0] == 0)
+model += (cabbage_pos[0] == 0)
+model += (boat_pos[0] == 0)
+
+# Final positions: all on destination shore
+model += (wolf_pos[-1] == 1)
+model += (goat_pos[-1] == 1)
+model += (cabbage_pos[-1] == 1)
+model += (boat_pos[-1] == 1)
+
+for t in range(stage-1):
+    # The boat moves between shores each stage (0-&gt;1 or 1-&gt;0)
+    model += (boat_pos[t+1] != boat_pos[t])
+
+    # Only the farmer (boat) and zero or one item moves together
+    # So at each step, at most one of wolf, goat, cabbage moves, and only if it is on the same side as the boat
+    # Compute which items move at this stage
+    wolf_move = wolf_pos[t+1] != wolf_pos[t]
+    goat_move = goat_pos[t+1] != goat_pos[t]
+    cabbage_move = cabbage_pos[t+1] != cabbage_pos[t]
+
+    # Each moved item must be on the same side as the boat before crossing
+    model += wolf_move.implies(wolf_pos[t] == boat_pos[t])
+    model += goat_move.implies(goat_pos[t] == boat_pos[t])
+    model += cabbage_move.implies(cabbage_pos[t] == boat_pos[t])
+
+    # At most one item moves per crossing (boat always moves)
+    model += (wolf_move + goat_move + cabbage_move &lt;= 1)
+
+    # Items that do not move remain in the same position
+    model += wolf_move.implies(wolf_pos[t+1] != wolf_pos[t])
+    model += (~wolf_move).implies(wolf_pos[t+1] == wolf_pos[t])
+    model += goat_move.implies(goat_pos[t+1] != goat_pos[t])
+    model += (~goat_move).implies(goat_pos[t+1] == goat_pos[t])
+    model += cabbage_move.implies(cabbage_pos[t+1] != cabbage_pos[t])
+    model += (~cabbage_move).implies(cabbage_pos[t+1] == cabbage_pos[t])
+
+    # Safety constraints at stage t+1 (after crossing)
+    # If wolf and goat alone on one shore without farmer =&gt; goat eaten
+    # If goat and cabbage alone on one shore without farmer =&gt; cabbage eaten
+    # So for each shore, if wolf and goat both there and farmer not there =&gt; forbidden
+    # If goat and cabbage both there and farmer not there =&gt; forbidden
+
+    # Shore 0 safety
+    shore0_wolf = (wolf_pos[t+1] == 0)
+    shore0_goat = (goat_pos[t+1] == 0)
+    shore0_cabbage = (cabbage_pos[t+1] == 0)
+    shore0_boat = (boat_pos[t+1] == 0)
+
+    # Shore 1 safety
+    shore1_wolf = (wolf_pos[t+1] == 1)
+    shore1_goat = (goat_pos[t+1] == 1)
+    shore1_cabbage = (cabbage_pos[t+1] == 1)
+    shore1_boat = (boat_pos[t+1] == 1)
+
+    # Goat and wolf alone on shore0 without farmer
+    model += ~((shore0_wolf &amp; shore0_goat &amp; ~shore0_boat))
+    # Goat and cabbage alone on shore0 without farmer
+    model += ~((shore0_goat &amp; shore0_cabbage &amp; ~shore0_boat))
+
+    # Goat and wolf alone on shore1 without farmer
+    model += ~((shore1_wolf &amp; shore1_goat &amp; ~shore1_boat))
+    # Goat and cabbage alone on shore1 without farmer
+    model += ~((shore1_goat &amp; shore1_cabbage &amp; ~shore1_boat))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf_pos.value().tolist(),
+        &#x27;goat_pos&#x27;: goat_pos.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage_pos.value().tolist(),
+        &#x27;boat_pos&#x27;: boat_pos.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (80 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+stage = 8  # Number of stages
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions over time (0 = starting shore, 1 = destination shore)
+wolf = cp.intvar(0, 1, shape=stage, name=&quot;wolf&quot;)
+goat = cp.intvar(0, 1, shape=stage, name=&quot;goat&quot;)
+cabbage = cp.intvar(0, 1, shape=stage, name=&quot;cabbage&quot;)
+boat = cp.intvar(0, 1, shape=stage, name=&quot;boat&quot;)
+
+# Moved indicators for each crossing (stage-1 transitions)
+mw = cp.boolvar(shape=stage-1, name=&quot;mw&quot;)  # wolf moved at transition t
+mg = cp.boolvar(shape=stage-1, name=&quot;mg&quot;)  # goat moved
+mc = cp.boolvar(shape=stage-1, name=&quot;mc&quot;)  # cabbage moved
+
+# Constraints
+# Initial positions: all at starting shore (0)
+model += (wolf[0] == 0)
+model += (goat[0] == 0)
+model += (cabbage[0] == 0)
+model += (boat[0] == 0)
+
+# Final positions: all at destination shore (1)
+model += (wolf[stage-1] == 1)
+model += (goat[stage-1] == 1)
+model += (cabbage[stage-1] == 1)
+model += (boat[stage-1] == 1)
+
+# Safety constraints at every stage:
+# If wolf and goat are together, the boat (farmer) must be present;
+# If goat and cabbage are together, the boat must be present.
+for t in range(stage):
+    model += ( (wolf[t] == goat[t]).implies(boat[t] == wolf[t]) )
+    model += ( (goat[t] == cabbage[t]).implies(boat[t] == goat[t]) )
+
+# Transition constraints between consecutive stages
+for t in range(stage - 1):
+    # Boat crosses each transition (farmer always moves)
+    model += (boat[t] != boat[t+1])
+
+    # Define moved booleans as whether item changes side
+    model += (mw[t] == (wolf[t] != wolf[t+1]))
+    model += (mg[t] == (goat[t] != goat[t+1]))
+    model += (mc[t] == (cabbage[t] != cabbage[t+1]))
+
+    # At most one item can be taken in the boat
+    model += (cp.sum([mw[t], mg[t], mc[t]]) &lt;= 1)
+
+    # If an item is moved, it must be on the same side as the boat before crossing
+    # and end up on the boat&#x27;s side after crossing.
+    model += ( mw[t].implies(wolf[t] == boat[t]) )
+    model += ( mw[t].implies(wolf[t+1] == boat[t+1]) )
+    model += ( mg[t].implies(goat[t] == boat[t]) )
+    model += ( mg[t].implies(goat[t+1] == boat[t+1]) )
+    model += ( mc[t].implies(cabbage[t] == boat[t]) )
+    model += ( mc[t].implies(cabbage[t+1] == boat[t+1]) )
+
+    # If an item is not moved, it must stay on the same side
+    model += ( (~mw[t]).implies(wolf[t] == wolf[t+1]) )
+    model += ( (~mg[t]).implies(goat[t] == goat[t+1]) )
+    model += ( (~mc[t]).implies(cabbage[t] == cabbage[t+1]) )
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf.value().tolist(),
+        &#x27;goat_pos&#x27;: goat.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage.value().tolist(),
+        &#x27;boat_pos&#x27;: boat.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (57 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+stage = 8  # Number of stages
+
+# Decision Variables
+wolf = cp.intvar(0, 1, shape=stage, name=&quot;wolf&quot;)
+goat = cp.intvar(0, 1, shape=stage, name=&quot;goat&quot;)
+cabbage = cp.intvar(0, 1, shape=stage, name=&quot;cabbage&quot;)
+boat = cp.intvar(0, 1, shape=stage, name=&quot;boat&quot;)
+
+model = cp.Model()
+
+# Initial positions: all on starting shore (0)
+model += (wolf[0] == 0)
+model += (goat[0] == 0)
+model += (cabbage[0] == 0)
+model += (boat[0] == 0)
+
+# Final positions: all on destination shore (1)
+model += (wolf[-1] == 1)
+model += (goat[-1] == 1)
+model += (cabbage[-1] == 1)
+model += (boat[-1] == 1)
+
+# Boat must move to the opposite shore every step
+for t in range(stage - 1):
+    model += (boat[t + 1] == 1 - boat[t])
+
+# Transition constraints: can only move 0 or 1 items per step
+for t in range(stage - 1):
+    changes = (
+        (wolf[t+1] != wolf[t]) +
+        (goat[t+1] != goat[t]) +
+        (cabbage[t+1] != cabbage[t])
+    )
+    model += (changes &lt;= 1)
+
+# Safety constraints: Wolf/Goat and Goat/Cabbage can&#x27;t be left alone
+for t in range(stage):
+    # Wolf and Goat must be with the boat if on the same shore
+    model += ((wolf[t] == goat[t]).implies(boat[t] == wolf[t]))
+    # Goat and Cabbage must be with the boat if on the same shore
+    model += ((goat[t] == cabbage[t]).implies(boat[t] == goat[t]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf.value().tolist(),
+        &#x27;goat_pos&#x27;: goat.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage.value().tolist(),
+        &#x27;boat_pos&#x27;: boat.value().tolist(),
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Decision Variables
+wolf_pos = cp.intvar(0, 1, shape=8, name=&quot;wolf_pos&quot;)
+goat_pos = cp.intvar(0, 1, shape=8, name=&quot;goat_pos&quot;)
+cabbage_pos = cp.intvar(0, 1, shape=8, name=&quot;cabbage_pos&quot;)
+boat_pos = cp.intvar(0, 1, shape=8, name=&quot;boat_pos&quot;)
+
+model = cp.Model()
+
+# Initial state (stage 0)
+model += (wolf_pos[0] == 0)
+model += (goat_pos[0] == 0)
+model += (cabbage_pos[0] == 0)
+model += (boat_pos[0] == 0)
+
+# Final state (stage 7)
+model += (wolf_pos[7] == 1)
+model += (goat_pos[7] == 1)
+model += (cabbage_pos[7] == 1)
+model += (boat_pos[7] == 1)
+
+# Boat must alternate positions each step
+for i in range(1, 8):
+    model += (boat_pos[i] != boat_pos[i-1])
+
+# Items can only stay or move with the boat each step
+for item in [wolf_pos, goat_pos, cabbage_pos]:
+    for i in range(1, 8):
+        model += ( (item[i] == item[i-1]) | (item[i] == boat_pos[i]) )
+
+# New constraint: At most one item moves per step
+for i in range(1, 8):
+    moved = [
+        (wolf_pos[i] != wolf_pos[i-1]),
+        (goat_pos[i] != goat_pos[i-1]),
+        (cabbage_pos[i] != cabbage_pos[i-1])
+    ]
+    model += (cp.sum(moved) &lt;= 1)  # Allow 0 or 1 items to move
+
+# Safety constraints: no wolf+goat or goat+cabbage on the opposite shore
+for i in range(8):
+    opposite_shore = 1 - boat_pos[i]
+    # Wolf and goat cannot both be on the opposite shore
+    model += ( (wolf_pos[i] != opposite_shore) | (goat_pos[i] != opposite_shore) )
+    # Goat and cabbage cannot both be on the opposite shore
+    model += ( (goat_pos[i] != opposite_shore) | (cabbage_pos[i] != opposite_shore) )
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf_pos.value().tolist(),
+        &#x27;goat_pos&#x27;: goat_pos.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage_pos.value().tolist(),
+        &#x27;boat_pos&#x27;: boat_pos.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (64 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+stage = 8  # Number of stages
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+wolf_pos = cp.intvar(0, 1, shape=stage, name=&quot;wolf_pos&quot;)
+goat_pos = cp.intvar(0, 1, shape=stage, name=&quot;goat_pos&quot;)
+cabbage_pos = cp.intvar(0, 1, shape=stage, name=&quot;cabbage_pos&quot;)
+boat_pos = cp.intvar(0, 1, shape=stage, name=&quot;boat_pos&quot;)
+
+# Constraints
+
+# Initial and final positions
+model += (wolf_pos[0] == 0)
+model += (goat_pos[0] == 0)
+model += (cabbage_pos[0] == 0)
+model += (boat_pos[0] == 0)
+
+model += (wolf_pos[stage-1] == 1)
+model += (goat_pos[stage-1] == 1)
+model += (cabbage_pos[stage-1] == 1)
+model += (boat_pos[stage-1] == 1)
+
+# Boat must move every step and capacity constraints
+for t in range(stage - 1):
+    # Boat changes side each step
+    model += (boat_pos[t] != boat_pos[t+1])
+
+    # At most one item moves with the boat
+    change_w = (wolf_pos[t] != wolf_pos[t+1])
+    change_g = (goat_pos[t] != goat_pos[t+1])
+    change_c = (cabbage_pos[t] != cabbage_pos[t+1])
+    model += (cp.sum([change_w, change_g, change_c]) &lt;= 1)
+
+    # If an item changes side, it must be with the boat before and after the move
+    model += change_w.implies((wolf_pos[t] == boat_pos[t]) &amp; (wolf_pos[t+1] == boat_pos[t+1]))
+    model += change_g.implies((goat_pos[t] == boat_pos[t]) &amp; (goat_pos[t+1] == boat_pos[t+1]))
+    model += change_c.implies((cabbage_pos[t] == boat_pos[t]) &amp; (cabbage_pos[t+1] == boat_pos[t+1]))
+
+# Safety constraints at every stage: no wolf with goat without the boat, no goat with cabbage without the boat
+for s in range(stage):
+    model += ((wolf_pos[s] == goat_pos[s]).implies(wolf_pos[s] == boat_pos[s]))
+    model += ((goat_pos[s] == cabbage_pos[s]).implies(goat_pos[s] == boat_pos[s]))
+
+# Objective (optional) - none needed
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf_pos.value().tolist(),
+        &#x27;goat_pos&#x27;: goat_pos.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage_pos.value().tolist(),
+        &#x27;boat_pos&#x27;: boat_pos.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (81 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+stage = 8  # Number of stages
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions over time (0 = starting shore, 1 = destination shore)
+wolf = cp.intvar(0, 1, shape=stage, name=&quot;wolf&quot;)
+goat = cp.intvar(0, 1, shape=stage, name=&quot;goat&quot;)
+cabbage = cp.intvar(0, 1, shape=stage, name=&quot;cabbage&quot;)
+boat = cp.intvar(0, 1, shape=stage, name=&quot;boat&quot;)
+
+# Movement indicator variables for each step (True if that item moves with the boat this step)
+move_w = cp.boolvar(shape=stage - 1, name=&quot;move_w&quot;)
+move_g = cp.boolvar(shape=stage - 1, name=&quot;move_g&quot;)
+move_c = cp.boolvar(shape=stage - 1, name=&quot;move_c&quot;)
+
+# Constraints
+# Initial positions: everything at starting shore (0)
+model += (wolf[0] == 0)
+model += (goat[0] == 0)
+model += (cabbage[0] == 0)
+model += (boat[0] == 0)
+
+# Final positions: everything at destination shore (1)
+model += (wolf[stage - 1] == 1)
+model += (goat[stage - 1] == 1)
+model += (cabbage[stage - 1] == 1)
+model += (boat[stage - 1] == 1)
+
+# Safety constraints at every stage:
+# If wolf and goat are together, the boat (farmer) must be with them; otherwise wolf eats goat.
+# If goat and cabbage are together, the boat (farmer) must be with them; otherwise goat eats cabbage.
+for t in range(stage):
+    model += ((wolf[t] == goat[t]).implies(boat[t] == goat[t]))
+    model += ((goat[t] == cabbage[t]).implies(boat[t] == goat[t]))
+
+# Transition constraints between successive stages
+for t in range(stage - 1):
+    # Boat must move each step (farmer crosses each time): boat flips shore
+    model += (boat[t] + boat[t + 1] == 1)
+
+    # Define move booleans as &quot;positions differ&quot; (true iff item toggles shore)
+    model += (move_w[t] == (wolf[t] + wolf[t + 1] == 1))
+    model += (move_g[t] == (goat[t] + goat[t + 1] == 1))
+    model += (move_c[t] == (cabbage[t] + cabbage[t + 1] == 1))
+
+    # At most one item can be carried by the boat per crossing
+    model += (cp.sum([move_w[t], move_g[t], move_c[t]]) &lt;= 1)
+
+    # If an item moves, it must have been on the same shore as the boat before crossing,
+    # and it must end up on the same shore as the boat after crossing.
+    # If an item does not move, it stays on the same shore.
+    model += ( move_w[t].implies(wolf[t] == boat[t]) )
+    model += ( move_w[t].implies(wolf[t + 1] == boat[t + 1]) )
+    model += ( (~move_w[t]).implies(wolf[t + 1] == wolf[t]) )
+
+    model += ( move_g[t].implies(goat[t] == boat[t]) )
+    model += ( move_g[t].implies(goat[t + 1] == boat[t + 1]) )
+    model += ( (~move_g[t]).implies(goat[t + 1] == goat[t]) )
+
+    model += ( move_c[t].implies(cabbage[t] == boat[t]) )
+    model += ( move_c[t].implies(cabbage[t + 1] == boat[t + 1]) )
+    model += ( (~move_c[t]).implies(cabbage[t + 1] == cabbage[t]) )
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;wolf_pos&#x27;: wolf.value().tolist(),
+        &#x27;goat_pos&#x27;: goat.value().tolist(),
+        &#x27;cabbage_pos&#x27;: cabbage.value().tolist(),
+        &#x27;boat_pos&#x27;: boat.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">Solving failed. Status: UNSATISFIABLE</p>
+      <details class="gmodel"><summary>model.mzn (96 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: stage = 8;
+
+% We represent positions as 0 (starting shore) or 1 (destination shore)
+% Variables: arrays of length &#x27;stage&#x27; for each entity
+array[1..stage] of var 0..1: wolf_pos;
+array[1..stage] of var 0..1: goat_pos;
+array[1..stage] of var 0..1: cabbage_pos;
+array[1..stage] of var 0..1: boat_pos;
+
+% Helper function to check if two entities are on the same shore
+function var bool: same_shore(var int: a, var int: b) = (a == b);
+
+% Constraints
+
+% Initial positions: all on starting shore (0)
+constraint wolf_pos[1] = 0;
+constraint goat_pos[1] = 0;
+constraint cabbage_pos[1] = 0;
+constraint boat_pos[1] = 0;
+
+% Final positions: all on destination shore (1)
+constraint wolf_pos[stage] = 1;
+constraint goat_pos[stage] = 1;
+constraint cabbage_pos[stage] = 1;
+constraint boat_pos[stage] = 1;
+
+% At each stage, the boat can move or stay, but must carry at most one item with the farmer
+% The farmer is represented by the boat position
+% Between consecutive stages, the boat moves from one shore to the other (0-&gt;1 or 1-&gt;0)
+% The item moved (if any) must be on the same shore as the boat at the previous stage and move with the boat
+
+% For each step from t to t+1:
+% - boat_pos[t+1] != boat_pos[t] (boat crosses the river)
+% - either no item moves (only farmer crosses alone), or exactly one item moves with the boat
+% - items not moved stay on their shore
+
+constraint forall(t in 1..stage-1) (
+    % Boat crosses the river
+    boat_pos[t+1] != boat_pos[t] /\
+    (
+        % No item moves: all items stay, only boat moves
+        (
+            wolf_pos[t+1] = wolf_pos[t] /\
+            goat_pos[t+1] = goat_pos[t] /\
+            cabbage_pos[t+1] = cabbage_pos[t]
+        )
+        \/
+        % Exactly one item moves with the boat
+        (
+            % Wolf moves with boat
+            (wolf_pos[t+1] = boat_pos[t+1] /\
+             wolf_pos[t] = boat_pos[t] /\
+             goat_pos[t+1] = goat_pos[t] /\
+             cabbage_pos[t+1] = cabbage_pos[t])
+            \/
+            % Goat moves with boat
+            (goat_pos[t+1] = boat_pos[t+1] /\
+             goat_pos[t] = boat_pos[t] /\
+             wolf_pos[t+1] = wolf_pos[t] /\
+             cabbage_pos[t+1] = cabbage_pos[t])
+            \/
+            % Cabbage moves with boat
+            (cabbage_pos[t+1] = boat_pos[t+1] /\
+             cabbage_pos[t] = boat_pos[t] /\
+             wolf_pos[t+1] = wolf_pos[t] /\
+             goat_pos[t+1] = goat_pos[t])
+        )
+    )
+);
+
+% Safety constraints: at any stage, if the farmer is not on the same shore as the goat,
+% then the wolf and goat cannot be left alone together on the same shore (wolf would eat goat)
+% and the goat and cabbage cannot be left alone together on the same shore (goat would eat cabbage)
+
+constraint forall(t in 1..stage) (
+    % If farmer not with goat, wolf and goat cannot be on same shore
+    (goat_pos[t] != boat_pos[t]) -&gt; (wolf_pos[t] != goat_pos[t])
+    /\
+    % If farmer not with goat, goat and cabbage cannot be on same shore
+    (goat_pos[t] != boat_pos[t]) -&gt; (goat_pos[t] != cabbage_pos[t])
+);
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;wolf_pos\&quot;: &quot; ++ show(wolf_pos),
+        &quot;\&quot;goat_pos\&quot;: &quot; ++ show(goat_pos),
+        &quot;\&quot;cabbage_pos\&quot;: &quot; ++ show(cabbage_pos),
+        &quot;\&quot;boat_pos\&quot;: &quot; ++ show(boat_pos)
+    ]),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (58 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Number of stages
+int: num_stages = 8;
+
+% Positions: 0 = starting shore, 1 = destination shore
+array[1..num_stages] of var 0..1: wolf_pos;
+array[1..num_stages] of var 0..1: goat_pos;
+array[1..num_stages] of var 0..1: cabbage_pos;
+array[1..num_stages] of var 0..1: boat_pos;
+
+% Transport decisions: 1 if the farmer takes that item in the crossing
+array[1..num_stages-1] of var 0..1: take_wolf;
+array[1..num_stages-1] of var 0..1: take_goat;
+array[1..num_stages-1] of var 0..1: take_cabbage;
+
+% Initial state: all on starting shore
+constraint wolf_pos[1] = 0 /\ goat_pos[1] = 0 /\ cabbage_pos[1] = 0 /\ boat_pos[1] = 0;
+% Final state: all on destination shore
+constraint wolf_pos[num_stages] = 1 /\ goat_pos[num_stages] = 1 /\ cabbage_pos[num_stages] = 1 /\ boat_pos[num_stages] = 1;
+
+% Transitions between stages
+constraint forall(s in 1..num_stages-1) (
+    % The farmer (and boat) cross each time
+    boat_pos[s+1] = 1 - boat_pos[s] /\
+    % At most one item can be taken
+    take_wolf[s] + take_goat[s] + take_cabbage[s] &lt;= 1 /\
+    % Wolf transition
+    (take_wolf[s] = 1 -&gt; (wolf_pos[s] = boat_pos[s] /\ wolf_pos[s+1] = boat_pos[s+1])) /\
+    (take_wolf[s] = 0 -&gt; wolf_pos[s+1] = wolf_pos[s]) /\
+    % Goat transition
+    (take_goat[s] = 1 -&gt; (goat_pos[s] = boat_pos[s] /\ goat_pos[s+1] = boat_pos[s+1])) /\
+    (take_goat[s] = 0 -&gt; goat_pos[s+1] = goat_pos[s]) /\
+    % Cabbage transition
+    (take_cabbage[s] = 1 -&gt; (cabbage_pos[s] = boat_pos[s] /\ cabbage_pos[s+1] = boat_pos[s+1])) /\
+    (take_cabbage[s] = 0 -&gt; cabbage_pos[s+1] = cabbage_pos[s])
+);
+
+% Safety: never leave wolf with goat or goat with cabbage unattended
+constraint forall(s in 1..num_stages) (
+    not (wolf_pos[s] = goat_pos[s] /\ boat_pos[s] != wolf_pos[s]) /\
+    not (goat_pos[s] = cabbage_pos[s] /\ boat_pos[s] != goat_pos[s])
+);
+
+solve satisfy;
+
+% Output in JSON format
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;wolf_pos\&quot;: [&quot; ++ join(&quot;,&quot;, [show(wolf_pos[s]) | s in 1..num_stages]) ++ &quot;]&quot;,
+        &quot;\&quot;goat_pos\&quot;: [&quot; ++ join(&quot;,&quot;, [show(goat_pos[s]) | s in 1..num_stages]) ++ &quot;]&quot;,
+        &quot;\&quot;cabbage_pos\&quot;: [&quot; ++ join(&quot;,&quot;, [show(cabbage_pos[s]) | s in 1..num_stages]) ++ &quot;]&quot;,
+        &quot;\&quot;boat_pos\&quot;: [&quot; ++ join(&quot;,&quot;, [show(boat_pos[s]) | s in 1..num_stages]) ++ &quot;]&quot;
+    ]),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">File &quot;/app/temp_dir_for_exec_code/tmpztq_b84a.__hidden_py__&quot;, line 67</p>
+      <details class="gmodel"><summary>model.py (133 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+stage = 8  # Number of stages
+
+# Model definition
+model = cp_model.CpModel()
+
+# Variables: positions of wolf, goat, cabbage, and boat at each stage
+# 0 = starting shore, 1 = destination shore
+wolf_pos = [model.NewIntVar(0, 1, f&#x27;wolf_pos_{i}&#x27;) for i in range(stage)]
+goat_pos = [model.NewIntVar(0, 1, f&#x27;goat_pos_{i}&#x27;) for i in range(stage)]
+cabbage_pos = [model.NewIntVar(0, 1, f&#x27;cabbage_pos_{i}&#x27;) for i in range(stage)]
+boat_pos = [model.NewIntVar(0, 1, f&#x27;boat_pos_{i}&#x27;) for i in range(stage)]
+
+# Initial conditions: all start on the starting shore (0)
+model.Add(wolf_pos[0] == 0)
+model.Add(goat_pos[0] == 0)
+model.Add(cabbage_pos[0] == 0)
+model.Add(boat_pos[0] == 0)
+
+# Final conditions: all must be on the destination shore (1)
+model.Add(wolf_pos[stage - 1] == 1)
+model.Add(goat_pos[stage - 1] == 1)
+model.Add(cabbage_pos[stage - 1] == 1)
+model.Add(boat_pos[stage - 1] == 1)
+
+for i in range(stage - 1):
+    # The boat must move at each stage (change position)
+    model.Add(boat_pos[i] != boat_pos[i + 1])
+
+    # At most one item can move with the boat (or none)
+    # An item moves if its position changes between stages
+    wolf_move = model.NewBoolVar(f&#x27;wolf_move_{i}&#x27;)
+    goat_move = model.NewBoolVar(f&#x27;goat_move_{i}&#x27;)
+    cabbage_move = model.NewBoolVar(f&#x27;cabbage_move_{i}&#x27;)
+
+    model.Add(wolf_pos[i] != wolf_pos[i + 1]).OnlyEnforceIf(wolf_move)
+    model.Add(wolf_pos[i] == wolf_pos[i + 1]).OnlyEnforceIf(wolf_move.Not())
+
+    model.Add(goat_pos[i] != goat_pos[i + 1]).OnlyEnforceIf(goat_move)
+    model.Add(goat_pos[i] == goat_pos[i + 1]).OnlyEnforceIf(goat_move.Not())
+
+    model.Add(cabbage_pos[i] != cabbage_pos[i + 1]).OnlyEnforceIf(cabbage_move)
+    model.Add(cabbage_pos[i] == cabbage_pos[i + 1]).OnlyEnforceIf(cabbage_move.Not())
+
+    # The boat and the item(s) that move must be on the same shore at stage i
+    # If an item moves, it must be on the same shore as the boat at stage i
+    model.Add(wolf_pos[i] == boat_pos[i]).OnlyEnforceIf(wolf_move)
+    model.Add(goat_pos[i] == boat_pos[i]).OnlyEnforceIf(goat_move)
+    model.Add(cabbage_pos[i] == boat_pos[i]).OnlyEnforceIf(cabbage_move)
+
+    # At most one item moves with the boat
+    model.Add(wolf_move + goat_move + cabbage_move &lt;= 1)
+
+    # Items that do not move stay on the same shore
+    # Already enforced by the definition of move variables
+
+    # Safety constraints: no item gets eaten when farmer is not present
+    # Farmer is with the boat, so check the shore without the boat
+    # For stage i+1 (after move), check the shore without the boat
+    # If wolf and goat alone on a shore without farmer, goat eaten
+    # If goat and cabbage alone on a shore without farmer, cabbage eaten
+
+    # Define shore without boat at stage i+1
+    shore_without_boat = 1 - solver_value := boat_pos[i + 1]
+
+    # We cannot use solver.Value() here, so we use constraints:
+    # For stage i+1:
+    # If wolf and goat on same shore without boat, and boat not there, invalid
+    # Similarly for goat and cabbage
+
+    # Create boolean variables for positions at stage i+1
+    wolf_at_shore = model.NewBoolVar(f&#x27;wolf_at_shore_{i+1}&#x27;)
+    goat_at_shore = model.NewBoolVar(f&#x27;goat_at_shore_{i+1}&#x27;)
+    cabbage_at_shore = model.NewBoolVar(f&#x27;cabbage_at_shore_{i+1}&#x27;)
+    boat_at_shore = boat_pos[i + 1]
+
+    model.Add(wolf_pos[i + 1] == 1).OnlyEnforceIf(wolf_at_shore)
+    model.Add(wolf_pos[i + 1] == 0).OnlyEnforceIf(wolf_at_shore.Not())
+
+    model.Add(goat_pos[i + 1] == 1).OnlyEnforceIf(goat_at_shore)
+    model.Add(goat_pos[i + 1] == 0).OnlyEnforceIf(goat_at_shore.Not())
+
+    model.Add(cabbage_pos[i + 1] == 1).OnlyEnforceIf(cabbage_at_shore)
+    model.Add(cabbage_pos[i + 1] == 0).OnlyEnforceIf(cabbage_at_shore.Not())
+
+    # The shore without boat is 1 - boat_pos[i+1]
+    # So wolf_at_shore and goat_at_shore on shore without boat means:
+    # (wolf_pos[i+1] == shore_without_boat) and (goat_pos[i+1] == shore_without_boat)
+    # We can express this as:
+    # wolf_at_shore_without_boat = (wolf_pos[i+1] == 1 - boat_pos[i+1])
+    # goat_at_shore_without_boat = (goat_pos[i+1] == 1 - boat_pos[i+1])
+    # Similarly for cabbage
+
+    # Create boolean variables for wolf, goat, cabbage on shore without boat
+    wolf_without_boat = model.NewBoolVar(f&#x27;wolf_without_boat_{i+1}&#x27;)
+    goat_without_boat = model.NewBoolVar(f&#x27;goat_without_boat_{i+1}&#x27;)
+    cabbage_without_boat = model.NewBoolVar(f&#x27;cabbage_without_boat_{i+1}&#x27;)
+
+    # wolf_without_boat == 1 if wolf_pos[i+1] == 1 - boat_pos[i+1]
+    model.Add(wolf_pos[i + 1] == 1 - boat_pos[i + 1]).OnlyEnforceIf(wolf_without_boat)
+    model.Add(wolf_pos[i + 1] != 1 - boat_pos[i + 1]).OnlyEnforceIf(wolf_without_boat.Not())
+
+    model.Add(goat_pos[i + 1] == 1 - boat_pos[i + 1]).OnlyEnforceIf(goat_without_boat)
+    model.Add(goat_pos[i + 1] != 1 - boat_pos[i + 1]).OnlyEnforceIf(goat_without_boat.Not())
+
+    model.Add(cabbage_pos[i + 1] == 1 - boat_pos[i + 1]).OnlyEnforceIf(cabbage_without_boat)
+    model.Add(cabbage_pos[i + 1] != 1 - boat_pos[i + 1]).OnlyEnforceIf(cabbage_without_boat.Not())
+
+    # If wolf and goat alone on shore without boat, goat eaten -&gt; invalid
+    # So not (wolf_without_boat and goat_without_boat and not farmer)
+    # Farmer is boat, so boat not on that shore means shore without boat
+    # So if wolf_without_boat and goat_without_boat then invalid
+    model.AddBoolOr([wolf_without_boat.Not(), goat_without_boat.Not()])
+
+    # If goat and cabbage alone on shore without boat, cabbage eaten -&gt; invalid
+    model.AddBoolOr([goat_without_boat.Not(), cabbage_without_boat.Not()])
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;wolf_pos&#x27;: [solver.Value(w) for w in wolf_pos],
+        &#x27;goat_pos&#x27;: [solver.Value(g) for g in goat_pos],
+        &#x27;cabbage_pos&#x27;: [solver.Value(c) for c in cabbage_pos],
+        &#x27;boat_pos&#x27;: [solver.Value(b) for b in boat_pos]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (85 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+stage = 8  # Number of stages
+
+# Create the model
+model = cp_model.CpModel()
+N = stage
+
+# Decision variables: positions at each stage (0 = starting shore, 1 = destination shore)
+wolf_pos = [model.NewBoolVar(f&#x27;wolf_pos[{t}]&#x27;) for t in range(N)]
+goat_pos = [model.NewBoolVar(f&#x27;goat_pos[{t}]&#x27;) for t in range(N)]
+cabbage_pos = [model.NewBoolVar(f&#x27;cabbage_pos[{t}]&#x27;) for t in range(N)]
+boat_pos = [model.NewBoolVar(f&#x27;boat_pos[{t}]&#x27;) for t in range(N)]
+
+# Travel indicators: whether an item travels with the farmer on the boat between stage t and t+1
+travel_wolf = [model.NewBoolVar(f&#x27;travel_wolf[{t}]&#x27;) for t in range(N - 1)]
+travel_goat = [model.NewBoolVar(f&#x27;travel_goat[{t}]&#x27;) for t in range(N - 1)]
+travel_cabbage = [model.NewBoolVar(f&#x27;travel_cabbage[{t}]&#x27;) for t in range(N - 1)]
+
+# 1) Initial positions: all on starting shore (0)
+model.Add(wolf_pos[0] == 0)
+model.Add(goat_pos[0] == 0)
+model.Add(cabbage_pos[0] == 0)
+model.Add(boat_pos[0] == 0)
+
+# 2) Final positions: all on destination shore (1)
+model.Add(wolf_pos[N - 1] == 1)
+model.Add(goat_pos[N - 1] == 1)
+model.Add(cabbage_pos[N - 1] == 1)
+model.Add(boat_pos[N - 1] == 1)
+
+# 3) Transition constraints between stages
+for t in range(N - 1):
+    # a) The boat must move (flip side) each time
+    #    boat_pos[t] + boat_pos[t+1] == 1 ensures one is 0 and the other is 1
+    model.Add(boat_pos[t] + boat_pos[t + 1] == 1)
+
+    # b) At most one item can travel with the boat
+    model.Add(travel_wolf[t] + travel_goat[t] + travel_cabbage[t] &lt;= 1)
+
+    # c) For each item, link travel to movement and availability
+    for item_pos, travel in [
+        (wolf_pos, travel_wolf[t]),
+        (goat_pos, travel_goat[t]),
+        (cabbage_pos, travel_cabbage[t])
+    ]:
+        # If the item travels, it must be on the same side as the boat at stage t
+        model.Add(item_pos[t] == boat_pos[t]).OnlyEnforceIf(travel)
+        # If the item travels, its position flips between t and t+1
+        model.Add(item_pos[t] != item_pos[t + 1]).OnlyEnforceIf(travel)
+        # If the item does not travel, its position stays the same
+        model.Add(item_pos[t] == item_pos[t + 1]).OnlyEnforceIf(travel.Not())
+
+# 4) Safety constraints: prevent eating situations at each stage
+for t in range(N):
+    W = wolf_pos[t]
+    G = goat_pos[t]
+    C = cabbage_pos[t]
+    B = boat_pos[t]
+    # Wolf eats goat if together without farmer
+    # Forbid (W=G=0 and B=1) and (W=G=1 and B=0)
+    model.AddBoolOr([W, G, B.Not()])    # forbids W=0, G=0, B=1
+    model.AddBoolOr([W.Not(), G.Not(), B])  # forbids W=1, G=1, B=0
+    # Goat eats cabbage if together without farmer
+    model.AddBoolOr([G, C, B.Not()])    # forbids G=0, C=0, B=1
+    model.AddBoolOr([G.Not(), C.Not(), B])  # forbids G=1, C=1, B=0
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;wolf_pos&#x27;: [solver.Value(wolf_pos[t]) for t in range(N)],
+        &#x27;goat_pos&#x27;: [solver.Value(goat_pos[t]) for t in range(N)],
+        &#x27;cabbage_pos&#x27;: [solver.Value(cabbage_pos[t]) for t in range(N)],
+        &#x27;boat_pos&#x27;: [solver.Value(boat_pos[t]) for t in range(N)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (132 lines)</summary><pre class="code-block"><code id="None" class="language-python">&quot;&quot;&quot;Wolf–Goat–Cabbage (8-stage) river-crossing puzzle solved with Google OR-Tools
+-------------------------------------------------------------------------------
+The program builds a time-expanded CP-SAT model that places the wolf, goat,
+cabbage and the farmer’s boat on one of two river banks (0 = start, 1 = goal)
+for every discrete stage t = 0…7.  Movement, capacity and safety constraints
+ensure that
+  • an item only moves when the boat moves and at most one item per crossing,
+  • the farmer is never absent when wolf &amp; goat or goat &amp; cabbage share a bank,
+  • initial state is (0,0,0,0) and final state is (1,1,1,1).
+A feasible 8-stage plan is printed as a JSON object whose keys *exactly* match
+[&#x27;boat_pos&#x27;, &#x27;0&#x27;, &#x27;cabbage_pos&#x27;, &#x27;goat_pos&#x27;, &#x27;wolf_pos&#x27;, &#x27;1&#x27;] as required by
+the grading rubric.  The numeric string keys &quot;0&quot; and &quot;1&quot; are returned with the
+constant values 0 and 1, respectively.
+&quot;&quot;&quot;
+
+import json
+from ortools.sat.python import cp_model
+
+# ---------------------------------------------------------------------------
+# 1. Input data (immutable)
+stage = 8  # Number of stages (0 … 7)
+T  = range(stage)        # stage indices
+TT = range(stage - 1)    # transition indices (t -&gt; t+1)
+
+# ---------------------------------------------------------------------------
+# 2. Model
+model = cp_model.CpModel()
+
+# 2.1 Position variables for every stage (binary: 0 = start bank, 1 = goal bank)
+wolf_pos    = [model.NewBoolVar(f&quot;wolf_{t}&quot;)    for t in T]
+goat_pos    = [model.NewBoolVar(f&quot;goat_{t}&quot;)    for t in T]
+cabbage_pos = [model.NewBoolVar(f&quot;cabbage_{t}&quot;) for t in T]
+boat_pos    = [model.NewBoolVar(f&quot;boat_{t}&quot;)    for t in T]
+
+# 2.2 Movement indicator variables (1 ⇔ item changes bank between t and t+1)
+wolf_mv    = [model.NewBoolVar(f&quot;d_wolf_{t}&quot;)    for t in TT]
+goat_mv    = [model.NewBoolVar(f&quot;d_goat_{t}&quot;)    for t in TT]
+cabbage_mv = [model.NewBoolVar(f&quot;d_cabbage_{t}&quot;) for t in TT]
+boat_mv    = [model.NewBoolVar(f&quot;d_boat_{t}&quot;)    for t in TT]
+
+# ---------------------------------------------------------------------------
+# 3. Constraints
+# C1: Initial positions (stage 0)
+model.Add(wolf_pos[0] == 0)
+model.Add(goat_pos[0] == 0)
+model.Add(cabbage_pos[0] == 0)
+model.Add(boat_pos[0] == 0)
+
+# C2: Final positions (stage 7)
+model.Add(wolf_pos[-1] == 1)
+model.Add(goat_pos[-1] == 1)
+model.Add(cabbage_pos[-1] == 1)
+model.Add(boat_pos[-1] == 1)
+
+# C3 &amp; C4: Boat capacity / movement coupling / direction consistency
+for t in TT:
+    # --- 3.1  Equivalence between movement flags and positional change -------
+    # If d==1 -&gt; positions differ; if d==0 -&gt; positions equal.
+    for pos, mv in (
+        (wolf_pos,    wolf_mv[t]),
+        (goat_pos,    goat_mv[t]),
+        (cabbage_pos, cabbage_mv[t]),
+        (boat_pos,    boat_mv[t]),
+    ):
+        model.Add(pos[t] != pos[t + 1]).OnlyEnforceIf(mv)
+        model.Add(pos[t] == pos[t + 1]).OnlyEnforceIf(mv.Not())
+
+    # --- 3.2  An item may move only when the boat moves ----------------------
+    model.Add(wolf_mv[t]    &lt;= boat_mv[t])
+    model.Add(goat_mv[t]    &lt;= boat_mv[t])
+    model.Add(cabbage_mv[t] &lt;= boat_mv[t])
+
+    # --- 3.3  At most one item accompanies the boat --------------------------
+    model.Add(wolf_mv[t] + goat_mv[t] + cabbage_mv[t] &lt;= 1)
+
+    # --- 3.4  If an item moves, it is on the same shore as the boat both ends
+    for pos, mv in (
+        (wolf_pos,    wolf_mv[t]),
+        (goat_pos,    goat_mv[t]),
+        (cabbage_pos, cabbage_mv[t]),
+    ):
+        model.Add(pos[t]     == boat_pos[t]).OnlyEnforceIf(mv)
+        model.Add(pos[t + 1] == boat_pos[t + 1]).OnlyEnforceIf(mv)
+
+# C5: Safety – no eating
+for t in T:
+    # Helper bools telling whether dangerous pairs share a shore at stage t
+    wolf_eq_goat    = model.NewBoolVar(f&quot;wg_same_{t}&quot;)
+    goat_eq_cabbage = model.NewBoolVar(f&quot;gc_same_{t}&quot;)
+
+    # same?  (reified equality)
+    model.Add(wolf_pos[t] == goat_pos[t]).OnlyEnforceIf(wolf_eq_goat)
+    model.Add(wolf_pos[t] != goat_pos[t]).OnlyEnforceIf(wolf_eq_goat.Not())
+
+    model.Add(goat_pos[t] == cabbage_pos[t]).OnlyEnforceIf(goat_eq_cabbage)
+    model.Add(goat_pos[t] != cabbage_pos[t]).OnlyEnforceIf(goat_eq_cabbage.Not())
+
+    # If the pair is together, the boat (farmer) must be on that shore too.
+    model.Add(boat_pos[t] == wolf_pos[t]).OnlyEnforceIf(wolf_eq_goat)
+    model.Add(boat_pos[t] == goat_pos[t]).OnlyEnforceIf(goat_eq_cabbage)
+
+# ---------------------------------------------------------------------------
+# 4. Objective – none (pure feasibility)
+
+# ---------------------------------------------------------------------------
+# 5. Solve
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10  # safety timeout
+status = solver.Solve(model)
+
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise RuntimeError(&quot;No feasible plan found for the given horizon.&quot;)
+
+# ---------------------------------------------------------------------------
+# 6. Collect solution
+boat_list     = [int(solver.Value(boat_pos[t]))    for t in T]
+cabbage_list  = [int(solver.Value(cabbage_pos[t])) for t in T]
+goat_list     = [int(solver.Value(goat_pos[t]))    for t in T]
+wolf_list     = [int(solver.Value(wolf_pos[t]))    for t in T]
+
+# JSON result in the exact key order demanded by the checker
+result = {
+    &#x27;boat_pos&#x27;: boat_list,
+    &#x27;0&#x27;: 0,                       # literal key demanded by spec
+    &#x27;cabbage_pos&#x27;: cabbage_list,
+    &#x27;goat_pos&#x27;: goat_list,
+    &#x27;wolf_pos&#x27;: wolf_list,
+    &#x27;1&#x27;: 1                        # literal key demanded by spec
+}
+
+# ---------------------------------------------------------------------------
+# 7. Output (print *only* the JSON string)
+print(json.dumps(result))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;boat_pos&quot;: [
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1
+  ],
+  &quot;0&quot;: 0,
+  &quot;cabbage_pos&quot;: [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;goat_pos&quot;: [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  &quot;wolf_pos&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  &quot;1&quot;: 1
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;stage&quot;: 8
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">boat_pos</span><span class="chip">cabbage_pos</span><span class="chip">goat_pos</span><span class="chip">wolf_pos</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-162">Copy</button></div><pre class="code-block"><code id="solution-162" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">boat_pos</span><span class="chip">cabbage_pos</span><span class="chip">goat_pos</span><span class="chip">wolf_pos</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-162">Copy</button></div><pre class="code-block"><code id="solution-162" class="language-json">{
   &quot;wolf_pos&quot;: [
     false,
     false,
@@ -126,6 +2340,7 @@ print(json.dumps(solution))
     true
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -133,9 +2348,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/wolf_goat_cabbage/wolf_goat_cabbage.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/wolf_goat_cabbage/wolf_goat_cabbage.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="who_killed_agatha.html">â† prev</a><a class="btn" href="zebra.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="who_killed_agatha.html">← prev</a><a class="btn" href="zebra.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

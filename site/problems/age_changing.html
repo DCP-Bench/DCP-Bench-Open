@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>age_changing Â· DCP-Bench Open</title>
-<meta name="description" content="If you start with my age, in years, and apply the four operations: [ +2 /8 -3 *7 ] in some order, then the final answer you get is my husband&#x27;s age. Funnily enâ€¦">
+<title>age_changing · DCP-Bench Open</title>
+<meta name="description" content="If you start with my age, in years, and apply the four operations: [ +2 /8 -3 *7 ] in some order, then the final answer you get is my husband&#x27;s age. Funnily en…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/age_changing.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/age_changing.py</a></dd><dt>Source description</dt><dd><a href="https://enigmaticcode.wordpress.com/2015/06/20/enigma-1224-age-changing/" target="_blank" rel="noopener">https://enigmaticcode.wordpress.com/2015/06/20/enigma-1224-age-changing/</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-3">Copy</button></div><pre class="code-block"><code id="model-3" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -106,13 +107,896 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">h</span><span class="chip">m</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-3">Copy</button></div><pre class="code-block"><code id="solution-3" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+from itertools import permutations
+
+# Decision Variables
+m = intvar(1, 100, name=&quot;m&quot;)  # My age
+h = intvar(1, 100, name=&quot;h&quot;)  # Husband&#x27;s age
+
+# Model
+model = Model()
+
+# Define operations as functions that can be applied to variables
+def op1(x): return x + 2
+def op2(x): return x // 8     # Using integer division
+def op3(x): return x - 3
+def op4(x): return x * 7
+
+ops = [op1, op2, op3, op4]
+
+# Create all possible permutations of operations
+perms = list(permutations(ops))
+
+# Create constraints for m to h transformation
+m_to_h = []
+for p in perms:
+    # Apply operations in correct order (p[0] first, p[1] second, etc.)
+    res = p[0](p[1](p[2](p[3](m))))
+    m_to_h.append(res == h)
+
+# Create constraints for h to m transformation
+h_to_m = []
+for p in perms:
+    res = p[0](p[1](p[2](p[3](h))))
+    h_to_m.append(res == m)
+
+# Add constraints: at least one permutation works for each direction
+model += sum(m_to_h) &gt;= 1
+model += sum(h_to_m) &gt;= 1
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;m&quot;: m.value(),
+    &quot;h&quot;: h.value()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+m = intvar(0, 100, name=&quot;m&quot;)  # My age
+h = intvar(0, 100, name=&quot;h&quot;)  # Husband&#x27;s age
+
+# Define the four operations as expressions
+def op1(x): return x + 2
+def op2(x): return x // 8
+def op3(x): return x - 3
+def op4(x): return x * 7
+
+# List of all possible operation functions
+ops = [op1, op2, op3, op4]
+
+# Model
+model = Model()
+
+# Try all possible pairs of permutations (p1 for m -&gt; h, p2 for h -&gt; m)
+from itertools import permutations
+
+for p1 in permutations(range(4)):
+    for p2 in permutations(range(4)):
+        if p1 != p2:
+            # Apply p1 to m and check if it equals h
+            temp_m = m
+            for op_idx in p1:
+                temp_m = ops[op_idx](temp_m)
+            # Apply p2 to h and check if it equals m
+            temp_h = h
+            for op_idx in p2:
+                temp_h = ops[op_idx](temp_h)
+            # Add constraints for this specific pair of permutations
+            model += [temp_m == h, temp_h == m]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;m&quot;: m.value(), &quot;h&quot;: h.value()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Operations: 0 = +2, 1 = /8, 2 = -3, 3 = *7
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+m = cp.intvar(1, 2000, name=&quot;m&quot;)   # my age
+h = cp.intvar(1, 2000, name=&quot;h&quot;)   # husband&#x27;s age
+
+order1 = cp.intvar(0, 3, shape=4, name=&quot;order1&quot;)  # order applying ops to m -&gt; h
+order2 = cp.intvar(0, 3, shape=4, name=&quot;order2&quot;)  # order applying ops to h -&gt; m
+
+# Intermediate values for sequences (5 values: start + 4 steps)
+x = cp.intvar(0, 200000, shape=5, name=&quot;x&quot;)  # from m to h
+y = cp.intvar(0, 200000, shape=5, name=&quot;y&quot;)  # from h to m
+
+# Basic linking start and end
+model += (x[0] == m)
+model += (x[4] == h)
+model += (y[0] == h)
+model += (y[4] == m)
+
+# Ensure orders are permutations of 0..3
+model += cp.AllDifferent(order1)
+model += cp.AllDifferent(order2)
+
+# For each step enforce the corresponding operation (using implications)
+for i in range(4):
+    # operation 0: +2  =&gt; x[i+1] == x[i] + 2
+    model += (order1[i] == 0).implies(x[i+1] == x[i] + 2)
+    model += (order1[i] == 1).implies(x[i] == 8 * x[i+1])   # /8 -&gt; current = 8 * next (ensures divisibility)
+    model += (order1[i] == 2).implies(x[i+1] == x[i] - 3)
+    model += (order1[i] == 3).implies(x[i+1] == 7 * x[i])
+
+    model += (order2[i] == 0).implies(y[i+1] == y[i] + 2)
+    model += (order2[i] == 1).implies(y[i] == 8 * y[i+1])
+    model += (order2[i] == 2).implies(y[i+1] == y[i] - 3)
+    model += (order2[i] == 3).implies(y[i+1] == 7 * y[i])
+
+# Optional: distinct ages (likely different people)
+model += (m != h)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;m&#x27;: int(m.value()), &#x27;h&#x27;: int(h.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (117 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import itertools
+
+# The four operations and their effects:
+# +2, /8, -3, *7
+
+# Variables: m = my age, h = husband&#x27;s age
+# Both ages are positive integers, reasonable range (e.g. 1 to 120)
+m = cp.intvar(1, 120, name=&quot;m&quot;)
+h = cp.intvar(1, 120, name=&quot;h&quot;)
+
+# Since division by 8 must yield integer results, intermediate computations must be integers.
+
+# We have two sequences of applying operations to get each other:
+
+# Operations with their function forms:
+# op1: +2 (x + 2)
+# op2: /8 (x // 8, integer division)
+# op3: -3 (x - 3)
+# op4: *7 (x * 7)
+
+# We want to find permutations p1 and p2 of these operations:
+# Applying p1 to m yields h
+# Applying p2 (different order) to h yields m
+
+ops = [
+    (&quot;+2&quot;, lambda x: x + 2),
+    (&quot;/8&quot;, lambda x: x // 8),
+    (&quot;-3&quot;, lambda x: x - 3),
+    (&quot;*7&quot;, lambda x: x * 7),
+]
+
+# We must model the sequences and intermediate variables to ensure integer constraints
+
+model = cp.Model()
+
+# To handle order of operations, create intermediate variables for each operation in the sequence
+# For p1: starting from m, apply 4 ops in order to get h
+# For p2: starting from h, apply 4 ops in order to get m
+
+# We&#x27;ll try all permutations for p1 and p2 and add constraints for one pair at a time
+# because we cannot directly represent the variable order of application with cpmpy variables easily.
+
+# So we will do a search over pairs of permutations and try to solve the system for m,h.
+
+found_solution = False
+result = {}
+
+for p1 in itertools.permutations(ops):
+    for p2 in itertools.permutations(ops):
+        if p1 == p2:
+            continue
+
+        model = cp.Model()
+
+        # Variables for m and h
+        m = cp.intvar(1, 120, name=&quot;m&quot;)
+        h = cp.intvar(1, 120, name=&quot;h&quot;)
+
+        # Intermediate variables for p1 (4 intermediate steps + final)
+        p1_vars = [m] + [cp.intvar(-1000, 10000) for _ in range(4)]
+        # Intermediate variables for p2 (4 intermediate steps + final)
+        p2_vars = [h] + [cp.intvar(-1000, 10000) for _ in range(4)]
+
+        # Apply operations in order p1: p1_vars[i+1] = apply p1[i] on p1_vars[i]
+        for i, (name, op) in enumerate(p1):
+            if name == &quot;+2&quot;:
+                model += (p1_vars[i+1] == p1_vars[i] + 2)
+            elif name == &quot;/8&quot;:
+                # division must be exact integer division
+                model += (p1_vars[i] % 8 == 0)
+                model += (p1_vars[i+1] == p1_vars[i] // 8)
+            elif name == &quot;-3&quot;:
+                model += (p1_vars[i+1] == p1_vars[i] - 3)
+            elif name == &quot;*7&quot;:
+                model += (p1_vars[i+1] == p1_vars[i] * 7)
+
+        # Final result of p1 is h
+        model += (p1_vars[4] == h)
+
+        # Apply operations in order p2: p2_vars[i+1] = apply p2[i] on p2_vars[i]
+        for i, (name, op) in enumerate(p2):
+            if name == &quot;+2&quot;:
+                model += (p2_vars[i+1] == p2_vars[i] + 2)
+            elif name == &quot;/8&quot;:
+                model += (p2_vars[i] % 8 == 0)
+                model += (p2_vars[i+1] == p2_vars[i] // 8)
+            elif name == &quot;-3&quot;:
+                model += (p2_vars[i+1] == p2_vars[i] - 3)
+            elif name == &quot;*7&quot;:
+                model += (p2_vars[i+1] == p2_vars[i] * 7)
+
+        # Final result of p2 is m
+        model += (p2_vars[4] == m)
+
+        # Both ages positive
+        model += (m &gt;= 1)
+        model += (h &gt;= 1)
+
+        # Solve model
+        if model.solve():
+            # Collect solution
+            result = {
+                &#x27;m&#x27;: int(m.value()),
+                &#x27;h&#x27;: int(h.value()),
+            }
+            found_solution = True
+            break
+    if found_solution:
+        break
+
+if found_solution:
+    print(json.dumps(result, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (80 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Operations: index mapping
+# 0: +2
+# 1: /8  (exact division)
+# 2: -3
+# 3: *7
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Ages (reasonable bounds)
+m = cp.intvar(0, 1000, name=&quot;m&quot;)
+h = cp.intvar(0, 1000, name=&quot;h&quot;)
+
+# Intermediate values for 4 steps: v0..v4 (forward), w0..w4 (backward)
+V = cp.intvar(0, 100000, shape=5, name=&quot;V&quot;)  # V[0]=m, V[4]=h
+W = cp.intvar(0, 100000, shape=5, name=&quot;W&quot;)  # W[0]=h, W[4]=m
+
+# Link endpoints
+model += (V[0] == m)
+model += (V[4] == h)
+model += (W[0] == h)
+model += (W[4] == m)
+
+# Permutation indicators: bijf for forward, bijb for backward
+bijf = cp.boolvar(shape=(4, 4), name=&quot;bijf&quot;)
+bijb = cp.boolvar(shape=(4, 4), name=&quot;bijb&quot;)
+
+# Each position uses exactly one operation; each operation used exactly once
+for i in range(4):
+    model += (cp.sum(bijf[i, :]) == 1)
+    model += (cp.sum(bijb[i, :]) == 1)
+for j in range(4):
+    model += (cp.sum(bijf[:, j]) == 1)
+    model += (cp.sum(bijb[:, j]) == 1)
+
+# Forward step constraints
+for i in range(4):
+    # op 0: +2
+    model += bijf[i, 0].implies(V[i+1] == V[i] + 2)
+    # op 1: /8  -&gt; V[i] == V[i+1] * 8  (ensures exact division)
+    model += bijf[i, 1].implies(V[i] == V[i+1] * 8)
+    # op 2: -3
+    model += bijf[i, 2].implies(V[i+1] == V[i] - 3)
+    # op 3: *7
+    model += bijf[i, 3].implies(V[i+1] == V[i] * 7)
+
+# Backward step constraints (starting from h to get m)
+for i in range(4):
+    # op 0: +2
+    model += bijb[i, 0].implies(W[i+1] == W[i] + 2)
+    # op 1: /8  -&gt; W[i] == W[i+1] * 8
+    model += bijb[i, 1].implies(W[i] == W[i+1] * 8)
+    # op 2: -3
+    model += bijb[i, 2].implies(W[i+1] == W[i] - 3)
+    # op 3: *7
+    model += bijb[i, 3].implies(W[i+1] == W[i] * 7)
+
+# Ensure the two orders are different (permutations not identical)
+diffs = []
+for i in range(4):
+    for j in range(4):
+        # bijf[i,j] != bijb[i,j] yields a boolean; sum of these &gt;= 1 ensures difference
+        diffs.append(bijf[i, j] != bijb[i, j])
+model += (cp.sum(diffs) &gt;= 1)
+
+# Optional: ages should be positive (realistic)
+model += (m &gt;= 1)
+model += (h &gt;= 1)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;m&#x27;: int(m.value()), &#x27;h&#x27;: int(h.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+m = cp.intvar(1, 120, name=&quot;m&quot;)  # my age
+h = cp.intvar(1, 120, name=&quot;h&quot;)  # husband&#x27;s age
+
+# Permutations of operations: 0:+2, 1:/8, 2:-3, 3:*7
+perm1 = cp.intvar(0, 3, shape=4, name=&quot;perm1&quot;)  # order starting from m to get h
+perm2 = cp.intvar(0, 3, shape=4, name=&quot;perm2&quot;)  # order starting from h to get m
+
+# States after each of the 4 operations (5 states including start)
+s1 = cp.intvar(-2000, 2000, shape=5, name=&quot;s1&quot;)
+s2 = cp.intvar(-2000, 2000, shape=5, name=&quot;s2&quot;)
+
+# Constraints
+# Ages different (natural assumption) and bounds already set
+model += (m != h)
+
+# Each permutation uses each operation exactly once
+model += cp.AllDifferent(perm1)
+model += cp.AllDifferent(perm2)
+
+# The two orders are different
+model += cp.any([perm1[i] != perm2[i] for i in range(4)])
+
+# Link start and end states
+model += (s1[0] == m)
+model += (s1[4] == h)
+model += (s2[0] == h)
+model += (s2[4] == m)
+
+# Apply operations according to perm1 on s1
+for i in range(4):
+    model += (perm1[i] == 0).implies(s1[i+1] == s1[i] + 2)     # +2
+    model += (perm1[i] == 1).implies(8 * s1[i+1] == s1[i])     # /8, exact division
+    model += (perm1[i] == 2).implies(s1[i+1] == s1[i] - 3)     # -3
+    model += (perm1[i] == 3).implies(s1[i+1] == 7 * s1[i])     # *7
+
+# Apply operations according to perm2 on s2
+for i in range(4):
+    model += (perm2[i] == 0).implies(s2[i+1] == s2[i] + 2)     # +2
+    model += (perm2[i] == 1).implies(8 * s2[i+1] == s2[i])     # /8, exact division
+    model += (perm2[i] == 2).implies(s2[i+1] == s2[i] - 3)     # -3
+    model += (perm2[i] == 3).implies(s2[i+1] == 7 * s2[i])     # *7
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;m&#x27;: int(m.value()), &#x27;h&#x27;: int(h.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Operations: 0 = +2, 1 = /8, 2 = -3, 3 = *7
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+m = cp.intvar(1, 2000, name=&quot;m&quot;)   # my age
+h = cp.intvar(1, 2000, name=&quot;h&quot;)   # husband&#x27;s age
+
+order1 = cp.intvar(0, 3, shape=4, name=&quot;order1&quot;)  # order applying ops to m -&gt; h
+order2 = cp.intvar(0, 3, shape=4, name=&quot;order2&quot;)  # order applying ops to h -&gt; m
+
+# Intermediate values for sequences (5 values: start + 4 steps)
+x = cp.intvar(0, 200000, shape=5, name=&quot;x&quot;)  # from m to h
+y = cp.intvar(0, 200000, shape=5, name=&quot;y&quot;)  # from h to m
+
+# Basic linking start and end
+model += (x[0] == m)
+model += (x[4] == h)
+model += (y[0] == h)
+model += (y[4] == m)
+
+# Ensure orders are permutations of 0..3
+model += cp.AllDifferent(order1)
+model += cp.AllDifferent(order2)
+
+# For each step enforce the corresponding operation (using implications)
+for i in range(4):
+    # operation 0: +2  =&gt; x[i+1] == x[i] + 2
+    model += (order1[i] == 0).implies(x[i+1] == x[i] + 2)
+    model += (order1[i] == 1).implies(x[i] == 8 * x[i+1])   # /8 -&gt; current = 8 * next (ensures divisibility)
+    model += (order1[i] == 2).implies(x[i+1] == x[i] - 3)
+    model += (order1[i] == 3).implies(x[i+1] == 7 * x[i])
+
+    model += (order2[i] == 0).implies(y[i+1] == y[i] + 2)
+    model += (order2[i] == 1).implies(y[i] == 8 * y[i+1])
+    model += (order2[i] == 2).implies(y[i+1] == y[i] - 3)
+    model += (order2[i] == 3).implies(y[i+1] == 7 * y[i])
+
+# Optional: distinct ages (likely different people)
+model += (m != h)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;m&#x27;: int(m.value()), &#x27;h&#x27;: int(h.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (100 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% We have two unknown ages: m (my age) and h (husband&#x27;s age)
+% Both are positive integers, let&#x27;s assume a reasonable range for ages
+int: min_age = 1;
+int: max_age = 120;
+
+var min_age..max_age: m;
+var min_age..max_age: h;
+
+% The four operations to apply in some order:
+% +2, /8, -3, *7
+% We apply all four operations exactly once in some order to m to get h
+% and apply all four operations exactly once in some order to h to get m
+
+% We model the operations as functions:
+% Since division by 8 must result in an integer, we enforce integer division with no remainder
+
+% We represent the operations as a list of functions and their inverses:
+% But since order matters, we will try all permutations of the operations applied to m and h
+
+% Define the operations as identifiers
+enum OPERATIONS = {op_add2, op_div8, op_sub3, op_mul7};
+
+% All permutations of the 4 operations
+array[1..24, 1..4] of OPERATIONS: all_perms = [
+    % generated all permutations of [op_add2, op_div8, op_sub3, op_mul7]
+    % For brevity, we list them explicitly:
+    [op_add2, op_div8, op_sub3, op_mul7],
+    [op_add2, op_div8, op_mul7, op_sub3],
+    [op_add2, op_sub3, op_div8, op_mul7],
+    [op_add2, op_sub3, op_mul7, op_div8],
+    [op_add2, op_mul7, op_div8, op_sub3],
+    [op_add2, op_mul7, op_sub3, op_div8],
+    [op_div8, op_add2, op_sub3, op_mul7],
+    [op_div8, op_add2, op_mul7, op_sub3],
+    [op_div8, op_sub3, op_add2, op_mul7],
+    [op_div8, op_sub3, op_mul7, op_add2],
+    [op_div8, op_mul7, op_add2, op_sub3],
+    [op_div8, op_mul7, op_sub3, op_add2],
+    [op_sub3, op_add2, op_div8, op_mul7],
+    [op_sub3, op_add2, op_mul7, op_div8],
+    [op_sub3, op_div8, op_add2, op_mul7],
+    [op_sub3, op_div8, op_mul7, op_add2],
+    [op_sub3, op_mul7, op_add2, op_div8],
+    [op_sub3, op_mul7, op_div8, op_add2],
+    [op_mul7, op_add2, op_div8, op_sub3],
+    [op_mul7, op_add2, op_sub3, op_div8],
+    [op_mul7, op_div8, op_add2, op_sub3],
+    [op_mul7, op_div8, op_sub3, op_add2],
+    [op_mul7, op_sub3, op_add2, op_div8],
+    [op_mul7, op_sub3, op_div8, op_add2]
+];
+
+% Function to apply one operation to a value, returns -1 if invalid (e.g. division not exact)
+function var int: apply_op(var int: x, OPERATIONS: op) =
+    if op = op_add2 then x + 2
+    else if op = op_div8 then
+        if x mod 8 = 0 then x div 8 else -1 endif
+    else if op = op_sub3 then x - 3
+    else if op = op_mul7 then x * 7
+    else -1 endif endif endif endif;
+
+% Function to apply a sequence of operations to a value
+function var int: apply_ops(var int: x, array[int] of OPERATIONS: ops) =
+    let {
+        var int: r1 = apply_op(x, ops[1]),
+        var int: r2 = if r1 &gt;= 0 then apply_op(r1, ops[2]) else -1 endif,
+        var int: r3 = if r2 &gt;= 0 then apply_op(r2, ops[3]) else -1 endif,
+        var int: r4 = if r3 &gt;= 0 then apply_op(r3, ops[4]) else -1 endif
+    } in r4;
+
+% We want to find m, h, and two permutations p1 and p2 such that:
+% apply_ops(m, p1) = h
+% apply_ops(h, p2) = m
+% p1 != p2 (different order)
+
+var 1..24: p1;
+var 1..24: p2;
+
+constraint p1 != p2;
+
+constraint
+    let {
+        var int: res1 = apply_ops(m, all_perms[p1]),
+        var int: res2 = apply_ops(h, all_perms[p2])
+    } in
+    res1 = h /\ res2 = m /\
+    m &gt;= min_age /\ m &lt;= max_age /\
+    h &gt;= min_age /\ h &lt;= max_age /\
+    res1 &gt;= min_age /\ res1 &lt;= max_age /\
+    res2 &gt;= min_age /\ res2 &lt;= max_age;
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;m\&quot;: &quot;, show(m), &quot;,&quot;,
+    &quot;\&quot;h\&quot;: &quot;, show(h),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (116 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Variables: my age (m) and husband&#x27;s age (h)
+# Assuming reasonable age bounds for adults
+m = model.NewIntVar(1, 120, &#x27;m&#x27;)
+h = model.NewIntVar(1, 120, &#x27;h&#x27;)
+
+# The four operations to apply in some order:
+# +2, /8, -3, *7
+# We apply these four operations in some order to m to get h
+# and apply the same four operations in a different order to h to get m
+
+# We need to represent the order of operations for both sequences
+# There are 4 operations, so 4! = 24 possible orders
+# We&#x27;ll represent the order as a permutation of indices [0,1,2,3]
+# where 0: +2, 1: /8, 2: -3, 3: *7
+
+# Create variables for the order of operations for m-&gt;h and h-&gt;m
+order_mh = [model.NewIntVar(0, 3, f&#x27;order_mh_{i}&#x27;) for i in range(4)]
+order_hm = [model.NewIntVar(0, 3, f&#x27;order_hm_{i}&#x27;) for i in range(4)]
+
+# AllDifferent constraints for the orders (permutations)
+model.AddAllDifferent(order_mh)
+model.AddAllDifferent(order_hm)
+
+# The operations as functions:
+# We&#x27;ll apply operations step by step, so create intermediate variables for each step
+# For m-&gt;h:
+step_mh = [model.NewIntVar(-10000, 10000, f&#x27;step_mh_{i}&#x27;) for i in range(5)]
+# step_mh[0] = m (start)
+model.Add(step_mh[0] == m)
+
+# For h-&gt;m:
+step_hm = [model.NewIntVar(-10000, 10000, f&#x27;step_hm_{i}&#x27;) for i in range(5)]
+# step_hm[0] = h (start)
+model.Add(step_hm[0] == h)
+
+# Define the operations as functions on variables:
+# Because division by 8 must be exact (integer division), we enforce that step is divisible by 8
+# We&#x27;ll implement the operations as constraints depending on the operation index
+
+def apply_operation(model, prev, op_idx, result):
+    # op_idx is an IntVar in [0..3]
+    # prev and result are IntVars
+    # We create intermediate boolean variables for each operation to select which op is applied
+    is_add2 = model.NewBoolVar(&#x27;&#x27;)
+    is_div8 = model.NewBoolVar(&#x27;&#x27;)
+    is_sub3 = model.NewBoolVar(&#x27;&#x27;)
+    is_mul7 = model.NewBoolVar(&#x27;&#x27;)
+
+    model.Add(op_idx == 0).OnlyEnforceIf(is_add2)
+    model.Add(op_idx != 0).OnlyEnforceIf(is_add2.Not())
+
+    model.Add(op_idx == 1).OnlyEnforceIf(is_div8)
+    model.Add(op_idx != 1).OnlyEnforceIf(is_div8.Not())
+
+    model.Add(op_idx == 2).OnlyEnforceIf(is_sub3)
+    model.Add(op_idx != 2).OnlyEnforceIf(is_sub3.Not())
+
+    model.Add(op_idx == 3).OnlyEnforceIf(is_mul7)
+    model.Add(op_idx != 3).OnlyEnforceIf(is_mul7.Not())
+
+    # result = prev + 2 if is_add2
+    model.Add(result == prev + 2).OnlyEnforceIf(is_add2)
+
+    # result = prev / 8 if is_div8, and prev divisible by 8
+    # To enforce divisibility, create an auxiliary variable q: prev = 8 * q
+    q = model.NewIntVar(-10000, 10000, &#x27;&#x27;)
+    model.AddMultiplicationEquality(prev, [q, 8]).OnlyEnforceIf(is_div8)
+    model.Add(result == q).OnlyEnforceIf(is_div8)
+
+    # result = prev - 3 if is_sub3
+    model.Add(result == prev - 3).OnlyEnforceIf(is_sub3)
+
+    # result = prev * 7 if is_mul7
+    model.AddMultiplicationEquality(result, [prev, 7]).OnlyEnforceIf(is_mul7)
+
+# Apply operations for m-&gt;h
+for i in range(4):
+    apply_operation(model, step_mh[i], order_mh[i], step_mh[i+1])
+
+# The final result after 4 operations starting from m is h
+model.Add(step_mh[4] == h)
+
+# Apply operations for h-&gt;m
+for i in range(4):
+    apply_operation(model, step_hm[i], order_hm[i], step_hm[i+1])
+
+# The final result after 4 operations starting from h is m
+model.Add(step_hm[4] == m)
+
+# The order of operations for m-&gt;h and h-&gt;m must be different
+# So at least one position differs
+diff = []
+for i in range(4):
+    b = model.NewBoolVar(&#x27;&#x27;)
+    model.Add(order_mh[i] != order_hm[i]).OnlyEnforceIf(b)
+    model.Add(order_mh[i] == order_hm[i]).OnlyEnforceIf(b.Not())
+    diff.append(b)
+model.AddBoolOr(diff)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;m&#x27;: solver.Value(m),
+        &#x27;h&#x27;: solver.Value(h)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (80 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from itertools import permutations
+from math import gcd
+from ortools.sat.python import cp_model
+
+# ---------------------------------------------
+# 1. Enumerate the 24 permutations of operations
+# ---------------------------------------------
+ops = [&quot;+2&quot;, &quot;/8&quot;, &quot;-3&quot;, &quot;*7&quot;]
+all_perms = list(permutations(ops))  # 24 permutations
+
+# ------------------------------------------------------------
+# 2. For every permutation compute coefficients (n,c,d) so that
+#       f(x) = (n * x + c) / d
+#    remains exact for integer x whenever d | (n*x+c)
+# ------------------------------------------------------------
+
+def perm_to_coeff(perm):
+    n, c, d = 1, 0, 1  # represents (n*x + c) / d, initially x
+    for op in perm:
+        if op == &quot;+2&quot;:
+            # (n*x + c)/d  -&gt;  (n*x + c + 2*d)/d
+            c += 2 * d
+        elif op == &quot;-3&quot;:
+            c -= 3 * d
+        elif op == &quot;*7&quot;:
+            n *= 7
+            c *= 7
+        elif op == &quot;/8&quot;:
+            d *= 8
+        else:
+            raise ValueError(&quot;Unknown operation&quot;)
+    g = gcd(gcd(abs(n), abs(c)), d)
+    return n // g, c // g, d // g
+
+coeff_cache = {perm: perm_to_coeff(perm) for perm in all_perms}
+
+# ------------------------------------------------------------
+# 3. Try every ordered pair of distinct permutations (p1,p2).
+#    For each pair build a very small CP-SAT model with
+#        a1*m + b1 = c1*h
+#        a2*h + b2 = c2*m
+#    and search for positive integer ages.
+# ------------------------------------------------------------
+AGE_MAX = 1000  # generous upper bound for human ages
+found_m = None
+found_h = None
+
+for p1 in all_perms:
+    for p2 in all_perms:
+        if p1 == p2:
+            continue  # sequences must be different
+
+        a1, b1, c1 = coeff_cache[p1]  # h = (a1*m + b1)/c1
+        a2, b2, c2 = coeff_cache[p2]  # m = (a2*h + b2)/c2
+
+        model = cp_model.CpModel()
+        m = model.NewIntVar(1, AGE_MAX, &quot;m&quot;)
+        h = model.NewIntVar(1, AGE_MAX, &quot;h&quot;)
+
+        model.Add(a1 * m + b1 == c1 * h)
+        model.Add(a2 * h + b2 == c2 * m)
+
+        solver = cp_model.CpSolver()
+        status = solver.Solve(model)
+
+        if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+            found_m, found_h = solver.Value(m), solver.Value(h)
+            # We have the ages – terminate both loops
+            p1_used, p2_used = p1, p2  # just for potential debugging
+            break
+    if found_m is not None:
+        break
+
+if found_m is None:
+    raise RuntimeError(&quot;No solution found – consider increasing AGE_MAX.&quot;)
+
+# -------------------
+# 4. Output as JSON
+# -------------------
+print(json.dumps({&quot;m&quot;: found_m, &quot;h&quot;: found_h}))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">h</span><span class="chip">m</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-3">Copy</button></div><pre class="code-block"><code id="solution-3" class="language-json">{
   &quot;m&quot;: 48,
   &quot;h&quot;: 53
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -120,9 +1004,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/age_changing/age_changing.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/age_changing/age_changing.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="ages_of_the_sons.html">â† prev</a><a class="btn" href="aircraft_assignment.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="ages_of_the_sons.html">← prev</a><a class="btn" href="aircraft_assignment.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

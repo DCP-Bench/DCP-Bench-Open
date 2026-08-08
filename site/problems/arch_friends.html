@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>arch_friends Â· DCP-Bench Open</title>
-<meta name="description" content="Harriet, upon returning from the mall, is happily describing her four shoe purchases to her friend Aurora. Aurora just loves the four different kinds of shoesâ€¦">
+<title>arch_friends · DCP-Bench Open</title>
+<meta name="description" content="Harriet, upon returning from the mall, is happily describing her four shoe purchases to her friend Aurora. Aurora just loves the four different kinds of shoes…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/arch_friends.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/arch_friends.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-10">Copy</button></div><pre class="code-block"><code id="model-10" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
@@ -82,10 +83,756 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">ecruespadrilles</span><span class="chip">footfarm</span><span class="chip">fuchsiaflats</span><span class="chip">heelsinahandcart</span><span class="chip">purplepumps</span><span class="chip">suedesandals</span><span class="chip">theshoepalace</span><span class="chip">tootsies</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-10">Copy</button></div><pre class="code-block"><code id="solution-10" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+import numpy as np
+
+# Decision Variables
+# Shoes: ecruespadrilles=0, fuchsiaflats=1, purplepumps=2, suedesandals=3
+# Stores: footfarm=0, heelsinahandcart=1, theshoepalace=2, tootsies=3
+
+shoes = intvar(0, 3, shape=4, name=&quot;shoes&quot;)  # shoes[order] = shoe
+stores = intvar(0, 3, shape=4, name=&quot;stores&quot;)  # stores[order] = store
+
+# Model
+model = Model()
+
+# All variables must be distinct
+model += AllDifferent(shoes)
+model += AllDifferent(stores)
+
+# Constraint 1: Harriet bought fuchsia flats at Heels in a Handcart
+for i in range(4):
+    model += (shoes[i] == 1) == (stores[i] == 1)
+
+# Constraint 2: The store after purple pumps was not Tootsies
+for i in range(3):
+    model += (shoes[i] == 2).implies(stores[i+1] != 3)
+
+# Constraint 3: Foot Farm was second stop (index 1)
+model += stores[1] == 0
+
+# Constraint 4: Two stops after The Shoe Place was suede sandals
+for i in range(2):
+    model += (stores[i] == 2).implies(shoes[i+2] == 3)
+
+# Solve
+model.solve()
+
+# Prepare solution (using 1-based indexing for output)
+solution = {
+    &quot;ecruespadrilles&quot;: int(np.where(shoes.value() == 0)[0][0] + 1),
+    &quot;fuchsiaflats&quot;: int(np.where(shoes.value() == 1)[0][0] + 1),
+    &quot;purplepumps&quot;: int(np.where(shoes.value() == 2)[0][0] + 1),
+    &quot;suedesandals&quot;: int(np.where(shoes.value() == 3)[0][0] + 1),
+    &quot;footfarm&quot;: int(np.where(stores.value() == 0)[0][0] + 1),
+    &quot;heelsinahandcart&quot;: int(np.where(stores.value() == 1)[0][0] + 1),
+    &quot;theshoepalace&quot;: int(np.where(stores.value() == 2)[0][0] + 1),
+    &quot;tootsies&quot;: int(np.where(stores.value() == 3)[0][0] + 1)
+}
+
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+n = 4  # Number of shoes and stores
+
+# Decision variables
+# Each shoe is assigned a position (0 to 3) in the sequence of purchases
+ecruespadrilles = intvar(0, n - 1, name=&quot;ecruespadrilles&quot;)
+fuchsiaflats = intvar(0, n - 1, name=&quot;fuchsiaflats&quot;)
+purplepumps = intvar(0, n - 1, name=&quot;purplepumps&quot;)
+suedesandals = intvar(0, n - 1, name=&quot;suedesandals&quot;)
+
+# Each store is assigned a position (0 to 3) in the sequence of visits
+footfarm = intvar(0, n - 1, name=&quot;footfarm&quot;)
+heelsinahandcart = intvar(0, n - 1, name=&quot;heelsinahandcart&quot;)
+theshoepalace = intvar(0, n - 1, name=&quot;theshoepalace&quot;)
+tootsies = intvar(0, n - 1, name=&quot;tootsies&quot;)
+
+# All shoes and stores must have unique positions
+model = Model([
+    AllDifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals]),
+    AllDifferent([footfarm, heelsinahandcart, theshoepalace, tootsies])
+])
+
+# Clue 1: Harriet bought fuchsia flats at Heels in a Handcart.
+model += [fuchsiaflats == heelsinahandcart]
+
+# Clue 2: The store she visited just after buying her purple pumps was not Tootsies.
+model += [(purplepumps + 1) != tootsies]
+
+# Clue 3: The Foot Farm was Harriet&#x27;s second stop.
+model += [footfarm == 1]
+
+# Clue 4: Two stops after leaving The Shoe Palace, Harriet bought her suede sandals.
+model += [theshoepalace + 2 == suedesandals]
+model += [theshoepalace &lt;= 1]  # Ensure theshoepalace is at most 1 to avoid index out of bounds
+
+# Solve the model
+model.solve()
+
+# Output the solution
+solution = {
+    &quot;ecruespadrilles&quot;: ecruespadrilles.value(),
+    &quot;purplepumps&quot;: purplepumps.value(),
+    &quot;theshoepalace&quot;: theshoepalace.value(),
+    &quot;suedesandals&quot;: suedesandals.value(),
+    &quot;footfarm&quot;: footfarm.value(),
+    &quot;fuchsiaflats&quot;: fuchsiaflats.value(),
+    &quot;tootsies&quot;: tootsies.value(),
+    &quot;heelsinahandcart&quot;: heelsinahandcart.value()
+}
+
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions 1..4
+ecruespadrilles = cp.intvar(1,4, name=&quot;ecruespadrilles&quot;)
+fuchsiaflats = cp.intvar(1,4, name=&quot;fuchsiaflats&quot;)
+purplepumps = cp.intvar(1,4, name=&quot;purplepumps&quot;)
+suedesandals = cp.intvar(1,4, name=&quot;suedesandals&quot;)
+
+footfarm = cp.intvar(1,4, name=&quot;footfarm&quot;)
+heelsinahandcart = cp.intvar(1,4, name=&quot;heelsinahandcart&quot;)
+theshoepalace = cp.intvar(1,4, name=&quot;theshoepalace&quot;)
+tootsies = cp.intvar(1,4, name=&quot;tootsies&quot;)
+
+# All shoes occur at different positions and all stores occur at different positions
+model += cp.AllDifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals])
+model += cp.AllDifferent([footfarm, heelsinahandcart, theshoepalace, tootsies])
+
+# Constraints from the clues
+# 1. Harriet bought fuchsia flats at Heels in a Handcart.
+model += (fuchsiaflats == heelsinahandcart)
+
+# 2. The store she visited just after buying her purple pumps was not Tootsies.
+# =&gt; tootsies != purplepumps + 1
+model += (purplepumps &lt;= 3)  # ensure there is a &quot;just after&quot; stop
+model += (tootsies != purplepumps + 1)
+
+# 3. The Foot Farm was Harriet&#x27;s second stop.
+model += (footfarm == 2)
+
+# 4. Two stops after leaving The Shoe Place, Harriet bought her suede sandals.
+# =&gt; suedesandals == theshoepalace + 2
+model += (suedesandals == theshoepalace + 2)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;ecruespadrilles&#x27;: int(ecruespadrilles.value()),
+        &#x27;fuchsiaflats&#x27;: int(fuchsiaflats.value()),
+        &#x27;purplepumps&#x27;: int(purplepumps.value()),
+        &#x27;suedesandals&#x27;: int(suedesandals.value()),
+        &#x27;footfarm&#x27;: int(footfarm.value()),
+        &#x27;heelsinahandcart&#x27;: int(heelsinahandcart.value()),
+        &#x27;theshoepalace&#x27;: int(theshoepalace.value()),
+        &#x27;tootsies&#x27;: int(tootsies.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# We have 4 shoes and 4 stores, and 4 purchase order positions (1 to 4)
+# Shoes: ecruespadrilles, fuchsiaflats, purplepumps, suedesandals
+# Stores: footfarm, heelsinahandcart, theshoepalace, tootsies
+
+# Model definition
+model = cp.Model()
+
+# Decision variables: position of each shoe and store in the purchase order (1 to 4)
+ecruespadrilles = cp.intvar(1,4, name=&quot;ecruespadrilles&quot;)
+fuchsiaflats = cp.intvar(1,4, name=&quot;fuchsiaflats&quot;)
+purplepumps = cp.intvar(1,4, name=&quot;purplepumps&quot;)
+suedesandals = cp.intvar(1,4, name=&quot;suedesandals&quot;)
+
+footfarm = cp.intvar(1,4, name=&quot;footfarm&quot;)
+heelsinahandcart = cp.intvar(1,4, name=&quot;heelsinahandcart&quot;)
+theshoepalace = cp.intvar(1,4, name=&quot;theshoepalace&quot;)
+tootsies = cp.intvar(1,4, name=&quot;tootsies&quot;)
+
+# All shoes must be bought at different positions
+model += cp.AllDifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals])
+
+# All stores must be visited at different positions
+model += cp.AllDifferent([footfarm, heelsinahandcart, theshoepalace, tootsies])
+
+# Constraint 1: Harriet bought fuchsia flats at Heels in a Handcart.
+model += (fuchsiaflats == heelsinahandcart)
+
+# Constraint 2: The store she visited just after buying her purple pumps was not Tootsies.
+# So the position of the store visited after purple pumps is not tootsies
+# That means: if purplepumps = p, then the store at position p+1 != tootsies
+# We can express this as: tootsies != purplepumps + 1
+model += (tootsies != purplepumps + 1)
+
+# Constraint 3: The Foot Farm was Harriet&#x27;s second stop.
+model += (footfarm == 2)
+
+# Constraint 4: Two stops after leaving The Shoe Place, Harriet bought her suede sandals.
+# If theshoepalace = s, then suedesandals = s + 2
+model += (suedesandals == theshoepalace + 2)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;ecruespadrilles&#x27;: int(ecruespadrilles.value()),
+        &#x27;fuchsiaflats&#x27;: int(fuchsiaflats.value()),
+        &#x27;purplepumps&#x27;: int(purplepumps.value()),
+        &#x27;suedesandals&#x27;: int(suedesandals.value()),
+        &#x27;footfarm&#x27;: int(footfarm.value()),
+        &#x27;heelsinahandcart&#x27;: int(heelsinahandcart.value()),
+        &#x27;theshoepalace&#x27;: int(theshoepalace.value()),
+        &#x27;tootsies&#x27;: int(tootsies.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions 1..4
+ecruespadrilles = cp.intvar(1,4, name=&quot;ecruespadrilles&quot;)
+fuchsiaflats = cp.intvar(1,4, name=&quot;fuchsiaflats&quot;)
+purplepumps = cp.intvar(1,4, name=&quot;purplepumps&quot;)
+suedesandals = cp.intvar(1,4, name=&quot;suedesandals&quot;)
+
+footfarm = cp.intvar(1,4, name=&quot;footfarm&quot;)
+heelsinahandcart = cp.intvar(1,4, name=&quot;heelsinahandcart&quot;)
+theshoepalace = cp.intvar(1,4, name=&quot;theshoepalace&quot;)
+tootsies = cp.intvar(1,4, name=&quot;tootsies&quot;)
+
+# All shoes occur at different positions and all stores occur at different positions
+model += cp.AllDifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals])
+model += cp.AllDifferent([footfarm, heelsinahandcart, theshoepalace, tootsies])
+
+# Constraints from the clues
+# 1. Harriet bought fuchsia flats at Heels in a Handcart.
+model += (fuchsiaflats == heelsinahandcart)
+
+# 2. The store she visited just after buying her purple pumps was not Tootsies.
+# =&gt; tootsies != purplepumps + 1
+model += (purplepumps &lt;= 3)  # ensure there is a &quot;just after&quot; stop
+model += (tootsies != purplepumps + 1)
+
+# 3. The Foot Farm was Harriet&#x27;s second stop.
+model += (footfarm == 2)
+
+# 4. Two stops after leaving The Shoe Place, Harriet bought her suede sandals.
+# =&gt; suedesandals == theshoepalace + 2
+model += (suedesandals == theshoepalace + 2)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;ecruespadrilles&#x27;: int(ecruespadrilles.value()),
+        &#x27;fuchsiaflats&#x27;: int(fuchsiaflats.value()),
+        &#x27;purplepumps&#x27;: int(purplepumps.value()),
+        &#x27;suedesandals&#x27;: int(suedesandals.value()),
+        &#x27;footfarm&#x27;: int(footfarm.value()),
+        &#x27;heelsinahandcart&#x27;: int(heelsinahandcart.value()),
+        &#x27;theshoepalace&#x27;: int(theshoepalace.value()),
+        &#x27;tootsies&#x27;: int(tootsies.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables (positions 1..4)
+ecruespadrilles = cp.intvar(1, 4, name=&quot;ecruespadrilles&quot;)
+fuchsiaflats = cp.intvar(1, 4, name=&quot;fuchsiaflats&quot;)
+purplepumps = cp.intvar(1, 4, name=&quot;purplepumps&quot;)
+suedesandals = cp.intvar(1, 4, name=&quot;suedesandals&quot;)
+
+footfarm = cp.intvar(1, 4, name=&quot;footfarm&quot;)
+heelsinahandcart = cp.intvar(1, 4, name=&quot;heelsinahandcart&quot;)
+theshoepalace = cp.intvar(1, 4, name=&quot;theshoepalace&quot;)
+tootsies = cp.intvar(1, 4, name=&quot;tootsies&quot;)
+
+# Constraints
+# Each shoe bought at a different time
+model += cp.AllDifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals])
+# Each store visited at a different time
+model += cp.AllDifferent([footfarm, heelsinahandcart, theshoepalace, tootsies])
+
+# 1. Harriet bought fuchsia flats at Heels in a Handcart.
+model += (fuchsiaflats == heelsinahandcart)
+
+# 2. The store she visited just after buying her purple pumps was not Tootsies.
+#    Ensure the &quot;just after&quot; exists
+model += (purplepumps &lt;= 3)
+model += (tootsies != purplepumps + 1)
+
+# 3. The Foot Farm was Harriet&#x27;s second stop.
+model += (footfarm == 2)
+
+# 4. Two stops after leaving The Shoe Palace, Harriet bought her suede sandals.
+model += (suedesandals == theshoepalace + 2)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;ecruespadrilles&#x27;: int(ecruespadrilles.value()),
+        &#x27;fuchsiaflats&#x27;: int(fuchsiaflats.value()),
+        &#x27;purplepumps&#x27;: int(purplepumps.value()),
+        &#x27;suedesandals&#x27;: int(suedesandals.value()),
+        &#x27;footfarm&#x27;: int(footfarm.value()),
+        &#x27;heelsinahandcart&#x27;: int(heelsinahandcart.value()),
+        &#x27;theshoepalace&#x27;: int(theshoepalace.value()),
+        &#x27;tootsies&#x27;: int(tootsies.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions 1..4
+ecruespadrilles = cp.intvar(1,4, name=&quot;ecruespadrilles&quot;)
+fuchsiaflats = cp.intvar(1,4, name=&quot;fuchsiaflats&quot;)
+purplepumps = cp.intvar(1,4, name=&quot;purplepumps&quot;)
+suedesandals = cp.intvar(1,4, name=&quot;suedesandals&quot;)
+
+footfarm = cp.intvar(1,4, name=&quot;footfarm&quot;)
+heelsinahandcart = cp.intvar(1,4, name=&quot;heelsinahandcart&quot;)
+theshoepalace = cp.intvar(1,4, name=&quot;theshoepalace&quot;)
+tootsies = cp.intvar(1,4, name=&quot;tootsies&quot;)
+
+# All shoes occur at different positions and all stores occur at different positions
+model += cp.AllDifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals])
+model += cp.AllDifferent([footfarm, heelsinahandcart, theshoepalace, tootsies])
+
+# Constraints from the clues
+# 1. Harriet bought fuchsia flats at Heels in a Handcart.
+model += (fuchsiaflats == heelsinahandcart)
+
+# 2. The store she visited just after buying her purple pumps was not Tootsies.
+# =&gt; tootsies != purplepumps + 1
+model += (purplepumps &lt;= 3)  # ensure there is a &quot;just after&quot; stop
+model += (tootsies != purplepumps + 1)
+
+# 3. The Foot Farm was Harriet&#x27;s second stop.
+model += (footfarm == 2)
+
+# 4. Two stops after leaving The Shoe Place, Harriet bought her suede sandals.
+# =&gt; suedesandals == theshoepalace + 2
+model += (suedesandals == theshoepalace + 2)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;ecruespadrilles&#x27;: int(ecruespadrilles.value()),
+        &#x27;fuchsiaflats&#x27;: int(fuchsiaflats.value()),
+        &#x27;purplepumps&#x27;: int(purplepumps.value()),
+        &#x27;suedesandals&#x27;: int(suedesandals.value()),
+        &#x27;footfarm&#x27;: int(footfarm.value()),
+        &#x27;heelsinahandcart&#x27;: int(heelsinahandcart.value()),
+        &#x27;theshoepalace&#x27;: int(theshoepalace.value()),
+        &#x27;tootsies&#x27;: int(tootsies.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (58 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% We have 4 shoes and 4 stores, each bought in a unique order from 1 to 4
+% Shoes: ecruespadrilles, fuchsiaflats, purplepumps, suedesandals
+% Stores: footfarm, heelsinahandcart, theshoepalace, tootsies
+
+% Decision variables: the order in which each shoe was bought (1..4)
+var 1..4: ecruespadrilles;
+var 1..4: fuchsiaflats;
+var 1..4: purplepumps;
+var 1..4: suedesandals;
+
+% Decision variables: the order in which each store was visited (1..4)
+var 1..4: footfarm;
+var 1..4: heelsinahandcart;
+var 1..4: theshoepalace;
+var 1..4: tootsies;
+
+% All shoes bought at different times
+constraint alldifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals]);
+
+% All stores visited at different times
+constraint alldifferent([footfarm, heelsinahandcart, theshoepalace, tootsies]);
+
+% 1. Harriet bought fuchsia flats at Heels in a Handcart.
+constraint fuchsiaflats == heelsinahandcart;
+
+% 2. The store she visited just after buying her purple pumps was not Tootsies.
+% Let the order of purple pumps be p, then the store visited at p+1 is not tootsies
+% We need to find which store was visited at order p+1
+% So for each store s, if s == p+1 then s != tootsies
+constraint
+  forall(i in 1..3) (
+    (purplepumps == i) -&gt; (tootsies != i+1)
+  );
+
+% 3. The Foot Farm was Harriet&#x27;s second stop.
+constraint footfarm == 2;
+
+% 4. Two stops after leaving The Shoe Palace, Harriet bought her suede sandals.
+% If theshoepalace is at order s, then suedesandals is at order s+2
+constraint suedesandals == theshoepalace + 2;
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  join(&quot;,&quot;, [
+    &quot;\&quot;ecruespadrilles\&quot;: &quot; ++ show(ecruespadrilles),
+    &quot;\&quot;fuchsiaflats\&quot;: &quot; ++ show(fuchsiaflats),
+    &quot;\&quot;purplepumps\&quot;: &quot; ++ show(purplepumps),
+    &quot;\&quot;suedesandals\&quot;: &quot; ++ show(suedesandals),
+    &quot;\&quot;footfarm\&quot;: &quot; ++ show(footfarm),
+    &quot;\&quot;heelsinahandcart\&quot;: &quot; ++ show(heelsinahandcart),
+    &quot;\&quot;theshoepalace\&quot;: &quot; ++ show(theshoepalace),
+    &quot;\&quot;tootsies\&quot;: &quot; ++ show(tootsies)
+  ]),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (90 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# We have 4 shoes and 4 stores, each bought/visited in order 1 to 4
+# Variables represent the order in which each shoe/store was bought/visited
+ecruespadrilles = model.NewIntVar(1, 4, &#x27;ecruespadrilles&#x27;)
+fuchsiaflats = model.NewIntVar(1, 4, &#x27;fuchsiaflats&#x27;)
+purplepumps = model.NewIntVar(1, 4, &#x27;purplepumps&#x27;)
+suedesandals = model.NewIntVar(1, 4, &#x27;suedesandals&#x27;)
+
+footfarm = model.NewIntVar(1, 4, &#x27;footfarm&#x27;)
+heelsinahandcart = model.NewIntVar(1, 4, &#x27;heelsinahandcart&#x27;)
+theshoepalace = model.NewIntVar(1, 4, &#x27;theshoepalace&#x27;)
+tootsies = model.NewIntVar(1, 4, &#x27;tootsies&#x27;)
+
+# All shoes bought at different times
+model.AddAllDifferent([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals])
+# All stores visited at different times
+model.AddAllDifferent([footfarm, heelsinahandcart, theshoepalace, tootsies])
+
+# 1. Harriet bought fuchsia flats at Heels in a Handcart.
+model.Add(fuchsiaflats == heelsinahandcart)
+
+# 2. The store she visited just after buying her purple pumps was not Tootsies.
+# So the order of purplepumps + 1 = store visited next, and that store != tootsies
+# We need to link the shoe order to the store order for the next stop.
+# So find the store visited at purplepumps + 1, it is not tootsies.
+# We can express this by saying that the store visited at time purplepumps + 1 != tootsies
+# We can create a variable for the store visited at purplepumps + 1 and constrain it.
+
+# Create an array of stores indexed by time 1..4
+stores = [footfarm, heelsinahandcart, theshoepalace, tootsies]
+
+# We create a variable for the store visited just after purplepumps
+next_store_after_pumps = model.NewIntVar(1, 4, &#x27;next_store_after_pumps&#x27;)
+
+# Constraint: next_store_after_pumps == store visited at time purplepumps + 1
+# We use AddElement: next_store_after_pumps == stores[purplepumps]
+# But purplepumps is 1-based, AddElement is 0-based index, so index = purplepumps - 1 + 1 = purplepumps
+# So index = purplepumps (1-based) means index in 0..3 is purplepumps - 1
+# The next store is at time purplepumps + 1, so index = purplepumps (1-based)
+# So index for AddElement is purplepumps (1-based) - 1 = purplepumps - 1, but we want purplepumps + 1 - 1 = purplepumps
+# So index = purplepumps (1-based)
+# So we want next_store_after_pumps == stores[purplepumps] where purplepumps is 1-based index for the store visited after purplepumps
+
+# So index for AddElement is purplepumps (1-based) for the next store after purplepumps
+# But purplepumps is a variable, so index = purplepumps (1-based)
+# We want to get store at time purplepumps + 1, so index = purplepumps + 1 - 1 = purplepumps
+# So index = purplepumps (1-based) for the next store after purplepumps
+
+# So we create an intermediate variable for purplepumps + 1
+purplepumps_plus_1 = model.NewIntVar(2, 5, &#x27;purplepumps_plus_1&#x27;)
+model.Add(purplepumps_plus_1 == purplepumps + 1)
+
+# But purplepumps_plus_1 can be 5, which is invalid time, so we add a constraint that purplepumps &lt; 4
+model.Add(purplepumps &lt; 4)
+
+# Now next_store_after_pumps = stores[purplepumps_plus_1 - 1]
+model.AddElement(purplepumps_plus_1 - 1, stores, next_store_after_pumps)
+
+# The store visited just after purple pumps is not tootsies
+model.Add(next_store_after_pumps != tootsies)
+
+# 3. The Foot Farm was Harriet&#x27;s second stop.
+model.Add(footfarm == 2)
+
+# 4. Two stops after leaving The Shoe Palace, Harriet bought her suede sandals.
+# So suedesandals == theshoepalace + 2
+model.Add(suedesandals == theshoepalace + 2)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;ecruespadrilles&#x27;: solver.Value(ecruespadrilles),
+        &#x27;fuchsiaflats&#x27;: solver.Value(fuchsiaflats),
+        &#x27;purplepumps&#x27;: solver.Value(purplepumps),
+        &#x27;suedesandals&#x27;: solver.Value(suedesandals),
+        &#x27;footfarm&#x27;: solver.Value(footfarm),
+        &#x27;heelsinahandcart&#x27;: solver.Value(heelsinahandcart),
+        &#x27;theshoepalace&#x27;: solver.Value(theshoepalace),
+        &#x27;tootsies&#x27;: solver.Value(tootsies)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (85 lines)</summary><pre class="code-block"><code id="None" class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;
+Google OR-Tools CP-SAT model for the Harriet shoe-shopping logic puzzle.
+All four shoes and all four stores are assigned to the shopping positions 1-4
+subject to the narrative clues.  The program prints a JSON object that maps
+ every decision-variable name to the integer position that satisfies all
+ constraints.
+&quot;&quot;&quot;
+
+import json
+from ortools.sat.python import cp_model
+
+# ---------------------------------------------------------------------------
+# 1. Model
+# ---------------------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Domain of shopping positions
+POSITIONS = range(1, 5)  # {1,2,3,4}
+
+# ---------------------------------------------------------------------------
+# 2. Decision variables  (integer position of every shoe / store)
+# ---------------------------------------------------------------------------
+# Shoes
+ecruespadrilles  = model.NewIntVar(1, 4, &#x27;ecruespadrilles&#x27;)
+fuchsiaflats     = model.NewIntVar(1, 4, &#x27;fuchsiaflats&#x27;)
+purplepumps      = model.NewIntVar(1, 4, &#x27;purplepumps&#x27;)
+suedesandals     = model.NewIntVar(1, 4, &#x27;suedesandals&#x27;)
+
+# Stores
+footfarm         = model.NewIntVar(1, 4, &#x27;footfarm&#x27;)
+heelsinahandcart = model.NewIntVar(1, 4, &#x27;heelsinahandcart&#x27;)
+theshoepalace    = model.NewIntVar(1, 4, &#x27;theshoepalace&#x27;)
+tootsies         = model.NewIntVar(1, 4, &#x27;tootsies&#x27;)
+
+# Convenience collections
+shoe_vars  = [ecruespadrilles, fuchsiaflats, purplepumps, suedesandals]
+store_vars = [footfarm, heelsinahandcart, theshoepalace, tootsies]
+
+# ---------------------------------------------------------------------------
+# 3. Constraints
+# ---------------------------------------------------------------------------
+# 3.1 All-different constraints for uniqueness within each category
+model.AddAllDifferent(shoe_vars)
+model.AddAllDifferent(store_vars)
+
+# 3.2 Narrative clues translated into algebraic constraints
+# 1) Fuchsia flats were bought at Heels in a Handcart
+model.Add(fuchsiaflats == heelsinahandcart)
+
+# 2) Immediately after buying purple pumps Harriet visits a store that is not Tootsies
+model.Add(purplepumps &lt;= 3)                 # ensures a &quot;next&quot; stop exists
+model.Add(tootsies != purplepumps + 1)      # that next stop is NOT Tootsies
+
+# 3) Foot Farm was Harriet&#x27;s second stop
+model.Add(footfarm == 2)
+
+# 4) Two stops after leaving The Shoe Palace she bought the suede sandals
+model.Add(theshoepalace &lt;= 2)               # so that +2 remains in domain 1..4
+model.Add(suedesandals == theshoepalace + 2)
+
+# ---------------------------------------------------------------------------
+# 4. Solve
+# ---------------------------------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise RuntimeError(&#x27;No solution found for the puzzle.&#x27;)
+
+# ---------------------------------------------------------------------------
+# 5. Output  (exact key order required by the instructions)
+# ---------------------------------------------------------------------------
+result = {
+    &#x27;ecruespadrilles&#x27;:  solver.Value(ecruespadrilles),
+    &#x27;purplepumps&#x27;:      solver.Value(purplepumps),
+    &#x27;theshoepalace&#x27;:    solver.Value(theshoepalace),
+    &#x27;suedesandals&#x27;:     solver.Value(suedesandals),
+    &#x27;footfarm&#x27;:         solver.Value(footfarm),
+    &#x27;fuchsiaflats&#x27;:     solver.Value(fuchsiaflats),
+    &#x27;tootsies&#x27;:         solver.Value(tootsies),
+    &#x27;heelsinahandcart&#x27;: solver.Value(heelsinahandcart),
+}
+
+print(json.dumps(result))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">ecruespadrilles</span><span class="chip">footfarm</span><span class="chip">fuchsiaflats</span><span class="chip">heelsinahandcart</span><span class="chip">purplepumps</span><span class="chip">suedesandals</span><span class="chip">theshoepalace</span><span class="chip">tootsies</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-10">Copy</button></div><pre class="code-block"><code id="solution-10" class="language-json">{
   &quot;ecruespadrilles&quot;: 2,
   &quot;fuchsiaflats&quot;: 4,
   &quot;purplepumps&quot;: 1,
@@ -95,6 +842,7 @@ print(json.dumps(solution))
   &quot;theshoepalace&quot;: 1,
   &quot;tootsies&quot;: 3
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -102,9 +850,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/arch_friends/arch_friends.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/arch_friends/arch_friends.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="archery_puzzle.html">â† prev</a><a class="btn" href="assignment_costs.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="archery_puzzle.html">← prev</a><a class="btn" href="assignment_costs.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

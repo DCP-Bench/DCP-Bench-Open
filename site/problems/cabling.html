@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>cabling Â· DCP-Bench Open</title>
-<meta name="description" content="Take a rack cabinet, like this one: [ an image ] Let&#x27;s say, there are a number of 1U devices, maybe servers, routers and whatnot. Devices must be connected byâ€¦">
+<title>cabling · DCP-Bench Open</title>
+<meta name="description" content="Take a rack cabinet, like this one: [ an image ] Let&#x27;s say, there are a number of 1U devices, maybe servers, routers and whatnot. Devices must be connected by…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/cabling.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cabling.py</a></dd><dt>Source description</dt><dd><a href="https://yurichev.com/blog/cabling_Z3/" target="_blank" rel="noopener">https://yurichev.com/blog/cabling_Z3/</a></dd><dt>Misc</dt><dd><a href="http://www.hakank.org/cpmpy/cpmpy_hakank.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cpmpy_hakank.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-23">Copy</button></div><pre class="code-block"><code id="model-23" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -74,7 +75,1170 @@ cable_struct = [[&quot;A&quot;, &quot;H&quot;, 1],
                 [&quot;D&quot;, &quot;H&quot;, 3],
                 [&quot;G&quot;, &quot;H&quot;, 1]]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (50 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+devices = [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;]
+n_devices = len(devices)
+connections = [
+    (&#x27;A&#x27;, &#x27;H&#x27;, 1),
+    (&#x27;A&#x27;, &#x27;E&#x27;, 2),
+    (&#x27;B&#x27;, &#x27;F&#x27;, 4),
+    (&#x27;C&#x27;, &#x27;G&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;D&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;E&#x27;, 1),
+    (&#x27;D&#x27;, &#x27;H&#x27;, 3),
+    (&#x27;G&#x27;, &#x27;H&#x27;, 1)
+]
+
+# Decision Variables
+positions = intvar(1, n_devices, shape=n_devices, name=&quot;positions&quot;)  # Position of each device in the rack
+final_sum = intvar(0, sum(c[2] * (n_devices-1) for c in connections), name=&quot;final_sum&quot;)  # Sum of all cable lengths
+
+# Model
+model = Model()
+
+# Constraint: all devices have unique positions
+model += AllDifferent(positions)
+
+# Calculate cable lengths and sum them up
+cable_lengths = []
+for (dev1, dev2, num_cables) in connections:
+    idx1 = devices.index(dev1)
+    idx2 = devices.index(dev2)
+    # Absolute difference between positions is the cable length
+    cable_length = abs(positions[idx1] - positions[idx2])
+    cable_lengths.append(cable_length * num_cables)
+
+model += final_sum == sum(cable_lengths)
+
+# Objective: minimize the sum of cable lengths
+model.minimize(final_sum)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;final_sum&quot;: final_sum.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+# Permutation of the 8 devices (A to H) in the rack
+# Represented as indices 0 to 7 for simplicity
+order = intvar(0, 7, shape=8, name=&quot;order&quot;)
+
+# Ensure all devices are placed exactly once (permutation constraint)
+model = Model([
+    AllDifferent(order)
+])
+
+# Define the number of cables between each pair of devices
+# We&#x27;ll use a dictionary to store the number of cables between each pair
+cable_connections = {
+    (&#x27;A&#x27;, &#x27;H&#x27;): 1,
+    (&#x27;A&#x27;, &#x27;E&#x27;): 2,
+    (&#x27;B&#x27;, &#x27;F&#x27;): 4,
+    (&#x27;C&#x27;, &#x27;G&#x27;): 1,
+    (&#x27;C&#x27;, &#x27;D&#x27;): 1,
+    (&#x27;C&#x27;, &#x27;E&#x27;): 1,
+    (&#x27;D&#x27;, &#x27;H&#x27;): 3,
+    (&#x27;G&#x27;, &#x27;H&#x27;): 1
+}
+
+# Map device names to indices (A=0, B=1, ..., H=7)
+device_to_index = {&#x27;A&#x27;: 0, &#x27;B&#x27;: 1, &#x27;C&#x27;: 2, &#x27;D&#x27;: 3, &#x27;E&#x27;: 4, &#x27;F&#x27;: 5, &#x27;G&#x27;: 6, &#x27;H&#x27;: 7}
+
+# Calculate the total cable length
+total_cable_length = 0
+for (dev1, dev2), num_cables in cable_connections.items():
+    idx1 = device_to_index[dev1]
+    idx2 = device_to_index[dev2]
+    # Get the positions of the two devices in the rack
+    pos1 = order[idx1]
+    pos2 = order[idx2]
+    # Add the cable length (distance between positions) multiplied by the number of cables
+    total_cable_length += num_cables * abs(pos1 - pos2)
+
+# Objective: minimize the total cable length
+model.minimize(total_cable_length)
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;final_sum&quot;: total_cable_length.value()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (72 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: 8 devices (A-H) in a rack, minimize total cable length
+# Devices: A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7
+
+# Connections from problem description:
+# A &lt;-&gt; H: 1 cable, A &lt;-&gt; E: 2 cables, B &lt;-&gt; F: 4 cables
+# C &lt;-&gt; G: 1 cable, C &lt;-&gt; D: 1 cable, C &lt;-&gt; E: 1 cable  
+# D &lt;-&gt; H: 3 cables, G &lt;-&gt; H: 1 cable
+connections = [
+    (0, 7, 1),  # A &lt;-&gt; H, 1 cable
+    (0, 4, 2),  # A &lt;-&gt; E, 2 cables  
+    (1, 5, 4),  # B &lt;-&gt; F, 4 cables
+    (2, 6, 1),  # C &lt;-&gt; G, 1 cable
+    (2, 3, 1),  # C &lt;-&gt; D, 1 cable
+    (2, 4, 1),  # C &lt;-&gt; E, 1 cable
+    (3, 7, 3),  # D &lt;-&gt; H, 3 cables
+    (6, 7, 1),  # G &lt;-&gt; H, 1 cable
+]
+
+# Step 2: Model with CPMpy
+n_devices = 8
+model = cp.Model()
+
+# Decision variables: position[i] = rack position (0-7) of device i
+positions = cp.intvar(0, n_devices-1, shape=n_devices, name=&quot;positions&quot;)
+
+# Constraint: All devices in different positions (permutation)
+model += cp.AllDifferent(positions)
+
+# Objective: minimize total cable length
+total_length = cp.intvar(0, 1000, name=&quot;total_length&quot;)
+
+# Calculate cable lengths for each connection
+cable_lengths = []
+for i, (dev1, dev2, num_cables) in enumerate(connections):
+    # Distance between positions (absolute value using auxiliary variable)
+    dist = cp.intvar(0, n_devices-1, name=f&quot;dist_{i}&quot;)
+    model += dist &gt;= positions[dev1] - positions[dev2]
+    model += dist &gt;= positions[dev2] - positions[dev1]
+    
+    # Cable length for this connection
+    cable_length = num_cables * dist
+    cable_lengths.append(cable_length)
+
+# Total length constraint
+model += total_length == cp.sum(cable_lengths)
+
+# Symmetry breaking: fix device A at position 0
+model += positions[0] == 0
+
+# Step 3: Solve &amp; Verify
+model.minimize(total_length)
+
+if model.solve():
+    optimal_length = total_length.value()
+    
+    # Verification
+    device_positions = positions.value()
+    calculated_total = 0
+    for dev1, dev2, num_cables in connections:
+        distance = abs(device_positions[dev1] - device_positions[dev2])
+        calculated_total += num_cables * distance
+    
+    assert calculated_total == optimal_length, f&quot;Verification failed: {calculated_total} != {optimal_length}&quot;
+    
+    # Step 4: Output
+    solution = {&quot;final_sum&quot;: optimal_length}
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (55 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Devices and connections
+devices = [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;]
+n = len(devices)
+
+# Map device to index
+index = {d: i for i, d in enumerate(devices)}
+
+# Connections with number of cables
+# Format: (device1, device2, cables)
+connections = [
+    (&#x27;A&#x27;, &#x27;H&#x27;, 1),
+    (&#x27;A&#x27;, &#x27;E&#x27;, 2),
+    (&#x27;B&#x27;, &#x27;F&#x27;, 4),
+    (&#x27;C&#x27;, &#x27;G&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;D&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;E&#x27;, 1),
+    (&#x27;D&#x27;, &#x27;H&#x27;, 3),
+    (&#x27;G&#x27;, &#x27;H&#x27;, 1)
+]
+
+# Positions in rack: 1 to 8 (1U each)
+pos_min = 1
+pos_max = 8
+
+model = cp.Model()
+
+# Decision variables: position of each device in the rack (1 to 8)
+pos = cp.intvar(pos_min, pos_max, shape=n, name=&quot;pos&quot;)
+
+# All devices must have distinct positions
+model += cp.AllDifferent(pos)
+
+# Calculate cable lengths weighted by number of cables
+# Cable length = number of cables * distance between devices (abs difference in positions)
+cable_lengths = []
+for d1, d2, cables in connections:
+    i1 = index[d1]
+    i2 = index[d2]
+    dist = cp.Abs(pos[i1] - pos[i2])
+    cable_lengths.append(cables * dist)
+
+# Objective: minimize sum of all cable lengths
+total_length = cp.sum(cable_lengths)
+model.minimize(total_length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Devices: A, B, C, D, E, F, G, H
+# We place each device in a distinct 1..8 U position in the rack.
+names = [&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;F&quot;,&quot;G&quot;,&quot;H&quot;]
+n = len(names)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: position of each device (1..8)
+pos = cp.intvar(1, 8, shape=n, name=&quot;pos&quot;)
+
+# All devices occupy distinct U positions
+model += cp.AllDifferent(pos)
+
+# Cable requirements (device indices are 0-based according to names list)
+# Each tuple: (index_i, index_j, number_of_cables)
+edges = [
+    (0, 7, 1),  # A - H : 1 cable
+    (0, 4, 2),  # A - E : 2 cables
+    (1, 5, 4),  # B - F : 4 cables
+    (2, 6, 1),  # C - G : 1 cable
+    (2, 3, 1),  # C - D : 1 cable
+    (2, 4, 1),  # C - E : 1 cable
+    (3, 7, 3),  # D - H : 3 cables
+    (6, 7, 1),  # G - H : 1 cable
+]
+
+# Sum of cable lengths: multiplicity * vertical distance (abs difference in U)
+terms = []
+for (i, j, mult) in edges:
+    terms.append(mult * cp.Abs(pos[i] - pos[j]))
+
+total_cable_length = cp.sum(terms)
+
+# Objective: minimize total cable length
+model.minimize(total_cable_length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: positions of A, B, C, D, E, F, G, H in the rack (1..8)
+# Index mapping: 0-&gt;A, 1-&gt;B, 2-&gt;C, 3-&gt;D, 4-&gt;E, 5-&gt;F, 6-&gt;G, 7-&gt;H
+p = cp.intvar(1, 8, shape=8, name=&quot;p&quot;)
+
+# All devices must occupy distinct 1U slots
+model += [cp.AllDifferent(p)]
+
+# Cable requirements: (device1_index, device2_index, number_of_cables)
+edges = [
+    (0, 7, 1),  # A-H
+    (0, 4, 2),  # A-E
+    (1, 5, 4),  # B-F
+    (2, 6, 1),  # C-G
+    (2, 3, 1),  # C-D
+    (2, 4, 1),  # C-E
+    (3, 7, 3),  # D-H
+    (6, 7, 1)   # G-H
+]
+
+# Build weighted sum of cable lengths
+dist_terms = []
+for i, j, w in edges:
+    # length = abs(position_i - position_j) * weight
+    dist_terms.append(w * cp.abs(p[i] - p[j]))
+
+total_length = cp.sum(dist_terms)
+
+# Objective: minimize total cable length
+model.minimize(total_length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (12 lines)</summary><pre class="code-block"><code id="None" class="language-python">import itertools
+import json
+devices = list(&#x27;ABCDEFGH&#x27;)
+links = [(&#x27;A&#x27;, &#x27;H&#x27;, 1), (&#x27;A&#x27;, &#x27;E&#x27;, 2), (&#x27;B&#x27;, &#x27;F&#x27;, 4), (&#x27;C&#x27;, &#x27;G&#x27;, 1), (&#x27;C&#x27;, &#x27;D&#x27;, 1), (&#x27;C&#x27;, &#x27;E&#x27;, 1), (&#x27;D&#x27;, &#x27;H&#x27;, 3), (&#x27;G&#x27;, &#x27;H&#x27;, 1)]
+best_sum = None
+for order in itertools.permutations(devices):
+    positions = {device: idx for idx, device in enumerate(order)}
+    total = sum(count * abs(positions[left] - positions[right]) for left, right, count in links)
+    if best_sum is None or total &lt; best_sum:
+        best_sum = total
+if best_sum is None:
+    raise RuntimeError(&#x27;no cabling solution found&#x27;)
+print(json.dumps({&#x27;final_sum&#x27;: best_sum}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (54 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Devices and connections
+devices = [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;]
+n = len(devices)
+
+# Map device to index
+idx = {d: i for i, d in enumerate(devices)}
+
+# Connections with number of cables
+# Format: (device1, device2, cables)
+connections = [
+    (&#x27;A&#x27;, &#x27;H&#x27;, 1),
+    (&#x27;A&#x27;, &#x27;E&#x27;, 2),
+    (&#x27;B&#x27;, &#x27;F&#x27;, 4),
+    (&#x27;C&#x27;, &#x27;G&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;D&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;E&#x27;, 1),
+    (&#x27;D&#x27;, &#x27;H&#x27;, 3),
+    (&#x27;G&#x27;, &#x27;H&#x27;, 1)
+]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# pos[i] = position of device i in the rack (1 to 8)
+pos = cp.intvar(1, n, shape=n, name=&quot;pos&quot;)
+
+# All devices must have different positions
+model += cp.AllDifferent(pos)
+
+# Calculate cable lengths weighted by number of cables
+# length = sum over connections of cables * abs(pos[d1] - pos[d2])
+lengths = []
+for (d1, d2, cables) in connections:
+    i1 = idx[d1]
+    i2 = idx[d2]
+    diff = cp.abs(pos[i1] - pos[i2])
+    lengths.append(cables * diff)
+
+total_length = cp.sum(lengths)
+
+# Objective: minimize total cable length
+model.minimize(total_length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Devices: A, B, C, D, E, F, G, H
+# We place each device in a distinct 1..8 U position in the rack.
+names = [&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;F&quot;,&quot;G&quot;,&quot;H&quot;]
+n = len(names)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: position of each device (1..8)
+pos = cp.intvar(1, 8, shape=n, name=&quot;pos&quot;)
+
+# All devices occupy distinct U positions
+model += cp.AllDifferent(pos)
+
+# Cable requirements (device indices are 0-based according to names list)
+# Each tuple: (index_i, index_j, number_of_cables)
+edges = [
+    (0, 7, 1),  # A - H : 1 cable
+    (0, 4, 2),  # A - E : 2 cables
+    (1, 5, 4),  # B - F : 4 cables
+    (2, 6, 1),  # C - G : 1 cable
+    (2, 3, 1),  # C - D : 1 cable
+    (2, 4, 1),  # C - E : 1 cable
+    (3, 7, 3),  # D - H : 3 cables
+    (6, 7, 1),  # G - H : 1 cable
+]
+
+# Sum of cable lengths: multiplicity * vertical distance (abs difference in U)
+terms = []
+for (i, j, mult) in edges:
+    terms.append(mult * cp.Abs(pos[i] - pos[j]))
+
+total_cable_length = cp.sum(terms)
+
+# Objective: minimize total cable length
+model.minimize(total_cable_length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Define the positions for each device (A to H) as integer variables from 1 to 8
+positions = cp.intvar(1, 8, shape=8, name=&quot;pos&quot;)
+
+model = cp.Model()
+
+# All devices must be placed in distinct positions
+model += cp.AllDifferent(positions)
+
+# List of connections with their counts (device indices, count)
+connections = [
+    (0, 7, 1),   # A &lt;-&gt; H (1 cable)
+    (0, 4, 2),   # A &lt;-&gt; E (2 cables)
+    (1, 5, 4),   # B &lt;-&gt; F (4 cables)
+    (2, 6, 1),   # C &lt;-&gt; G (1 cable)
+    (2, 3, 1),   # C &lt;-&gt; D (1 cable)
+    (2, 4, 1),   # C &lt;-&gt; E (1 cable)
+    (3, 7, 3),   # D &lt;-&gt; H (3 cables)
+    (6, 7, 1)    # G &lt;-&gt; H (1 cable)
+]
+
+# Calculate the total cable length
+terms = []
+for i, j, count in connections:
+    distance = cp.abs(positions[i] - positions[j])
+    terms.append(count * distance)
+total_cost = cp.sum(terms)
+
+# Objective: minimize the total cable length
+model.minimize(total_cost)
+
+# Solve and print the result
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Define the positions for each device (A to H) as integer variables from 1 to 8
+positions = cp.intvar(1, 8, shape=8, name=&quot;pos&quot;)
+
+model = cp.Model()
+
+# All devices must be placed in distinct positions
+model += cp.AllDifferent(positions)
+
+# List of connections with their counts (device indices, count)
+connections = [
+    (0, 7, 1),   # A &lt;-&gt; H (1 cable)
+    (0, 4, 2),   # A &lt;-&gt; E (2 cables)
+    (1, 5, 4),   # B &lt;-&gt; F (4 cables)
+    (2, 6, 1),   # C &lt;-&gt; G (1 cable)
+    (2, 3, 1),   # C &lt;-&gt; D (1 cable)
+    (2, 4, 1),   # C &lt;-&gt; E (1 cable)
+    (3, 7, 3),   # D &lt;-&gt; H (3 cables)
+    (6, 7, 1)    # G &lt;-&gt; H (1 cable)
+]
+
+# Calculate the total cable length
+terms = []
+for i, j, count in connections:
+    distance = cp.abs(positions[i] - positions[j])
+    terms.append(count * distance)
+total_cost = cp.sum(terms)
+
+# Objective: minimize the total cable length
+model.minimize(total_cost)
+
+# Solve and print the result
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+devices = [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;]
+n = len(devices)
+idx = {d: i for i, d in enumerate(devices)}
+
+# Connections: (device1, device2, number_of_cables)
+connections = [
+    (&#x27;A&#x27;, &#x27;H&#x27;, 1),
+    (&#x27;A&#x27;, &#x27;E&#x27;, 2),
+    (&#x27;B&#x27;, &#x27;F&#x27;, 4),
+    (&#x27;C&#x27;, &#x27;G&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;D&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;E&#x27;, 1),
+    (&#x27;D&#x27;, &#x27;H&#x27;, 3),
+    (&#x27;G&#x27;, &#x27;H&#x27;, 1)
+]
+edges = [(idx[a], idx[b], w) for (a, b, w) in connections]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: position of each device in rack units 1..n (AllDifferent -&gt; permutation)
+pos = cp.intvar(1, n, shape=n, name=&quot;pos&quot;)
+
+# Constraints
+model += cp.AllDifferent(pos)
+
+# Objective: minimize sum of cable lengths (weighted by number of cables)
+total_length = cp.sum([w * cp.Abs(pos[i] - pos[j]) for (i, j, w) in edges])
+model.minimize(total_length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Devices: A, B, C, D, E, F, G, H
+# We place each device in a distinct 1..8 U position in the rack.
+names = [&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;F&quot;,&quot;G&quot;,&quot;H&quot;]
+n = len(names)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: position of each device (1..8)
+pos = cp.intvar(1, 8, shape=n, name=&quot;pos&quot;)
+
+# All devices occupy distinct U positions
+model += cp.AllDifferent(pos)
+
+# Cable requirements (device indices are 0-based according to names list)
+# Each tuple: (index_i, index_j, number_of_cables)
+edges = [
+    (0, 7, 1),  # A - H : 1 cable
+    (0, 4, 2),  # A - E : 2 cables
+    (1, 5, 4),  # B - F : 4 cables
+    (2, 6, 1),  # C - G : 1 cable
+    (2, 3, 1),  # C - D : 1 cable
+    (2, 4, 1),  # C - E : 1 cable
+    (3, 7, 3),  # D - H : 3 cables
+    (6, 7, 1),  # G - H : 1 cable
+]
+
+# Sum of cable lengths: multiplicity * vertical distance (abs difference in U)
+terms = []
+for (i, j, mult) in edges:
+    terms.append(mult * cp.Abs(pos[i] - pos[j]))
+
+total_cable_length = cp.sum(terms)
+
+# Objective: minimize total cable length
+model.minimize(total_cable_length)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;final_sum&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: syntax error, unexpected &#x27;:&#x27;, expecting &#x27;)&#x27;</p>
+      <details class="gmodel"><summary>model.mzn (53 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Devices and their indices
+set of int: DEVICES = 1..8;
+array[DEVICES] of string: device_names = [&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;F&quot;,&quot;G&quot;,&quot;H&quot;];
+
+% Number of units in the rack (1U per device)
+int: num_units = 8;
+
+% Connections between devices with number of cables
+% Each tuple: (device1, device2, number_of_cables)
+array[1..8] of tuple(device1: int, device2: int, cables: int) : connections = [
+    (1, 8, 1), % A-H
+    (1, 5, 2), % A-E
+    (2, 6, 4), % B-F
+    (3, 7, 1), % C-G
+    (3, 4, 1), % C-D
+    (3, 5, 1), % C-E
+    (4, 8, 3), % D-H
+    (7, 8, 1)  % G-H
+];
+
+int: num_connections = length(connections);
+
+% Decision variables:
+% pos[d] = position of device d in the rack (1..8)
+array[DEVICES] of var 1..num_units: pos;
+
+% All devices must be placed in different positions
+constraint alldifferent(pos);
+
+% Calculate cable lengths for each connection
+array[1..num_connections] of var int: cable_lengths;
+
+constraint
+  forall(i in 1..num_connections) (
+    let {
+      int: d1 = connections[i].device1,
+      int: d2 = connections[i].device2,
+      int: cables = connections[i].cables
+    } in
+      cable_lengths[i] = cables * abs(pos[d1] - pos[d2])
+  );
+
+% Objective: minimize sum of all cable lengths
+var int: final_sum = sum(cable_lengths);
+
+solve minimize final_sum;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;final_sum\&quot;: &quot;, show(final_sum),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (42 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Decision variables: rack positions for each device (1..8 U units)
+var 1..8: pos_A;
+var 1..8: pos_B;
+var 1..8: pos_C;
+var 1..8: pos_D;
+var 1..8: pos_E;
+var 1..8: pos_F;
+var 1..8: pos_G;
+var 1..8: pos_H;
+
+array[1..8] of var 1..8: pos = [
+    pos_A, pos_B, pos_C, pos_D, pos_E, pos_F, pos_G, pos_H
+];
+
+% All devices must occupy distinct U positions
+constraint all_different(pos);
+
+% Calculate total cable length weighted by number of cables
+var 0..100: final_sum;
+constraint
+    final_sum =
+      1 * abs(pos_A - pos_H)  % A-H: 1 cable
+    + 2 * abs(pos_A - pos_E)  % A-E: 2 cables
+    + 4 * abs(pos_B - pos_F)  % B-F: 4 cables
+    + 1 * abs(pos_C - pos_G)  % C-G: 1 cable
+    + 1 * abs(pos_C - pos_D)  % C-D: 1 cable
+    + 1 * abs(pos_C - pos_E)  % C-E: 1 cable
+    + 3 * abs(pos_D - pos_H)  % D-H: 3 cables
+    + 1 * abs(pos_G - pos_H); % G-H: 1 cable
+
+% Optimize to minimize the total cable length
+solve minimize final_sum;
+
+% Output result in JSON format
+output [
+    &quot;{&quot;,
+    &quot;\&quot;final_sum\&quot;: &quot; ++ show(final_sum),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Devices and their connections with cable counts
+devices = [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;]
+device_indices = {d: i for i, d in enumerate(devices)}
+
+# Connections: (device1, device2, number_of_cables)
+connections = [
+    (&#x27;A&#x27;, &#x27;H&#x27;, 1),
+    (&#x27;A&#x27;, &#x27;E&#x27;, 2),
+    (&#x27;B&#x27;, &#x27;F&#x27;, 4),
+    (&#x27;C&#x27;, &#x27;G&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;D&#x27;, 1),
+    (&#x27;C&#x27;, &#x27;E&#x27;, 1),
+    (&#x27;D&#x27;, &#x27;H&#x27;, 3),
+    (&#x27;G&#x27;, &#x27;H&#x27;, 1)
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: position of each device in the rack (1 to 8)
+positions = [model.NewIntVar(1, 8, f&#x27;pos_{d}&#x27;) for d in devices]
+
+# All devices must have different positions
+model.AddAllDifferent(positions)
+
+# Auxiliary variables for absolute distances between connected devices
+abs_distances = []
+for (d1, d2, cables) in connections:
+    idx1 = device_indices[d1]
+    idx2 = device_indices[d2]
+    diff = model.NewIntVar(-7, 7, f&#x27;diff_{d1}_{d2}&#x27;)
+    model.Add(diff == positions[idx1] - positions[idx2])
+    abs_diff = model.NewIntVar(0, 7, f&#x27;abs_diff_{d1}_{d2}&#x27;)
+    model.AddAbsEquality(abs_diff, diff)
+    # Weighted by number of cables
+    weighted_dist = model.NewIntVar(0, 7 * cables, f&#x27;weighted_dist_{d1}_{d2}&#x27;)
+    model.AddMultiplicationEquality(weighted_dist, [abs_diff, cables])
+    abs_distances.append(weighted_dist)
+
+# Objective: minimize sum of weighted cable lengths
+model.Minimize(sum(abs_distances))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    final_sum = solver.ObjectiveValue()
+    solution = {
+        &#x27;final_sum&#x27;: int(final_sum)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (53 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Devices and cable requirements: (device1, device2, number_of_cables)
+devices = [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;G&quot;, &quot;H&quot;]
+cables = [
+    (&quot;A&quot;, &quot;H&quot;, 1),
+    (&quot;A&quot;, &quot;E&quot;, 2),
+    (&quot;B&quot;, &quot;F&quot;, 4),
+    (&quot;C&quot;, &quot;G&quot;, 1),
+    (&quot;C&quot;, &quot;D&quot;, 1),
+    (&quot;C&quot;, &quot;E&quot;, 1),
+    (&quot;D&quot;, &quot;H&quot;, 3),
+    (&quot;G&quot;, &quot;H&quot;, 1),
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: position of each device in the rack (1 to 8)
+pos = {}
+for d in devices:
+    pos[d] = model.NewIntVar(1, len(devices), f&quot;pos_{d}&quot;)
+
+# All devices must occupy different positions
+model.AddAllDifferent(pos.values())
+
+# Create auxiliary vars for absolute distances and build objective terms
+distance_terms = []
+for d1, d2, count in cables:
+    # Absolute difference variable
+    diff = model.NewIntVar(0, len(devices) - 1, f&quot;diff_{d1}_{d2}&quot;)
+    # Link diff to absolute difference of positions
+    model.AddAbsEquality(diff, pos[d1] - pos[d2])
+    # Accumulate weighted distance
+    distance_terms.append(count * diff)
+
+# Objective: minimize total cable length
+model.Minimize(sum(distance_terms))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution as JSON
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &quot;final_sum&quot;: int(solver.ObjectiveValue())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (75 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# ------------ Data ----------------------------------------------------------
+# 1-U devices
+devices = [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;G&quot;, &quot;H&quot;]
+num_slots = len(devices)  # 8
+slots = range(1, num_slots + 1)  # 1..8 inclusive
+
+# Number of cables between unordered device pairs
+cables = {
+    (&quot;A&quot;, &quot;H&quot;): 1,
+    (&quot;A&quot;, &quot;E&quot;): 2,
+    (&quot;B&quot;, &quot;F&quot;): 4,
+    (&quot;C&quot;, &quot;G&quot;): 1,
+    (&quot;C&quot;, &quot;D&quot;): 1,
+    (&quot;C&quot;, &quot;E&quot;): 1,
+    (&quot;D&quot;, &quot;H&quot;): 3,
+    (&quot;G&quot;, &quot;H&quot;): 1,
+}
+
+# Ensure symmetry in the dictionary for convenience
+def _key(u, v):
+    return (u, v) if (u, v) in cables else (v, u)
+
+# ------------ Model ---------------------------------------------------------
+model = cp_model.CpModel()
+
+# Position variables: one per device, domain 1..8
+pos = {
+    d: model.NewIntVar(1, num_slots, f&quot;pos_{d}&quot;) for d in devices
+}
+
+# All devices must occupy distinct slots
+model.AddAllDifferent(pos.values())
+
+# Distance variables for each linked pair and weighted contribution
+weighted_terms = []  # list of weighted distance IntVars to sum later
+
+for (u, v), k in cables.items():
+    # Absolute distance |pos_u - pos_v|
+    dist = model.NewIntVar(0, num_slots - 1, f&quot;dist_{u}_{v}&quot;)
+    model.AddAbsEquality(dist, pos[u] - pos[v])
+    if k == 1:
+        # weight == 1 → no need for new variable, use dist directly
+        weighted_terms.append(dist)
+    else:
+        # Multiply distance by k via a new variable
+        w_dist = model.NewIntVar(0, k * (num_slots - 1), f&quot;w{u}_{v}&quot;)
+        model.AddMultiplicationEquality(w_dist, [dist, k])
+        weighted_terms.append(w_dist)
+
+# Total cable length
+max_total = sum(k for k in cables.values()) * (num_slots - 1)
+final_sum = model.NewIntVar(0, max_total, &quot;final_sum&quot;)
+model.Add(final_sum == sum(weighted_terms))
+
+# Objective: minimise total cable length
+model.Minimize(final_sum)
+
+# ------------ Solve ---------------------------------------------------------
+solver = cp_model.CpSolver()
+# Optional: enable more search effort (not strictly required)
+solver.parameters.max_time_in_seconds = 10.0
+status = solver.Solve(model)
+
+# ------------ Output --------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {
+        &quot;final_sum&quot;: solver.Value(final_sum)
+    }
+    print(json.dumps(result))
+else:
+    # Should not happen for this small instance, but keep graceful degradation
+    print(json.dumps({&quot;final_sum&quot;: None}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;final_sum&quot;: 19
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 8,
   &quot;devices&quot;: [
     &quot;A&quot;,
@@ -129,11 +1293,12 @@ cable_struct = [[&quot;A&quot;, &quot;H&quot;, 1],
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">final_sum</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-23">Copy</button></div><pre class="code-block"><code id="solution-23" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">final_sum</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-23">Copy</button></div><pre class="code-block"><code id="solution-23" class="language-json">{
   &quot;final_sum&quot;: 19
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -141,9 +1306,9 @@ cable_struct = [[&quot;A&quot;, &quot;H&quot;, 1],
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/cabling/cabling.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/cabling/cabling.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="bus_scheduling.html">â† prev</a><a class="btn" href="calvin_puzzle.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="bus_scheduling.html">← prev</a><a class="btn" href="calvin_puzzle.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

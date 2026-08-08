@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_019_magic_squares_and_sequences Â· DCP-Bench Open</title>
-<meta name="description" content="A magic sequence of length \( n \) is a sequence of integers \( x_0, \ldots, x_{n-1} \) between 0 and \( n-1 \), such that for all \( i \) in 0 to \( n-1 \), tâ€¦">
+<title>csplib_019_magic_squares_and_sequences · DCP-Bench Open</title>
+<meta name="description" content="A magic sequence of length \( n \) is a sequence of integers \( x_0, \ldots, x_{n-1} \) between 0 and \( n-1 \), such that for all \( i \) in 0 to \( n-1 \), t…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob019_magic_sequence.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob019_magic_sequence.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob019/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob019/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (9)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (9)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-57">Copy</button></div><pre class="code-block"><code id="model-57" class="language-python"># Import libraries
 import json
 import numpy as np
@@ -65,7 +66,458 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">n = 12  # Length of the magic sequence</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 12  # Length of the magic sequence
+
+# Decision Variables
+x = intvar(0, n-1, shape=n, name=&quot;x&quot;)  # Magic sequence
+
+# Model
+model = Model()
+
+# Constraint: for all i in 0 to n-1, the number i occurs exactly x_i times in the sequence
+for i in range(n):
+    model += sum(x == i) == x[i]
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (23 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 12  # Length of the magic sequence
+
+# Decision variables
+x = intvar(0, n - 1, shape=n, name=&quot;x&quot;)
+
+# Model
+model = Model()
+
+# For all i in 0 to n-1, the number i occurs exactly x[i] times in the sequence
+for i in range(n):
+    model += [sum(x == i) == x[i]]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;x&quot;: x.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12  # Length of the magic sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, n-1, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each i, the number i must occur exactly x[i] times in the sequence x
+model += [cp.Count(x, i) == x[i] for i in range(n)]
+# The total number of entries is n (redundant but helps propagation)
+model += cp.sum(x) == n
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, n-1, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each i, x[i] is the count of i in the sequence x
+for i in range(n):
+    model += (cp.Count(x, i) == x[i])
+
+# The sum of all x[i] must be n (length of the sequence)
+model += (cp.sum(x) == n)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12  # Length of the magic sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, n-1, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each i, the number i must occur exactly x[i] times in the sequence x
+model += [cp.Count(x, i) == x[i] for i in range(n)]
+# The total number of entries is n (redundant but helps propagation)
+model += cp.sum(x) == n
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n = 12  # Length of the magic sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, n-1, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each i in 0..n-1, the number i occurs exactly x[i] times in the sequence
+for i in range(n):
+    model += (cp.Count(x, i) == x[i])
+
+# Sum of all x[i] equals n (total occurrences equals sequence length)
+model += (cp.sum(x) == n)
+
+# Objective (optional)
+# No objective; satisfaction problem
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 12  # Length of the magic sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(0, n-1, shape=n, name=&quot;x&quot;)
+
+# Constraints
+# For each i, the number i must occur exactly x[i] times in the sequence x
+model += [cp.Count(x, i) == x[i] for i in range(n)]
+# The total number of entries is n (redundant but helps propagation)
+model += cp.sum(x) == n
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;x&#x27;: x.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (21 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 12;
+
+% Decision Variables
+array[0..n-1] of var 0..n-1: x;
+
+% Constraints
+% For each i, the number i occurs exactly x[i] times in the sequence x
+constraint
+  forall(i in 0..n-1) (
+    count(x, i) == x[i]
+  );
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;&quot; ++ &quot;x&quot; ++ &quot;\&quot;: &quot; ++ show(x),
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 12  # Length of the magic sequence
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# x[i] is the number of times i occurs in the sequence
+x = [model.NewIntVar(0, n - 1, f&#x27;x[{i}]&#x27;) for i in range(n)]
+
+# Constraints
+# The sum of all x[i] must be n (the length of the sequence)
+model.Add(sum(x) == n)
+
+# For each i, x[i] must be equal to the count of i in the sequence
+# Since x[i] is the count of i, sum of indicators (x[j] == i) over j must be x[i]
+# We model this by counting how many x[j] equal i for j in 0..n-1
+# We use boolean variables to represent (x[j] == i)
+for i in range(n):
+    bool_vars = []
+    for j in range(n):
+        b = model.NewBoolVar(f&#x27;is_{i}_at_{j}&#x27;)
+        model.Add(x[j] == i).OnlyEnforceIf(b)
+        model.Add(x[j] != i).OnlyEnforceIf(b.Not())
+        bool_vars.append(b)
+    model.Add(x[i] == sum(bool_vars))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {&#x27;x&#x27;: [solver.Value(var) for var in x]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (68 lines)</summary><pre class="code-block"><code id="None" class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;Solve the magic-sequence problem for a fixed length n using Google OR-Tools CP-SAT.
+A magic (self-describing) sequence x[0..n-1] satisfies
+    – each x_i is between 0 and n-1,
+    – for every value i, the number i occurs exactly x_i times in the sequence,
+    – consequently, sum(x_i) = n.
+The script builds a standard indicator (global-cardinality) encoding, feeds it to
+CP-SAT, and prints one feasible sequence as JSON.
+&quot;&quot;&quot;
+
+import json
+from ortools.sat.python import cp_model
+
+# -----------------------------------------------------------------------------
+# Input data (provided verbatim by the exercise specification)
+# -----------------------------------------------------------------------------
+
+n = 12  # Length of the magic sequence
+
+# -----------------------------------------------------------------------------
+# Model
+# -----------------------------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables: x[0..n-1]
+x = [model.NewIntVar(0, n - 1, f&quot;x_{i}&quot;) for i in range(n)]
+
+# Indicator variables b[(j,i)] – true iff x_j == i
+b = {}
+for j in range(n):
+    row_bools = []
+    for i in range(n):
+        b_var = model.NewBoolVar(f&quot;b_{j}_{i}&quot;)
+        b[(j, i)] = b_var
+        # Reified equality/inequality links
+        model.Add(x[j] == i).OnlyEnforceIf(b_var)
+        model.Add(x[j] != i).OnlyEnforceIf(b_var.Not())
+        row_bools.append(b_var)
+    # Each position j takes exactly one value i
+    model.AddExactlyOne(row_bools)
+
+# Magic (self-describing) property: for each value i, count occurrences
+for i in range(n):
+    model.Add(sum(b[(j, i)] for j in range(n)) == x[i])
+
+# Redundant strengthening: total length must be n
+model.Add(sum(x) == n)
+
+# -----------------------------------------------------------------------------
+# Solve
+# -----------------------------------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10  # safeguard (instance is tiny)
+solver.parameters.num_search_workers = 8    # use available cores
+status = solver.Solve(model)
+
+# -----------------------------------------------------------------------------
+# Output – strictly JSON with the required key list [&#x27;x&#x27;]
+# -----------------------------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {
+        &quot;x&quot;: [int(solver.Value(x_i)) for x_i in x]
+    }
+else:
+    # Infeasible (should not happen for n = 12); return empty list to keep JSON schema
+    result = {&quot;x&quot;: []}
+
+print(json.dumps(result))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 12
 }</code></pre></details><details class="instance"><summary>Instance 2</summary><pre><code class="language-json">{
   &quot;n&quot;: 13
@@ -84,9 +536,9 @@ print(json.dumps(solution))
 }</code></pre></details><details class="instance"><summary>Instance 9</summary><pre><code class="language-json">{
   &quot;n&quot;: 20
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">x</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-57">Copy</button></div><pre class="code-block"><code id="solution-57" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">x</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-57">Copy</button></div><pre class="code-block"><code id="solution-57" class="language-json">{
   &quot;x&quot;: [
     8,
     2,
@@ -102,6 +554,7 @@ print(json.dumps(solution))
     0
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -109,9 +562,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_019_magic_squares_and_sequences/csplib_019_magic_squares_and_sequences.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_019_magic_squares_and_sequences/csplib_019_magic_squares_and_sequences.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_018_water_bucket.html">â† prev</a><a class="btn" href="csplib_021_crossfigures.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_018_water_bucket.html">← prev</a><a class="btn" href="csplib_021_crossfigures.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>chess_set Â· DCP-Bench Open</title>
-<meta name="description" content="A small joinery makes two different sizes of boxwood chess sets. The small set requires 3 hours of machining on a lathe, and the large set requires 2 hours. Thâ€¦">
+<title>chess_set · DCP-Bench Open</title>
+<meta name="description" content="A small joinery makes two different sizes of boxwood chess sets. The small set requires 3 hours of machining on a lathe, and the large set requires 2 hours. Th…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/chess_set.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/chess_set.py</a></dd><dt>Source description</dt><dd>Applications of Optimization with XPress-MP.pdf page 11. The problem is presented on page 7.</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-29">Copy</button></div><pre class="code-block"><code id="model-29" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -65,14 +66,1038 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">large_set</span><span class="chip">max_profit</span><span class="chip">small_set</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-29">Copy</button></div><pre class="code-block"><code id="solution-29" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Decision Variables
+small_set = intvar(0, 200, name=&quot;small_set&quot;)  # Number of small chess sets
+large_set = intvar(0, 200, name=&quot;large_set&quot;)  # Number of large chess sets
+max_profit = intvar(0, 100000, name=&quot;max_profit&quot;)  # Maximum profit
+
+# Model
+model = Model()
+
+# Constraints
+# Lathe-hours constraint: 3*small_set + 2*large_set &lt;= 160
+model += (3 * small_set + 2 * large_set) &lt;= 160
+
+# Boxwood constraint: 1*small_set + 3*large_set &lt;= 200
+model += (1 * small_set + 3 * large_set) &lt;= 200
+
+# Profit calculation: max_profit = 5*small_set + 20*large_set
+model += max_profit == (5 * small_set + 20 * large_set)
+
+# Objective: maximize profit
+model.maximize(max_profit)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;small_set&quot;: small_set.value(),
+    &quot;large_set&quot;: large_set.value(),
+    &quot;max_profit&quot;: max_profit.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+small_set = intvar(0, 200, name=&quot;small_set&quot;)
+large_set = intvar(0, 200, name=&quot;large_set&quot;)
+max_profit = intvar(0, 4000, name=&quot;max_profit&quot;)
+
+# Model
+model = Model()
+
+# Objective: maximize profit
+model.maximize(5 * small_set + 20 * large_set)
+
+# Constraints
+# Lathe hours constraint: 3 * small_set + 2 * large_set &lt;= 160
+model += [3 * small_set + 2 * large_set &lt;= 160]
+
+# Boxwood constraint: 1 * small_set + 3 * large_set &lt;= 200
+model += [small_set + 3 * large_set &lt;= 200]
+
+# Profit calculation
+model += [max_profit == 5 * small_set + 20 * large_set]
+
+# Solve the model
+model.solve()
+
+# Print the solution in the correct order
+solution = {
+    &quot;small_set&quot;: small_set.value(),
+    &quot;large_set&quot;: large_set.value(),
+    &quot;max_profit&quot;: max_profit.value()
+}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Chess Set Production Optimization Problem
+# Maximize profit from producing small and large chess sets
+# Subject to lathe hours and boxwood material constraints
+
+# Decision variables
+small_set = cp.intvar(0, 200, name=&quot;small_set&quot;)  # Number of small chess sets
+large_set = cp.intvar(0, 80, name=&quot;large_set&quot;)   # Number of large chess sets
+
+# Create model
+model = cp.Model()
+
+# Constraints
+# Lathe hours: 3 hours for small set, 2 hours for large set, 160 total hours
+model += 3 * small_set + 2 * large_set &lt;= 160
+
+# Boxwood material: 1 kg for small set, 3 kg for large set, 200 kg total
+model += 1 * small_set + 3 * large_set &lt;= 200
+
+# Objective: Maximize profit ($5 for small set, $20 for large set)
+profit = 5 * small_set + 20 * large_set
+model.maximize(profit)
+
+# Solve the model
+if model.solve():
+    # Extract solution
+    solution = {
+        &quot;small_set&quot;: int(small_set.value()),
+        &quot;large_set&quot;: int(large_set.value()),
+        &quot;max_profit&quot;: int(profit.value())
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        small = sol[&quot;small_set&quot;]
+        large = sol[&quot;large_set&quot;]
+        profit_val = sol[&quot;max_profit&quot;]
+        
+        # Check constraints
+        lathe_hours = 3 * small + 2 * large
+        boxwood = 1 * small + 3 * large
+        calculated_profit = 5 * small + 20 * large
+        
+        if lathe_hours &gt; 160:
+            return False, f&quot;Lathe hours violated: {lathe_hours} &gt; 160&quot;
+        if boxwood &gt; 200:
+            return False, f&quot;Boxwood violated: {boxwood} &gt; 200&quot;
+        if calculated_profit != profit_val:
+            return False, f&quot;Profit mismatch: {calculated_profit} != {profit_val}&quot;
+        
+        return True, &quot;Solution verified&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+lathe_hours_per_small = 3
+lathe_hours_per_large = 2
+num_lathes = 4
+hours_per_lathe = 40
+total_lathe_hours = num_lathes * hours_per_lathe  # 160 hours
+
+boxwood_per_small = 1
+boxwood_per_large = 3
+total_boxwood = 200
+
+profit_per_small = 5
+profit_per_large = 20
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of small and large sets produced (non-negative integers)
+small_set = cp.intvar(0, total_boxwood, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, total_boxwood // boxwood_per_large, name=&quot;large_set&quot;)
+
+# Constraints
+# Lathe hours constraint
+model += (lathe_hours_per_small * small_set + lathe_hours_per_large * large_set &lt;= total_lathe_hours)
+# Boxwood constraint
+model += (boxwood_per_small * small_set + boxwood_per_large * large_set &lt;= total_boxwood)
+
+# Objective: maximize profit
+profit = profit_per_small * small_set + profit_per_large * large_set
+model.maximize(profit)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+# - small set: 3 lathe hours, 1 kg boxwood, profit $5
+# - large set: 2 lathe hours, 3 kg boxwood, profit $20
+# Resources:
+# - 4 lathes * 40 hours = 160 lathe-hours
+# - 200 kg boxwood
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Bounds chosen reasonably large to let constraints limit them
+small_set = cp.intvar(0, 200, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, 200, name=&quot;large_set&quot;)
+
+# Constraints
+# Lathe hours: 3 * small + 2 * large &lt;= 160
+model += (3 * small_set + 2 * large_set &lt;= 160)
+
+# Boxwood: 1 * small + 3 * large &lt;= 200
+model += (1 * small_set + 3 * large_set &lt;= 200)
+
+# Objective: maximize profit = 5 * small + 20 * large
+model.maximize(cp.sum([5 * small_set, 20 * large_set]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+lathe_hours = 160  # total available lathe-hours per week
+boxwood_kg = 200   # total available boxwood per week
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+small_set = cp.IntVar(0, 200, name=&quot;small_set&quot;)  # number of small chess sets
+large_set = cp.IntVar(0, 200, name=&quot;large_set&quot;)  # number of large chess sets
+
+# Constraints
+# 3 hours lathe per small set, 2 hours per large set: total &lt;= 160
+model += 3 * small_set + 2 * large_set &lt;= lathe_hours
+# 1 kg boxwood per small set, 3 kg per large set: total &lt;= 200
+model += 1 * small_set + 3 * large_set &lt;= boxwood_kg
+
+# Objective: maximize profit (5 per small, 20 per large)
+profit = 5 * small_set + 20 * large_set
+model.maximize(profit)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;small_set&quot;: int(small_set.value()),
+        &quot;large_set&quot;: int(large_set.value()),
+        &quot;max_profit&quot;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (13 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+best = None
+for large_set in range(201):
+    for small_set in range(201):
+        if 2 * large_set + 3 * small_set &gt; 160:
+            continue
+        if 3 * large_set + small_set &gt; 200:
+            continue
+        profit = 20 * large_set + 5 * small_set
+        if best is None or profit &gt; best[0]:
+            best = (profit, large_set, small_set)
+if best is None:
+    raise RuntimeError(&#x27;no chess set solution found&#x27;)
+print(json.dumps({&#x27;max_profit&#x27;: best[0], &#x27;large_set&#x27;: best[1], &#x27;small_set&#x27;: best[2]}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;max_profit&quot;: 1330,
+  &quot;large_set&quot;: 66,
+  &quot;small_set&quot;: 2
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+lathe_hours_per_week = 160
+boxwood_kg_per_week = 200
+lathe_hours_small = 3
+lathe_hours_large = 2
+boxwood_small = 1
+boxwood_large = 3
+profit_small = 5
+profit_large = 20
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of small and large sets produced (non-negative integers)
+small_set = cp.intvar(0, boxwood_kg_per_week, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, boxwood_kg_per_week // boxwood_large, name=&quot;large_set&quot;)
+
+# Constraints
+# Lathe hours constraint
+model += (lathe_hours_small * small_set + lathe_hours_large * large_set &lt;= lathe_hours_per_week)
+# Boxwood constraint
+model += (boxwood_small * small_set + boxwood_large * large_set &lt;= boxwood_kg_per_week)
+
+# Objective: maximize profit
+model.maximize(profit_small * small_set + profit_large * large_set)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+# - small set: 3 lathe hours, 1 kg boxwood, profit $5
+# - large set: 2 lathe hours, 3 kg boxwood, profit $20
+# Resources:
+# - 4 lathes * 40 hours = 160 lathe-hours
+# - 200 kg boxwood
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Bounds chosen reasonably large to let constraints limit them
+small_set = cp.intvar(0, 200, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, 200, name=&quot;large_set&quot;)
+
+# Constraints
+# Lathe hours: 3 * small + 2 * large &lt;= 160
+model += (3 * small_set + 2 * large_set &lt;= 160)
+
+# Boxwood: 1 * small + 3 * large &lt;= 200
+model += (1 * small_set + 3 * large_set &lt;= 200)
+
+# Objective: maximize profit = 5 * small + 20 * large
+model.maximize(cp.sum([5 * small_set, 20 * large_set]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+small_set = cp.intvar(0, 200, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, 200, name=&quot;large_set&quot;)
+
+# Constraints
+model += (3 * small_set + 2 * large_set &lt;= 160)
+model += (small_set + 3 * large_set &lt;= 200)
+
+# Objective
+model.maximize(5 * small_set + 20 * large_set)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+small_set = cp.intvar(0, 200, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, 200, name=&quot;large_set&quot;)
+
+# Constraints
+model += (3 * small_set + 2 * large_set &lt;= 160)
+model += (small_set + 3 * large_set &lt;= 200)
+
+# Objective
+model.maximize(5 * small_set + 20 * large_set)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (31 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+small_set = cp.intvar(0, 200, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, 200, name=&quot;large_set&quot;)
+
+# Constraints
+# Lathe-hours: 3 hours per small set, 2 hours per large set, total 160 hours
+model += (3 * small_set + 2 * large_set &lt;= 160)
+# Boxwood: 1 kg per small set, 3 kg per large set, total 200 kg
+model += (small_set + 3 * large_set &lt;= 200)
+
+# Objective: Maximize profit (5 per small set, 20 per large set)
+profit = 5 * small_set + 20 * large_set
+model.maximize(profit)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+# - small set: 3 lathe hours, 1 kg boxwood, profit $5
+# - large set: 2 lathe hours, 3 kg boxwood, profit $20
+# Resources:
+# - 4 lathes * 40 hours = 160 lathe-hours
+# - 200 kg boxwood
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Bounds chosen reasonably large to let constraints limit them
+small_set = cp.intvar(0, 200, name=&quot;small_set&quot;)
+large_set = cp.intvar(0, 200, name=&quot;large_set&quot;)
+
+# Constraints
+# Lathe hours: 3 * small + 2 * large &lt;= 160
+model += (3 * small_set + 2 * large_set &lt;= 160)
+
+# Boxwood: 1 * small + 3 * large &lt;= 200
+model += (1 * small_set + 3 * large_set &lt;= 200)
+
+# Objective: maximize profit = 5 * small + 20 * large
+model.maximize(cp.sum([5 * small_set, 20 * large_set]))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;small_set&#x27;: int(small_set.value()),
+        &#x27;large_set&#x27;: int(large_set.value()),
+        &#x27;max_profit&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (38 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">% Include the globals library for global constraints if needed
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: num_lathes = 4;
+int: hours_per_lathe = 40;
+int: total_lathe_hours = num_lathes * hours_per_lathe; % 160 hours
+
+int: boxwood_available = 200; % kg
+
+int: lathe_hours_small = 3;
+int: lathe_hours_large = 2;
+
+int: boxwood_small = 1;
+int: boxwood_large = 3;
+
+int: profit_small = 5;
+int: profit_large = 20;
+
+% Decision variables: number of small and large sets produced (non-negative integers)
+var 0..1000: small_set;
+var 0..1000: large_set;
+
+% Constraints
+constraint lathe_hours_small * small_set + lathe_hours_large * large_set &lt;= total_lathe_hours;
+constraint boxwood_small * small_set + boxwood_large * large_set &lt;= boxwood_available;
+
+% Objective: maximize total profit
+var int: max_profit = profit_small * small_set + profit_large * large_set;
+
+solve maximize max_profit;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;small_set\&quot;: &quot;, show(small_set), &quot;,&quot;,
+    &quot;\&quot;large_set\&quot;: &quot;, show(large_set), &quot;,&quot;,
+    &quot;\&quot;max_profit\&quot;: &quot;, show(max_profit),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (33 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary libraries
+include &quot;globals.mzn&quot;;
+
+% Decision variables: number of small and large chess sets
+var 0..200: small_set;
+var 0..200: large_set;
+
+% Profit variable
+var int: max_profit;
+
+% Constraints
+constraint
+    % Lathe hours constraint: 3 hours per small, 2 hours per large, up to 160 hours
+    3 * small_set + 2 * large_set &lt;= 160 /\
+    % Boxwood constraint: 1 kg per small, 3 kg per large, up to 200 kg
+    small_set + 3 * large_set &lt;= 200 /\
+    % Define profit: $5 per small, $20 per large
+    max_profit = 5 * small_set + 20 * large_set;
+
+% Objective: maximize total profit
+solve maximize max_profit;
+
+% Output solution in JSON format
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;&quot; ++ &quot;small_set&quot; ++ &quot;\&quot;: &quot; ++ show(small_set),
+        &quot;\&quot;&quot; ++ &quot;large_set&quot; ++ &quot;\&quot;: &quot; ++ show(large_set),
+        &quot;\&quot;&quot; ++ &quot;max_profit&quot; ++ &quot;\&quot;: &quot; ++ show(max_profit)
+    ]),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# Number of small sets produced (non-negative integer)
+small_set = model.NewIntVar(0, 1000, &#x27;small_set&#x27;)
+# Number of large sets produced (non-negative integer)
+large_set = model.NewIntVar(0, 1000, &#x27;large_set&#x27;)
+
+# Constraints
+# Lathe hours constraint: 3 hours per small set + 2 hours per large set &lt;= 160 hours
+model.Add(3 * small_set + 2 * large_set &lt;= 160)
+
+# Boxwood constraint: 1 kg per small set + 3 kg per large set &lt;= 200 kg
+model.Add(small_set + 3 * large_set &lt;= 200)
+
+# Objective function: maximize profit = 5 * small_set + 20 * large_set
+model.Maximize(5 * small_set + 20 * large_set)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;small_set&#x27;: solver.Value(small_set),
+        &#x27;large_set&#x27;: solver.Value(large_set),
+        &#x27;max_profit&#x27;: solver.ObjectiveValue()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330.0
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Create the CP model
+model = cp_model.CpModel()
+
+# Decision Variables
+# Number of small chess sets to produce
+small_set = model.NewIntVar(0, 200, &#x27;small_set&#x27;)
+# Number of large chess sets to produce
+large_set = model.NewIntVar(0, 100, &#x27;large_set&#x27;)
+
+# Constraints
+# Lathe hours constraint: 3 hours per small, 2 hours per large, total ≤ 160
+model.Add(3 * small_set + 2 * large_set &lt;= 160)
+
+# Boxwood supply constraint: 1 kg per small, 3 kg per large, total ≤ 200
+model.Add(small_set + 3 * large_set &lt;= 200)
+
+# Objective: maximize profit = 5 per small + 20 per large
+model.Maximize(5 * small_set + 20 * large_set)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;small_set&#x27;: solver.Value(small_set),
+        &#x27;large_set&#x27;: solver.Value(large_set),
+        &#x27;max_profit&#x27;: solver.ObjectiveValue()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;small_set&quot;: 2,
+  &quot;large_set&quot;: 66,
+  &quot;max_profit&quot;: 1330.0
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (89 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# ------------------------------
+# Input section (immutable)
+# ------------------------------
+# Nothing to parse in this specific instance because the numerical data
+# are fixed in the requirements.  The placeholder is here in case future
+# extensions supply data via standard input.
+
+# ------------------------------
+# Model creation
+# ------------------------------
+model = cp_model.CpModel()
+
+# Parameters (constants)
+h_small = 3   # lathe hours per small set
+h_large = 2   # lathe hours per large set
+lathe_capacity = 160  # total lathe hours available per week
+
+w_small = 1   # kg boxwood per small set
+w_large = 3   # kg boxwood per large set
+wood_capacity = 200  # total kg of boxwood available per week
+
+profit_small = 5   # $ profit per small set
+profit_large = 20  # $ profit per large set
+
+# ------------------------------
+# Decision variables
+# ------------------------------
+# Upper bounds can be safely set to the maximum possible if only one
+# resource were binding.  This keeps the search space tight.
+max_small_by_lathe = lathe_capacity // h_small         # 160 // 3 ≈ 53
+max_small_by_wood = wood_capacity // w_small           # 200
+upper_bound_small = min(max_small_by_lathe, max_small_by_wood)
+
+max_large_by_lathe = lathe_capacity // h_large         # 160 // 2 = 80
+max_large_by_wood = wood_capacity // w_large           # 200 // 3 ≈ 66
+upper_bound_large = min(max_large_by_lathe, max_large_by_wood)
+
+small_set = model.NewIntVar(0, upper_bound_small, &quot;small_set&quot;)
+large_set = model.NewIntVar(0, upper_bound_large, &quot;large_set&quot;)
+
+# Total profit can be derived, but defining it as a separate variable can
+# make extraction cleaner.
+max_profit = model.NewIntVar(0, profit_small * upper_bound_small +
+                                profit_large * upper_bound_large,
+                             &quot;max_profit&quot;)
+
+# ------------------------------
+# Constraints
+# ------------------------------
+# 1. Lathe capacity
+model.Add(h_small * small_set + h_large * large_set &lt;= lathe_capacity)
+
+# 2. Boxwood availability
+model.Add(w_small * small_set + w_large * large_set &lt;= wood_capacity)
+
+# 3. Profit definition
+model.Add(max_profit == profit_small * small_set + profit_large * large_set)
+
+# ------------------------------
+# Objective: maximise profit
+# ------------------------------
+model.Maximize(max_profit)
+
+# ------------------------------
+# Solve model
+# ------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# ------------------------------
+# Output results in required JSON format
+# ------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {
+        &quot;large_set&quot;: solver.Value(large_set),
+        &quot;small_set&quot;: solver.Value(small_set),
+        &quot;max_profit&quot;: solver.Value(max_profit)
+    }
+else:
+    # If no feasible solution was found, adhere to key structure with None values
+    result = {
+        &quot;large_set&quot;: None,
+        &quot;small_set&quot;: None,
+        &quot;max_profit&quot;: None
+    }
+
+print(json.dumps(result))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;large_set&quot;: 66,
+  &quot;small_set&quot;: 2,
+  &quot;max_profit&quot;: 1330
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">large_set</span><span class="chip">max_profit</span><span class="chip">small_set</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-29">Copy</button></div><pre class="code-block"><code id="solution-29" class="language-json">{
   &quot;small_set&quot;: 2,
   &quot;large_set&quot;: 66,
   &quot;max_profit&quot;: 1330
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -80,9 +1105,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/chess_set/chess_set.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/chess_set/chess_set.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cell_tower.html">â† prev</a><a class="btn" href="circling_squares.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cell_tower.html">← prev</a><a class="btn" href="circling_squares.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

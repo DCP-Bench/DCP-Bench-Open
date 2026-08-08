@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_015_schurs_lemma Â· DCP-Bench Open</title>
-<meta name="description" content="The problem is to put \( n \) balls labelled \( 1, \ldots, n \) into 3 boxes so that for any triple of balls \( (x, y, z) \) with \( x + y = z \), not all areâ€¦">
+<title>csplib_015_schurs_lemma · DCP-Bench Open</title>
+<meta name="description" content="The problem is to put \( n \) balls labelled \( 1, \ldots, n \) into 3 boxes so that for any triple of balls \( (x, y, z) \) with \( x + y = z \), not all are…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob015_shur_lemma.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob015_shur_lemma.py</a></dd><dt>Source description and problem instances</dt><dd><a href="https://www.csplib.org/Problems/prob015/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob015/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (4)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (4)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-54">Copy</button></div><pre class="code-block"><code id="model-54" class="language-python"># Import libraries
 import json
 from cpmpy import *
@@ -67,7 +68,1276 @@ print(json.dumps(solution))
       <pre class="code-block"><code id="None" class="language-python">n = 13  # Number of balls
 c = 3  # Number of boxes</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 13  # Number of balls
+c = 3   # Number of boxes
+
+# Decision Variables
+balls = intvar(1, c, shape=n, name=&quot;balls&quot;)  # Assignment of balls to boxes (1-3)
+
+# Model
+model = Model()
+
+# Constraint: for any x+y=z, not all three balls in the same box
+for x in range(1, n+1):
+    for y in range(1, n+1):
+        z = x + y
+        if z &lt;= n:
+            for box in range(1, c+1):
+                model += sum([balls[x-1] == box, balls[y-1] == box, balls[z-1] == box]) &lt;= 2
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;balls&quot;: balls.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 13  # Number of balls
+c = 3  # Number of boxes
+
+# Decision variables
+# M[i][j] is True if ball i is in box j
+M = boolvar(shape=(n, c), name=&quot;M&quot;)
+
+# Model
+model = Model()
+
+# Each ball must be in exactly one box
+for i in range(n):
+    model += [sum(M[i, :]) == 1]
+
+# For each triple (x, y, z) such that x + y = z, ensure that not all are in the same box
+# Generate all valid (x, y, z) such that x + y = z and x &lt; y &lt; z
+for x in range(n):
+    for y in range(x + 1, n):
+        z = x + y
+        if z &lt; n:
+            for j in range(c):
+                model += [M[x, j] + M[y, j] + M[z, j] &lt;= 2]
+
+# Solve the model
+model.solve()
+
+# Convert the solution to a list of box assignments for each ball
+balls = [0] * n
+for i in range(n):
+    for j in range(c):
+        if M[i, j].value():
+            balls[i] = j + 1  # boxes are labeled from 1 to 3
+
+# Print the solution
+solution = {&quot;balls&quot;: balls}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (83 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Schur&#x27;s Lemma with n=13 balls and c=3 boxes
+# 
+# Constraints:
+# 1. Each ball must be in exactly one box
+# 2. For any triple (x, y, z) where x + y = z, not all three can be in the same box
+
+n = 13  # Number of balls
+c = 3   # Number of boxes
+
+# Find all triples (x, y, z) where x + y = z
+triples = []
+for x in range(1, n + 1):
+    for y in range(x, n + 1):  # y &gt;= x to avoid duplicates
+        z = x + y
+        if z &lt;= n:
+            triples.append((x, y, z))
+
+# Step 2: Model with CPMpy
+# Decision variables: M[i,j] = 1 if ball i is in box j
+# Using 0-based indexing internally, will convert to 1-based for output
+M = cp.boolvar(shape=(n, c), name=&quot;M&quot;)
+
+model = cp.Model()
+
+# Constraint 1: Each ball must be in exactly one box
+for i in range(n):
+    model += cp.sum(M[i, :]) == 1
+
+# Constraint 2: For each triple (x, y, z) where x + y = z,
+# not all three can be in the same box
+# This means: M[x,j] + M[y,j] + M[z,j] &lt;= 2 for each box j
+for x, y, z in triples:
+    # Convert to 0-based indexing
+    x_idx, y_idx, z_idx = x - 1, y - 1, z - 1
+    for j in range(c):
+        model += M[x_idx, j] + M[y_idx, j] + M[z_idx, j] &lt;= 2
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract the solution - convert to 1-based box numbering
+    assignment = []
+    for i in range(n):
+        for j in range(c):
+            if M[i, j].value() == 1:
+                assignment.append(j + 1)  # Convert to 1-based
+                break
+    
+    # Create solution in required format
+    solution = {&quot;balls&quot;: assignment}
+    
+    # Verification - independent check
+    def verify_solution(sol):
+        balls = sol[&quot;balls&quot;]
+        
+        # 1. Structural verification
+        if len(balls) != n:
+            return False, f&quot;Wrong number of balls: {len(balls)}, expected {n}&quot;
+        
+        if not all(1 &lt;= b &lt;= c for b in balls):
+            return False, f&quot;Invalid box numbers: {balls}, must be 1-{c}&quot;
+        
+        # 2. Logical verification - check Schur constraint
+        for x, y, z in triples:
+            box_x = balls[x - 1]  # Convert to 0-based indexing
+            box_y = balls[y - 1]
+            box_z = balls[z - 1]
+            
+            if box_x == box_y == box_z:
+                return False, f&quot;Schur constraint violated: balls {x}, {y}, {z} all in box {box_x}&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# M[i,j] = 1 if ball i+1 is in box j+1, else 0
+M = cp.boolvar(shape=(n, c), name=&quot;M&quot;)
+
+# Constraints
+# Each ball must be in exactly one box
+for i in range(n):
+    model += (cp.sum(M[i, :]) == 1)
+
+# For each triple (x,y,z) with x + y = z, and for each box j,
+# not all three balls are in the same box
+for z in range(1, n+1):
+    for x in range(1, z):
+        y = z - x
+        if y &gt;= 1 and y &lt;= n:
+            for j in range(c):
+                # M[x-1,j] + M[y-1,j] + M[z-1,j] &lt;= 2
+                model += (M[x-1, j] + M[y-1, j] + M[z-1, j] &lt;= 2)
+
+# Solve and print
+if model.solve():
+    # balls[i] = box number (1-based) for ball i+1
+    balls = [int(cp.sum([M[i, j] * (j+1) for j in range(c)]).value()) for i in range(n)]
+    solution = {&#x27;balls&#x27;: balls}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    3,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: M[i,j] = 1 iff ball i (1-based) is in box j (1-based)
+M = cp.intvar(0, 1, shape=(n, c), name=&quot;M&quot;)
+
+# Constraints
+
+# Each ball is in exactly one box
+for i in range(n):
+    model += (cp.sum(M[i, :]) == 1)
+
+# For every x,y with z = x + y &lt;= n, prevent x,y,z all being in the same box j
+for x in range(1, n + 1):
+    for y in range(1, n + 1):
+        z = x + y
+        if z &lt;= n:
+            for j in range(c):
+                model += (M[x - 1, j] + M[y - 1, j] + M[z - 1, j] &lt;= 2)
+
+# Solve and print
+if model.solve():
+    M_val = M.value().tolist()
+    # Convert each ball&#x27;s row to the box index 1..c
+    balls = [next(idx for idx, val in enumerate(row) if val == 1) + 1 for row in M_val]
+    solution = {&#x27;balls&#x27;: balls}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: M[i,j] == 1 if ball i+1 is in box j+1
+M = cp.boolvar(shape=(n, c))
+
+# Constraints
+# Each ball must be in exactly one box
+for i in range(n):
+    model += cp.sum(M[i, :]) == 1
+
+# For any x, y, z with x + y = z, no monochromatic triple in any box
+for x in range(1, n + 1):
+    for y in range(x, n + 1):  # x &lt;= y to avoid duplicate pairs
+        z = x + y
+        if z &lt;= n:
+            for j in range(c):
+                # M[x-1,j] + M[y-1,j] + M[z-1,j] &lt;= 2
+                model += M[x-1, j] + M[y-1, j] + M[z-1, j] &lt;= 2
+
+# Solve and print
+if model.solve():
+    # Extract assignment: for each ball, find the box number (1..c)
+    # M.value() is an (n x c) array of 0/1
+    assign = (M.value().argmax(axis=1) + 1).tolist()
+    solution = {&#x27;balls&#x27;: assign}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (22 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+n = 13
+c = 3
+balls = [0 for _ in range(n + 1)]
+def valid(up_to):
+    for x in range(1, up_to + 1):
+        for y in range(1, up_to + 1):
+            z = x + y
+            if z &lt;= up_to and balls[x] == balls[y] == balls[z]:
+                return False
+    return True
+def search(value):
+    if value &gt; n:
+        return True
+    for colour in range(1, c + 1):
+        balls[value] = colour
+        if valid(value) and search(value + 1):
+            return True
+    balls[value] = 0
+    return False
+if not search(1):
+    raise RuntimeError(&#x27;no Schur colouring found&#x27;)
+print(json.dumps({&#x27;balls&#x27;: balls[1:]}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    1,
+    2,
+    2,
+    1,
+    3,
+    3,
+    1,
+    3,
+    3,
+    1,
+    2,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# M[i,j] = 1 if ball i+1 is in box j+1, else 0
+M = cp.boolvar(shape=(n, c), name=&quot;M&quot;)
+
+# Constraints
+# Each ball must be in exactly one box
+for i in range(n):
+    model += (cp.sum(M[i, :]) == 1)
+
+# For each triple (x,y,z) with x + y = z, no triple (x,y,z) are all in the same box
+# We consider x,y,z in 1..n, and x+y=z
+for x in range(1, n+1):
+    for y in range(x, n+1):  # start y from x to avoid duplicates
+        z = x + y
+        if z &lt;= n:
+            for j in range(c):
+                # M[x-1,j] + M[y-1,j] + M[z-1,j] &lt;= 2
+                model += (M[x-1, j] + M[y-1, j] + M[z-1, j] &lt;= 2)
+
+# Solve and print
+if model.solve():
+    # For each ball, find the box assigned (index + 1)
+    balls = [int(cp.sum([M[i, j] * (j+1) for j in range(c)]).value()) for i in range(n)]
+    solution = {&#x27;balls&#x27;: balls}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (41 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: M[i,j] == 1 iff ball i+1 is in box j+1
+M = cp.intvar(0, 1, shape=(n, c), name=&quot;M&quot;)
+
+# Constraints
+# Each ball is in exactly one box
+for i in range(n):
+    model += (cp.sum([M[i, j] for j in range(c)]) == 1)
+
+# For each triple x + y = z, not all three are in the same box.
+# We iterate x &lt;= y to avoid duplicate triples (x,y) and (y,x).
+for x in range(1, n + 1):
+    for y in range(x, n + 1):
+        z = x + y
+        if z &lt;= n:
+            xi = x - 1
+            yi = y - 1
+            zi = z - 1
+            for j in range(c):
+                model += (cp.sum([M[xi, j], M[yi, j], M[zi, j]]) &lt;= 2)
+
+# Solve
+if model.solve():
+    M_val = M.value().tolist()
+    # convert row of 0/1 to box index 1..c
+    balls = [row.index(1) + 1 for row in M_val]
+    solution = {&#x27;balls&#x27;: balls}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+n = 13
+c = 3
+
+# Decision variables: balls[i] is the box (1, 2, or 3) for ball (i+1)
+balls = cp.intvar(1, 3, shape=n)
+
+model = cp.Model()
+
+# Generate all triples (x, y, z) where x + y = z and z &lt;= n
+triples = []
+for x in range(1, n+1):
+    for y in range(x, n+1):  # Start from x to avoid duplicate pairs (x,y) and (y,x)
+        z = x + y
+        if z &lt;= n:
+            triples.append((x, y, z))
+
+# Add constraints for each triple: not all three in the same box
+for x, y, z in triples:
+    bx = balls[x-1]  # balls are 0-indexed
+    by = balls[y-1]
+    bz = balls[z-1]
+    model += ~((bx == by) &amp; (by == bz))
+
+# Solve
+if model.solve():
+    solution = {&#x27;balls&#x27;: balls.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    1,
+    3,
+    3,
+    1,
+    2,
+    2,
+    1,
+    2,
+    2,
+    1,
+    3,
+    3,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Input data
+n = 13
+c = 3
+
+# Decision variables: balls[i] is the box (1, 2, or 3) for ball (i+1)
+balls = cp.intvar(1, 3, shape=n)
+
+model = cp.Model()
+
+# Generate all triples (x, y, z) where x + y = z and z &lt;= n
+triples = []
+for x in range(1, n+1):
+    for y in range(x, n+1):  # Start from x to avoid duplicate pairs (x,y) and (y,x)
+        z = x + y
+        if z &lt;= n:
+            triples.append((x, y, z))
+
+# Add constraints for each triple: not all three in the same box
+for x, y, z in triples:
+    bx = balls[x-1]  # balls are 0-indexed
+    by = balls[y-1]
+    bz = balls[z-1]
+    model += ~((bx == by) &amp; (by == bz))
+
+# Solve
+if model.solve():
+    solution = {&#x27;balls&#x27;: balls.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n = 13  # Number of balls
+c = 3   # Number of boxes
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# balls[i] is the box (1..c) assigned to ball i+1
+balls = cp.intvar(1, c, shape=n, name=&quot;balls&quot;)
+
+# Constraints
+# For every triple (x, y, z) with x + y = z, they cannot all be in the same box
+for x in range(1, n+1):
+    for y in range(1, n+1):
+        z = x + y
+        if z &lt;= n:
+            model += ~cp.AllEqual(balls[x-1], balls[y-1], balls[z-1])
+
+# Objective (optional)
+# Satisfaction problem: no objective
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;balls&#x27;: balls.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    2,
+    1,
+    1,
+    2,
+    3,
+    3,
+    1,
+    3,
+    3,
+    2,
+    1,
+    1,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: M[i,j] = 1 iff ball i (1-based) is in box j (1-based)
+M = cp.intvar(0, 1, shape=(n, c), name=&quot;M&quot;)
+
+# Constraints
+
+# Each ball is in exactly one box
+for i in range(n):
+    model += (cp.sum(M[i, :]) == 1)
+
+# For every x,y with z = x + y &lt;= n, prevent x,y,z all being in the same box j
+for x in range(1, n + 1):
+    for y in range(1, n + 1):
+        z = x + y
+        if z &lt;= n:
+            for j in range(c):
+                model += (M[x - 1, j] + M[y - 1, j] + M[z - 1, j] &lt;= 2)
+
+# Solve and print
+if model.solve():
+    M_val = M.value().tolist()
+    # Convert each ball&#x27;s row to the box index 1..c
+    balls = [next(idx for idx, val in enumerate(row) if val == 1) + 1 for row in M_val]
+    solution = {&#x27;balls&#x27;: balls}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (34 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 13; % Number of balls
+int: c = 3;  % Number of boxes
+
+% Decision variables
+% balls[i] = j means ball i is in box j
+array[1..n] of var 1..c: balls;
+
+% Constraints
+
+% Each ball must be in exactly one box (already ensured by domain of balls)
+
+% For each triple (x,y,z) with x + y = z, and for each box j,
+% not all three balls are in the same box
+constraint
+  forall(x, y in 1..n where x &lt;= y /\ x + y &lt;= n) (
+    forall(j in 1..c) (
+      % sum of balls[x], balls[y], balls[z] in box j &lt;= 2
+      % translate to: count how many of balls[x], balls[y], balls[z] equal j &lt;= 2
+      let {
+        int: z = x + y
+      } in
+      (bool2int(balls[x] == j) + bool2int(balls[y] == j) + bool2int(balls[z] == j)) &lt;= 2
+    )
+  );
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;balls\&quot;: &quot;, show(balls),
+  &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    1,
+    2,
+    2,
+    1,
+    3,
+    3,
+    1,
+    3,
+    3,
+    1,
+    2,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (26 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Schur&#x27;s Lemma for n balls into c boxes
+% We assign each ball i a box number balls[i] in 1..c
+include &quot;globals.mzn&quot;;
+
+int: n = 13;            % Number of balls
+int: c = 3;             % Number of boxes
+
+% Decision variables: box assignment for each ball
+array[1..n] of var 1..c: balls;
+
+% Constraints:
+% For any x+y = z, not all three can be in the same box j
+constraint
+  forall(x, y in 1..n where x + y &lt;= n, j in 1..c) (
+    not (balls[x] == j /\ balls[y] == j /\ balls[x+y] == j)
+  );
+
+solve satisfy;
+
+% Output the assignment as JSON: &quot;balls&quot;: [b1, b2, ..., bn]
+output [
+  &quot;{&quot;,
+    &quot;\&quot;balls\&quot;:[&quot; ++ join(&quot;,&quot;, [ show(balls[i]) | i in 1..n ]) ++ &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    1,
+    2,
+    2,
+    1,
+    3,
+    3,
+    1,
+    3,
+    3,
+    1,
+    2,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# M[i][j] = 1 if ball i+1 is in box j+1, else 0
+M = []
+for i in range(n):
+    row = []
+    for j in range(c):
+        row.append(model.NewBoolVar(f&#x27;M_{i+1}_{j+1}&#x27;))
+    M.append(row)
+
+# Constraints
+# Each ball must be in exactly one box
+for i in range(n):
+    model.Add(sum(M[i][j] for j in range(c)) == 1)
+
+# For each triple (x,y,z) with x + y = z, and for each box j,
+# not all three balls are in the same box
+# i.e. M[xj] + M[yj] + M[zj] &lt;= 2
+for z in range(1, n+1):
+    for x in range(1, z):
+        y = z - x
+        if y &gt;= 1 and y &lt;= n and y &lt;= x:  # To avoid duplicates, enforce y &lt;= x
+            for j in range(c):
+                model.Add(M[x-1][j] + M[y-1][j] + M[z-1][j] &lt;= 2)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    balls = [0] * n
+    for i in range(n):
+        for j in range(c):
+            if solver.Value(M[i][j]) == 1:
+                balls[i] = j + 1
+                break
+    solution = {&#x27;balls&#x27;: balls}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    3,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (55 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 13  # Number of balls
+c = 3   # Number of boxes
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: M[i][j] is True if ball i+1 is in box j+1
+M = []
+for i in range(n):
+    row = []
+    for j in range(c):
+        var = model.NewBoolVar(f&quot;M_{i+1}_{j+1}&quot;)
+        row.append(var)
+    M.append(row)
+
+# Constraints
+# 1) Each ball must be in exactly one box
+for i in range(n):
+    model.Add(sum(M[i][j] for j in range(c)) == 1)
+
+# 2) For each triple (x, y, z) with x + y = z, they cannot all be in the same box
+for x in range(1, n+1):
+    for y in range(1, n+1):
+        z = x + y
+        if z &lt;= n:
+            for j in range(c):
+                # M_xj + M_yj + M_zj &lt;= 2
+                model.Add(M[x-1][j] + M[y-1][j] + M[z-1][j] &lt;= 2)
+
+# No objective function (feasibility problem)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print solution
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    balls = []
+    # Determine box assignment for each ball
+    for i in range(n):
+        for j in range(c):
+            if solver.Value(M[i][j]) == 1:
+                balls.append(j+1)
+                break
+    solution = {
+        &#x27;balls&#x27;: balls
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    2,
+    2,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    2,
+    2,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# Input data (immutable, must not be changed)
+# --------------------------------------------------
+n = 13  # Number of balls
+c = 3   # Number of boxes (labelled 1..3)
+
+# --------------------------------------------------
+# Model creation
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# Binary placement variables M_{i,j} == 1  &lt;=&gt;  ball i (1..n) is put into box j (1..c)
+M = {}
+for i in range(n):
+    for j in range(c):
+        M[i, j] = model.NewBoolVar(f&quot;M_{i+1}_{j+1}&quot;)
+
+# 1. Each ball must be placed in exactly one box
+for i in range(n):
+    model.Add(sum(M[i, j] for j in range(c)) == 1)
+
+# 2. For every additive triple (x, y, z) with x + y = z and z &lt;= n,
+#    forbid that all three balls sit in the same box.
+for x in range(1, n + 1):
+    for y in range(x + 1, n + 1):  # ensure x &lt; y
+        z = x + y
+        if z &lt;= n:
+            for j in range(c):
+                # M_{xj} + M_{yj} + M_{zj} &lt;= 2  (cannot all be 1)
+                model.Add(M[x - 1, j] + M[y - 1, j] + M[z - 1, j] &lt;= 2)
+
+# --------------------------------------------------
+# Solve
+# --------------------------------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+balls = []  # the required output list
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    # Translate binary matrix back into a single integer per ball (1..3)
+    for i in range(n):
+        for j in range(c):
+            if solver.Value(M[i, j]):
+                balls.append(j + 1)  # j is 0-based internally
+                break
+else:
+    # The theoretical model says n &lt; 14 always feasible, but guard anyway
+    raise ValueError(&quot;No feasible assignment found for the given parameters.&quot;)
+
+# --------------------------------------------------
+# Output exactly as requested (JSON with key &#x27;balls&#x27;)
+# --------------------------------------------------
+print(json.dumps({&quot;balls&quot;: balls}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;balls&quot;: [
+    3,
+    3,
+    2,
+    2,
+    2,
+    2,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    2
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 13,
   &quot;c&quot;: 3
 }</code></pre></details><details class="instance"><summary>Instance 2</summary><pre><code class="language-json">{
@@ -80,9 +1350,9 @@ c = 3  # Number of boxes</code></pre>
   &quot;n&quot;: 7,
   &quot;c&quot;: 3
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">balls</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-54">Copy</button></div><pre class="code-block"><code id="solution-54" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">balls</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-54">Copy</button></div><pre class="code-block"><code id="solution-54" class="language-json">{
   &quot;balls&quot;: [
     3,
     2,
@@ -99,6 +1369,7 @@ c = 3  # Number of boxes</code></pre>
     3
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -106,9 +1377,9 @@ c = 3  # Number of boxes</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_015_schurs_lemma/csplib_015_schurs_lemma.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_015_schurs_lemma/csplib_015_schurs_lemma.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_014_solitaire_battleships.html">â† prev</a><a class="btn" href="csplib_016_traffic_lights.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_014_solitaire_battleships.html">← prev</a><a class="btn" href="csplib_016_traffic_lights.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

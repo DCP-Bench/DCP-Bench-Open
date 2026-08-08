@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_005_autocorrelation Â· DCP-Bench Open</title>
-<meta name="description" content="These problems have many practical applications in communications and electrical engineering. The objective is to construct a binary sequence of length n thatâ€¦">
+<title>csplib_005_autocorrelation · DCP-Bench Open</title>
+<meta name="description" content="These problems have many practical applications in communications and electrical engineering. The objective is to construct a binary sequence of length n that…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob005/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob005/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (3)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (3)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-44">Copy</button></div><pre class="code-block"><code id="model-44" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
@@ -66,16 +67,1401 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python">n = 10  # Length of the binary sequence</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 10  # Length of the binary sequence
+
+# Decision Variables
+sequence = intvar(-1, 1, shape=n, name=&quot;sequence&quot;)  # Binary sequence (+1 or -1)
+E = intvar(0, (n-1)*n**2, name=&quot;E&quot;)  # Energy value to minimize
+
+# Model
+model = Model()
+
+# Constraint to ensure sequence values are either +1 or -1
+model += [abs(sequence[i]) == 1 for i in range(n)]
+
+# Calculate autocorrelations C_k for periodic boundary conditions
+C = []
+for k in range(1, n):
+    C_k = sum(sequence[i] * sequence[(i+k) % n] for i in range(n))
+    C.append(C_k)
+
+# Calculate energy E as sum of squares of autocorrelations
+model += E == sum([ck**2 for ck in C])
+
+# Objective: minimize E
+model.minimize(E)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;sequence&quot;: sequence.value().tolist(),
+    &quot;E&quot;: E.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    -1,
+    -1,
+    1,
+    -1,
+    -1,
+    -1,
+    1,
+    1,
+    -1
+  ],
+  &quot;E&quot;: 36
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n = 10  # Length of the binary sequence
+
+# Decision Variables
+sequence = intvar(-1, 1, shape=n, name=&quot;sequence&quot;)  # Binary sequence with values -1 and 1
+
+# Ensure that the sequence only contains -1 or 1 (no 0)
+model = Model([
+    (sequence == -1) | (sequence == 1)
+])
+
+# Calculate autocorrelations and energy
+C = []
+for k in range(1, n):
+    # Periodic autocorrelation
+    C_k = sum(sequence[i] * sequence[(i + k) % n] for i in range(n))
+    C.append(C_k)
+
+# Energy E is the sum of squares of autocorrelations
+E = sum(C_k ** 2 for C_k in C)
+
+# Add E to the model for minimization
+model.minimize(E)
+
+# Solve
+model.solve()
+
+# Print
+solution = {
+    &quot;sequence&quot;: sequence.value().tolist(),
+    &quot;E&quot;: E.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    1,
+    1,
+    1,
+    -1,
+    -1,
+    1,
+    1,
+    -1,
+    1
+  ],
+  &quot;E&quot;: 36
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (82 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Low Autocorrelation Binary Sequences
+# - Binary sequence of length n=10, each element is +1 or -1
+# - Using periodic (cyclic) boundary conditions
+# - k-th autocorrelation: C_k = sum(S_i * S_{(i+k) mod n}) for i=0 to n-1
+# - Objective: minimize E = sum(C_k^2) for k=1 to n-1
+
+n = 10
+
+# Step 2: Model with CPMpy
+model = cp.Model()
+
+# Decision variables: binary sequence with values +1 or -1
+S = cp.intvar(-1, 1, shape=n, name=&quot;S&quot;)
+
+# Constraint: each element must be either +1 or -1
+for i in range(n):
+    model += (S[i] == 1) | (S[i] == -1)
+
+# Create auxiliary variables for autocorrelations C_k
+# C_k = sum(S_i * S_{(i+k) mod n}) for i=0 to n-1
+C = []
+for k in range(1, n):  # k from 1 to n-1
+    # Calculate C_k as sum of products
+    terms = []
+    for i in range(n):
+        j = (i + k) % n
+        terms.append(S[i] * S[j])
+    
+    # C_k can range from -n to +n
+    C_k = cp.intvar(-n, n, name=f&quot;C_{k}&quot;)
+    model += C_k == cp.sum(terms)
+    C.append(C_k)
+
+# Create auxiliary variables for squared autocorrelations
+C_squared = []
+for k in range(len(C)):
+    # C_k^2 can range from 0 to n^2
+    C_k_sq = cp.intvar(0, n*n, name=f&quot;C_{k+1}_squared&quot;)
+    model += C_k_sq == C[k] * C[k]
+    C_squared.append(C_k_sq)
+
+# Objective: minimize E = sum(C_k^2)
+E = cp.intvar(0, (n-1) * n * n, name=&quot;E&quot;)
+model += E == cp.sum(C_squared)
+
+# Symmetry breaking: fix first element to +1 to reduce search space
+model += S[0] == 1
+
+# Step 3: Solve and verify
+model.minimize(E)
+
+if model.solve():
+    # Extract solution
+    sequence = S.value().tolist()
+    energy = E.value()
+    
+    # Verification: Independent calculation
+    def verify_solution(seq):
+        n = len(seq)
+        autocorrelations = []
+        for k in range(1, n):
+            C_k = sum(seq[i] * seq[(i + k) % n] for i in range(n))
+            autocorrelations.append(C_k)
+        calculated_energy = sum(C_k * C_k for C_k in autocorrelations)
+        return calculated_energy
+    
+    verified_energy = verify_solution(sequence)
+    assert verified_energy == energy, f&quot;Energy mismatch: {verified_energy} != {energy}&quot;
+    
+    # Step 4: Output
+    solution = {
+        &quot;sequence&quot;: sequence,
+        &quot;E&quot;: energy
+    }
+    
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    1,
+    -1,
+    -1
+  ],
+  &quot;E&quot;: 36
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Represent the sequence bits as integer variables taking values in {-1, 1}
+sequence = cp.intvar(-1, 1, shape=n, name=&quot;sequence&quot;)
+
+# Constraints
+# Each element must be either -1 or 1
+model += (sequence != 0)
+
+# Compute autocorrelations C_k for k=1..n-1 with periodic boundary conditions
+C = []
+for k in range(1, n):
+    # sum over i=0..n-1 of S_i * S_{(i+k) mod n}
+    terms = [sequence[i] * sequence[(i + k) % n] for i in range(n)]
+    Ck = cp.sum(terms)
+    C.append(Ck)
+
+# Objective: minimize sum of squares of autocorrelations
+E = cp.sum([c * c for c in C])
+model.minimize(E)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist(), &#x27;E&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    -1,
+    1,
+    -1,
+    -1,
+    -1,
+    1,
+    1,
+    1,
+    1
+  ],
+  &quot;E&quot;: 36
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # Length of the binary sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# b_i in {0,1} -&gt; sequence value s_i = 2*b_i - 1 in {-1,1}
+b = cp.intvar(0, 1, shape=n, name=&quot;b&quot;)
+
+# We&#x27;ll build pairwise products p_{i,j} for all required pairs (open boundary).
+# For each lag k (1..n-1) we compute C_k = sum_{i=0}^{n-k-1} s_i * s_{i+k}
+C_vars = []
+T_vars = []  # squares of C_k via table constraint
+
+# Helper containers for p and and-variables (not needed in solution output but for constraints)
+for k in range(1, n):
+    pairs_p = []
+    for i in range(0, n - k):
+        j = i + k
+        # and_ij = b_i &amp; b_j (as intvar 0/1)
+        and_ij = cp.intvar(0, 1, name=f&quot;and_{i}_{j}&quot;)
+        # p_ij = s_i * s_j in {-1,1}
+        p_ij = cp.intvar(-1, 1, name=f&quot;p_{i}_{j}&quot;)
+        # Linearize AND:
+        model += (and_ij &lt;= b[i])
+        model += (and_ij &lt;= b[j])
+        model += (and_ij &gt;= b[i] + b[j] - 1)
+        # p = 4*and - 2*b_i - 2*b_j + 1  (since s = 2*b - 1)
+        model += (p_ij == 4 * and_ij - 2 * b[i] - 2 * b[j] + 1)
+        pairs_p.append(p_ij)
+
+    # C_k bounds: sum of (n-k) items each in {-1,1}
+    m = n - k
+    Ck = cp.intvar(-m, m, name=f&quot;C_{k}&quot;)
+    model += (Ck == cp.sum(pairs_p))
+    C_vars.append(Ck)
+
+    # Square variable tk
+    tk = cp.intvar(0, m * m, name=f&quot;t_{k}&quot;)
+    # Table to force tk == Ck^2 by enumerating all possible (Ck, tk) pairs
+    table = [[v, v * v] for v in range(-m, m + 1)]
+    model += cp.Table([Ck, tk], table)
+    T_vars.append(tk)
+
+# Objective: minimize sum of squares of autocorrelations
+model.minimize(cp.sum(T_vars))
+
+# Solve and print
+if model.solve():
+    b_vals = b.value().tolist()
+    sequence = [2 * int(x) - 1 for x in b_vals]  # map 0-&gt;-1, 1-&gt;1
+    solution = {&#x27;sequence&#x27;: sequence}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    -1,
+    -1,
+    1,
+    1,
+    -1,
+    -1,
+    1,
+    -1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # Length of the binary sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# S[i] in {-1, +1}, we use IntVar(-1,1) and forbid 0
+S = cp.intvar(-1, 1, shape=n, name=&quot;S&quot;)
+model += [S[i] != 0 for i in range(n)]
+
+# Compute autocorrelations C_k for k = 1..n-1 (non-periodic)
+Cs = []
+for k in range(1, n):
+    # C_k = sum_{i=0 to n-k-1} S[i] * S[i+k]
+    Cs.append(cp.sum([S[i] * S[i + k] for i in range(n - k)]))
+
+# Objective: minimize E = sum_{k=1..n-1} C_k^2
+E = cp.sum([C * C for C in Cs])
+model.minimize(E)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;sequence&quot;: [int(S[i].value()) for i in range(n)],
+        &quot;E&quot;: int(model.objective_value())
+    }
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    -1,
+    1,
+    1,
+    -1,
+    1,
+    -1,
+    -1,
+    -1,
+    -1
+  ],
+  &quot;E&quot;: 13
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (8 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+n = 10
+sequence = [-1 if i % 2 == 0 else 1 for i in range(n)]
+def energy(seq):
+    return sum(
+        sum(seq[i] * seq[(i + shift) % n] for i in range(n)) ** 2
+        for shift in range(1, n)
+    )
+print(json.dumps({&#x27;sequence&#x27;: sequence, &#x27;E&#x27;: energy(sequence)}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    1,
+    -1,
+    1,
+    -1,
+    1,
+    -1,
+    1,
+    -1,
+    1
+  ],
+  &quot;E&quot;: 900
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (37 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision variables: sequence of length n with values -1 or +1
+sequence = cp.intvar(-1, 1, shape=n, name=&quot;sequence&quot;)
+
+# Constraints: each element must be either -1 or 1 (exclude 0)
+for i in range(n):
+    model += cp.InDomain(sequence[i], [-1, 1])
+
+# Calculate autocorrelations Ck for k=1..n-1 (non-periodic)
+C = []
+for k in range(1, n):
+    terms = [sequence[i] * sequence[i + k] for i in range(n - k)]
+    Ck = cp.sum(terms)
+    C.append(Ck)
+
+# Energy E = sum of squares of autocorrelations
+E = cp.sum([c * c for c in C])
+
+# Objective: minimize E
+model.minimize(E)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;sequence&#x27;: sequence.value().tolist(), &#x27;E&#x27;: int(model.objective_value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    -1,
+    -1,
+    1,
+    -1,
+    1,
+    -1,
+    -1,
+    1,
+    1
+  ],
+  &quot;E&quot;: 13
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # Length of the binary sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# b_i in {0,1} -&gt; sequence value s_i = 2*b_i - 1 in {-1,1}
+b = cp.intvar(0, 1, shape=n, name=&quot;b&quot;)
+
+# We&#x27;ll build pairwise products p_{i,j} for all required pairs (open boundary).
+# For each lag k (1..n-1) we compute C_k = sum_{i=0}^{n-k-1} s_i * s_{i+k}
+C_vars = []
+T_vars = []  # squares of C_k via table constraint
+
+# Helper containers for p and and-variables (not needed in solution output but for constraints)
+for k in range(1, n):
+    pairs_p = []
+    for i in range(0, n - k):
+        j = i + k
+        # and_ij = b_i &amp; b_j (as intvar 0/1)
+        and_ij = cp.intvar(0, 1, name=f&quot;and_{i}_{j}&quot;)
+        # p_ij = s_i * s_j in {-1,1}
+        p_ij = cp.intvar(-1, 1, name=f&quot;p_{i}_{j}&quot;)
+        # Linearize AND:
+        model += (and_ij &lt;= b[i])
+        model += (and_ij &lt;= b[j])
+        model += (and_ij &gt;= b[i] + b[j] - 1)
+        # p = 4*and - 2*b_i - 2*b_j + 1  (since s = 2*b - 1)
+        model += (p_ij == 4 * and_ij - 2 * b[i] - 2 * b[j] + 1)
+        pairs_p.append(p_ij)
+
+    # C_k bounds: sum of (n-k) items each in {-1,1}
+    m = n - k
+    Ck = cp.intvar(-m, m, name=f&quot;C_{k}&quot;)
+    model += (Ck == cp.sum(pairs_p))
+    C_vars.append(Ck)
+
+    # Square variable tk
+    tk = cp.intvar(0, m * m, name=f&quot;t_{k}&quot;)
+    # Table to force tk == Ck^2 by enumerating all possible (Ck, tk) pairs
+    table = [[v, v * v] for v in range(-m, m + 1)]
+    model += cp.Table([Ck, tk], table)
+    T_vars.append(tk)
+
+# Objective: minimize sum of squares of autocorrelations
+model.minimize(cp.sum(T_vars))
+
+# Solve and print
+if model.solve():
+    b_vals = b.value().tolist()
+    sequence = [2 * int(x) - 1 for x in b_vals]  # map 0-&gt;-1, 1-&gt;1
+    solution = {&#x27;sequence&#x27;: sequence}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    -1,
+    1,
+    -1,
+    -1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (40 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+n = 10  # Length of the binary sequence
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+s_bool = cp.boolvar(shape=n)
+s = 2 * s_bool - 1  # Convert to -1 or 1
+
+# Compute autocorrelations and energy
+autocorrelations = []
+for k in range(1, n):
+    terms = []
+    for i in range(n - k):
+        terms.append(s[i] * s[i + k])
+    Ck = cp.sum(terms)
+    autocorrelations.append(Ck)
+    
+E = cp.sum([ck**2 for ck in autocorrelations])
+
+# Objective: minimize energy
+model.minimize(E)
+
+# Solve and print
+if model.solve():
+    # Extract sequence values and compute energy
+    s_val = s_bool.value()
+    sequence = (2 * s_val - 1).tolist()
+    E_val = model.objective_value()
+    solution = {
+        &#x27;sequence&#x27;: sequence,
+        &#x27;E&#x27;: int(E_val)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    1,
+    -1,
+    1,
+    1,
+    -1,
+    -1,
+    1,
+    1,
+    1
+  ],
+  &quot;E&quot;: 13
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+n = 10
+
+model = cp.Model()
+
+# Decision variables
+b = cp.boolvar(shape=n, name=&quot;b&quot;)
+s = 2 * b - 1  # Convert 0/1 to -1/1
+
+# Compute the energy E (periodic autocorrelation)
+E = 0
+for k in range(1, n):
+    terms = []
+    for i in range(n):
+        next_i = (i + k) % n  # Periodic boundary condition
+        terms.append(s[i] * s[next_i])
+    Ck = cp.sum(terms)
+    E += Ck * Ck
+
+model.minimize(E)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;sequence&#x27;: s.value().tolist(),
+        &#x27;E&#x27;: int(model.objective_value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    1,
+    -1,
+    1,
+    1,
+    -1,
+    1,
+    1,
+    1,
+    -1
+  ],
+  &quot;E&quot;: 36
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (51 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n = 10  # Length of the binary sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Use booleans u in {0,1}, and map to sequence S = 2*u - 1 at the end
+u = cp.boolvar(shape=n, name=&quot;u&quot;)
+
+# Symmetry breaking: fix the first bit to +1 (i.e., u[0] = 1)
+model += (u[0] == 1)
+
+# Non-periodic (open) autocorrelation minimization
+y_vars = []  # y_k = C_k^2 for each k
+
+for k in range(1, n):
+    m_k = n - k  # number of terms in C_k for non-periodic case
+
+    # w_{i,k} = u[i] XOR u[i+k], i = 0..m_k-1
+    # Use tuple for shape to ensure array even when m_k==1
+    w_k = cp.boolvar(shape=(m_k,), name=f&quot;w_{k}&quot;)
+    for i in range(m_k):
+        model += (w_k[i] == (u[i] ^ u[i + k]))
+
+    # t_k = sum of XORs = number of unequal pairs at lag k
+    t_k = cp.intvar(0, m_k, name=f&quot;t_{k}&quot;)
+    model += (t_k == cp.sum(w_k))
+
+    # y_k = (m_k - 2*t_k)^2, implemented via a table over t_k
+    y_k = cp.intvar(0, m_k * m_k, name=f&quot;y_{k}&quot;)
+    table_pairs = [[t, (m_k - 2 * t) * (m_k - 2 * t)] for t in range(m_k + 1)]
+    model += cp.Table([t_k, y_k], table_pairs)
+
+    y_vars.append(y_k)
+
+# Objective: minimize sum of squared autocorrelations
+model.minimize(cp.sum(y_vars))
+
+# Solve and print
+if model.solve():
+    sequence = [int(2 * int(u[i].value()) - 1) for i in range(n)]
+    solution = {&#x27;sequence&#x27;: sequence}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    -1,
+    -1,
+    1,
+    -1,
+    -1,
+    -1,
+    1,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (61 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 10  # Length of the binary sequence
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# b_i in {0,1} -&gt; sequence value s_i = 2*b_i - 1 in {-1,1}
+b = cp.intvar(0, 1, shape=n, name=&quot;b&quot;)
+
+# We&#x27;ll build pairwise products p_{i,j} for all required pairs (open boundary).
+# For each lag k (1..n-1) we compute C_k = sum_{i=0}^{n-k-1} s_i * s_{i+k}
+C_vars = []
+T_vars = []  # squares of C_k via table constraint
+
+# Helper containers for p and and-variables (not needed in solution output but for constraints)
+for k in range(1, n):
+    pairs_p = []
+    for i in range(0, n - k):
+        j = i + k
+        # and_ij = b_i &amp; b_j (as intvar 0/1)
+        and_ij = cp.intvar(0, 1, name=f&quot;and_{i}_{j}&quot;)
+        # p_ij = s_i * s_j in {-1,1}
+        p_ij = cp.intvar(-1, 1, name=f&quot;p_{i}_{j}&quot;)
+        # Linearize AND:
+        model += (and_ij &lt;= b[i])
+        model += (and_ij &lt;= b[j])
+        model += (and_ij &gt;= b[i] + b[j] - 1)
+        # p = 4*and - 2*b_i - 2*b_j + 1  (since s = 2*b - 1)
+        model += (p_ij == 4 * and_ij - 2 * b[i] - 2 * b[j] + 1)
+        pairs_p.append(p_ij)
+
+    # C_k bounds: sum of (n-k) items each in {-1,1}
+    m = n - k
+    Ck = cp.intvar(-m, m, name=f&quot;C_{k}&quot;)
+    model += (Ck == cp.sum(pairs_p))
+    C_vars.append(Ck)
+
+    # Square variable tk
+    tk = cp.intvar(0, m * m, name=f&quot;t_{k}&quot;)
+    # Table to force tk == Ck^2 by enumerating all possible (Ck, tk) pairs
+    table = [[v, v * v] for v in range(-m, m + 1)]
+    model += cp.Table([Ck, tk], table)
+    T_vars.append(tk)
+
+# Objective: minimize sum of squares of autocorrelations
+model.minimize(cp.sum(T_vars))
+
+# Solve and print
+if model.solve():
+    b_vals = b.value().tolist()
+    sequence = [2 * int(x) - 1 for x in b_vals]  # map 0-&gt;-1, 1-&gt;1
+    solution = {&#x27;sequence&#x27;: sequence}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    -1,
+    1,
+    -1,
+    1,
+    1,
+    -1,
+    -1,
+    -1,
+    -1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (31 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 10;
+
+% Decision Variables
+% sequence[i] in {-1, 1}
+array[0..n-1] of var -1..1: sequence;
+
+% Constraint: sequence elements must be either -1 or 1
+constraint forall(i in 0..n-1) (
+    sequence[i] = -1 \/ sequence[i] = 1
+);
+
+% Compute autocorrelations C_k for k = 1..n-1 with periodic boundary conditions
+array[1..n-1] of var int: C;
+constraint forall(k in 1..n-1) (
+    C[k] = sum(i in 0..n-1)(sequence[i] * sequence[(i + k) mod n])
+);
+
+% Energy E = sum of squares of autocorrelations
+var int: E = sum(k in 1..n-1)(C[k] * C[k]);
+
+% Objective: minimize energy E
+solve minimize E;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;sequence\&quot;: &quot;, show(sequence), &quot;,&quot;,
+    &quot;\&quot;E\&quot;: &quot;, show(E),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    1,
+    -1,
+    1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+  ],
+  &quot;E&quot;: 36
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (34 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Low Autocorrelation Binary Sequence of length n = 10 (non-periodic)
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: n = 10;
+
+% Decision variables: sequence values S[i] in {-1, +1}
+array[1..n] of var {-1,1}: S;
+
+% Autocorrelations Ck for k = 1..n-1 (non-periodic)
+array[1..n-1] of var int: Ck;
+constraint
+  forall(k in 1..n-1) (
+    Ck[k] = sum(i in 1..n-k)(S[i] * S[i+k])
+  );
+
+% Energy E = sum of squares of autocorrelations
+var int: E;
+constraint
+  E = sum(k in 1..n-1)(Ck[k] * Ck[k]);
+
+% Objective: minimize the energy
+solve minimize E;
+
+% Print solution in JSON format
+output [
+  &quot;{&quot;,
+    join(&quot;,&quot;, [
+      &quot;\&quot;sequence\&quot;: [&quot; ++ join(&quot;,&quot;, [show(S[i]) | i in 1..n]) ++ &quot;]&quot;,
+      &quot;\&quot;E\&quot;: &quot; ++ show(E)
+    ]),
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    1,
+    -1,
+    1,
+    1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+  ],
+  &quot;E&quot;: 13
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (81 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 10  # Length of the binary sequence
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# Represent each bit as an integer variable taking values -1 or 1
+# Since OR-tools does not support negative domain directly, we use 0/1 and map to -1/+1
+bits = [model.NewIntVar(0, 1, f&#x27;bit_{i}&#x27;) for i in range(n)]
+
+# Helper variables to represent S_i as -1 or +1
+# S_i = 2 * bits[i] - 1
+# We will use this expression directly in constraints and objective
+
+# Compute autocorrelations C_k for k=1 to n-1
+# C_k = sum_{i=0}^{n-k-1} S_i * S_{i+k} (non-periodic)
+# S_i = 2*bits[i] - 1
+# So S_i * S_j = (2*bits[i]-1)*(2*bits[j]-1) = 4*bits[i]*bits[j] - 2*bits[i] - 2*bits[j] + 1
+
+# We will create integer variables for each C_k
+C = []
+for k in range(1, n):
+    # Calculate terms for C_k
+    terms = []
+    for i in range(n - k):
+        # bits[i] and bits[i+k] are 0/1 variables
+        # We need to model product bits[i]*bits[i+k]
+        # Create an auxiliary variable for product bits[i]*bits[i+k]
+        prod = model.NewIntVar(0, 1, f&#x27;prod_{i}_{i+k}&#x27;)
+        model.AddMultiplicationEquality(prod, [bits[i], bits[i + k]])
+        # Expression for S_i * S_{i+k} = 4*prod - 2*bits[i] - 2*bits[i+k] + 1
+        # We&#x27;ll sum these expressions
+        terms.append((prod, bits[i], bits[i + k]))
+    # Now create an integer variable for C_k
+    # The range of C_k can be from -(n-k) to (n-k)
+    Ck = model.NewIntVar(-(n - k), n - k, f&#x27;C_{k}&#x27;)
+    # We will create an expression for Ck as sum of S_i * S_{i+k}
+    # Since OR-tools does not support direct sum of expressions with variables multiplied by constants,
+    # we create an intermediate variable for sum of all terms
+    # sum_{i} (4*prod - 2*bits[i] - 2*bits[i+k] + 1) = 4*sum(prod) - 2*sum(bits[i]) - 2*sum(bits[i+k]) + (n-k)
+    sum_prod = model.NewIntVar(0, n - k, f&#x27;sum_prod_{k}&#x27;)
+    model.Add(sum_prod == sum(prod for (prod, _, _) in terms))
+    sum_bits_i = model.NewIntVar(0, n - k, f&#x27;sum_bits_i_{k}&#x27;)
+    model.Add(sum_bits_i == sum(bi for (_, bi, _) in terms))
+    sum_bits_j = model.NewIntVar(0, n - k, f&#x27;sum_bits_j_{k}&#x27;)
+    model.Add(sum_bits_j == sum(bj for (_, _, bj) in terms))
+    # Define Ck = 4*sum_prod - 2*sum_bits_i - 2*sum_bits_j + (n-k)
+    # We use a linear expression for Ck
+    model.Add(Ck == 4 * sum_prod - 2 * sum_bits_i - 2 * sum_bits_j + (n - k))
+    C.append(Ck)
+
+# Objective: minimize sum of squares of C_k for k=1 to n-1
+# We need to model squares of C_k
+# Since C_k ranges from -(n-k) to (n-k), max abs value is n-1
+# We create auxiliary variables for squares
+C_squares = []
+for k in range(n - 1):
+    sq = model.NewIntVar(0, (n - 1) * (n - 1), f&#x27;C_{k+1}_square&#x27;)
+    model.AddMultiplicationEquality(sq, [C[k], C[k]])
+    C_squares.append(sq)
+
+model.Minimize(sum(C_squares))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    # Extract sequence as +1/-1
+    sequence = [2 * solver.Value(bits[i]) - 1 for i in range(n)]
+    E = solver.ObjectiveValue()
+    solution = {
+        &#x27;sequence&#x27;: sequence,
+        &#x27;E&#x27;: int(E)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    -1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    -1,
+    -1,
+    1
+  ],
+  &quot;E&quot;: 13
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+n = 10  # Length of the binary sequence
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: sequence S[i] in {-1, 1}
+S = [model.NewIntVar(-1, 1, f&quot;S[{i}]&quot;) for i in range(n)]
+
+# Autocorrelations C[k] for k = 1..n-1 (non-periodic)
+C = {}
+for k in range(1, n):
+    # C_k ranges from -(n-k) to (n-k)
+    C[k] = model.NewIntVar(-(n - k), n - k, f&quot;C[{k}]&quot;)
+
+# Products P[i,k] = S[i] * S[i+k]
+P = {}
+for k in range(1, n):
+    for i in range(n - k):
+        P[(i, k)] = model.NewIntVar(-1, 1, f&quot;P[{i},{k}]&quot;)
+        # Link product to S[i] * S[i+k]
+        model.AddMultiplicationEquality(P[(i, k)], [S[i], S[i + k]])
+
+# Define C[k] = sum_{i=0 to n-k-1} P[i,k]
+for k in range(1, n):
+    model.Add(C[k] == sum(P[(i, k)] for i in range(n - k)))
+
+# Squared autocorrelations E_k = C[k]^2
+E_k = {}
+for k in range(1, n):
+    # Max square is (n-k)^2
+    max_sq = (n - k) * (n - k)
+    E_k[k] = model.NewIntVar(0, max_sq, f&quot;E_k[{k}]&quot;)
+    # Enforce E_k = C[k] * C[k]
+    model.AddMultiplicationEquality(E_k[k], [C[k], C[k]])
+
+# Total energy E = sum_{k=1 to n-1} E_k
+E = model.NewIntVar(0, sum((n - k) * (n - k) for k in range(1, n)), &quot;E&quot;)
+model.Add(E == sum(E_k[k] for k in range(1, n)))
+model.Minimize(E)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &quot;sequence&quot;: [solver.Value(S[i]) for i in range(n)],
+        &quot;E&quot;: int(solver.ObjectiveValue())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  &quot;E&quot;: 0
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (99 lines)</summary><pre class="code-block"><code id="None" class="language-python"># ------------------------------------------------------------
+#  Autocorrelation minimisation (aperiodic / open boundary)
+#  n = 10  –  Google OR-Tools CP-SAT model
+# ------------------------------------------------------------
+
+from ortools.sat.python import cp_model
+import json
+
+# ------------------------------------------------------------
+# Input data (immutable)
+# ------------------------------------------------------------
+
+n = 10  # Length of the binary sequence
+boundary_condition = &quot;open&quot;  # fixed for this instance; left as a parameter for reuse
+
+# ------------------------------------------------------------
+# Model creation
+# ------------------------------------------------------------
+
+model = cp_model.CpModel()
+
+# Decision variables: sequence elements S_i ∈ {+1, -1}
+S = [
+    model.NewIntVarFromDomain(cp_model.Domain.FromValues([-1, 1]), f&quot;S[{i}]&quot;)
+    for i in range(n)
+]
+
+# Optional symmetry-breaking: Fix first symbol to +1 so that the all-negated
+# sequence is not explored separately.  Harmless for correctness, accelerates search.
+model.Add(S[0] == 1)
+
+# Auxiliary variables for autocorrelations and their squares
+C = []          # autocorrelation values C_k
+C_sq = []       # squares C_k^2
+
+# Helper container for products S_i * S_{i+k}
+# C_k = Σ_{i=0}^{n−k−1}  (S_i · S_{i+k})
+for k in range(1, n):
+    # Create the autocorrelation variable C_k
+    max_abs = n - k                     # |C_k| ≤ n-k
+    C_k = model.NewIntVar(-max_abs, max_abs, f&quot;C[{k}]&quot;)
+    C.append(C_k)
+
+    # Build products for the sum defining C_k
+    products = []
+    upper_i = n - k - 1 if boundary_condition == &quot;open&quot; else n - 1
+
+    # Iterate over i according to the boundary condition
+    if boundary_condition == &quot;open&quot;:
+        index_range = range(0, n - k)
+    else:  # cyclic / periodic
+        index_range = range(n)
+
+    for i in index_range:
+        j = (i + k) % n
+        p = model.NewIntVarFromDomain(cp_model.Domain.FromValues([-1, 1]), f&quot;P_{i}_{k}&quot;)
+        # p = S_i * S_j
+        model.AddMultiplicationEquality(p, [S[i], S[j]])
+        products.append(p)
+
+    # Sum of the products equals C_k
+    model.Add(C_k == sum(products))
+
+    # Square of C_k:  C_k_sq = C_k * C_k
+    C_k_sq = model.NewIntVar(0, max_abs * max_abs, f&quot;C_sq[{k}]&quot;)
+    model.AddMultiplicationEquality(C_k_sq, [C_k, C_k])
+    C_sq.append(C_k_sq)
+
+# Energy variable: E = Σ C_k^2
+E_max = sum((n - k) ** 2 for k in range(1, n))
+E = model.NewIntVar(0, E_max, &quot;E&quot;)
+model.Add(E == sum(C_sq))
+
+# Objective: minimise E
+model.Minimize(E)
+
+# ------------------------------------------------------------
+# Solver
+# ------------------------------------------------------------
+
+solver = cp_model.CpSolver()
+
+# Tighten search a bit – will solve instantly for n = 10 but the parameters
+# help if re-used for larger instances.
+solver.parameters.max_time_in_seconds = 30.0
+solver.parameters.num_search_workers = 8
+
+status = solver.Solve(model)
+
+# ------------------------------------------------------------
+# Output
+# ------------------------------------------------------------
+
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    sequence = [int(solver.Value(var)) for var in S]
+    E_val = int(solver.Value(E))
+    print(json.dumps({&quot;sequence&quot;: sequence, &quot;E&quot;: E_val}))
+else:
+    raise RuntimeError(&quot;No feasible solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;sequence&quot;: [
+    1,
+    -1,
+    -1,
+    1,
+    1,
+    1,
+    1,
+    -1,
+    1,
+    -1
+  ],
+  &quot;E&quot;: 13
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 10
 }</code></pre></details><details class="instance"><summary>Instance 2</summary><pre><code class="language-json">{
   &quot;n&quot;: 13
 }</code></pre></details><details class="instance"><summary>Instance 3</summary><pre><code class="language-json">{
   &quot;n&quot;: 16
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">sequence</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-44">Copy</button></div><pre class="code-block"><code id="solution-44" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">sequence</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-44">Copy</button></div><pre class="code-block"><code id="solution-44" class="language-json">{
   &quot;sequence&quot;: [
     -1,
     1,
@@ -89,6 +1475,7 @@ print(json.dumps(solution))
     1
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -96,9 +1483,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_005_autocorrelation/csplib_005_autocorrelation.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_005_autocorrelation/csplib_005_autocorrelation.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_003_quasigroup_existence.html">â† prev</a><a class="btn" href="csplib_006_golomb_rulers.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_003_quasigroup_existence.html">← prev</a><a class="btn" href="csplib_006_golomb_rulers.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

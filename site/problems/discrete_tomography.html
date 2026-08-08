@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>discrete_tomography Â· DCP-Bench Open</title>
-<meta name="description" content="This is a little &quot;tomography&quot; problem, taken from an old issue of Scientific American. A matrix which contains zeroes and ones gets &quot;x-rayed&quot; vertically and hoâ€¦">
+<title>discrete_tomography · DCP-Bench Open</title>
+<meta name="description" content="This is a little &quot;tomography&quot; problem, taken from an old issue of Scientific American. A matrix which contains zeroes and ones gets &quot;x-rayed&quot; vertically and ho…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/discrete_tomography.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/discrete_tomography.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-87">Copy</button></div><pre class="code-block"><code id="model-87" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -57,7 +58,185 @@ print(json.dumps(solution, indent=4))
       <pre class="code-block"><code id="None" class="language-python">row_sums = [0, 0, 8, 2, 6, 4, 5, 3, 7, 0, 0]  # Each number represents the number of 1s in the row
 col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]  # Each number represents the number of 1s in the column</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+row_sums = [0, 0, 8, 2, 6, 4, 5, 3, 7, 0, 0]
+col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]
+R = len(row_sums)
+C = len(col_sums)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: binary matrix R x C
+matrix = cp.intvar(0, 1, shape=(R, C), name=&quot;matrix&quot;)
+
+# Constraints: row sums and column sums
+for i in range(R):
+    model += cp.sum(matrix[i, :]) == row_sums[i]
+for j in range(C):
+    model += cp.sum(matrix[:, j]) == col_sums[j]
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+row_sums = [0, 0, 8, 2, 6, 4, 5, 3, 7, 0, 0]
+col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]
+R = len(row_sums)
+C = len(col_sums)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: binary matrix R x C
+matrix = cp.intvar(0, 1, shape=(R, C), name=&quot;matrix&quot;)
+
+# Constraints: row sums and column sums
+for i in range(R):
+    model += cp.sum(matrix[i, :]) == row_sums[i]
+for j in range(C):
+    model += cp.sum(matrix[:, j]) == col_sums[j]
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+row_sums = [0, 0, 8, 2, 6, 4, 5, 3, 7, 0, 0]  # Each number represents the number of 1s in the row
+col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]  # Each number represents the number of 1s in the column
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Dimensions
+n_rows = len(row_sums)
+n_cols = len(col_sums)
+
+# Decision Variables
+matrix = cp.intvar(0, 1, shape=(n_rows, n_cols), name=&quot;matrix&quot;)
+
+# Constraints
+# Row sums
+model += [cp.sum(matrix[i, :]) == row_sums[i] for i in range(n_rows)]
+# Column sums
+model += [cp.sum(matrix[:, j]) == col_sums[j] for j in range(n_cols)]
+
+# Objective (optional)
+# No objective, just find any feasible solution
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (29 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+row_sums = [0, 0, 8, 2, 6, 4, 5, 3, 7, 0, 0]
+col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]
+R = len(row_sums)
+C = len(col_sums)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: binary matrix R x C
+matrix = cp.intvar(0, 1, shape=(R, C), name=&quot;matrix&quot;)
+
+# Constraints: row sums and column sums
+for i in range(R):
+    model += cp.sum(matrix[i, :]) == row_sums[i]
+for j in range(C):
+    model += cp.sum(matrix[:, j]) == col_sums[j]
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;matrix&#x27;: matrix.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;row_sums&quot;: [
     0,
     0,
@@ -86,9 +265,9 @@ col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]  # Each number represents the nu
     0
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">matrix</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-87">Copy</button></div><pre class="code-block"><code id="solution-87" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">matrix</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-87">Copy</button></div><pre class="code-block"><code id="solution-87" class="language-json">{
   &quot;matrix&quot;: [
     [
       0,
@@ -246,6 +425,7 @@ col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]  # Each number represents the nu
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -253,9 +433,9 @@ col_sums = [0, 0, 7, 1, 6, 3, 4, 5, 2, 7, 0, 0]  # Each number represents the nu
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/discrete_tomography/discrete_tomography.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/discrete_tomography/discrete_tomography.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="dinner.html">â† prev</a><a class="btn" href="divisible_by_1_through_9.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="dinner.html">← prev</a><a class="btn" href="divisible_by_1_through_9.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

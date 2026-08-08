@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>abbots_puzzle Â· DCP-Bench Open</title>
-<meta name="description" content="If 100 bushels of corn were distributed among 100 people such that each man received three bushels, each woman two, and each child half a bushel, and there areâ€¦">
+<title>abbots_puzzle · DCP-Bench Open</title>
+<meta name="description" content="If 100 bushels of corn were distributed among 100 people such that each man received three bushels, each woman two, and each child half a bushel, and there are…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/abbots_puzzle.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/abbots_puzzle.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-0">Copy</button></div><pre class="code-block"><code id="model-0" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -62,14 +63,877 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">children</span><span class="chip">men</span><span class="chip">women</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-0">Copy</button></div><pre class="code-block"><code id="solution-0" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (32 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Decision Variables
+men = intvar(0, 100, name=&quot;men&quot;)  # Number of men
+women = intvar(0, 100, name=&quot;women&quot;)  # Number of women
+children = intvar(0, 100, name=&quot;children&quot;)  # Number of children
+
+# Model
+model = Model()
+
+# Constraints
+# Total number of people is 100
+model += (men + women + children == 100)
+
+# Total bushels distributed is 100 (multiplied by 2 to avoid decimals)
+model += (6 * men + 4 * women + children == 200)
+
+# Five times as many women as men
+model += (women == 5 * men)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;men&quot;: men.value(),
+    &quot;women&quot;: women.value(),
+    &quot;children&quot;: children.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (25 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Decision variables
+men = intvar(0, 100, name=&quot;men&quot;)
+women = intvar(0, 100, name=&quot;women&quot;)
+children = intvar(0, 100, name=&quot;children&quot;)
+
+# Model
+model = Model()
+
+# Total number of people is 100
+model += [men + women + children == 100]
+
+# Total bushels distributed is 100 (scaled by 2 to avoid fractions)
+model += [6 * men + 4 * women + children == 200]
+
+# There are five times as many women as men
+model += [women == 5 * men]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;men&quot;: men.value(), &quot;women&quot;: women.value(), &quot;children&quot;: children.value()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Abbot&#x27;s Puzzle: Distribute 100 bushels among 100 people
+# Constraints:
+# 1. men + women + children = 100 (total people)
+# 2. 3*men + 2*women + 0.5*children = 100 (total bushels)
+# 3. women = 5*men (five times as many women as men)
+
+model = cp.Model()
+
+# Decision variables
+men = cp.intvar(0, 100, name=&quot;men&quot;)
+women = cp.intvar(0, 100, name=&quot;women&quot;) 
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+# Total people = 100
+model += men + women + children == 100
+
+# Total bushels = 100 (scaled by 2 to avoid floats: 6*men + 4*women + children = 200)
+model += 6*men + 4*women + children == 200
+
+# Five times as many women as men
+model += women == 5*men
+
+# Solve
+if model.solve():
+    solution = {
+        &quot;men&quot;: int(men.value()),
+        &quot;women&quot;: int(women.value()),
+        &quot;children&quot;: int(children.value())
+    }
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (30 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# men, women, children are non-negative integers
+men = cp.intvar(0, 100, name=&quot;men&quot;)
+women = cp.intvar(0, 100, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+# Total people = 100
+model += (men + women + children == 100)
+
+# Total bushels = 100
+# men get 3 bushels each, women 2 each, children 0.5 each
+model += (3*men + 2*women + children//2 == 100)
+
+# There are five times as many women as men
+model += (women == 5*men)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;men&#x27;: int(men.value()), &#x27;women&#x27;: int(women.value()), &#x27;children&#x27;: int(children.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+men = cp.intvar(0, 16, name=&quot;men&quot;)        # m &lt;= floor(100/6) = 16
+women = cp.intvar(0, 100, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+model += (men + women + children == 100)   # total people
+model += (women == 5 * men)                # five times as many women as men
+# Scale bushels by 2 to avoid fractions: man=6, woman=4, child=1, total=200
+model += (6 * men + 4 * women + 1 * children == 200)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;men&#x27;: int(men.value()),
+        &#x27;women&#x27;: int(women.value()),
+        &#x27;children&#x27;: int(children.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (33 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+men = cp.IntVar(0, 100, name=&quot;men&quot;)
+women = cp.IntVar(0, 100, name=&quot;women&quot;)
+children = cp.IntVar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+# 1) Total people is 100
+# 2) Five times as many women as men
+# 3) Multiply the bushel equation by 2 to avoid fractions:
+#    6*men + 4*women + children = 200  (since each child is 0.5 bushel)
+model += [
+    men + women + children == 100,
+    women == 5 * men,
+    6 * men + 4 * women + children == 200
+]
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;men&#x27;: int(men.value()),
+        &#x27;women&#x27;: int(women.value()),
+        &#x27;children&#x27;: int(children.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (9 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+for men in range(101):
+    women = 5 * men
+    children = 100 - men - women
+    if children &lt; 0:
+        continue
+    if 6 * men + 4 * women + children == 200:
+        print(json.dumps({&#x27;men&#x27;: men, &#x27;women&#x27;: women, &#x27;children&#x27;: children}))
+        raise SystemExit(0)
+raise RuntimeError(&#x27;no abbots puzzle solution found&#x27;)</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+men = cp.intvar(0, 100, name=&quot;men&quot;)
+women = cp.intvar(0, 100, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+model += (men + women + children == 100)
+model += (women == 5 * men)
+
+# Multiply bushels by 2 to avoid fractions:
+# men: 3 bushels -&gt; 6 half-bushels
+# women: 2 bushels -&gt; 4 half-bushels
+# children: 0.5 bushels -&gt; 1 half-bushel
+model += (6 * men + 4 * women + children == 200)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;men&#x27;: int(men.value()), &#x27;women&#x27;: int(women.value()), &#x27;children&#x27;: int(children.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+men = cp.intvar(0, 16, name=&quot;men&quot;)        # m &lt;= floor(100/6) = 16
+women = cp.intvar(0, 100, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+model += (men + women + children == 100)   # total people
+model += (women == 5 * men)                # five times as many women as men
+# Scale bushels by 2 to avoid fractions: man=6, woman=4, child=1, total=200
+model += (6 * men + 4 * women + 1 * children == 200)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;men&#x27;: int(men.value()),
+        &#x27;women&#x27;: int(women.value()),
+        &#x27;children&#x27;: int(children.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+model = cp.Model()
+
+# Decision Variables
+men = cp.intvar(0, 16, name=&quot;men&quot;)
+women = cp.intvar(0, 80, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+model += (men + women + children == 100)
+model += (6 * men + 4 * women + children == 200)
+model += (women == 5 * men)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;men&#x27;: int(men.value()),
+        &#x27;women&#x27;: int(women.value()),
+        &#x27;children&#x27;: int(children.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (26 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+model = cp.Model()
+
+# Decision Variables
+men = cp.intvar(0, 16, name=&quot;men&quot;)
+women = cp.intvar(0, 80, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+model += (men + women + children == 100)
+model += (6 * men + 4 * women + children == 200)
+model += (women == 5 * men)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;men&#x27;: int(men.value()),
+        &#x27;women&#x27;: int(women.value()),
+        &#x27;children&#x27;: int(children.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+men = cp.intvar(0, 100, name=&quot;men&quot;)
+women = cp.intvar(0, 100, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+model += (men + women + children == 100)          # total people
+model += (women == 5 * men)                        # five times as many women as men
+# Scale bushels by 2 to avoid fractions: men=6, women=4, children=1, total=200
+model += (6 * men + 4 * women + children == 200)   # total bushels (scaled)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;men&#x27;: int(men.value()),
+        &#x27;women&#x27;: int(women.value()),
+        &#x27;children&#x27;: int(children.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (28 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+men = cp.intvar(0, 16, name=&quot;men&quot;)        # m &lt;= floor(100/6) = 16
+women = cp.intvar(0, 100, name=&quot;women&quot;)
+children = cp.intvar(0, 100, name=&quot;children&quot;)
+
+# Constraints
+model += (men + women + children == 100)   # total people
+model += (women == 5 * men)                # five times as many women as men
+# Scale bushels by 2 to avoid fractions: man=6, woman=4, child=1, total=200
+model += (6 * men + 4 * women + 1 * children == 200)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;men&#x27;: int(men.value()),
+        &#x27;women&#x27;: int(women.value()),
+        &#x27;children&#x27;: int(children.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (19 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">% Variables representing the number of men, women, and children
+var 0..100: men;
+var 0..100: women;
+var 0..100: children;
+
+% Constraints
+constraint men + women + children == 100; % total people
+constraint women == 5 * men; % five times as many women as men
+constraint 3 * men + 2 * women + children div 2 == 100; % total bushels distributed
+constraint children mod 2 == 0; % children count must be even because each child gets half bushel
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;men\&quot;: &quot;, show(men), &quot;,&quot;,
+    &quot;\&quot;women\&quot;: &quot;, show(women), &quot;,&quot;,
+    &quot;\&quot;children\&quot;: &quot;, show(children),
+    &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (30 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include global constraints library
+include &quot;globals.mzn&quot;;
+
+% Decision Variables
+var 0..100: men;
+var 0..100: women;
+var 0..100: children;
+
+% Constraints
+constraint
+    % Total people
+    men + women + children = 100 /\
+    % Total bushels (3*men + 2*women + 0.5*children = 100) multiplied by 2 to keep integers:
+    6 * men + 4 * women + children = 200 /\
+    % There are five times as many women as men
+    women = 5 * men;
+
+solve satisfy;
+
+% Output in JSON format
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;&quot; ++ &quot;men&quot; ++ &quot;\&quot;: &quot; ++ show(men),
+        &quot;\&quot;&quot; ++ &quot;women&quot; ++ &quot;\&quot;: &quot; ++ show(women),
+        &quot;\&quot;&quot; ++ &quot;children&quot; ++ &quot;\&quot;: &quot; ++ show(children)
+    ]),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">Traceback (most recent call last):</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# Number of men, women, and children
+men = model.NewIntVar(0, 100, &#x27;men&#x27;)
+women = model.NewIntVar(0, 100, &#x27;women&#x27;)
+children = model.NewIntVar(0, 100, &#x27;children&#x27;)
+
+# Constraints
+# Total people is 100
+model.Add(men + women + children == 100)
+
+# Total bushels is 100
+# Each man gets 3 bushels, each woman 2, each child 0.5
+model.Add(3 * men + 2 * women + (children / 2) == 100)
+
+# There are five times as many women as men
+model.Add(women == 5 * men)
+
+# Since children/2 must be integer, children must be even
+# We can enforce children to be even by children % 2 == 0
+# OR we can multiply the whole equation by 2 to avoid fractions
+# Let&#x27;s multiply the bushel constraint by 2 to avoid fractions:
+model.ClearConstraints()
+model.Add(men + women + children == 100)
+model.Add(6 * men + 4 * women + children == 200)
+model.Add(women == 5 * men)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;men&#x27;: solver.Value(men),
+        &#x27;women&#x27;: solver.Value(women),
+        &#x27;children&#x27;: solver.Value(children)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (34 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+men = model.NewIntVar(0, 100, &#x27;men&#x27;)
+women = model.NewIntVar(0, 100, &#x27;women&#x27;)
+children = model.NewIntVar(0, 100, &#x27;children&#x27;)
+
+# Constraints
+# 1) Total people is 100
+model.Add(men + women + children == 100)
+# 2) Total bushels: 3 per man, 2 per woman, 0.5 per child -&gt; multiply by 2 to keep integers
+model.Add(6 * men + 4 * women + children == 200)
+# 3) There are five times as many women as men
+model.Add(women == 5 * men)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;men&#x27;: solver.Value(men),
+        &#x27;women&#x27;: solver.Value(women),
+        &#x27;children&#x27;: solver.Value(children)
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;Solve the corn–distribution puzzle with Google OR-Tools (CP-SAT).
+
+Requirements recap
+------------------
+men   + women + children                = 100  (total people)
+3*men + 2*women + 0.5*children          = 100  (total bushels)
+women = 5*men                                  (gender ratio)
+All variables are non-negative integers.
+The program prints the unique solution as JSON with the keys
+[&quot;men&quot;, &quot;women&quot;, &quot;children&quot;].
+&quot;&quot;&quot;
+import json
+from ortools.sat.python import cp_model
+
+# ----------------------------
+# 1. Model
+# ----------------------------
+model = cp_model.CpModel()
+
+# Decision variables: bounds 0..100 (more than enough for this puzzle)
+men = model.NewIntVar(0, 100, &#x27;men&#x27;)
+women = model.NewIntVar(0, 100, &#x27;women&#x27;)
+children = model.NewIntVar(0, 100, &#x27;children&#x27;)
+
+# ----------------------------
+# 2. Constraints
+# ----------------------------
+# C1: Total number of people
+model.Add(men + women + children == 100)
+
+# C2: Total corn allocation (multiply by 2 to keep coefficients integral)
+model.Add(6 * men + 4 * women + children == 200)
+
+# C3: Five times as many women as men
+model.Add(women == 5 * men)
+
+# No objective – just find any feasible solution
+
+# ----------------------------
+# 3. Solve
+# ----------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# ----------------------------
+# 4. Output
+# ----------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    result = {
+        &#x27;men&#x27;: solver.Value(men),
+        &#x27;women&#x27;: solver.Value(women),
+        &#x27;children&#x27;: solver.Value(children),
+    }
+    print(json.dumps(result))
+else:
+    # For completeness; problem guarantees feasibility.
+    print(json.dumps({&#x27;men&#x27;: None, &#x27;women&#x27;: None, &#x27;children&#x27;: None}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;men&quot;: 5,
+  &quot;women&quot;: 25,
+  &quot;children&quot;: 70
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">children</span><span class="chip">men</span><span class="chip">women</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-0">Copy</button></div><pre class="code-block"><code id="solution-0" class="language-json">{
   &quot;men&quot;: 5,
   &quot;women&quot;: 25,
   &quot;children&quot;: 70
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -77,9 +941,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/abbots_puzzle/abbots_puzzle.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/abbots_puzzle/abbots_puzzle.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><span></span><a class="btn" href="added_corners.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><span></span><a class="btn" href="added_corners.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

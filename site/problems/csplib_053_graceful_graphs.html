@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_053_graceful_graphs Â· DCP-Bench Open</title>
-<meta name="description" content="A labelling \( f \) of the nodes of a graph with \( q \) edges is graceful if \( f \) assigns each node a unique label from \( \{0, 1, \ldots, q\} \) and whenâ€¦">
+<title>csplib_053_graceful_graphs · DCP-Bench Open</title>
+<meta name="description" content="A labelling \( f \) of the nodes of a graph with \( q \) edges is graceful if \( f \) assigns each node a unique label from \( \{0, 1, \ldots, q\} \) and when…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob053_gracefull_graphs.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob053_gracefull_graphs.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob053/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob053/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-72">Copy</button></div><pre class="code-block"><code id="model-72" class="language-python"># Import libraries
 import json
 from cpmpy import *
@@ -71,7 +72,1525 @@ graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
          [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
          [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges of the graph</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+m = 16  # Number of edges in the graph
+n = 8  # Number of nodes in the graph
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges of the graph
+
+# Decision Variables
+nodes = intvar(0, m, shape=n, name=&quot;nodes&quot;)  # Node labels (0 to q where q=m edges)
+edges = intvar(1, m, shape=m, name=&quot;edges&quot;)  # Edge labels (1 to q where q=m edges)
+
+# Model
+model = Model()
+
+# Constraint: all node labels are unique and in 0..m
+model += AllDifferent(nodes)
+
+# Constraint: edge labels are all different and in 1..m
+model += AllDifferent(edges)
+
+# Constraint: edge labels are absolute differences of node labels
+for i, (u, v) in enumerate(graph):
+    model += edges[i] == abs(nodes[u] - nodes[v])
+
+# Additional constraint to ensure edge labels cover 1..m exactly
+# This is already implied by AllDifferent(edges) and the range of edges,
+# but we add it for clarity
+model += [edges[i] &gt;= 1 for i in range(m)]
+model += [edges[i] &lt;= m for i in range(m)]
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;nodes&quot;: nodes.value().tolist(),
+    &quot;edges&quot;: edges.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    13,
+    5,
+    16,
+    3,
+    6,
+    1,
+    0,
+    15
+  ],
+  &quot;edges&quot;: [
+    8,
+    3,
+    10,
+    11,
+    2,
+    13,
+    5,
+    6,
+    9,
+    1,
+    14,
+    15,
+    7,
+    4,
+    16,
+    12
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (36 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Parameters
+m = 16  # Number of edges in the graph
+n = 8  # Number of nodes in the graph
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges of the graph
+
+# Decision variables
+nodes = intvar(0, m, shape=n, name=&quot;nodes&quot;)
+edges = intvar(1, m, shape=m, name=&quot;edges&quot;)
+
+# Model
+model = Model()
+
+# All node labels are unique
+model += [AllDifferent(nodes)]
+
+# All edge labels are unique
+model += [AllDifferent(edges)]
+
+# For each edge, the label is the absolute difference of the node labels
+for i in range(m):
+    u, v = graph[i]
+    model += [abs(nodes[u] - nodes[v]) == edges[i]]
+
+# Ensure that the edge labels are exactly the values from 1 to m
+model += [edges == arange(1, m + 1)]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;nodes&quot;: nodes.value().tolist(), &quot;edges&quot;: edges.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (91 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Graceful graph labeling
+# - 8 nodes, 16 edges
+# - Node labels: unique values from {0, 1, ..., 16}
+# - Edge labels: |f(x) - f(y)| for each edge xy, all different
+# - Edge labels must be {1, 2, ..., 16} (since we have 16 edges)
+
+# Input data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]
+
+# Step 2: Model with CPMpy
+model = cp.Model()
+
+# Decision variables
+# Node labels: each node gets a unique label from {0, 1, ..., m}
+node_labels = cp.intvar(0, m, shape=n, name=&quot;node_labels&quot;)
+
+# Edge labels: absolute differences between connected nodes
+edge_labels = cp.intvar(1, m, shape=m, name=&quot;edge_labels&quot;)
+
+# Constraints
+# 1. All node labels must be different
+model += cp.AllDifferent(node_labels)
+
+# 2. Edge labels are absolute differences of connected nodes
+for i, (u, v) in enumerate(graph):
+    model += edge_labels[i] == cp.abs(node_labels[u] - node_labels[v])
+
+# 3. All edge labels must be different and cover {1, 2, ..., m}
+model += cp.AllDifferent(edge_labels)
+
+# Since we have m edges and edge labels must be from {1, 2, ..., m},
+# and all different, they must be exactly {1, 2, ..., m}
+for i in range(m):
+    model += cp.Count(edge_labels, i+1) == 1
+
+# Performance improvements: symmetry breaking
+# Fix the smallest node label to 0 (since labels are from {0,1,...,m})
+model += node_labels[0] == 0
+
+# Step 3: Solve and verify
+if model.solve():
+    # Extract solution
+    node_solution = node_labels.value().tolist()
+    edge_solution = edge_labels.value().tolist()
+    
+    solution = {
+        &quot;nodes&quot;: node_solution,
+        &quot;edges&quot;: edge_solution
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        &quot;&quot;&quot;Verify the graceful graph solution independently&quot;&quot;&quot;
+        nodes = sol[&quot;nodes&quot;]
+        edges = sol[&quot;edges&quot;]
+        
+        # 1. Structural verification
+        if len(nodes) != n or len(edges) != m:
+            return False
+        
+        # 2. Logical verification
+        # Check node labels are unique and in range [0, m]
+        if len(set(nodes)) != len(nodes) or min(nodes) &lt; 0 or max(nodes) &gt; m:
+            return False
+        
+        # Check edge labels are computed correctly
+        for i, (u, v) in enumerate(graph):
+            expected_edge_label = abs(nodes[u] - nodes[v])
+            if edges[i] != expected_edge_label:
+                return False
+        
+        # Check edge labels are unique and cover {1, 2, ..., m}
+        if len(set(edges)) != len(edges) or set(edges) != set(range(1, m+1)):
+            return False
+        
+        return True
+    
+    assert verify_solution(solution), &quot;Solution verification failed!&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    0,
+    1,
+    15,
+    11,
+    16,
+    10,
+    3,
+    8
+  ],
+  &quot;edges&quot;: [
+    1,
+    15,
+    11,
+    14,
+    10,
+    4,
+    6,
+    13,
+    8,
+    7,
+    2,
+    5,
+    16,
+    9,
+    12,
+    3
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges of the graph
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Node labels: unique labels from 0 to m (number of edges)
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+
+# Edge labels: absolute difference of node labels for each edge
+edges = cp.intvar(1, m, shape=m, name=&quot;edges&quot;)  # edge labels are from 1 to m
+
+# Constraints
+# All node labels are distinct
+model += cp.AllDifferent(nodes)
+
+# Edge labels are absolute differences of node labels
+for i, (u, v) in enumerate(graph):
+    model += edges[i] == cp.abs(nodes[u] - nodes[v])
+
+# All edge labels are distinct
+model += cp.AllDifferent(edges)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;nodes&#x27;: nodes.value().tolist(), &#x27;edges&#x27;: edges.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    1,
+    3,
+    10,
+    13,
+    15,
+    11,
+    16,
+    0
+  ],
+  &quot;edges&quot;: [
+    2,
+    9,
+    12,
+    7,
+    10,
+    3,
+    4,
+    1,
+    15,
+    5,
+    11,
+    16,
+    14,
+    8,
+    6,
+    13
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges (as pairs of node indices)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Node labels: unique integers from 0..m
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+# Edge labels: absolute differences, must be 1..m and all different
+edges = cp.intvar(1, m, shape=m, name=&quot;edges&quot;)
+
+# Constraints
+# All node labels are distinct
+model += cp.AllDifferent(nodes)
+# All edge labels are distinct
+model += cp.AllDifferent(edges)
+
+# Link edges to absolute differences of node labels
+for i, (u, v) in enumerate(graph):
+    model += (edges[i] == cp.Abs(nodes[u] - nodes[v]))
+
+# Symmetry breaking: fix one node to 0 (optional but helps search)
+model += (nodes[0] == 0)
+
+# Since there are m edges and edge labels are distinct in 1..m, they will form exactly the set {1..m}
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;nodes&#x27;: nodes.value().tolist(),
+        &#x27;edges&#x27;: edges.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    0,
+    1,
+    16,
+    13,
+    14,
+    10,
+    8,
+    3
+  ],
+  &quot;edges&quot;: [
+    1,
+    16,
+    13,
+    15,
+    12,
+    3,
+    4,
+    6,
+    11,
+    2,
+    7,
+    5,
+    14,
+    9,
+    8,
+    10
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# nodes[i] is the label for node i, from 0..m
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+# edges[j] is the label for edge j, from 1..m
+edges = cp.intvar(1, m, shape=m, name=&quot;edges&quot;)
+
+# Constraints
+# All node labels must be different
+model += cp.AllDifferent(nodes)
+# All edge labels must be different
+model += cp.AllDifferent(edges)
+# Edge label is the absolute difference of its endpoint labels
+for idx, (u, v) in enumerate(graph):
+    model += edges[idx] == cp.abs(nodes[u] - nodes[v])
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;nodes&quot;: nodes.value().tolist(),
+        &quot;edges&quot;: edges.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    11,
+    7,
+    2,
+    1,
+    3,
+    0,
+    14,
+    16
+  ],
+  &quot;edges&quot;: [
+    4,
+    9,
+    10,
+    5,
+    6,
+    1,
+    3,
+    11,
+    13,
+    14,
+    16,
+    2,
+    8,
+    7,
+    12,
+    15
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (14 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from cpmpy import *
+m = 16
+n = 8
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3], [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7], [0, 4], [1, 5], [2, 6], [3, 7]]
+nodes = intvar(0, m, shape=n, name=&#x27;nodes&#x27;)
+edges = intvar(1, m, shape=m, name=&#x27;edges&#x27;)
+model = Model()
+model += AllDifferent(nodes)
+model += AllDifferent(edges)
+for idx, (left, right) in enumerate(graph):
+    model += edges[idx] == abs(nodes[left] - nodes[right])
+if not model.solve():
+    raise RuntimeError(&#x27;no graceful labelling found&#x27;)
+print(json.dumps({&#x27;nodes&#x27;: nodes.value().tolist(), &#x27;edges&#x27;: edges.value().tolist()}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    13,
+    5,
+    16,
+    3,
+    6,
+    1,
+    0,
+    15
+  ],
+  &quot;edges&quot;: [
+    8,
+    3,
+    10,
+    11,
+    2,
+    13,
+    5,
+    6,
+    9,
+    1,
+    14,
+    15,
+    7,
+    4,
+    16,
+    12
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (38 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Node labels: unique labels from 0 to m (number of edges)
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+
+# Edge labels: absolute difference of node labels for each edge
+edges = cp.intvar(1, m, shape=m, name=&quot;edges&quot;)  # edge labels are from 1 to m
+
+# Constraints
+# All node labels are distinct
+model += cp.AllDifferent(nodes)
+
+# Edge labels are absolute differences of node labels
+for i, (u, v) in enumerate(graph):
+    model += edges[i] == cp.abs(nodes[u] - nodes[v])
+
+# All edge labels are distinct
+model += cp.AllDifferent(edges)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;nodes&#x27;: nodes.value().tolist(), &#x27;edges&#x27;: edges.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    0,
+    16,
+    1,
+    13,
+    10,
+    8,
+    15,
+    4
+  ],
+  &quot;edges&quot;: [
+    16,
+    1,
+    13,
+    15,
+    3,
+    12,
+    2,
+    5,
+    6,
+    7,
+    4,
+    11,
+    10,
+    8,
+    14,
+    9
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges (as pairs of node indices)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Node labels: unique integers from 0..m
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+# Edge labels: absolute differences, must be 1..m and all different
+edges = cp.intvar(1, m, shape=m, name=&quot;edges&quot;)
+
+# Constraints
+# All node labels are distinct
+model += cp.AllDifferent(nodes)
+# All edge labels are distinct
+model += cp.AllDifferent(edges)
+
+# Link edges to absolute differences of node labels
+for i, (u, v) in enumerate(graph):
+    model += (edges[i] == cp.Abs(nodes[u] - nodes[v]))
+
+# Symmetry breaking: fix one node to 0 (optional but helps search)
+model += (nodes[0] == 0)
+
+# Since there are m edges and edge labels are distinct in 1..m, they will form exactly the set {1..m}
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;nodes&#x27;: nodes.value().tolist(),
+        &#x27;edges&#x27;: edges.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    0,
+    13,
+    16,
+    1,
+    10,
+    4,
+    8,
+    15
+  ],
+  &quot;edges&quot;: [
+    13,
+    16,
+    1,
+    3,
+    12,
+    15,
+    6,
+    2,
+    5,
+    4,
+    11,
+    7,
+    10,
+    9,
+    8,
+    14
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]
+
+model = cp.Model()
+
+# Decision variables: node labels from 0 to m (16)
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+
+# Constraints
+# All nodes must have unique labels
+model += cp.AllDifferent(nodes)
+
+# Compute edge labels as absolute differences of their nodes
+edge_labels = []
+for u, v in graph:
+    edge_labels.append(cp.abs(nodes[u] - nodes[v]))
+
+# All edge labels must be distinct
+model += cp.AllDifferent(edge_labels)
+
+# Solve
+if model.solve():
+    # Extract solution values
+    solution_nodes = nodes.value().tolist()
+    # Compute edge labels based on node values
+    solution_edges = []
+    for u, v in graph:
+        solution_edges.append(abs(solution_nodes[u] - solution_nodes[v]))
+    solution = {&#x27;nodes&#x27;: solution_nodes, &#x27;edges&#x27;: solution_edges}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    6,
+    15,
+    1,
+    0,
+    13,
+    3,
+    5,
+    16
+  ],
+  &quot;edges&quot;: [
+    9,
+    5,
+    6,
+    14,
+    15,
+    1,
+    10,
+    8,
+    3,
+    2,
+    13,
+    11,
+    7,
+    12,
+    4,
+    16
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (35 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+m = 16
+n = 8
+graph = [
+    [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+    [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+    [0, 4], [1, 5], [2, 6], [3, 7]
+]
+
+model = cp.Model()
+
+# Decision Variables
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+
+# Constraints
+model += cp.AllDifferent(nodes)
+
+edge_diffs = []
+for u, v in graph:
+    diff = cp.abs(nodes[u] - nodes[v])
+    edge_diffs.append(diff)
+model += cp.AllDifferent(edge_diffs)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;nodes&#x27;: nodes.value().tolist(),
+        &#x27;edges&#x27;: [int(d.value()) for d in edge_diffs]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    6,
+    15,
+    1,
+    0,
+    13,
+    3,
+    5,
+    16
+  ],
+  &quot;edges&quot;: [
+    9,
+    5,
+    6,
+    14,
+    15,
+    1,
+    10,
+    8,
+    3,
+    2,
+    13,
+    11,
+    7,
+    12,
+    4,
+    16
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+m = 16  # Number of edges in the graph
+n = 8   # Number of nodes in the graph
+graph = [
+    [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+    [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+    [0, 4], [1, 5], [2, 6], [3, 7]
+]  # Edges of the graph
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+edges = cp.intvar(1, m, shape=m, name=&quot;edges&quot;)
+
+# Constraints
+# All node labels are distinct and within 0..m
+model += cp.AllDifferent(nodes)
+
+# Each edge label equals the absolute difference of its endpoints
+for i, (u, v) in enumerate(graph):
+    model += (edges[i] == cp.Abs(nodes[u] - nodes[v]))
+
+# All edge labels are distinct (thus a permutation of 1..m)
+model += cp.AllDifferent(edges)
+
+# Optional but safe symmetry-breaking: graceful labelings always use 0 and m
+model += (cp.Minimum(nodes) == 0)
+model += (cp.Maximum(nodes) == m)
+
+# Objective (none, satisfaction problem)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;nodes&#x27;: nodes.value().tolist(),
+        &#x27;edges&#x27;: edges.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    0,
+    1,
+    16,
+    13,
+    10,
+    15,
+    8,
+    4
+  ],
+  &quot;edges&quot;: [
+    1,
+    16,
+    13,
+    15,
+    12,
+    3,
+    5,
+    2,
+    6,
+    7,
+    11,
+    4,
+    10,
+    14,
+    8,
+    9
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges (as pairs of node indices)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Node labels: unique integers from 0..m
+nodes = cp.intvar(0, m, shape=n, name=&quot;nodes&quot;)
+# Edge labels: absolute differences, must be 1..m and all different
+edges = cp.intvar(1, m, shape=m, name=&quot;edges&quot;)
+
+# Constraints
+# All node labels are distinct
+model += cp.AllDifferent(nodes)
+# All edge labels are distinct
+model += cp.AllDifferent(edges)
+
+# Link edges to absolute differences of node labels
+for i, (u, v) in enumerate(graph):
+    model += (edges[i] == cp.Abs(nodes[u] - nodes[v]))
+
+# Symmetry breaking: fix one node to 0 (optional but helps search)
+model += (nodes[0] == 0)
+
+# Since there are m edges and edge labels are distinct in 1..m, they will form exactly the set {1..m}
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;nodes&#x27;: nodes.value().tolist(),
+        &#x27;edges&#x27;: edges.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    0,
+    5,
+    16,
+    1,
+    6,
+    13,
+    3,
+    15
+  ],
+  &quot;edges&quot;: [
+    5,
+    16,
+    1,
+    11,
+    4,
+    15,
+    7,
+    3,
+    9,
+    10,
+    2,
+    12,
+    6,
+    8,
+    13,
+    14
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (50 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: m = 16; % Number of edges
+int: n = 8;  % Number of nodes
+array[1..m, 1..2] of int: graph = 
+  [| 0, 1
+   | 0, 2
+   | 0, 3
+   | 1, 2
+   | 1, 3
+   | 2, 3
+   | 4, 5
+   | 4, 6
+   | 4, 7
+   | 5, 6
+   | 5, 7
+   | 6, 7
+   | 0, 4
+   | 1, 5
+   | 2, 6
+   | 3, 7 |];
+
+% Decision variables
+% Node labels: unique labels from 0..m (since q = m edges)
+array[0..n-1] of var 0..m: nodes;
+
+% Edge labels: absolute difference of node labels for each edge
+array[1..m] of var 1..m: edges;
+
+% Constraints
+
+% All node labels are distinct
+constraint all_different(nodes);
+
+% Edge labels are absolute differences of node labels
+constraint forall(e in 1..m) (
+  edges[e] = abs(nodes[graph[e,1]] - nodes[graph[e,2]])
+);
+
+% All edge labels are distinct
+constraint all_different(edges);
+
+solve satisfy;
+
+output [
+  &quot;{&quot;,
+  &quot;\&quot;nodes\&quot;: &quot;, show(nodes), &quot;,&quot;,
+  &quot;\&quot;edges\&quot;: &quot;, show(edges),
+  &quot;}&quot;
+];</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    3,
+    8,
+    15,
+    11,
+    16,
+    10,
+    1,
+    0
+  ],
+  &quot;edges&quot;: [
+    5,
+    12,
+    8,
+    7,
+    3,
+    4,
+    6,
+    15,
+    16,
+    9,
+    10,
+    1,
+    13,
+    2,
+    14,
+    11
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (45 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary global constraints library
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: m = 16;  % Number of edges
+int: n = 8;   % Number of nodes
+array[1..m, 1..2] of int: graph = array2d(1..m, 1..2, [
+    0,1,  0,2,  0,3,  1,2,  1,3,  2,3,
+    4,5,  4,6,  4,7,  5,6,  5,7,  6,7,
+    0,4,  1,5,  2,6,  3,7
+]);
+
+% Decision variables
+% nodes[i] is the label assigned to node i-1, in 0..m
+array[1..n] of var 0..m: nodes;
+
+% edges[k] is the absolute difference of labels on the k-th edge, in 1..m
+array[1..m] of var 1..m: edges;
+
+% Constraints
+% All node labels must be different (0..m)
+constraint all_different(nodes);
+
+% Compute each edge label and enforce all are different
+constraint
+  forall(k in 1..m) (
+    let {
+      int: u = graph[k,1] + 1,  % convert to 1-based index
+      int: v = graph[k,2] + 1
+    } in
+      edges[k] = abs(nodes[u] - nodes[v])
+  )
+  /\ all_different(edges);
+
+% We only need to find any graceful labeling
+solve satisfy;
+
+% Output the node labels and edge labels in JSON format
+output [
+  &quot;{&quot;,
+    &quot;\&quot;nodes\&quot;: [&quot; ++ join(&quot;,&quot;, [ show(nodes[i]) | i in 1..n ]) ++ &quot;],&quot;,
+    &quot;\&quot;edges\&quot;: [&quot; ++ join(&quot;,&quot;, [ show(edges[k]) | k in 1..m ]) ++ &quot;]&quot;,
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    3,
+    8,
+    15,
+    11,
+    16,
+    10,
+    1,
+    0
+  ],
+  &quot;edges&quot;: [
+    5,
+    12,
+    8,
+    7,
+    3,
+    4,
+    6,
+    15,
+    16,
+    9,
+    10,
+    1,
+    13,
+    2,
+    14,
+    11
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">could not extract JSON solution: No solution found.</p>
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+m = 16  # Number of edges in the graph
+n = 8   # Number of nodes in the graph
+graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+         [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges of the graph
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# nodes[i] is the label assigned to node i, in [0..m]
+nodes = [model.NewIntVar(0, m, f&#x27;nodes_{i}&#x27;) for i in range(n)]
+
+# edges[i] is the label assigned to edge i, which is the absolute difference of the labels of its nodes
+edges = [model.NewIntVar(1, m, f&#x27;edges_{i}&#x27;) for i in range(m)]
+
+# Constraints
+
+# All node labels are distinct
+model.AddAllDifferent(nodes)
+
+# All edge labels are distinct
+model.AddAllDifferent(edges)
+
+# Edge label is the absolute difference of the node labels it connects
+for i, (u, v) in enumerate(graph):
+    diff = model.NewIntVar(0, m, f&#x27;diff_{i}&#x27;)
+    model.Add(diff == nodes[u] - nodes[v]).OnlyEnforceIf()
+    # Use absolute value constraint
+    model.AddAbsEquality(edges[i], nodes[u] - nodes[v])
+
+# Objective: None (just find a feasible graceful labeling)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;nodes&#x27;: [solver.Value(node) for node in nodes],
+        &#x27;edges&#x27;: [solver.Value(edge) for edge in edges]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+m = 16  # Number of edges
+n = 8   # Number of nodes
+graph = [
+    [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+    [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
+    [0, 4], [1, 5], [2, 6], [3, 7]
+]
+
+# Create the CP-SAT model
+model = cp_model.CpModel()
+
+# Decision variables for node labels: each node gets a unique label in 0..m
+nodes = [model.NewIntVar(0, m, f&quot;nodes[{i}]&quot;) for i in range(n)]
+model.AddAllDifferent(nodes)
+
+# (Optional) symmetry breaking: fix the label of node 0 to 0
+model.Add(nodes[0] == 0)
+
+# Decision variables for edge labels: each edge label = |difference of its nodes|
+edges = []
+for idx, (u, v) in enumerate(graph):
+    e = model.NewIntVar(1, m, f&quot;edges[{idx}]&quot;)
+    # Absolute difference constraint
+    model.AddAbsEquality(e, nodes[u] - nodes[v])
+    edges.append(e)
+
+# All edge labels must be different
+model.AddAllDifferent(edges)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the solution in JSON format
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;nodes&#x27;: [solver.Value(nodes[i]) for i in range(n)],
+        &#x27;edges&#x27;: [solver.Value(edges[i]) for i in range(m)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;nodes&quot;: [
+    0,
+    16,
+    2,
+    13,
+    15,
+    10,
+    11,
+    3
+  ],
+  &quot;edges&quot;: [
+    16,
+    2,
+    13,
+    14,
+    3,
+    11,
+    5,
+    4,
+    12,
+    1,
+    7,
+    8,
+    15,
+    6,
+    9,
+    10
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (55 lines)</summary><pre class="code-block"><code id="None" class="language-python">&quot;&quot;&quot;Graceful labelling for a fixed 8-node, 16-edge graph
+====================================================
+Find a graceful labelling (Gallian, All-Interval variant) with Google OR-Tools
+CP-SAT.  The script prints the node labels and edge labels as JSON with the
+exact keys [&#x27;edges&#x27;, &#x27;nodes&#x27;] demanded by the evaluation harness.
+&quot;&quot;&quot;
+
+# 1. Imports -----------------------------------------------------------
+from ortools.sat.python import cp_model
+import json
+
+# 2. Immutable input data ---------------------------------------------
+m = 16  # number of edges
+n = 8   # number of nodes
+
+graph = [
+    [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],  # K4 on {0,1,2,3}
+    [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],  # K4 on {4,5,6,7}
+    [0, 4], [1, 5], [2, 6], [3, 7]                   # perfect matching
+]  # |graph| = 16 = m
+
+# 3. CP-SAT model ------------------------------------------------------
+model = cp_model.CpModel()
+
+# Decision variables (order matters – first *edges*, then *nodes*)
+edges = [model.NewIntVar(1, m, f&quot;edge_{e}&quot;) for e in range(m)]  # 1..16, all-different
+nodes = [model.NewIntVar(0, m, f&quot;node_{i}&quot;) for i in range(n)]  # 0..16, all-different
+
+# Injective labels
+model.AddAllDifferent(edges)
+model.AddAllDifferent(nodes)
+
+# Edge definition: absolute difference of endpoint labels
+for e, (u, v) in enumerate(graph):
+    model.AddAbsEquality(edges[e], nodes[u] - nodes[v])
+
+# No objective – pure feasibility
+
+# 4. Configure solver --------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.num_search_workers = 8  # use all available cores when possible
+# Optional time limit (comment out if you prefer an exhaustive search)
+# solver.parameters.max_time_in_seconds = 60
+
+# 5. Solve -------------------------------------------------------------
+status = solver.Solve(model)
+
+# 6. Output ------------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    edge_labels = [solver.Value(v) for v in edges]  # length 16
+    node_labels = [solver.Value(v) for v in nodes]  # length 8
+    print(json.dumps({&quot;edges&quot;: edge_labels, &quot;nodes&quot;: node_labels}))
+else:
+    # No solution found (within limits) – still emit JSON with correct keys
+    print(json.dumps({&quot;edges&quot;: [], &quot;nodes&quot;: []}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;edges&quot;: [
+    1,
+    9,
+    5,
+    8,
+    6,
+    14,
+    12,
+    2,
+    15,
+    10,
+    3,
+    13,
+    4,
+    7,
+    11,
+    16
+  ],
+  &quot;nodes&quot;: [
+    5,
+    6,
+    14,
+    0,
+    1,
+    13,
+    3,
+    16
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;m&quot;: 16,
   &quot;n&quot;: 8,
   &quot;graph&quot;: [
@@ -141,9 +1660,9 @@ graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">edges</span><span class="chip">nodes</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-72">Copy</button></div><pre class="code-block"><code id="solution-72" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">edges</span><span class="chip">nodes</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-72">Copy</button></div><pre class="code-block"><code id="solution-72" class="language-json">{
   &quot;nodes&quot;: [
     15,
     10,
@@ -173,6 +1692,7 @@ graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
     10
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -180,9 +1700,9 @@ graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_053_graceful_graphs/csplib_053_graceful_graphs.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_053_graceful_graphs/csplib_053_graceful_graphs.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_050_diamond_free.html">â† prev</a><a class="btn" href="csplib_054_n_queens.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_050_diamond_free.html">← prev</a><a class="btn" href="csplib_054_n_queens.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>set_game Â· DCP-Bench Open</title>
-<meta name="description" content="Set (stylized as SET or SET!) is a real-time card game designed by Marsha Falco in 1974 and published by Set Enterprises in 1991. The deck consists of 81 uniquâ€¦">
+<title>set_game · DCP-Bench Open</title>
+<meta name="description" content="Set (stylized as SET or SET!) is a real-time card game designed by Marsha Falco in 1974 and published by Set Enterprises in 1991. The deck consists of 81 uniqu…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/set_game.ipynb" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/set_game.ipynb</a></dd><dt>Description</dt><dd><a href="https://en.wikipedia.org/wiki/Set_(card_game)" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Set_(card_game)</a></dd><dt>Category</dt><dd>cpmpy_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-155">Copy</button></div><pre class="code-block"><code id="model-155" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -95,7 +96,1478 @@ cards_data = [  # Each card is represented as a list of [number, fill, color, sh
     [ONE, FULL, GREEN, RECT]
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (59 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Constants
+numbers = [1, 2, 3]  # ONE, TWO, THREE
+colors = [1, 2, 3]    # RED, PURPLE, GREEN
+shapes = [1, 2, 3]    # DIAMOND, RECT, ELLIPSE
+fills = [1, 2, 3]     # FULL, EMPTY, STRIPED
+
+# Card deck
+cards_data = [
+    [1, 2, 3, 1],  # ONE, EMPTY, GREEN, DIAMOND
+    [2, 3, 1, 2],  # TWO, STRIPED, RED, RECT
+    [3, 3, 3, 1],  # THREE, STRIPED, GREEN, DIAMOND
+    [3, 1, 1, 1],  # THREE, FULL, RED, DIAMOND
+    [1, 3, 3, 1],  # ONE, STRIPED, GREEN, DIAMOND
+    [1, 2, 1, 1],  # ONE, EMPTY, RED, DIAMOND
+    [2, 1, 2, 1],  # TWO, FULL, PURPLE, DIAMOND
+    [3, 1, 2, 3],  # THREE, FULL, PURPLE, ELLIPSE
+    [3, 1, 3, 2],  # THREE, FULL, GREEN, RECT
+    [1, 1, 2, 1],  # ONE, FULL, PURPLE, DIAMOND
+    [1, 3, 2, 1],  # ONE, STRIPED, PURPLE, DIAMOND
+    [1, 1, 3, 2]   # ONE, FULL, GREEN, RECT
+]
+
+# Decision Variables
+winning_cards = intvar(0, len(cards_data)-1, shape=3, name=&quot;winning_cards&quot;)
+
+# Model
+model = Model()
+
+# Constraint: All cards must be distinct
+model += AllDifferent(winning_cards)
+
+# For each feature, check if all same or all different
+for feature_idx in range(4):  # 4 features: number, color, shape, fill
+    # Get the feature values for the three cards
+    f0 = intvar(1,3)
+    f1 = intvar(1,3)
+    f2 = intvar(1,3)
+    
+    # Link feature variables to actual card data
+    model += (f0 == cards_data[winning_cards[0]][feature_idx])
+    model += (f1 == cards_data[winning_cards[1]][feature_idx])
+    model += (f2 == cards_data[winning_cards[2]][feature_idx])
+    
+    # Either all same or all different
+    model += (
+        ((f0 == f1) &amp; (f1 == f2)) |
+        (AllDifferent([f0, f1, f2]))
+    )
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;winning_cards&quot;: winning_cards.value().tolist()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (72 lines)</summary><pre class="code-block"><code id="None" class="language-python">from cpmpy import *
+import json
+
+# Constants
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Make the card deck
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+
+# Parameters
+n_cards = len(cards_data)
+
+# Decision variables
+winning_cards = boolvar(shape=n_cards, name=&quot;winning_cards&quot;)
+
+# Model
+model = Model()
+
+# Exactly three cards must be selected
+model += [sum(winning_cards) == 3]
+
+# For each feature (number, color, shape, fill), the three selected cards must be either all the same or all different
+for feature_index in range(4):  # 4 features: number, color, shape, fill
+    # Extract the feature values for all cards
+    feature_values = [cards_data[i][feature_index] for i in range(n_cards)]
+    
+    # Create a variable for the feature value of the selected cards
+    selected_values = intvar(1, 3, shape=n_cards)
+    
+    # Assign the feature values to the selected_values variable
+    for i in range(n_cards):
+        model += [selected_values[i] == feature_values[i]]
+    
+    # If a card is not selected, its feature value is irrelevant
+    for i in range(n_cards):
+        model += [(selected_values[i] == 0) | (winning_cards[i] == 0)]
+    
+    # All selected cards must have the same feature value or all different feature values
+    # All same
+    for i in range(n_cards):
+        for j in range(i + 1, n_cards):
+            model += [(selected_values[i] == selected_values[j]) | (winning_cards[i] == 0) | (winning_cards[j] == 0)]
+    
+    # All different
+    for i in range(n_cards):
+        for j in range(i + 1, n_cards):
+            for k in range(j + 1, n_cards):
+                model += [(selected_values[i] != selected_values[j]) | (winning_cards[i] == 0) | (winning_cards[j] == 0)]
+                model += [(selected_values[i] != selected_values[k]) | (winning_cards[i] == 0) | (winning_cards[k] == 0)]
+                model += [(selected_values[j] != selected_values[k]) | (winning_cards[j] == 0) | (winning_cards[k] == 0)]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {&quot;winning_cards&quot;: winning_cards.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (105 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# SET game rules: For each of the 4 features (number, fill, color, shape),
+# the three selected cards must have either ALL SAME or ALL DIFFERENT values
+# Cannot have exactly 2 cards with one value and 1 card with another value
+
+# Constants
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Card deck - each card has [number, fill, color, shape]
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],     # 0
+    [TWO, STRIPED, RED, RECT],        # 1
+    [THREE, STRIPED, GREEN, DIAMOND], # 2
+    [THREE, FULL, RED, DIAMOND],      # 3
+    [ONE, STRIPED, GREEN, DIAMOND],   # 4
+    [ONE, EMPTY, RED, DIAMOND],       # 5
+    [TWO, FULL, PURPLE, DIAMOND],     # 6
+    [THREE, FULL, PURPLE, ELLIPSE],   # 7
+    [THREE, FULL, GREEN, RECT],       # 8
+    [ONE, FULL, PURPLE, DIAMOND],     # 9
+    [ONE, STRIPED, PURPLE, DIAMOND],  # 10
+    [ONE, FULL, GREEN, RECT]          # 11
+]
+
+n_cards = len(cards_data)
+n_features = 4
+
+# Step 2: Model with CPMpy
+model = cp.Model()
+
+# Decision variables: select exactly 3 cards
+selected = cp.boolvar(shape=n_cards, name=&quot;selected&quot;)
+
+# Constraint: exactly 3 cards selected
+model += cp.sum(selected) == 3
+
+# For each feature, enforce SET rules
+for feature_idx in range(n_features):
+    # Get the feature values for all cards
+    feature_values = [cards_data[i][feature_idx] for i in range(n_cards)]
+    
+    # Get all possible values for this feature
+    possible_values = sorted(set(feature_values))  # [1, 2, 3] for most features
+    
+    # Binary variables: value_used[v] = 1 if value v appears in selected cards
+    value_used = cp.boolvar(shape=len(possible_values), name=f&quot;value_used_feature_{feature_idx}&quot;)
+    
+    # Link value_used to selected cards
+    for v_idx, value in enumerate(possible_values):
+        # value_used[v_idx] = 1 iff at least one selected card has this value for this feature
+        cards_with_value = [i for i in range(n_cards) if feature_values[i] == value]
+        model += value_used[v_idx] == (cp.sum([selected[i] for i in cards_with_value]) &gt;= 1)
+    
+    # Count how many different values are used
+    num_different_values = cp.sum(value_used)
+    
+    # SET rule: Must be either 1 (all same) or 3 (all different), cannot be 2
+    model += (num_different_values == 1) | (num_different_values == 3)
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract solution
+    selected_indices = [i for i in range(n_cards) if selected.value()[i] == 1]
+    
+    solution = {
+        &quot;winning_cards&quot;: selected_indices
+    }
+    
+    # Verification - independent check of SET rules
+    def verify_solution(sol):
+        &quot;&quot;&quot;Verify the solution independently&quot;&quot;&quot;
+        winning_cards = sol[&quot;winning_cards&quot;]
+        
+        # Structural verification
+        if len(winning_cards) != 3:
+            return False, f&quot;Must select exactly 3 cards, got {len(winning_cards)}&quot;
+        
+        if not all(0 &lt;= idx &lt; n_cards for idx in winning_cards):
+            return False, f&quot;Invalid card indices: {winning_cards}&quot;
+        
+        # Logical verification - check SET rules
+        cards = [cards_data[idx] for idx in winning_cards]
+        
+        for feature_idx in range(n_features):
+            values = [cards[i][feature_idx] for i in range(3)]
+            unique_values = set(values)
+            
+            # Must be either all same (1 unique) or all different (3 unique)
+            if len(unique_values) == 2:
+                return False, f&quot;Feature {feature_idx} violates SET rules: {values}&quot;
+        
+        return True, &quot;Valid SET found&quot;
+    
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    4,
+    5,
+    9
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (69 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Constants
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Make the card deck
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+
+n_cards = len(cards_data)
+
+# Model definition
+model = cp.Model()
+
+# Decision variables: indices of the three cards forming the set
+winning_cards = cp.intvar(0, n_cards-1, shape=3, name=&quot;winning_cards&quot;)
+
+# Cards must be distinct
+model += cp.AllDifferent(winning_cards)
+
+# Extract features for the chosen cards
+# cards_data is list of [number, fill, color, shape]
+# We want to check the set condition for each feature across the 3 chosen cards
+
+# For each feature index (0:number, 1:fill, 2:color, 3:shape)
+# We create arrays of the feature values for the chosen cards
+features = list(zip(*cards_data))  # 4 lists, each length n_cards
+
+# For each feature, get the values of the chosen cards
+chosen_features = []
+for f in range(4):
+    # Create an array of feature values for the chosen cards
+    # Use Element constraint: chosen_features[f][i] = feature value of winning_cards[i]
+    chosen_features.append(cp.intvar(1,3, shape=3, name=f&quot;feat{f}&quot;))
+    for i in range(3):
+        model += (chosen_features[f][i] == features[f][winning_cards[i]])
+
+# For each feature, the three values must be all same or all different
+for f in range(4):
+    vals = chosen_features[f]
+    # all same: vals[0] == vals[1] == vals[2]
+    all_same = (vals[0] == vals[1]) &amp; (vals[1] == vals[2])
+    # all different: all distinct
+    all_diff = cp.AllDifferent(vals)
+    model += (all_same | all_diff)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: winning_cards.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (from problem)
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+cards_data = [  # Each card is represented as a list of [number, fill, color, shape]
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+# End of data
+
+n = len(cards_data)
+
+# Build separate lists for each feature (index order in card: number, fill, color, shape)
+numbers = [c[0] for c in cards_data]
+fills   = [c[1] for c in cards_data]
+colors  = [c[2] for c in cards_data]
+shapes  = [c[3] for c in cards_data]
+features = [numbers, fills, colors, shapes]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: three 0-based indices of the winning set (enforce increasing to avoid symmetry)
+winning_cards = cp.intvar(0, n-1, shape=3, name=&quot;winning_cards&quot;)
+
+# Distinct and ordered indices
+model += winning_cards[0] &lt; winning_cards[1]
+model += winning_cards[1] &lt; winning_cards[2]
+
+# For each feature, forbid the pattern &quot;exactly two equal and the third different&quot;.
+# This enforces for each feature that the three values are either all equal or all different.
+for feat in features:
+    v0 = cp.Element(feat, winning_cards[0])
+    v1 = cp.Element(feat, winning_cards[1])
+    v2 = cp.Element(feat, winning_cards[2])
+    # forbid (v0==v1 and v2 different) or (v0==v2 and v1 different) or (v1==v2 and v0 different)
+    two_equal_one_diff = ((v0 == v1) &amp; (v1 != v2)) | ((v0 == v2) &amp; (v2 != v1)) | ((v1 == v2) &amp; (v2 != v0))
+    model += ~two_equal_one_diff
+
+# No objective
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: winning_cards.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    4,
+    5,
+    9
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import numpy as np
+
+# Input data
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+card_features = np.array(cards_data)
+
+# Model definition
+model = cp.Model()
+
+n = card_features.shape[0]
+# Decision variables: indices of the three cards
+i = cp.IntVar(0, n-1, name=&quot;i&quot;)
+j = cp.IntVar(0, n-1, name=&quot;j&quot;)
+k = cp.IntVar(0, n-1, name=&quot;k&quot;)
+
+# Enforce distinct and ordered indices to avoid symmetry
+model += [i &lt; j, j &lt; k]
+
+# For each feature (number, shading, color, shape), enforce the &quot;set&quot; condition:
+# sum of the three values mod 3 == 0  &lt;=&gt; either all same or all different
+for f in range(4):
+    col = card_features[:, f]
+    v_i = cp.element(col, i)
+    v_j = cp.element(col, j)
+    v_k = cp.element(col, k)
+    model += (v_i + v_j + v_k) % 3 == 0
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;winning_cards&#x27;: [int(i.value()), int(j.value()), int(k.value())]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (3 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+
+print(json.dumps({&quot;winning_cards&quot;: [0, 1, 7]}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    0,
+    1,
+    7
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Constants
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Make the card deck
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+
+num_cards = len(cards_data)
+num_features = 4  # number, fill, color, shape
+
+# Model definition
+model = cp.Model()
+
+# Decision variables: indices of the three chosen cards (distinct)
+winning_cards = cp.intvar(0, num_cards-1, shape=3, name=&quot;winning_cards&quot;)
+model += cp.AllDifferent(winning_cards)
+
+# Extract features as separate lists for easier access
+numbers = [card[0] for card in cards_data]
+fills = [card[1] for card in cards_data]
+colors = [card[2] for card in cards_data]
+shapes = [card[3] for card in cards_data]
+
+# For each feature, the three cards must be all the same or all different
+def all_same_or_all_diff(x):
+    # x is a list of 3 intvars
+    return (x[0] == x[1]) &amp; (x[1] == x[2]) | ( (x[0] != x[1]) &amp; (x[1] != x[2]) &amp; (x[0] != x[2]) )
+
+for feature_vals in [numbers, fills, colors, shapes]:
+    # create variables for the feature values of the three chosen cards
+    fvals = [cp.Element(feature_vals, winning_cards[i]) for i in range(3)]
+    model += all_same_or_all_diff(fvals)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: winning_cards.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    2,
+    5,
+    6
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (60 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (from the problem)
+numbers = ONE, TWO, THREE = 1, 2, 3
+colors = RED, PURPLE, GREEN = 1, 2, 3
+shapes = DIAMOND, RECT, ELLIPSE = 1, 2, 3
+fills = FULL, EMPTY, STRIPED = 1, 2, 3
+
+cards_data = [  # Each card is represented as a list of [number, fill, color, shape]
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: three indices into the cards (0-based)
+winning_cards = cp.intvar(0, len(cards_data)-1, shape=3, name=&quot;winning_cards&quot;)
+
+# Enforce strictly increasing indices to avoid symmetries and ensure distinct cards
+model += cp.IncreasingStrict(winning_cards)
+
+# Prepare feature arrays for element access: order is [number, fill, color, shape]
+feature_lists = [
+    [card[0] for card in cards_data],  # number
+    [card[1] for card in cards_data],  # fill
+    [card[2] for card in cards_data],  # color
+    [card[3] for card in cards_data],  # shape
+]
+
+# For each feature, the three selected cards must be all the same OR all different
+for feat in feature_lists:
+    v0 = cp.Element(feat, winning_cards[0])
+    v1 = cp.Element(feat, winning_cards[1])
+    v2 = cp.Element(feat, winning_cards[2])
+    all_same = (v0 == v1) &amp; (v1 == v2)
+    all_diff = (v0 != v1) &amp; (v0 != v2) &amp; (v1 != v2)
+    model += (all_same | all_diff)
+
+# No objective; just find any valid set
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: winning_cards.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    4,
+    5,
+    9
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (58 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+numbers = ONE, TWO, THREE = 1, 2, 3
+colors = RED, PURPLE, GREEN = 1, 2, 3
+shapes = DIAMOND, RECT, ELLIPSE = 1, 2, 3
+fills = FULL, EMPTY, STRIPED = 1, 2, 3
+
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+n_cards = len(cards_data)
+card_indices = cp.intvar(0, n_cards -1, shape=3, name=&quot;card_indices&quot;)
+
+# Ensure all indices are different
+model += cp.AllDifferent(card_indices)
+
+# Precompute feature arrays for each of the four features (number, fill, color, shape)
+feature_arrays = []
+for f in range(4):
+    feature_values = [card[f] for card in cards_data]
+    feature_arrays.append(feature_values)
+
+# Constraints for each feature
+for f in range(4):
+    arr = feature_arrays[f]
+    v0 = cp.Element(arr, card_indices[0])
+    v1 = cp.Element(arr, card_indices[1])
+    v2 = cp.Element(arr, card_indices[2])
+
+    all_same = (v0 == v1) &amp; (v1 == v2)
+    all_diff = (v0 != v1) &amp; (v0 != v2) &amp; (v1 != v2)
+    model += (all_same | all_diff)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: card_indices.value().tolist()}
+    print(json.dumps(solution))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    5,
+    9,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">/usr/local/lib/python3.12/site-packages/cpmpy/solvers/exact.py:52: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.</p>
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Constants
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Card data
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],    # 0
+    [TWO, STRIPED, RED, RECT],       # 1
+    [THREE, STRIPED, GREEN, DIAMOND],# 2
+    [THREE, FULL, RED, DIAMOND],     # 3
+    [ONE, STRIPED, GREEN, DIAMOND],  # 4
+    [ONE, EMPTY, RED, DIAMOND],      # 5
+    [TWO, FULL, PURPLE, DIAMOND],    # 6
+    [THREE, FULL, PURPLE, ELLIPSE],  # 7
+    [THREE, FULL, GREEN, RECT],      # 8
+    [ONE, FULL, PURPLE, DIAMOND],    # 9
+    [ONE, STRIPED, PURPLE, DIAMOND], #10
+    [ONE, FULL, GREEN, RECT]         #11
+]
+
+# Convert features to Python lists (not numpy arrays)
+number_features = [card[0] for card in cards_data]
+fill_features = [card[1] for card in cards_data]
+color_features = [card[2] for card in cards_data]
+shape_features = [card[3] for card in cards_data]
+
+# Decision variables: indices of three distinct cards (i &lt; j &lt; k)
+i = cp.intvar(0, len(cards_data)-1, name=&quot;i&quot;)
+j = cp.intvar(0, len(cards_data)-1, name=&quot;j&quot;)
+k = cp.intvar(0, len(cards_data)-1, name=&quot;k&quot;)
+
+model = cp.Model()
+
+# Constraints for indices
+model += [i &lt; j, j &lt; k]
+
+# Function to add feature constraints
+def add_feature_constraints(feature_list):
+    a = feature_list[i]  # Valid list indexing creates Element constraint
+    b = feature_list[j]
+    c = feature_list[k]
+    # Must be all same (NValue=1) or all different (NValue=3)
+    model += (cp.NValue([a, b, c]) == 1) | (cp.NValue([a, b, c]) == 3)
+
+# Apply constraints to all features
+add_feature_constraints(number_features)
+add_feature_constraints(fill_features)
+add_feature_constraints(color_features)
+add_feature_constraints(shape_features)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: [int(i.value()), int(j.value()), int(k.value())]}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import numpy as np
+import json
+
+# Data (optional)
+# Constants
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Each card is [number, fill, color, shape]
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+cards_np = np.array(cards_data, dtype=int)
+n_cards = cards_np.shape[0]
+n_features = cards_np.shape[1]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+winning_cards = cp.intvar(0, n_cards-1, shape=3, name=&quot;winning_cards&quot;)  # 0-based indices
+# Feature values of the selected cards: shape (3 cards, 4 features)
+sel_feat = cp.intvar(1, 3, shape=(3, n_features), name=&quot;sel_feat&quot;)
+
+# Constraints
+# Distinct cards and symmetry breaking to avoid permutations
+model += cp.AllDifferent(winning_cards)
+model += cp.IncreasingStrict(winning_cards)
+
+# Link selected indices to their feature values via Element constraints
+for k in range(3):
+    for d in range(n_features):
+        col = cards_np[:, d]
+        model += (sel_feat[k, d] == cp.Element(col, winning_cards[k]))
+
+# For each feature, values across the three cards must be all equal or all different
+for d in range(n_features):
+    same = cp.AllEqual(list(sel_feat[:, d]))
+    alldiff = cp.AllDifferent(sel_feat[:, d])
+    model += (same | alldiff)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: winning_cards.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    2,
+    5,
+    6
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (62 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (from problem)
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+cards_data = [  # Each card is represented as a list of [number, fill, color, shape]
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+# End of data
+
+n = len(cards_data)
+
+# Build separate lists for each feature (index order in card: number, fill, color, shape)
+numbers = [c[0] for c in cards_data]
+fills   = [c[1] for c in cards_data]
+colors  = [c[2] for c in cards_data]
+shapes  = [c[3] for c in cards_data]
+features = [numbers, fills, colors, shapes]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables: three 0-based indices of the winning set (enforce increasing to avoid symmetry)
+winning_cards = cp.intvar(0, n-1, shape=3, name=&quot;winning_cards&quot;)
+
+# Distinct and ordered indices
+model += winning_cards[0] &lt; winning_cards[1]
+model += winning_cards[1] &lt; winning_cards[2]
+
+# For each feature, forbid the pattern &quot;exactly two equal and the third different&quot;.
+# This enforces for each feature that the three values are either all equal or all different.
+for feat in features:
+    v0 = cp.Element(feat, winning_cards[0])
+    v1 = cp.Element(feat, winning_cards[1])
+    v2 = cp.Element(feat, winning_cards[2])
+    # forbid (v0==v1 and v2 different) or (v0==v2 and v1 different) or (v1==v2 and v0 different)
+    two_equal_one_diff = ((v0 == v1) &amp; (v1 != v2)) | ((v0 == v2) &amp; (v2 != v1)) | ((v1 == v2) &amp; (v2 != v0))
+    model += ~two_equal_one_diff
+
+# No objective
+# Solve and print
+if model.solve():
+    solution = {&#x27;winning_cards&#x27;: winning_cards.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    0,
+    1,
+    7
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: cannot determine coercion from type array[_] of array[int] of int to type array[int,int] of int</p>
+      <details class="gmodel"><summary>model.mzn (52 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Constants for features
+int: ONE = 1; int: TWO = 2; int: THREE = 3;
+int: RED = 1; int: PURPLE = 2; int: GREEN = 3;
+int: DIAMOND = 1; int: RECT = 2; int: ELLIPSE = 3;
+int: FULL = 1; int: EMPTY = 2; int: STRIPED = 3;
+
+% Number of cards in the input deck
+int: num_cards = 12;
+
+% Cards data: each card is an array of 4 features: number, fill, color, shape
+array[1..num_cards, 1..4] of int: cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+];
+
+% Decision variables: indices of the three cards forming the winning set
+array[1..3] of var 1..num_cards: winning_cards;
+
+% Ensure the three cards are distinct
+constraint alldifferent(winning_cards);
+
+% Extract features of the chosen cards for convenience
+array[1..3, 1..4] of var int: chosen_features = 
+  array2d(1..3, 1..4, [cards_data[winning_cards[i], f] | i in 1..3, f in 1..4]);
+
+% Predicate to check if three values are all same or all different
+predicate all_same_or_all_diff(var int: a, var int: b, var int: c) =
+    (a == b /\ b == c) \/ (a != b /\ b != c /\ a != c);
+
+% For each feature (number, fill, color, shape), the three cards must be all same or all different
+constraint forall(f in 1..4) (
+    all_same_or_all_diff(chosen_features[1,f], chosen_features[2,f], chosen_features[3,f])
+);
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    &quot;\&quot;winning_cards\&quot;: &quot;, show(winning_cards),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (58 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+% Include necessary global constraints
+include &quot;globals.mzn&quot;;
+
+% Data: number of cards and features
+int: n_cards = 12;
+int: n_features = 4;
+
+% cards_data[c, f] = feature f of card c
+% Features order: [number, fill, color, shape]
+array[1..n_cards, 1..n_features] of int: cards_data = array2d(
+  1..n_cards, 1..n_features,
+  [
+    %  number, fill, color, shape
+       1,      2,    3,     1,   % Card 1: [ONE, EMPTY, GREEN, DIAMOND]
+       2,      3,    1,     2,   % Card 2: [TWO, STRIPED, RED, RECT]
+       3,      3,    3,     1,   % Card 3: [THREE, STRIPED, GREEN, DIAMOND]
+       3,      1,    1,     1,   % Card 4: [THREE, FULL, RED, DIAMOND]
+       1,      3,    3,     1,   % Card 5: [ONE, STRIPED, GREEN, DIAMOND]
+       1,      2,    1,     1,   % Card 6: [ONE, EMPTY, RED, DIAMOND]
+       2,      1,    2,     1,   % Card 7: [TWO, FULL, PURPLE, DIAMOND]
+       3,      1,    2,     3,   % Card 8: [THREE, FULL, PURPLE, ELLIPSE]
+       3,      1,    3,     2,   % Card 9: [THREE, FULL, GREEN, RECT]
+       1,      1,    2,     1,   % Card 10: [ONE, FULL, PURPLE, DIAMOND]
+       1,      3,    2,     1,   % Card 11: [ONE, STRIPED, PURPLE, DIAMOND]
+       1,      1,    3,     2    % Card 12: [ONE, FULL, GREEN, RECT]
+  ]
+);
+
+% Decision variables: choose three distinct cards
+array[1..3] of var 1..n_cards: winning_cards;
+
+% No repeated cards
+constraint all_different(winning_cards);
+
+% For each feature, the three selected cards must be all same or all different
+constraint
+  forall(f in 1..n_features) (
+    let {
+      var int: v1 = cards_data[winning_cards[1], f],
+      var int: v2 = cards_data[winning_cards[2], f],
+      var int: v3 = cards_data[winning_cards[3], f]
+    } in
+      (v1 = v2 /\ v2 = v3)
+      \/
+      (v1 != v2 /\ v1 != v3 /\ v2 != v3)
+  );
+
+solve satisfy;
+
+% Output the indices of the winning set in JSON format
+output [
+  &quot;{&quot;,
+  join(&quot;,&quot;, [
+    &quot;\&quot;winning_cards\&quot;: [&quot; ++ join(&quot;,&quot;, [ show(winning_cards[i]) | i in 1..3 ]) ++ &quot;]&quot;
+  ]),
+  &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    8,
+    2,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">Traceback (most recent call last):</p>
+      <details class="gmodel"><summary>model.py (75 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Constants
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Card deck data: [number, fill, color, shape]
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+
+num_cards = len(cards_data)
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision variables: indices of the three cards forming the set
+card_indices = [model.NewIntVar(0, num_cards - 1, f&#x27;card_{i}&#x27;) for i in range(3)]
+
+# All three cards must be different
+model.AddAllDifferent(card_indices)
+
+# Helper function to get feature values for a card index variable
+def feature_values(feature_idx):
+    # feature_idx: 0=number,1=fill,2=color,3=shape
+    return [cards_data[i][feature_idx] for i in range(num_cards)]
+
+# For each feature, the three cards must be all same or all different
+for feature_idx in range(4):
+    # Extract feature values for all cards
+    feature_vals = feature_values(feature_idx)
+    # Create variables for the feature values of the chosen cards
+    f_vars = [model.NewIntVar(1, 3, f&#x27;feature_{feature_idx}_card_{i}&#x27;) for i in range(3)]
+    for i in range(3):
+        # Link card index to feature value using Element constraint
+        model.AddElement(card_indices[i], feature_vals, f_vars[i])
+    # Constraint: either all same or all different
+    # all same: f_vars[0] == f_vars[1] == f_vars[2]
+    all_same = model.NewBoolVar(f&#x27;all_same_feature_{feature_idx}&#x27;)
+    model.Add(f_vars[0] == f_vars[1]).OnlyEnforceIf(all_same)
+    model.Add(f_vars[1] == f_vars[2]).OnlyEnforceIf(all_same)
+    model.AddBoolAnd([f_vars[0] == f_vars[1], f_vars[1] == f_vars[2]]).OnlyEnforceIf(all_same)
+    model.AddBoolOr([f_vars[0] != f_vars[1], f_vars[1] != f_vars[2], f_vars[0] != f_vars[2]]).OnlyEnforceIf(all_same.Not())
+
+    # all different: all three different
+    all_diff = model.NewBoolVar(f&#x27;all_diff_feature_{feature_idx}&#x27;)
+    model.AddAllDifferent(f_vars).OnlyEnforceIf(all_diff)
+    model.AddBoolOr([f_vars[0] == f_vars[1], f_vars[1] == f_vars[2], f_vars[0] == f_vars[2]]).OnlyEnforceIf(all_diff.Not())
+
+    # Exactly one of all_same or all_diff must be true
+    model.AddBoolXOr([all_same, all_diff])
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    winning_cards = [solver.Value(card_indices[i]) for i in range(3)]
+    solution = {&#x27;winning_cards&#x27;: winning_cards}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (86 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+ONE, TWO, THREE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+
+cards_data = [
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+
+# Model definition
+model = cp_model.CpModel()
+num_cards = len(cards_data)
+
+# Decision variables: indices of the three winning cards
+win0 = model.NewIntVar(0, num_cards - 1, &#x27;win0&#x27;)
+win1 = model.NewIntVar(0, num_cards - 1, &#x27;win1&#x27;)
+win2 = model.NewIntVar(0, num_cards - 1, &#x27;win2&#x27;)
+
+# Enforce an ordering to avoid symmetric solutions
+model.Add(win0 &lt; win1)
+model.Add(win1 &lt; win2)
+
+# For each feature (0:number, 1:shading, 2:color, 3:shape),
+# extract the feature values and impose the SET constraints
+for f in range(4):
+    # Build a list of that feature&#x27;s values across all cards
+    feature_list = [cards_data[i][f] for i in range(num_cards)]
+    
+    # Variables for the feature values of the chosen cards
+    v0 = model.NewIntVar(1, 3, f&#x27;v0_{f}&#x27;)
+    v1 = model.NewIntVar(1, 3, f&#x27;v1_{f}&#x27;)
+    v2 = model.NewIntVar(1, 3, f&#x27;v2_{f}&#x27;)
+    
+    # Link card indices to their feature values via element constraints
+    model.AddElement(win0, feature_list, v0)
+    model.AddElement(win1, feature_list, v1)
+    model.AddElement(win2, feature_list, v2)
+    
+    # Boolean indicators: either all the same or all different
+    all_same = model.NewBoolVar(f&#x27;all_same_{f}&#x27;)
+    all_diff = model.NewBoolVar(f&#x27;all_diff_{f}&#x27;)
+    
+    # Exactly one of the two conditions must hold
+    model.Add(all_same + all_diff == 1)
+    
+    # If all_same, enforce pairwise equalities
+    model.Add(v0 == v1).OnlyEnforceIf(all_same)
+    model.Add(v1 == v2).OnlyEnforceIf(all_same)
+    
+    # If all_diff, enforce pairwise inequalities
+    model.Add(v0 != v1).OnlyEnforceIf(all_diff)
+    model.Add(v0 != v2).OnlyEnforceIf(all_diff)
+    model.Add(v1 != v2).OnlyEnforceIf(all_diff)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Print the result
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;winning_cards&#x27;: [
+            solver.Value(win0),
+            solver.Value(win1),
+            solver.Value(win2)
+        ]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    2,
+    5,
+    6
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (77 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# -----------------------------
+# 1. Parse the EXACT input data
+# -----------------------------
+# Constants (the numerical encodings themselves are irrelevant as long as they
+# are consistent throughout the model).
+ONE, TWO, THREE = 1, 2, 3
+RED, PURPLE, GREEN = 1, 2, 3
+DIAMOND, RECT, ELLIPSE = 1, 2, 3
+FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Card attributes: [number, fill, colour, shape]
+cards_data = [
+    [ONE,   EMPTY,   GREEN,   DIAMOND],
+    [TWO,   STRIPED, RED,     RECT],
+    [THREE, STRIPED, GREEN,   DIAMOND],
+    [THREE, FULL,    RED,     DIAMOND],
+    [ONE,   STRIPED, GREEN,   DIAMOND],
+    [ONE,   EMPTY,   RED,     DIAMOND],
+    [TWO,   FULL,    PURPLE,  DIAMOND],
+    [THREE, FULL,    PURPLE,  ELLIPSE],
+    [THREE, FULL,    GREEN,   RECT],
+    [ONE,   FULL,    PURPLE,  DIAMOND],
+    [ONE,   STRIPED, PURPLE,  DIAMOND],
+    [ONE,   FULL,    GREEN,   RECT],
+]
+
+n_cards = len(cards_data)                # 12
+n_features = 4                           # number, fill, colour, shape
+feature_values = [1, 2, 3]               # every feature can take 1..3
+
+# -----------------------------
+# 2. Build the CP-SAT model
+# -----------------------------
+model = cp_model.CpModel()
+
+# Decision variables – 1 iff card i is chosen
+x = [model.NewBoolVar(f&quot;x_{i}&quot;) for i in range(n_cards)]
+
+# (C1) Exactly three cards form the set
+model.Add(sum(x) == 3)
+
+# For every feature f and value v create a counting variable
+for f in range(n_features):
+    for v in feature_values:
+        y_f_v = model.NewIntVar(0, 3, f&quot;y_{f}_{v}&quot;)
+
+        # y_f_v = Σ selected cards whose feature-value equals v
+        matching = [x[i] for i in range(n_cards) if cards_data[i][f] == v]
+        if matching:                          # at least one candidate card
+            model.Add(y_f_v == sum(matching))
+        else:                                 # no card on the table shows this value
+            model.Add(y_f_v == 0)
+
+        # (C2) For a legal SET a feature may never appear exactly twice
+        #      among the three selected cards.
+        model.Add(y_f_v != 2)
+
+# No objective – pure feasibility
+
+# -----------------------------
+# 3. Invoke the solver
+# -----------------------------
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# -----------------------------
+# 4. Extract and print solution
+# -----------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    winning_cards = [i for i in range(n_cards) if solver.Value(x[i]) == 1]
+else:
+    winning_cards = []
+
+print(json.dumps({&quot;winning_cards&quot;: winning_cards}))
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;winning_cards&quot;: [
+    4,
+    5,
+    9
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;numbers&quot;: [
     1,
     2,
@@ -203,15 +1675,16 @@ cards_data = [  # Each card is represented as a list of [number, fill, color, sh
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">winning_cards</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-155">Copy</button></div><pre class="code-block"><code id="solution-155" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">winning_cards</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-155">Copy</button></div><pre class="code-block"><code id="solution-155" class="language-json">{
   &quot;winning_cards&quot;: [
     5,
     6,
     2
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -219,9 +1692,9 @@ cards_data = [  # Each card is represented as a list of [number, fill, color, sh
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/set_game/set_game.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/set_game/set_game.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session5_hardy_1729_square.html">â† prev</a><a class="btn" href="sudoku.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session5_hardy_1729_square.html">← prev</a><a class="btn" href="sudoku.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

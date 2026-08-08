@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_002_template_design Â· DCP-Bench Open</title>
-<meta name="description" content="This problem arises from a colour printing firm which produces a variety of products from thin board, including cartons for human and animal food and magazineâ€¦">
+<title>csplib_002_template_design · DCP-Bench Open</title>
+<meta name="description" content="This problem arises from a colour printing firm which produces a variety of products from thin board, including cartons for human and animal food and magazine…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob002_template_design.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob002_template_design.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob002/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob002/</a></dd><dt>Problem instances</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob002_template_design.json" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob002_template_design.json</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (7)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (7)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-42">Copy</button></div><pre class="code-block"><code id="model-42" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -88,7 +89,734 @@ n_templates = 2  # The amount of templates
 n_var = 7  # The amount of different variations
 demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (43 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+n_slots = 9  # The amount of slots on a template
+n_templates = 2  # The amount of templates
+n_var = 7  # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+
+# Decision Variables
+production = intvar(0, max(demand), shape=n_templates, name=&quot;production&quot;)  # Number of printed sheets per template
+layout = intvar(0, n_var-1, shape=(n_templates, n_slots), name=&quot;layout&quot;)  # Layout of templates
+
+# Auxiliary variables to count occurrences of each variation in each template
+counts = intvar(0, n_slots, shape=(n_templates, n_var), name=&quot;counts&quot;)
+
+# Model
+model = Model()
+
+# Each slot in each template must be assigned a valid variation
+for t in range(n_templates):
+    for s in range(n_slots):
+        model += (layout[t,s] &gt;= 0) &amp; (layout[t,s] &lt; n_var)
+
+# Count the number of occurrences of each variation in each template
+for t in range(n_templates):
+    for v in range(n_var):
+        model += (counts[t,v] == sum(layout[t,:] == v))
+
+# The production must be sufficient to meet the demand for each variation
+for v in range(n_var):
+    model += (sum(counts[:,v] * production) &gt;= demand[v])
+
+# Solve the model
+model.minimize(sum(production))
+model.solve()
+
+# Print the solution
+solution = {
+    &quot;production&quot;: production.value().tolist(),
+    &quot;layout&quot;: layout.value().tolist()
+}
+print(json.dumps(solution))</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Data
+n_slots = 9  # The amount of slots on a template
+n_templates = 2  # The amount of templates
+n_var = 7  # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+
+# End of data
+
+# Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+total_demand = sum(demand)  # Total number of cartons to be printed
+
+# Decision Variables
+# production: number of printed sheets (each sheet uses one template)
+production = intvar(0, 10000, shape=n_templates, name=&quot;production&quot;)
+
+# layout: how many of each variation are included in each template
+layout = intvar(0, n_slots, shape=(n_templates, n_var), name=&quot;layout&quot;)
+
+# Model
+model = Model()
+
+# Each template must have exactly n_slots variations in total
+for t in range(n_templates):
+    model += [sum(layout[t, :]) == n_slots]
+
+# The total number of each variation printed must meet the demand
+for v in range(n_var):
+    model += [sum(layout[t, v] * production[t] for t in range(n_templates)) == demand[v]]
+
+# Additional constraint to reduce search space: production must be at least 1
+model += [production &gt;= 1]
+
+# Solve
+model.solve()
+
+# Print
+solution = {
+    &quot;production&quot;: production.value().tolist(),
+    &quot;layout&quot;: layout.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_slots = 9  # The amount of slots on a template
+n_templates = 2  # The amount of templates
+n_var = 7  # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of printed sheets for each template
+sum_demand = sum(demand)
+production = cp.intvar(0, sum_demand, shape=n_templates, name=&quot;production&quot;)
+
+# layout[t,v] = number of copies of variation v on template t (per sheet)
+layout = cp.intvar(0, n_slots, shape=(n_templates, n_var), name=&quot;layout&quot;)
+
+# Constraints
+# Each template has exactly n_slots items printed per sheet
+for t in range(n_templates):
+    model += (cp.sum(layout[t, :]) == n_slots)
+
+# Meet (or exceed) demand for each variation across all templates
+for v in range(n_var):
+    # sum_t layout[t,v] * production[t] &gt;= demand[v]
+    model += (cp.sum([layout[t, v] * production[t] for t in range(n_templates)]) &gt;= demand[v])
+
+# Objective: minimize total number of printed sheets
+model.minimize(cp.sum(production))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;production&#x27;: production.value().tolist(),
+        &#x27;layout&#x27;: layout.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (47 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_slots = 9  # The amount of slots on a template
+n_templates = 2  # The amount of templates
+n_var = 7  # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# layout[t, v]: number of copies of variation v on template t (0..n_slots)
+layout = cp.intvar(0, n_slots, shape=(n_templates, n_var), name=&quot;layout&quot;)
+
+# production[t]: number of printed sheets of template t
+# Upper bound: max demand divided by minimum number of copies of any variation on that template (at least 1)
+# To be safe, upper bound can be max demand (1100)
+production = cp.intvar(0, max(demand), shape=n_templates, name=&quot;production&quot;)
+
+# Constraints
+
+# 1) Each template can have at most n_slots copies in total
+for t in range(n_templates):
+    model += (cp.sum(layout[t, :]) &lt;= n_slots)
+
+# 2) Demand satisfaction: sum over templates of (copies per template * production) &gt;= demand for each variation
+for v in range(n_var):
+    model += (cp.sum([layout[t, v] * production[t] for t in range(n_templates)]) &gt;= demand[v])
+
+# 3) If a variation is not on a template, layout[t,v] = 0
+# (Already ensured by domain 0..n_slots)
+
+# Objective: minimize total production (sum of printed sheets)
+model.minimize(cp.sum(production))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;production&#x27;: production.value().tolist(),
+        &#x27;layout&#x27;: layout.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_slots = 9  # The amount of slots on a template
+n_templates = 2  # The amount of templates
+n_var = 7  # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of printed sheets for each template
+sum_demand = sum(demand)
+production = cp.intvar(0, sum_demand, shape=n_templates, name=&quot;production&quot;)
+
+# layout[t,v] = number of copies of variation v on template t (per sheet)
+layout = cp.intvar(0, n_slots, shape=(n_templates, n_var), name=&quot;layout&quot;)
+
+# Constraints
+# Each template has exactly n_slots items printed per sheet
+for t in range(n_templates):
+    model += (cp.sum(layout[t, :]) == n_slots)
+
+# Meet (or exceed) demand for each variation across all templates
+for v in range(n_var):
+    # sum_t layout[t,v] * production[t] &gt;= demand[v]
+    model += (cp.sum([layout[t, v] * production[t] for t in range(n_templates)]) &gt;= demand[v])
+
+# Objective: minimize total number of printed sheets
+model.minimize(cp.sum(production))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;production&#x27;: production.value().tolist(),
+        &#x27;layout&#x27;: layout.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (76 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+n_slots = 9       # The amount of slots on a template
+n_templates = 2   # The amount of templates
+n_var = 7         # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+# End of data
+
+# Helper computations
+total_demand = sum(demand)
+lb_total_sheets = (total_demand + n_slots - 1) // n_slots  # ceil(total_demand / n_slots)
+# A safe upper bound per template: one template could print everything alone
+ub_production = lb_total_sheets
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of printed sheets per template
+production = cp.intvar(0, ub_production, shape=n_templates, name=&quot;production&quot;)
+
+# Layout counts: number of each variation on each template (per sheet)
+layout = cp.intvar(0, n_slots, shape=(n_templates, n_var), name=&quot;layout&quot;)
+
+# One-hot encoding of layout counts: y[t,v,k] = 1 iff layout[t,v] = k
+# k ranges from 0..n_slots
+y = cp.boolvar(shape=(n_templates, n_var, n_slots + 1), name=&quot;y&quot;)
+
+# Constraints
+
+# 1) Each template uses exactly n_slots per sheet
+for t in range(n_templates):
+    model += (cp.sum([layout[t, v] for v in range(n_var)]) == n_slots)
+
+# 2) One-hot for layout counts via y
+for t in range(n_templates):
+    for v in range(n_var):
+        # exactly one k chosen
+        model += (cp.sum([y[t, v, k] for k in range(n_slots + 1)]) == 1)
+        # layout equals the chosen k
+        model += (layout[t, v] == cp.sum([k * y[t, v, k] for k in range(n_slots + 1)]))
+
+# 3) Demand satisfaction:
+# For each variation v, total produced across templates must be &gt;= demand[v]
+# total produced for v = sum_t production[t] * layout[t,v]
+# Linearize using y: layout[t,v] = sum_k k*y[t,v,k]
+# so produced for v = sum_{t,k} (k*production[t]) * y[t,v,k]
+for v in range(n_var):
+    model += (
+        cp.sum([(k * production[t]) * y[t, v, k]
+                for t in range(n_templates)
+                for k in range(n_slots + 1)]) &gt;= demand[v]
+    )
+
+# 4) Strengthening: total sheets must be at least the global lower bound
+model += (cp.sum(production) &gt;= lb_total_sheets)
+
+# 5) Symmetry breaking between templates
+model += (production[0] &gt;= production[1])
+model += cp.LexLessEq(layout[0, :].tolist(), layout[1, :].tolist())
+
+# Objective: minimize total number of printed sheets
+model.minimize(cp.sum(production))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;production&#x27;: [int(p) for p in production.value().tolist()],
+        &#x27;layout&#x27;: [[int(x) for x in layout[t, :].value().tolist()] for t in range(n_templates)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (78 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n_slots = 9  # The amount of slots on a template
+n_templates = 2  # The amount of templates
+n_var = 7  # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+# End of data
+
+# Upper bounds
+sum_demand = sum(demand)  # global upper bound for productions / intermediate vars
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# Number of printed sheets for each template
+# Upper bound can be sum_demand (safe)
+production = cp.intvar(0, sum_demand, shape=n_templates, name=&quot;production&quot;)
+
+# layout[t,v] = number of copies of variation v on template t (per sheet)
+layout = cp.intvar(0, n_slots, shape=(n_templates, n_var), name=&quot;layout&quot;)
+
+# To linearize the product production[t] * layout[t,v], we decompose layout into booleans:
+# y[t,v,k] == 1 iff layout[t,v] == k, for k in 0..n_slots
+y = cp.boolvar(shape=(n_templates, n_var, n_slots + 1), name=&quot;y&quot;)
+
+# z[t,v,k] will represent production[t] * y[t,v,k]  (product of intvar and bool)
+# Upper bound for production is sum_demand, so z in [0, sum_demand]
+z = cp.intvar(0, sum_demand, shape=(n_templates, n_var, n_slots + 1), name=&quot;z&quot;)
+
+# Constraints
+
+# Link y and layout: for each (t,v), exactly one k is chosen and layout equals that k
+for t in range(n_templates):
+    for v in range(n_var):
+        # Exactly one k chosen
+        model += (cp.sum(y[t, v, :]) == 1)
+        # layout[t,v] == sum_k k * y[t,v,k]
+        model += (cp.sum([k * y[t, v, k] for k in range(n_slots + 1)]) == layout[t, v])
+
+# Each template has exactly n_slots items printed per sheet
+for t in range(n_templates):
+    model += (cp.sum(layout[t, :]) == n_slots)
+
+# Linearize z[t,v,k] = production[t] * y[t,v,k] using Big-M (sum_demand as M)
+M = sum_demand
+for t in range(n_templates):
+    for v in range(n_var):
+        for k in range(n_slots + 1):
+            # z &lt;= production
+            model += (z[t, v, k] &lt;= production[t])
+            # z &lt;= M * y
+            model += (z[t, v, k] &lt;= M * y[t, v, k])
+            # z &gt;= production - M * (1 - y)
+            model += (z[t, v, k] &gt;= production[t] - M * (1 - y[t, v, k]))
+            # z &gt;= 0  (already domain, but we keep it conceptually)
+            model += (z[t, v, k] &gt;= 0)
+
+# Demand constraints:
+# total printed of variation v is sum_t sum_k k * z[t,v,k]  (since z is production * y_k)
+for v in range(n_var):
+    model += (cp.sum([k * z[t, v, k] for t in range(n_templates) for k in range(n_slots + 1)]) &gt;= demand[v])
+
+# Objective: minimize total number of printed sheets
+model.minimize(cp.sum(production))
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;production&#x27;: production.value().tolist(),
+        &#x27;layout&#x27;: layout.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.mzn (44 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: n_slots = 9;          % Number of slots on a template
+int: n_templates = 2;      % Number of templates
+int: n_var = 7;            % Number of different variations
+array[1..n_var] of int: demand = [250, 255, 260, 500, 500, 800, 1100]; % Demand per variation
+
+% Decision variables
+% layout[t,v] = number of copies of variation v on template t (0 if not included)
+array[1..n_templates, 1..n_var] of var 0..n_slots: layout;
+
+% production[t] = number of printed sheets for template t
+array[1..n_templates] of var 0..max(demand): production;
+
+% Constraints
+
+% Each template can have at most n_slots copies in total
+constraint
+  forall(t in 1..n_templates) (
+    sum(v in 1..n_var)(layout[t,v]) &lt;= n_slots
+  );
+
+% The total production for each variation must meet or exceed demand
+% total copies produced for variation v = sum over templates of (layout[t,v] * production[t])
+constraint
+  forall(v in 1..n_var) (
+    sum(t in 1..n_templates)(layout[t,v] * production[t]) &gt;= demand[v]
+  );
+
+% Solve: minimize total production (sum of all printed sheets)
+var int: total_production = sum(t in 1..n_templates)(production[t]);
+solve minimize total_production;
+
+% Output in JSON format
+output [
+  &quot;{&quot;,
+  &quot;\&quot;production\&quot;: &quot;, show(production), &quot;,&quot;,
+  &quot;\&quot;layout\&quot;: [&quot;,
+    join(&quot;,&quot;,
+      [ &quot;[&quot; ++ join(&quot;,&quot;, [show(layout[t,v]) | v in 1..n_var]) ++ &quot;]&quot; | t in 1..n_templates ]
+    ),
+  &quot;]&quot;,
+  &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (57 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+n_slots = 9  # The amount of slots on a template
+n_templates = 2  # The amount of templates
+n_var = 7  # The amount of different variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables
+# layout[t][v]: number of copies of variation v on template t (0..n_slots)
+layout = []
+for t in range(n_templates):
+    row = []
+    for v in range(n_var):
+        row.append(model.NewIntVar(0, n_slots, f&#x27;layout_{t}_{v}&#x27;))
+    layout.append(row)
+
+# production[t]: number of printed sheets for template t
+# Upper bound can be max demand because we cannot produce more than max demand per template
+max_demand = max(demand)
+production = [model.NewIntVar(0, max_demand, f&#x27;production_{t}&#x27;) for t in range(n_templates)]
+
+# Constraints
+
+# 1) Each template can have at most n_slots items printed on it
+for t in range(n_templates):
+    model.Add(sum(layout[t][v] for v in range(n_var)) &lt;= n_slots)
+
+# 2) The total production for each variation must meet the demand exactly
+# sum over templates of (layout[t][v] * production[t]) == demand[v]
+for v in range(n_var):
+    model.Add(
+        sum(layout[t][v] * production[t] for t in range(n_templates)) == demand[v]
+    )
+
+# Objective: minimize total production (sum of printed sheets)
+model.Minimize(sum(production))
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    production_val = [solver.Value(production[t]) for t in range(n_templates)]
+    layout_val = []
+    for t in range(n_templates):
+        layout_val.append([solver.Value(layout[t][v]) for v in range(n_var)])
+    solution = {
+        &#x27;production&#x27;: production_val,
+        &#x27;layout&#x27;: layout_val
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (108 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+from ortools.sat.python import cp_model
+
+# --------------------------------------------------
+# Immutable input parameters (do NOT modify)
+# --------------------------------------------------
+n_slots = 9                # number of slots on every template
+n_templates = 2            # maximum number of templates that can be fabricated
+n_var = 7                  # number of distinct carton variations
+demand = [250, 255, 260, 500, 500, 800, 1100]  # demand per variation
+
+# --------------------------------------------------
+# CP-SAT model
+# --------------------------------------------------
+model = cp_model.CpModel()
+
+# Some safe upper bounds -----------------------------------------------------
+sum_demand = sum(demand)           # 3665 – printing 1 carton per sheet is enough
+production_ub = sum_demand         # upper bound for sheets printed per template
+prints_ub = production_ub * n_slots          # bound for production * slots
+produced_ub = n_templates * prints_ub        # bound for total produced of a var
+
+# Decision variables ---------------------------------------------------------
+# layout[j][v] – how many of the 9 slots on template j are assigned to variation v
+layout = [
+    [model.NewIntVar(0, n_slots, f&quot;layout_{j}_{v}&quot;) for v in range(n_var)]
+    for j in range(n_templates)
+]
+
+# production[j] – number of mother sheets printed with template j
+production = [
+    model.NewIntVar(0, production_ub, f&quot;production_{j}&quot;)
+    for j in range(n_templates)
+]
+
+# prints[j][v] = production[j] * layout[j][v] -------------------------------
+prints = []
+for j in range(n_templates):
+    row = []
+    for v in range(n_var):
+        pv = model.NewIntVar(0, prints_ub, f&quot;prints_{j}_{v}&quot;)
+        model.AddMultiplicationEquality(pv, [production[j], layout[j][v]])
+        row.append(pv)
+    prints.append(row)
+
+# ---------------------------------------------------------------------------
+# Hard constraints
+# ---------------------------------------------------------------------------
+# (C1) every template uses exactly n_slots slots
+for j in range(n_templates):
+    model.Add(sum(layout[j]) == n_slots)
+
+# (C2) demand satisfaction
+for v in range(n_var):
+    model.Add(sum(prints[j][v] for j in range(n_templates)) &gt;= demand[v])
+
+# ---------------------------------------------------------------------------
+# 1st optimisation stage – minimise total number of sheets
+# ---------------------------------------------------------------------------
+objective_1 = sum(production)
+model.Minimize(objective_1)
+
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 30
+status = solver.Solve(model)
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise RuntimeError(&quot;No feasible solution found in stage 1.&quot;)
+
+best_total_sheets = solver.Value(objective_1)
+
+# ---------------------------------------------------------------------------
+# 2nd optimisation stage – minimise over-production given optimal sheets
+# ---------------------------------------------------------------------------
+# Fix primary objective value
+model.Add(objective_1 == best_total_sheets)
+
+# Produced quantity and over-production per variation
+produced = []
+overprod = []
+for v in range(n_var):
+    prod_v = model.NewIntVar(0, produced_ub, f&quot;produced_{v}&quot;)
+    model.Add(prod_v == sum(prints[j][v] for j in range(n_templates)))
+    produced.append(prod_v)
+
+    over_v = model.NewIntVar(0, produced_ub, f&quot;over_{v}&quot;)
+    model.Add(prod_v == demand[v] + over_v)
+    overprod.append(over_v)
+
+objective_2 = sum(overprod)
+model.Minimize(objective_2)
+
+solver2 = cp_model.CpSolver()
+solver2.parameters.max_time_in_seconds = 30
+status = solver2.Solve(model)
+if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    raise RuntimeError(&quot;No feasible solution found in stage 2.&quot;)
+
+# ---------------------------------------------------------------------------
+# Extract and print solution
+# ---------------------------------------------------------------------------
+solution_layout = [[solver2.Value(layout[j][v]) for v in range(n_var)]
+                   for j in range(n_templates)]
+solution_production = [solver2.Value(p) for p in production]
+
+print(json.dumps({
+    &quot;production&quot;: solution_production,
+    &quot;layout&quot;: solution_layout,
+}))
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;name&quot;: &quot;catfood2&quot;,
   &quot;n_slots&quot;: 9,
   &quot;n_templates&quot;: 2,
@@ -362,9 +1090,9 @@ demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation</code>
     405
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">layout</span><span class="chip">production</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-42">Copy</button></div><pre class="code-block"><code id="solution-42" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">layout</span><span class="chip">production</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-42">Copy</button></div><pre class="code-block"><code id="solution-42" class="language-json">{
   &quot;production&quot;: [
     158,
     260
@@ -390,6 +1118,7 @@ demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation</code>
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -397,9 +1126,9 @@ demand = [250, 255, 260, 500, 500, 800, 1100]  # The demand per variation</code>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_002_template_design/csplib_002_template_design.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_002_template_design/csplib_002_template_design.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_001_car_sequencing.html">â† prev</a><a class="btn" href="csplib_003_quasigroup_existence.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_001_car_sequencing.html">← prev</a><a class="btn" href="csplib_003_quasigroup_existence.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

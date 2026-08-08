@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>finding_celebrities Â· DCP-Bench Open</title>
-<meta name="description" content="Given a list of people at a party and for each person the list of people they know at the party, we want to find the celebrities at the party. A celebrity is aâ€¦">
+<title>finding_celebrities · DCP-Bench Open</title>
+<meta name="description" content="Given a list of people at a party and for each person the list of people they know at the party, we want to find the celebrities at the party. A celebrity is a…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/finding_celebrities.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/finding_celebrities.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-96">Copy</button></div><pre class="code-block"><code id="model-96" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -71,7 +72,244 @@ graph = [
     [0, 0, 0, 1, 1]  # 5
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [
+    [1, 1, 1, 1, 1],  # 1 Adam
+    [1, 1, 0, 1, 1],  # 2 Dan
+    [0, 0, 1, 1, 1],  # 3 Eva
+    [0, 0, 0, 1, 1],  # 4 Alice
+    [0, 0, 0, 1, 1]   # 5 Peter
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = len(graph)
+
+# Decision Variables: 1 if person i is a celebrity, else 0
+celebrities = cp.intvar(0, 1, shape=n, name=&quot;celebrities&quot;)
+
+# Constraints
+# 1) A celebrity must be known by everybody: for each i and each person j, celeb[i] &lt;= graph[j][i]
+for i in range(n):
+    for j in range(n):
+        model += celebrities[i] &lt;= graph[j][i]
+
+# 2) A celebrity only knows other celebrities:
+#    if person i knows person k (graph[i][k]==1) then celeb[i] &lt;= celeb[k]
+for i in range(n):
+    for k in range(n):
+        if graph[i][k] == 1:
+            model += celebrities[i] &lt;= celebrities[k]
+
+# 3) At least one celebrity is present
+model += cp.sum(celebrities) &gt;= 1
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;celebrities&#x27;: celebrities.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [
+    [1, 1, 1, 1, 1],  # 1 Adam
+    [1, 1, 0, 1, 1],  # 2 Dan
+    [0, 0, 1, 1, 1],  # 3 Eva
+    [0, 0, 0, 1, 1],  # 4 Alice
+    [0, 0, 0, 1, 1]   # 5 Peter
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = len(graph)
+
+# Decision Variables: 1 if person i is a celebrity, else 0
+celebrities = cp.intvar(0, 1, shape=n, name=&quot;celebrities&quot;)
+
+# Constraints
+# 1) A celebrity must be known by everybody: for each i and each person j, celeb[i] &lt;= graph[j][i]
+for i in range(n):
+    for j in range(n):
+        model += celebrities[i] &lt;= graph[j][i]
+
+# 2) A celebrity only knows other celebrities:
+#    if person i knows person k (graph[i][k]==1) then celeb[i] &lt;= celeb[k]
+for i in range(n):
+    for k in range(n):
+        if graph[i][k] == 1:
+            model += celebrities[i] &lt;= celebrities[k]
+
+# 3) At least one celebrity is present
+model += cp.sum(celebrities) &gt;= 1
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;celebrities&#x27;: celebrities.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (48 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+# People order: Adam, Dan, Eva, Alice, Peter
+graph = [
+    [1, 1, 1, 1, 1],  # Adam
+    [1, 1, 0, 1, 1],  # Dan
+    [0, 0, 1, 1, 1],  # Eva
+    [0, 0, 0, 1, 1],  # Alice
+    [0, 0, 0, 1, 1]   # Peter
+]
+n = len(graph)
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+celebrities = cp.boolvar(shape=n, name=&quot;celebrities&quot;)
+
+# Constraints
+
+# At least one celebrity
+model += (cp.sum(celebrities) &gt;= 1)
+
+# If i is a celebrity, then everybody must know i
+for i in range(n):
+    for k in range(n):
+        model += celebrities[i].implies(graph[k][i] == 1)
+
+# If i is a celebrity, then everyone i knows must also be a celebrity
+for i in range(n):
+    for j in range(n):
+        if graph[i][j] == 1:
+            model += celebrities[i].implies(celebrities[j])
+
+# Objective (none)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;celebrities&#x27;: [int(v) for v in celebrities.value().tolist()]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (44 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+graph = [
+    [1, 1, 1, 1, 1],  # 1 Adam
+    [1, 1, 0, 1, 1],  # 2 Dan
+    [0, 0, 1, 1, 1],  # 3 Eva
+    [0, 0, 0, 1, 1],  # 4 Alice
+    [0, 0, 0, 1, 1]   # 5 Peter
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+n = len(graph)
+
+# Decision Variables: 1 if person i is a celebrity, else 0
+celebrities = cp.intvar(0, 1, shape=n, name=&quot;celebrities&quot;)
+
+# Constraints
+# 1) A celebrity must be known by everybody: for each i and each person j, celeb[i] &lt;= graph[j][i]
+for i in range(n):
+    for j in range(n):
+        model += celebrities[i] &lt;= graph[j][i]
+
+# 2) A celebrity only knows other celebrities:
+#    if person i knows person k (graph[i][k]==1) then celeb[i] &lt;= celeb[k]
+for i in range(n):
+    for k in range(n):
+        if graph[i][k] == 1:
+            model += celebrities[i] &lt;= celebrities[k]
+
+# 3) At least one celebrity is present
+model += cp.sum(celebrities) &gt;= 1
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;celebrities&#x27;: celebrities.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;graph&quot;: [
     [
       1,
@@ -110,9 +348,9 @@ graph = [
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">celebrities</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-96">Copy</button></div><pre class="code-block"><code id="solution-96" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">celebrities</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-96">Copy</button></div><pre class="code-block"><code id="solution-96" class="language-json">{
   &quot;celebrities&quot;: [
     false,
     false,
@@ -121,6 +359,7 @@ graph = [
     true
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -128,9 +367,9 @@ graph = [
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/finding_celebrities/finding_celebrities.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/finding_celebrities/finding_celebrities.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="fifty_puzzle.html">â† prev</a><a class="btn" href="five_brigands.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="fifty_puzzle.html">← prev</a><a class="btn" href="five_brigands.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

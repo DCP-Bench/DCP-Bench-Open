@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>fancy_dress Â· DCP-Bench Open</title>
-<meta name="description" content="Mr. Greenfan wants to give a dress party where the male guests must wear green dresses. The following rules are given: 1 If someone wears a green tie he has toâ€¦">
+<title>fancy_dress · DCP-Bench Open</title>
+<meta name="description" content="Mr. Greenfan wants to give a dress party where the male guests must wear green dresses. The following rules are given: 1 If someone wears a green tie he has to…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/fancy.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/fancy.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-93">Copy</button></div><pre class="code-block"><code id="model-93" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -67,16 +68,275 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">h</span><span class="chip">n</span><span class="chip">r</span><span class="chip">s</span><span class="chip">t</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-93">Copy</button></div><pre class="code-block"><code id="solution-93" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Decision variables: tie (t), hat (h), shirt (r), socks (s), entrance fee (n)
+t = cp.boolvar(name=&quot;t&quot;)
+h = cp.boolvar(name=&quot;h&quot;)
+r = cp.boolvar(name=&quot;r&quot;)
+s = cp.boolvar(name=&quot;s&quot;)
+n = cp.boolvar(name=&quot;n&quot;)
+
+# Model definition
+model = cp.Model()
+
+# Mr Greenguest owns a green shirt
+model += (r == 1)
+
+# Rules encoded as logical constraints (we will relate them to the entrance fee variable)
+# Rule 1: If someone wears a green tie he has to wear a green shirt.  t -&gt; r  ===  (~t | r)
+rule1 = (~t | r)
+
+# Rule 2: A guest may only wear green socks and a green shirt if he wears a green tie or a green hat.
+# (s &amp; r) -&gt; (t | h)  ===  (~(s &amp; r) | t | h)
+rule2 = (~(s &amp; r) | t | h)
+
+# Rule 3: A guest wearing a green shirt or a green hat or who does not wear green socks must wear a green tie.
+# (r | h | ~s) -&gt; t  ===  (~(r | h | ~s) | t)
+rule3 = (~(r | h | ~s) | t)
+
+# Entrance fee (n) must be true iff the guest is NOT dressed according to rules 1-3.
+all_rules_hold = rule1 &amp; rule2 &amp; rule3
+model += (n == ~all_rules_hold)
+
+# Costs:
+# tie $10, hat $2, shirt $0 (he already owns it), socks $12, entrance fee $11
+total_cost = cp.sum([10 * t, 2 * h, 0 * r, 12 * s, 11 * n])
+
+# Objective: minimize total cost
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;t&#x27;: int(t.value()),
+        &#x27;h&#x27;: int(h.value()),
+        &#x27;r&#x27;: int(r.value()),
+        &#x27;s&#x27;: int(s.value()),
+        &#x27;n&#x27;: int(n.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Decision variables: tie (t), hat (h), shirt (r), socks (s), entrance fee (n)
+t = cp.boolvar(name=&quot;t&quot;)
+h = cp.boolvar(name=&quot;h&quot;)
+r = cp.boolvar(name=&quot;r&quot;)
+s = cp.boolvar(name=&quot;s&quot;)
+n = cp.boolvar(name=&quot;n&quot;)
+
+# Model definition
+model = cp.Model()
+
+# Mr Greenguest owns a green shirt
+model += (r == 1)
+
+# Rules encoded as logical constraints (we will relate them to the entrance fee variable)
+# Rule 1: If someone wears a green tie he has to wear a green shirt.  t -&gt; r  ===  (~t | r)
+rule1 = (~t | r)
+
+# Rule 2: A guest may only wear green socks and a green shirt if he wears a green tie or a green hat.
+# (s &amp; r) -&gt; (t | h)  ===  (~(s &amp; r) | t | h)
+rule2 = (~(s &amp; r) | t | h)
+
+# Rule 3: A guest wearing a green shirt or a green hat or who does not wear green socks must wear a green tie.
+# (r | h | ~s) -&gt; t  ===  (~(r | h | ~s) | t)
+rule3 = (~(r | h | ~s) | t)
+
+# Entrance fee (n) must be true iff the guest is NOT dressed according to rules 1-3.
+all_rules_hold = rule1 &amp; rule2 &amp; rule3
+model += (n == ~all_rules_hold)
+
+# Costs:
+# tie $10, hat $2, shirt $0 (he already owns it), socks $12, entrance fee $11
+total_cost = cp.sum([10 * t, 2 * h, 0 * r, 12 * s, 11 * n])
+
+# Objective: minimize total cost
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;t&#x27;: int(t.value()),
+        &#x27;h&#x27;: int(h.value()),
+        &#x27;r&#x27;: int(r.value()),
+        &#x27;s&#x27;: int(s.value()),
+        &#x27;n&#x27;: int(n.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (45 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables (0/1)
+t = cp.boolvar(name=&quot;t&quot;)  # tie
+h = cp.boolvar(name=&quot;h&quot;)  # hat
+r = cp.boolvar(name=&quot;r&quot;)  # shirt
+s = cp.boolvar(name=&quot;s&quot;)  # socks
+n = cp.boolvar(name=&quot;n&quot;)  # entrance fee
+
+# Violation indicators for rules 1-3
+v1 = cp.boolvar(name=&quot;v1&quot;)  # violation of rule 1: t -&gt; r
+v2 = cp.boolvar(name=&quot;v2&quot;)  # violation of rule 2: (s &amp; r) -&gt; (t | h)
+v3 = cp.boolvar(name=&quot;v3&quot;)  # violation of rule 3: (r | h | ~s) -&gt; t
+
+# Constraints:
+# Define violations
+model += (v1 == (t &amp; ~r))
+model += (v2 == (s &amp; r &amp; ~(t | h)))
+model += (v3 == ((r | h | ~s) &amp; ~t))
+
+# Entrance fee iff any rule is violated
+model += (n == (v1 | v2 | v3))
+
+# Objective: minimize total cost
+# Costs: tie $10, hat $2, shirt $0 (owned), socks $12, entrance fee $11
+total_cost = 10*t + 2*h + 12*s + 11*n
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;t&#x27;: int(t.value()),
+        &#x27;h&#x27;: int(h.value()),
+        &#x27;r&#x27;: int(r.value()),
+        &#x27;s&#x27;: int(s.value()),
+        &#x27;n&#x27;: int(n.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (52 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Decision variables: tie (t), hat (h), shirt (r), socks (s), entrance fee (n)
+t = cp.boolvar(name=&quot;t&quot;)
+h = cp.boolvar(name=&quot;h&quot;)
+r = cp.boolvar(name=&quot;r&quot;)
+s = cp.boolvar(name=&quot;s&quot;)
+n = cp.boolvar(name=&quot;n&quot;)
+
+# Model definition
+model = cp.Model()
+
+# Mr Greenguest owns a green shirt
+model += (r == 1)
+
+# Rules encoded as logical constraints (we will relate them to the entrance fee variable)
+# Rule 1: If someone wears a green tie he has to wear a green shirt.  t -&gt; r  ===  (~t | r)
+rule1 = (~t | r)
+
+# Rule 2: A guest may only wear green socks and a green shirt if he wears a green tie or a green hat.
+# (s &amp; r) -&gt; (t | h)  ===  (~(s &amp; r) | t | h)
+rule2 = (~(s &amp; r) | t | h)
+
+# Rule 3: A guest wearing a green shirt or a green hat or who does not wear green socks must wear a green tie.
+# (r | h | ~s) -&gt; t  ===  (~(r | h | ~s) | t)
+rule3 = (~(r | h | ~s) | t)
+
+# Entrance fee (n) must be true iff the guest is NOT dressed according to rules 1-3.
+all_rules_hold = rule1 &amp; rule2 &amp; rule3
+model += (n == ~all_rules_hold)
+
+# Costs:
+# tie $10, hat $2, shirt $0 (he already owns it), socks $12, entrance fee $11
+total_cost = cp.sum([10 * t, 2 * h, 0 * r, 12 * s, 11 * n])
+
+# Objective: minimize total cost
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;t&#x27;: int(t.value()),
+        &#x27;h&#x27;: int(h.value()),
+        &#x27;r&#x27;: int(r.value()),
+        &#x27;s&#x27;: int(s.value()),
+        &#x27;n&#x27;: int(n.value())
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">h</span><span class="chip">n</span><span class="chip">r</span><span class="chip">s</span><span class="chip">t</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-93">Copy</button></div><pre class="code-block"><code id="solution-93" class="language-json">{
   &quot;t&quot;: true,
   &quot;h&quot;: false,
   &quot;r&quot;: true,
   &quot;s&quot;: false,
   &quot;n&quot;: false
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -84,9 +344,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/fancy_dress/fancy_dress.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/fancy_dress/fancy_dress.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="facility_location.html">â† prev</a><a class="btn" href="fibonacci_even.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="facility_location.html">← prev</a><a class="btn" href="fibonacci_even.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

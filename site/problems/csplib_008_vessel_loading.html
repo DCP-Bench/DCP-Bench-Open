@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_008_vessel_loading Â· DCP-Bench Open</title>
-<meta name="description" content="Supply vessels transport containers from site to site. The deck area is rectangular. Containers are cuboid, and are laid out in a single layer. All containersâ€¦">
+<title>csplib_008_vessel_loading · DCP-Bench Open</title>
+<meta name="description" content="Supply vessels transport containers from site to site. The deck area is rectangular. Containers are cuboid, and are laid out in a single layer. All containers…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob008_vessel_loading.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob008_vessel_loading.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob008/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob008/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (2)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (18)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (2)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-47">Copy</button></div><pre class="code-block"><code id="model-47" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -86,7 +87,2965 @@ separation = [  # Separation constraints between classes
     [0, 0]
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (13)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (2)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (3)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">anonymous_submission</div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (71 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Parameters
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers
+separation = [  # Separation constraints between classes
+    [0, 0],
+    [0, 0]
+]
+
+# Decision Variables
+left = intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+right = intvar(0, deck_width, shape=n_containers, name=&quot;right&quot;)
+bottom = intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+top = intvar(0, deck_length, shape=n_containers, name=&quot;top&quot;)
+
+# Model
+model = Model()
+
+# Container dimensions
+for i in range(n_containers):
+    model += right[i] == left[i] + width[i]
+    model += top[i] == bottom[i] + length[i]
+
+# Containers must be within deck boundaries
+for i in range(n_containers):
+    model += right[i] &lt;= deck_width
+    model += top[i] &lt;= deck_length
+
+# No overlapping containers
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        model += (right[i] &lt;= left[j]) | (right[j] &lt;= left[i]) | (top[i] &lt;= bottom[j]) | (top[j] &lt;= bottom[i])
+
+# First container must be in southeast corner
+model += left[0] == 0
+model += bottom[0] == deck_length - length[0]
+
+# Loading sequence constraints (each subsequent container must touch north and west)
+for i in range(1, n_containers):
+    # Must touch west (either left edge of deck or right edge of another container)
+    west_touch = [left[i] == 0]  # Touches west wall
+    for j in range(i):
+        west_touch.append(left[i] &lt;= right[j])  # Touches or overlaps with another container&#x27;s right
+        west_touch.append(right[j] &lt;= left[i])  # Exact touching condition
+    model += any(west_touch)
+    
+    # Must touch north (either top edge of deck or bottom edge of another container)
+    north_touch = [top[i] == deck_length]  # Touches north wall
+    for j in range(i):
+        north_touch.append(bottom[i] &lt;= top[j])  # Touches or overlaps with another container&#x27;s top
+        north_touch.append(top[j] &lt;= bottom[i])  # Exact touching condition
+    model += any(north_touch)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;right&quot;: right.value().tolist(),
+    &quot;top&quot;: top.value().tolist(),
+    &quot;left&quot;: left.value().tolist(),
+    &quot;bottom&quot;: bottom.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;right&quot;: [
+    5,
+    5,
+    3
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ],
+  &quot;left&quot;: [
+    0,
+    3,
+    0
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">atest</div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python"># Import libraries
+from cpmpy import *
+import json
+
+# Input data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers
+separation = [  # Separation constraints between classes
+    [0, 0],
+    [0, 0]
+]
+
+# Decision variables
+# For each container, define its left, right, top, and bottom coordinates
+left = intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+right = intvar(0, deck_width + 1, shape=n_containers, name=&quot;right&quot;)
+bottom = intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+top = intvar(0, deck_length + 1, shape=n_containers, name=&quot;top&quot;)
+
+# Model
+model = Model()
+
+# Ensure that for each container, right = left + width and top = bottom + length
+for i in range(n_containers):
+    model += [right[i] == left[i] + width[i]]
+    model += [top[i] == bottom[i] + length[i]]
+
+# Ensure that containers do not overlap
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        # No overlap in x-axis
+        model += [(right[i] &lt;= left[j]) | (right[j] &lt;= left[i])]
+        # No overlap in y-axis
+        model += [(top[i] &lt;= bottom[j]) | (top[j] &lt;= bottom[i])]
+
+# Ensure that containers are within the deck boundaries
+for i in range(n_containers):
+    model += [left[i] &gt;= 0]
+    model += [right[i] &lt;= deck_width]
+    model += [bottom[i] &gt;= 0]
+    model += [top[i] &lt;= deck_length]
+
+# Solve the model
+model.solve()
+
+# Output the solution
+solution = {
+    &quot;right&quot;: right.value().tolist(),
+    &quot;top&quot;: top.value().tolist(),
+    &quot;left&quot;: left.value().tolist(),
+    &quot;bottom&quot;: bottom.value().tolist()
+}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;right&quot;: [
+    null,
+    null,
+    null
+  ],
+  &quot;top&quot;: [
+    null,
+    null,
+    null
+  ],
+  &quot;left&quot;: [
+    null,
+    null,
+    null
+  ],
+  &quot;bottom&quot;: [
+    null,
+    null,
+    null
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">cpagent</div>
+          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (128 lines)</summary><pre class="code-block"><code id="None" class="language-python">import cpmpy as cp
+import numpy as np
+import json
+
+# Step 1: Deconstruct &amp; Pre-compute
+# Problem: Vessel Loading - pack containers on deck without overlapping
+# Constraints:
+# - Containers must fit within deck boundaries
+# - No overlapping containers
+# - Separation constraints between classes (all same class here, so no separation needed)
+
+# Input data
+deck_width = 5  # Width of the deck 
+deck_length = 5  # Length of the deck 
+n_containers = 3  # Number of containers 
+width = [5, 2, 3]  # Widths of containers 
+length = [1, 4, 4]  # Lengths of containers 
+classes = [1, 1, 1]  # Classes of containers 
+separation = [  # Separation constraints between classes
+    [0, 0],
+    [0, 0] 
+]
+
+# Step 2: Model with CPMpy
+model = cp.Model()
+
+# Decision variables: position of each container
+# left[i] = left edge x-coordinate of container i
+# bottom[i] = bottom edge y-coordinate of container i
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+
+# Derived variables for convenience
+right = [left[i] + width[i] for i in range(n_containers)]
+top = [bottom[i] + length[i] for i in range(n_containers)]
+
+# Constraints:
+# 1. Containers must fit within deck boundaries
+for i in range(n_containers):
+    model += right[i] &lt;= deck_width
+    model += top[i] &lt;= deck_length
+
+# 2. No overlapping containers
+# Two rectangles don&#x27;t overlap if one is completely to the left, right, above, or below the other
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        # Container i is to the left of j OR j is to the left of i OR
+        # Container i is below j OR j is below i
+        model += (right[i] &lt;= left[j]) | (right[j] &lt;= left[i]) | \
+                 (top[i] &lt;= bottom[j]) | (top[j] &lt;= bottom[i])
+
+# 3. Separation constraints
+# Since all containers are class 1 and separation[0][0] = 0, no additional separation needed
+
+# 4. Symmetry breaking (performance improvement)
+# Fix container 0 to be leftmost to break symmetry
+model += left[0] &lt;= left[1]
+model += left[0] &lt;= left[2]
+
+# Step 3: Solve &amp; Verify
+if model.solve():
+    # Extract solution values
+    left_vals = left.value()
+    bottom_vals = bottom.value()
+    right_vals = [left_vals[i] + width[i] for i in range(n_containers)]
+    top_vals = [bottom_vals[i] + length[i] for i in range(n_containers)]
+    
+    # Create solution in required format
+    solution = {
+        &quot;left&quot;: [int(x) for x in left_vals],
+        &quot;right&quot;: [int(x) for x in right_vals],
+        &quot;top&quot;: [int(x) for x in top_vals],
+        &quot;bottom&quot;: [int(x) for x in bottom_vals]
+    }
+    
+    # Verification
+    def verify_solution(sol):
+        &quot;&quot;&quot;Independent verification of the solution&quot;&quot;&quot;
+        
+        # 1. Structural Verification
+        if len(sol[&quot;left&quot;]) != n_containers:
+            return False, f&quot;Wrong number of left positions&quot;
+        if len(sol[&quot;right&quot;]) != n_containers:
+            return False, f&quot;Wrong number of right positions&quot;
+        if len(sol[&quot;top&quot;]) != n_containers:
+            return False, f&quot;Wrong number of top positions&quot;
+        if len(sol[&quot;bottom&quot;]) != n_containers:
+            return False, f&quot;Wrong number of bottom positions&quot;
+        
+        # 2. Logical Verification
+        left_pos = sol[&quot;left&quot;]
+        right_pos = sol[&quot;right&quot;]
+        top_pos = sol[&quot;top&quot;]
+        bottom_pos = sol[&quot;bottom&quot;]
+        
+        # Check container dimensions are correct
+        for i in range(n_containers):
+            if right_pos[i] - left_pos[i] != width[i]:
+                return False, f&quot;Container {i} width mismatch&quot;
+            if top_pos[i] - bottom_pos[i] != length[i]:
+                return False, f&quot;Container {i} length mismatch&quot;
+        
+        # Check containers fit within deck
+        for i in range(n_containers):
+            if left_pos[i] &lt; 0 or right_pos[i] &gt; deck_width:
+                return False, f&quot;Container {i} exceeds deck width&quot;
+            if bottom_pos[i] &lt; 0 or top_pos[i] &gt; deck_length:
+                return False, f&quot;Container {i} exceeds deck length&quot;
+        
+        # Check no overlapping
+        for i in range(n_containers):
+            for j in range(i+1, n_containers):
+                # Check if rectangles overlap
+                x_overlap = not (right_pos[i] &lt;= left_pos[j] or right_pos[j] &lt;= left_pos[i])
+                y_overlap = not (top_pos[i] &lt;= bottom_pos[j] or top_pos[j] &lt;= bottom_pos[i])
+                
+                if x_overlap and y_overlap:
+                    return False, f&quot;Containers {i} and {j} overlap&quot;
+        
+        return True, &quot;All constraints satisfied&quot;
+    
+    # Verify the solution
+    valid, msg = verify_solution(solution)
+    assert valid, f&quot;Verification failed: {msg}&quot;
+    
+    # Step 4: Output
+    print(json.dumps(solution))
+else:
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    3,
+    0
+  ],
+  &quot;right&quot;: [
+    5,
+    5,
+    3
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_1</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (129 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers
+separation = [  # Separation constraints between classes
+    [0, 0],
+    [0, 0]
+]
+# End of data
+
+model = cp.Model()
+
+# Decision variables: positions of containers on the deck
+# left[i], bottom[i] are coordinates of the bottom-left corner of container i
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+
+# right[i], top[i] can be derived from left[i], bottom[i] and container dimensions
+right = [left[i] + width[i] for i in range(n_containers)]
+top = [bottom[i] + length[i] for i in range(n_containers)]
+
+# Constraints list
+constraints = []
+
+# 1) Containers must be inside the deck boundaries
+for i in range(n_containers):
+    constraints += [right[i] &lt;= deck_width]
+    constraints += [top[i] &lt;= deck_length]
+
+# 2) No overlapping between containers
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        # Containers i and j do not overlap if one is completely to the left, right, above or below the other
+        no_overlap = (
+            (right[i] &lt;= left[j]) |
+            (right[j] &lt;= left[i]) |
+            (top[i] &lt;= bottom[j]) |
+            (top[j] &lt;= bottom[i])
+        )
+        constraints += [no_overlap]
+
+# 3) Separation constraints between classes
+# Since separation matrix is 2x2 but classes are 1-based and only class 1 is used,
+# and separation is zero, no constraints needed here.
+# But we implement general form for completeness.
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        c1 = classes[i] - 1
+        c2 = classes[j] - 1
+        sep = separation[c1][c2]
+        if sep &gt; 0:
+            # Enforce minimum separation horizontally or vertically
+            # This means containers must be at least sep apart horizontally or vertically
+            constraints += [
+                (right[i] + sep &lt;= left[j]) |
+                (right[j] + sep &lt;= left[i]) |
+                (top[i] + sep &lt;= bottom[j]) |
+                (top[j] + sep &lt;= bottom[i])
+            ]
+
+# 4) Loading sequence constraints:
+# Each successive container must touch part of another container or a deck wall both to the north and to the west.
+# &quot;North&quot; means touching something above (top side), &quot;west&quot; means touching something to the left side.
+# The first container is positioned from the southeast corner, so it must touch deck walls on north and west.
+# But since deck walls are at left=0 (west wall) and bottom=0 (south wall), and containers are placed from bottom-left,
+# the first container must touch deck walls to north and west means:
+# Actually, the problem states &quot;Each successive container in the loading sequence must be positioned so that it touches part of another container or a deck wall both to the north and to the west.&quot;
+# So for container 0 (first), it must touch deck walls north and west.
+# For others, must touch either deck wall or another container on north and west sides.
+
+# Define helper functions to check touching on north and west sides
+def touches_north(i):
+    # Container i touches deck wall north if top[i] == deck_length
+    # Or touches another container j if bottom[j] == top[i] and horizontal intervals overlap
+    touch_deck = (top[i] == deck_length)
+    touch_container = []
+    for j in range(n_containers):
+        if j == i:
+            continue
+        # Check if bottom[j] == top[i] and horizontal overlap
+        horizontal_overlap = (left[i] &lt; right[j]) &amp; (right[i] &gt; left[j])
+        touch_container.append((bottom[j] == top[i]) &amp; horizontal_overlap)
+    if touch_container:
+        return touch_deck | cp.any(touch_container)
+    else:
+        return touch_deck
+
+def touches_west(i):
+    # Container i touches deck wall west if left[i] == 0
+    # Or touches another container j if right[j] == left[i] and vertical intervals overlap
+    touch_deck = (left[i] == 0)
+    touch_container = []
+    for j in range(n_containers):
+        if j == i:
+            continue
+        # Check if right[j] == left[i] and vertical overlap
+        vertical_overlap = (bottom[i] &lt; top[j]) &amp; (top[i] &gt; bottom[j])
+        touch_container.append((right[j] == left[i]) &amp; vertical_overlap)
+    if touch_container:
+        return touch_deck | cp.any(touch_container)
+    else:
+        return touch_deck
+
+# Add loading sequence constraints for containers 1..n-1
+for i in range(n_containers):
+    model += touches_north(i)
+    model += touches_west(i)
+
+# Add all constraints to model
+model += constraints
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;left&#x27;: left.value().tolist(),
+        &#x27;right&#x27;: [int(r.value()) for r in right],
+        &#x27;top&#x27;: [int(t.value()) for t in top],
+        &#x27;bottom&#x27;: bottom.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    3,
+    0
+  ],
+  &quot;right&quot;: [
+    5,
+    5,
+    3
+  ],
+  &quot;top&quot;: [
+    1,
+    5,
+    5
+  ],
+  &quot;bottom&quot;: [
+    0,
+    1,
+    1
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_1/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_1/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (71 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers (1-based)
+separation = [  # Separation constraints between classes (separation[a][b] is min separation for class a+1 vs b+1)
+    [0, 0],
+    [0, 0]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# We&#x27;ll allow left/top to range over whole deck and enforce right/bottom and bounds via constraints
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+top = cp.intvar(0, deck_length, shape=n_containers, name=&quot;top&quot;)
+right = cp.intvar(0, deck_width, shape=n_containers, name=&quot;right&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+
+# Constraints
+for i in range(n_containers):
+    # size constraints: right = left + width[i], bottom = top + length[i]
+    model += (right[i] == left[i] + width[i])
+    model += (bottom[i] == top[i] + length[i])
+    # must fit on deck
+    model += (right[i] &lt;= deck_width)
+    model += (bottom[i] &lt;= deck_length)
+
+# Non-overlap and separation constraints:
+# For each pair i&lt;j enforce that they are separated by at least separation[ci][cj] in either x or y direction
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        ci = classes[i] - 1  # convert to 0-based index for separation lookup
+        cj = classes[j] - 1
+        # separation required for this pair (as given). Interpretation: must be separated by at least s
+        # along either x (width) or y (length) direction.
+        s = int(separation[ci][cj])
+
+        # Four possible disjuncts (i to left of j, j to left of i, i above j, j above i) with separation s
+        b1 = cp.boolvar()  # right[i] + s &lt;= left[j]
+        b2 = cp.boolvar()  # right[j] + s &lt;= left[i]
+        b3 = cp.boolvar()  # bottom[i] + s &lt;= top[j]
+        b4 = cp.boolvar()  # bottom[j] + s &lt;= top[i]
+
+        model += b1.implies(right[i] + s &lt;= left[j])
+        model += b2.implies(right[j] + s &lt;= left[i])
+        model += b3.implies(bottom[i] + s &lt;= top[j])
+        model += b4.implies(bottom[j] + s &lt;= top[i])
+
+        # at least one separation direction must hold
+        model += (cp.sum([b1, b2, b3, b4]) &gt;= 1)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;left&#x27;: left.value().tolist(),
+        &#x27;right&#x27;: right.value().tolist(),
+        &#x27;top&#x27;: top.value().tolist(),
+        &#x27;bottom&#x27;: bottom.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    3,
+    0
+  ],
+  &quot;right&quot;: [
+    5,
+    5,
+    3
+  ],
+  &quot;top&quot;: [
+    4,
+    0,
+    0
+  ],
+  &quot;bottom&quot;: [
+    5,
+    4,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_cpmpy</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (86 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers
+separation = [  # Separation constraints between classes
+    [0, 0],
+    [0, 0]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+right = cp.intvar(0, deck_width, shape=n_containers, name=&quot;right&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+top = cp.intvar(0, deck_length, shape=n_containers, name=&quot;top&quot;)
+
+# Size constraints: link left/right and bottom/top with widths and lengths
+for i in range(n_containers):
+    model += [
+        left[i] + width[i] == right[i],
+        bottom[i] + length[i] == top[i]
+    ]
+
+# Separation (and non-overlap) constraints between all pairs
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        ci = classes[i] - 1
+        cj = classes[j] - 1
+        sep = separation[ci][cj]
+        # Enforce separation along x or y
+        model += (
+            (right[i] + sep &lt;= left[j]) |
+            (right[j] + sep &lt;= left[i]) |
+            (top[i] + sep &lt;= bottom[j]) |
+            (top[j] + sep &lt;= bottom[i])
+        )
+
+# Loading sequence constraints
+# Container 0 must touch west wall (left=0) and north wall (top=deck_length)
+model += [left[0] == 0, top[0] == deck_length]
+
+# For each subsequent container j, enforce a contact to the north and to the west
+for j in range(1, n_containers):
+    # North contact: either touch deck north wall or touch bottom of some earlier container
+    north_terms = [top[j] == deck_length]
+    for k in range(j):
+        # top[j] == bottom[k] AND x-intervals overlap
+        north_terms.append(
+            (top[j] == bottom[k]) &amp;
+            (left[j] &lt; right[k]) &amp;
+            (left[k] &lt; right[j])
+        )
+    model += cp.any(north_terms)
+
+    # West contact: either touch west wall or touch right side of some earlier container
+    west_terms = [left[j] == 0]
+    for k in range(j):
+        # left[j] == right[k] AND y-intervals overlap
+        west_terms.append(
+            (left[j] == right[k]) &amp;
+            (bottom[j] &lt; top[k]) &amp;
+            (bottom[k] &lt; top[j])
+        )
+    model += cp.any(west_terms)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &quot;left&quot;: left.value().tolist(),
+        &quot;right&quot;: right.value().tolist(),
+        &quot;top&quot;: top.value().tolist(),
+        &quot;bottom&quot;: bottom.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_cpmpy/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_cpmpy/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">ml_research_loop_p18</div>
+          <div class="muted">base LLM: Codex-assisted deterministic CPMPy solver expansion · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (7 lines)</summary><pre class="code-block"><code id="None" class="language-python">import json
+solution = {
+    &#x27;left&#x27;: [0, 0, 2],
+    &#x27;right&#x27;: [5, 2, 5],
+    &#x27;bottom&#x27;: [0, 1, 1],
+    &#x27;top&#x27;: [1, 5, 5],
+}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;bottom&quot;: [
+    0,
+    1,
+    1
+  ],
+  &quot;top&quot;: [
+    1,
+    5,
+    5
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/ml_research_loop_p18/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/ml_research_loop_p18/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (81 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers
+separation = [  # Separation constraints between classes (0-based indexing for classes)
+    [0, 0],
+    [0, 0]
+]
+# End of data
+
+model = cp.Model()
+
+# Decision variables for container positions on the deck:
+# left and bottom coordinates of each container (top and right can be derived)
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+
+# Derived variables
+right = [left[i] + width[i] for i in range(n_containers)]
+top = [bottom[i] + length[i] for i in range(n_containers)]
+
+# Constraints
+# 1. Containers must be fully on the deck
+for i in range(n_containers):
+    model += (right[i] &lt;= deck_width)
+    model += (top[i] &lt;= deck_length)
+
+# 2. No overlapping of containers
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        # Non-overlapping means one container is left, right, above or below the other
+        model += (
+            (right[i] &lt;= left[j]) | (right[j] &lt;= left[i]) |
+            (top[i] &lt;= bottom[j]) | (top[j] &lt;= bottom[i])
+        )
+
+# 3. Separation constraints between classes (here all zero, but let&#x27;s still implement for completeness)
+# For each pair of containers i,j with classes c_i, c_j, if c_i != c_j then enforce min separation in width or length
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        ci = classes[i] - 1
+        cj = classes[j] - 1
+        sep = separation[ci][cj]
+        if sep &gt; 0:
+            # The minimum horizontal or vertical gap between containers of these classes must be &gt;= sep
+            # This means containers must be separated by at least sep in either horizontal or vertical dimension
+            model += (
+                (right[i] + sep &lt;= left[j]) | (right[j] + sep &lt;= left[i]) |
+                (top[i] + sep &lt;= bottom[j]) | (top[j] + sep &lt;= bottom[i])
+            )
+
+# 4. Physical loading sequence constraints:
+# Each successive container must touch another container or a wall to the north and west.
+# That means for containers 1..n-1 (index 1..n-1), left[i] touches either left wall (x=0) or right[j] of some container j,
+# and bottom[i] touches either bottom wall (y=0) or top[j] of some container j.
+for i in range(1, n_containers):
+    # Touch to west (left side): either left[i] == 0 or exists j &lt; i: right[j] == left[i]
+    west_touch = (left[i] == 0) | cp.any([right[j] == left[i] for j in range(i)])
+    # Touch to north (bottom side): either bottom[i] == 0 or exists j &lt; i: top[j] == bottom[i]
+    north_touch = (bottom[i] == 0) | cp.any([top[j] == bottom[i] for j in range(i)])
+    model += west_touch
+    model += north_touch
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;left&#x27;: left.value().tolist(),
+        &#x27;right&#x27;: [int(r.value()) for r in right],
+        &#x27;top&#x27;: [int(t.value()) for t in top],
+        &#x27;bottom&#x27;: bottom.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (71 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers (1-based)
+separation = [  # Separation constraints between classes (separation[a][b] is min separation for class a+1 vs b+1)
+    [0, 0],
+    [0, 0]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# We&#x27;ll allow left/top to range over whole deck and enforce right/bottom and bounds via constraints
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+top = cp.intvar(0, deck_length, shape=n_containers, name=&quot;top&quot;)
+right = cp.intvar(0, deck_width, shape=n_containers, name=&quot;right&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+
+# Constraints
+for i in range(n_containers):
+    # size constraints: right = left + width[i], bottom = top + length[i]
+    model += (right[i] == left[i] + width[i])
+    model += (bottom[i] == top[i] + length[i])
+    # must fit on deck
+    model += (right[i] &lt;= deck_width)
+    model += (bottom[i] &lt;= deck_length)
+
+# Non-overlap and separation constraints:
+# For each pair i&lt;j enforce that they are separated by at least separation[ci][cj] in either x or y direction
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        ci = classes[i] - 1  # convert to 0-based index for separation lookup
+        cj = classes[j] - 1
+        # separation required for this pair (as given). Interpretation: must be separated by at least s
+        # along either x (width) or y (length) direction.
+        s = int(separation[ci][cj])
+
+        # Four possible disjuncts (i to left of j, j to left of i, i above j, j above i) with separation s
+        b1 = cp.boolvar()  # right[i] + s &lt;= left[j]
+        b2 = cp.boolvar()  # right[j] + s &lt;= left[i]
+        b3 = cp.boolvar()  # bottom[i] + s &lt;= top[j]
+        b4 = cp.boolvar()  # bottom[j] + s &lt;= top[i]
+
+        model += b1.implies(right[i] + s &lt;= left[j])
+        model += b2.implies(right[j] + s &lt;= left[i])
+        model += b3.implies(bottom[i] + s &lt;= top[j])
+        model += b4.implies(bottom[j] + s &lt;= top[i])
+
+        # at least one separation direction must hold
+        model += (cp.sum([b1, b2, b3, b4]) &gt;= 1)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;left&#x27;: left.value().tolist(),
+        &#x27;right&#x27;: right.value().tolist(),
+        &#x27;top&#x27;: top.value().tolist(),
+        &#x27;bottom&#x27;: bottom.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    3,
+    0
+  ],
+  &quot;right&quot;: [
+    5,
+    5,
+    3
+  ],
+  &quot;top&quot;: [
+    4,
+    0,
+    0
+  ],
+  &quot;bottom&quot;: [
+    5,
+    4,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">File &quot;/app/temp_dir_for_exec_code/tmp55akbpel.__hidden_py__&quot;, line 4</p>
+      <details class="gmodel"><summary>model.py (888 lines)</summary><pre class="code-block"><code id="None" class="language-python">&lt;think&gt;
+Okay, I need to model this vessel loading problem using CPMpy. Let&#x27;s start by understanding the problem. The goal is to place three containers on a 5x5 deck without overlapping and respecting separation constraints. Also, the loading sequence requires each container after the first to touch a previous container or the deck&#x27;s wall both to the north and west. 
+
+First, the input data: deck is 5x5. There are three containers with widths [5,2,3] and lengths [1,4,4]. All are class 1, so the separation constraints between classes might not apply here since the separation matrix for class 1 and 1 is [0,0]. Wait, the separation matrix is given as [[0,0],[0,0]], which probably means between classes 1 and 1, the required separation is 0 in both directions. So maybe no separation constraints here. But I should note that in case the problem changes, but for now, maybe that&#x27;s not an issue.
+
+The main constraints are the non-overlapping, fitting within the deck, and the loading sequence constraints.
+
+Let me think about the variables. Each container has a position. Let&#x27;s represent each container by its left, right, top, bottom coordinates. Wait, the problem says to print (left, right, top, bottom) for each container. So for each container, we need variables for left (west side), right (east side), bottom (south side), and top (north side). The deck&#x27;s coordinates probably have (0,0) at the southwest corner, so the deck spans from (0,0) to (5,5) in width and length. Wait, deck_width is 5, so the maximum x-coordinate (east) is 5. Similarly, deck_length is 5, so the maximum y-coordinate (north) is 5.
+
+Each container&#x27;s left must be between 0 and deck_width - container&#x27;s width. Wait, actually, the left is the x-coordinate of the west side, and right is left + width. Similarly, bottom is the y-coordinate of the south side, and top is bottom + length. So for each container i:
+
+left_i + width[i] &lt;= deck_width
+
+bottom_i + length[i] &lt;= deck_length
+
+Also, all containers must be placed such that their right &lt;= deck_width and top &lt;= deck_length.
+
+Now, non-overlapping: For any two containers i and j (i &lt; j?), their positions must not overlap. So for each pair, either:
+
+- The right of i is &lt;= left of j (along the x-axis), or the left of i &gt;= right of j,
+
+AND
+
+- The top of i is &lt;= bottom of j (along the y-axis), or the bottom of i &gt;= top of j.
+
+Alternatively, the containers must not overlap in both x and y directions. So for all i &lt; j:
+
+(cp.sum([ (right_i &lt;= left_j) | (left_i &gt;= right_j), (top_i &lt;= bottom_j) | (bottom_i &gt;= top_i) ])) &gt;= 1 ?
+
+Wait, actually, the correct way is that for two rectangles to not overlap, they must not overlap in both x and y. So the negation of overlapping is that either they don&#x27;t overlap in x or don&#x27;t overlap in y. So the non-overlap condition is:
+
+( (right_i &lt;= left_j) | (left_i &gt;= right_j) ) | ( (top_i &lt;= bottom_j) | (bottom_i &gt;= top_j) )
+
+Wait, no. Wait, two rectangles overlap if they overlap in both x and y. So the non-overlap is the negation of that. So:
+
+¬ ( (left_i &lt; right_j) &amp; (left_j &lt; right_i) &amp; (bottom_i &lt; top_j) &amp; (bottom_j &lt; top_i) )
+
+Which can be written as:
+
+( right_i &lt;= left_j ) | ( right_j &lt;= left_i ) | ( top_i &lt;= bottom_j ) | ( top_j &lt;= bottom_i )
+
+So that&#x27;s the non-overlap condition between any two containers.
+
+Now, the loading sequence constraints. Each container after the first must touch a previous container or the deck wall both to the north and west. Wait, the problem says: &quot;each successive container in the loading sequence must be positioned so that it touches part of another container or a deck wall both to the north and to the west.&quot;
+
+Hmm, the loading sequence is the order in which containers are placed. The first container can be placed anywhere, but each subsequent container must touch either a previous container or the deck&#x27;s wall both to the north and west. Wait, the wording is a bit confusing. Let me parse it again.
+
+&quot;Each successive container in the loading sequence must be positioned so that it touches part of another container or a deck wall both to the north and to the west.&quot;
+
+So for container j (after the first), when placed, it must touch either a previous container or the deck&#x27;s wall in the north direction and also in the west direction. Wait, &quot;both to the north and to the west&quot;. So the container must touch something (either a container or the wall) in the north direction and also in the west direction. 
+
+Wait, perhaps the container must be placed such that its north side is adjacent to either the deck&#x27;s north wall or another container&#x27;s south side, and its west side is adjacent to the deck&#x27;s west wall or another container&#x27;s east side. Or maybe the other way around? Let me think.
+
+Alternatively, the container must be placed such that it is touching either a previous container or the deck wall in both the north and west directions. So for the north direction, the container&#x27;s top (north side) must be adjacent to either the deck&#x27;s top (north wall at y=5) or another container&#x27;s bottom (south side). Similarly, the west side (left) must be adjacent to the deck&#x27;s west wall (x=0) or another container&#x27;s right (east side).
+
+Wait, perhaps the container must be placed such that it is adjacent to something (either a container or the wall) in both the north and west directions. So for the north direction, the container&#x27;s top must be equal to either the deck&#x27;s length (5) or the bottom of some other container. Similarly, the left must be 0 or the right of some other container.
+
+Alternatively, the container must be placed such that it is adjacent to at least one container or the wall in the north direction and also in the west direction. So for each container after the first, there exists some container before it (in the loading order) such that either:
+
+- The container&#x27;s left is 0 (west wall) or its left is equal to the right of some previous container (so it&#x27;s adjacent to the east side of that container).
+
+AND
+
+- The container&#x27;s bottom is 0 (south wall) or its bottom is equal to the top of some previous container (so it&#x27;s adjacent to the south side of that container).
+
+Wait, but the problem says &quot;touch part of another container or a deck wall both to the north and to the west&quot;. Hmm, perhaps the container must touch a previous container or the wall in the north direction and also in the west direction. So for the north direction, the container&#x27;s north side (top) must be adjacent to either the deck&#x27;s north wall (so top = deck_length) or the south side (bottom) of another container. Similarly, the west side (left) must be adjacent to the deck&#x27;s west wall (left=0) or the east side (right) of another container.
+
+Alternatively, the container must be placed such that it is adjacent to the north wall or a previous container in the north direction, and also adjacent to the west wall or a previous container in the west direction. 
+
+This is a bit ambiguous, but I think the key is that for each container after the first, there must be at least one container before it (in the loading order) such that either:
+
+- The current container&#x27;s left is equal to the right of some previous container (so they are adjacent on the west side), or the left is 0 (west wall).
+
+AND
+
+- The current container&#x27;s bottom is equal to the top of some previous container (so they are adjacent on the south side), or the bottom is 0 (south wall).
+
+Wait, but the problem says &quot;touch part of another container or a deck wall both to the north and to the west&quot;. The wording is a bit confusing. Let me re-read the problem statement:
+
+&quot;Each successive container in the loading sequence must be positioned so that it touches part of another container or a deck wall both to the north and to the west.&quot;
+
+Ah, &quot;both to the north and to the west&quot;. So the container must touch something (container or wall) in the north direction and also in the west direction. So for the north direction, the container&#x27;s north side (top) must be adjacent to either the deck&#x27;s north wall (so top = deck_length) or the south side (bottom) of another container. Similarly, the west side (left) must be adjacent to the deck&#x27;s west wall (left=0) or the east side (right) of another container.
+
+Wait, but the north direction is towards the top of the deck. So the container&#x27;s top must be touching either the deck&#x27;s top (so top = deck_length) or another container&#x27;s bottom. Similarly, the west side (left) must be touching the deck&#x27;s west wall (left=0) or another container&#x27;s right.
+
+Alternatively, the container must be placed such that it is adjacent to the north wall or a previous container in the north direction, and also adjacent to the west wall or a previous container in the west direction. 
+
+So for each container j (starting from the second), there must exist some container i &lt; j such that either:
+
+- The left of j is equal to the right of i (so they are adjacent on the west side), or left_j is 0 (west wall).
+
+AND
+
+- The bottom of j is equal to the top of i (so they are adjacent on the south side), or bottom_j is 0 (south wall).
+
+Wait, but the problem says &quot;both to the north and to the west&quot;. Maybe the north and west directions are the directions from which the container is placed. So the container must be placed such that it is adjacent to the north wall or a previous container in the north direction (i.e., its top is at the deck&#x27;s top or touching a container&#x27;s bottom), and also adjacent to the west wall or a previous container in the west direction (left is 0 or touching a container&#x27;s right).
+
+Alternatively, perhaps the container must be placed such that it is adjacent to the north wall or a previous container in the north direction (so its top is at the deck&#x27;s top or touching a container&#x27;s bottom), and also adjacent to the west wall or a previous container in the west direction (left is 0 or touching a container&#x27;s right). 
+
+This is a bit ambiguous, but I&#x27;ll proceed with this interpretation.
+
+Now, how to model this in CPMpy. Since the loading sequence is the order of the containers, but the problem doesn&#x27;t specify the order. Wait, the problem says &quot;the loading sequence may be further constrained by the physical loading sequence. Containers are manoeuvred into position from the southeast corner. Each successive container in the loading sequence must be positioned so that it touches part of another container or a deck wall both to the north and to the west.&quot;
+
+Wait, the loading sequence is the order in which the containers are placed. The problem requires that the order must be such that each container after the first is placed according to the constraints. But the problem doesn&#x27;t give the order; we have to choose the order as part of the solution. So the model must find an order of the containers (permutation) such that when placed in that order, each container after the first satisfies the adjacency constraints.
+
+Ah, right! So the order of the containers is part of the decision variables. Because the problem doesn&#x27;t specify the order, we have to decide the order as part of the model. Therefore, the model must include a permutation variable indicating the order in which the containers are placed. 
+
+This complicates things because the order is part of the variables. So for each container j (starting from the second in the order), we need to ensure that in the order, the previous containers (those before j in the order) satisfy the adjacency constraints.
+
+Hmm, this is a bit tricky. Let me think of how to model this.
+
+First, we need to decide the order of the containers. Let&#x27;s denote the order as a permutation of the container indices (0,1,2). Let&#x27;s call this permutation &#x27;order&#x27;, where order[0] is the first container, order[1] the second, etc.
+
+Then, for each position k in the order (starting from 1), the container at position k must satisfy the adjacency constraints with the previous containers (those in positions 0 to k-1).
+
+So for each k from 1 to n_containers-1:
+
+container_j = order[k]
+
+We need to ensure that container_j&#x27;s left is either 0 or equal to the right of some container_i in order[0..k-1], and similarly for the bottom.
+
+Wait, but how to model this in CPMpy? Because for each container_j in the order after the first, there must exist at least one container_i before it in the order such that either:
+
+left_j == right_i OR left_j == 0,
+
+AND
+
+bottom_j == top_i OR bottom_j == 0.
+
+Wait, no, the AND is between the two conditions. Wait, the problem says &quot;touch part of another container or a deck wall both to the north and to the west&quot;. So both conditions must be met: the container must touch something in the north direction and in the west direction. So for the west direction (left), it must be touching either a container&#x27;s right or the west wall. For the north direction (top), it must be touching either a container&#x27;s bottom or the north wall.
+
+Wait, actually, the north direction is the direction towards the top of the deck. So the container&#x27;s top (north side) must be adjacent to either the deck&#x27;s north wall (so top_j = deck_length) or the bottom of some container_i (so top_j = bottom_i). Similarly, the left (west side) must be adjacent to the deck&#x27;s west wall (left_j = 0) or the right of some container_i (left_j = right_i).
+
+Therefore, for container_j (placed after the first), there must exist at least one container_i (earlier in the order) such that either:
+
+(left_j == right_i) OR (left_j == 0),
+
+AND
+
+(top_j == bottom_i) OR (top_j == deck_length).
+
+Wait, no, the &#x27;AND&#x27; is between the two conditions. The container must satisfy both the west and north adjacency conditions. So for each container_j after the first, there must exist at least one container_i (before it in the order) such that:
+
+(left_j == right_i OR left_j == 0) AND (top_j == bottom_i OR top_j == deck_length).
+
+Wait, no, the problem says &quot;touch part of another container or a deck wall both to the north and to the west&quot;. So the container must touch something in the north direction (either a container or the wall) AND in the west direction (either a container or the wall). So both conditions must be met. 
+
+Therefore, for container_j, the left must be either 0 or equal to some container_i&#x27;s right (from before it in the order), and the top must be either deck_length or equal to some container_i&#x27;s bottom (from before it in the order). 
+
+Wait, but the container can touch different containers for the west and north directions. For example, the left could be touching container A&#x27;s right, and the top could be touching container B&#x27;s bottom. So the existence of at least one container for the west and at least one for the north? Or is it that there exists a single container that provides both? 
+
+The problem says &quot;touch part of another container or a deck wall both to the north and to the west&quot;. The wording suggests that for both directions (north and west), the container must touch either a container or the wall. So the two conditions (west and north) are separate, but each must be satisfied by either a container or the wall. 
+
+Therefore, for container_j:
+
+Either left_j == 0 or there exists some container_i before it in the order where left_j == right_i,
+
+AND
+
+Either top_j == deck_length or there exists some container_i before it in the order where top_j == bottom_i.
+
+Wait, but the problem says &quot;touch part of another container or a deck wall both to the north and to the west&quot;. So the &quot;another container&quot; could be different for each direction. So the two conditions are separate. 
+
+Therefore, the constraints are:
+
+For container_j (after first):
+
+(left_j == 0) OR (exists i &lt; j in order: left_j == right_i)
+
+AND
+
+(top_j == deck_length) OR (exists i &lt; j in order: top_j == bottom_i)
+
+So, the model must enforce these two conditions for each container after the first in the order.
+
+This complicates the model because for each container_j, we have to check existence over the previous containers in the order. 
+
+Hmm, how to model existence in CPMpy? 
+
+First, the order is a permutation variable. Let&#x27;s denote the order as a list of variables, order = [order_0, order_1, order_2], where order_0 is the first container, etc. 
+
+Alternatively, perhaps it&#x27;s better to model the order as a permutation array. Let&#x27;s see.
+
+Alternatively, perhaps we can model the order as a permutation variable. Let&#x27;s think of the order as a list of indices (0,1,2) in some permutation. 
+
+But in CPMpy, permutation variables can be created with cp.permutation(). 
+
+Wait, in CPMpy, you can create a permutation variable with cp.permutation(n), which is an array of integers from 0 to n-1 in some order. 
+
+So for n_containers =3, order = cp.permutation(3). 
+
+Then, for each position k in 1,2 (since order[0] is first, order[1] is second, order[2] third), we need to enforce the constraints for container_j = order[k].
+
+So for each k in 1,2:
+
+container_j = order[k]
+
+We need to check that:
+
+(left_j == 0) OR (there exists some container_i in order[0..k-1] where left_j == right_i)
+
+AND
+
+(top_j == deck_length) OR (there exists some container_i in order[0..k-1] where top_j == bottom_i)
+
+Hmm, how to model the existence of such a container_i?
+
+The existence can be modeled by saying that the OR over all previous containers of (left_j == right_i) must be true, or left_j is 0. 
+
+Wait, for the west condition:
+
+Either left_j is 0, or there exists at least one container_i in the previous containers (those before k in the order) such that left_j == right_i.
+
+Similarly for the north condition.
+
+So for the west condition:
+
+cp.any( [ left_j == right_i for i in previous_containers ] ) OR (left_j == 0)
+
+Wait, but in CPMpy, the &#x27;any&#x27; function is part of the library. Wait, the user guidelines say to use cp.any instead of Python&#x27;s any. 
+
+Wait, the user guidelines mention: &quot;Use cp.sum, cp.all, cp.any instead of Python built-in functions.&quot;
+
+So, for the west condition:
+
+cp.any( [ left_j == right_i for i in previous_containers ] ) | (left_j == 0)
+
+Wait, but how to get the previous containers? The previous containers are those in order[0..k-1], but the order is a permutation variable. So the indices of the containers before k in the order are the elements of order[0], order[1], ..., order[k-1].
+
+Wait, but the order is a permutation variable, so for each k, the previous containers are the containers with indices in order[0..k-1].
+
+Therefore, for container_j = order[k], the previous containers are the containers with indices in order[0], order[1], ..., order[k-1].
+
+But in CPMpy, variables can&#x27;t be used in loops like this. Because the order is a variable, not a known list. 
+
+Hmm, this is a problem. Because the existence condition depends on the order, which is a variable. So we can&#x27;t loop over the previous containers in the order because the order is part of the variables. 
+
+This complicates things. 
+
+Alternative approach: For each container j (not the first in the order), we can model the existence condition by considering all possible previous containers (all other containers except j itself) and ensuring that either the west condition is met by the deck or by any of the previous containers in the order. 
+
+Wait, but how to model the order&#x27;s effect here?
+
+Alternatively, perhaps we can model for each container j (except the first in the order), the existence of at least one container i (any of the other containers) such that i is placed before j in the order, and either:
+
+left_j == right_i or left_j ==0,
+
+and similarly for the top.
+
+But this seems difficult because the order is a variable. 
+
+Hmm, perhaps we can model this by introducing auxiliary variables for the order and then for each container, track whether it is before another in the order. 
+
+Alternatively, perhaps it&#x27;s better to model the order as a permutation variable and for each container j (except the first in the permutation), enforce the constraints based on all other containers, but with the condition that at least one of them is before it in the order and satisfies the adjacency.
+
+Wait, perhaps for each container j (not the first in the permutation), we can write:
+
+left_j == 0 OR (there exists some container i != j such that (order_i &lt; order_j) and (left_j == right_i))
+
+Similarly for the top condition.
+
+But how to model this in CPMpy?
+
+Alternatively, for each pair of containers i and j (i != j), we can have a variable indicating whether i is before j in the order. But that might be too many variables.
+
+Alternatively, for each container j (not first in order), the west condition can be written as:
+
+left_j == 0 OR (sum over all i != j of ( (order_i &lt; order_j) &amp; (left_j == right_i) )) &gt;= 1 )
+
+Similarly for the top condition.
+
+Wait, but in CPMpy, the order is a permutation variable. Let me think of order as an array where order[0], order[1], order[2] are the indices of the containers in the order. 
+
+So for container j (which is at position k in the order), the previous containers are those with indices in order[0..k-1].
+
+But since the order is a variable, we can&#x27;t directly loop over the previous containers. 
+
+Hmm, perhaps the following approach:
+
+For each container j (except the first in the permutation), we can model the west condition as:
+
+left_j == 0 OR (there exists some container i such that i is placed before j in the order and left_j == right_i )
+
+Similarly for the top condition.
+
+To model existence, we can use a big OR over all possible i (other than j) of ( (order_i &lt; order_j) &amp; (left_j == right_i) )
+
+But in CPMpy, the order is a permutation variable, so for each i and j, the condition (order_i &lt; order_j) is a boolean expression. 
+
+Wait, but in CPMpy, variables can&#x27;t be compared directly in that way. Wait, the order is an array of integers (indices 0,1,2). So for each i and j, the condition (order[i] &lt; order[j]) is a boolean expression. Wait no, order is a permutation variable, so order is an array of variables. So for each i and j, order[i] is a variable, so comparing them would require a constraint. 
+
+Alternatively, perhaps for each pair of containers i and j (i != j), we can have a variable indicating whether i comes before j in the order. But that&#x27;s a lot of variables. 
+
+Alternatively, for each container j (not first in the permutation), the west condition can be written as:
+
+left_j == 0 OR (cp.any( [ (order_i &lt; order_j) &amp; (left_j == right_i) for i in 0..2 if i != j ] ) )
+
+Wait, but in code, how to do this?
+
+Alternatively, for each container j (except the first in the permutation), the west condition is:
+
+cp.ifthenelse( left_j != 0, cp.any( [ (order_i &lt; order_j) &amp; (left_j == right_i) for i in range(n_containers) if i != j ] ), True )
+
+Wait, but this is getting complicated. 
+
+Alternatively, perhaps the following approach:
+
+For each container j (not first in the permutation), the west condition is:
+
+left_j == 0 OR (cp.any( [ (order_i &lt; order_j) &amp; (left_j == right_i) for i in range(n_containers) if i != j ] ) )
+
+Similarly for the top condition.
+
+But how to code this in CPMpy?
+
+Let me think step by step.
+
+First, the order is a permutation variable of the containers. Let&#x27;s define it as:
+
+order = cp.permutation(n_containers)
+
+Then, for each container j in 0..2 (since n_containers=3), except the first in the order, we need to check the constraints. Wait, but how to find which containers are not first in the order?
+
+Alternatively, for each j in 0..2, we can check if it is not the first in the order. But that&#x27;s not straightforward. 
+
+Alternatively, for each j in 0..2, we can consider all other containers i and see if i is before j in the order. 
+
+Alternatively, perhaps it&#x27;s better to loop over each position in the order (except the first) and handle the container at that position. 
+
+The order is an array of variables, so for each position k in 1,2 (since the first position is 0), the container at position k is order[k]. 
+
+So for each k in 1,2:
+
+current_container = order[k]
+
+Then, the previous containers are those in order[0], order[1], ..., order[k-1].
+
+But how to get their indices? 
+
+Wait, the current_container is the index of the container (0,1,2). The previous containers are the containers with indices in order[0..k-1].
+
+So for the current_container (say, j), the previous containers are the containers with indices in order[0], order[1], ..., order[k-1].
+
+But in code, how to get the indices of those containers?
+
+Alternatively, for each container j (current_container), the previous containers are all containers i where order.index(i) &lt; k. 
+
+Wait, but in CPMpy, the order is a permutation variable, so we can&#x27;t compute its indices. 
+
+Hmm, this is getting really complicated. Maybe I need to think of another way.
+
+Alternative Idea: Instead of using a permutation variable for the order, perhaps model the order as a list of variables indicating the position of each container. For example, pos is an array of variables where pos[j] is the position in the order (0,1,2) for container j. Then, the order is determined by the pos array. 
+
+But then, we need to ensure that all pos[j] are distinct and form a permutation. 
+
+Alternatively, perhaps it&#x27;s better to model the order as a permutation array, and then for each container j, its position in the order is the index in the permutation array where j is located. 
+
+Wait, perhaps the permutation array order is such that order[0] is the first container, order[1] the second, etc. So for container j, its position in the order is the index where order[i] == j. 
+
+But in code, this would require for each j, a variable indicating its position. 
+
+Alternatively, perhaps the following approach:
+
+Let me try to code this step by step.
+
+First, define the variables for each container&#x27;s position:
+
+Each container has left, right, bottom, top. Since the width and length are known, right = left + width[j], top = bottom + length[j].
+
+Wait, yes. So for container j:
+
+left_j is a variable between 0 and deck_width - width[j]
+
+Similarly, bottom_j is between 0 and deck_length - length[j]
+
+right_j = left_j + width[j]
+
+top_j = bottom_j + length[j]
+
+So, the variables can be defined as left and bottom for each container, and right and top are expressions.
+
+Therefore, for each container j:
+
+left_j = cp.intvar(0, deck_width - width[j], name=f&quot;left_{j}&quot;)
+
+bottom_j = cp.intvar(0, deck_length - length[j], name=f&quot;bottom_{j}&quot;)
+
+right_j = left_j + width[j]
+
+top_j = bottom_j + length[j]
+
+Now, the non-overlapping constraints between all pairs of containers.
+
+For all pairs (i,j) where i &lt; j:
+
+Either:
+
+right_i &lt;= left_j OR left_i &gt;= right_j,
+
+OR
+
+top_i &lt;= bottom_j OR bottom_i &gt;= top_j.
+
+So, for each pair (i,j):
+
+cp.element( (right_i &lt;= left_j) | (left_i &gt;= right_j) | (top_i &lt;= bottom_j) | (bottom_i &gt;= top_j) )
+
+Wait, but in CPMpy, the constraints are added as expressions. So for each pair, we can add the constraint:
+
+(cp.sum( [ (right_i &lt;= left_j), (left_i &gt;= right_j), (top_i &lt;= bottom_j), (bottom_i &gt;= top_j) ] ) &gt;= 1 )
+
+Wait, no. The correct way is to express that at least one of the four conditions must hold. 
+
+Alternatively, the non-overlap condition is equivalent to:
+
+( (right_i &lt;= left_j) | (left_i &gt;= right_j) ) | ( (top_i &lt;= bottom_j) | (bottom_i &gt;= top_j) )
+
+So, the constraint is:
+
+( (right_i &lt;= left_j) | (left_i &gt;= right_j) ) | ( (top_i &lt;= bottom_j) | (bottom_i &gt;= top_j) )
+
+This can be written as a logical OR of the two terms.
+
+Now, moving on to the loading sequence constraints.
+
+We need to model the order in which containers are placed. Let&#x27;s define the order as a permutation variable:
+
+order = cp.permutation(n_containers)
+
+Then, for each position k in 1, 2 (since the first is 0), the container at that position (order[k]) must satisfy the adjacency constraints with the previous containers (those in order[0..k-1]).
+
+So for each k in 1, 2:
+
+current_container = order[k]
+
+prev_containers = [order[0], order[1], ..., order[k-1]]
+
+We need to ensure that:
+
+Either left_current == 0 OR there exists some container in prev_containers where left_current == right_prev_container,
+
+AND
+
+Either top_current == deck_length OR there exists some container in prev_containers where top_current == bottom_prev_container.
+
+Hmm, how to model this?
+
+First, for the left condition:
+
+left_current is either 0, or for some prev_container in prev_containers, left_current == right_prev_container.
+
+Similarly for the top condition.
+
+To model existence, for the left condition:
+
+cp.any( [ left_current == right[prev_container] for prev_container in prev_containers ] ) | (left_current == 0)
+
+Similarly for the top condition:
+
+cp.any( [ top_current == bottom[prev_container] for prev_container in prev_containers ] ) | (top_current == deck_length)
+
+But in code, how to loop over prev_containers?
+
+Wait, prev_containers are the containers in order[0..k-1], but since order is a permutation variable, we can&#x27;t directly loop over them. 
+
+Hmm, perhaps the following approach:
+
+For each k in 1,2:
+
+current_j = order[k]
+
+prev_positions = [0..k-1]
+
+prev_containers = [order[p] for p in prev_positions]
+
+But since order is a variable array, this can&#x27;t be done directly. 
+
+Alternative Idea: For each container j (except the first in the permutation), we can model the constraints by considering all other containers i and check if i is before j in the order. 
+
+For each container j (0,1,2):
+
+if j is not the first in the order (i.e., there exists some k where order[k] = j and k &gt;0), then:
+
+left_j must be 0 or equal to the right of some container i that is before j in the order.
+
+Similarly for the top.
+
+But how to express this?
+
+Alternatively, for each container j (not first in the order):
+
+left_j == 0 OR (there exists an i != j such that (order.index(i) &lt; order.index(j)) and (left_j == right_i) )
+
+Similarly for the top.
+
+But in CPMpy, the order.index(i) is not directly accessible as a variable. 
+
+Hmm, perhaps we can model for each pair of containers i and j (i != j):
+
+if i is before j in the order, then the adjacency conditions can be considered. 
+
+Alternatively, for each container j (not first in the order), the left condition is:
+
+left_j == 0 OR (cp.any( [ (order_i &lt; order_j) &amp; (left_j == right_i) for i in 0..2 if i != j ] ) )
+
+Wait, but how to express order_i &lt; order_j? 
+
+Wait, order is a permutation array. For each i and j, the position of container i in the order is the index where order[k] = i. 
+
+Alternatively, for each pair of containers i and j (i != j), we can have a variable indicating whether i comes before j in the order. Let&#x27;s call this before[i][j]. 
+
+But this would require n_containers^2 variables, which for n=3 is manageable. 
+
+Let me try this approach.
+
+Define before as a 2D array of boolean variables, where before[i][j] is True if container i comes before container j in the order. 
+
+Then, for all i != j, before[i][j] is equivalent to (order.index(i) &lt; order.index(j)). 
+
+But how to model this?
+
+Alternatively, the permutation order can be used to define before[i][j] as (order.index(i) &lt; order.index(j)). 
+
+But in CPMpy, the permutation variable&#x27;s indices are variables, so this is not straightforward. 
+
+Alternatively, for each pair i,j, before[i][j] is a boolean variable, and we can add constraints:
+
+for all i,j:
+
+before[i][j] == (order.index(i) &lt; order.index(j))
+
+But I don&#x27;t think CPMpy allows this directly. 
+
+Hmm, this is getting too complicated. Maybe I should look for another way.
+
+Alternative Idea: Since the order is a permutation variable, for each container j (not first in the permutation), the previous containers are all containers except those after it in the permutation. 
+
+Wait, perhaps for each container j, the position in the permutation is pos_j = the index where order[pos_j] = j. 
+
+Then, for j to not be first, pos_j must be &gt;0. 
+
+Then, the left condition is:
+
+left_j ==0 OR (there exists an i such that pos_i &lt; pos_j and left_j == right_i )
+
+Similarly for the top condition.
+
+But how to model pos_j?
+
+pos is an array of variables where pos[j] is the position of container j in the order. 
+
+So pos is an array of variables such that for all j, pos[j] is in 0..2, and all pos[j] are distinct. 
+
+This can be modeled as:
+
+pos = cp.intvar(0, n_containers-1, shape=n_containers)
+
+model += cp.AllDifferent(pos)
+
+Then, for each j, the position of container j is pos[j], and the order is determined by the pos array. 
+
+Wait, but the order array can be derived from pos as order = [j for j in sorted(range(n_containers), key=lambda x: pos[x])]
+
+But in CPMpy, this is not directly possible. 
+
+Alternatively, the permutation order can be expressed as:
+
+for all j, order[pos[j]] = j 
+
+Wait, no. 
+
+Alternatively, the permutation array order is such that for each position k in 0..2, order[k] is the container at position k. 
+
+Then, the position of container j is the k where order[k] = j. 
+
+So pos[j] = the k where order[k] = j. 
+
+This can be modeled with:
+
+for each j in 0..2:
+
+cp.element( [ (order[k] == j) for k in 0..2 ], pos[j] ) 
+
+Wait, perhaps using a helper variable for pos[j], but this might be complex. 
+
+Alternatively, perhaps it&#x27;s better to use the pos array as the inverse of the order array. 
+
+Let me think of pos as an array where pos[j] is the position of container j in the order. 
+
+Then, the order array can be defined as:
+
+order = [ cp.intvar(0, n_containers-1) for _ in range(n_containers) ]
+
+model += [ cp.AllDifferent(order) ]
+
+model += [ order[pos[j]] == j for j in 0..2 ]
+
+Wait, no. 
+
+Alternatively, for each position k in 0..2:
+
+order[k] is the container at position k. 
+
+Then, for each container j, pos[j] is the k where order[k] = j. 
+
+So:
+
+for each j in 0..2:
+
+cp.sum( [ (order[k] == j) * (k) for k in 0..2 ] ) == pos[j]
+
+But this requires multiplication of variables, which is not allowed in CPMpy. 
+
+Hmm, this is getting too involved. Maybe I should try to proceed with the permutation variable and see if I can model the constraints without explicitly referencing the previous containers.
+
+Let me try to proceed step by step.
+
+First, define the variables for each container&#x27;s left and bottom:
+
+n_containers = 3
+
+deck_width =5
+
+deck_length=5
+
+width = [5,2,3]
+
+length = [1,4,4]
+
+classes = [1,1,1]
+
+separation = [[0,0],[0,0]]
+
+We can define for each container j:
+
+left_j = cp.intvar(0, deck_width - width[j], name=f&quot;left_{j}&quot;)
+
+bottom_j = cp.intvar(0, deck_length - length[j], name=f&quot;bottom_{j}&quot;)
+
+right_j = left_j + width[j]
+
+top_j = bottom_j + length[j]
+
+Then, the non-overlapping constraints between all pairs:
+
+for i in range(n_containers):
+
+    for j in range(i+1, n_containers):
+
+        # Non-overlap between i and j
+
+        model += ( (right_i &lt;= left_j) | (left_i &gt;= right_j) ) | ( (top_i &lt;= bottom_j) | (bottom_i &gt;= top_j) )
+
+Now, the loading sequence constraints.
+
+Define the order as a permutation variable:
+
+order = cp.permutation(n_containers)
+
+Then, for each position k in 1,2 (since the first is 0):
+
+current_j = order[k]
+
+prev_containers = [order[0], order[1], ..., order[k-1]]
+
+We need to ensure that:
+
+left_current_j is either 0 or equal to the right of any of the previous containers.
+
+Similarly for the top.
+
+But how to express this?
+
+For the left condition:
+
+left_current_j ==0 OR (there exists a container in prev_containers where left_current_j == right of that container)
+
+Similarly for the top.
+
+To model existence, for each container in prev_containers, we can check if left_current_j == right of that container. 
+
+But since prev_containers are the first k elements of the order array, which is a permutation variable, we can&#x27;t directly loop over them. 
+
+Alternative Idea: For each container j (not first in the order), the left condition can be written as:
+
+left_j ==0 OR (there exists an i in 0..2 (i != j) such that (order.index(i) &lt; order.index(j)) and (left_j == right_i) )
+
+Similarly for the top.
+
+But how to model this in CPMpy?
+
+Let me think of the permutation order as an array. For container j, its position in the order is pos_j = the index where order[pos_j] = j. 
+
+Then, the condition for being not first is pos_j &gt;0.
+
+The left condition is:
+
+left_j ==0 OR (there exists an i such that pos_i &lt; pos_j and left_j == right_i )
+
+Similarly for the top.
+
+To model this, we can introduce for each j:
+
+left_ok[j] = (left_j ==0) OR (cp.any( [ (pos_i &lt; pos_j) &amp; (left_j == right_i) for i in 0..2 if i !=j ] ) )
+
+Similarly for top_ok[j].
+
+Then, for each j, if pos_j &gt;0, then left_ok[j] and top_ok[j] must be true.
+
+But how to model pos_j?
+
+pos is an array of variables where pos[j] is the position of container j in the order. 
+
+pos can be defined as:
+
+pos = cp.intvar(0, n_containers-1, shape=n_containers)
+
+model += [ cp.AllDifferent(pos) ]
+
+model += [ order[pos[j]] == j for j in range(n_containers) ]
+
+Wait, this might work. 
+
+Let me explain:
+
+order is the permutation array (order[0], order[1], order[2] are the containers in order).
+
+pos[j] is the position of container j in the order. 
+
+So for each j, order[pos[j]] must equal j. 
+
+This requires:
+
+for each j in 0..2:
+
+order[pos[j]] == j 
+
+This can be added as constraints.
+
+Then, pos is an array of variables indicating the position of each container.
+
+Now, for each j, if pos[j] &gt;0 (i.e., not first in the order), then:
+
+left_ok[j] = (left_j ==0) OR (cp.any( [ (pos[i] &lt; pos[j]) &amp; (left_j == right_i) for i in 0..2 if i !=j ] ) )
+
+Similarly for top_ok[j].
+
+Then, the constraints are:
+
+for each j in 0..2:
+
+if pos[j] &gt;0:
+
+    model += left_ok[j]
+
+    model += top_ok[j]
+
+But how to model the &#x27;if&#x27; condition?
+
+We can use implication:
+
+model += (pos[j] &gt;0).implies( left_ok[j] &amp; top_ok[j] )
+
+Wait, but in CPMpy, the implication is a method. 
+
+So:
+
+model += ( (pos[j] &gt;0) ).implies( left_ok[j] &amp; top_ok[j] )
+
+But first, we need to define left_ok[j] and top_ok[j] as expressions.
+
+Let me try to code this.
+
+First, define pos:
+
+pos = cp.intvar(0, n_containers-1, shape=n_containers)
+
+model += cp.AllDifferent(pos)
+
+for j in range(n_containers):
+
+    model += order[pos[j]] == j 
+
+Then, for each j:
+
+left_ok = (left_j ==0) 
+
+for i in range(n_containers):
+
+    if i !=j:
+
+        left_ok |= ( (pos[i] &lt; pos[j]) &amp; (left_j == right_i) )
+
+Similarly for top_ok:
+
+top_ok = (top_j == deck_length)
+
+for i in range(n_containers):
+
+    if i !=j:
+
+        top_ok |= ( (pos[i] &lt; pos[j]) &amp; (top_j == bottom_i) )
+
+Then, the constraint is:
+
+model += ( (pos[j] &gt;0) ).implies( left_ok &amp; top_ok )
+
+Wait, but in code, this would be:
+
+for j in range(n_containers):
+
+    # Compute left_ok and top_ok
+
+    left_ok = (left[j] == 0)
+
+    for i in range(n_containers):
+
+        if i != j:
+
+            left_ok |= ( (pos[i] &lt; pos[j]) &amp; (left[j] == right[i]) )
+
+    top_ok = (top[j] == deck_length)
+
+    for i in range(n_containers):
+
+        if i != j:
+
+            top_ok |= ( (pos[i] &lt; pos[j]) &amp; (top[j] == bottom[i]) )
+
+    # Now, the implication
+
+    model += ( (pos[j] &gt; 0) ).implies( left_ok &amp; top_ok )
+
+Wait, but in CPMpy, the variables are expressions, so the comparisons like pos[i] &lt; pos[j] are expressions that evaluate to a boolean variable. 
+
+However, in CPMpy, the comparison between two integer variables (pos[i] and pos[j]) can be done using the overloaded operators. 
+
+So pos[i] &lt; pos[j] is a boolean expression. 
+
+The &amp; operator between two expressions is the logical AND. 
+
+The | operator is the logical OR. 
+
+So this should work. 
+
+But this requires nested loops over all i and j, which for n=3 is manageable. 
+
+Now, putting this all together.
+
+Now, the separation constraints between classes. 
+
+The separation matrix is given as separation = [[0,0],[0,0]]. 
+
+The classes are all 1, so the separation between class 1 and 1 is 0 in both directions. 
+
+So the separation constraints are not needed here. 
+
+But in general, for two containers of classes c1 and c2, the separation between them must be at least separation[c1-1][c2-1] in one direction and separation[c2-1][c1-1] in the other? Or perhaps the separation is in both directions? 
+
+The problem says: &quot;certain classes of containers are constrained to be separated by minimum distances either along the deck or across the deck.&quot;
+
+Assuming that separation between classes c and d requires that the distance between any two containers of those classes must be at least separation[c-1][d-1] in one direction (e.g., along the deck&#x27;s length) and separation[d-1][c-1] in the other direction (across the deck&#x27;s width). 
+
+But since in this problem all classes are 1, and the separation between them is 0, we can ignore this constraint for now. 
+
+Thus, the separation constraints are not needed here. 
+
+Now, putting all together.
+
+The code outline would be:
+
+import cpmpy as cp
+import json
+
+# Data
+deck_width =5
+deck_length=5
+n_containers =3
+width = [5,2,3]
+length = [1,4,4]
+classes = [1,1,1]
+separation = [[0,0],[0,0]]
+
+# Model definition
+model = cp.Model()
+
+# Decision variables
+order = cp.permutation(n_containers)
+pos = cp.intvar(0,</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_10_qwq</div>
+          <div class="muted">base LLM: Qwen/QwQ-32B · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (63 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+deck_width = 5
+deck_length = 5
+n_containers = 3
+width = [5, 2, 3]
+length = [1, 4, 4]
+classes = [1, 1, 1]
+separation = [[0, 0], [0, 0]]
+
+model = cp.Model()
+
+# Decision Variables
+left = [cp.intvar(0, deck_width, name=f&quot;left_{i}&quot;) for i in range(n_containers)]
+bottom = [cp.intvar(0, deck_length, name=f&quot;bottom_{i}&quot;) for i in range(n_containers)]
+
+# Constraints
+
+# Non-overlapping between all pairs of containers
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        # Non-overlap in x-axis OR y-axis
+        x_overlap = (left[i] + width[i] &lt;= left[j]) | (left[j] + width[j] &lt;= left[i])
+        y_overlap = (bottom[i] + length[i] &lt;= bottom[j]) | (bottom[j] + length[j] &lt;= bottom[i])
+        model += (x_overlap | y_overlap)  # Corrected to OR
+
+# Containers must fit within the deck boundaries
+for i in range(n_containers):
+    model += left[i] &gt;= 0
+    model += (left[i] + width[i]) &lt;= deck_width
+    model += bottom[i] &gt;= 0
+    model += (bottom[i] + length[i]) &lt;= deck_length
+
+# Loading sequence constraints
+for k in range(1, n_containers):
+    # West condition: left edge touches deck wall or a previous container&#x27;s right edge
+    west_ok = (left[k] == 0) | cp.any([(left[m] + width[m] == left[k]) for m in range(k)])
+    
+    # North condition: top edge touches deck wall or a previous container&#x27;s bottom edge
+    top_k = bottom[k] + length[k]
+    north_ok = (top_k == deck_length) | cp.any([(bottom[n] == top_k) for n in range(k)])
+    
+    model += (west_ok &amp; north_ok)
+
+# Solve and print solution
+if model.solve():
+    left_values = [int(l.value()) for l in left]
+    right_values = [l + w for l, w in zip(left_values, width)]
+    bottom_values = [int(b.value()) for b in bottom]
+    top_values = [b + l for b, l in zip(bottom_values, length)]
+    
+    solution = {
+        &#x27;left&#x27;: left_values,
+        &#x27;right&#x27;: right_values,
+        &#x27;bottom&#x27;: bottom_values,
+        &#x27;top&#x27;: top_values
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_10_qwq/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_10_qwq/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (74 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers (1-based)
+separation = [  # Separation constraints between classes (min clearance along x or y)
+    [0, 0],
+    [0, 0]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+right = cp.intvar(0, deck_width, shape=n_containers, name=&quot;right&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+top = cp.intvar(0, deck_length, shape=n_containers, name=&quot;top&quot;)
+
+# Constraints
+
+# Fit on deck and define right/top from left/bottom plus dimensions
+for i in range(n_containers):
+    model += (right[i] == left[i] + width[i])
+    model += (top[i] == bottom[i] + length[i])
+    model += (right[i] &lt;= deck_width)
+    model += (top[i] &lt;= deck_length)
+
+# Non-overlap constraints between all pairs
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        model += (
+            (left[i] &gt;= right[j]) |
+            (left[j] &gt;= right[i]) |
+            (bottom[i] &gt;= top[j]) |
+            (bottom[j] &gt;= top[i])
+        )
+
+# Class-based separation constraints (minimum clearance along x or y)
+# separation[c1][c2] is the minimum clearance required between class c1 and c2
+# Enforced as: intervals are separated by at least sep along x or along y
+for i in range(n_containers):
+    for j in range(i+1, n_containers):
+        c_i = classes[i] - 1  # convert to 0-based
+        c_j = classes[j] - 1  # convert to 0-based
+        # Ensure indices are valid
+        if 0 &lt;= c_i &lt; len(separation) and 0 &lt;= c_j &lt; len(separation[0]):
+            sep = separation[c_i][c_j]
+            if sep &gt; 0:
+                model += (
+                    (left[i] &gt;= right[j] + sep) |
+                    (left[j] &gt;= right[i] + sep) |
+                    (bottom[i] &gt;= top[j] + sep) |
+                    (bottom[j] &gt;= top[i] + sep)
+                )
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;left&#x27;: left.value().tolist(),
+        &#x27;right&#x27;: right.value().tolist(),
+        &#x27;top&#x27;: top.value().tolist(),
+        &#x27;bottom&#x27;: bottom.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#dc2626">solution not valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (71 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers (1-based)
+separation = [  # Separation constraints between classes (separation[a][b] is min separation for class a+1 vs b+1)
+    [0, 0],
+    [0, 0]
+]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# We&#x27;ll allow left/top to range over whole deck and enforce right/bottom and bounds via constraints
+left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+top = cp.intvar(0, deck_length, shape=n_containers, name=&quot;top&quot;)
+right = cp.intvar(0, deck_width, shape=n_containers, name=&quot;right&quot;)
+bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+
+# Constraints
+for i in range(n_containers):
+    # size constraints: right = left + width[i], bottom = top + length[i]
+    model += (right[i] == left[i] + width[i])
+    model += (bottom[i] == top[i] + length[i])
+    # must fit on deck
+    model += (right[i] &lt;= deck_width)
+    model += (bottom[i] &lt;= deck_length)
+
+# Non-overlap and separation constraints:
+# For each pair i&lt;j enforce that they are separated by at least separation[ci][cj] in either x or y direction
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        ci = classes[i] - 1  # convert to 0-based index for separation lookup
+        cj = classes[j] - 1
+        # separation required for this pair (as given). Interpretation: must be separated by at least s
+        # along either x (width) or y (length) direction.
+        s = int(separation[ci][cj])
+
+        # Four possible disjuncts (i to left of j, j to left of i, i above j, j above i) with separation s
+        b1 = cp.boolvar()  # right[i] + s &lt;= left[j]
+        b2 = cp.boolvar()  # right[j] + s &lt;= left[i]
+        b3 = cp.boolvar()  # bottom[i] + s &lt;= top[j]
+        b4 = cp.boolvar()  # bottom[j] + s &lt;= top[i]
+
+        model += b1.implies(right[i] + s &lt;= left[j])
+        model += b2.implies(right[j] + s &lt;= left[i])
+        model += b3.implies(bottom[i] + s &lt;= top[j])
+        model += b4.implies(bottom[j] + s &lt;= top[i])
+
+        # at least one separation direction must hold
+        model += (cp.sum([b1, b2, b3, b4]) &gt;= 1)
+
+# Solve and print
+if model.solve():
+    solution = {
+        &#x27;left&#x27;: left.value().tolist(),
+        &#x27;right&#x27;: right.value().tolist(),
+        &#x27;top&#x27;: top.value().tolist(),
+        &#x27;bottom&#x27;: bottom.value().tolist()
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    3,
+    0
+  ],
+  &quot;right&quot;: [
+    5,
+    5,
+    3
+  ],
+  &quot;top&quot;: [
+    4,
+    0,
+    0
+  ],
+  &quot;bottom&quot;: [
+    5,
+    4,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="minizinc">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_mnz</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">MiniZinc Error: syntax error, unexpected &#x27;|&#x27;</p>
+      <details class="gmodel"><summary>model.mzn (96 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">include &quot;globals.mzn&quot;;
+
+% Input data
+int: deck_width = 5;
+int: deck_length = 5;
+int: n_containers = 3;
+array[1..n_containers] of int: width = [5, 2, 3];
+array[1..n_containers] of int: length = [1, 4, 4];
+array[1..n_containers] of int: classes = [1, 1, 1];
+int: n_classes = 2; % from separation matrix size
+array[1..n_classes, 1..n_classes] of int: separation = [
+    |0, 0|
+    |0, 0|
+];
+
+% Decision variables: positions of containers on the deck
+% left[i], bottom[i] are coordinates of the bottom-left corner of container i
+array[1..n_containers] of var 0..deck_width: left;
+array[1..n_containers] of var 0..deck_length: bottom;
+
+% Derived variables for right and top edges
+array[1..n_containers] of var 0..deck_width: right;
+array[1..n_containers] of var 0..deck_length: top;
+
+% Define right and top edges based on left, bottom, width, and length
+constraint forall(i in 1..n_containers) (
+    right[i] = left[i] + width[i] /\
+    top[i] = bottom[i] + length[i]
+);
+
+% Containers must be within deck boundaries
+constraint forall(i in 1..n_containers) (
+    right[i] &lt;= deck_width /\
+    top[i] &lt;= deck_length
+);
+
+% No overlapping constraints between containers
+constraint forall(i, j in 1..n_containers where i &lt; j) (
+    (right[i] &lt;= left[j]) \/
+    (right[j] &lt;= left[i]) \/
+    (top[i] &lt;= bottom[j]) \/
+    (top[j] &lt;= bottom[i])
+);
+
+% Separation constraints between classes
+% For each pair of containers i, j with classes c_i, c_j, enforce minimum separation
+constraint forall(i, j in 1..n_containers where i &lt; j) (
+    let {
+        int: sep = separation[classes[i], classes[j]]
+    } in
+    if sep &gt; 0 then
+        % Enforce separation either horizontally or vertically
+        (left[i] + width[i] + sep &lt;= left[j]) \/
+        (left[j] + width[j] + sep &lt;= left[i]) \/
+        (bottom[i] + length[i] + sep &lt;= bottom[j]) \/
+        (bottom[j] + length[j] + sep &lt;= bottom[i])
+    else
+        true
+    endif
+);
+
+% Loading sequence constraints:
+% Each container after the first must touch another container or deck wall to the north and west
+% Touching means: 
+% - For north: bottom[i] == top[j] for some j or bottom[i] == 0 (deck wall)
+% - For west: left[i] == right[j] for some j or left[i] == 0 (deck wall)
+%
+% The loading sequence is the order of containers 1..n_containers
+constraint forall(i in 2..n_containers) (
+    % Touch north: bottom[i] == 0 or bottom[i] == top[j] for some j != i
+    (bottom[i] == 0 \/
+     exists(j in 1..n_containers where j != i) (bottom[i] == top[j] /\
+        % Also horizontal overlap to ensure touching along some part
+        not (right[i] &lt;= left[j] \/ left[i] &gt;= right[j])
+     )
+    ) /\
+    % Touch west: left[i] == 0 or left[i] == right[j] for some j != i
+    (left[i] == 0 \/
+     exists(j in 1..n_containers where j != i) (left[i] == right[j] /\
+        % Also vertical overlap to ensure touching along some part
+        not (top[i] &lt;= bottom[j] \/ bottom[i] &gt;= top[j])
+     )
+    )
+);
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+        &quot;\&quot;left\&quot;: &quot; ++ show(left),
+        &quot;\&quot;right\&quot;: &quot; ++ show(right),
+        &quot;\&quot;top\&quot;: &quot; ++ show(top),
+        &quot;\&quot;bottom\&quot;: &quot; ++ show(bottom)
+    ]),
+    &quot;}&quot;
+];</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_mnz</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.mzn (74 lines)</summary><pre class="code-block"><code id="None" class="language-minizinc">
+include &quot;globals.mzn&quot;;
+
+% Input data
+int: deck_width = 5;
+int: deck_length = 5;
+int: n_containers = 3;
+array[1..n_containers] of int: width  = [5, 2, 3];
+array[1..n_containers] of int: length = [1, 4, 4];
+
+% Decision variables: positions of each container
+array[1..n_containers] of var 0..deck_width:  left;
+array[1..n_containers] of var 0..deck_length: bottom;
+array[1..n_containers] of var 0..deck_width:  right;
+array[1..n_containers] of var 0..deck_length: top;
+
+% Define right and top in terms of left/bottom and size
+constraint forall(i in 1..n_containers) (
+    right[i] = left[i] + width[i]
+    /\ top[i]   = bottom[i] + length[i]
+);
+
+% Rectangles must lie inside the deck
+constraint forall(i in 1..n_containers) (
+    left[i]  &gt;= 0
+    /\ right[i]  &lt;= deck_width
+    /\ bottom[i] &gt;= 0
+    /\ top[i]     &lt;= deck_length
+);
+
+% No-overlap constraint using global diffn
+constraint diffn(
+    [left[i]   | i in 1..n_containers],
+    [bottom[i] | i in 1..n_containers],
+    [width[i]  | i in 1..n_containers],
+    [length[i] | i in 1..n_containers]
+);
+
+% Sequential loading constraints: each container i must touch
+% something to its west (left edge) and north (top edge)
+constraint forall(i in 1..n_containers) (
+    let {
+        % West contact: either against west wall or against a previously placed container
+        var bool: west_contact = 
+            (left[i] = 0)
+            \/ exists(j in 1..i-1) (
+                 left[i] = right[j]
+                 /\ bottom[i] &lt; top[j]
+                 /\ top[i]    &gt; bottom[j]
+            ),
+        % North contact: either against north wall or against a previously placed container
+        var bool: north_contact =
+            (top[i] = deck_length)
+            \/ exists(j in 1..i-1) (
+                 top[i] = bottom[j]
+                 /\ left[i]  &lt; right[j]
+                 /\ right[i] &gt; left[j]
+            )
+    } in
+    west_contact /\ north_contact
+);
+
+solve satisfy;
+
+output [
+    &quot;{&quot;,
+    join(&quot;,&quot;, [
+      &quot;\&quot;&quot; ++ &quot;left&quot; ++ &quot;\&quot;: [&quot; ++ join(&quot;,&quot;, [show(left[i])  | i in 1..n_containers]) ++ &quot;]&quot;,
+      &quot;\&quot;&quot; ++ &quot;right&quot; ++ &quot;\&quot;: [&quot; ++ join(&quot;,&quot;, [show(right[i]) | i in 1..n_containers]) ++ &quot;]&quot;,
+      &quot;\&quot;&quot; ++ &quot;top&quot; ++ &quot;\&quot;: [&quot; ++ join(&quot;,&quot;, [show(top[i])   | i in 1..n_containers]) ++ &quot;]&quot;,
+      &quot;\&quot;&quot; ++ &quot;bottom&quot; ++ &quot;\&quot;: [&quot; ++ join(&quot;,&quot;, [show(bottom[i])| i in 1..n_containers]) ++ &quot;]&quot;
+    ]),
+    &quot;}&quot;
+];
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div><div class="tab-pane" data-pane="or-tools">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_ort</div>
+          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">Traceback (most recent call last):</p>
+      <details class="gmodel"><summary>model.py (120 lines)</summary><pre class="code-block"><code id="None" class="language-python">from ortools.sat.python import cp_model
+import json
+
+# Input data
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers
+separation = [  # Separation constraints between classes
+    [0, 0],
+    [0, 0]
+]
+
+# Model definition
+model = cp_model.CpModel()
+
+# Decision Variables: positions of containers on the deck
+# left[i], bottom[i] are coordinates of the bottom-left corner of container i
+left = [model.NewIntVar(0, deck_width - width[i], f&#x27;left_{i}&#x27;) for i in range(n_containers)]
+bottom = [model.NewIntVar(0, deck_length - length[i], f&#x27;bottom_{i}&#x27;) for i in range(n_containers)]
+
+# Compute right and top for each container
+right = [model.NewIntVar(0, deck_width, f&#x27;right_{i}&#x27;) for i in range(n_containers)]
+top = [model.NewIntVar(0, deck_length, f&#x27;top_{i}&#x27;) for i in range(n_containers)]
+
+for i in range(n_containers):
+    model.Add(right[i] == left[i] + width[i])
+    model.Add(top[i] == bottom[i] + length[i])
+
+# Constraints: no overlapping between containers
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        # Containers i and j do not overlap: at least one of these must hold
+        model.AddBoolOr([
+            right[i] &lt;= left[j],  # i is left of j
+            right[j] &lt;= left[i],  # j is left of i
+            top[i] &lt;= bottom[j],  # i is below j
+            top[j] &lt;= bottom[i]   # j is below i
+        ])
+
+# Separation constraints between classes
+# For each pair of containers i, j with classes c_i, c_j, enforce minimum separation
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        c_i = classes[i] - 1  # zero-based index for separation matrix
+        c_j = classes[j] - 1
+        sep = separation[c_i][c_j]
+        if sep &gt; 0:
+            # Enforce separation horizontally or vertically
+            # At least sep distance between edges if classes require separation
+            # We use a disjunction to allow separation either horizontally or vertically
+            model.AddBoolOr([
+                right[i] + sep &lt;= left[j],
+                right[j] + sep &lt;= left[i],
+                top[i] + sep &lt;= bottom[j],
+                top[j] + sep &lt;= bottom[i]
+            ])
+
+# Loading sequence constraints:
+# Each container after the first must touch another container or deck wall to the north and west
+# Touching means: either container edge aligns with deck wall or with another container edge
+# For container 0 (first), it must touch deck walls to north and west:
+# Since loading is from southeast corner, container 0 must be at bottom=0 (south wall) and left=0 (west wall)
+model.Add(left[0] == 0)
+model.Add(bottom[0] == 0)
+
+for i in range(1, n_containers):
+    # Touch to the west: left[i] == 0 (deck wall) or left[i] == right[j] for some j != i
+    west_touch = []
+    west_touch.append(model.NewBoolVar(f&#x27;west_wall_touch_{i}&#x27;))
+    model.Add(left[i] == 0).OnlyEnforceIf(west_touch[-1])
+    model.Add(left[i] != 0).OnlyEnforceIf(west_touch[-1].Not())
+
+    west_touch_others = []
+    for j in range(n_containers):
+        if j == i:
+            continue
+        b = model.NewBoolVar(f&#x27;west_touch_{i}_{j}&#x27;)
+        # left[i] == right[j]
+        model.Add(left[i] == right[j]).OnlyEnforceIf(b)
+        model.Add(left[i] != right[j]).OnlyEnforceIf(b.Not())
+        west_touch_others.append(b)
+
+    # At least one west touch: either deck wall or some container
+    model.AddBoolOr([west_touch[0]] + west_touch_others)
+
+    # Touch to the north: bottom[i] == 0 (deck wall) or bottom[i] == top[j] for some j != i
+    north_touch = []
+    north_touch.append(model.NewBoolVar(f&#x27;north_wall_touch_{i}&#x27;))
+    model.Add(bottom[i] == 0).OnlyEnforceIf(north_touch[-1])
+    model.Add(bottom[i] != 0).OnlyEnforceIf(north_touch[-1].Not())
+
+    north_touch_others = []
+    for j in range(n_containers):
+        if j == i:
+            continue
+        b = model.NewBoolVar(f&#x27;north_touch_{i}_{j}&#x27;)
+        # bottom[i] == top[j]
+        model.Add(bottom[i] == top[j]).OnlyEnforceIf(b)
+        model.Add(bottom[i] != top[j]).OnlyEnforceIf(b.Not())
+        north_touch_others.append(b)
+
+    # At least one north touch: either deck wall or some container
+    model.AddBoolOr([north_touch[0]] + north_touch_others)
+
+# Solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;left&#x27;: [solver.Value(var) for var in left],
+        &#x27;right&#x27;: [solver.Value(var) for var in right],
+        &#x27;top&#x27;: [solver.Value(var) for var in top],
+        &#x27;bottom&#x27;: [solver.Value(var) for var in bottom]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">guidelines_prompt_ort</div>
+          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#16a34a">solution valid · optimal</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (118 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+from ortools.sat.python import cp_model
+import json
+
+# Input data
+deck_width = 5  # Width of the deck (x dimension)
+deck_length = 5  # Length of the deck (y dimension)
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers (x sizes)
+length = [1, 4, 4]  # Lengths of containers (y sizes)
+classes = [1, 1, 1]  # Classes of containers
+# Separation constraints between classes:
+# separation[c1][c2] = minimal clearance between containers of class c1 and c2
+separation = [
+    [0, 0],
+    [0, 0]
+]
+
+# Create the model
+model = cp_model.CpModel()
+
+# Decision variables: for each container i, left[i], bottom[i] are the coordinates
+# of the south-west corner. right[i], top[i] are derived.
+left = []
+bottom = []
+right = []
+top = []
+
+for i in range(n_containers):
+    # x coordinate of left edge: can be from 0 to deck_width - width[i]
+    l = model.NewIntVar(0, deck_width - width[i], f&quot;left_{i}&quot;)
+    # y coordinate of bottom edge: 0 to deck_length - length[i]
+    b = model.NewIntVar(0, deck_length - length[i], f&quot;bottom_{i}&quot;)
+    # right = left + width[i]
+    r = model.NewIntVar(0, deck_width, f&quot;right_{i}&quot;)
+    model.Add(r == l + width[i])
+    # top = bottom + length[i]
+    t = model.NewIntVar(0, deck_length, f&quot;top_{i}&quot;)
+    model.Add(t == b + length[i])
+
+    left.append(l)
+    bottom.append(b)
+    right.append(r)
+    top.append(t)
+
+# Non-overlap constraints for all distinct pairs
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        # Boolean vars for four separation directions
+        b_left = model.NewBoolVar(f&quot;i{i}_left_of_j{j}&quot;)
+        b_right = model.NewBoolVar(f&quot;i{i}_right_of_j{j}&quot;)
+        b_above = model.NewBoolVar(f&quot;i{i}_above_j{j}&quot;)
+        b_below = model.NewBoolVar(f&quot;i{i}_below_j{j}&quot;)
+        # At least one direction must hold
+        model.AddBoolOr([b_left, b_right, b_above, b_below])
+        # i is left of j: right[i] &lt;= left[j] - sep
+        sep = separation[classes[i]][classes[j]]
+        model.Add(right[i] + sep &lt;= left[j]).OnlyEnforceIf(b_left)
+        model.Add(right[i] + sep &gt; left[j]).OnlyEnforceIf(b_left.Not())
+        # i is right of j
+        model.Add(right[j] + sep &lt;= left[i]).OnlyEnforceIf(b_right)
+        model.Add(right[j] + sep &gt; left[i]).OnlyEnforceIf(b_right.Not())
+        # i is above j (i north of j)
+        model.Add(top[j] + sep &lt;= bottom[i]).OnlyEnforceIf(b_above)
+        model.Add(top[j] + sep &gt; bottom[i]).OnlyEnforceIf(b_above.Not())
+        # i is below j (i south of j)
+        model.Add(top[i] + sep &lt;= bottom[j]).OnlyEnforceIf(b_below)
+        model.Add(top[i] + sep &gt; bottom[j]).OnlyEnforceIf(b_below.Not())
+
+# Loading sequence constraints:
+# For each container i &gt;= 1, its left side must touch west wall or
+# the right side of some earlier container, AND its top side must
+# touch the north wall or the bottom side of some earlier container.
+for i in range(1, n_containers):
+    # West-touch options
+    west_bools = []
+    # Option 1: touches west wall
+    w0 = model.NewBoolVar(f&quot;west_wall_{i}&quot;)
+    model.Add(left[i] == 0).OnlyEnforceIf(w0)
+    model.Add(left[i] != 0).OnlyEnforceIf(w0.Not())
+    west_bools.append(w0)
+    # Options 2+: touches right[j] for some j &lt; i
+    for j in range(i):
+        wj = model.NewBoolVar(f&quot;west_cont_{i}_{j}&quot;)
+        model.Add(left[i] == right[j]).OnlyEnforceIf(wj)
+        model.Add(left[i] != right[j]).OnlyEnforceIf(wj.Not())
+        west_bools.append(wj)
+    model.AddBoolOr(west_bools)
+
+    # North-touch options
+    north_bools = []
+    # Option 1: touches north wall (top == deck_length)
+    n0 = model.NewBoolVar(f&quot;north_wall_{i}&quot;)
+    model.Add(top[i] == deck_length).OnlyEnforceIf(n0)
+    model.Add(top[i] != deck_length).OnlyEnforceIf(n0.Not())
+    north_bools.append(n0)
+    # Options 2+: touches bottom[j] for some j &lt; i
+    for j in range(i):
+        nj = model.NewBoolVar(f&quot;north_cont_{i}_{j}&quot;)
+        model.Add(top[i] == bottom[j]).OnlyEnforceIf(nj)
+        model.Add(top[i] != bottom[j]).OnlyEnforceIf(nj.Not())
+        north_bools.append(nj)
+    model.AddBoolOr(north_bools)
+
+# Create solver and solve
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    solution = {
+        &#x27;left&#x27;: [solver.Value(left[i]) for i in range(n_containers)],
+        &#x27;right&#x27;: [solver.Value(right[i]) for i in range(n_containers)],
+        &#x27;bottom&#x27;: [solver.Value(bottom[i]) for i in range(n_containers)],
+        &#x27;top&#x27;: [solver.Value(top[i]) for i in range(n_containers)]
+    }
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">multi_agents_requirements_gath</div>
+          <div class="muted">base LLM: o3 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#2563eb">solution valid</span></div>
+      </div>
+      
+      <details class="gmodel"><summary>model.py (186 lines)</summary><pre class="code-block"><code id="None" class="language-python">&quot;&quot;&quot;Supply-vessel single-layer deck-loading – feasibility model
+================================================================
+This program tests whether a given list of rectangular containers can be
+placed on a rectangular ship deck subject to a set of hard constraints (see
+problem statement).  All data are embedded exactly as supplied by the caller.
+A feasible layout – if it exists – is printed as JSON containing the four
+required decision-variable arrays:  right, top, left, bottom.
+The model uses Google OR-Tools CP-SAT (integer formulation; all given data are
+integral).  If input with fractional dimensions had to be handled, a fixed-
+point scaling approach could be applied without changing the logic.
+&quot;&quot;&quot;
+
+from ortools.sat.python import cp_model
+import json
+import os
+
+# ---------------------------------------------------------------------------
+# Immutable input data (exactly as given in the task                     )
+# ---------------------------------------------------------------------------
+
+deck_width = 5          # W – east–west size of the deck
+deck_length = 5         # L – north–south size of the deck
+
+n_containers = 3        # N – number of containers
+width  = [5, 2, 3]      # w_i – individual widths  (east–west)
+length = [1, 4, 4]      # l_i – individual lengths (north–south)
+classes = [1, 1, 1]     # κ_i – class labels (1-based)
+
+# Minimum edge-to-edge safety separation between classes *along* the deck
+# (horizontal).  If the same distance were also required *across* the deck a
+# second matrix would be introduced.  Here all distances are 0.
+# Matrix indices are class-1.
+separation_h = [        # S^{x}_{a,b}
+    [0, 0],
+    [0, 0]
+]
+# We assume no additional vertical separation is required; reuse the same
+# matrix for completeness (all zeros for the present instance).
+separation_v = separation_h
+
+# ---------------------------------------------------------------------------
+# Safety-distance helper functions
+# ---------------------------------------------------------------------------
+
+def sep_horizontal(i: int, j: int) -&gt; int:
+    a = classes[i] - 1
+    b = classes[j] - 1
+    if a &lt; len(separation_h) and b &lt; len(separation_h[a]):
+        return separation_h[a][b]
+    return 0
+
+def sep_vertical(i: int, j: int) -&gt; int:
+    a = classes[i] - 1
+    b = classes[j] - 1
+    if a &lt; len(separation_v) and b &lt; len(separation_v[a]):
+        return separation_v[a][b]
+    return 0
+
+# ---------------------------------------------------------------------------
+# Model construction
+# ---------------------------------------------------------------------------
+
+model = cp_model.CpModel()
+
+# Decision variables – tighter domains give better propagation -------------
+left = []   # west  edge x-coordinate
+bottom = [] # south edge y-coordinate
+right = []  # east  edge x-coordinate (derived but declared for convenience)
+top = []    # north edge y-coordinate
+
+for i in range(n_containers):
+    if width[i]  &gt; deck_width  or length[i] &gt; deck_length:
+        # Impossible before modelling – print infeasible and exit early
+        print(json.dumps({&quot;right&quot;: [], &quot;top&quot;: [], &quot;left&quot;: [], &quot;bottom&quot;: []}))
+        raise SystemExit(0)
+
+    li = model.NewIntVar(0, deck_width  - width[i],   f&quot;left_{i}&quot;)
+    bi = model.NewIntVar(0, deck_length - length[i],  f&quot;bottom_{i}&quot;)
+    ri = model.NewIntVar(width[i],  deck_width,       f&quot;right_{i}&quot;)
+    ti = model.NewIntVar(length[i], deck_length,      f&quot;top_{i}&quot;)
+
+    left.append(li)
+    bottom.append(bi)
+    right.append(ri)
+    top.append(ti)
+
+    # Dimension linking (no rotation)
+    model.Add(ri == li + width[i])
+    model.Add(ti == bi + length[i])
+
+    # Inside-deck bounds (also enforced by domains, but added explicitly)
+    model.Add(li &gt;= 0)
+    model.Add(bi &gt;= 0)
+    model.Add(ri &lt;= deck_width)
+    model.Add(ti &lt;= deck_length)
+
+# ---------------------------------------------------------------------------
+# Non-overlap and class separations (constraints 4 &amp; 5)
+# ---------------------------------------------------------------------------
+for i in range(n_containers):
+    for j in range(i + 1, n_containers):
+        sep_x = sep_horizontal(i, j)  # horizontal mandatory gap ≥ 0
+        sep_y = sep_vertical(i, j)    # vertical   mandatory gap ≥ 0
+
+        # Boolean literals for the four possible relative positions
+        i_left_of_j = model.NewBoolVar(f&quot;i{i}_L_j{j}&quot;)
+        j_left_of_i = model.NewBoolVar(f&quot;j{j}_L_i{i}&quot;)
+        i_below_j   = model.NewBoolVar(f&quot;i{i}_B_j{j}&quot;)
+        j_below_i   = model.NewBoolVar(f&quot;j{j}_B_i{i}&quot;)
+
+        # Reified relations (⇒)
+        model.Add(right[i] + sep_x &lt;= left[j]).OnlyEnforceIf(i_left_of_j)
+        model.Add(right[j] + sep_x &lt;= left[i]).OnlyEnforceIf(j_left_of_i)
+        model.Add(top[i]  + sep_y &lt;= bottom[j]).OnlyEnforceIf(i_below_j)
+        model.Add(top[j]  + sep_y &lt;= bottom[i]).OnlyEnforceIf(j_below_i)
+
+        # At least one spatial relation must hold (∨)
+        model.AddBoolOr([i_left_of_j, j_left_of_i, i_below_j, j_below_i])
+
+# ---------------------------------------------------------------------------
+# Loading-sequence constraints (constraints 6 &amp; 7)
+# ---------------------------------------------------------------------------
+# Containers are loaded in index order 0,1,…,N-1.
+for k in range(n_containers):
+    # ---- WEST side contact -------------------------------------------------
+    w_wall = model.NewBoolVar(f&quot;c{k}_touch_W_wall&quot;)  # touches west deck wall
+    model.Add(left[k] == 0).OnlyEnforceIf(w_wall)
+    model.Add(left[k] &gt; 0).OnlyEnforceIf(w_wall.Not())  # reverse implication
+
+    west_alternatives = [w_wall]
+
+    for j in range(k):  # only containers already loaded can be touched
+        w_touch_j = model.NewBoolVar(f&quot;c{k}_touch_W_{j}&quot;)
+        west_alternatives.append(w_touch_j)
+
+        # Exact abutment: right[j] == left[k]
+        model.Add(right[j] == left[k]).OnlyEnforceIf(w_touch_j)
+        # Strict positive vertical overlap: bottom[k] &lt; top[j]  ∧ bottom[j] &lt; top[k]
+        model.Add(bottom[k] &lt; top[j]).OnlyEnforceIf(w_touch_j)
+        model.Add(bottom[j] &lt; top[k]).OnlyEnforceIf(w_touch_j)
+
+    # At least one WEST contact literal is true
+    model.AddBoolOr(west_alternatives)
+
+    # ---- NORTH side contact ------------------------------------------------
+    n_wall = model.NewBoolVar(f&quot;c{k}_touch_N_wall&quot;)  # touches north deck wall
+    model.Add(top[k] == deck_length).OnlyEnforceIf(n_wall)
+    model.Add(top[k] &lt; deck_length).OnlyEnforceIf(n_wall.Not())
+
+    north_alternatives = [n_wall]
+
+    for j in range(k):
+        n_touch_j = model.NewBoolVar(f&quot;c{k}_touch_N_{j}&quot;)
+        north_alternatives.append(n_touch_j)
+
+        # Exact abutment: top[k] == bottom[j]
+        model.Add(top[k] == bottom[j]).OnlyEnforceIf(n_touch_j)
+        # Strict positive horizontal overlap: left[k] &lt; right[j] ∧ left[j] &lt; right[k]
+        model.Add(left[k] &lt; right[j]).OnlyEnforceIf(n_touch_j)
+        model.Add(left[j] &lt; right[k]).OnlyEnforceIf(n_touch_j)
+
+    model.AddBoolOr(north_alternatives)
+
+# ---------------------------------------------------------------------------
+# Solve (pure feasibility – no objective)
+# ---------------------------------------------------------------------------
+solver = cp_model.CpSolver()
+solver.parameters.max_time_in_seconds = 10.0  # safety time-out
+solver.parameters.num_search_workers = max(1, min(os.cpu_count() or 1, 8))
+
+status = solver.Solve(model)
+
+# ---------------------------------------------------------------------------
+# Prepare JSON output – must contain exactly the requested keys.
+# ---------------------------------------------------------------------------
+if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    solution = {
+        &quot;right&quot;:  [solver.Value(v) for v in right],
+        &quot;top&quot;:    [solver.Value(v) for v in top],
+        &quot;left&quot;:   [solver.Value(v) for v in left],
+        &quot;bottom&quot;: [solver.Value(v) for v in bottom]
+    }
+else:
+    # Infeasible layout (or solver timeout without solution)
+    solution = {&quot;right&quot;: [], &quot;top&quot;: [], &quot;left&quot;: [], &quot;bottom&quot;: []}
+
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><pre class="code-block"><code class="language-json">{
+  &quot;right&quot;: [
+    5,
+    2,
+    5
+  ],
+  &quot;top&quot;: [
+    5,
+    4,
+    4
+  ],
+  &quot;left&quot;: [
+    0,
+    0,
+    2
+  ],
+  &quot;bottom&quot;: [
+    4,
+    0,
+    0
+  ]
+}</code></pre></details>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;deck_width&quot;: 5,
   &quot;deck_length&quot;: 5,
   &quot;n_containers&quot;: 3,
@@ -173,9 +3132,9 @@ separation = [  # Separation constraints between classes
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">bottom</span><span class="chip">left</span><span class="chip">right</span><span class="chip">top</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-47">Copy</button></div><pre class="code-block"><code id="solution-47" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">bottom</span><span class="chip">left</span><span class="chip">right</span><span class="chip">top</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-47">Copy</button></div><pre class="code-block"><code id="solution-47" class="language-json">{
   &quot;left&quot;: [
     0,
     1,
@@ -197,6 +3156,7 @@ separation = [  # Separation constraints between classes
     2
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -204,9 +3164,9 @@ separation = [  # Separation constraints between classes
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_008_vessel_loading/csplib_008_vessel_loading.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_008_vessel_loading/csplib_008_vessel_loading.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_007_all_interval.html">â† prev</a><a class="btn" href="csplib_009_perfect_square_placement.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_007_all_interval.html">← prev</a><a class="btn" href="csplib_009_perfect_square_placement.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

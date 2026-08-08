@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>cur_num Â· DCP-Bench Open</title>
-<meta name="description" content="The number 48 has this peculiarity, that if you add 1 to it the result is a square number, and if you add 1 to its half, you also get a square number. Print anâ€¦">
+<title>cur_num · DCP-Bench Open</title>
+<meta name="description" content="The number 48 has this peculiarity, that if you add 1 to it the result is a square number, and if you add 1 to its half, you also get a square number. Print an…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/cur_num.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cur_num.py</a></dd><dt>Source description</dt><dd>Curious Numbers from &quot;Amusements in Mathematics, Dudeney&quot;, number 114.</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (0)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-81">Copy</button></div><pre class="code-block"><code id="model-81" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -59,12 +60,242 @@ print(json.dumps(solution))
       <h3 style="margin-top:20px">Example instance data</h3>
       <pre class="code-block"><code id="None" class="language-python"># No example instance data.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">peculiar</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-81">Copy</button></div><pre class="code-block"><code id="solution-81" class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# &#x27;peculiar&#x27; is the number we want (between 1 and 10000)
+peculiar = cp.intvar(1, 10000, name=&quot;peculiar&quot;)
+
+# We&#x27;ll avoid nonlinear variable*variable by using Element constraints:
+# a_idx selects the sqrt (a) for peculiar+1 = a^2, where a in 1..100
+a_idx = cp.intvar(0, 100-1, name=&quot;a_idx&quot;)
+asq_map = [(i+1)*(i+1) for i in range(100)]  # a^2 values for a=1..100
+asq = cp.intvar(1, 10001, name=&quot;asq&quot;)  # will hold a^2
+
+# b_idx selects the sqrt (b) for peculiar/2 + 1 = b^2, where b in 1..71
+b_idx = cp.intvar(0, 71-1, name=&quot;b_idx&quot;)
+bsq_map = [(i+1)*(i+1) for i in range(71)]  # b^2 values for b=1..71
+bsq = cp.intvar(1, 71*71, name=&quot;bsq&quot;)  # will hold b^2
+
+# Constraints
+model += cp.Element(asq_map, a_idx) == asq
+model += cp.Element(bsq_map, b_idx) == bsq
+
+# peculiar = 2*(b^2 - 1)
+model += peculiar == 2 * (bsq - 1)
+
+# peculiar + 1 = a^2
+model += peculiar + 1 == asq
+
+# Exclude the known example 48, look for another one
+model += peculiar != 48
+
+# Ensure peculiar in range (domain already enforces this)
+# Solve
+if model.solve():
+    solution = {&#x27;peculiar&#x27;: int(peculiar.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# &#x27;peculiar&#x27; is the number we want (between 1 and 10000)
+peculiar = cp.intvar(1, 10000, name=&quot;peculiar&quot;)
+
+# We&#x27;ll avoid nonlinear variable*variable by using Element constraints:
+# a_idx selects the sqrt (a) for peculiar+1 = a^2, where a in 1..100
+a_idx = cp.intvar(0, 100-1, name=&quot;a_idx&quot;)
+asq_map = [(i+1)*(i+1) for i in range(100)]  # a^2 values for a=1..100
+asq = cp.intvar(1, 10001, name=&quot;asq&quot;)  # will hold a^2
+
+# b_idx selects the sqrt (b) for peculiar/2 + 1 = b^2, where b in 1..71
+b_idx = cp.intvar(0, 71-1, name=&quot;b_idx&quot;)
+bsq_map = [(i+1)*(i+1) for i in range(71)]  # b^2 values for b=1..71
+bsq = cp.intvar(1, 71*71, name=&quot;bsq&quot;)  # will hold b^2
+
+# Constraints
+model += cp.Element(asq_map, a_idx) == asq
+model += cp.Element(bsq_map, b_idx) == bsq
+
+# peculiar = 2*(b^2 - 1)
+model += peculiar == 2 * (bsq - 1)
+
+# peculiar + 1 = a^2
+model += peculiar + 1 == asq
+
+# Exclude the known example 48, look for another one
+model += peculiar != 48
+
+# Ensure peculiar in range (domain already enforces this)
+# Solve
+if model.solve():
+    solution = {&#x27;peculiar&#x27;: int(peculiar.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+import math
+
+# Data (optional)
+N_MIN = 1
+N_MAX = 10000
+
+# Precompute squares for constraints
+max_a = math.isqrt(N_MAX + 1)  # for x+1 = a^2
+squares1 = [i * i for i in range(1, max_a + 1)]
+
+max_h_plus_1 = (N_MAX // 2) + 1  # for (x//2)+1 = b^2
+max_b = math.isqrt(max_h_plus_1)
+squares2 = [i * i for i in range(1, max_b + 1)]
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+x = cp.intvar(N_MIN, N_MAX, name=&quot;x&quot;)
+h = cp.intvar(N_MIN // 2, N_MAX // 2, name=&quot;h&quot;)  # x = 2*h, h in [0..5000] but x&gt;=1 =&gt; h&gt;=0
+k1 = cp.intvar(0, len(squares1) - 1, name=&quot;k1&quot;)
+k2 = cp.intvar(0, len(squares2) - 1, name=&quot;k2&quot;)
+
+# Constraints
+# - x is even, modeled via x = 2*h
+model += (2 * h == x)
+# - x != 48 (find another number)
+model += (x != 48)
+# - x+1 is a perfect square
+model += (cp.Element(squares1, k1) == x + 1)
+# - (x//2)+1 is a perfect square -&gt; since x=2*h, this is h+1
+model += (cp.Element(squares2, k2) == h + 1)
+
+# Objective (optional)
+# None, just find any solution
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;peculiar&#x27;: int(x.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (42 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# &#x27;peculiar&#x27; is the number we want (between 1 and 10000)
+peculiar = cp.intvar(1, 10000, name=&quot;peculiar&quot;)
+
+# We&#x27;ll avoid nonlinear variable*variable by using Element constraints:
+# a_idx selects the sqrt (a) for peculiar+1 = a^2, where a in 1..100
+a_idx = cp.intvar(0, 100-1, name=&quot;a_idx&quot;)
+asq_map = [(i+1)*(i+1) for i in range(100)]  # a^2 values for a=1..100
+asq = cp.intvar(1, 10001, name=&quot;asq&quot;)  # will hold a^2
+
+# b_idx selects the sqrt (b) for peculiar/2 + 1 = b^2, where b in 1..71
+b_idx = cp.intvar(0, 71-1, name=&quot;b_idx&quot;)
+bsq_map = [(i+1)*(i+1) for i in range(71)]  # b^2 values for b=1..71
+bsq = cp.intvar(1, 71*71, name=&quot;bsq&quot;)  # will hold b^2
+
+# Constraints
+model += cp.Element(asq_map, a_idx) == asq
+model += cp.Element(bsq_map, b_idx) == bsq
+
+# peculiar = 2*(b^2 - 1)
+model += peculiar == 2 * (bsq - 1)
+
+# peculiar + 1 = a^2
+model += peculiar + 1 == asq
+
+# Exclude the known example 48, look for another one
+model += peculiar != 48
+
+# Ensure peculiar in range (domain already enforces this)
+# Solve
+if model.solve():
+    solution = {&#x27;peculiar&#x27;: int(peculiar.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><p class="desc">No instances available.</p></div>
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">peculiar</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-81">Copy</button></div><pre class="code-block"><code id="solution-81" class="language-json">{
   &quot;peculiar&quot;: 1680
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -72,9 +303,9 @@ print(json.dumps(solution))
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/cur_num/cur_num.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/cur_num/cur_num.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="curious_set_of_integers.html">â† prev</a><a class="btn" href="cutting_stock.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="curious_set_of_integers.html">← prev</a><a class="btn" href="cutting_stock.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

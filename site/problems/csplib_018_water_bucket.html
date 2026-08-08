@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>csplib_018_water_bucket Â· DCP-Bench Open</title>
-<meta name="description" content="You are given an 8 pint bucket of water, and two empty buckets which can contain 5 and 3 pints respectively. You are required to divide the water into two by pâ€¦">
+<title>csplib_018_water_bucket · DCP-Bench Open</title>
+<meta name="description" content="You are given an 8 pint bucket of water, and two empty buckets which can contain 5 and 3 pints respectively. You are required to divide the water into two by p…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob018/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob018/</a></dd><dt>Source model</dt><dd><a href="https://www.csplib.org/Problems/prob018/models/WaterBucket.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob018/models/WaterBucket.py.html</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (0)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-56">Copy</button></div><pre class="code-block"><code id="model-56" class="language-python">import cpmpy as cp
 import json
 import numpy as np
@@ -120,7 +121,8 @@ goal_state = [4, 4, 0]
 MAX_STEPS = 20      # The fixed length of the output sequence.
 PADDING_VALUE = -1   # The value used for padding unused steps.</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc">No generated models yet.</p></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;capacities&quot;: [
     8,
     5,
@@ -139,9 +141,9 @@ PADDING_VALUE = -1   # The value used for padding unused steps.</code></pre>
   &quot;MAX_STEPS&quot;: 20,
   &quot;PADDING_VALUE&quot;: -1
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">cost</span><span class="chip">sequence</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-56">Copy</button></div><pre class="code-block"><code id="solution-56" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">cost</span><span class="chip">sequence</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-56">Copy</button></div><pre class="code-block"><code id="solution-56" class="language-json">{
   &quot;cost&quot;: 7,
   &quot;sequence&quot;: [
     [
@@ -246,6 +248,7 @@ PADDING_VALUE = -1   # The value used for padding unused steps.</code></pre>
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -253,9 +256,9 @@ PADDING_VALUE = -1   # The value used for padding unused steps.</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_018_water_bucket/csplib_018_water_bucket.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/csplib_018_water_bucket/csplib_018_water_bucket.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_016_traffic_lights.html">â† prev</a><a class="btn" href="csplib_019_magic_squares_and_sequences.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_016_traffic_lights.html">← prev</a><a class="btn" href="csplib_019_magic_squares_and_sequences.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

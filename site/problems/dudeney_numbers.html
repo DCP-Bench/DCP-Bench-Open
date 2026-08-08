@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>dudeney_numbers Â· DCP-Bench Open</title>
-<meta name="description" content="A Dudeney Number is a positive integer that is a perfect cube such that the sum of its digits is equal to the cube root of the number. Print such a number (numâ€¦">
+<title>dudeney_numbers · DCP-Bench Open</title>
+<meta name="description" content="A Dudeney Number is a positive integer that is a perfect cube such that the sum of its digits is equal to the cube root of the number. Print such a number (num…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/dudeney_numbers.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/dudeney_numbers.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-89">Copy</button></div><pre class="code-block"><code id="model-89" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -60,14 +61,235 @@ print(json.dumps(solution, indent=4))
       <pre class="code-block"><code id="None" class="language-python"># max number of digits
 n = 6</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 6
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# digits: most-significant first, allow leading zeros
+digits = cp.intvar(0, 9, shape=n, name=&quot;digits&quot;)
+# cube root r (must be integer and &gt; 1)
+r_min = 2
+r_max = int((10**n - 1) ** (1/3))  # largest integer whose cube fits in n digits
+r = cp.intvar(r_min, r_max, name=&quot;r&quot;)
+# the number itself
+number = cp.intvar(2, 10**n - 1, name=&quot;number&quot;)
+
+# Precompute powers of 10 for positional values
+pow10 = [10 ** (n - 1 - i) for i in range(n)]
+
+# Constraints
+# number is formed by the digits
+model += (number == cp.sum([digits[i] * pow10[i] for i in range(n)]))
+# number is a perfect cube: number == r^3
+model += (number == r * r * r)
+# sum of digits equals the cube root
+model += (cp.sum(digits) == r)
+# ensure number &gt; 1 (already ensured by domains) and fits in n digits (domain does)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;number&#x27;: int(number.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 6
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# digits: most-significant first, allow leading zeros
+digits = cp.intvar(0, 9, shape=n, name=&quot;digits&quot;)
+# cube root r (must be integer and &gt; 1)
+r_min = 2
+r_max = int((10**n - 1) ** (1/3))  # largest integer whose cube fits in n digits
+r = cp.intvar(r_min, r_max, name=&quot;r&quot;)
+# the number itself
+number = cp.intvar(2, 10**n - 1, name=&quot;number&quot;)
+
+# Precompute powers of 10 for positional values
+pow10 = [10 ** (n - 1 - i) for i in range(n)]
+
+# Constraints
+# number is formed by the digits
+model += (number == cp.sum([digits[i] * pow10[i] for i in range(n)]))
+# number is a perfect cube: number == r^3
+model += (number == r * r * r)
+# sum of digits equals the cube root
+model += (cp.sum(digits) == r)
+# ensure number &gt; 1 (already ensured by domains) and fits in n digits (domain does)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;number&#x27;: int(number.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (46 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data (optional)
+# max number of digits
+n = 6
+# End of data
+
+# Helper to compute integer cube root
+def int_cuberoot(x):
+    r = 0
+    while (r + 1) ** 3 &lt;= x:
+        r += 1
+    return r
+
+# Derived data
+max_number = 10**n - 1
+weights = [10**(n - 1 - i) for i in range(n)]
+root_upper_bound = min(9 * n, int_cuberoot(max_number))
+cubes = [i**3 for i in range(root_upper_bound + 1)]
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+digits = cp.intvar(0, 9, shape=n, name=&quot;digits&quot;)
+number = cp.intvar(0, max_number, name=&quot;number&quot;)
+root = cp.intvar(0, root_upper_bound, name=&quot;root&quot;)
+
+# Constraints
+# number is represented by its decimal digits
+model += (number == cp.sum([digits[i] * weights[i] for i in range(n)]))
+# number greater than 1
+model += (number &gt; 1)
+# number is a perfect cube, and root is its cube root
+model += (cp.Element(cubes, root) == number)
+# sum of digits equals the cube root
+model += (cp.sum(digits) == root)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;number&#x27;: int(number.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (39 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+n = 6
+# End of data
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+# digits: most-significant first, allow leading zeros
+digits = cp.intvar(0, 9, shape=n, name=&quot;digits&quot;)
+# cube root r (must be integer and &gt; 1)
+r_min = 2
+r_max = int((10**n - 1) ** (1/3))  # largest integer whose cube fits in n digits
+r = cp.intvar(r_min, r_max, name=&quot;r&quot;)
+# the number itself
+number = cp.intvar(2, 10**n - 1, name=&quot;number&quot;)
+
+# Precompute powers of 10 for positional values
+pow10 = [10 ** (n - 1 - i) for i in range(n)]
+
+# Constraints
+# number is formed by the digits
+model += (number == cp.sum([digits[i] * pow10[i] for i in range(n)]))
+# number is a perfect cube: number == r^3
+model += (number == r * r * r)
+# sum of digits equals the cube root
+model += (cp.sum(digits) == r)
+# ensure number &gt; 1 (already ensured by domains) and fits in n digits (domain does)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;number&#x27;: int(number.value())}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;n&quot;: 6
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">number</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-89">Copy</button></div><pre class="code-block"><code id="solution-89" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">number</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-89">Copy</button></div><pre class="code-block"><code id="solution-89" class="language-json">{
   &quot;number&quot;: 512
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -75,9 +297,9 @@ n = 6</code></pre>
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/dudeney_numbers/dudeney_numbers.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/dudeney_numbers/dudeney_numbers.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="divisible_by_1_through_9.html">â† prev</a><a class="btn" href="eighteen_hole_golf.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="divisible_by_1_through_9.html">← prev</a><a class="btn" href="eighteen_hole_golf.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>

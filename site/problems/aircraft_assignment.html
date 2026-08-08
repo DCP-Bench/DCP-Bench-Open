@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>aircraft_assignment Â· DCP-Bench Open</title>
-<meta name="description" content="This problem involves assigning multiple types of aircraft to a set of routes to minimize the total operational cost. Each aircraft type has a limited number oâ€¦">
+<title>aircraft_assignment · DCP-Bench Open</title>
+<meta name="description" content="This problem involves assigning multiple types of aircraft to a set of routes to minimize the total operational cost. Each aircraft type has a limited number o…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -24,14 +24,15 @@
       <dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/aircraft_assignment" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/aircraft_assignment</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" type="button" data-tab="models">Models</button>
-      <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
-    </div>
-
-    <div class="tab-pane active" data-pane="models">
-      <h3>Model</h3>
+    <div class="tab-group">
+      <div class="tab-bar">
+        <button class="tab-btn active" type="button" data-tab="original">Original</button>
+        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
+        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
+        <button class="tab-btn" type="button" data-tab="solution">Example solution</button>
+      </div>
+      <div class="tab-pane active" data-pane="original">
+      <h3>Original model</h3>
       <div class="code-head"><span>python</span><button type="button" data-copy="model-4">Copy</button></div><pre class="code-block"><code id="model-4" class="language-python"># Import libraries
 from cpmpy import *
 import json
@@ -80,7 +81,288 @@ costs = [
     [200, 300]
 ]</code></pre>
     </div>
-    <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
+      <div class="tab-pane" data-pane="generated"><p class="desc verdict-legend" style="margin-bottom:12px"><span class="badge" style="background:#16a34a">solution valid · optimal</span> <span class="badge" style="background:#2563eb">solution valid</span> <span class="badge" style="background:#d97706">solution valid · not optimal</span> <span class="badge" style="background:#dc2626">solution not valid</span> <span class="badge" style="background:#6b7280">status unknown</span> </p><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">documentation_prompt_gpt_5_min</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+input_data = {
+    &quot;availability&quot;: [2, 3, 1],  # availability[i] is the number of available aircraft of type i
+    &quot;demand&quot;: [100, 150],  # demand[j] is the demand for route j
+    &quot;capabilities&quot;: [
+        [50, 70],  # capabilities[i][j] is the capacity of aircraft type i on route j
+        [60, 80],
+        [70, 90]
+    ],
+    &quot;costs&quot;: [
+        [100, 200],  # costs[i][j] is the cost of assigning aircraft type i to route j
+        [150, 250],
+        [200, 300]
+    ]
+}
+# End of data
+
+availability = input_data[&quot;availability&quot;]
+demand = input_data[&quot;demand&quot;]
+capabilities = input_data[&quot;capabilities&quot;]
+costs = input_data[&quot;costs&quot;]
+
+I = len(availability)  # number of aircraft types
+J = len(demand)        # number of routes
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+max_avail = max(availability)
+allocation = cp.intvar(0, max_avail, shape=(I, J), name=&quot;allocation&quot;)
+# allocation[i, j] = number of aircraft of type i assigned to route j
+
+# Constraints
+# 1) For each aircraft type, total assigned across routes &lt;= availability
+for i in range(I):
+    model += cp.sum(allocation[i, :]) &lt;= availability[i]
+
+# 2) For each route, total capacity provided &gt;= demand
+for j in range(J):
+    model += cp.sum([capabilities[i][j] * allocation[i, j] for i in range(I)]) &gt;= demand[j]
+
+# Objective: minimize total operational cost
+total_cost = cp.sum([costs[i][j] * allocation[i, j] for i in range(I) for j in range(J)])
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;allocation&#x27;: allocation.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">sampling_10_and_self_debug_10_</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+input_data = {
+    &quot;availability&quot;: [2, 3, 1],  # availability[i] is the number of available aircraft of type i
+    &quot;demand&quot;: [100, 150],  # demand[j] is the demand for route j
+    &quot;capabilities&quot;: [
+        [50, 70],  # capabilities[i][j] is the capacity of aircraft type i on route j
+        [60, 80],
+        [70, 90]
+    ],
+    &quot;costs&quot;: [
+        [100, 200],  # costs[i][j] is the cost of assigning aircraft type i to route j
+        [150, 250],
+        [200, 300]
+    ]
+}
+# End of data
+
+availability = input_data[&quot;availability&quot;]
+demand = input_data[&quot;demand&quot;]
+capabilities = input_data[&quot;capabilities&quot;]
+costs = input_data[&quot;costs&quot;]
+
+I = len(availability)  # number of aircraft types
+J = len(demand)        # number of routes
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+max_avail = max(availability)
+allocation = cp.intvar(0, max_avail, shape=(I, J), name=&quot;allocation&quot;)
+# allocation[i, j] = number of aircraft of type i assigned to route j
+
+# Constraints
+# 1) For each aircraft type, total assigned across routes &lt;= availability
+for i in range(I):
+    model += cp.sum(allocation[i, :]) &lt;= availability[i]
+
+# 2) For each route, total capacity provided &gt;= demand
+for j in range(J):
+    model += cp.sum([capabilities[i][j] * allocation[i, j] for i in range(I)]) &gt;= demand[j]
+
+# Objective: minimize total operational cost
+total_cost = cp.sum([costs[i][j] * allocation[i, j] for i in range(I) for j in range(J)])
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;allocation&#x27;: allocation.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5</div>
+          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+input_data = {
+    &quot;availability&quot;: [2, 3, 1],  # availability[i] is the number of available aircraft of type i
+    &quot;demand&quot;: [100, 150],  # demand[j] is the demand for route j
+    &quot;capabilities&quot;: [
+        [50, 70],  # capabilities[i][j] is the capacity of aircraft type i on route j
+        [60, 80],
+        [70, 90]
+    ],
+    &quot;costs&quot;: [
+        [100, 200],  # costs[i][j] is the cost of assigning aircraft type i to route j
+        [150, 250],
+        [200, 300]
+    ]
+}
+# End of data
+
+availability = input_data[&quot;availability&quot;]
+demand = input_data[&quot;demand&quot;]
+capabilities = input_data[&quot;capabilities&quot;]
+costs = input_data[&quot;costs&quot;]
+
+n_types = len(availability)
+n_routes = len(demand)
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+max_avail = max(availability) if availability else 0
+allocation = cp.intvar(0, max_avail, shape=(n_types, n_routes), name=&quot;allocation&quot;)
+
+# Constraints
+
+# 1) Availability constraints: sum of assigned aircraft per type does not exceed availability
+for i in range(n_types):
+    model += (cp.sum([allocation[i, j] for j in range(n_routes)]) &lt;= availability[i])
+
+# 2) Demand constraints: capacity provided on each route meets or exceeds demand
+for j in range(n_routes):
+    model += (cp.sum([allocation[i, j] * capabilities[i][j] for i in range(n_types)]) &gt;= demand[j])
+
+# Objective: Minimize total operational cost
+total_cost = cp.sum([allocation[i, j] * costs[i][j] for i in range(n_types) for j in range(n_routes)])
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;allocation&#x27;: allocation.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    
+    <div class="model-card">
+      <div class="model-card-head">
+        <div>
+          <div class="model-card-title">self_debug_gpt_5_mini</div>
+          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
+        </div>
+        <div><span class="badge" style="background:#6b7280">status unknown</span></div>
+      </div>
+      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
+      <details class="gmodel"><summary>model.py (56 lines)</summary><pre class="code-block"><code id="None" class="language-python">
+import cpmpy as cp
+import json
+
+# Data
+input_data = {
+    &quot;availability&quot;: [2, 3, 1],  # availability[i] is the number of available aircraft of type i
+    &quot;demand&quot;: [100, 150],  # demand[j] is the demand for route j
+    &quot;capabilities&quot;: [
+        [50, 70],  # capabilities[i][j] is the capacity of aircraft type i on route j
+        [60, 80],
+        [70, 90]
+    ],
+    &quot;costs&quot;: [
+        [100, 200],  # costs[i][j] is the cost of assigning aircraft type i to route j
+        [150, 250],
+        [200, 300]
+    ]
+}
+# End of data
+
+availability = input_data[&quot;availability&quot;]
+demand = input_data[&quot;demand&quot;]
+capabilities = input_data[&quot;capabilities&quot;]
+costs = input_data[&quot;costs&quot;]
+
+I = len(availability)  # number of aircraft types
+J = len(demand)        # number of routes
+
+# Model definition
+model = cp.Model()
+
+# Decision Variables
+max_avail = max(availability)
+allocation = cp.intvar(0, max_avail, shape=(I, J), name=&quot;allocation&quot;)
+# allocation[i, j] = number of aircraft of type i assigned to route j
+
+# Constraints
+# 1) For each aircraft type, total assigned across routes &lt;= availability
+for i in range(I):
+    model += cp.sum(allocation[i, :]) &lt;= availability[i]
+
+# 2) For each route, total capacity provided &gt;= demand
+for j in range(J):
+    model += cp.sum([capabilities[i][j] * allocation[i, j] for i in range(I)]) &gt;= demand[j]
+
+# Objective: minimize total operational cost
+total_cost = cp.sum([costs[i][j] * allocation[i, j] for i in range(I) for j in range(J)])
+model.minimize(total_cost)
+
+# Solve and print
+if model.solve():
+    solution = {&#x27;allocation&#x27;: allocation.value().tolist()}
+    print(json.dumps(solution, indent=4))
+else:
+    print(&quot;No solution found.&quot;)
+</code></pre></details>
+      
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+    </div>
+    </div></div></div>
+      <div class="tab-pane" data-pane="instances"><details class="instance"><summary>Instance 1</summary><pre><code class="language-json">{
   &quot;availability&quot;: [
     2,
     3,
@@ -119,9 +401,9 @@ costs = [
     ]
   ]
 }</code></pre></details></div>
-    <div class="tab-pane" data-pane="solution">
-      <h3>Decision variables</h3><p><span class="chip">allocation</span></p>
-      <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-4">Copy</button></div><pre class="code-block"><code id="solution-4" class="language-json">{
+      <div class="tab-pane" data-pane="solution">
+        <h3>Decision variables</h3><p><span class="chip">allocation</span></p>
+        <h3>Example solution</h3><div class="code-head"><span>json</span><button type="button" data-copy="solution-4">Copy</button></div><pre class="code-block"><code id="solution-4" class="language-json">{
   &quot;allocation&quot;: [
     [
       2,
@@ -137,6 +419,7 @@ costs = [
     ]
   ]
 }</code></pre>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
@@ -144,9 +427,9 @@ costs = [
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/aircraft_assignment/aircraft_assignment.json" target="_blank" rel="noopener">Instances JSON</a>
       <a class="btn" href="https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main/dataset/aircraft_assignment/aircraft_assignment.json" target="_blank" rel="noopener">Raw instances</a>
     </div>
-    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="age_changing.html">â† prev</a><a class="btn" href="aircraft_landing.html">next â†’</a></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="age_changing.html">← prev</a><a class="btn" href="aircraft_landing.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> Â· commit <code>349d34f</code> Â· <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>1a19e78</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
