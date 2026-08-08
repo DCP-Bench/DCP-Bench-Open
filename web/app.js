@@ -9,12 +9,10 @@
 
     var data = window.DCP_DATA.problems || [];
     var query = (document.getElementById("filter-q") || { value: "" }).value.trim().toLowerCase();
-    var cat = (document.getElementById("filter-cat") || { value: "" }).value;
     var fw = (document.getElementById("filter-fw") || { value: "" }).value;
     var origin = (document.getElementById("filter-origin") || { value: "" }).value;
 
     var filtered = data.filter(function (p) {
-      if (cat && p.category !== cat) return false;
       if (fw && p.frameworks.indexOf(fw) === -1) return false;
       if (origin && (p.origin || "hand") !== origin) return false;
       if (query) {
@@ -86,7 +84,7 @@
 
   function initIndex() {
     if (!window.DCP_DATA) return;
-    ["filter-q", "filter-cat", "filter-fw", "filter-origin"].forEach(function (id) {
+    ["filter-q", "filter-fw", "filter-origin"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener("input", renderCards);
     });
