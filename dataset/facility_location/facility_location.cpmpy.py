@@ -4,8 +4,8 @@
 
 """
 A company is considering opening warehouses in four cities to meet regional demands at minimal costs. The potential
-cities for these warehouses are New York, Los Angeles, Chicago, and Atlanta. The company needs to decide which 
-warehouses to open based on several constraints: 1. If the New York warehouse is opened, then the Los Angeles 
+cities for these warehouses are New York, Los Angeles, Chicago, and Atlanta. The company needs to decide which
+warehouses to open based on several constraints: 1. If the New York warehouse is opened, then the Los Angeles
 warehouse must also be opened. 2. No more than three warehouses can be operational in any given week. 3. Either the 
 Atlanta or the Los Angeles warehouse must be opened. The objective is to determine the optimal set of warehouses to open
 and the distribution of shipments to various regions to minimize total costs.
@@ -51,12 +51,13 @@ for i in range(num_companies):
 
 # the demands of the regions
 for j in range(num_regions):
-    model += sum([ships[i, j] for i in range(num_regions)]) >= demands[j]
+    model += sum([ships[i, j] for i in range(num_companies)]) >= demands[j]
 
 # total cost
-model += [total_cost == sum(
-    [open_warehouse[i] * fixed_costs[i] + sum([ships[i, j] * costs[i, j] for j in range(num_regions)]) for i in
-     range(num_companies)])]
+model += [total_cost ==
+          sum([open_warehouse[i] * fixed_costs[i] + sum([ships[i, j] * costs[i, j] for j in range(num_regions)])
+               for i in range(num_companies)]
+)]
 
 # 1. If the New York warehouse is opened, then the Los Angeles warehouse must be opened.
 model += open_warehouse[new_york].implies(open_warehouse[los_angeles])
