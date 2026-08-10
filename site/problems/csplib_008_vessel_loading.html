@@ -170,147 +170,85 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (128 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_008_vessel_loading-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-csplib_008_vessel_loading-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (71 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_008_vessel_loading-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_008_vessel_loading-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Problem: Vessel Loading - pack containers on deck without overlapping
-# Constraints:
-# - Containers must fit within deck boundaries
-# - No overlapping containers
-# - Separation constraints between classes (all same class here, so no separation needed)
-
-# Input data
-deck_width = 5  # Width of the deck 
-deck_length = 5  # Length of the deck 
-n_containers = 3  # Number of containers 
-width = [5, 2, 3]  # Widths of containers 
-length = [1, 4, 4]  # Lengths of containers 
-classes = [1, 1, 1]  # Classes of containers 
+# Parameters
+deck_width = 5  # Width of the deck
+deck_length = 5  # Length of the deck
+n_containers = 3  # Number of containers
+width = [5, 2, 3]  # Widths of containers
+length = [1, 4, 4]  # Lengths of containers
+classes = [1, 1, 1]  # Classes of containers
 separation = [  # Separation constraints between classes
     [0, 0],
-    [0, 0] 
+    [0, 0]
 ]
 
-# Step 2: Model with CPMpy
-model = cp.Model()
+# Decision Variables
+left = intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
+right = intvar(0, deck_width, shape=n_containers, name=&quot;right&quot;)
+bottom = intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+top = intvar(0, deck_length, shape=n_containers, name=&quot;top&quot;)
 
-# Decision variables: position of each container
-# left[i] = left edge x-coordinate of container i
-# bottom[i] = bottom edge y-coordinate of container i
-left = cp.intvar(0, deck_width, shape=n_containers, name=&quot;left&quot;)
-bottom = cp.intvar(0, deck_length, shape=n_containers, name=&quot;bottom&quot;)
+# Model
+model = Model()
 
-# Derived variables for convenience
-right = [left[i] + width[i] for i in range(n_containers)]
-top = [bottom[i] + length[i] for i in range(n_containers)]
+# Container dimensions
+for i in range(n_containers):
+    model += right[i] == left[i] + width[i]
+    model += top[i] == bottom[i] + length[i]
 
-# Constraints:
-# 1. Containers must fit within deck boundaries
+# Containers must be within deck boundaries
 for i in range(n_containers):
     model += right[i] &lt;= deck_width
     model += top[i] &lt;= deck_length
 
-# 2. No overlapping containers
-# Two rectangles don&#x27;t overlap if one is completely to the left, right, above, or below the other
+# No overlapping containers
 for i in range(n_containers):
     for j in range(i+1, n_containers):
-        # Container i is to the left of j OR j is to the left of i OR
-        # Container i is below j OR j is below i
-        model += (right[i] &lt;= left[j]) | (right[j] &lt;= left[i]) | \
-                 (top[i] &lt;= bottom[j]) | (top[j] &lt;= bottom[i])
+        model += (right[i] &lt;= left[j]) | (right[j] &lt;= left[i]) | (top[i] &lt;= bottom[j]) | (top[j] &lt;= bottom[i])
 
-# 3. Separation constraints
-# Since all containers are class 1 and separation[0][0] = 0, no additional separation needed
+# First container must be in southeast corner
+model += left[0] == 0
+model += bottom[0] == deck_length - length[0]
 
-# 4. Symmetry breaking (performance improvement)
-# Fix container 0 to be leftmost to break symmetry
-model += left[0] &lt;= left[1]
-model += left[0] &lt;= left[2]
+# Loading sequence constraints (each subsequent container must touch north and west)
+for i in range(1, n_containers):
+    # Must touch west (either left edge of deck or right edge of another container)
+    west_touch = [left[i] == 0]  # Touches west wall
+    for j in range(i):
+        west_touch.append(left[i] &lt;= right[j])  # Touches or overlaps with another container&#x27;s right
+        west_touch.append(right[j] &lt;= left[i])  # Exact touching condition
+    model += any(west_touch)
+    
+    # Must touch north (either top edge of deck or bottom edge of another container)
+    north_touch = [top[i] == deck_length]  # Touches north wall
+    for j in range(i):
+        north_touch.append(bottom[i] &lt;= top[j])  # Touches or overlaps with another container&#x27;s top
+        north_touch.append(top[j] &lt;= bottom[i])  # Exact touching condition
+    model += any(north_touch)
 
-# Step 3: Solve &amp; Verify
-if model.solve():
-    # Extract solution values
-    left_vals = left.value()
-    bottom_vals = bottom.value()
-    right_vals = [left_vals[i] + width[i] for i in range(n_containers)]
-    top_vals = [bottom_vals[i] + length[i] for i in range(n_containers)]
-    
-    # Create solution in required format
-    solution = {
-        &quot;left&quot;: [int(x) for x in left_vals],
-        &quot;right&quot;: [int(x) for x in right_vals],
-        &quot;top&quot;: [int(x) for x in top_vals],
-        &quot;bottom&quot;: [int(x) for x in bottom_vals]
-    }
-    
-    # Verification
-    def verify_solution(sol):
-        &quot;&quot;&quot;Independent verification of the solution&quot;&quot;&quot;
-        
-        # 1. Structural Verification
-        if len(sol[&quot;left&quot;]) != n_containers:
-            return False, f&quot;Wrong number of left positions&quot;
-        if len(sol[&quot;right&quot;]) != n_containers:
-            return False, f&quot;Wrong number of right positions&quot;
-        if len(sol[&quot;top&quot;]) != n_containers:
-            return False, f&quot;Wrong number of top positions&quot;
-        if len(sol[&quot;bottom&quot;]) != n_containers:
-            return False, f&quot;Wrong number of bottom positions&quot;
-        
-        # 2. Logical Verification
-        left_pos = sol[&quot;left&quot;]
-        right_pos = sol[&quot;right&quot;]
-        top_pos = sol[&quot;top&quot;]
-        bottom_pos = sol[&quot;bottom&quot;]
-        
-        # Check container dimensions are correct
-        for i in range(n_containers):
-            if right_pos[i] - left_pos[i] != width[i]:
-                return False, f&quot;Container {i} width mismatch&quot;
-            if top_pos[i] - bottom_pos[i] != length[i]:
-                return False, f&quot;Container {i} length mismatch&quot;
-        
-        # Check containers fit within deck
-        for i in range(n_containers):
-            if left_pos[i] &lt; 0 or right_pos[i] &gt; deck_width:
-                return False, f&quot;Container {i} exceeds deck width&quot;
-            if bottom_pos[i] &lt; 0 or top_pos[i] &gt; deck_length:
-                return False, f&quot;Container {i} exceeds deck length&quot;
-        
-        # Check no overlapping
-        for i in range(n_containers):
-            for j in range(i+1, n_containers):
-                # Check if rectangles overlap
-                x_overlap = not (right_pos[i] &lt;= left_pos[j] or right_pos[j] &lt;= left_pos[i])
-                y_overlap = not (top_pos[i] &lt;= bottom_pos[j] or top_pos[j] &lt;= bottom_pos[i])
-                
-                if x_overlap and y_overlap:
-                    return False, f&quot;Containers {i} and {j} overlap&quot;
-        
-        return True, &quot;All constraints satisfied&quot;
-    
-    # Verify the solution
-    valid, msg = verify_solution(solution)
-    assert valid, f&quot;Verification failed: {msg}&quot;
-    
-    # Step 4: Output
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_008_vessel_loading-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-csplib_008_vessel_loading-cpagent" class="language-json">{
-  &quot;left&quot;: [
-    0,
-    3,
-    0
-  ],
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;right&quot;: right.value().tolist(),
+    &quot;top&quot;: top.value().tolist(),
+    &quot;left&quot;: left.value().tolist(),
+    &quot;bottom&quot;: bottom.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_008_vessel_loading-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-csplib_008_vessel_loading-anonymous_submission" class="language-json">{
   &quot;right&quot;: [
     5,
     5,
@@ -321,13 +259,18 @@ else:
     4,
     4
   ],
+  &quot;left&quot;: [
+    0,
+    3,
+    0
+  ],
   &quot;bottom&quot;: [
     4,
     0,
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_008_vessel_loading/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_008_vessel_loading/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -336,7 +279,7 @@ else:
           <div class="model-card-title">guidelines_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (74 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_008_vessel_loading-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_008_vessel_loading-guidelines_prompt_mnz" class="language-minizinc">
@@ -445,7 +388,7 @@ output [
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (118 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_008_vessel_loading-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_008_vessel_loading-guidelines_prompt_ort" class="language-python">
@@ -599,7 +542,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_007_all_interval.html">← prev</a><a class="btn" href="csplib_009_perfect_square_placement.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

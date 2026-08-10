@@ -66,100 +66,70 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (86 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-allergy-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-allergy-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (56 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-allergy-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-allergy-anonymous_submission" class="language-python">from cpmpy import *
 import json
+import numpy as np
 
-# Step 1: Problem Analysis
-# Four friends: Debra=0, Janet=1, Hugh=2, Rick=3
-# Allergies: eggs, mold, nuts, ragweed (each person has exactly one)
-# Surnames: baxter, lemon, malone, fleet (each person has exactly one)
+# Decision Variables
+# Friends: Debra=0, Janet=1, Hugh=2, Rick=3
+# Allergies: eggs=0, mold=1, nuts=2, ragweed=3
+# Surnames: Baxter=0, Lemon=1, Malone=2, Fleet=3
 
-# Step 2: Model with CPMpy
-# Decision variables: For each allergy/surname, which person (0-3) has it
-eggs_person = cp.intvar(0, 3, name=&quot;eggs&quot;)
-mold_person = cp.intvar(0, 3, name=&quot;mold&quot;) 
-nuts_person = cp.intvar(0, 3, name=&quot;nuts&quot;)
-ragweed_person = cp.intvar(0, 3, name=&quot;ragweed&quot;)
+allergies = intvar(0, 3, shape=4, name=&quot;allergies&quot;)  # allergies[friend] = allergy
+surnames = intvar(0, 3, shape=4, name=&quot;surnames&quot;)    # surnames[friend] = surname
 
-baxter_person = cp.intvar(0, 3, name=&quot;baxter&quot;)
-lemon_person = cp.intvar(0, 3, name=&quot;lemon&quot;)
-malone_person = cp.intvar(0, 3, name=&quot;malone&quot;)
-fleet_person = cp.intvar(0, 3, name=&quot;fleet&quot;)
+# Model
+model = Model()
 
-model = cp.Model()
+# All variables must be distinct
+model += AllDifferent(allergies)
+model += AllDifferent(surnames)
 
-# Step 3: Add constraints
-# Each person has exactly one allergy and one surname
-model += cp.AllDifferent([eggs_person, mold_person, nuts_person, ragweed_person])
-model += cp.AllDifferent([baxter_person, lemon_person, malone_person, fleet_person])
+# Constraint 1: Rick is not allergic to mold (Rick=3, mold=1)
+model += allergies[3] != 1
 
-# Specific constraints from problem:
-# 1. Rick (3) is not allergic to mold
-model += mold_person != 3
+# Constraint 2: Baxter is allergic to eggs (Baxter=0, eggs=0)
+model += (surnames == 0).implies(allergies == 0)
 
-# 2. Baxter is allergic to eggs
-model += baxter_person == eggs_person
+# Constraint 3: Hugh is neither surnamed Lemon nor Fleet (Hugh=2, Lemon=1, Fleet=3)
+model += surnames[2] != 1
+model += surnames[2] != 3
 
-# 3. Hugh (2) is neither surnamed Lemon nor Fleet
-model += lemon_person != 2
-model += fleet_person != 2
+# Constraint 4: Debra is allergic to ragweed (Debra=0, ragweed=3)
+model += allergies[0] == 3
 
-# 4. Debra (0) is allergic to ragweed
-model += ragweed_person == 0
+# Constraint 5: Janet (who isn&#x27;t Lemon) is neither allergic to eggs nor to mold (Janet=1, Lemon=1, eggs=0, mold=1)
+model += surnames[1] != 1
+model += allergies[1] != 0
+model += allergies[1] != 1
 
-# 5. Janet (1) who isn&#x27;t Lemon is neither allergic to eggs nor to mold
-model += lemon_person != 1  # Janet isn&#x27;t Lemon
-model += eggs_person != 1   # Janet not allergic to eggs
-model += mold_person != 1   # Janet not allergic to mold
+# Solve
+model.solve()
 
-# Step 4: Solve and verify
-if model.solve():
-    solution = {
-        &quot;eggs&quot;: eggs_person.value(),
-        &quot;mold&quot;: mold_person.value(), 
-        &quot;nuts&quot;: nuts_person.value(),
-        &quot;ragweed&quot;: ragweed_person.value(),
-        &quot;baxter&quot;: baxter_person.value(),
-        &quot;lemon&quot;: lemon_person.value(),
-        &quot;malone&quot;: malone_person.value(),
-        &quot;fleet&quot;: fleet_person.value()
-    }
-    
-    # Verification
-    def verify_solution(sol):
-        allergy_assignments = [sol[&quot;eggs&quot;], sol[&quot;mold&quot;], sol[&quot;nuts&quot;], sol[&quot;ragweed&quot;]]
-        surname_assignments = [sol[&quot;baxter&quot;], sol[&quot;lemon&quot;], sol[&quot;malone&quot;], sol[&quot;fleet&quot;]]
-        
-        # Structural checks
-        if len(set(allergy_assignments)) != 4 or len(set(surname_assignments)) != 4:
-            return False
-        
-        # Logical constraint checks
-        if sol[&quot;mold&quot;] == 3:  # Rick not allergic to mold
-            return False
-        if sol[&quot;baxter&quot;] != sol[&quot;eggs&quot;]:  # Baxter allergic to eggs
-            return False
-        if sol[&quot;lemon&quot;] == 2 or sol[&quot;fleet&quot;] == 2:  # Hugh not Lemon or Fleet
-            return False
-        if sol[&quot;ragweed&quot;] != 0:  # Debra allergic to ragweed
-            return False
-        if sol[&quot;lemon&quot;] == 1 or sol[&quot;eggs&quot;] == 1 or sol[&quot;mold&quot;] == 1:  # Janet constraints
-            return False
-        
-        return True
-    
-    assert verify_solution(solution), &quot;Solution verification failed!&quot;
-    
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-allergy-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-allergy-cpagent" class="language-json">{
+# Prepare solution
+allergies_val = allergies.value()
+surnames_val = surnames.value()
+
+solution = {
+    &quot;eggs&quot;: int(np.where(allergies_val == 0)[0][0]),
+    &quot;mold&quot;: int(np.where(allergies_val == 1)[0][0]),
+    &quot;nuts&quot;: int(np.where(allergies_val == 2)[0][0]),
+    &quot;ragweed&quot;: int(np.where(allergies_val == 3)[0][0]),
+    &quot;baxter&quot;: int(np.where(surnames_val == 0)[0][0]),
+    &quot;lemon&quot;: int(np.where(surnames_val == 1)[0][0]),
+    &quot;malone&quot;: int(np.where(surnames_val == 2)[0][0]),
+    &quot;fleet&quot;: int(np.where(surnames_val == 3)[0][0])
+}
+
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-allergy-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-allergy-anonymous_submission" class="language-json">{
   &quot;eggs&quot;: 3,
   &quot;mold&quot;: 2,
   &quot;nuts&quot;: 1,
@@ -169,7 +139,7 @@ else:
   &quot;malone&quot;: 2,
   &quot;fleet&quot;: 1
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/allergy/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/allergy/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="or-tools">
     <div class="model-card">
@@ -284,7 +254,7 @@ print(json.dumps(result))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="aircraft_landing.html">← prev</a><a class="btn" href="among.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

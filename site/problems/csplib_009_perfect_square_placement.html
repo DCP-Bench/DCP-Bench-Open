@@ -239,120 +239,62 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (98 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_009_perfect_square_placement-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-csplib_009_perfect_square_placement-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (40 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_009_perfect_square_placement-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_009_perfect_square_placement-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Problem: Perfect Square Placement - pack squares into a larger square without overlap
-# Constraints:
-# 1. All squares must fit within the large square boundaries
-# 2. No two squares can overlap
-# 3. All squares must be placed (perfect packing)
-
-# Input data
+# Parameters
 base = 6  # Side length of the large square
 sides = [3, 3, 3, 2, 1, 1, 1, 1, 1]  # Side lengths of the smaller squares
-n = len(sides)
+n_squares = len(sides)
 
-# Step 2: Model with CPMpy
-model = cp.Model()
+# Decision Variables
+x_coords = intvar(0, base, shape=n_squares, name=&quot;x_coords&quot;)  # x coordinates of squares
+y_coords = intvar(0, base, shape=n_squares, name=&quot;y_coords&quot;)  # y coordinates of squares
 
-# Decision variables: bottom-left coordinates of each square
-x_coords = cp.intvar(0, base-1, shape=n, name=&quot;x_coords&quot;)
-y_coords = cp.intvar(0, base-1, shape=n, name=&quot;y_coords&quot;)
+# Model
+model = Model()
 
-# Constraint 1: Boundary constraints - squares must fit within the large square
-for i in range(n):
-    model += x_coords[i] + sides[i] &lt;= base  # Right edge within bounds
-    model += y_coords[i] + sides[i] &lt;= base  # Top edge within bounds
+# Constraint: squares must fit within the large square
+for i in range(n_squares):
+    model += x_coords[i] + sides[i] &lt;= base
+    model += y_coords[i] + sides[i] &lt;= base
 
-# Constraint 2: Non-overlap constraints
-from itertools import combinations
-for i, j in combinations(range(n), 2):
-    # Two squares don&#x27;t overlap if one of these conditions is true:
-    model += (
-        (x_coords[i] + sides[i] &lt;= x_coords[j]) |  # i left of j
-        (x_coords[j] + sides[j] &lt;= x_coords[i]) |  # j left of i
-        (y_coords[i] + sides[i] &lt;= y_coords[j]) |  # i below j
-        (y_coords[j] + sides[j] &lt;= y_coords[i])    # j below i
-    )
+# Constraint: no two squares overlap
+for i in range(n_squares):
+    for j in range(i+1, n_squares):
+        model += (
+            (x_coords[i] + sides[i] &lt;= x_coords[j]) |
+            (x_coords[j] + sides[j] &lt;= x_coords[i]) |
+            (y_coords[i] + sides[i] &lt;= y_coords[j]) |
+            (y_coords[j] + sides[j] &lt;= y_coords[i])
+        )
 
-# Performance constraints: Symmetry breaking for identical squares
-# Order the three size-3 squares by x-coordinate
-model += x_coords[0] &lt;= x_coords[1]
-model += x_coords[1] &lt;= x_coords[2]
+# Solve
+model.solve()
 
-# Order the five size-1 squares by x-coordinate (indices 4-8)
-for i in range(4, 8):
-    model += x_coords[i] &lt;= x_coords[i+1]
-
-# Step 3: Solve and verify
-if model.solve():
-    # Extract solution
-    x_solution = x_coords.value().tolist()
-    y_solution = y_coords.value().tolist()
-    
-    # Verification (independent of CPMpy)
-    def verify_solution(x_coords, y_coords, sides, base):
-        n = len(sides)
-        
-        # Check boundaries
-        for i in range(n):
-            if x_coords[i] &lt; 0 or y_coords[i] &lt; 0:
-                return False
-            if x_coords[i] + sides[i] &gt; base or y_coords[i] + sides[i] &gt; base:
-                return False
-        
-        # Check non-overlap
-        for i in range(n):
-            for j in range(i+1, n):
-                left_of = x_coords[i] + sides[i] &lt;= x_coords[j]
-                right_of = x_coords[j] + sides[j] &lt;= x_coords[i]
-                below = y_coords[i] + sides[i] &lt;= y_coords[j]
-                above = y_coords[j] + sides[j] &lt;= y_coords[i]
-                
-                if not (left_of or right_of or below or above):
-                    return False
-        
-        # Check perfect packing
-        grid = [[False for _ in range(base)] for _ in range(base)]
-        for i in range(n):
-            for dx in range(sides[i]):
-                for dy in range(sides[i]):
-                    x, y = x_coords[i] + dx, y_coords[i] + dy
-                    if grid[y][x]:
-                        return False
-                    grid[y][x] = True
-        
-        return True
-    
-    assert verify_solution(x_solution, y_solution, sides, base), &quot;Solution verification failed!&quot;
-    
-    # Step 4: Output in required JSON format
-    solution = {
-        &quot;x_coords&quot;: x_solution,
-        &quot;y_coords&quot;: y_solution
-    }
-    
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_009_perfect_square_placement-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-csplib_009_perfect_square_placement-cpagent" class="language-json">{
+# Print solution
+solution = {
+    &quot;x_coords&quot;: x_coords.value().tolist(),
+    &quot;y_coords&quot;: y_coords.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_009_perfect_square_placement-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-csplib_009_perfect_square_placement-anonymous_submission" class="language-json">{
   &quot;x_coords&quot;: [
     0,
     0,
     3,
     3,
-    3,
-    4,
     5,
+    4,
+    3,
     5,
     5
   ],
@@ -361,14 +303,14 @@ else:
     3,
     2,
     0,
-    5,
-    5,
     0,
-    1,
-    5
+    5,
+    5,
+    5,
+    1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_009_perfect_square_placement/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_009_perfect_square_placement/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -377,7 +319,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (36 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_009_perfect_square_placement-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_009_perfect_square_placement-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -450,7 +392,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (61 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_009_perfect_square_placement-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_009_perfect_square_placement-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -549,7 +491,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_008_vessel_loading.html">← prev</a><a class="btn" href="csplib_010_social_golfers_problem.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

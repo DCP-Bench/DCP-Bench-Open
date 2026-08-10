@@ -63,94 +63,59 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (80 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-send_more_money-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-send_more_money-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (45 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-send_more_money-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-send_more_money-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Send More Money Cryptarithmetic Puzzle
-# SEND + MORE = MONEY
-# Each letter represents a unique digit 0-9
-# Leading letters (S, M) cannot be 0
+# Decision Variables
+s = intvar(0, 9, name=&quot;s&quot;)  # S
+e = intvar(0, 9, name=&quot;e&quot;)  # E
+n = intvar(0, 9, name=&quot;n&quot;)  # N
+d = intvar(0, 9, name=&quot;d&quot;)  # D
+m = intvar(0, 9, name=&quot;m&quot;)  # M
+o = intvar(0, 9, name=&quot;o&quot;)  # O
+r = intvar(0, 9, name=&quot;r&quot;)  # R
+y = intvar(0, 9, name=&quot;y&quot;)  # Y
 
-# Create model
-model = cp.Model()
+# Model
+model = Model()
 
-# Decision variables: each letter is a digit 0-9
-s = cp.intvar(0, 9, name=&quot;s&quot;)
-e = cp.intvar(0, 9, name=&quot;e&quot;) 
-n = cp.intvar(0, 9, name=&quot;n&quot;)
-d = cp.intvar(0, 9, name=&quot;d&quot;)
-m = cp.intvar(0, 9, name=&quot;m&quot;)
-o = cp.intvar(0, 9, name=&quot;o&quot;)
-r = cp.intvar(0, 9, name=&quot;r&quot;)
-y = cp.intvar(0, 9, name=&quot;y&quot;)
+# Constraint: All letters must have distinct values
+model += AllDifferent([s, e, n, d, m, o, r, y])
 
-# Constraints
-letters = [s, e, n, d, m, o, r, y]
+# Constraint: First letters cannot be zero
+model += s != 0
+model += m != 0
 
-# All letters must represent different digits
-model += cp.AllDifferent(letters)
-
-# Leading digits cannot be zero
-model += s != 0  # SEND cannot start with 0
-model += m != 0  # MORE and MONEY cannot start with 0
-
-# Arithmetic constraint: SEND + MORE = MONEY
+# Constraint: SEND + MORE = MONEY
 send = 1000*s + 100*e + 10*n + d
 more = 1000*m + 100*o + 10*r + e
 money = 10000*m + 1000*o + 100*n + 10*e + y
+model += (send + more) == money
 
-model += send + more == money
+# Solve
+model.solve()
 
-# Solve the model
-if model.solve():
-    # Extract solution
-    solution = {
-        &quot;s&quot;: s.value(),
-        &quot;e&quot;: e.value(),
-        &quot;n&quot;: n.value(),
-        &quot;d&quot;: d.value(),
-        &quot;m&quot;: m.value(),
-        &quot;o&quot;: o.value(),
-        &quot;r&quot;: r.value(),
-        &quot;y&quot;: y.value()
-    }
-    
-    # Verification
-    def verify_solution(sol):
-        # Check all values are digits 0-9
-        for key, value in sol.items():
-            if not isinstance(value, int) or value &lt; 0 or value &gt; 9:
-                return False
-        
-        # Check all digits are unique
-        values = list(sol.values())
-        if len(set(values)) != len(values):
-            return False
-        
-        # Check leading digit constraints
-        if sol[&quot;s&quot;] == 0 or sol[&quot;m&quot;] == 0:
-            return False
-        
-        # Verify arithmetic: SEND + MORE = MONEY
-        send_val = 1000*sol[&quot;s&quot;] + 100*sol[&quot;e&quot;] + 10*sol[&quot;n&quot;] + sol[&quot;d&quot;]
-        more_val = 1000*sol[&quot;m&quot;] + 100*sol[&quot;o&quot;] + 10*sol[&quot;r&quot;] + sol[&quot;e&quot;]
-        money_val = 10000*sol[&quot;m&quot;] + 1000*sol[&quot;o&quot;] + 100*sol[&quot;n&quot;] + 10*sol[&quot;e&quot;] + sol[&quot;y&quot;]
-        
-        return send_val + more_val == money_val
-    
-    assert verify_solution(solution), &quot;Solution verification failed!&quot;
-    
-    # Output in required JSON format
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-send_more_money-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-send_more_money-cpagent" class="language-json">{
+# Print solution
+solution = {
+    &quot;s&quot;: s.value(),
+    &quot;e&quot;: e.value(),
+    &quot;n&quot;: n.value(),
+    &quot;d&quot;: d.value(),
+    &quot;m&quot;: m.value(),
+    &quot;o&quot;: o.value(),
+    &quot;r&quot;: r.value(),
+    &quot;y&quot;: y.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-send_more_money-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-send_more_money-anonymous_submission" class="language-json">{
   &quot;s&quot;: 9,
   &quot;e&quot;: 5,
   &quot;n&quot;: 6,
@@ -160,7 +125,7 @@ else:
   &quot;r&quot;: 8,
   &quot;y&quot;: 2
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/send_more_money/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/send_more_money/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -169,7 +134,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (44 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-send_more_money-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-send_more_money-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -236,7 +201,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (49 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-send_more_money-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-send_more_money-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -309,7 +274,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="room_assignment.html">← prev</a><a class="btn" href="session1_bank_card.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

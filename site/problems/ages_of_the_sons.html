@@ -61,56 +61,52 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (37 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-ages_of_the_sons-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-ages_of_the_sons-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (33 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-ages_of_the_sons-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-ages_of_the_sons-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Problem: Find ages of three sons where:
-# 1. Product of ages = 36
-# 2. Sum of ages creates ambiguity (must be 13, the only sum appearing twice)
-# 3. There is a unique oldest son (breaks the ambiguity)
+# Decision Variables
+A1 = intvar(1, 36, name=&quot;A1&quot;)  # Oldest son&#x27;s age
+A2 = intvar(1, 36, name=&quot;A2&quot;)  # Middle son&#x27;s age
+A3 = intvar(1, 36, name=&quot;A3&quot;)  # Youngest son&#x27;s age
 
-# Decision variables: ages of the three sons (A1=oldest, A2=middle, A3=youngest)
-A1 = cp.intvar(1, 36, name=&quot;A1&quot;)  # Oldest son
-A2 = cp.intvar(1, 36, name=&quot;A2&quot;)  # Middle son  
-A3 = cp.intvar(1, 36, name=&quot;A3&quot;)  # Youngest son
+# Model
+model = Model()
 
-model = cp.Model()
+# Constraint: product of ages is 36
+model += (A1 * A2 * A3) == 36
 
-# Constraint 1: Product of ages is 36
-model += A1 * A2 * A3 == 36
+# Constraint: ages are in strictly decreasing order (A1 &gt; A2 &gt;= A3)
+model += (A1 &gt; A2)
+model += (A2 &gt;= A3)
 
-# Constraint 2: Sum equals 13 (the ambiguous sum from the puzzle logic)
-model += A1 + A2 + A3 == 13
+# Additional constraint: sum must be ambiguous (13 is the only sum that appears twice)
+# We model this by ensuring the sum is 13 (since other sums would have been unique)
+model += (A1 + A2 + A3) == 13
 
-# Constraint 3: A1 is uniquely the oldest (breaks ambiguity)
-model += A1 &gt; A2
-model += A1 &gt; A3
+# Solve
+model.solve()
 
-# Constraint 4: Order remaining ages for canonical solution
-model += A2 &gt;= A3
-
-# Solve the model
-if model.solve():
-    solution = {
-        &quot;A1&quot;: int(A1.value()),
-        &quot;A2&quot;: int(A2.value()),
-        &quot;A3&quot;: int(A3.value())
-    }
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-ages_of_the_sons-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-ages_of_the_sons-cpagent" class="language-json">{
+# Print solution
+solution = {
+    &quot;A1&quot;: A1.value(),
+    &quot;A2&quot;: A2.value(),
+    &quot;A3&quot;: A3.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-ages_of_the_sons-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-ages_of_the_sons-anonymous_submission" class="language-json">{
   &quot;A1&quot;: 9,
   &quot;A2&quot;: 2,
   &quot;A3&quot;: 2
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/ages_of_the_sons/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/ages_of_the_sons/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -119,7 +115,7 @@ else:
           <div class="model-card-title">guidelines_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (56 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-ages_of_the_sons-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-ages_of_the_sons-guidelines_prompt_mnz" class="language-minizinc">
@@ -193,7 +189,7 @@ output [
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (72 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-ages_of_the_sons-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-ages_of_the_sons-guidelines_prompt_ort" class="language-python">
@@ -284,7 +280,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="added_corners.html">← prev</a><a class="btn" href="age_changing.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

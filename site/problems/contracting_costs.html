@@ -63,98 +63,49 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (84 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-contracting_costs-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-contracting_costs-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (35 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-contracting_costs-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-contracting_costs-anonymous_submission" class="language-python">from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# This is a system of linear equations problem where we need to find individual costs
-# Given constraints:
-# paper_hanger + painter = 1100
-# painter + plumber = 1700  
-# plumber + electrician = 1100
-# electrician + carpenter = 3300
-# carpenter + mason = 5300
-# mason + painter = 3200
+# Decision Variables
+paper_hanger = intvar(0, 10000, name=&quot;paper_hanger&quot;)  # Cost in dollars
+painter = intvar(0, 10000, name=&quot;painter&quot;)           # Cost in dollars
+plumber = intvar(0, 10000, name=&quot;plumber&quot;)           # Cost in dollars
+electrician = intvar(0, 10000, name=&quot;electrician&quot;)   # Cost in dollars
+carpenter = intvar(0, 10000, name=&quot;carpenter&quot;)       # Cost in dollars
+mason = intvar(0, 10000, name=&quot;mason&quot;)               # Cost in dollars
 
-# Step 2: Model with CPMpy
-# Decision variables - each person&#x27;s cost
-# Using reasonable bounds (costs should be positive and not too large)
-paper_hanger = cp.intvar(0, 10000, name=&quot;paper_hanger&quot;)
-painter = cp.intvar(0, 10000, name=&quot;painter&quot;) 
-plumber = cp.intvar(0, 10000, name=&quot;plumber&quot;)
-electrician = cp.intvar(0, 10000, name=&quot;electrician&quot;)
-carpenter = cp.intvar(0, 10000, name=&quot;carpenter&quot;)
-mason = cp.intvar(0, 10000, name=&quot;mason&quot;)
+# Model
+model = Model()
 
-# Create model
-model = cp.Model()
+# Constraints based on given payment pairs
+model += (paper_hanger + painter == 1100)
+model += (painter + plumber == 1700)
+model += (plumber + electrician == 1100)
+model += (electrician + carpenter == 3300)
+model += (carpenter + mason == 5300)
+model += (mason + painter == 3200)
 
-# Add constraints based on the given information
-model += paper_hanger + painter == 1100
-model += painter + plumber == 1700
-model += plumber + electrician == 1100  
-model += electrician + carpenter == 3300
-model += carpenter + mason == 5300
-model += mason + painter == 3200
+# Solve
+model.solve()
 
-# Step 3: Solve &amp; Verify
-# This is a satisfaction problem (finding any valid solution), so we use model.solve()
-if model.solve():
-    # Extract solution values
-    solution = {
-        &quot;paper_hanger&quot;: int(paper_hanger.value()),
-        &quot;painter&quot;: int(painter.value()),
-        &quot;plumber&quot;: int(plumber.value()),
-        &quot;electrician&quot;: int(electrician.value()),
-        &quot;carpenter&quot;: int(carpenter.value()),
-        &quot;mason&quot;: int(mason.value())
-    }
-    
-    # Verification - check all constraints independently
-    def verify_solution(sol):
-        ph = sol[&quot;paper_hanger&quot;]
-        p = sol[&quot;painter&quot;] 
-        pl = sol[&quot;plumber&quot;]
-        e = sol[&quot;electrician&quot;]
-        c = sol[&quot;carpenter&quot;]
-        m = sol[&quot;mason&quot;]
-        
-        # Check each constraint
-        constraints = [
-            (ph + p == 1100, &quot;paper_hanger + painter = 1100&quot;),
-            (p + pl == 1700, &quot;painter + plumber = 1700&quot;),
-            (pl + e == 1100, &quot;plumber + electrician = 1100&quot;),
-            (e + c == 3300, &quot;electrician + carpenter = 3300&quot;),
-            (c + m == 5300, &quot;carpenter + mason = 5300&quot;),
-            (m + p == 3200, &quot;mason + painter = 3200&quot;)
-        ]
-        
-        all_satisfied = True
-        for constraint, description in constraints:
-            if not constraint:
-                all_satisfied = False
-        
-        # Check that all costs are non-negative
-        for person, cost in sol.items():
-            if cost &lt; 0:
-                all_satisfied = False
-        
-        return all_satisfied
-    
-    # Verify the solution
-    assert verify_solution(solution), &quot;Solution verification failed!&quot;
-    
-    # Step 4: Output
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-contracting_costs-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-contracting_costs-cpagent" class="language-json">{
+# Print solution
+solution = {
+    &quot;paper_hanger&quot;: paper_hanger.value(),
+    &quot;painter&quot;: painter.value(),
+    &quot;plumber&quot;: plumber.value(),
+    &quot;electrician&quot;: electrician.value(),
+    &quot;carpenter&quot;: carpenter.value(),
+    &quot;mason&quot;: mason.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-contracting_costs-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-contracting_costs-anonymous_submission" class="language-json">{
   &quot;paper_hanger&quot;: 200,
   &quot;painter&quot;: 900,
   &quot;plumber&quot;: 800,
@@ -162,7 +113,7 @@ else:
   &quot;carpenter&quot;: 3000,
   &quot;mason&quot;: 2300
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/contracting_costs/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/contracting_costs/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -171,7 +122,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (30 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-contracting_costs-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-contracting_costs-documentation_prompt_mnz" class="language-minizinc">% Include necessary library
@@ -222,7 +173,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (37 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-contracting_costs-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-contracting_costs-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -281,7 +232,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="coins_grid.html">← prev</a><a class="btn" href="covering_opl.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

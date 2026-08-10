@@ -82,6 +82,31 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
   gap: 12px;
   margin-bottom: 28px;
 }
+.stat-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-group {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.stat-group-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.stat-group .stat-row {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  margin-bottom: 0;
+}
 .stat {
   background: var(--card);
   border: 1px solid var(--border);
@@ -148,6 +173,17 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
 }
 .card .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .card .meta .muted { color: var(--muted); font-size: 0.82rem; }
+.card .card-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.card .card-foot .muted { color: var(--muted); }
+.card .card-foot .badge { margin-left: auto; }
 
 /* ---------- Badges ---------- */
 .badge {
@@ -338,7 +374,19 @@ details.instance summary {
   font-family: var(--mono);
   font-size: 0.85rem;
   user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+details.instance summary::-webkit-details-marker { display: none; }
+details.instance summary::before {
+  content: "▶";
+  font-size: 0.7rem;
+  color: var(--accent);
+  transition: transform 0.15s ease;
+}
+details.instance[open] summary::before { transform: rotate(90deg); }
 details.instance summary:hover { background: var(--accent-soft); }
 details.instance pre {
   max-height: 420px;
@@ -444,6 +492,18 @@ details.gmodel summary:hover { color: var(--accent); }
 details.gmodel pre { max-height: 420px; overflow: auto; margin-top: 10px; }
 .verdict-legend .badge { margin-right: 6px; }
 .tab-group .tab-group { margin-top: 4px; }
+
+.gen-fw-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+.gen-fw-item:last-child { border-bottom: none; }
+.gen-fw-item .mono { font-family: var(--mono); font-size: 0.82rem; }
+.gen-fw-item .gen-fw-badge { margin-left: auto; }
 
 .btn {
   display: inline-block;

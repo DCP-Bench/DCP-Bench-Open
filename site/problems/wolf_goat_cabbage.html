@@ -108,196 +108,134 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (140 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-wolf_goat_cabbage-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-wolf_goat_cabbage-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (78 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-wolf_goat_cabbage-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-wolf_goat_cabbage-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Wolf, Goat, and Cabbage river crossing puzzle
-# - 8 stages (time steps)
-# - Each entity can be on shore 0 (start) or shore 1 (destination)
-# - Constraints:
-#   1. Wolf and goat cannot be alone together (without farmer)
-#   2. Goat and cabbage cannot be alone together (without farmer)
-#   3. Farmer is always with the boat
-#   4. Only farmer can move items (boat constraint)
-#   5. At most one item can move with farmer per step
-#   6. Start: all on shore 0, End: all on shore 1
+# Parameters
+stage = 8  # Number of stages
 
-# Step 2: Model with CPMpy
-stages = 8
+# Decision Variables
+wolf_pos = intvar(0, 1, shape=stage, name=&quot;wolf_pos&quot;)  # 0: starting shore, 1: destination shore
+goat_pos = intvar(0, 1, shape=stage, name=&quot;goat_pos&quot;)  # 0: starting shore, 1: destination shore
+cabbage_pos = intvar(0, 1, shape=stage, name=&quot;cabbage_pos&quot;)  # 0: starting shore, 1: destination shore
+boat_pos = intvar(0, 1, shape=stage, name=&quot;boat_pos&quot;)  # 0: starting shore, 1: destination shore
 
-# Decision variables: position of each entity at each stage
-# 0 = starting shore, 1 = destination shore
-wolf_pos = cp.boolvar(shape=stages, name=&quot;wolf_pos&quot;)
-goat_pos = cp.boolvar(shape=stages, name=&quot;goat_pos&quot;) 
-cabbage_pos = cp.boolvar(shape=stages, name=&quot;cabbage_pos&quot;)
-boat_pos = cp.boolvar(shape=stages, name=&quot;boat_pos&quot;)  # farmer is always with boat
+# Model
+model = Model()
 
-model = cp.Model()
-
-# Initial conditions: all start on shore 0
+# Initial state: all on starting shore
 model += wolf_pos[0] == 0
 model += goat_pos[0] == 0
 model += cabbage_pos[0] == 0
 model += boat_pos[0] == 0
 
-# Final conditions: all end on shore 1
-model += wolf_pos[stages-1] == 1
-model += goat_pos[stages-1] == 1
-model += cabbage_pos[stages-1] == 1
-model += boat_pos[stages-1] == 1
+# Final state: all on destination shore
+model += wolf_pos[-1] == 1
+model += goat_pos[-1] == 1
+model += cabbage_pos[-1] == 1
+model += boat_pos[-1] == 1
 
-# Movement constraints: only farmer (boat) can transport items
-for t in range(1, stages):
-    # If wolf moves, boat must move
-    model += (wolf_pos[t] != wolf_pos[t-1]).implies(boat_pos[t] != boat_pos[t-1])
+# Constraints for each transition between stages
+for i in range(stage - 1):
+    # The boat must change sides
+    model += boat_pos[i+1] != boat_pos[i]
     
-    # If goat moves, boat must move  
-    model += (goat_pos[t] != goat_pos[t-1]).implies(boat_pos[t] != boat_pos[t-1])
+    # Only one item can be moved with the boat (or none)
+    moved_wolf = (wolf_pos[i+1] != wolf_pos[i]) &amp; (boat_pos[i] == wolf_pos[i])
+    moved_goat = (goat_pos[i+1] != goat_pos[i]) &amp; (boat_pos[i] == goat_pos[i])
+    moved_cabbage = (cabbage_pos[i+1] != cabbage_pos[i]) &amp; (boat_pos[i] == cabbage_pos[i])
+    model += (moved_wolf + moved_goat + moved_cabbage) &lt;= 1
     
-    # If cabbage moves, boat must move
-    model += (cabbage_pos[t] != cabbage_pos[t-1]).implies(boat_pos[t] != boat_pos[t-1])
-    
-    # At most one item can move with the boat at each step
-    wolf_moved = (wolf_pos[t] != wolf_pos[t-1])
-    goat_moved = (goat_pos[t] != goat_pos[t-1])
-    cabbage_moved = (cabbage_pos[t] != cabbage_pos[t-1])
-    
-    model += wolf_moved + goat_moved + cabbage_moved &lt;= 1
+    # Safety constraints: wolf and goat cannot be left alone, goat and cabbage cannot be left alone
+    wolf_goat_unsafe = (wolf_pos[i+1] == goat_pos[i+1]) &amp; (boat_pos[i+1] != goat_pos[i+1])
+    goat_cabbage_unsafe = (goat_pos[i+1] == cabbage_pos[i+1]) &amp; (boat_pos[i+1] != goat_pos[i+1])
+    model += ~wolf_goat_unsafe
+    model += ~goat_cabbage_unsafe
 
-# Safety constraints: prevent conflicts when farmer is not present
-for t in range(stages):
-    # Wolf and goat cannot be alone together (both on same side, farmer on other side)
-    wolf_goat_together = (wolf_pos[t] == goat_pos[t])
-    farmer_elsewhere = (boat_pos[t] != wolf_pos[t])
-    model += ~(wolf_goat_together &amp; farmer_elsewhere)
-    
-    # Goat and cabbage cannot be alone together
-    goat_cabbage_together = (goat_pos[t] == cabbage_pos[t])
-    farmer_elsewhere_2 = (boat_pos[t] != goat_pos[t])
-    model += ~(goat_cabbage_together &amp; farmer_elsewhere_2)
+# Additional sequencing constraints to ensure correct order of moves
+# First move must be the goat
+model += (goat_pos[1] == 1) &amp; (wolf_pos[1] == 0) &amp; (cabbage_pos[1] == 0)
 
-# Step 3: Solve and verify
-if model.solve():
-    # Extract solution
-    wolf_solution = [int(x) for x in wolf_pos.value()]
-    goat_solution = [int(x) for x in goat_pos.value()]
-    cabbage_solution = [int(x) for x in cabbage_pos.value()]
-    boat_solution = [int(x) for x in boat_pos.value()]
-    
-    solution = {
-        &quot;wolf_pos&quot;: wolf_solution,
-        &quot;goat_pos&quot;: goat_solution,
-        &quot;cabbage_pos&quot;: cabbage_solution,
-        &quot;boat_pos&quot;: boat_solution
-    }
-    
-    # Verification
-    def verify_solution(sol):
-        wolf_pos = sol[&quot;wolf_pos&quot;]
-        goat_pos = sol[&quot;goat_pos&quot;] 
-        cabbage_pos = sol[&quot;cabbage_pos&quot;]
-        boat_pos = sol[&quot;boat_pos&quot;]
-        
-        # 1. Structural verification
-        if len(wolf_pos) != stages or len(goat_pos) != stages or len(cabbage_pos) != stages or len(boat_pos) != stages:
-            return False, &quot;Wrong number of stages&quot;
-        
-        # 2. Initial and final conditions
-        if not (wolf_pos[0] == 0 and goat_pos[0] == 0 and cabbage_pos[0] == 0 and boat_pos[0] == 0):
-            return False, &quot;Initial condition violated&quot;
-        
-        if not (wolf_pos[-1] == 1 and goat_pos[-1] == 1 and cabbage_pos[-1] == 1 and boat_pos[-1] == 1):
-            return False, &quot;Final condition violated&quot;
-        
-        # 3. Movement constraints
-        for t in range(1, stages):
-            movements = 0
-            if wolf_pos[t] != wolf_pos[t-1]:
-                movements += 1
-                if boat_pos[t] == boat_pos[t-1]:
-                    return False, f&quot;Wolf moved at stage {t} but boat didn&#x27;t&quot;
-            
-            if goat_pos[t] != goat_pos[t-1]:
-                movements += 1
-                if boat_pos[t] == boat_pos[t-1]:
-                    return False, f&quot;Goat moved at stage {t} but boat didn&#x27;t&quot;
-            
-            if cabbage_pos[t] != cabbage_pos[t-1]:
-                movements += 1
-                if boat_pos[t] == boat_pos[t-1]:
-                    return False, f&quot;Cabbage moved at stage {t} but boat didn&#x27;t&quot;
-            
-            if movements &gt; 1:
-                return False, f&quot;Too many items moved at stage {t}&quot;
-        
-        # 4. Safety constraints
-        for t in range(stages):
-            if wolf_pos[t] == goat_pos[t] and boat_pos[t] != wolf_pos[t]:
-                return False, f&quot;Wolf and goat alone together at stage {t}&quot;
-            
-            if goat_pos[t] == cabbage_pos[t] and boat_pos[t] != goat_pos[t]:
-                return False, f&quot;Goat and cabbage alone together at stage {t}&quot;
-        
-        return True, &quot;All constraints satisfied&quot;
-    
-    valid, msg = verify_solution(solution)
-    assert valid, f&quot;Verification failed: {msg}&quot;
-    
-    # Step 4: Output
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-wolf_goat_cabbage-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-wolf_goat_cabbage-cpagent" class="language-json">{
+# After first move, farmer must return alone
+model += (boat_pos[2] == 0) &amp; (goat_pos[2] == 1) &amp; (wolf_pos[2] == 0) &amp; (cabbage_pos[2] == 0)
+
+# Then move either cabbage or wolf (but with proper safety)
+# For example, next move should be cabbage
+model += (cabbage_pos[3] == 1) &amp; (goat_pos[3] == 1) &amp; (wolf_pos[3] == 0)
+
+# Then bring goat back
+model += (boat_pos[4] == 0) &amp; (goat_pos[4] == 0) &amp; (cabbage_pos[4] == 1) &amp; (wolf_pos[4] == 0)
+
+# Then move wolf
+model += (wolf_pos[5] == 1) &amp; (goat_pos[5] == 0) &amp; (cabbage_pos[5] == 1)
+
+# Then return alone
+model += (boat_pos[6] == 0) &amp; (wolf_pos[6] == 1) &amp; (cabbage_pos[6] == 1) &amp; (goat_pos[6] == 0)
+
+# Finally move goat
+model += (goat_pos[7] == 1) &amp; (wolf_pos[7] == 1) &amp; (cabbage_pos[7] == 1)
+
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;wolf_pos&quot;: [bool(x) for x in wolf_pos.value()],
+    &quot;goat_pos&quot;: [bool(x) for x in goat_pos.value()],
+    &quot;cabbage_pos&quot;: [bool(x) for x in cabbage_pos.value()],
+    &quot;boat_pos&quot;: [bool(x) for x in boat_pos.value()]
+}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-wolf_goat_cabbage-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-wolf_goat_cabbage-anonymous_submission" class="language-json">{
   &quot;wolf_pos&quot;: [
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    1
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true
   ],
   &quot;goat_pos&quot;: [
-    0,
-    1,
-    1,
-    1,
-    0,
-    0,
-    0,
-    1
+    false,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    true
   ],
   &quot;cabbage_pos&quot;: [
-    0,
-    0,
-    0,
-    1,
-    1,
-    1,
-    1,
-    1
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true
   ],
   &quot;boat_pos&quot;: [
-    0,
-    1,
-    0,
-    1,
-    0,
-    1,
-    0,
-    1
+    false,
+    true,
+    false,
+    true,
+    false,
+    true,
+    false,
+    true
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/wolf_goat_cabbage/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/wolf_goat_cabbage/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -306,7 +244,7 @@ else:
           <div class="model-card-title">guidelines_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (58 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-wolf_goat_cabbage-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-wolf_goat_cabbage-guidelines_prompt_mnz" class="language-minizinc">
@@ -419,7 +357,7 @@ output [
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (85 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-wolf_goat_cabbage-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-wolf_goat_cabbage-guidelines_prompt_ort" class="language-python">
@@ -560,7 +498,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="who_killed_agatha.html">← prev</a><a class="btn" href="zebra.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

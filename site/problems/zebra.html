@@ -114,151 +114,106 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">atest <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (137 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-zebra-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-zebra-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (92 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-zebra-atest">Copy</button></div><pre class="code-block"><code id="gmod-zebra-atest" class="language-python">from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# This is the classic Zebra puzzle with 5 houses and 5 attributes each
-# Houses are numbered 0-4 from left to right
-# Each attribute (color, nation, job, pet, drink) has 5 values
-# Need to assign each value to exactly one house
+# Parameters
+n_houses = 5  # Number of houses
 
-# Attributes and their mappings:
-color_map = {&quot;yellow&quot;: 0, &quot;green&quot;: 1, &quot;red&quot;: 2, &quot;white&quot;: 3, &quot;blue&quot;: 4}
-nation_map = {&quot;italy&quot;: 0, &quot;spain&quot;: 1, &quot;japan&quot;: 2, &quot;england&quot;: 3, &quot;norway&quot;: 4}
-job_map = {&quot;painter&quot;: 0, &quot;sculptor&quot;: 1, &quot;diplomat&quot;: 2, &quot;pianist&quot;: 3, &quot;doctor&quot;: 4}
-pet_map = {&quot;cat&quot;: 0, &quot;zebra&quot;: 1, &quot;bear&quot;: 2, &quot;snails&quot;: 3, &quot;horse&quot;: 4}
-drink_map = {&quot;milk&quot;: 0, &quot;water&quot;: 1, &quot;tea&quot;: 2, &quot;coffee&quot;: 3, &quot;juice&quot;: 4}
+# Define categories and their possible values
+colors_names = [&quot;yellow&quot;, &quot;green&quot;, &quot;red&quot;, &quot;white&quot;, &quot;blue&quot;]
+jobs_names = [&quot;painter&quot;, &quot;sculptor&quot;, &quot;diplomat&quot;, &quot;pianist&quot;, &quot;doctor&quot;]
+nations_names = [&quot;italy&quot;, &quot;spain&quot;, &quot;japan&quot;, &quot;england&quot;, &quot;norway&quot;]
+pets_names = [&quot;cat&quot;, &quot;zebra&quot;, &quot;bear&quot;, &quot;snails&quot;, &quot;horse&quot;]
+drinks_names = [&quot;milk&quot;, &quot;water&quot;, &quot;tea&quot;, &quot;coffee&quot;, &quot;juice&quot;]
 
-# Step 2: Model with CPMpy
-# Decision variables: each represents which house (0-4) has each attribute value
-color_house = cp.intvar(0, 4, shape=5, name=&quot;color_house&quot;)
-nation_house = cp.intvar(0, 4, shape=5, name=&quot;nation_house&quot;) 
-job_house = cp.intvar(0, 4, shape=5, name=&quot;job_house&quot;)
-pet_house = cp.intvar(0, 4, shape=5, name=&quot;pet_house&quot;)
-drink_house = cp.intvar(0, 4, shape=5, name=&quot;drink_house&quot;)
+# Map names to indices for easier reference
+colors_index = {name: i for i, name in enumerate(colors_names)}
+jobs_index = {name: i for i, name in enumerate(jobs_names)}
+nations_index = {name: i for i, name in enumerate(nations_names)}
+pets_index = {name: i for i, name in enumerate(pets_names)}
+drinks_index = {name: i for i, name in enumerate(drinks_names)}
 
-model = cp.Model()
+# Decision variables: for each category, assign a house (0 to 4) to each value
+colors = intvar(0, n_houses - 1, shape=len(colors_names), name=&quot;colors&quot;)
+jobs = intvar(0, n_houses - 1, shape=len(jobs_names), name=&quot;jobs&quot;)
+nations = intvar(0, n_houses - 1, shape=len(nations_names), name=&quot;nations&quot;)
+pets = intvar(0, n_houses - 1, shape=len(pets_names), name=&quot;pets&quot;)
+drinks = intvar(0, n_houses - 1, shape=len(drinks_names), name=&quot;drinks&quot;)
 
-# Each attribute value must be in exactly one house (AllDifferent)
-model += cp.AllDifferent(color_house)
-model += cp.AllDifferent(nation_house)
-model += cp.AllDifferent(job_house)
-model += cp.AllDifferent(pet_house)
-model += cp.AllDifferent(drink_house)
+# Model
+model = Model()
 
-# Add the specific constraints:
-# 1. The painter owns the horse
-model += job_house[job_map[&quot;painter&quot;]] == pet_house[pet_map[&quot;horse&quot;]]
+# All variables must be permutations (each value appears exactly once)
+model += [AllDifferent(colors)]
+model += [AllDifferent(jobs)]
+model += [AllDifferent(nations)]
+model += [AllDifferent(pets)]
+model += [AllDifferent(drinks)]
 
-# 2. The diplomat drinks coffee
-model += job_house[job_map[&quot;diplomat&quot;]] == drink_house[drink_map[&quot;coffee&quot;]]
+# The painter owns the horse
+model += [jobs[jobs_index[&quot;painter&quot;]] == pets[pets_index[&quot;horse&quot;]]]
 
-# 3. The one who drinks milk lives in the white house
-model += drink_house[drink_map[&quot;milk&quot;]] == color_house[color_map[&quot;white&quot;]]
+# The diplomat drinks coffee
+model += [jobs[jobs_index[&quot;diplomat&quot;]] == drinks[drinks_index[&quot;coffee&quot;]]]
 
-# 4. The Spaniard is a painter
-model += nation_house[nation_map[&quot;spain&quot;]] == job_house[job_map[&quot;painter&quot;]]
+# The one who drinks milk lives in the white house
+model += [drinks[drinks_index[&quot;milk&quot;]] == colors[colors_index[&quot;white&quot;]]]
 
-# 5. The Englishman lives in the red house
-model += nation_house[nation_map[&quot;england&quot;]] == color_house[color_map[&quot;red&quot;]]
+# The Spaniard is a painter
+model += [nations[nations_index[&quot;spain&quot;]] == jobs[jobs_index[&quot;painter&quot;]]]
 
-# 6. The snails are owned by the sculptor
-model += pet_house[pet_map[&quot;snails&quot;]] == job_house[job_map[&quot;sculptor&quot;]]
+# The Englishman lives in the red house
+model += [nations[nations_index[&quot;england&quot;]] == colors[colors_index[&quot;red&quot;]]]
 
-# 7. The green house is on the left of the red one
-model += color_house[color_map[&quot;green&quot;]] + 1 == color_house[color_map[&quot;red&quot;]]
+# The snails are owned by the sculptor
+model += [pets[pets_index[&quot;snails&quot;]] == jobs[jobs_index[&quot;sculptor&quot;]]]
 
-# 8. The Norwegian lives on the right of the blue house
-model += color_house[color_map[&quot;blue&quot;]] + 1 == nation_house[nation_map[&quot;norway&quot;]]
+# The green house is on the left of the red one
+model += [colors[colors_index[&quot;green&quot;]] == colors[colors_index[&quot;red&quot;]] - 1]
 
-# 9. The doctor drinks milk
-model += job_house[job_map[&quot;doctor&quot;]] == drink_house[drink_map[&quot;milk&quot;]]
+# The Norwegian lives on the right of the blue house
+model += [nations[nations_index[&quot;norway&quot;]] == colors[colors_index[&quot;blue&quot;]] + 1]
 
-# 10. The diplomat is Japanese
-model += job_house[job_map[&quot;diplomat&quot;]] == nation_house[nation_map[&quot;japan&quot;]]
+# The doctor drinks milk
+model += [jobs[jobs_index[&quot;doctor&quot;]] == drinks[drinks_index[&quot;milk&quot;]]]
 
-# 11. The Norwegian owns the zebra
-model += nation_house[nation_map[&quot;norway&quot;]] == pet_house[pet_map[&quot;zebra&quot;]]
+# The diplomat is Japanese
+model += [jobs[jobs_index[&quot;diplomat&quot;]] == nations[nations_index[&quot;japan&quot;]]]
 
-# 12. The green house is next to the white one
-green_house = color_house[color_map[&quot;green&quot;]]
-white_house = color_house[color_map[&quot;white&quot;]]
-model += (green_house - white_house == 1) | (white_house - green_house == 1)
+# The Norwegian owns the zebra
+model += [nations[nations_index[&quot;norway&quot;]] == pets[pets_index[&quot;zebra&quot;]]]
 
-# 13. The horse is owned by the neighbor of the diplomat
-horse_house = pet_house[pet_map[&quot;horse&quot;]]
-diplomat_house = job_house[job_map[&quot;diplomat&quot;]]
-model += (horse_house - diplomat_house == 1) | (diplomat_house - horse_house == 1)
+# The green house is next to the white one
+model += [abs(colors[colors_index[&quot;green&quot;]] - colors[colors_index[&quot;white&quot;]]) == 1]
 
-# 14. The Italian either lives in the red, white or green house
-italian_house = nation_house[nation_map[&quot;italy&quot;]]
-red_house = color_house[color_map[&quot;red&quot;]]
-white_house = color_house[color_map[&quot;white&quot;]]
-green_house = color_house[color_map[&quot;green&quot;]]
-model += (italian_house == red_house) | (italian_house == white_house) | (italian_house == green_house)
+# The horse is owned by the neighbor of the diplomat
+model += [abs(pets[pets_index[&quot;horse&quot;]] - jobs[jobs_index[&quot;diplomat&quot;]]) == 1]
 
-# Step 3: Solve &amp; Verify
-if model.solve():
-    # Extract the solution
-    color_solution = color_house.value()
-    nation_solution = nation_house.value()
-    job_solution = job_house.value()
-    pet_solution = pet_house.value()
-    drink_solution = drink_house.value()
-    
-    # Verification (independent of CPMpy)
-    def verify_solution(color_sol, nation_sol, job_sol, pet_sol, drink_sol):
-        &quot;&quot;&quot;Verify the solution against all constraints&quot;&quot;&quot;
-        
-        def get_house(solution, value_idx):
-            return solution[value_idx]
-        
-        # Check all 14 constraints
-        constraints_satisfied = [
-            get_house(job_sol, job_map[&quot;painter&quot;]) == get_house(pet_sol, pet_map[&quot;horse&quot;]),  # 1
-            get_house(job_sol, job_map[&quot;diplomat&quot;]) == get_house(drink_sol, drink_map[&quot;coffee&quot;]),  # 2
-            get_house(drink_sol, drink_map[&quot;milk&quot;]) == get_house(color_sol, color_map[&quot;white&quot;]),  # 3
-            get_house(nation_sol, nation_map[&quot;spain&quot;]) == get_house(job_sol, job_map[&quot;painter&quot;]),  # 4
-            get_house(nation_sol, nation_map[&quot;england&quot;]) == get_house(color_sol, color_map[&quot;red&quot;]),  # 5
-            get_house(pet_sol, pet_map[&quot;snails&quot;]) == get_house(job_sol, job_map[&quot;sculptor&quot;]),  # 6
-            get_house(color_sol, color_map[&quot;green&quot;]) + 1 == get_house(color_sol, color_map[&quot;red&quot;]),  # 7
-            get_house(color_sol, color_map[&quot;blue&quot;]) + 1 == get_house(nation_sol, nation_map[&quot;norway&quot;]),  # 8
-            get_house(job_sol, job_map[&quot;doctor&quot;]) == get_house(drink_sol, drink_map[&quot;milk&quot;]),  # 9
-            get_house(job_sol, job_map[&quot;diplomat&quot;]) == get_house(nation_sol, nation_map[&quot;japan&quot;]),  # 10
-            get_house(nation_sol, nation_map[&quot;norway&quot;]) == get_house(pet_sol, pet_map[&quot;zebra&quot;]),  # 11
-            abs(get_house(color_sol, color_map[&quot;green&quot;]) - get_house(color_sol, color_map[&quot;white&quot;])) == 1,  # 12
-            abs(get_house(pet_sol, pet_map[&quot;horse&quot;]) - get_house(job_sol, job_map[&quot;diplomat&quot;])) == 1,  # 13
-            get_house(nation_sol, nation_map[&quot;italy&quot;]) in [get_house(color_sol, color_map[&quot;red&quot;]), 
-                                                          get_house(color_sol, color_map[&quot;white&quot;]), 
-                                                          get_house(color_sol, color_map[&quot;green&quot;])]  # 14
-        ]
-        
-        return all(constraints_satisfied)
-    
-    # Verify the solution
-    assert verify_solution(color_solution, nation_solution, job_solution, pet_solution, drink_solution), &quot;Solution verification failed!&quot;
-    
-    # Step 4: Output in required JSON format
-    solution = {
-        &quot;colors&quot;: color_solution.tolist(),
-        &quot;nations&quot;: nation_solution.tolist(), 
-        &quot;jobs&quot;: job_solution.tolist(),
-        &quot;pets&quot;: pet_solution.tolist(),
-        &quot;drinks&quot;: drink_solution.tolist()
-    }
-    
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-zebra-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-zebra-cpagent" class="language-json">{
+# The Italian either lives in the red, white or green house
+model += [(nations[nations_index[&quot;italy&quot;]] == colors[colors_index[&quot;red&quot;]]) |
+          (nations[nations_index[&quot;italy&quot;]] == colors[colors_index[&quot;white&quot;]]) |
+          (nations[nations_index[&quot;italy&quot;]] == colors[colors_index[&quot;green&quot;]])]
+
+# Solve the model
+model.solve()
+
+# Print the solution
+solution = {
+    &quot;colors&quot;: colors.value().tolist(),
+    &quot;jobs&quot;: jobs.value().tolist(),
+    &quot;nations&quot;: nations.value().tolist(),
+    &quot;pets&quot;: pets.value().tolist(),
+    &quot;drinks&quot;: drinks.value().tolist()
+}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-zebra-atest">Copy</button></div><pre class="code-block"><code id="gsol-zebra-atest" class="language-json">{
   &quot;colors&quot;: [
     0,
     3,
@@ -266,16 +221,16 @@ else:
     2,
     1
   ],
-  &quot;nations&quot;: [
-    3,
+  &quot;jobs&quot;: [
     0,
+    3,
     1,
     4,
     2
   ],
-  &quot;jobs&quot;: [
-    0,
+  &quot;nations&quot;: [
     3,
+    0,
     1,
     4,
     2
@@ -295,7 +250,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/zebra/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/zebra/cpmpy/atest/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div></div></div>
 
@@ -305,7 +260,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="wolf_goat_cabbage.html">← prev</a><span></span></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

@@ -55,76 +55,38 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (62 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-session5_grocery-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-session5_grocery-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (24 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-session5_grocery-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-session5_grocery-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Problem: Find 4 item prices such that:
-# 1. Sum of prices = $7.11 (711 cents)
-# 2. Product of prices = $7.11 (when prices are in dollars)
-# 
-# Key insight: If prices are p1, p2, p3, p4 in cents, then:
-# - Sum constraint: p1 + p2 + p3 + p4 = 711
-# - Product constraint: (p1/100) * (p2/100) * (p3/100) * (p4/100) = 7.11
-#   Which means: p1 * p2 * p3 * p4 = 7.11 * 100^4 = 711000000
+# Decision Variables
+prices = intvar(1, 711, shape=4, name=&quot;prices&quot;)  # Prices of the four items in cents
 
-# Step 2: Model with CPMpy
-model = cp.Model()
+# Model
+model = Model()
 
-# Decision variables: prices in cents (must be positive integers)
-prices = cp.intvar(1, 711, shape=4, name=&quot;prices&quot;)
+# Constraint: sum of prices is 711 cents ($7.11)
+model += sum(prices) == 711
 
-# Step 3: Add constraints
-# Constraint 1: Sum of prices in cents equals 711
-model += cp.sum(prices) == 711
+# Constraint: product of prices is 711000000 (711 * 100^3)
+model += (prices[0] * prices[1] * prices[2] * prices[3]) == 711000000
 
-# Constraint 2: Product constraint (accounting for dollar conversion)
-model += prices[0] * prices[1] * prices[2] * prices[3] == 711000000
+# Solve
+model.solve()
 
-# Performance constraint: symmetry breaking (order prices)
-model += prices[0] &lt;= prices[1]
-model += prices[1] &lt;= prices[2] 
-model += prices[2] &lt;= prices[3]
-
-# Step 3: Solve and verify
-if model.solve():
-    # Extract solution
-    solution_prices = prices.value().tolist()
-    
-    # Step 4: Verification (independent check)
-    def verify_solution(price_list):
-        # Structural verification
-        if len(price_list) != 4 or any(p &lt;= 0 for p in price_list):
-            return False
-        
-        # Logical verification
-        total_sum_cents = sum(price_list)
-        if total_sum_cents != 711:
-            return False
-        
-        # Product verification: convert to dollars and check
-        prices_dollars = [p / 100.0 for p in price_list]
-        product_dollars = prices_dollars[0] * prices_dollars[1] * prices_dollars[2] * prices_dollars[3]
-        
-        return abs(product_dollars - 7.11) &lt; 1e-10
-    
-    # Verify the solution
-    assert verify_solution(solution_prices), &quot;Solution verification failed!&quot;
-    
-    # Step 4: Output in required JSON format
-    solution = {&quot;prices&quot;: solution_prices}
-    print(json.dumps(solution))
-    
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-session5_grocery-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-session5_grocery-cpagent" class="language-json">{
+# Print solution with sorted prices
+solution = {
+    &quot;prices&quot;: sorted(prices.value().tolist())
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-session5_grocery-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-session5_grocery-anonymous_submission" class="language-json">{
   &quot;prices&quot;: [
     120,
     125,
@@ -132,7 +94,7 @@ else:
     316
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/session5_grocery/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/session5_grocery/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -141,7 +103,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (35 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-session5_grocery-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-session5_grocery-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -197,7 +159,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-session5_grocery-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-session5_grocery-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -269,7 +231,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session5_climbing_stairs.html">← prev</a><a class="btn" href="session5_hardy_1729_square.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

@@ -247,12 +247,21 @@ def load_generated_models() -> dict:
 
 
 def verdict_badge(metrics: dict) -> str:
-    key = metrics.get("verdict", {}).get("badge", "unknown")
+    key = normalize_badge(metrics)
     color, label, tooltip = VERDICT_STYLES.get(key, VERDICT_STYLES["unknown"])
     return (
         f'<span class="badge" style="background:{color}" title="{esc(tooltip)}">'
         f"{esc(label)}</span>"
     )
+
+
+def normalize_badge(metrics: dict) -> str:
+    """A satisfaction problem can never be 'valid and optimal': the objective
+    check passes trivially, so re-label such verdicts as plain 'solution valid'."""
+    badge = metrics.get("verdict", {}).get("badge", "unknown")
+    if badge == "solution_valid_and_optimal" and not metrics.get("is_optimization"):
+        return "solution_valid"
+    return badge
 
 
 def framework_dir(fw: str) -> str:
@@ -340,7 +349,7 @@ def select_best_generated(gen_by_fw: dict) -> dict:
     for fw, entries in gen_by_fw.items():
         best, best_rank = None, None
         for entry in entries:
-            badge = entry["metrics"].get("verdict", {}).get("badge", "unknown")
+            badge = normalize_badge(entry["metrics"])
             if badge in VALID_BADGE_ORDER:
                 rank = VALID_BADGE_ORDER.index(badge)
                 if best is None or rank < best_rank:
@@ -354,28 +363,116 @@ def select_best_generated(gen_by_fw: dict) -> dict:
 # Index page (Problem view)
 # --------------------------------------------------------------------------
 
-def build_index(problems: list, stats: dict) -> None:
-    frameworks = sorted({fw for p in problems for fw in p["frameworks"]})
-    origins = sorted({p["origin"] for p in problems})
+IS_OPT_RE = re.compile(r"\b(minimize|maximize)\s*\(")
 
-    fw_opts = "".join(f'<option value="{f}">{f} ({stats["frameworks"][f]})</option>' for f in frameworks)
-    origin_opts = "".join(f'<option value="{o}">{origin_label(o)} ({stats["origins"][o]})</option>' for o in origins)
 
+def problem_type(p: dict) -> str:
+    return "optimization" if IS_OPT_RE.search(p["model"]) else "satisfaction"
+
+
+def source_group(meta: dict) -> str:
+    src = meta.get("source", "").lower()
+    if "hakank" in src:
+        return "Hakan K"
+    if "csplib" in src:
+        return "CSPLib"
+    if "chain-of-experts" in src:
+        return "ComplexOR"
+    if "github.com/cpmpy" in src:
+        return "CPMpy examples"
+    return src or "unknown"
+
+
+def problem_eval_status(gen_by_fw: dict) -> str:
+    """Best evaluation status across all generated models of a problem."""
+    best_rank = None
+    has_models = False
+    for entries in gen_by_fw.values():
+        for entry in entries:
+            has_models = True
+            badge = normalize_badge(entry["metrics"])
+            if badge in VALID_BADGE_ORDER:
+                rank = VALID_BADGE_ORDER.index(badge)
+                if best_rank is None or rank < best_rank:
+                    best_rank = rank
+    if best_rank == 0:
+        return "optimal"
+    if best_rank is not None:
+        return "valid"
+    return "no_valid" if has_models else "no_models"
+
+
+EVAL_STATUS_META = {
+    "optimal": ("#16a34a", "valid · optimal"),
+    "valid": ("#2563eb", "valid"),
+    "no_valid": ("#dc2626", "no valid model"),
+    "no_models": ("#6b7280", "no models"),
+}
+
+
+def option(value: str, label: str, current: str = "") -> str:
+    sel = " selected" if value == current else ""
+    return f'<option value="{esc(value)}"{sel}>{esc(label)}</option>'
+
+
+def build_index(problems: list, stats: dict, generated: dict) -> None:
+    gt_frameworks = sorted({fw for p in problems for fw in p["frameworks"]})
+    gen_frameworks = sorted({fw for by_fw in generated.values() for fw in by_fw})
+    gen_total = sum(len(v) for by_fw in generated.values() for v in by_fw.values())
+
+    source_opts = "".join(option(s, s) for s in sorted({p["source"] for p in problems}))
+    category_opts = "".join(option(c, c) for c in sorted({p["category"] for p in problems}))
+
+    def stat(num: str, lbl: str) -> str:
+        return f'<div class="stat"><div class="num">{num}</div><div class="lbl">{lbl}</div></div>'
+
+    gt_fw_lbl = " · ".join(gt_frameworks)
+    gen_fw_lbl = " · ".join(gen_frameworks)
     stats_bar = f"""
-    <div class="stat-row">
-      <div class="stat"><div class="num">{stats["problems"]}</div><div class="lbl">problems</div></div>
-      <div class="stat"><div class="num">{stats["instances"]}</div><div class="lbl">instances</div></div>
-      <div class="stat"><div class="num">{stats["models"]}</div><div class="lbl">models</div></div>
-      <div class="stat"><div class="num">{stats["generated_models"]}</div><div class="lbl">generated models</div></div>
-      <div class="stat"><div class="num">{len(frameworks)}</div><div class="lbl">frameworks</div></div>
+    <div class="stat-groups">
+      <div class="stat-group">
+        <div class="stat-group-title">Benchmark</div>
+        <div class="stat-row">
+          {stat(str(stats["problems"]), "problems")}
+          {stat(str(stats["instances"]), "instances")}
+        </div>
+      </div>
+      <div class="stat-group">
+        <div class="stat-group-title">Ground truth</div>
+        <div class="stat-row">
+          {stat(str(stats["problems"]), "reference models")}
+          {stat(str(len(gt_frameworks)), f"reference framework · {gt_fw_lbl}")}
+        </div>
+      </div>
+      <div class="stat-group">
+        <div class="stat-group-title">Generated models</div>
+        <div class="stat-row">
+          {stat(f"{gen_total:,}", "models")}
+          {stat(str(len(gen_frameworks)), f"frameworks · {gen_fw_lbl}")}
+        </div>
+      </div>
     </div>"""
 
     body = f"""
     {stats_bar}
     <div class="controls">
       <input type="search" id="filter-q" placeholder="Search problems…" autocomplete="off">
-      <select id="filter-fw"><option value="">All frameworks</option>{fw_opts}</select>
-      <select id="filter-origin"><option value="">All origins</option>{origin_opts}</select>
+      <select id="filter-type"><option value="">All types</option>
+        {option("optimization", "Optimization")}{option("satisfaction", "Satisfaction")}</select>
+      <select id="filter-source"><option value="">All sources</option>{source_opts}</select>
+      <select id="filter-category"><option value="">All categories</option>{category_opts}</select>
+      <select id="filter-instances"><option value="">Any instances</option>
+        {option("single", "Single instance")}{option("multiple", "Multiple instances")}</select>
+      <select id="filter-gen"><option value="">Any generated models</option>
+        {option("yes", "Has generated models")}{option("no", "No generated models")}</select>
+      <select id="filter-eval"><option value="">Any evaluation status</option>
+        {option("optimal", "Valid · optimal")}{option("valid", "Valid")}
+        {option("no_valid", "No valid model")}{option("no_models", "No generated models")}</select>
+      <select id="sort-by">
+        {option("name", "Sort: name", "name")}
+        {option("instances", "Sort: instances")}
+        {option("generated", "Sort: generated models")}
+      </select>
     </div>
     <p class="result-count" id="result-count"></p>
     <div class="cards" id="cards"></div>
@@ -577,7 +674,7 @@ def metadata_html(meta: dict, p: dict) -> str:
 # Framework view + Stats
 # --------------------------------------------------------------------------
 
-def build_frameworks(problems: list, stats: dict) -> None:
+def build_frameworks(problems: list, stats: dict, generated: dict) -> None:
     by_fw = {}
     for p in problems:
         for fw in p["frameworks"]:
@@ -594,26 +691,64 @@ def build_frameworks(problems: list, stats: dict) -> None:
             f'<ul class="fw-list" style="columns:3;column-gap:24px;list-style:none;padding:0">{items}</ul></div>'
         )
 
+    gen_tabs = generated_framework_tabs(problems, generated)
+
     body = (
         '<p class="desc" style="margin-top:0">All problems with at least one model per framework.</p>'
         + "".join(sections)
+        + f'<div class="section"><h2>Generated models by framework</h2>'
+        + f'<p class="desc">The best valid generated model per framework, when one exists.</p>'
+        + gen_tabs
+        + "</div>"
     )
     (OUTPUT_DIR / "framework.html").write_text(
         page("Framework view", "", "frameworks", body), encoding="utf-8"
     )
 
 
-def svg_hist(items: list, width: int = 760, height: int = 230, color: str = "#4f46e5") -> str:
+def generated_framework_tabs(problems: list, generated: dict) -> str:
+    """Tab-group listing, per framework, the problems with a valid generated model."""
+    by_fw = {}
+    for p in problems:
+        best = select_best_generated(generated.get(p["id"], {}))
+        for fw, entry in best.items():
+            by_fw.setdefault(fw, []).append((p, entry))
+    if not by_fw:
+        return '<p class="desc">No valid generated models yet.</p>'
+    present = [fw for fw in FRAMEWORK_ORDER if fw in by_fw] + [fw for fw in by_fw if fw not in FRAMEWORK_ORDER]
+    buttons, panes = [], []
+    for fw in present:
+        slug = fw.lower().replace(" ", "_")
+        active = " active" if fw == present[0] else ""
+        buttons.append(
+            f'<button class="tab-btn{active}" type="button" data-tab="{slug}">'
+            f"{esc(fw)} ({len(by_fw[fw])})</button>"
+        )
+        items = "".join(
+            f'<div class="gen-fw-item"><a href="problems/{p["id"]}.html">{esc(p["id"])}</a>'
+            f'<span class="muted mono"> · {esc(entry["submission"])}</span>'
+            f'<span class="gen-fw-badge">{verdict_badge(entry["metrics"])}</span></div>'
+            for p, entry in sorted(by_fw[fw], key=lambda pe: pe[0]["id"])
+        )
+        panes.append(f'<div class="tab-pane{active}" data-pane="{slug}">{items}</div>')
+    return (
+        f'<div class="tab-group"><div class="tab-bar">{"".join(buttons)}</div>'
+        + "".join(panes)
+        + "</div>"
+    )
+
+
+def svg_hist(items: list, width: int = 760, height: int = 250, color: str = "#4f46e5") -> str:
     """Vertical bar histogram. items: list of (label, count)."""
     max_v = max(c for _, c in items) or 1
-    pad_l, pad_b = 42, 36
+    pad_l, pad_b, pad_t = 42, 48, 12
     plot_w = width - pad_l - 12
-    plot_h = height - pad_b - 12
+    plot_h = height - pad_b - pad_t
     slot = plot_w / len(items)
     bar_w = slot * 0.5
     parts = [f'<svg viewBox="0 0 {width} {height}" width="100%" style="max-width:{width}px" role="img" aria-label="histogram">']
     for g in range(5):
-        gy = pad_b + plot_h - g * plot_h / 4
+        gy = pad_t + plot_h - g * plot_h / 4
         parts.append(f'<line x1="{pad_l}" y1="{gy:.1f}" x2="{width - 10}" y2="{gy:.1f}" stroke="#e5e7eb" stroke-width="1"/>')
         parts.append(
             f'<text x="{pad_l - 8}" y="{gy + 4:.1f}" text-anchor="end" font-size="11" fill="#6b7280">{int(round(g * max_v / 4))}</text>'
@@ -621,9 +756,9 @@ def svg_hist(items: list, width: int = 760, height: int = 230, color: str = "#4f
     for i, (label, c) in enumerate(items):
         x = pad_l + i * slot + (slot - bar_w) / 2
         h = plot_h * c / max_v
-        parts.append(f'<rect x="{x:.1f}" y="{pad_b + plot_h - h:.1f}" width="{bar_w:.1f}" height="{max(0, h):.1f}" rx="3" fill="{color}"/>')
+        parts.append(f'<rect x="{x:.1f}" y="{pad_t + plot_h - h:.1f}" width="{bar_w:.1f}" height="{max(0, h):.1f}" rx="3" fill="{color}"/>')
         parts.append(
-            f'<text x="{x + bar_w / 2:.1f}" y="{pad_b + plot_h + 18}" text-anchor="middle" font-size="12" fill="#1f2430">{esc(label)}</text>'
+            f'<text x="{x + bar_w / 2:.1f}" y="{height - 16}" text-anchor="middle" font-size="12" fill="#1f2430">{esc(label)}</text>'
         )
     parts.append("</svg>")
     return "".join(parts)
@@ -682,7 +817,7 @@ def build_stats(problems: list, stats: dict, generated: dict) -> None:
         for fw, entries in by_fw.items():
             gen_by_fw[fw] = gen_by_fw.get(fw, 0) + len(entries)
             for e in entries:
-                badge_key = e["metrics"].get("verdict", {}).get("badge", "unknown")
+                badge_key = normalize_badge(e["metrics"])
                 gen_by_badge[badge_key] = gen_by_badge.get(badge_key, 0) + 1
                 gen_by_submission[e["submission"]] = gen_by_submission.get(e["submission"], 0) + 1
 
@@ -802,7 +937,9 @@ def main() -> None:
                     "decision_variables": data.get("decision_variables", []),
                     "frameworks": frameworks,
                     "category": meta.get("category", "other"),
+                    "source": source_group(meta),
                     "origin": origin,
+                    "type": "optimization" if IS_OPT_RE.search(data.get("model", "")) else "satisfaction",
                     "meta": meta,
                     "snippet": snippet(data.get("description", "")),
                 }
@@ -827,8 +964,8 @@ def main() -> None:
             stats["frameworks"][fw] = stats["frameworks"].get(fw, 0) + 1
         stats["origins"][p["origin"]] = stats["origins"].get(p["origin"], 0) + 1
 
-    build_index(problems, stats)
-    build_frameworks(problems, stats)
+    build_index(problems, stats, generated)
+    build_frameworks(problems, stats, generated)
     build_stats(problems, stats, generated)
     for idx, p in enumerate(problems):
         build_problem_page(p, p["meta"], idx, len(problems), generated)
@@ -838,12 +975,13 @@ def main() -> None:
         "problems": [
             {
                 "id": p["id"],
-                "frameworks": p["frameworks"],
-                "origin": p["origin"],
-                "originLabel": origin_label(p["origin"]),
+                "type": p["type"],
+                "category": p["category"],
+                "source": p["source"],
                 "snippet": p["snippet"],
                 "instances": len(p["instances"]),
                 "generated": sum(len(v) for v in generated.get(p["id"], {}).values()),
+                "evalBadge": problem_eval_status(generated.get(p["id"], {})),
             }
             for p in problems
         ]

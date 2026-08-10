@@ -108,66 +108,44 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (52 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-autoref-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-autoref-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (30 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-autoref-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-autoref-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Problem parameters
+# Parameters
 n = 27
 m = 5
-series_length = n + 2  # 29 elements: s0, s1, ..., s27, s28
 
-# Decision variables: each s[i] can be any non-negative integer
-s = cp.intvar(0, 50, shape=series_length, name=&quot;s&quot;)
+# Decision Variables
+# The series S has length n+2 (from s0 to sn+1)
+s = intvar(0, n+2, shape=n+2, name=&quot;s&quot;)  # Series S
 
-# Create the model
-model = cp.Model()
+# Model
+model = Model()
 
-# Constraint 1: s[n+1] = m (s[28] = 5)
-model += s[n+1] == m
+# Constraint 1: sn+1 = m
+model += (s[-1] == m)
 
-# Constraint 2: For each i from 0 to n, count(i in S) = s[i]
-# This is the self-referential constraint
-for i in range(n + 1):  # i = 0, 1, 2, ..., 27
-    count_i = cp.sum([s[j] == i for j in range(series_length)])
-    model += count_i == s[i]
+# Constraint 2: For each i from 0 to n, there are si occurrences of i in S
+for i in range(n+1):
+    model += (sum(s == i) == s[i])
 
-# Solve the model
-if model.solve():
-    solution_values = s.value()
-    
-    # Verification
-    def verify_solution(series):
-        # Check constraint 1: s[28] = 5
-        if series[28] != 5:
-            return False, f&quot;s[28] = {series[28]}, expected 5&quot;
-        
-        # Check constraint 2: self-referential counting
-        for i in range(28):  # i = 0 to 27
-            count_i = list(series).count(i)
-            expected = series[i]
-            if count_i != expected:
-                return False, f&quot;Value {i} appears {count_i} times, but s[{i}] = {expected}&quot;
-        
-        return True, &quot;All constraints satisfied&quot;
-    
-    is_valid, message = verify_solution(solution_values.tolist())
-    
-    if is_valid:
-        # Output the solution in the required JSON format
-        solution = {&quot;s&quot;: solution_values.tolist()}
-        print(json.dumps(solution))
-    else:
-        print(json.dumps({&quot;error&quot;: f&quot;Solution verification failed: {message}&quot;}))
-        
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-autoref-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-autoref-cpagent" class="language-json">{
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;s&quot;: s.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-autoref-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-autoref-anonymous_submission" class="language-json">{
   &quot;s&quot;: [
     23,
     2,
@@ -200,7 +178,7 @@ else:
     5
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/autoref/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/autoref/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -209,7 +187,7 @@ else:
           <div class="model-card-title">guidelines_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (29 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-autoref-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-autoref-guidelines_prompt_mnz" class="language-minizinc">
@@ -284,7 +262,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (93 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-autoref-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-autoref-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -424,7 +402,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="assignment_costs.html">← prev</a><a class="btn" href="bales_of_hay.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

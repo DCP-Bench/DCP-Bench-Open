@@ -151,135 +151,87 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (91 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_053_graceful_graphs-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-csplib_053_graceful_graphs-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (43 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_053_graceful_graphs-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_053_graceful_graphs-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Problem: Graceful graph labeling
-# - 8 nodes, 16 edges
-# - Node labels: unique values from {0, 1, ..., 16}
-# - Edge labels: |f(x) - f(y)| for each edge xy, all different
-# - Edge labels must be {1, 2, ..., 16} (since we have 16 edges)
-
-# Input data
-m = 16  # Number of edges
-n = 8   # Number of nodes
+# Parameters
+m = 16  # Number of edges in the graph
+n = 8  # Number of nodes in the graph
 graph = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
          [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7],
-         [0, 4], [1, 5], [2, 6], [3, 7]]
+         [0, 4], [1, 5], [2, 6], [3, 7]]  # Edges of the graph
 
-# Step 2: Model with CPMpy
-model = cp.Model()
+# Decision Variables
+nodes = intvar(0, m, shape=n, name=&quot;nodes&quot;)  # Node labels (0 to q where q=m edges)
+edges = intvar(1, m, shape=m, name=&quot;edges&quot;)  # Edge labels (1 to q where q=m edges)
 
-# Decision variables
-# Node labels: each node gets a unique label from {0, 1, ..., m}
-node_labels = cp.intvar(0, m, shape=n, name=&quot;node_labels&quot;)
+# Model
+model = Model()
 
-# Edge labels: absolute differences between connected nodes
-edge_labels = cp.intvar(1, m, shape=m, name=&quot;edge_labels&quot;)
+# Constraint: all node labels are unique and in 0..m
+model += AllDifferent(nodes)
 
-# Constraints
-# 1. All node labels must be different
-model += cp.AllDifferent(node_labels)
+# Constraint: edge labels are all different and in 1..m
+model += AllDifferent(edges)
 
-# 2. Edge labels are absolute differences of connected nodes
+# Constraint: edge labels are absolute differences of node labels
 for i, (u, v) in enumerate(graph):
-    model += edge_labels[i] == cp.abs(node_labels[u] - node_labels[v])
+    model += edges[i] == abs(nodes[u] - nodes[v])
 
-# 3. All edge labels must be different and cover {1, 2, ..., m}
-model += cp.AllDifferent(edge_labels)
+# Additional constraint to ensure edge labels cover 1..m exactly
+# This is already implied by AllDifferent(edges) and the range of edges,
+# but we add it for clarity
+model += [edges[i] &gt;= 1 for i in range(m)]
+model += [edges[i] &lt;= m for i in range(m)]
 
-# Since we have m edges and edge labels must be from {1, 2, ..., m},
-# and all different, they must be exactly {1, 2, ..., m}
-for i in range(m):
-    model += cp.Count(edge_labels, i+1) == 1
+# Solve
+model.solve()
 
-# Performance improvements: symmetry breaking
-# Fix the smallest node label to 0 (since labels are from {0,1,...,m})
-model += node_labels[0] == 0
-
-# Step 3: Solve and verify
-if model.solve():
-    # Extract solution
-    node_solution = node_labels.value().tolist()
-    edge_solution = edge_labels.value().tolist()
-    
-    solution = {
-        &quot;nodes&quot;: node_solution,
-        &quot;edges&quot;: edge_solution
-    }
-    
-    # Verification
-    def verify_solution(sol):
-        &quot;&quot;&quot;Verify the graceful graph solution independently&quot;&quot;&quot;
-        nodes = sol[&quot;nodes&quot;]
-        edges = sol[&quot;edges&quot;]
-        
-        # 1. Structural verification
-        if len(nodes) != n or len(edges) != m:
-            return False
-        
-        # 2. Logical verification
-        # Check node labels are unique and in range [0, m]
-        if len(set(nodes)) != len(nodes) or min(nodes) &lt; 0 or max(nodes) &gt; m:
-            return False
-        
-        # Check edge labels are computed correctly
-        for i, (u, v) in enumerate(graph):
-            expected_edge_label = abs(nodes[u] - nodes[v])
-            if edges[i] != expected_edge_label:
-                return False
-        
-        # Check edge labels are unique and cover {1, 2, ..., m}
-        if len(set(edges)) != len(edges) or set(edges) != set(range(1, m+1)):
-            return False
-        
-        return True
-    
-    assert verify_solution(solution), &quot;Solution verification failed!&quot;
-    
-    # Step 4: Output
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_053_graceful_graphs-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-csplib_053_graceful_graphs-cpagent" class="language-json">{
+# Print solution
+solution = {
+    &quot;nodes&quot;: nodes.value().tolist(),
+    &quot;edges&quot;: edges.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_053_graceful_graphs-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-csplib_053_graceful_graphs-anonymous_submission" class="language-json">{
   &quot;nodes&quot;: [
-    0,
-    1,
-    15,
-    11,
-    16,
-    10,
-    3,
-    8
-  ],
-  &quot;edges&quot;: [
-    1,
-    15,
-    11,
-    14,
-    10,
-    4,
-    6,
     13,
-    8,
-    7,
-    2,
     5,
     16,
+    3,
+    6,
+    1,
+    0,
+    15
+  ],
+  &quot;edges&quot;: [
+    8,
+    3,
+    10,
+    11,
+    2,
+    13,
+    5,
+    6,
     9,
-    12,
-    3
+    1,
+    14,
+    15,
+    7,
+    4,
+    16,
+    12
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_053_graceful_graphs/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_053_graceful_graphs/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -288,7 +240,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (50 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_053_graceful_graphs-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_053_graceful_graphs-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -381,7 +333,7 @@ output [
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (47 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_053_graceful_graphs-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_053_graceful_graphs-guidelines_prompt_ort" class="language-python">
@@ -472,7 +424,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_050_diamond_free.html">← prev</a><a class="btn" href="csplib_054_n_queens.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

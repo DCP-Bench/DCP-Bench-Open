@@ -80,97 +80,44 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (83 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_015_schurs_lemma-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-csplib_015_schurs_lemma-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (30 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_015_schurs_lemma-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_015_schurs_lemma-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Problem: Schur&#x27;s Lemma with n=13 balls and c=3 boxes
-# 
-# Constraints:
-# 1. Each ball must be in exactly one box
-# 2. For any triple (x, y, z) where x + y = z, not all three can be in the same box
-
+# Parameters
 n = 13  # Number of balls
 c = 3   # Number of boxes
 
-# Find all triples (x, y, z) where x + y = z
-triples = []
-for x in range(1, n + 1):
-    for y in range(x, n + 1):  # y &gt;= x to avoid duplicates
+# Decision Variables
+balls = intvar(1, c, shape=n, name=&quot;balls&quot;)  # Assignment of balls to boxes (1-3)
+
+# Model
+model = Model()
+
+# Constraint: for any x+y=z, not all three balls in the same box
+for x in range(1, n+1):
+    for y in range(1, n+1):
         z = x + y
         if z &lt;= n:
-            triples.append((x, y, z))
+            for box in range(1, c+1):
+                model += sum([balls[x-1] == box, balls[y-1] == box, balls[z-1] == box]) &lt;= 2
 
-# Step 2: Model with CPMpy
-# Decision variables: M[i,j] = 1 if ball i is in box j
-# Using 0-based indexing internally, will convert to 1-based for output
-M = cp.boolvar(shape=(n, c), name=&quot;M&quot;)
+# Solve
+model.solve()
 
-model = cp.Model()
-
-# Constraint 1: Each ball must be in exactly one box
-for i in range(n):
-    model += cp.sum(M[i, :]) == 1
-
-# Constraint 2: For each triple (x, y, z) where x + y = z,
-# not all three can be in the same box
-# This means: M[x,j] + M[y,j] + M[z,j] &lt;= 2 for each box j
-for x, y, z in triples:
-    # Convert to 0-based indexing
-    x_idx, y_idx, z_idx = x - 1, y - 1, z - 1
-    for j in range(c):
-        model += M[x_idx, j] + M[y_idx, j] + M[z_idx, j] &lt;= 2
-
-# Step 3: Solve &amp; Verify
-if model.solve():
-    # Extract the solution - convert to 1-based box numbering
-    assignment = []
-    for i in range(n):
-        for j in range(c):
-            if M[i, j].value() == 1:
-                assignment.append(j + 1)  # Convert to 1-based
-                break
-    
-    # Create solution in required format
-    solution = {&quot;balls&quot;: assignment}
-    
-    # Verification - independent check
-    def verify_solution(sol):
-        balls = sol[&quot;balls&quot;]
-        
-        # 1. Structural verification
-        if len(balls) != n:
-            return False, f&quot;Wrong number of balls: {len(balls)}, expected {n}&quot;
-        
-        if not all(1 &lt;= b &lt;= c for b in balls):
-            return False, f&quot;Invalid box numbers: {balls}, must be 1-{c}&quot;
-        
-        # 2. Logical verification - check Schur constraint
-        for x, y, z in triples:
-            box_x = balls[x - 1]  # Convert to 0-based indexing
-            box_y = balls[y - 1]
-            box_z = balls[z - 1]
-            
-            if box_x == box_y == box_z:
-                return False, f&quot;Schur constraint violated: balls {x}, {y}, {z} all in box {box_x}&quot;
-        
-        return True, &quot;All constraints satisfied&quot;
-    
-    valid, msg = verify_solution(solution)
-    assert valid, f&quot;Verification failed: {msg}&quot;
-    
-    # Step 4: Output
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_015_schurs_lemma-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-csplib_015_schurs_lemma-cpagent" class="language-json">{
+# Print solution
+solution = {
+    &quot;balls&quot;: balls.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_015_schurs_lemma-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-csplib_015_schurs_lemma-anonymous_submission" class="language-json">{
   &quot;balls&quot;: [
     3,
     2,
@@ -187,7 +134,7 @@ else:
     3
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_015_schurs_lemma/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_015_schurs_lemma/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -196,7 +143,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (34 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_015_schurs_lemma-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_015_schurs_lemma-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -260,7 +207,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (48 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_015_schurs_lemma-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_015_schurs_lemma-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -339,7 +286,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_014_solitaire_battleships.html">← prev</a><a class="btn" href="csplib_016_traffic_lights.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

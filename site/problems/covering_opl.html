@@ -256,156 +256,101 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (105 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# This is a Set Cover problem:
-# - Select minimum cost set of workers to cover all tasks
-# - Each worker has a hiring cost and can perform certain tasks
-# - Goal: Minimize total cost while ensuring all tasks are performed
-
-# Input data
-nb_workers = 32
-num_tasks = 15
-
-# Which worker is qualified for each task (1-based indexing)
-Qualified = [
+# Parameters
+nb_workers = 32  # Number of workers
+num_tasks = 15  # Number of tasks
+Qualified = [  # Which worker is qualified for each task (1-based indexing)
     [1, 9, 19, 22, 25, 28, 31],
     [2, 12, 15, 19, 21, 23, 27, 29, 30, 31, 32],
-    [3, 10, 19, 24, 26, 30, 32],
-    [4, 21, 25, 28, 32],
-    [5, 11, 16, 22, 23, 27, 31],
-    [6, 20, 24, 26, 30, 32],
-    [7, 12, 17, 25, 30, 31],
-    [8, 17, 20, 22, 23],
-    [9, 13, 14, 26, 29, 30, 31],
-    [10, 21, 25, 31, 32],
-    [14, 15, 18, 23, 24, 27, 30, 32],
-    [18, 19, 22, 24, 26, 29, 31],
-    [11, 20, 25, 28, 30, 32],
-    [16, 19, 23, 31],
+    [3, 10, 19, 24, 26, 30, 32], [4, 21, 25, 28, 32],
+    [5, 11, 16, 22, 23, 27, 31], [6, 20, 24, 26, 30, 32],
+    [7, 12, 17, 25, 30, 31], [8, 17, 20, 22, 23],
+    [9, 13, 14, 26, 29, 30, 31], [10, 21, 25, 31, 32],
+    [14, 15, 18, 23, 24, 27, 30, 32], [18, 19, 22, 24, 26, 29, 31],
+    [11, 20, 25, 28, 30, 32], [16, 19, 23, 31],
     [9, 18, 26, 28, 31, 32]
 ]
-
-Cost = [
+Cost = [  # Cost of hiring each worker
     1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
     5, 6, 6, 6, 7, 8, 9
 ]
 
-# Step 2: Model with CPMpy
-# Decision variables: select[i] = 1 if worker i is selected
-select = cp.boolvar(shape=nb_workers, name=&quot;select&quot;)
+# Decision Variables
+workers = boolvar(shape=nb_workers, name=&quot;workers&quot;)  # Whether each worker is selected
+total_cost = intvar(0, sum(Cost), name=&quot;total_cost&quot;)  # Total hiring cost
 
-model = cp.Model()
+# Model
+model = Model()
 
-# Constraints: Each task must be covered by at least one selected worker
-for task_id in range(num_tasks):
-    # Find all workers qualified for this task
-    qualified_workers = Qualified[task_id]
-    # Convert to 0-based indexing and create constraint
-    qualified_indices = [w - 1 for w in qualified_workers]
-    model += cp.sum([select[w] for w in qualified_indices]) &gt;= 1
+# Constraint: all tasks must be performed by at least one qualified worker
+for task in range(num_tasks):
+    qualified_workers = [workers[w-1] for w in Qualified[task]]  # Convert to 0-based index
+    model += sum(qualified_workers) &gt;= 1
 
-# Objective: Minimize total hiring cost
-total_cost = cp.sum([select[i] * Cost[i] for i in range(nb_workers)])
+# Calculate total cost
+model += total_cost == sum(workers * Cost)
+
+# Objective: minimize total cost
 model.minimize(total_cost)
 
-# Step 3: Solve &amp; Verify
-if model.solve():
-    # Extract solution
-    selected_workers = select.value()
-    optimal_cost = total_cost.value()
-    
-    solution = {
-        &quot;total_cost&quot;: int(optimal_cost),
-        &quot;workers&quot;: [int(x) for x in selected_workers]
-    }
-    
-    # Verification: Check that all tasks are covered
-    def verify_solution(sol):
-        workers_selected = sol[&quot;workers&quot;]
-        
-        # 1. Structural verification
-        if len(workers_selected) != nb_workers:
-            return False, f&quot;Wrong number of workers: {len(workers_selected)} vs {nb_workers}&quot;
-        
-        if not all(w in [0, 1] for w in workers_selected):
-            return False, &quot;Workers array should contain only 0s and 1s&quot;
-        
-        # 2. Logical verification: Check all tasks are covered
-        for task_id in range(num_tasks):
-            qualified_workers = Qualified[task_id]
-            task_covered = False
-            for worker_1based in qualified_workers:
-                worker_0based = worker_1based - 1
-                if workers_selected[worker_0based] == 1:
-                    task_covered = True
-                    break
-            
-            if not task_covered:
-                return False, f&quot;Task {task_id} is not covered by any selected worker&quot;
-        
-        # 3. Verify cost calculation
-        calculated_cost = sum(Cost[i] for i in range(nb_workers) if workers_selected[i] == 1)
-        if calculated_cost != sol[&quot;total_cost&quot;]:
-            return False, f&quot;Cost mismatch: calculated {calculated_cost} vs reported {sol[&#x27;total_cost&#x27;]}&quot;
-        
-        return True, &quot;All constraints satisfied&quot;
-    
-    valid, msg = verify_solution(solution)
-    assert valid, f&quot;Verification failed: {msg}&quot;
-    
-    # Step 4: Output
-    print(json.dumps(solution))
-    
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-cpagent" class="language-json">{
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;total_cost&quot;: total_cost.value(),
+    &quot;workers&quot;: workers.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-covering_opl-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-covering_opl-anonymous_submission" class="language-json">{
   &quot;total_cost&quot;: 14,
   &quot;workers&quot;: [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0,
-    1,
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/covering_opl/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -414,7 +359,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (49 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-covering_opl-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -513,7 +458,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-covering_opl-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-covering_opl-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -614,7 +559,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="contracting_costs.html">← prev</a><a class="btn" href="crew.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

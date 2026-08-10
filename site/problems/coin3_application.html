@@ -71,57 +71,51 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (43 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-coin3_application-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-coin3_application-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (37 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-coin3_application-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-coin3_application-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Problem: Find minimum number of coins to pay exactly any amount &lt; 1 Euro (100 cents)
-# Denominations: 1, 2, 5, 10, 20, 50 cents
-# Objective: Minimize total number of coins
+# Parameters
+denominations = [1, 2, 5, 10, 20, 50]  # Available coin denominations in cents
+max_amount = 99  # Maximum amount to pay (99 cents = less than 1 Euro)
+max_coins = 99  # Upper bound on number of coins per denomination
 
-denominations = [1, 2, 5, 10, 20, 50]
-n_denoms = len(denominations)
-max_amount = 99  # Any amount smaller than 100 cents (1 Euro)
+# Decision Variables
+x = intvar(0, max_coins, shape=len(denominations), name=&quot;x&quot;)  # Number of each coin type
 
-model = cp.Model()
+# Model
+model = Model()
 
-# Decision variables: x[i] = number of coins of denomination denominations[i]
-# Upper bound: worst case is paying 99 cents with 1-cent coins = 99 coins
-max_coins_per_denom = max_amount
-x = cp.intvar(0, max_coins_per_denom, shape=n_denoms, name=&quot;x&quot;)
-
-# Constraint: Must be able to pay exactly any amount from 1 to 99 cents
-# For each amount, we need auxiliary variables representing how many coins of each type to use
+# For each amount from 1 to 99 cents, ensure it can be paid exactly
 for amount in range(1, max_amount + 1):
-    # For this amount, create variables for how many coins of each denomination to use
-    coins_used = cp.intvar(0, max_coins_per_denom, shape=n_denoms, name=f&quot;coins_used_{amount}&quot;)
+    # Variables to represent the coins used for this specific amount
+    y = intvar(0, max_coins, shape=len(denominations), name=f&quot;y_{amount}&quot;)
     
-    # The coins used for this amount must sum to the amount
-    model += cp.sum([coins_used[i] * denominations[i] for i in range(n_denoms)]) == amount
+    # Constraint: the sum of coins*y equals the amount
+    model += sum(y[i] * denominations[i] for i in range(len(denominations))) == amount
     
-    # The coins used cannot exceed the coins we have
-    for i in range(n_denoms):
-        model += coins_used[i] &lt;= x[i]
+    # Constraint: we can&#x27;t use more coins than we have available
+    model += [y[i] &lt;= x[i] for i in range(len(denominations))]
 
-# Objective: Minimize total number of coins
-total_coins = cp.sum(x)
-model.minimize(total_coins)
+# Objective: minimize total number of coins
+model.minimize(sum(x))
 
-# Solve the model
-if model.solve():
-    # Extract solution
-    solution_values = x.value()
-    solution = {&quot;x&quot;: solution_values.tolist()}
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-coin3_application-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-coin3_application-cpagent" class="language-json">{
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;x&quot;: x.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-coin3_application-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-coin3_application-anonymous_submission" class="language-json">{
   &quot;x&quot;: [
     1,
     2,
@@ -131,7 +125,7 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/coin3_application/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/coin3_application/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -140,7 +134,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (35 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-coin3_application-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-coin3_application-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -198,7 +192,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (46 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-coin3_application-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-coin3_application-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -268,7 +262,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cmo_2012.html">← prev</a><a class="btn" href="coins_grid.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

@@ -95,104 +95,59 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (90 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-room_assignment-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-room_assignment-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (45 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-room_assignment-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-room_assignment-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
+from datetime import datetime
 
-# Input data
-max_rooms = 5
-start_data = [&quot;2024-05-01&quot;, &quot;2024-05-02&quot;, &quot;2024-05-03&quot;, &quot;2024-05-04&quot;]
-end_data = [&quot;2024-05-05&quot;, &quot;2024-05-06&quot;, &quot;2024-05-07&quot;, &quot;2024-05-08&quot;]
-preassigned_room_data = [3, -1, -1, -1]
+# Parameters
+max_rooms = 5  # Maximum number of rooms available
+start_data = [&quot;2024-05-01&quot;, &quot;2024-05-02&quot;, &quot;2024-05-03&quot;, &quot;2024-05-04&quot;]  # Start date of the requests
+end_data = [&quot;2024-05-05&quot;, &quot;2024-05-06&quot;, &quot;2024-05-07&quot;, &quot;2024-05-08&quot;]  # End date of the requests
+preassigned_room_data = [3, -1, -1, -1]  # Room 3 pre-assigned for the first request, -1 for no pre-assignment
 
-# Convert dates to integers for easier processing
-def date_to_int(date_str):
-    return int(date_str.replace(&quot;-&quot;, &quot;&quot;))
+# Convert dates to datetime objects for proper comparison
+start_dates = [datetime.strptime(date, &quot;%Y-%m-%d&quot;) for date in start_data]
+end_dates = [datetime.strptime(date, &quot;%Y-%m-%d&quot;) for date in end_data]
+n_requests = len(start_dates)
 
-start_times = [date_to_int(d) for d in start_data]
-end_times = [date_to_int(d) for d in end_data]
-n_requests = len(start_data)
+# Decision Variables
+room_assignments = intvar(0, max_rooms-1, shape=n_requests, name=&quot;room_assignments&quot;)  # Room assignments for each request
 
-# Create model
-model = cp.Model()
+# Model
+model = Model()
 
-# Decision variables: room assignment for each request
-# room_assignments[i] = room number for request i (0-indexed)
-room_assignments = cp.intvar(0, max_rooms-1, shape=n_requests, name=&quot;room_assignments&quot;)
-
-# Constraint 1: Pre-assigned rooms must be respected
+# Pre-assignment constraints
 for i in range(n_requests):
     if preassigned_room_data[i] != -1:
-        model += room_assignments[i] == preassigned_room_data[i]
+        model += (room_assignments[i] == preassigned_room_data[i])
 
-# Constraint 2: No overlapping requests can be in the same room
-# Two requests overlap if one starts before the other ends
+# No overlapping requests in the same room
 for i in range(n_requests):
     for j in range(i+1, n_requests):
-        # Check if requests i and j overlap
-        overlap = not (end_times[i] &lt;= start_times[j] or end_times[j] &lt;= start_times[i])
-        if overlap:
-            # If they overlap, they must be in different rooms
-            model += room_assignments[i] != room_assignments[j]
+        # If two requests are assigned to the same room, they must not overlap
+        model += (
+            (room_assignments[i] != room_assignments[j]) |
+            (end_dates[i] &lt;= start_dates[j]) |
+            (end_dates[j] &lt;= start_dates[i])
+        )
 
-# Solve the model
-if model.solve():
-    solution_values = room_assignments.value()
-    
-    # Create solution in required format
-    solution = {
-        &quot;room_assignments&quot;: solution_values.tolist()
-    }
-    
-    # Verification
-    def verify_solution(sol, start_data, end_data, preassigned_room_data, max_rooms):
-        room_assignments = sol[&quot;room_assignments&quot;]
-        n_requests = len(start_data)
-        
-        def date_to_int(date_str):
-            return int(date_str.replace(&quot;-&quot;, &quot;&quot;))
-        
-        start_times = [date_to_int(d) for d in start_data]
-        end_times = [date_to_int(d) for d in end_data]
-        
-        # Structural verification
-        if len(room_assignments) != n_requests:
-            return False, f&quot;Expected {n_requests} room assignments, got {len(room_assignments)}&quot;
-        
-        # Logical verification
-        for i, room in enumerate(room_assignments):
-            if room &lt; 0 or room &gt;= max_rooms:
-                return False, f&quot;Request {i} assigned to invalid room {room}&quot;
-        
-        # Check pre-assigned rooms
-        for i in range(n_requests):
-            if preassigned_room_data[i] != -1:
-                if room_assignments[i] != preassigned_room_data[i]:
-                    return False, f&quot;Request {i} should be in room {preassigned_room_data[i]}&quot;
-        
-        # Check no overlapping requests in same room
-        for i in range(n_requests):
-            for j in range(i+1, n_requests):
-                overlap = not (end_times[i] &lt;= start_times[j] or end_times[j] &lt;= start_times[i])
-                if overlap and room_assignments[i] == room_assignments[j]:
-                    return False, f&quot;Overlapping requests {i} and {j} both in room {room_assignments[i]}&quot;
-        
-        return True, &quot;All constraints satisfied&quot;
-    
-    valid, msg = verify_solution(solution, start_data, end_data, preassigned_room_data, max_rooms)
-    assert valid, f&quot;Verification failed: {msg}&quot;
-    
-    # Output the solution
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-room_assignment-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-room_assignment-cpagent" class="language-json">{
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;room_assignments&quot;: room_assignments.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-room_assignment-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-room_assignment-anonymous_submission" class="language-json">{
   &quot;room_assignments&quot;: [
     3,
     2,
@@ -200,7 +155,7 @@ else:
     0
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/room_assignment/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/room_assignment/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -209,7 +164,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (43 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-room_assignment-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-room_assignment-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -273,7 +228,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-room_assignment-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-room_assignment-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -346,7 +301,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="revenue_maximization.html">← prev</a><a class="btn" href="send_more_money.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

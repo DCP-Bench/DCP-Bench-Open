@@ -16032,81 +16032,75 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (53 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_001_car_sequencing-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-csplib_001_car_sequencing-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (47 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_001_car_sequencing-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_001_car_sequencing-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Problem data
-at_most = [1, 2, 2, 2, 1]  # Max times a property can appear in consecutive slots
-per_slots = [2, 3, 3, 5, 5]  # Size of consecutive slot windows
-demand = [1, 1, 2, 2, 2, 2]  # How many cars of each type to produce
-requires = [[1, 0, 1, 1, 0],  # Which properties each car type requires
+# Data
+at_most = [1, 2, 2, 2, 1]  # The amount of times a property can be present
+per_slots = [2, 3, 3, 5, 5]  # The amount of consecutive timeslots
+demand = [1, 1, 2, 2, 2, 2]  # The demand per type of car
+requires = [[1, 0, 1, 1, 0],
             [0, 0, 0, 1, 0],
             [0, 1, 0, 0, 1],
             [0, 1, 0, 1, 0],
             [1, 0, 1, 0, 0],
-            [1, 1, 0, 0, 0]]
+            [1, 1, 0, 0, 0]]  # The properties per type of car
 
-num_car_types = len(demand)
-total_cars = sum(demand)
-num_properties = len(at_most)
+# Parameters
+n_cars = sum(demand)  # The amount of cars to sequence
+n_options = len(at_most)  # The amount of different options
+n_types = len(demand)  # The amount of different car types
+requires = cpm_array(requires)  # For element constraint
 
-model = cp.Model()
+# Decision Variables
+sequence = intvar(0, n_types - 1, shape=n_cars, name=&quot;sequence&quot;)  # The sequence of car types
+setup = boolvar(shape=(n_cars, n_options), name=&quot;setup&quot;)  # Sequence of different options based on the car type
 
-# Decision variables: sequence[i] = car type at position i
-sequence = cp.intvar(0, num_car_types - 1, shape=total_cars, name=&quot;sequence&quot;)
+# Model
+model = Model()
 
-# Constraint 1: Respect demand for each car type
-for car_type in range(num_car_types):
-    model += cp.Count(sequence, car_type) == demand[car_type]
+# The amount of each type of car in the sequence has to be equal to the demand for that type
+model += [sum(sequence == t) == demand[t] for t in range(n_types)]
 
-# Constraint 2: Capacity constraints for each property
-# For each property, check sliding windows
-for prop in range(num_properties):
-    window_size = per_slots[prop]
-    max_in_window = at_most[prop]
-    
-    # For each possible window position
-    for start_pos in range(total_cars - window_size + 1):
-        # Count cars in this window that have this property
-        cars_with_property = []
-        for pos in range(start_pos, start_pos + window_size):
-            # Check if car at position pos has property prop
-            has_property = cp.sum([
-                (sequence[pos] == car_type) * requires[car_type][prop] 
-                for car_type in range(num_car_types)
-            ])
-            cars_with_property.append(has_property)
-        
-        # Sum must not exceed capacity
-        model += cp.sum(cars_with_property) &lt;= max_in_window
+# Make sure that the options in the setup table correspond to those of the car type
+for s in range(n_cars):
+    model += [setup[s, o] == requires[sequence[s], o] for o in range(n_options)]
 
-# Solve the model
-if model.solve():
-    solution = {&quot;sequence&quot;: sequence.value().tolist()}
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_001_car_sequencing-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-csplib_001_car_sequencing-cpagent" class="language-json">{
+# Check that no more than &quot;at most&quot; car options are used per &quot;per_slots&quot; slots
+for o in range(n_options):
+    window_size = per_slots[o]
+    for s in range(n_cars - window_size + 1):
+        slot_range = range(s, s + window_size)
+        model += (sum(setup[slot_range, o]) &lt;= at_most[o])
+
+# Solve
+model.solve()
+
+# Print
+solution = {&quot;sequence&quot;: sequence.value().tolist()}
+print(json.dumps(solution))</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_001_car_sequencing-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-csplib_001_car_sequencing-anonymous_submission" class="language-json">{
   &quot;sequence&quot;: [
     0,
-    3,
-    4,
     2,
+    4,
+    3,
     5,
     1,
     5,
-    3,
+    2,
     4,
-    2
+    3
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_001_car_sequencing/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_001_car_sequencing/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="or-tools">
     <div class="model-card">
@@ -16115,7 +16109,7 @@ else:
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (81 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_001_car_sequencing-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_001_car_sequencing-guidelines_prompt_ort" class="language-python">
@@ -16224,7 +16218,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="crypta.html">← prev</a><a class="btn" href="csplib_002_template_design.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

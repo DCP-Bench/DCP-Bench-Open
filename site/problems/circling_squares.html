@@ -70,72 +70,72 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (58 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-circling_squares-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-circling_squares-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (58 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-circling_squares-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-circling_squares-anonymous_submission" class="language-python">from cpmpy import *
 import json
 
-# Circling the Squares Problem
-# Place different numbers in 10 squares arranged in a circle such that
-# the sum of squares of any two adjacent numbers equals the sum of squares
-# of the two numbers diametrically opposite to them.
-# Given: A=16, B=2, F=8, G=14
+# Decision Variables
+# Variables for each position in the circle (A-K, skipping J)
+A = intvar(1, 99, name=&quot;A&quot;)
+B = intvar(1, 99, name=&quot;B&quot;)
+C = intvar(1, 99, name=&quot;C&quot;)
+D = intvar(1, 99, name=&quot;D&quot;)
+E = intvar(1, 99, name=&quot;E&quot;)
+F = intvar(1, 99, name=&quot;F&quot;)
+G = intvar(1, 99, name=&quot;G&quot;)
+H = intvar(1, 99, name=&quot;H&quot;)
+I = intvar(1, 99, name=&quot;I&quot;)
+K = intvar(1, 99, name=&quot;K&quot;)
 
-# Decision variables for unknown positions
-C = cp.intvar(0, 99, name=&quot;C&quot;)
-D = cp.intvar(0, 99, name=&quot;D&quot;) 
-E = cp.intvar(0, 99, name=&quot;E&quot;)
-H = cp.intvar(0, 99, name=&quot;H&quot;)
-I = cp.intvar(0, 99, name=&quot;I&quot;)
-K = cp.intvar(0, 99, name=&quot;K&quot;)
+# Model
+model = Model()
 
-model = cp.Model()
+# Fixed values from the problem statement
+model += A == 16
+model += B == 2
+model += F == 8
+model += G == 14
 
-# All numbers must be different
-all_vars = [C, D, E, H, I, K]
-model += cp.AllDifferent(all_vars)
+# All variables must be distinct
+model += AllDifferent([A, B, C, D, E, F, G, H, I, K])
 
-# Ensure unknowns don&#x27;t equal known values
-for var in all_vars:
-    model += var != 16  # A
-    model += var != 2   # B  
-    model += var != 8   # F
-    model += var != 14  # G
+# Adjacent pairs must have sum of squares equal to their diametrically opposite pair
+# Assuming the circle order is A, B, C, D, E, F, G, H, I, K
+model += (A**2 + B**2) == (F**2 + G**2)  # Given in problem
+model += (B**2 + C**2) == (G**2 + H**2)
+model += (C**2 + D**2) == (H**2 + I**2)
+model += (D**2 + E**2) == (I**2 + K**2)
+model += (E**2 + F**2) == (K**2 + A**2)
+model += (F**2 + G**2) == (A**2 + B**2)  # Same as first constraint
+model += (G**2 + H**2) == (B**2 + C**2)
+model += (H**2 + I**2) == (C**2 + D**2)
+model += (I**2 + K**2) == (D**2 + E**2)
+model += (K**2 + A**2) == (E**2 + F**2)
 
-# Circle arrangement: A -&gt; B -&gt; C -&gt; D -&gt; E -&gt; F -&gt; G -&gt; H -&gt; I -&gt; K -&gt; A
-# Adjacent pairs and their diametric opposites must have equal sum of squares:
-# A² + B² = F² + G² (already satisfied: 260 = 260)
-# B² + C² = G² + H²
-# C² + D² = H² + I²
-# D² + E² = I² + K²
-# E² + F² = K² + A²
+# Solve
+model.solve()
 
-model += 2**2 + C**2 == 14**2 + H**2   # B² + C² = G² + H²
-model += C**2 + D**2 == H**2 + I**2    # C² + D² = H² + I²
-model += D**2 + E**2 == I**2 + K**2    # D² + E² = I² + K²
-model += E**2 + 8**2 == K**2 + 16**2   # E² + F² = K² + A²
-
-if model.solve():
-    solution = {
-        &quot;A&quot;: 16,
-        &quot;B&quot;: 2,
-        &quot;C&quot;: C.value(),
-        &quot;D&quot;: D.value(),
-        &quot;E&quot;: E.value(),
-        &quot;F&quot;: 8,
-        &quot;G&quot;: 14,
-        &quot;H&quot;: H.value(),
-        &quot;I&quot;: I.value(),
-        &quot;K&quot;: K.value()
-    }
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-circling_squares-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-circling_squares-cpagent" class="language-json">{
+# Print solution in alphabetical order
+solution = {
+    &quot;A&quot;: A.value(),
+    &quot;B&quot;: B.value(),
+    &quot;C&quot;: C.value(),
+    &quot;D&quot;: D.value(),
+    &quot;E&quot;: E.value(),
+    &quot;F&quot;: F.value(),
+    &quot;G&quot;: G.value(),
+    &quot;H&quot;: H.value(),
+    &quot;I&quot;: I.value(),
+    &quot;K&quot;: K.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-circling_squares-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-circling_squares-anonymous_submission" class="language-json">{
   &quot;A&quot;: 16,
   &quot;B&quot;: 2,
   &quot;C&quot;: 19,
@@ -147,7 +147,7 @@ else:
   &quot;I&quot;: 26,
   &quot;K&quot;: 47
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/circling_squares/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/circling_squares/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="or-tools">
     <div class="model-card">
@@ -156,7 +156,7 @@ else:
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (69 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-circling_squares-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-circling_squares-guidelines_prompt_ort" class="language-python">
@@ -251,7 +251,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="chess_set.html">← prev</a><a class="btn" href="circular_table_averbach_1_2.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

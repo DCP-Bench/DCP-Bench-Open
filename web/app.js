@@ -2,24 +2,56 @@
   "use strict";
 
   /* ---------- Index: card rendering + filtering ---------- */
+  var EVAL_STATUS = {
+    optimal: { color: "#16a34a", label: "valid · optimal" },
+    valid: { color: "#2563eb", label: "valid" },
+    no_valid: { color: "#dc2626", label: "no valid model" },
+    no_models: { color: "#6b7280", label: "no models" }
+  };
+
+  function pill(label, color) {
+    var el = document.createElement("span");
+    el.className = color ? "badge" : "badge plain";
+    if (color) el.style.background = color;
+    el.textContent = label;
+    return el;
+  }
+
   function renderCards() {
     var container = document.getElementById("cards");
     var countEl = document.getElementById("result-count");
     if (!container || !window.DCP_DATA) return;
 
     var data = window.DCP_DATA.problems || [];
-    var query = (document.getElementById("filter-q") || { value: "" }).value.trim().toLowerCase();
-    var fw = (document.getElementById("filter-fw") || { value: "" }).value;
-    var origin = (document.getElementById("filter-origin") || { value: "" }).value;
+    var q = (document.getElementById("filter-q") || { value: "" }).value.trim().toLowerCase();
+    var type = (document.getElementById("filter-type") || { value: "" }).value;
+    var source = (document.getElementById("filter-source") || { value: "" }).value;
+    var category = (document.getElementById("filter-category") || { value: "" }).value;
+    var inst = (document.getElementById("filter-instances") || { value: "" }).value;
+    var gen = (document.getElementById("filter-gen") || { value: "" }).value;
+    var evalStatus = (document.getElementById("filter-eval") || { value: "" }).value;
+    var sort = (document.getElementById("sort-by") || { value: "name" }).value;
 
     var filtered = data.filter(function (p) {
-      if (fw && p.frameworks.indexOf(fw) === -1) return false;
-      if (origin && (p.origin || "hand") !== origin) return false;
-      if (query) {
+      if (type && (p.type || "satisfaction") !== type) return false;
+      if (source && p.source !== source) return false;
+      if (category && p.category !== category) return false;
+      if (inst === "single" && p.instances !== 1) return false;
+      if (inst === "multiple" && p.instances < 2) return false;
+      if (gen === "yes" && !p.generated) return false;
+      if (gen === "no" && p.generated) return false;
+      if (evalStatus && (p.evalBadge || "no_models") !== evalStatus) return false;
+      if (q) {
         var hay = (p.id + " " + p.snippet).toLowerCase();
-        if (hay.indexOf(query) === -1) return false;
+        if (hay.indexOf(q) === -1) return false;
       }
       return true;
+    });
+
+    filtered.sort(function (a, b) {
+      if (sort === "instances") return b.instances - a.instances;
+      if (sort === "generated") return b.generated - a.generated;
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
     });
 
     if (countEl) {
@@ -43,22 +75,34 @@
 
       var meta = document.createElement("div");
       meta.className = "meta";
-      (p.frameworks || []).forEach(function (f) { meta.appendChild(badge(f, f)); });
-      meta.appendChild(badge(p.originLabel || p.origin, p.origin));
-      var inst = document.createElement("span");
-      inst.className = "muted";
-      inst.textContent = (p.instances || 0) + " instance" + (p.instances === 1 ? "" : "s");
-      meta.appendChild(inst);
+      meta.appendChild(pill(p.type === "optimization" ? "Optimization" : "Satisfaction",
+        p.type === "optimization" ? "#7c3aed" : null));
+      if (p.source) meta.appendChild(pill(p.source, null));
+      if (p.category) meta.appendChild(pill(p.category, null));
+
+      var foot = document.createElement("div");
+      foot.className = "card-foot";
+      var instSpan = document.createElement("span");
+      instSpan.className = "muted";
+      instSpan.textContent = (p.instances || 0) + " instance" + (p.instances === 1 ? "" : "s");
+      foot.appendChild(instSpan);
       if (p.generated) {
-        var gen = document.createElement("span");
-        gen.className = "muted";
-        gen.textContent = (p.generated === 1 ? "1 generated model" : p.generated + " generated models");
-        meta.appendChild(gen);
+        var genSpan = document.createElement("span");
+        genSpan.className = "muted";
+        genSpan.textContent = p.generated + " generated model" + (p.generated === 1 ? "" : "s");
+        foot.appendChild(genSpan);
       }
+      var ev = EVAL_STATUS[p.evalBadge] || EVAL_STATUS.no_models;
+      var evalPill = document.createElement("span");
+      evalPill.className = "badge";
+      evalPill.style.background = ev.color;
+      evalPill.textContent = ev.label;
+      foot.appendChild(evalPill);
 
       card.appendChild(h3);
       card.appendChild(desc);
       card.appendChild(meta);
+      card.appendChild(foot);
       container.appendChild(card);
     });
 
@@ -70,27 +114,10 @@
     }
   }
 
-  function badge(label, key) {
-    var el = document.createElement("span");
-    el.className = "badge " + badgeClass(key);
-    el.textContent = label;
-    return el;
-  }
-
-  function badgeClass(key) {
-    var colors = {
-      CPMpy: "#0d9488",
-      "OR-Tools": "#ea580c",
-      MiniZinc: "#2563eb",
-      hand: "#64748b"
-    };
-    if (colors[key]) return "";
-    return "plain";
-  }
-
   function initIndex() {
     if (!window.DCP_DATA) return;
-    ["filter-q", "filter-fw", "filter-origin"].forEach(function (id) {
+    ["filter-q", "filter-type", "filter-source", "filter-category", "filter-instances",
+     "filter-gen", "filter-eval", "sort-by"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener("input", renderCards);
     });

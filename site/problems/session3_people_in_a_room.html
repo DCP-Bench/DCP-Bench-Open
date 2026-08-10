@@ -67,98 +67,65 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (67 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-session3_people_in_a_room-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-session3_people_in_a_room-cpagent" class="language-python">import cpmpy as cp
+      <details class="gmodel"><summary>model.py (34 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-session3_people_in_a_room-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-session3_people_in_a_room-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Problem: 13 people (4 males, 9 females) enter a room one at a time
-# Constraint: At any time, ratio F/M &lt;= 7/3
-# Output: Sequence where 0=male, 1=female
-
+# Parameters
 total_people = 13
-males = 4
-females = 9
+num_males = 4
+num_females = total_people - num_males
 
-# Step 2: Model with CPMpy
-# Decision variables: sequence[i] represents the gender of the i-th person to enter
-# 0 = male, 1 = female
-sequence = cp.intvar(0, 1, shape=13, name=&quot;sequence&quot;)
+# Decision Variables
+sequence = intvar(0, 1, shape=total_people, name=&quot;sequence&quot;)  # 0=male, 1=female
 
-model = cp.Model()
+# Model
+model = Model()
 
-# Constraint 1: Exactly 4 males and 9 females
-model += cp.Count(sequence, 0) == 4  # 4 males
-model += cp.Count(sequence, 1) == 9  # 9 females
+# Exactly 4 males and 9 females
+model += sum(sequence == 0) == num_males
+model += sum(sequence == 1) == num_females
 
-# Constraint 2: At any time t, the ratio F/M &lt;= 7/3
-# This means: 3*F &lt;= 7*M at all times, with special handling for M=0
-for t in range(1, 14):  # For each time step (1-indexed)
-    # Count males and females up to time t
-    males_so_far = cp.sum([1 - sequence[i] for i in range(t)])  # Count of 0s
-    females_so_far = cp.sum([sequence[i] for i in range(t)])    # Count of 1s
-    
-    # If no males have entered yet, no females can enter either
-    # If males have entered, then 3*F &lt;= 7*M
-    model += (males_so_far == 0).implies(females_so_far == 0)
-    model += (males_so_far &gt; 0).implies(3 * females_so_far &lt;= 7 * males_so_far)
+# Ratio constraint at every step
+for step in range(1, total_people+1):
+    current_males = sum(sequence[:step] == 0)
+    current_females = sum(sequence[:step] == 1)
+    # Females/males &lt;= 7/3 =&gt; 3*females &lt;= 7*males
+    model += (3 * current_females &lt;= 7 * current_males)
 
-# Step 3: Solve and verify
-if model.solve():
-    solution_sequence = sequence.value().tolist()
-    
-    # Verification
-    def verify_solution(seq):
-        # Check counts
-        if seq.count(0) != 4 or seq.count(1) != 9 or len(seq) != 13:
-            return False
-        
-        # Check ratio constraint at each step
-        males_count = 0
-        females_count = 0
-        for gender in seq:
-            if gender == 0:
-                males_count += 1
-            else:
-                females_count += 1
-            
-            if males_count == 0 and females_count &gt; 0:
-                return False
-            if males_count &gt; 0 and females_count / males_count &gt; 7/3 + 1e-9:
-                return False
-        
-        return True
-    
-    assert verify_solution(solution_sequence), &quot;Solution verification failed!&quot;
-    
-    # Step 4: Output
-    solution = {&quot;sequence&quot;: solution_sequence}
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-session3_people_in_a_room-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-session3_people_in_a_room-cpagent" class="language-json">{
+# Solve
+model.solve()
+
+# Print solution
+solution = {
+    &quot;sequence&quot;: [bool(x) for x in sequence.value().tolist()]
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-session3_people_in_a_room-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-session3_people_in_a_room-anonymous_submission" class="language-json">{
   &quot;sequence&quot;: [
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/session3_people_in_a_room/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/session3_people_in_a_room/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -167,7 +134,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (38 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-session3_people_in_a_room-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-session3_people_in_a_room-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -235,7 +202,7 @@ output [
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (42 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-session3_people_in_a_room-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-session3_people_in_a_room-guidelines_prompt_ort" class="language-python">
@@ -308,7 +275,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session3_kidney_exchange.html">← prev</a><a class="btn" href="session5_climbing_stairs.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

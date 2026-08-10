@@ -91,101 +91,74 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (63 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_084_hadamard_matrix-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-csplib_084_hadamard_matrix-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (36 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_084_hadamard_matrix-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_084_hadamard_matrix-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Problem: 2cc Hadamard Matrix Legendre Pairs CSP
-# For l=9, find sequences a and b of length l with values in {-1, +1}
-# such that specific autocorrelation constraints are satisfied
+# Parameters
+l = 9  # Value of l (must be an odd positive integer)
+m = (l - 1) // 2
 
-# Problem parameters
-l = 9  # odd positive integer
-m = (l - 1) // 2  # m = (l-1)/2 = 4
+# Decision Variables
+a = intvar(-1, 1, shape=l, name=&quot;a&quot;)  # Variables a_1 to a_l
+b = intvar(-1, 1, shape=l, name=&quot;b&quot;)  # Variables b_1 to b_l
 
-# Step 1: Model with CPMpy
-model = cp.Model()
+# Model
+model = Model()
 
-# Decision variables: a_1, ..., a_l, b_1, ..., b_l
-# All variables have domain {-1, +1}
-a = cp.intvar(-1, 1, shape=l, name=&quot;a&quot;)
-b = cp.intvar(-1, 1, shape=l, name=&quot;b&quot;)
+# Constraint: PAF(A,s) + PAF(B,s) = -2 for s=1..m
+for s in range(1, m+1):
+    PAF_A = sum(a[i] * a[(i+s) % l] for i in range(l))
+    PAF_B = sum(b[i] * b[(i+s) % l] for i in range(l))
+    model += (PAF_A + PAF_B) == -2
 
-# Domain constraints: variables can only be -1 or +1 (not 0)
-for i in range(l):
-    model += (a[i] == -1) | (a[i] == 1)
-    model += (b[i] == -1) | (b[i] == 1)
+# Constraint: sum of a&#x27;s = 1
+model += sum(a) == 1
 
-# Linear constraints:
-# c_{m+1}: a_1 + ... + a_l = 1
-# c_{m+2}: b_1 + ... + b_l = 1
-model += cp.sum(a) == 1
-model += cp.sum(b) == 1
+# Constraint: sum of b&#x27;s = 1
+model += sum(b) == 1
 
-# Quadratic constraints:
-# c_s: PAF(A, s) + PAF(B, s) = -2 for s = 1, ..., m
-# where PAF(X, s) = sum_{i=1}^l x_i * x_{i+s} (indices taken mod l)
-for s in range(1, m + 1):
-    # PAF(A, s) = sum_{i=0}^{l-1} a[i] * a[(i + s) % l]
-    paf_a = cp.sum([a[i] * a[(i + s) % l] for i in range(l)])
-    
-    # PAF(B, s) = sum_{i=0}^{l-1} b[i] * b[(i + s) % l]
-    paf_b = cp.sum([b[i] * b[(i + s) % l] for i in range(l)])
-    
-    # Constraint: PAF(A, s) + PAF(B, s) = -2
-    model += paf_a + paf_b == -2
+# Solve
+model.solve()
 
-# Step 2: Solve (this is a satisfaction problem, not optimization)
-if model.solve():
-    # Extract solution values
-    a_solution = a.value()
-    b_solution = b.value()
-    
-    # Convert to Python lists for JSON output
-    a_list = a_solution.tolist() if hasattr(a_solution, &#x27;tolist&#x27;) else list(a_solution)
-    b_list = b_solution.tolist() if hasattr(b_solution, &#x27;tolist&#x27;) else list(b_solution)
-    
-    # Output in required JSON format
-    solution = {
-        &quot;a&quot;: a_list,
-        &quot;b&quot;: b_list
-    }
-    
-    print(json.dumps(solution))
-    
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_084_hadamard_matrix-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-csplib_084_hadamard_matrix-cpagent" class="language-json">{
+# Print solution
+solution = {
+    &quot;a&quot;: a.value().tolist(),
+    &quot;b&quot;: b.value().tolist()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-csplib_084_hadamard_matrix-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-csplib_084_hadamard_matrix-anonymous_submission" class="language-json">{
   &quot;a&quot;: [
     -1,
     1,
     -1,
+    1,
+    -1,
     -1,
     1,
     1,
-    1,
-    1,
-    -1
+    1
   ],
   &quot;b&quot;: [
     1,
+    1,
+    -1,
     -1,
     1,
     -1,
-    1,
-    1,
-    1,
     -1,
-    -1
+    1,
+    1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_084_hadamard_matrix/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_084_hadamard_matrix/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -194,7 +167,7 @@ else:
           <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (35 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_084_hadamard_matrix-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_084_hadamard_matrix-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -266,7 +239,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (94 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_084_hadamard_matrix-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_084_hadamard_matrix-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -398,7 +371,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_076_costas_arrays.html">← prev</a><a class="btn" href="curious_set_of_integers.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

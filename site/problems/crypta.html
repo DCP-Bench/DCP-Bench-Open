@@ -75,85 +75,90 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (71 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-crypta-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-crypta-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (76 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-crypta-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-crypta-anonymous_submission" class="language-python">from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Cryptarithmetic puzzle: B A I J J A J I I A H F C F E B B J E A
-#                       + D H F G A B C D I D B I F F A G F E J E
-#                       = G J E G A C D D H F A F J B F I H E E F
-# All letters A-J must be distinct digits 0-9
+# Decision Variables
+A = intvar(0, 9, name=&quot;A&quot;)
+B = intvar(0, 9, name=&quot;B&quot;)
+C = intvar(0, 9, name=&quot;C&quot;)
+D = intvar(0, 9, name=&quot;D&quot;)
+E = intvar(0, 9, name=&quot;E&quot;)
+F = intvar(0, 9, name=&quot;F&quot;)
+G = intvar(0, 9, name=&quot;G&quot;)
+H = intvar(0, 9, name=&quot;H&quot;)
+I = intvar(0, 9, name=&quot;I&quot;)
+J = intvar(0, 9, name=&quot;J&quot;)
 
-line1 = &quot;BAIJJAJIIAHFCFEBBJEA&quot;
-line2 = &quot;DHFGABCDIDBIFFAGFEJE&quot;
+# Model
+model = Model()
+
+# All letters must be distinct
+model += AllDifferent([A, B, C, D, E, F, G, H, I, J])
+
+# Leading digits cannot be zero
+model += (A != 0)
+model += (D != 0)
+model += (G != 0)
+
+# Define the words
+word1 = &quot;BAIJJAJIIAHFCFEBBJEA&quot;
+word2 = &quot;DHFGABCDIDBIFFAGFEJE&quot;
 result = &quot;GJEGACDDHFAFJBFIHEEF&quot;
 
-# Step 2: Model with CPMpy
-letters = [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;, &#x27;I&#x27;, &#x27;J&#x27;]
-digit_vars = {}
-for letter in letters:
-    digit_vars[letter] = cp.intvar(0, 9, name=letter)
+# Reverse the words to process from least significant digit
+word1 = word1[::-1]
+word2 = word2[::-1]
+result = result[::-1]
 
-model = cp.Model()
+# Create carry variables (one for each column plus one for final carry)
+max_len = max(len(word1), len(word2), len(result))
+carry = intvar(0, 1, shape=max_len+1, name=&quot;carry&quot;)
 
-# All letters must have different digits
-model += cp.AllDifferent([digit_vars[letter] for letter in letters])
+# Create mapping from letters to variables
+letter_map = {
+    &#x27;A&#x27;: A, &#x27;B&#x27;: B, &#x27;C&#x27;: C, &#x27;D&#x27;: D, &#x27;E&#x27;: E,
+    &#x27;F&#x27;: F, &#x27;G&#x27;: G, &#x27;H&#x27;: H, &#x27;I&#x27;: I, &#x27;J&#x27;: J
+}
 
-# Model the addition with carries
-n_digits = len(line1)
-carry = cp.intvar(0, 1, shape=n_digits+1, name=&quot;carry&quot;)
-model += carry[n_digits] == 0  # No carry into the leftmost position
-
-# Add constraints for each digit position (right to left)
-for i in range(n_digits-1, -1, -1):
-    l1_digit = digit_vars[line1[i]]
-    l2_digit = digit_vars[line2[i]]
-    res_digit = digit_vars[result[i]]
+# Add column-wise constraints
+for i in range(max_len):
+    # Get current digits (or 0 if beyond word length)
+    d1 = letter_map[word1[i]] if i &lt; len(word1) else 0
+    d2 = letter_map[word2[i]] if i &lt; len(word2) else 0
+    res = letter_map[result[i]] if i &lt; len(result) else 0
     
-    # The equation for position i:
-    # l1_digit + l2_digit + carry[i+1] = res_digit + 10 * carry[i]
-    model += l1_digit + l2_digit + carry[i+1] == res_digit + 10 * carry[i]
+    # Add column constraint: d1 + d2 + carry[i] == res + 10*carry[i+1]
+    model += (d1 + d2 + carry[i] == res + 10 * carry[i+1])
 
-# Step 3: Solve and verify
-if model.solve():
-    # Extract the solution
-    solution = {}
-    for letter in letters:
-        solution[letter] = int(digit_vars[letter].value())
-    
-    # Verification - check the arithmetic independently
-    def verify_solution(sol):
-        def string_to_number(s):
-            return int(&#x27;&#x27;.join(str(sol[c]) for c in s))
-        
-        num1 = string_to_number(line1)
-        num2 = string_to_number(line2)
-        expected_result = string_to_number(result)
-        actual_sum = num1 + num2
-        
-        # Check arithmetic correctness
-        arithmetic_correct = actual_sum == expected_result
-        
-        # Check all digits are different
-        digits_used = list(sol.values())
-        all_different = len(set(digits_used)) == len(digits_used)
-        
-        return arithmetic_correct and all_different
-    
-    assert verify_solution(solution), &quot;Solution verification failed!&quot;
-    
-    # Step 4: Output in required JSON format
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-crypta-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-crypta-cpagent" class="language-json">{
+# Final carry must be 0 (no overflow)
+model += (carry[max_len] == 0)
+
+# Solve
+model.solve()
+
+# Print solution in alphabetical order
+solution = {
+    &quot;A&quot;: A.value(),
+    &quot;B&quot;: B.value(),
+    &quot;C&quot;: C.value(),
+    &quot;D&quot;: D.value(),
+    &quot;E&quot;: E.value(),
+    &quot;F&quot;: F.value(),
+    &quot;G&quot;: G.value(),
+    &quot;H&quot;: H.value(),
+    &quot;I&quot;: I.value(),
+    &quot;J&quot;: J.value()
+}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-crypta-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-crypta-anonymous_submission" class="language-json">{
   &quot;A&quot;: 1,
   &quot;B&quot;: 2,
   &quot;C&quot;: 3,
@@ -165,7 +170,7 @@ else:
   &quot;I&quot;: 9,
   &quot;J&quot;: 0
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/crypta/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/crypta/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="minizinc">
     <div class="model-card">
@@ -174,7 +179,7 @@ else:
           <div class="model-card-title">guidelines_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.mzn (66 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-crypta-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-crypta-guidelines_prompt_mnz" class="language-minizinc">
@@ -265,7 +270,7 @@ output [
           <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (55 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-crypta-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-crypta-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
@@ -346,7 +351,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="crossword.html">← prev</a><a class="btn" href="csplib_001_car_sequencing.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

@@ -59,82 +59,43 @@ print(json.dumps(solution))
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
+          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
+          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
-      <details class="gmodel"><summary>model.py (68 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-added_corners-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-added_corners-cpagent" class="language-python">import cpmpy as cp
-import numpy as np
+      <details class="gmodel"><summary>model.py (29 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-added_corners-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-added_corners-anonymous_submission" class="language-python"># Import libraries
+from cpmpy import *
 import json
 
-# Step 1: Deconstruct &amp; Pre-compute
-# Layout:
-#   0 1 2
-#   3   4  
-#   5 6 7
-# Circles: positions 0, 2, 5, 7
-# Squares: positions 1, 3, 4, 6
+# Decision Variables
+positions = intvar(1, 8, shape=8, name=&quot;positions&quot;)  # Values for each position (4 circles and 4 squares)
+
+# Model
+model = Model()
+
+# Constraint: All positions must have distinct values (digits 1-8)
+model += AllDifferent(positions)
+
+# Assuming positions 0,2,5,7 are circles and 1,3,4,6 are squares
 # Constraint: Each square equals sum of adjacent circles
+# Top row: C F C
+model += positions[1] == positions[0] + positions[2]
+# Middle connections
+model += positions[3] == positions[0] + positions[5]  # Vertical connection from top-left
+model += positions[4] == positions[2] + positions[7]  # Vertical connection from top-right
+# Bottom row: C F C
+model += positions[6] == positions[5] + positions[7]
 
-# Step 2: Model with CPMpy
-# Decision variables: positions[i] = digit at position i (1-8)
-positions = cp.intvar(1, 8, shape=8, name=&quot;positions&quot;)
+# Solve
+model.solve()
 
-model = cp.Model()
-
-# Constraint 1: All positions must have different digits (use all digits 1-8)
-model += cp.AllDifferent(positions)
-
-# Constraint 2: Each square equals sum of adjacent circles
-square_to_circles = {
-    1: [0, 2],  # Square 1 = Circle 0 + Circle 2
-    3: [0, 5],  # Square 3 = Circle 0 + Circle 5  
-    4: [2, 7],  # Square 4 = Circle 2 + Circle 7
-    6: [5, 7]   # Square 6 = Circle 5 + Circle 7
-}
-
-for square, adj_circles in square_to_circles.items():
-    model += positions[square] == cp.sum([positions[c] for c in adj_circles])
-
-# Step 3: Solve &amp; Verify
-if model.solve():
-    # Extract solution
-    solution = {
-        &quot;positions&quot;: positions.value().tolist()
-    }
-    
-    # Verification
-    def verify_solution(sol):
-        pos_vals = sol[&quot;positions&quot;]
-        
-        # Structural verification
-        if len(pos_vals) != 8:
-            return False, f&quot;Expected 8 positions, got {len(pos_vals)}&quot;
-        
-        # Logical verification
-        # Check all digits 1-8 are used exactly once
-        if sorted(pos_vals) != list(range(1, 9)):
-            return False, f&quot;Not all digits 1-8 used exactly once&quot;
-        
-        # Check square constraints
-        for square, adj_circles in square_to_circles.items():
-            expected_sum = sum(pos_vals[c] for c in adj_circles)
-            actual_value = pos_vals[square]
-            if actual_value != expected_sum:
-                return False, f&quot;Square {square} constraint violated&quot;
-        
-        return True, &quot;All constraints satisfied&quot;
-    
-    valid, msg = verify_solution(solution)
-    assert valid, f&quot;Verification failed: {msg}&quot;
-    
-    # Step 4: Output
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-added_corners-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-added_corners-cpagent" class="language-json">{
+# Print solution
+solution = {&quot;positions&quot;: positions.value().tolist()}
+print(json.dumps(solution))
+# End of CPMPy script</code></pre></details>
+      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-added_corners-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gsol-added_corners-anonymous_submission" class="language-json">{
   &quot;positions&quot;: [
     2,
     8,
@@ -146,7 +107,7 @@ else:
     1
   ]
 }</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/added_corners/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
+      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/added_corners/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
     </div>
     </div><div class="tab-pane" data-pane="or-tools">
     <div class="model-card">
@@ -155,7 +116,7 @@ else:
           <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
           <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
         </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
+        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
       </div>
       
       <details class="gmodel"><summary>model.py (52 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-added_corners-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-added_corners-guidelines_prompt_ort" class="language-python">
@@ -233,7 +194,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="abbots_puzzle.html">← prev</a><a class="btn" href="ages_of_the_sons.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
