@@ -26,7 +26,6 @@
     var q = (document.getElementById("filter-q") || { value: "" }).value.trim().toLowerCase();
     var type = (document.getElementById("filter-type") || { value: "" }).value;
     var source = (document.getElementById("filter-source") || { value: "" }).value;
-    var category = (document.getElementById("filter-category") || { value: "" }).value;
     var inst = (document.getElementById("filter-instances") || { value: "" }).value;
     var gen = (document.getElementById("filter-gen") || { value: "" }).value;
     var evalStatus = (document.getElementById("filter-eval") || { value: "" }).value;
@@ -35,9 +34,9 @@
     var filtered = data.filter(function (p) {
       if (type && (p.type || "satisfaction") !== type) return false;
       if (source && p.source !== source) return false;
-      if (category && p.category !== category) return false;
       if (inst === "single" && p.instances !== 1) return false;
       if (inst === "multiple" && p.instances < 2) return false;
+      if (inst === "none" && (p.instances || 0) !== 0) return false;
       if (gen === "yes" && !p.generated) return false;
       if (gen === "no" && p.generated) return false;
       if (evalStatus && (p.evalBadge || "no_models") !== evalStatus) return false;
@@ -77,8 +76,6 @@
       meta.className = "meta";
       meta.appendChild(pill(p.type === "optimization" ? "Optimization" : "Satisfaction",
         p.type === "optimization" ? "#7c3aed" : null));
-      if (p.source) meta.appendChild(pill(p.source, null));
-      if (p.category) meta.appendChild(pill(p.category, null));
 
       var foot = document.createElement("div");
       foot.className = "card-foot";
@@ -116,7 +113,7 @@
 
   function initIndex() {
     if (!window.DCP_DATA) return;
-    ["filter-q", "filter-type", "filter-source", "filter-category", "filter-instances",
+    ["filter-q", "filter-type", "filter-source", "filter-instances",
      "filter-gen", "filter-eval", "sort-by"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener("input", renderCards);

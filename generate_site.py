@@ -421,7 +421,6 @@ def build_index(problems: list, stats: dict, generated: dict) -> None:
     gen_total = sum(len(v) for by_fw in generated.values() for v in by_fw.values())
 
     source_opts = "".join(option(s, s) for s in sorted({p["source"] for p in problems}))
-    category_opts = "".join(option(c, c) for c in sorted({p["category"] for p in problems}))
 
     def stat(num: str, lbl: str) -> str:
         return f'<div class="stat"><div class="num">{num}</div><div class="lbl">{lbl}</div></div>'
@@ -460,9 +459,8 @@ def build_index(problems: list, stats: dict, generated: dict) -> None:
       <select id="filter-type"><option value="">All types</option>
         {option("optimization", "Optimization")}{option("satisfaction", "Satisfaction")}</select>
       <select id="filter-source"><option value="">All sources</option>{source_opts}</select>
-      <select id="filter-category"><option value="">All categories</option>{category_opts}</select>
       <select id="filter-instances"><option value="">Any instances</option>
-        {option("single", "Single instance")}{option("multiple", "Multiple instances")}</select>
+        {option("single", "Single instance")}{option("multiple", "Multiple instances")}{option("none", "No instance")}</select>
       <select id="filter-gen"><option value="">Any generated models</option>
         {option("yes", "Has generated models")}{option("no", "No generated models")}</select>
       <select id="filter-eval"><option value="">Any evaluation status</option>
