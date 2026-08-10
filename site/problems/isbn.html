@@ -11,21 +11,12 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">isbn</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / isbn</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / isbn</p>
     <h1 class="problem-title">isbn</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">ISBN-13 Validation and Check Digit Calculation.  Problem: An ISBN-13 (International Standard Book Number) is a 13-digit number where the last digit is a check digit calculated from the first 12 digits.  The check digit is calculated as follows:  1.  Multiply the first 12 digits alternately by 1 and 3 (starting with 1). 2.  Sum the products. 3.  The check digit is (10 - (sum % 10)) % 10.  Given a list of 13 integers representing an ISBN-13, where -1 represents an unknown digit, find the values of the unknown digits such that the resulting number is a valid ISBN-13. An ISBN-13 must start with 978 or 979.  Print the complete valid isbn (isbn) as a list of integers.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">ISBN-13 Validation and Check Digit Calculation.  Problem: An ISBN-13 (International Standard Book Number) is a 13-digit number where the last digit is a check digit calculated from the first 12 digits.  The check digit is calculated as follows:  1.  Multiply the first 12 digits alternately by 1 and 3 (starting with 1). 2.  Sum the products. 3.  The check digit is (10 - (sum % 10)) % 10.  Given a list of 13 integers representing an ISBN-13, where -1 represents an unknown digit, find the values of the unknown digits such that the resulting number is a valid ISBN-13. An ISBN-13 must start with 978 or 979.  Print the complete valid isbn (isbn) as a list of integers.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-116">Copy</button></div><pre class="code-block"><code id="example-116" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-116-1">Copy</button></div><pre class="code-block"><code id="inst-116-1" class="language-json">{
   &quot;isbn_init&quot;: [
     9,
     7,
@@ -41,12 +32,7 @@
     1,
     -1
   ]
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">isbn</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-116">Copy</button></div><pre class="code-block"><code id="solution-116" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">isbn</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-116-1">Copy</button></div><pre class="code-block"><code id="sol-116-1" class="language-json">{
   &quot;isbn&quot;: [
     9,
     7,
@@ -62,26 +48,9 @@
     1,
     2
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/isbn.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/isbn.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-116">Copy</button></div><pre class="code-block"><code id="model-116" class="language-python">from cpmpy import *
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/isbn.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/isbn.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-116">Copy</button></div><pre class="code-block"><code id="model-116" class="language-python">from cpmpy import *
 import json
 
 # Variables
@@ -111,375 +80,7 @@ solution = {
     &#x27;isbn&#x27;: isbn.value().tolist()
 }
 print(json.dumps(solution, indent=4))
-# End of CPMPy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (61 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-isbn-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-isbn-documentation_prompt_gpt_5_min" class="language-python">
-import cpmpy as cp
-import json
-import sys
-
-# Read input from stdin if provided. Expect either a JSON list like [9,7,8,-1,...]
-# or a JSON object like {&quot;isbn&quot;: [9,7,8,-1,...]}
-data = None
-s = sys.stdin.read().strip()
-if s:
-    try:
-        parsed = json.loads(s)
-        if isinstance(parsed, dict) and &quot;isbn&quot; in parsed:
-            data = parsed[&quot;isbn&quot;]
-        elif isinstance(parsed, list):
-            data = parsed
-    except Exception:
-        data = None
-
-# Fallback example if no input given
-if data is None:
-    # Example with unknowns after 978
-    data = [9, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
-
-# Validate input length
-if not isinstance(data, list) or len(data) != 13:
-    print(&quot;No solution found.&quot;)
-    sys.exit(0)
-
-given = data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables: 13 digits, each 0..9
-isbn_vars = cp.intvar(0, 9, shape=13, name=&quot;isbn&quot;)
-
-# Apply known digits (where given != -1)
-for i, val in enumerate(given):
-    if isinstance(val, int) and val != -1:
-        model += (isbn_vars[i] == val)
-
-# ISBN-13 must start with 978 or 979: enforce first two digits 9 and 7, and third in {8,9}
-model += (isbn_vars[0] == 9)
-model += (isbn_vars[1] == 7)
-# third digit must be 8 or 9
-model += cp.InDomain(isbn_vars[2], [8, 9])
-
-# Compute checksum for first 12 digits: multiply alternately by 1 and 3 starting with 1
-weights = [1 if i % 2 == 0 else 3 for i in range(12)]
-checksum_expr = cp.sum([weights[i] * isbn_vars[i] for i in range(12)])
-
-# Check digit constraint: (checksum + last_digit) % 10 == 0
-model += ((checksum_expr + isbn_vars[12]) % 10 == 0)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;isbn&#x27;: isbn_vars.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/isbn/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (43 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-isbn-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-isbn-sampling_10_and_self_debug_10_" class="language-python">
-import cpmpy as cp
-import json
-
-# Data: provide the 13-length ISBN list here.
-# Use -1 for unknown digits. For example:
-# isbn_input = [9,7,8,0,3,0,6,4,0,0,0,0,-1]
-# The judge/test harness may replace this list with the actual instance.
-isbn_input = [-1] * 13
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables: 13 digits, each between 0 and 9
-isbn = cp.intvar(0, 9, shape=13, name=&quot;isbn&quot;)
-
-# Constraints
-# 1) Enforce given digits
-for i, d in enumerate(isbn_input):
-    if d != -1:
-        # If a provided digit is out of range [0,9], this will simply be unsatisfiable.
-        model += (isbn[i] == int(d))
-
-# 2) ISBN-13 must start with 978 or 979
-model += (isbn[0] == 9)
-model += (isbn[1] == 7)
-model += ((isbn[2] == 8) | (isbn[2] == 9))
-
-# 3) Check digit constraint for ISBN-13:
-#    Multiply first 12 digits alternately by 1 and 3 (starting with 1),
-#    sum them, check = (10 - (sum % 10)) % 10, and isbn[12] == check.
-weights = [1 if i % 2 == 0 else 3 for i in range(12)]
-weighted_sum = cp.sum([weights[i] * isbn[i] for i in range(12)])
-# Use modulo and arithmetic to compute check digit
-model += (isbn[12] == ((10 - (weighted_sum % 10)) % 10))
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;isbn&#x27;: isbn.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/isbn/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (52 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-isbn-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-isbn-self_debug_gpt_5" class="language-python">
-import cpmpy as cp
-import json
-
-# Data (optional)
-# Input ISBN-13 with -1 for unknown digits
-input_isbn = [9, 7, 8, 0, 3, 0, 6, 4, 0, 6, 1, 5, -1]
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-isbn = cp.intvar(0, 9, shape=13, name=&quot;isbn&quot;)
-
-# Constraints
-bad_input = False
-if not isinstance(input_isbn, list) or len(input_isbn) != 13:
-    bad_input = True
-else:
-    for d in input_isbn:
-        if not (d == -1 or (isinstance(d, int) and 0 &lt;= d &lt;= 9)):
-            bad_input = True
-            break
-
-if bad_input:
-    model += (0 == 1)  # Unsatisfiable if bad input
-else:
-    # Apply known digits
-    for i, d in enumerate(input_isbn):
-        if d != -1:
-            model += (isbn[i] == d)
-
-    # ISBN-13 must start with 978 or 979
-    model += (isbn[0] == 9)
-    model += (isbn[1] == 7)
-    model += ((isbn[2] == 8) | (isbn[2] == 9))
-
-    # Check digit constraint:
-    # Let s be the weighted sum of the first 12 digits (weights 1,3,... starting with 1)
-    s = cp.sum([isbn[i] * (1 if i % 2 == 0 else 3) for i in range(12)])
-
-    # Enforce (s + isbn[12]) % 10 == 0 by introducing k with s + isbn[12] == 10*k
-    k = cp.intvar(0, 23, name=&quot;k&quot;)  # Upper bound sufficient: (max s 216 + 9) / 10 &lt;= 23
-    model += (s + isbn[12] == 10 * k)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;isbn&#x27;: isbn.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/isbn/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (135 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-isbn-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-isbn-self_debug_gpt_5_mini" class="language-python">
-import cpmpy as cp
-import json
-import sys
-
-# Read input from stdin if provided. Expect either a JSON list like [9,7,8,-1,...]
-# or a JSON object like {&quot;isbn&quot;: [9,7,8,-1,...]}
-data = None
-s = sys.stdin.read().strip()
-if s:
-    try:
-        parsed = json.loads(s)
-        if isinstance(parsed, dict) and &quot;isbn&quot; in parsed:
-            data = parsed[&quot;isbn&quot;]
-        elif isinstance(parsed, list):
-            data = parsed
-    except Exception:
-        data = None
-
-# Fallback example if no input given
-if data is None:
-    data = [9, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
-
-# Basic validation
-if not isinstance(data, list) or len(data) != 13:
-    print(&quot;No solution found.&quot;)
-    sys.exit(0)
-
-given = data
-
-# Create a (possibly unused) CPMpy model object as required by the guidelines.
-model = cp.Model()
-
-# weights for positions 0..11: 1,3,1,3,...
-weights = [1 if i % 2 == 0 else 3 for i in range(12)]
-
-# modular inverses modulo 10 for weights 1 and 3
-inv_mod10 = {1: 1, 3: 7}  # since 3*7 = 21 ≡ 1 (mod 10)
-
-def try_construct(third_choice):
-    # Enforce prefix 9,7 and chosen third digit
-    if given[0] != -1 and given[0] != 9:
-        return None
-    if given[1] != -1 and given[1] != 7:
-        return None
-    if given[2] != -1 and given[2] != third_choice:
-        return None
-
-    digits = [None] * 13
-    digits[0] = 9
-    digits[1] = 7
-    digits[2] = third_choice
-
-    # Fill known first 12 digits where given, and collect unknown positions (0..11)
-    unknown_pos = []
-    for i in range(12):
-        if i in (0,1,2):
-            # already set above
-            if given[i] != -1 and given[i] != digits[i]:
-                return None
-            continue
-        if given[i] != -1:
-            if not isinstance(given[i], int) or not (0 &lt;= given[i] &lt;= 9):
-                return None
-            digits[i] = int(given[i])
-        else:
-            digits[i] = 0  # initial placeholder
-            unknown_pos.append(i)
-
-    # Compute current checksum from positions 0..11 with unknowns set to 0
-    current_checksum = sum(weights[i] * digits[i] for i in range(12))
-    current_mod = current_checksum % 10
-
-    # Determine target modulo from given last digit (if any) or allow check digit to be computed
-    last_given = given[12]
-    if last_given != -1:
-        if not isinstance(last_given, int) or not (0 &lt;= last_given &lt;= 9):
-            return None
-        # Need sum %10 == (-last_given) %10
-        target_mod = (-last_given) % 10
-        delta_mod = (target_mod - current_mod) % 10
-        if delta_mod != 0:
-            # Need to modify one unknown digit (if available) to achieve delta_mod
-            if not unknown_pos:
-                # no unknown in first 12 digits to adjust: impossible
-                return None
-            # try to find an unknown position where weight is 1 or 3 (all are)
-            adjusted = False
-            for pos in unknown_pos:
-                w = weights[pos]
-                inv = inv_mod10[w]
-                v = (inv * delta_mod) % 10
-                # v is in 0..9 and will satisfy (w*v) %10 == delta_mod
-                # assign and done
-                digits[pos] = v
-                adjusted = True
-                break
-            if not adjusted:
-                return None
-        # Now compute final checksum and derived check digit and verify it equals last_given
-        final_checksum = sum(weights[i] * digits[i] for i in range(12))
-        check_digit = (10 - (final_checksum % 10)) % 10
-        if check_digit != last_given:
-            return None
-        digits[12] = check_digit
-    else:
-        # last digit unknown -&gt; compute it from the (possibly adjusted) checksum.
-        # We will try to use no adjustments to inner digits first (we already set them to 0)
-        final_checksum = sum(weights[i] * digits[i] for i in range(12))
-        check_digit = (10 - (final_checksum % 10)) % 10
-        digits[12] = check_digit
-
-    # Finally ensure all given positions match
-    for i in range(13):
-        if given[i] != -1 and given[i] != digits[i]:
-            return None
-
-    # All digits filled with integers 0..9
-    return [int(d) for d in digits]
-
-# Try possible third-digit choices: if given[2] fixed, only try that; else try 8 then 9
-third_candidates = [given[2]] if given[2] != -1 else [8, 9]
-
-solution_digits = None
-for c in third_candidates:
-    sol = try_construct(c)
-    if sol is not None:
-        solution_digits = sol
-        break
-
-if solution_digits is not None:
-    solution = {&#x27;isbn&#x27;: [int(x) for x in solution_digits]}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/isbn/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-116-1">Copy</button>Instance 1</summary><pre><code id="inst-116-1" class="language-json">{
-  &quot;isbn_init&quot;: [
-    9,
-    7,
-    8,
-    3,
-    3,
-    1,
-    9,
-    2,
-    5,
-    8,
-    8,
-    1,
-    -1
-  ]
-}</code></pre></details></div>
-    </div>
+# End of CPMPy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/isbn/isbn.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -487,8 +88,9 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="initials_queue.html">← prev</a><a class="btn" href="jobshop.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

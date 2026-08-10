@@ -97,6 +97,23 @@
     renderCards();
   }
 
+  /* ---------- Problem page: markdown descriptions ---------- */
+  function escHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function linkify(text) {
+    return text.replace(/(https?:\/\/[^\s]+)/g,
+      '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  }
+
+  function initMarkdown() {
+    if (!window.marked) return;
+    document.querySelectorAll(".md-desc").forEach(function (el) {
+      el.innerHTML = marked.parse(linkify(escHtml(el.textContent)));
+    });
+  }
+
   /* ---------- Problem page: nested tabs + copy buttons ---------- */
   function initTabs() {
     document.querySelectorAll(".tab-group").forEach(function (group) {
@@ -145,6 +162,7 @@
 
   function init() {
     initIndex();
+    initMarkdown();
     initTabs();
     initCopy();
     if (window.hljs) hljs.highlightAll();

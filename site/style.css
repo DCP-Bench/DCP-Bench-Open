@@ -209,7 +209,38 @@ table.matrix td.no { color: #d1d5db; }
   margin-bottom: 18px;
 }
 .card-box h3 { margin: 0 0 10px; font-size: 1.02rem; }
-.description { white-space: pre-wrap; margin: 0; }
+
+/* ---------- Markdown description ---------- */
+.md-desc { margin: 0; font-size: 0.95rem; }
+.md-desc p:first-child { margin-top: 0; }
+.md-desc p:last-child { margin-bottom: 0; }
+.md-desc ul, .md-desc ol { padding-left: 22px; margin: 8px 0; }
+.md-desc h1, .md-desc h2, .md-desc h3, .md-desc h4 { margin: 14px 0 8px; }
+.md-desc h3, .md-desc h4 { font-size: 1.05rem; }
+.md-desc code {
+  background: var(--accent-soft);
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 0.85em;
+}
+.md-desc pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.md-desc pre code { background: none; padding: 0; color: inherit; }
+.md-desc blockquote {
+  margin: 8px 0;
+  padding: 2px 14px;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+}
 
 .provenance dl {
   display: grid;
@@ -333,8 +364,8 @@ details.instance pre code { background: none; padding: 0; }
 }
 .chip-row { margin-bottom: 8px; }
 
-/* ---------- Example instance & solution ---------- */
-details.example-box summary {
+/* ---------- Instances section ---------- */
+details.instances-box summary {
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -343,32 +374,35 @@ details.example-box summary {
   flex-wrap: wrap;
   list-style: none;
 }
-details.example-box summary::-webkit-details-marker { display: none; }
-details.example-box summary::before {
+details.instances-box summary::-webkit-details-marker { display: none; }
+details.instances-box summary::before {
   content: "▶";
   font-size: 0.7rem;
   color: var(--accent);
   transition: transform 0.15s ease;
 }
-details.example-box[open] summary::before { transform: rotate(90deg); }
-details.example-box summary h3 { margin: 0; }
-details.example-box[open] summary { margin-bottom: 16px; }
-.example-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+details.instances-box[open] summary::before { transform: rotate(90deg); }
+details.instances-box summary h3 { margin: 0; }
+details.instances-box[open] summary { margin-bottom: 16px; }
+
+details.instance .tab-group { margin-top: 10px; }
+details.instance pre.code-block {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-top: none;
+  padding: 16px;
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
-.example-grid h4 {
-  margin: 0 0 8px;
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-.example-grid pre.code-block {
-  max-height: 320px;
-  overflow: auto;
-}
-@media (max-width: 860px) {
-  .example-grid { grid-template-columns: 1fr; }
+details.instance .tab-pane { padding: 14px 16px; }
+
+/* ---------- Page sections ---------- */
+.page-section { margin-bottom: 22px; }
+.page-section > h2 {
+  font-size: 1.25rem;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
 }
 
 /* ---------- Generated model cards ---------- */

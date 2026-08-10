@@ -11,136 +11,105 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_026_sports_tournament_scheduling</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / csplib_026_sports_tournament_scheduling</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_026_sports_tournament_scheduling</p>
     <h1 class="problem-title">csplib_026_sports_tournament_scheduling</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">The problem is to schedule a tournament of \( n \) teams over \( n-1 \) weeks, with each week divided into \( n/2 \) periods, and each period divided into two slots. The first team in each slot plays at home, whilst the second plays the first team away. A tournament must satisfy the following three constraints: every team plays once a week; every team plays at most twice in the same period over the tournament; every team plays every other team.  An example schedule for 8 teams is:  | Week 1  | Week 2  | Week 3  | Week 4  | Week 5  | Week 6  | Week 7  | |---------|---------|---------|---------|---------|---------|---------| | 0 v 1   | 0 v 2   | 4 v 7   | 3 v 6   | 3 v 7   | 1 v 5   | 2 v 4   | | 2 v 3   | 1 v 7   | 0 v 3   | 5 v 7   | 1 v 4   | 0 v 6   | 5 v 6   | | 4 v 5   | 3 v 5   | 1 v 6   | 0 v 4   | 2 v 6   | 2 v 7   | 0 v 7   | | 6 v 7   | 4 v 6   | 2 v 5   | 1 v 2   | 0 v 5   | 3 v 4   | 1 v 3   |  Print the home and away schedules (home, away) as lists of lists, where, e.g. home[w][p] is the team playing home in week w and period p. The teams are numbered from 1 to n.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">The problem is to schedule a tournament of \( n \) teams over \( n-1 \) weeks, with each week divided into \( n/2 \) periods, and each period divided into two slots. The first team in each slot plays at home, whilst the second plays the first team away. A tournament must satisfy the following three constraints: every team plays once a week; every team plays at most twice in the same period over the tournament; every team plays every other team.  An example schedule for 8 teams is:  | Week 1  | Week 2  | Week 3  | Week 4  | Week 5  | Week 6  | Week 7  | |---------|---------|---------|---------|---------|---------|---------| | 0 v 1   | 0 v 2   | 4 v 7   | 3 v 6   | 3 v 7   | 1 v 5   | 2 v 4   | | 2 v 3   | 1 v 7   | 0 v 3   | 5 v 7   | 1 v 4   | 0 v 6   | 5 v 6   | | 4 v 5   | 3 v 5   | 1 v 6   | 0 v 4   | 2 v 6   | 2 v 7   | 0 v 7   | | 6 v 7   | 4 v 6   | 2 v 5   | 1 v 2   | 0 v 5   | 3 v 4   | 1 v 3   |  Print the home and away schedules (home, away) as lists of lists, where, e.g. home[w][p] is the team playing home in week w and period p. The teams are numbered from 1 to n.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-62">Copy</button></div><pre class="code-block"><code id="example-62" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-62-1">Copy</button></div><pre class="code-block"><code id="inst-62-1" class="language-json">{
   &quot;n_teams&quot;: 8
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">away</span><span class="chip">home</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-62">Copy</button></div><pre class="code-block"><code id="solution-62" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">away</span><span class="chip">home</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-62-1">Copy</button></div><pre class="code-block"><code id="sol-62-1" class="language-json">{
   &quot;home&quot;: [
     [
       1,
-      7,
       5,
+      7,
       3
     ],
     [
       3,
-      4,
       6,
-      1
-    ],
-    [
       1,
-      3,
-      4,
       2
     ],
     [
       2,
       5,
       6,
-      4
+      1
+    ],
+    [
+      3,
+      2,
+      8,
+      1
     ],
     [
       6,
-      1,
       2,
-      3
-    ],
-    [
       8,
-      3,
-      2,
       7
     ],
     [
       2,
-      4,
       3,
+      1,
+      5
+    ],
+    [
+      4,
+      6,
+      2,
       8
     ]
   ],
   &quot;away&quot;: [
     [
-      6,
-      2,
+      8,
       4,
-      8
+      6,
+      2
     ],
     [
       7,
-      2,
-      8,
-      5
-    ],
-    [
       8,
       5,
-      7,
-      6
-    ],
-    [
-      3,
-      8,
-      7,
-      1
-    ],
-    [
-      5,
-      7,
-      8,
       4
     ],
     [
+      8,
+      7,
       4,
-      6,
-      1,
-      5
+      3
     ],
     [
       5,
-      6,
+      7,
+      4,
+      6
+    ],
+    [
+      5,
       1,
+      3,
+      4
+    ],
+    [
+      6,
+      4,
+      7,
+      8
+    ],
+    [
+      1,
+      3,
+      5,
       7
     ]
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob026_sport_scheduling.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob026_sport_scheduling.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob026/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob026/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-62">Copy</button></div><pre class="code-block"><code id="model-62" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob026_sport_scheduling.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob026_sport_scheduling.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob026/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob026/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-62">Copy</button></div><pre class="code-block"><code id="model-62" class="language-python"># Import libraries
 import json
 from cpmpy import *
 from cpmpy.expressions.utils import all_pairs
@@ -188,915 +157,7 @@ solution = {
     &quot;away&quot;: away.value().tolist()
 }
 print(json.dumps(solution))
-# End of CPMPy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (45 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-anonymous_submission" class="language-python"># Import libraries
-from cpmpy import *
-import json
-
-# Parameters
-n_teams = 8  # Number of teams
-n_weeks = n_teams - 1  # Number of weeks
-n_periods = n_teams // 2  # Number of periods per week
-
-# Decision Variables
-home = intvar(1, n_teams, shape=(n_weeks, n_periods), name=&quot;home&quot;)  # Home teams
-away = intvar(1, n_teams, shape=(n_weeks, n_periods), name=&quot;away&quot;)  # Away teams
-
-# Model
-model = Model()
-
-# Constraint: Every team plays once a week
-for w in range(n_weeks):
-    model += AllDifferent([home[w,p] for p in range(n_periods)] + [away[w,p] for p in range(n_periods)])
-
-# Constraint: Every team plays at most twice in the same period over the tournament
-for t in range(1, n_teams+1):
-    for p in range(n_periods):
-        model += sum((home[:,p] == t) | (away[:,p] == t)) &lt;= 2
-
-# Constraint: Every team plays every other team exactly once
-for t1 in range(1, n_teams+1):
-    for t2 in range(t1+1, n_teams+1):
-        model += sum([(home[w,p] == t1) &amp; (away[w,p] == t2) for w in range(n_weeks) for p in range(n_periods)]) + \
-                 sum([(home[w,p] == t2) &amp; (away[w,p] == t1) for w in range(n_weeks) for p in range(n_periods)]) == 1
-
-# Constraint: No team plays against itself
-for w in range(n_weeks):
-    for p in range(n_periods):
-        model += home[w,p] != away[w,p]
-
-# Solve
-model.solve()
-
-# Print solution
-solution = {
-    &quot;home&quot;: home.value().tolist(),
-    &quot;away&quot;: away.value().tolist()
-}
-print(json.dumps(solution))
-# End of CPMPy script</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">atest <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-atest">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-atest" class="language-python"># Import libraries
-from cpmpy import *
-import json
-
-# Parameters
-n_teams = 8  # Number of teams
-n_weeks = n_teams - 1  # Number of weeks
-n_periods = n_teams // 2  # Number of periods per week
-
-# Decision variables
-# home[w][p]: the home team in period p of week w
-home = intvar(0, n_teams - 1, shape=(n_weeks, n_periods), name=&quot;home&quot;)
-# away[w][p]: the away team in period p of week w
-away = intvar(0, n_teams - 1, shape=(n_weeks, n_periods), name=&quot;away&quot;)
-
-# Model
-model = Model()
-
-# Constraint 1: Every team plays once a week
-for t in range(n_teams):
-    for w in range(n_weeks):
-        # Count how many times team t is in home or away in week w
-        model += [sum((home[w, :] == t) | (away[w, :] == t)) == 1]
-
-# Constraint 2: Every team plays at most twice in the same period over the tournament
-for t in range(n_teams):
-    for p in range(n_periods):
-        # Count how many times team t plays in period p across all weeks
-        model += [sum((home[:, p] == t) | (away[:, p] == t)) &lt;= 2]
-
-# Constraint 3: Every team plays every other team
-for t1 in range(n_teams):
-    for t2 in range(n_teams):
-        if t1 != t2:
-            # Team t1 must play against team t2 at least once (either as home or away)
-            model += [sum((home == t1) &amp; (away == t2)) + sum((home == t2) &amp; (away == t1)) &gt;= 1]
-
-# Constraint 4: No team plays against itself
-for w in range(n_weeks):
-    for p in range(n_periods):
-        model += [home[w, p] != away[w, p]]
-
-# Solve the model
-model.solve()
-
-# Print the solution
-solution = {
-    &quot;home&quot;: home.value().tolist(),
-    &quot;away&quot;: away.value().tolist()
-}
-print(json.dumps(solution))</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/cpmpy/atest/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (61 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-documentation_prompt_gpt_5_min" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n_teams = 8  # Number of teams
-# End of data
-
-n = n_teams
-weeks = n - 1
-periods = n // 2
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# home[w,p] is the home team in week w and period p
-# away[w,p] is the away team in week w and period p
-home = cp.intvar(1, n, shape=(weeks, periods), name=&quot;home&quot;)
-away = cp.intvar(1, n, shape=(weeks, periods), name=&quot;away&quot;)
-
-# Constraints
-# 1) In each week, the 2*(n/2)=n slots are filled by all teams exactly once
-for w in range(weeks):
-    home_week = [home[w, p] for p in range(periods)]
-    away_week = [away[w, p] for p in range(periods)]
-    # all slots in a week must be different -&gt; permutation of 1..n
-    model += cp.AllDifferent(*(home_week + away_week))
-
-# 2) In each period of a week, the home and away teams are different
-for w in range(weeks):
-    for p in range(periods):
-        model += home[w, p] != away[w, p]
-
-# 3) Every pair of teams meet exactly once (regardless of home/away)
-for t1 in range(1, n + 1):
-    for t2 in range(t1 + 1, n + 1):
-        meetings = []
-        for w in range(weeks):
-            for p in range(periods):
-                meetings.append((home[w, p] == t1) &amp; (away[w, p] == t2))
-                meetings.append((home[w, p] == t2) &amp; (away[w, p] == t1))
-        model += cp.sum(meetings) == 1
-
-# 4) Every team plays at most twice in the same period over the tournament
-for team in range(1, n + 1):
-    for p in range(periods):
-        plays_in_period = []
-        for w in range(weeks):
-            plays_in_period.append((home[w, p] == team) | (away[w, p] == team))
-        model += cp.sum(plays_in_period) &lt;= 2
-
-# Solve and print
-if model.solve():
-    solution = {
-        &#x27;home&#x27;: home.value().tolist(),
-        &#x27;away&#x27;: away.value().tolist()
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (120 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-sampling_10_and_self_debug_10">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-sampling_10_and_self_debug_10" class="language-python">
-import cpmpy as cp
-import json
-import numpy as np
-
-# Data
-n_teams = 8  # Number of teams
-n_weeks = n_teams - 1
-n_periods = n_teams // 2
-
-# Model definition
-model = cp.Model()
-
-# Decision variables:
-# home[w, p] = team playing at home in week w, period p
-# away[w, p] = team playing away in week w, period p
-home = cp.intvar(0, n_teams - 1, shape=(n_weeks, n_periods), name=&quot;home&quot;)
-away = cp.intvar(0, n_teams - 1, shape=(n_weeks, n_periods), name=&quot;away&quot;)
-
-# Constraints
-
-# 1) Every team plays once a week (either home or away)
-for w in range(n_weeks):
-    # Collect all teams playing this week (home and away)
-    teams_this_week = []
-    for p in range(n_periods):
-        teams_this_week.append(home[w, p])
-        teams_this_week.append(away[w, p])
-    # All teams playing this week are distinct
-    model += cp.AllDifferent(teams_this_week)
-
-# 2) Every team plays at most twice in the same period over the tournament
-# For each team and each period, count how many times the team appears in that period (home or away)
-for t in range(n_teams):
-    for p in range(n_periods):
-        # Count occurrences of team t in home[:, p] and away[:, p]
-        count_home = cp.Count(home[:, p], t)
-        count_away = cp.Count(away[:, p], t)
-        model += (count_home + count_away) &lt;= 2
-
-# 3) Every team plays every other team exactly once
-# The pairs (home[w,p], away[w,p]) represent matches
-# We must ensure that each unordered pair of teams appears exactly once
-# We create a matrix to count matches between teams
-# Since matches are unordered pairs, we consider min and max of home and away to represent the pair uniquely
-
-# Create a matrix to count matches between teams
-# matches[i,j] = number of matches between team i and j (i&lt;j)
-matches = np.zeros((n_teams, n_teams), dtype=object)
-for i in range(n_teams):
-    for j in range(n_teams):
-        if i &lt; j:
-            matches[i, j] = cp.intvar(0, 1, name=f&quot;match_{i}_{j}&quot;)
-        else:
-            matches[i, j] = 0  # no variable needed for i&gt;=j
-
-# Link matches variables with schedule
-# For each week and period, the pair (home, away) corresponds to one match
-# For each match variable matches[i,j], it is 1 if the pair (i,j) appears in the schedule, else 0
-for w in range(n_weeks):
-    for p in range(n_periods):
-        h = home[w, p]
-        a = away[w, p]
-        # We create boolean variables for each possible pair to indicate if this slot is that pair
-        # But to avoid too many variables, we use element constraints and reification
-        # Instead, we enforce that for the pair (min(h,a), max(h,a)), matches[min,max] == 1
-        # We do this by summing over all slots and equating to matches[i,j]
-        # So we accumulate counts for each pair over all slots
-
-# We accumulate counts for each pair over all slots
-# For each pair (i,j), sum over all slots of indicator that slot is (i,j) or (j,i) == matches[i,j]
-for i in range(n_teams):
-    for j in range(i + 1, n_teams):
-        indicators = []
-        for w in range(n_weeks):
-            for p in range(n_periods):
-                # Boolean variable indicating if slot (w,p) is match (i,j)
-                b1 = cp.boolvar()
-                b2 = cp.boolvar()
-                model += (home[w, p] == i).implies(b1)
-                model += (home[w, p] != i).implies(~b1)
-                model += (away[w, p] == j).implies(b2)
-                model += (away[w, p] != j).implies(~b2)
-                b_ij = cp.boolvar()
-                model += b_ij == (b1 &amp; b2)
-
-                # Similarly for (j,i)
-                b3 = cp.boolvar()
-                b4 = cp.boolvar()
-                model += (home[w, p] == j).implies(b3)
-                model += (home[w, p] != j).implies(~b3)
-                model += (away[w, p] == i).implies(b4)
-                model += (away[w, p] != i).implies(~b4)
-                b_ji = cp.boolvar()
-                model += b_ji == (b3 &amp; b4)
-
-                indicators.append(b_ij)
-                indicators.append(b_ji)
-        model += cp.sum(indicators) == matches[i, j]
-
-# Each pair must appear exactly once
-for i in range(n_teams):
-    for j in range(i + 1, n_teams):
-        model += matches[i, j] == 1
-
-# Additional constraints:
-# No team plays itself
-for w in range(n_weeks):
-    for p in range(n_periods):
-        model += home[w, p] != away[w, p]
-
-# Solve the model
-if model.solve():
-    # Extract schedules as lists of lists
-    home_schedule = home.value().tolist()
-    away_schedule = away.value().tolist()
-    solution = {&#x27;home&#x27;: home_schedule, &#x27;away&#x27;: away_schedule}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/cpmpy/sampling_10_and_self_debug_10/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (61 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-sampling_10_and_self_debug_10_" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n_teams = 8  # Number of teams
-# End of data
-
-# Derived sizes
-weeks = n_teams - 1
-periods = n_teams // 2
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# home[w][p] is the team playing at home in week w, period p (1..n_teams)
-# away[w][p] is the team playing away in week w, period p (1..n_teams)
-home = cp.intvar(1, n_teams, shape=(weeks, periods), name=&quot;home&quot;)
-away = cp.intvar(1, n_teams, shape=(weeks, periods), name=&quot;away&quot;)
-
-# Constraints
-
-# 1) In each slot, home and away are different
-for w in range(weeks):
-    for p in range(periods):
-        model += (home[w, p] != away[w, p])
-
-# 2) Every team plays exactly once each week:
-#    For each week, the set of home teams and away teams (combined) are all different
-for w in range(weeks):
-    positions = [home[w, p] for p in range(periods)] + [away[w, p] for p in range(periods)]
-    model += cp.AllDifferent(*positions)
-
-# 3) Every team plays every other team exactly once (unordered)
-for t1 in range(1, n_teams + 1):
-    for t2 in range(t1 + 1, n_teams + 1):
-        occ = []
-        for w in range(weeks):
-            for p in range(periods):
-                occ.append((home[w, p] == t1) &amp; (away[w, p] == t2))
-                occ.append((home[w, p] == t2) &amp; (away[w, p] == t1))
-        model += cp.sum(occ) == 1
-
-# 4) Every team plays at most twice in the same period over the tournament
-for t in range(1, n_teams + 1):
-    for p in range(periods):
-        plays_in_period = []
-        for w in range(weeks):
-            plays_in_period.append((home[w, p] == t) | (away[w, p] == t))
-        model += cp.sum(plays_in_period) &lt;= 2
-
-# Solve and print
-if model.solve():
-    solution = {
-        &#x27;home&#x27;: home.value().tolist(),
-        &#x27;away&#x27;: away.value().tolist()
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (76 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-self_debug_gpt_5" class="language-python">
-import cpmpy as cp
-import json
-import numpy as np
-
-# Data (optional)
-n_teams = 8  # Number of teams
-# End of data
-
-# Basic validation
-if n_teams % 2 != 0 or n_teams &lt; 2:
-    print(&quot;No solution found.&quot;)
-else:
-    n = n_teams
-    nweeks = n - 1
-    nperiods = n // 2
-
-    # Model definition
-    model = cp.Model()
-
-    # Decision Variables
-    # home[w][p] is the team playing at home in week w and period p
-    # away[w][p] is the team playing away in week w and period p
-    home = cp.intvar(1, n, shape=(nweeks, nperiods), name=&quot;home&quot;)
-    away = cp.intvar(1, n, shape=(nweeks, nperiods), name=&quot;away&quot;)
-
-    # Constraints
-
-    # 1) Every team plays exactly once per week (permutation of teams across all matches in the week)
-    for w in range(nweeks):
-        week_vars = list(home[w]) + list(away[w])
-        model += cp.AllDifferent(week_vars)
-
-    # 2) Each match has two different teams and break home/away symmetry by fixing order
-    for w in range(nweeks):
-        for p in range(nperiods):
-            model += (home[w, p] &lt; away[w, p])
-
-    # 3) Every pair of teams plays exactly once over the tournament (undirected pairing)
-    for i in range(1, n + 1):
-        for j in range(i + 1, n + 1):
-            pair_occurs = []
-            for w in range(nweeks):
-                for p in range(nperiods):
-                    pair_occurs.append((home[w, p] == i) &amp; (away[w, p] == j))
-                    pair_occurs.append((home[w, p] == j) &amp; (away[w, p] == i))
-            model += (cp.sum(pair_occurs) == 1)
-
-    # 4) Every team plays at most twice in the same period over the tournament
-    for t in range(1, n + 1):
-        for p in range(nperiods):
-            plays_in_period = []
-            for w in range(nweeks):
-                plays_in_period.append(home[w, p] == t)
-                plays_in_period.append(away[w, p] == t)
-            model += (cp.sum(plays_in_period) &lt;= 2)
-
-    # Symmetry breaking: fix the first week&#x27;s pairings
-    # This also helps the solver converge faster
-    # Week 0: (1 v 2), (3 v 4), (5 v 6), (7 v 8)
-    model += [
-        home[0, 0] == 1, away[0, 0] == 2,
-        home[0, 1] == 3, away[0, 1] == 4,
-        home[0, 2] == 5, away[0, 2] == 6,
-        home[0, 3] == 7, away[0, 3] == 8
-    ]
-
-    # Solve and print
-    if model.solve():
-        solution = {
-            &#x27;home&#x27;: home.value().tolist(),
-            &#x27;away&#x27;: away.value().tolist()
-        }
-        print(json.dumps(solution, indent=4))
-    else:
-        print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (61 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-self_debug_gpt_5_mini" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n_teams = 8  # Number of teams
-# End of data
-
-n = n_teams
-weeks = n - 1
-periods = n // 2
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# home[w,p] is the home team in week w and period p
-# away[w,p] is the away team in week w and period p
-home = cp.intvar(1, n, shape=(weeks, periods), name=&quot;home&quot;)
-away = cp.intvar(1, n, shape=(weeks, periods), name=&quot;away&quot;)
-
-# Constraints
-# 1) In each week, the 2*(n/2)=n slots are filled by all teams exactly once
-for w in range(weeks):
-    home_week = [home[w, p] for p in range(periods)]
-    away_week = [away[w, p] for p in range(periods)]
-    # all slots in a week must be different -&gt; permutation of 1..n
-    model += cp.AllDifferent(*(home_week + away_week))
-
-# 2) In each period of a week, the home and away teams are different
-for w in range(weeks):
-    for p in range(periods):
-        model += home[w, p] != away[w, p]
-
-# 3) Every pair of teams meet exactly once (regardless of home/away)
-for t1 in range(1, n + 1):
-    for t2 in range(t1 + 1, n + 1):
-        meetings = []
-        for w in range(weeks):
-            for p in range(periods):
-                meetings.append((home[w, p] == t1) &amp; (away[w, p] == t2))
-                meetings.append((home[w, p] == t2) &amp; (away[w, p] == t1))
-        model += cp.sum(meetings) == 1
-
-# 4) Every team plays at most twice in the same period over the tournament
-for team in range(1, n + 1):
-    for p in range(periods):
-        plays_in_period = []
-        for w in range(weeks):
-            plays_in_period.append((home[w, p] == team) | (away[w, p] == team))
-        model += cp.sum(plays_in_period) &lt;= 2
-
-# Solve and print
-if model.solve():
-    solution = {
-        &#x27;home&#x27;: home.value().tolist(),
-        &#x27;away&#x27;: away.value().tolist()
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="minizinc">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.mzn (70 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
-
-% Input data
-int: n_teams = 8;
-int: n_weeks = n_teams - 1;
-int: n_periods = n_teams div 2;
-
-% Sets
-set of int: TEAMS = 0..n_teams-1;
-set of int: WEEKS = 1..n_weeks;
-set of int: PERIODS = 1..n_periods;
-set of int: SLOTS = 1..2; % slot 1: home team, slot 2: away team
-
-% Decision variables:
-% home[w,p] = team playing at home in week w, period p
-array[WEEKS, PERIODS] of var TEAMS: home;
-% away[w,p] = team playing away in week w, period p
-array[WEEKS, PERIODS] of var TEAMS: away;
-
-% Constraints
-
-% 1) Every team plays once a week (either home or away)
-constraint
-  forall(w in WEEKS) (
-    forall(t in TEAMS) (
-      % team t appears exactly once in week w either home or away
-      sum([bool2int(home[w,p] == t) + bool2int(away[w,p] == t) | p in PERIODS]) == 1
-    )
-  );
-
-% 2) Every team plays at most twice in the same period over the tournament
-constraint
-  forall(t in TEAMS, p in PERIODS) (
-    sum([bool2int(home[w,p] == t) + bool2int(away[w,p] == t) | w in WEEKS]) &lt;= 2
-  );
-
-% 3) Every team plays every other team exactly once (round robin)
-% For each pair of distinct teams (t1,t2), they must meet exactly once:
-constraint
-  forall(t1, t2 in TEAMS where t1 &lt; t2) (
-    sum([bool2int((home[w,p] == t1 /\ away[w,p] == t2) \/ (home[w,p] == t2 /\ away[w,p] == t1)) | w in WEEKS, p in PERIODS]) == 1
-  );
-
-% 4) No team plays against itself
-constraint
-  forall(w in WEEKS, p in PERIODS) (
-    home[w,p] != away[w,p]
-  );
-
-% 5) All teams in home and away slots are valid teams (domain already defined by var TEAMS)
-
-% 6) Optional: all pairs in a week are distinct (no repeated matches in same week)
-% Already ensured by constraint 1 and 3
-
-% Solve satisfy
-solve satisfy;
-
-output [
-  &quot;{&quot;,
-  &quot;\&quot;home\&quot;: [&quot;,
-  join(&quot;,\n&quot;, [
-    &quot;[&quot; ++ join(&quot;, &quot;, [show(home[w,p]) | p in PERIODS]) ++ &quot;]&quot; | w in WEEKS
-  ]),
-  &quot;],&quot;,
-  &quot;\&quot;away\&quot;: [&quot;,
-  join(&quot;,\n&quot;, [
-    &quot;[&quot; ++ join(&quot;, &quot;, [show(away[w,p]) | p in PERIODS]) ++ &quot;]&quot; | w in WEEKS
-  ]),
-  &quot;]&quot;,
-  &quot;}&quot;
-];</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="or-tools">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (96 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
-import json
-
-# Input data
-n_teams = 8  # Number of teams
-n_weeks = n_teams - 1
-n_periods = n_teams // 2
-
-# Model definition
-model = cp_model.CpModel()
-
-# Decision Variables
-# home[w][p] = team playing at home in week w, period p
-home = []
-# away[w][p] = team playing away in week w, period p
-away = []
-
-for w in range(n_weeks):
-    home.append([model.NewIntVar(0, n_teams - 1, f&#x27;home_w{w}_p{p}&#x27;) for p in range(n_periods)])
-    away.append([model.NewIntVar(0, n_teams - 1, f&#x27;away_w{w}_p{p}&#x27;) for p in range(n_periods)])
-
-# Constraints
-
-# 1) Every team plays once a week (either home or away)
-for w in range(n_weeks):
-    # Collect all teams playing in week w
-    teams_in_week = []
-    for p in range(n_periods):
-        teams_in_week.append(home[w][p])
-        teams_in_week.append(away[w][p])
-    # All teams in week w must be all different (each team plays once)
-    model.AddAllDifferent(teams_in_week)
-
-# 2) Every team plays at most twice in the same period over the tournament
-# For each team and each period, count how many times the team appears in that period (home or away)
-for t in range(n_teams):
-    for p in range(n_periods):
-        appearances = []
-        for w in range(n_weeks):
-            # Boolean variables indicating if team t plays home or away in week w, period p
-            is_home = model.NewBoolVar(f&#x27;is_home_t{t}_w{w}_p{p}&#x27;)
-            is_away = model.NewBoolVar(f&#x27;is_away_t{t}_w{w}_p{p}&#x27;)
-            model.Add(home[w][p] == t).OnlyEnforceIf(is_home)
-            model.Add(home[w][p] != t).OnlyEnforceIf(is_home.Not())
-            model.Add(away[w][p] == t).OnlyEnforceIf(is_away)
-            model.Add(away[w][p] != t).OnlyEnforceIf(is_away.Not())
-            appearances.append(is_home)
-            appearances.append(is_away)
-        model.Add(sum(appearances) &lt;= 2)
-
-# 3) Every team plays every other team exactly once (round robin)
-# For each pair of teams (t1, t2), there must be exactly one match where t1 plays home and t2 away or vice versa
-for t1 in range(n_teams):
-    for t2 in range(t1 + 1, n_teams):
-        matches = []
-        for w in range(n_weeks):
-            for p in range(n_periods):
-                # Boolean variables for match t1 home vs t2 away
-                t1_home_t2_away = model.NewBoolVar(f&#x27;t1{t1}_home_t2{t2}_away_w{w}_p{p}&#x27;)
-                model.Add(home[w][p] == t1).OnlyEnforceIf(t1_home_t2_away)
-                model.Add(home[w][p] != t1).OnlyEnforceIf(t1_home_t2_away.Not())
-                model.Add(away[w][p] == t2).OnlyEnforceIf(t1_home_t2_away)
-                model.Add(away[w][p] != t2).OnlyEnforceIf(t1_home_t2_away.Not())
-
-                # Boolean variables for match t2 home vs t1 away
-                t2_home_t1_away = model.NewBoolVar(f&#x27;t2{t2}_home_t1{t1}_away_w{w}_p{p}&#x27;)
-                model.Add(home[w][p] == t2).OnlyEnforceIf(t2_home_t1_away)
-                model.Add(home[w][p] != t2).OnlyEnforceIf(t2_home_t1_away.Not())
-                model.Add(away[w][p] == t1).OnlyEnforceIf(t2_home_t1_away)
-                model.Add(away[w][p] != t1).OnlyEnforceIf(t2_home_t1_away.Not())
-
-                matches.append(t1_home_t2_away)
-                matches.append(t2_home_t1_away)
-        model.Add(sum(matches) == 1)
-
-# Solve the model
-solver = cp_model.CpSolver()
-status = solver.Solve(model)
-
-if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-    home_schedule = []
-    away_schedule = []
-    for w in range(n_weeks):
-        home_week = []
-        away_week = []
-        for p in range(n_periods):
-            home_week.append(solver.Value(home[w][p]))
-            away_week.append(solver.Value(away[w][p]))
-        home_schedule.append(home_week)
-        away_schedule.append(away_week)
-    solution = {
-        &#x27;home&#x27;: home_schedule,
-        &#x27;away&#x27;: away_schedule
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/ortools/documentation_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">multi_agents_requirements_gath <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: o3 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (121 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_026_sports_tournament_scheduling-multi_agents_requirements_gath">Copy</button></div><pre class="code-block"><code id="gmod-csplib_026_sports_tournament_scheduling-multi_agents_requirements_gath" class="language-python">import json
-from ortools.sat.python import cp_model
-
-# --------------------------
-# Fixed input data (immutable)
-# --------------------------
-n_teams = 8  # Number of teams (must be even)
-
-# --------------------------
-# Derived dimensions
-# --------------------------
-weeks = n_teams - 1           # number of weeks
-periods = n_teams // 2        # periods per week
-max_per_period = 2            # Each team may appear in a period at most twice
-
-T = range(n_teams)
-W = range(weeks)
-P = range(periods)
-
-# --------------------------
-# Model
-# --------------------------
-model = cp_model.CpModel()
-
-# Integer variables giving the actual team numbers that play home/away in every slot
-home = [[model.NewIntVar(0, n_teams - 1, f&quot;home_w{w}_p{p}&quot;) for p in P] for w in W]
-away = [[model.NewIntVar(0, n_teams - 1, f&quot;away_w{w}_p{p}&quot;) for p in P] for w in W]
-
-# Each slot must pair two distinct teams
-for w in W:
-    for p in P:
-        model.Add(home[w][p] != away[w][p])
-
-# -----------------------------------------------------------------
-# Helper Boolean variables: does team t appear as home/away in slot?
-# -----------------------------------------------------------------
-home_is = [[[model.NewBoolVar(f&quot;is_home_w{w}_p{p}_t{t}&quot;) for t in T] for p in P] for w in W]
-away_is = [[[model.NewBoolVar(f&quot;is_away_w{w}_p{p}_t{t}&quot;) for t in T] for p in P] for w in W]
-
-for w in W:
-    for p in P:
-        # Link the Boolean indicators to the integer team numbers
-        for t in T:
-            model.Add(home[w][p] == t).OnlyEnforceIf(home_is[w][p][t])
-            model.Add(home[w][p] != t).OnlyEnforceIf(home_is[w][p][t].Not())
-
-            model.Add(away[w][p] == t).OnlyEnforceIf(away_is[w][p][t])
-            model.Add(away[w][p] != t).OnlyEnforceIf(away_is[w][p][t].Not())
-
-        # Exactly one team is the home side / away side in every slot
-        model.AddExactlyOne(home_is[w][p])
-        model.AddExactlyOne(away_is[w][p])
-
-# ----------------------------------------------------------
-# Constraint 1 – Each team plays exactly once per week
-# ----------------------------------------------------------
-for w in W:
-    for t in T:
-        appearances = [home_is[w][p][t] for p in P] + [away_is[w][p][t] for p in P]
-        model.Add(sum(appearances) == 1)
-
-# ----------------------------------------------------------
-# Constraint 2 – A team uses a given period at most twice
-# ----------------------------------------------------------
-for p in P:
-    for t in T:
-        period_occ = [home_is[w][p][t] for w in W] + [away_is[w][p][t] for w in W]
-        model.Add(sum(period_occ) &lt;= max_per_period)
-
-# -------------------------------------------------------------------------
-# Helper Boolean variables: match_is[w][p][i][j] is true ⇔ home=i &amp; away=j
-# -------------------------------------------------------------------------
-match_is = {}
-for w in W:
-    for p in P:
-        slot_vars = []
-        for i in T:
-            for j in T:
-                if i == j:
-                    continue  # cannot play itself (already enforced)
-                v = model.NewBoolVar(f&quot;match_w{w}_p{p}_h{i}_a{j}&quot;)
-                match_is[(w, p, i, j)] = v
-
-                # If this ordered pair is selected ⇒ correct home/away indicators are true
-                model.AddImplication(v, home_is[w][p][i])
-                model.AddImplication(v, away_is[w][p][j])
-
-                slot_vars.append(v)
-        # Exactly one ordered pair is chosen in every slot
-        model.AddExactlyOne(slot_vars)
-
-# ----------------------------------------------------------
-# Constraint 3 – Every unordered pair meets exactly once overall
-# ----------------------------------------------------------
-for i in T:
-    for j in T:
-        if i &gt;= j:
-            continue
-        pair_occurrences = []
-        for w in W:
-            for p in P:
-                pair_occurrences.append(match_is[(w, p, i, j)])  # i home, j away
-                pair_occurrences.append(match_is[(w, p, j, i)])  # j home, i away
-        model.Add(sum(pair_occurrences) == 1)
-
-# ----------------------------------------------------------
-# No optimisation objective – just find any feasible schedule
-# ----------------------------------------------------------
-solver = cp_model.CpSolver()
-solver.parameters.max_time_in_seconds = 30  # safety limit (problem is tiny)
-status = solver.Solve(model)
-
-if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-    raise RuntimeError(&quot;No feasible schedule found.&quot;)
-
-# --------------------------
-# Extract and print solution
-# --------------------------
-out_home = [[solver.Value(home[w][p]) for p in P] for w in W]
-out_away = [[solver.Value(away[w][p]) for p in P] for w in W]
-
-print(json.dumps({&quot;home&quot;: out_home, &quot;away&quot;: out_away}))</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_026_sports_tournament_scheduling/ortools/multi_agents_requirements_gath/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-62-1">Copy</button>Instance 1</summary><pre><code id="inst-62-1" class="language-json">{
-  &quot;n_teams&quot;: 8
-}</code></pre></details></div>
-    </div>
+# End of CPMPy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_026_sports_tournament_scheduling/csplib_026_sports_tournament_scheduling.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -1104,8 +165,9 @@ print(json.dumps({&quot;home&quot;: out_home, &quot;away&quot;: out_away}))</cod
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_024_langford.html">← prev</a><a class="btn" href="csplib_028_bibd.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

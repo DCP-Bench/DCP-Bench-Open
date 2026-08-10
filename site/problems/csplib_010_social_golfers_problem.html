@@ -4,79 +4,53 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>csplib_010_social_golfers_problem · DCP-Bench Open</title>
-<meta name="description" content="The coordinator of a local golf club has come to you with the following problem. In their club, there are 32 social golfers, each of whom play golf once a week…">
+<meta name="description" content="The coordinator of a local golf club has come to you with the following problem. In their club, there are golfers, each of whom play golf once a week, and alwa…">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_010_social_golfers_problem</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / csplib_010_social_golfers_problem</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_010_social_golfers_problem</p>
     <h1 class="problem-title">csplib_010_social_golfers_problem</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">The coordinator of a local golf club has come to you with the following problem. In their club, there are 32 social golfers, each of whom play golf once a week, and always in groups of 4. They would like you to come up with a schedule of play for these golfers, such that no golfer plays in the same group as any other golfer on more than one occasion.  Print the assignments of golfers to groups for each week (assign) as a list of lists of integers - 0-indexed; assign[i][j] is the group number of golfer i in week j.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">The coordinator of a local golf club has come to you with the following problem. In their club, there are golfers, each of whom play golf once a week, and always in groups of a specific number. They would like you to come up with a schedule of play for these golfers, such that no golfer plays in the same group as any other golfer on more than one occasion.  Print the assignments of golfers to groups for each week (assign) as a list of lists of integers - 0-indexed; assign[i][j] is the group number of golfer i in week j.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-49">Copy</button></div><pre class="code-block"><code id="example-49" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-1">Copy</button></div><pre class="code-block"><code id="inst-49-1" class="language-json">{
   &quot;n_weeks&quot;: 4,
   &quot;n_groups&quot;: 3,
   &quot;group_size&quot;: 3
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">assign</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-49">Copy</button></div><pre class="code-block"><code id="solution-49" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">assign</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-49-1">Copy</button></div><pre class="code-block"><code id="sol-49-1" class="language-json">{
   &quot;assign&quot;: [
     [
       1,
-      0,
       2,
+      2,
+      2
+    ],
+    [
+      1,
+      1,
+      0,
+      1
+    ],
+    [
+      2,
+      2,
+      1,
+      1
+    ],
+    [
+      0,
+      1,
+      1,
+      2
+    ],
+    [
+      1,
+      0,
+      1,
       0
-    ],
-    [
-      0,
-      1,
-      2,
-      1
-    ],
-    [
-      2,
-      0,
-      0,
-      1
-    ],
-    [
-      1,
-      1,
-      0,
-      2
-    ],
-    [
-      2,
-      2,
-      2,
-      2
-    ],
-    [
-      1,
-      2,
-      1,
-      1
-    ],
-    [
-      0,
-      0,
-      1,
-      2
     ],
     [
       0,
@@ -87,30 +61,61 @@
     [
       2,
       1,
-      1,
+      2,
       0
+    ],
+    [
+      0,
+      0,
+      2,
+      1
+    ],
+    [
+      2,
+      0,
+      0,
+      2
     ]
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-2">Copy</button></div><pre class="code-block"><code id="inst-49-2" class="language-json">{
+  &quot;n_weeks&quot;: 3,
+  &quot;n_groups&quot;: 2,
+  &quot;group_size&quot;: 2
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-3">Copy</button></div><pre class="code-block"><code id="inst-49-3" class="language-json">{
+  &quot;n_weeks&quot;: 5,
+  &quot;n_groups&quot;: 4,
+  &quot;group_size&quot;: 4
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 4</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-4">Copy</button></div><pre class="code-block"><code id="inst-49-4" class="language-json">{
+  &quot;n_weeks&quot;: 8,
+  &quot;n_groups&quot;: 5,
+  &quot;group_size&quot;: 2
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 5</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-5">Copy</button></div><pre class="code-block"><code id="inst-49-5" class="language-json">{
+  &quot;n_weeks&quot;: 6,
+  &quot;n_groups&quot;: 5,
+  &quot;group_size&quot;: 3
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 6</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-6">Copy</button></div><pre class="code-block"><code id="inst-49-6" class="language-json">{
+  &quot;n_weeks&quot;: 6,
+  &quot;n_groups&quot;: 5,
+  &quot;group_size&quot;: 5
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 7</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-7">Copy</button></div><pre class="code-block"><code id="inst-49-7" class="language-json">{
+  &quot;n_weeks&quot;: 3,
+  &quot;n_groups&quot;: 6,
+  &quot;group_size&quot;: 6
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 8</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-8">Copy</button></div><pre class="code-block"><code id="inst-49-8" class="language-json">{
+  &quot;n_weeks&quot;: 7,
+  &quot;n_groups&quot;: 7,
+  &quot;group_size&quot;: 7
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 9</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-9">Copy</button></div><pre class="code-block"><code id="inst-49-9" class="language-json">{
+  &quot;n_weeks&quot;: 5,
+  &quot;n_groups&quot;: 8,
+  &quot;group_size&quot;: 4
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 10</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-49-10">Copy</button></div><pre class="code-block"><code id="inst-49-10" class="language-json">{
+  &quot;n_weeks&quot;: 9,
+  &quot;n_groups&quot;: 8,
+  &quot;group_size&quot;: 8
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (10)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob010_social_golfers.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob010_social_golfers.py</a></dd><dt>Source description and problem instances</dt><dd><a href="https://www.csplib.org/Problems/prob010/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob010/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-49">Copy</button></div><pre class="code-block"><code id="model-49" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob010_social_golfers.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob010_social_golfers.py</a></dd><dt>Source description and problem instances</dt><dd><a href="https://www.csplib.org/Problems/prob010/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob010/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-49">Copy</button></div><pre class="code-block"><code id="model-49" class="language-python"># Import libraries
 from cpmpy import *
 from cpmpy.expressions.utils import all_pairs
 import numpy as np
@@ -166,823 +171,7 @@ solution = {
     &quot;assign&quot;: assign.value().tolist()
 }
 print(json.dumps(solution))
-# End of CPMPy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (31 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-anonymous_submission" class="language-python"># Import libraries
-from cpmpy import *
-import json
-
-# Parameters
-n_weeks = 4  # Number of weeks
-n_groups = 3  # Number of groups
-group_size = 3  # Size of each group
-n_golfers = n_groups * group_size  # Total number of golfers
-
-# Decision Variables
-assign = intvar(0, n_groups-1, shape=(n_weeks, n_golfers), name=&quot;assign&quot;)  # Assignments of golfers to groups for each week
-
-# Model
-model = Model()
-
-# Constraint: each group has exactly &#x27;group_size&#x27; golfers each week
-for w in range(n_weeks):
-    for g in range(n_groups):
-        model += sum(assign[w] == g) == group_size
-
-# Constraint: no two golfers play in the same group more than once
-for g1 in range(n_golfers):
-    for g2 in range(g1+1, n_golfers):
-        model += sum(assign[:, g1] == assign[:, g2]) &lt;= 1
-
-# Solve
-model.solve()
-
-# Print solution
-solution = {&quot;assign&quot;: assign.value().tolist()}
-print(json.dumps(solution))</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">atest <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (54 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-atest">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-atest" class="language-python"># Import libraries
-from cpmpy import *
-import json
-import numpy as np
-
-# Input data
-n_weeks = 4  # Number of weeks
-n_groups = 3  # Number of groups
-group_size = 3  # Size of each group
-n_golfers = n_groups * group_size  # Total number of golfers
-
-# Decision variables
-# assign[week][group][golfer] = 1 if golfer is assigned to group in week
-assign = boolvar(shape=(n_weeks, n_groups, n_golfers), name=&quot;assign&quot;)
-
-# Model
-model = Model()
-
-# Each golfer is in exactly one group per week
-for week in range(n_weeks):
-    for golfer in range(n_golfers):
-        model += [sum(assign[week, :, golfer]) == 1]
-
-# Each group has exactly group_size golfers per week
-for week in range(n_weeks):
-    for group in range(n_groups):
-        model += [sum(assign[week, group, :]) == group_size]
-
-# No two golfers play in the same group more than once
-for golfer1 in range(n_golfers):
-    for golfer2 in range(golfer1 + 1, n_golfers):
-        # Count the number of weeks where golfer1 and golfer2 are in the same group
-        same_group = []
-        for week in range(n_weeks):
-            for group in range(n_groups):
-                same_group.append((assign[week, group, golfer1] &amp; assign[week, group, golfer2]))
-        model += [sum(same_group) &lt;= 1]
-
-# Solve
-model.solve()
-
-# Output the solution in the correct format
-assign_values = assign.value()
-solution_assign = []
-
-for week in range(n_weeks):
-    golfer_group = [-1] * n_golfers  # Initialize group assignment for each golfer
-    for group in range(n_groups):
-        for golfer in range(n_golfers):
-            if assign_values[week][group][golfer] == 1:
-                golfer_group[golfer] = group
-    solution_assign.append(golfer_group)
-
-solution = {&quot;assign&quot;: solution_assign}
-print(json.dumps(solution))</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/cpmpy/atest/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (44 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-documentation_prompt_gpt_5_min" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n_weeks = 4  # Number of weeks
-n_groups = 3  # Number of groups
-group_size = 3  # Size of each group
-# End of data
-
-# Derived
-n_players = n_groups * group_size
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# assign[i, j] = group number (0..n_groups-1) of golfer i in week j
-assign = cp.intvar(0, n_groups - 1, shape=(n_players, n_weeks), name=&quot;assign&quot;)
-
-# Constraints
-
-# 1) Each week each group must have exactly group_size players
-for j in range(n_weeks):
-    for g in range(n_groups):
-        model += cp.Count(assign[:, j], g) == group_size
-
-# 2) Any pair of golfers meet at most once across all weeks
-for i in range(n_players):
-    for k in range(i + 1, n_players):
-        # sum over weeks of (assign[i,j] == assign[k,j]) &lt;= 1
-        model += cp.sum([assign[i, j] == assign[k, j] for j in range(n_weeks)]) &lt;= 1
-
-# 3) Symmetry breaking: fix assignments in week 0 to canonical groups
-#    (players 0..group_size-1 -&gt; group 0, next group_size -&gt; group 1, ...)
-for i in range(n_players):
-    model += assign[i, 0] == (i // group_size)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;assign&#x27;: assign.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (69 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-sampling_10_and_self_debug_10">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-sampling_10_and_self_debug_10" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n_weeks = 4
-n_groups = 3
-group_size = 3
-n_golfers = n_groups * group_size  # total golfers
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# assign[w,g,p] = golfer assigned to position p in group g in week w
-assign = cp.intvar(0, n_golfers - 1, shape=(n_weeks, n_groups, group_size), name=&quot;assign&quot;)
-
-# Constraints
-
-# 1) Each golfer plays exactly once per week
-for w in range(n_weeks):
-    week_golfers = [assign[w, g, p] for g in range(n_groups) for p in range(group_size)]
-    model += cp.AllDifferent(week_golfers)
-
-# 2) No pair of golfers plays together more than once across all weeks
-
-# Precompute all pairs of golfers
-pairs = [(i, j) for i in range(n_golfers) for j in range(i+1, n_golfers)]
-
-# Create boolean variables: pair_played[w, i, j] = 1 if pair (i,j) plays together in week w
-pair_played = {}
-for w in range(n_weeks):
-    for (g1, g2) in pairs:
-        pair_played[w, g1, g2] = cp.boolvar(name=f&quot;pair_played_w{w}_{g1}_{g2}&quot;)
-
-# Link pair_played variables with assign variables
-for w in range(n_weeks):
-    for (g1, g2) in pairs:
-        # For each group, create boolean variables indicating if g1 and g2 are both in that group
-        pair_in_group_bools = []
-        for g in range(n_groups):
-            # Boolean variables for presence of g1 and g2 in group g week w
-            g1_in_group = cp.boolvar(name=f&quot;g1_in_w{w}_g{g}_{g1}&quot;)
-            g2_in_group = cp.boolvar(name=f&quot;g2_in_w{w}_g{g}_{g2}&quot;)
-
-            # g1_in_group is true if assign[w,g,p] == g1 for some p
-            model += (g1_in_group == cp.Or([assign[w, g, p] == g1 for p in range(group_size)]))
-            model += (g2_in_group == cp.Or([assign[w, g, p] == g2 for p in range(group_size)]))
-
-            # Both in group if g1_in_group &amp; g2_in_group
-            both_in_group = cp.boolvar(name=f&quot;both_in_w{w}_g{g}_{g1}_{g2}&quot;)
-            model += (both_in_group == (g1_in_group &amp; g2_in_group))
-
-            pair_in_group_bools.append(both_in_group)
-
-        # pair_played[w, g1, g2] = OR over groups of both_in_group
-        model += (pair_played[w, g1, g2] == cp.Or(pair_in_group_bools))
-
-# Sum over weeks for each pair ≤ 1
-for (g1, g2) in pairs:
-    model += cp.sum([pair_played[w, g1, g2] for w in range(n_weeks)]) &lt;= 1
-
-# Solve
-if model.solve():
-    assign_sol = assign.value().tolist()
-    solution = {&#x27;assign&#x27;: assign_sol}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/cpmpy/sampling_10_and_self_debug_10/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (44 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-sampling_10_and_self_debug_10_" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n_weeks = 4  # Number of weeks
-n_groups = 3  # Number of groups
-group_size = 3  # Size of each group
-# End of data
-
-# Derived
-n_players = n_groups * group_size
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# assign[i, j] = group number (0..n_groups-1) of golfer i in week j
-assign = cp.intvar(0, n_groups - 1, shape=(n_players, n_weeks), name=&quot;assign&quot;)
-
-# Constraints
-
-# 1) Each week each group must have exactly group_size players
-for j in range(n_weeks):
-    for g in range(n_groups):
-        model += cp.Count(assign[:, j], g) == group_size
-
-# 2) Any pair of golfers meet at most once across all weeks
-for i in range(n_players):
-    for k in range(i + 1, n_players):
-        # sum over weeks of (assign[i,j] == assign[k,j]) &lt;= 1
-        model += cp.sum([assign[i, j] == assign[k, j] for j in range(n_weeks)]) &lt;= 1
-
-# 3) Symmetry breaking: fix assignments in week 0 to canonical groups
-#    (players 0..group_size-1 -&gt; group 0, next group_size -&gt; group 1, ...)
-for i in range(n_players):
-    model += assign[i, 0] == (i // group_size)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;assign&#x27;: assign.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (55 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-self_debug_gpt_5" class="language-python">
-import cpmpy as cp
-import json
-
-# Data (optional)
-n_weeks = 4   # Number of weeks
-n_groups = 3  # Number of groups
-group_size = 3  # Size of each group
-
-# Derived data
-n_golfers = n_groups * group_size
-weeks = range(n_weeks)
-groups = range(n_groups)
-golfers = range(n_golfers)
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# assign[i][j] is the group number (0..n_groups-1) of golfer i in week j
-assign = cp.intvar(0, n_groups-1, shape=(n_golfers, n_weeks), name=&quot;assign&quot;)
-
-# Constraints
-
-# 1) Each week, each group has exactly group_size golfers
-for j in weeks:
-    for g in groups:
-        model += (cp.Count(assign[:, j], g) == group_size)
-
-# 2) No pair of golfers plays together in the same group more than once
-for i in golfers:
-    for k in range(i+1, n_golfers):
-        model += (cp.sum([assign[i, j] == assign[k, j] for j in weeks]) &lt;= 1)
-
-# 3) Symmetry breaking: Fix week 0 to a canonical grouping
-#    Golfer i is in group i // group_size in week 0
-for i in golfers:
-    model += (assign[i, 0] == i // group_size)
-
-# 4) Additional mild symmetry breaking: in each subsequent week, label the group
-#    containing golfer 0 as group 0 (safe relabeling)
-for j in range(1, n_weeks):
-    model += (assign[0, j] == 0)
-
-# Objective (none, satisfaction problem)
-
-# Solve and print
-if model.solve():
-    solution = {
-        &#x27;assign&#x27;: assign.value().tolist()
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (44 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-self_debug_gpt_5_mini" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n_weeks = 4  # Number of weeks
-n_groups = 3  # Number of groups
-group_size = 3  # Size of each group
-# End of data
-
-# Derived
-n_players = n_groups * group_size
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# assign[i, j] = group number (0..n_groups-1) of golfer i in week j
-assign = cp.intvar(0, n_groups - 1, shape=(n_players, n_weeks), name=&quot;assign&quot;)
-
-# Constraints
-
-# 1) Each week each group must have exactly group_size players
-for j in range(n_weeks):
-    for g in range(n_groups):
-        model += cp.Count(assign[:, j], g) == group_size
-
-# 2) Any pair of golfers meet at most once across all weeks
-for i in range(n_players):
-    for k in range(i + 1, n_players):
-        # sum over weeks of (assign[i,j] == assign[k,j]) &lt;= 1
-        model += cp.sum([assign[i, j] == assign[k, j] for j in range(n_weeks)]) &lt;= 1
-
-# 3) Symmetry breaking: fix assignments in week 0 to canonical groups
-#    (players 0..group_size-1 -&gt; group 0, next group_size -&gt; group 1, ...)
-for i in range(n_players):
-    model += assign[i, 0] == (i // group_size)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;assign&#x27;: assign.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="minizinc">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.mzn (80 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
-
-% Input data
-int: n_weeks = 4;      % Number of weeks
-int: n_groups = 3;     % Number of groups per week
-int: group_size = 3;   % Number of golfers per group
-int: n_golfers = n_groups * group_size; % Total number of golfers
-
-% Decision variable:
-% assign[w,g,p] = golfer assigned to position p in group g in week w
-array[1..n_weeks, 1..n_groups, 1..group_size] of var 1..n_golfers: assign;
-
-% Constraints
-
-% 1) Each group in each week has distinct golfers
-constraint
-  forall(w in 1..n_weeks, g in 1..n_groups) (
-    alldifferent([assign[w,g,p] | p in 1..group_size])
-  );
-
-% 2) Each golfer plays exactly once per week (no golfer appears twice in the same week)
-constraint
-  forall(w in 1..n_weeks) (
-    alldifferent([assign[w,g,p] | g in 1..n_groups, p in 1..group_size])
-  );
-
-% 3) No pair of golfers plays together more than once across all weeks and groups
-% For every pair of distinct golfers (g1,g2), they can appear together at most once
-% We check all pairs of golfers and count the number of times they appear together
-
-% To implement this efficiently, we create a boolean variable for each pair and each week/group
-% indicating if the pair appears together in that group in that week
-
-array[1..n_golfers, 1..n_golfers, 1..n_weeks, 1..n_groups] of var bool: pair_in_group;
-
-% Define pair_in_group variables
-constraint
-  forall(w in 1..n_weeks, g in 1..n_groups, i in 1..n_golfers, j in i+1..n_golfers) (
-    pair_in_group[i,j,w,g] &lt;-&gt; (
-      % i and j both appear in assign[w,g,*]
-      (exists(p1 in 1..group_size)(assign[w,g,p1] = i) /\
-       exists(p2 in 1..group_size)(assign[w,g,p2] = j))
-    )
-  );
-
-% For pairs where i &gt;= j, pair_in_group[i,j,w,g] = false (no self pairs or reversed)
-constraint
-  forall(w in 1..n_weeks, g in 1..n_groups, i in 1..n_golfers, j in 1..i) (
-    pair_in_group[i,j,w,g] = false
-  );
-
-% Sum over all weeks and groups for each pair &lt;= 1
-constraint
-  forall(i,j in 1..n_golfers where i &lt; j) (
-    sum([bool2int(pair_in_group[i,j,w,g]) | w in 1..n_weeks, g in 1..n_groups]) &lt;= 1
-  );
-
-% Solve: find any feasible schedule
-solve satisfy;
-
-% Output the assignments as a 3D array: assign[w][g][p]
-output [
-  &quot;{&quot;,
-  &quot;\&quot;assign\&quot;: [&quot;,
-  concat([
-    &quot;[&quot;
-    ++ concat([
-      &quot;[&quot;
-      ++ concat([
-        show(assign[w,g,p]) ++ if p &lt; group_size then &quot;,&quot; else &quot;&quot; endif
-        | p in 1..group_size
-      ])
-      ++ &quot;]&quot; ++ if g &lt; n_groups then &quot;,&quot; else &quot;&quot; endif
-      | g in 1..n_groups
-    ])
-    ++ &quot;]&quot; ++ if w &lt; n_weeks then &quot;,&quot; else &quot;&quot; endif
-    | w in 1..n_weeks
-  ]),
-  &quot;]&quot;,
-  &quot;}&quot;
-];</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="or-tools">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (129 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
-import json
-
-# Input data
-n_weeks = 4  # Number of weeks
-n_groups = 3  # Number of groups
-group_size = 3  # Size of each group
-n_golfers = n_groups * group_size  # Total number of golfers
-
-# Model definition
-model = cp_model.CpModel()
-
-# Decision Variables
-# assign[w][g][p] = golfer assigned to position p in group g in week w
-assign = []
-for w in range(n_weeks):
-    week = []
-    for g in range(n_groups):
-        group = []
-        for p in range(group_size):
-            var = model.NewIntVar(0, n_golfers - 1, f&#x27;assign_w{w}_g{g}_p{p}&#x27;)
-            group.append(var)
-        week.append(group)
-    assign.append(week)
-
-# Constraints
-
-# 1) All golfers in a group in a week are different
-for w in range(n_weeks):
-    for g in range(n_groups):
-        model.AddAllDifferent(assign[w][g])
-
-# 2) All golfers assigned in a week are all different (each golfer plays once per week)
-for w in range(n_weeks):
-    week_vars = []
-    for g in range(n_groups):
-        for p in range(group_size):
-            week_vars.append(assign[w][g][p])
-    model.AddAllDifferent(week_vars)
-
-# 3) No pair of golfers plays together more than once across all weeks
-# We enforce that for any pair of golfers, they appear together in at most one group in one week.
-
-# To do this efficiently, we create boolean variables that indicate if two golfers play together in a group in a week.
-# Then sum over all weeks and groups for each pair &lt;= 1.
-
-# Create a helper dictionary to store pair variables
-pair_played = {}
-
-for w in range(n_weeks):
-    for g in range(n_groups):
-        # For each pair of positions in the group
-        for p1 in range(group_size):
-            for p2 in range(p1 + 1, group_size):
-                # We want to create boolean variables for each pair of golfers (i,j) that could be assigned here
-                # But that would be too large. Instead, we use element constraints and reification.
-
-                # We&#x27;ll create boolean variables for all pairs (i,j) with i&lt;j in [0..n_golfers-1]
-                # indicating if golfers i and j play together in group g week w.
-
-                # For each pair (i,j), create a bool var that is true iff assign[w][g][p1] == i and assign[w][g][p2] == j
-                # or assign[w][g][p1] == j and assign[w][g][p2] == i
-
-                # To avoid creating too many variables, we create them on demand and store in pair_played
-
-                for i in range(n_golfers):
-                    for j in range(i + 1, n_golfers):
-                        key = (i, j)
-                        if key not in pair_played:
-                            pair_played[key] = []
-                        # Create bool var for this occurrence
-                        b = model.NewBoolVar(f&#x27;pair_{i}_{j}_w{w}_g{g}_p{p1}_{p2}&#x27;)
-                        pair_played[key].append(b)
-
-                        # b == 1 iff (assign[w][g][p1] == i and assign[w][g][p2] == j) or (assign[w][g][p1] == j and assign[w][g][p2] == i)
-
-                        # Create bool vars for equality tests
-                        eq_p1_i = model.NewBoolVar(f&#x27;eq_p1_{i}_w{w}_g{g}_p{p1}&#x27;)
-                        eq_p1_j = model.NewBoolVar(f&#x27;eq_p1_{j}_w{w}_g{g}_p{p1}&#x27;)
-                        eq_p2_i = model.NewBoolVar(f&#x27;eq_p2_{i}_w{w}_g{g}_p{p2}&#x27;)
-                        eq_p2_j = model.NewBoolVar(f&#x27;eq_p2_{j}_w{w}_g{g}_p{p2}&#x27;)
-
-                        model.Add(assign[w][g][p1] == i).OnlyEnforceIf(eq_p1_i)
-                        model.Add(assign[w][g][p1] != i).OnlyEnforceIf(eq_p1_i.Not())
-
-                        model.Add(assign[w][g][p1] == j).OnlyEnforceIf(eq_p1_j)
-                        model.Add(assign[w][g][p1] != j).OnlyEnforceIf(eq_p1_j.Not())
-
-                        model.Add(assign[w][g][p2] == i).OnlyEnforceIf(eq_p2_i)
-                        model.Add(assign[w][g][p2] != i).OnlyEnforceIf(eq_p2_i.Not())
-
-                        model.Add(assign[w][g][p2] == j).OnlyEnforceIf(eq_p2_j)
-                        model.Add(assign[w][g][p2] != j).OnlyEnforceIf(eq_p2_j.Not())
-
-                        # b == 1 iff (eq_p1_i and eq_p2_j) or (eq_p1_j and eq_p2_i)
-                        # Create intermediate bool vars for the two conjunctions
-                        cond1 = model.NewBoolVar(f&#x27;cond1_{i}_{j}_w{w}_g{g}_p{p1}_{p2}&#x27;)
-                        cond2 = model.NewBoolVar(f&#x27;cond2_{i}_{j}_w{w}_g{g}_p{p1}_{p2}&#x27;)
-
-                        model.AddBoolAnd([eq_p1_i, eq_p2_j]).OnlyEnforceIf(cond1)
-                        model.AddBoolOr([eq_p1_i.Not(), eq_p2_j.Not()]).OnlyEnforceIf(cond1.Not())
-
-                        model.AddBoolAnd([eq_p1_j, eq_p2_i]).OnlyEnforceIf(cond2)
-                        model.AddBoolOr([eq_p1_j.Not(), eq_p2_i.Not()]).OnlyEnforceIf(cond2.Not())
-
-                        model.AddBoolOr([cond1, cond2]).OnlyEnforceIf(b)
-                        model.AddBoolAnd([cond1.Not(), cond2.Not()]).OnlyEnforceIf(b.Not())
-
-# Now sum over all weeks and groups for each pair &lt;= 1
-for key, bool_vars in pair_played.items():
-    model.Add(sum(bool_vars) &lt;= 1)
-
-# Solve the model
-solver = cp_model.CpSolver()
-status = solver.Solve(model)
-
-if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-    # Prepare the solution as a 3D list: assign[w][g][p]
-    solution = []
-    for w in range(n_weeks):
-        week_sol = []
-        for g in range(n_groups):
-            group_sol = []
-            for p in range(group_size):
-                group_sol.append(solver.Value(assign[w][g][p]))
-            week_sol.append(group_sol)
-        solution.append(week_sol)
-    print(json.dumps({&#x27;assign&#x27;: solution}, indent=4))
-else:
-    print(&quot;No solution found.&quot;)</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/ortools/documentation_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">multi_agents_requirements_gath <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: o3 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (81 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_010_social_golfers_problem-multi_agents_requirements_gath">Copy</button></div><pre class="code-block"><code id="gmod-csplib_010_social_golfers_problem-multi_agents_requirements_gath" class="language-python">import json
-from ortools.sat.python import cp_model
-
-# -------------------------
-# Input data (immutable)
-# -------------------------
-
-n_weeks = 4      # Number of weeks
-n_groups = 3     # Number of groups formed each week
-group_size = 3   # Golfers per group
-n_golfers = n_groups * group_size  # Total number of golfers (derived – do not redefine)
-
-# -------------------------
-# Model creation
-# -------------------------
-
-model = cp_model.CpModel()
-
-# Decision variables: assign[w][g][p] = 1 if golfer p is in group g on week w.
-assign = [[[model.NewBoolVar(f&quot;assign_w{w}_g{g}_p{p}&quot;)
-            for p in range(n_golfers)]
-           for g in range(n_groups)]
-          for w in range(n_weeks)]
-
-# -------------------------
-# Constraints
-# -------------------------
-
-# C1. Weekly participation – every golfer plays exactly once per week.
-for w in range(n_weeks):
-    for p in range(n_golfers):
-        model.Add(sum(assign[w][g][p] for g in range(n_groups)) == 1)
-
-# C2. Group capacity – every group contains exactly group_size golfers each week.
-for w in range(n_weeks):
-    for g in range(n_groups):
-        model.Add(sum(assign[w][g][p] for p in range(n_golfers)) == group_size)
-
-# C3. Pair uniqueness – no two golfers play together more than once over all weeks.
-for p in range(n_golfers):
-    for q in range(p + 1, n_golfers):
-        together_vars = []  # y_{w,g}(p,q)
-        for w in range(n_weeks):
-            for g in range(n_groups):
-                y = model.NewBoolVar(f&quot;pair_p{p}_q{q}_w{w}_g{g}&quot;)
-                # y can only be 1 if both golfers are in this group
-                model.Add(y &lt;= assign[w][g][p])
-                model.Add(y &lt;= assign[w][g][q])
-                # If both golfers are in the group, y must be 1
-                model.Add(assign[w][g][p] + assign[w][g][q] - y &lt;= 1)
-                together_vars.append(y)
-        # At most once over the whole horizon
-        model.Add(sum(together_vars) &lt;= 1)
-
-# -------------------------
-# Solve the model
-# -------------------------
-
-solver = cp_model.CpSolver()
-# Optional: small time limit; instance is tiny, so default is fine
-# solver.parameters.max_time_in_seconds = 10
-
-status = solver.Solve(model)
-
-if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-    raise RuntimeError(&quot;No feasible solution found for the given parameters.&quot;)
-
-# -------------------------
-# Extract solution
-# -------------------------
-
-solution_assign = [[[int(solver.Value(assign[w][g][p]))
-                     for p in range(n_golfers)]
-                    for g in range(n_groups)]
-                   for w in range(n_weeks)]
-
-# -------------------------
-# Output (JSON)
-# -------------------------
-
-print(json.dumps({&quot;assign&quot;: solution_assign}))
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_010_social_golfers_problem/ortools/multi_agents_requirements_gath/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-1">Copy</button>Instance 1</summary><pre><code id="inst-49-1" class="language-json">{
-  &quot;n_weeks&quot;: 4,
-  &quot;n_groups&quot;: 3,
-  &quot;group_size&quot;: 3
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-2">Copy</button>Instance 2</summary><pre><code id="inst-49-2" class="language-json">{
-  &quot;n_weeks&quot;: 3,
-  &quot;n_groups&quot;: 2,
-  &quot;group_size&quot;: 2
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-3">Copy</button>Instance 3</summary><pre><code id="inst-49-3" class="language-json">{
-  &quot;n_weeks&quot;: 5,
-  &quot;n_groups&quot;: 4,
-  &quot;group_size&quot;: 4
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-4">Copy</button>Instance 4</summary><pre><code id="inst-49-4" class="language-json">{
-  &quot;n_weeks&quot;: 8,
-  &quot;n_groups&quot;: 5,
-  &quot;group_size&quot;: 2
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-5">Copy</button>Instance 5</summary><pre><code id="inst-49-5" class="language-json">{
-  &quot;n_weeks&quot;: 6,
-  &quot;n_groups&quot;: 5,
-  &quot;group_size&quot;: 3
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-6">Copy</button>Instance 6</summary><pre><code id="inst-49-6" class="language-json">{
-  &quot;n_weeks&quot;: 6,
-  &quot;n_groups&quot;: 5,
-  &quot;group_size&quot;: 5
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-7">Copy</button>Instance 7</summary><pre><code id="inst-49-7" class="language-json">{
-  &quot;n_weeks&quot;: 3,
-  &quot;n_groups&quot;: 6,
-  &quot;group_size&quot;: 6
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-8">Copy</button>Instance 8</summary><pre><code id="inst-49-8" class="language-json">{
-  &quot;n_weeks&quot;: 7,
-  &quot;n_groups&quot;: 7,
-  &quot;group_size&quot;: 7
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-9">Copy</button>Instance 9</summary><pre><code id="inst-49-9" class="language-json">{
-  &quot;n_weeks&quot;: 5,
-  &quot;n_groups&quot;: 8,
-  &quot;group_size&quot;: 4
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-49-10">Copy</button>Instance 10</summary><pre><code id="inst-49-10" class="language-json">{
-  &quot;n_weeks&quot;: 9,
-  &quot;n_groups&quot;: 8,
-  &quot;group_size&quot;: 8
-}</code></pre></details></div>
-    </div>
+# End of CPMPy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_010_social_golfers_problem/csplib_010_social_golfers_problem.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -990,8 +179,9 @@ print(json.dumps({&quot;assign&quot;: solution_assign}))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_009_perfect_square_placement.html">← prev</a><a class="btn" href="csplib_011_acc_basketball_schedule.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

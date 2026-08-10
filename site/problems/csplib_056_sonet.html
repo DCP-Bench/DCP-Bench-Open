@@ -11,21 +11,12 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_056_sonet</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / csplib_056_sonet</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_056_sonet</p>
     <h1 class="problem-title">csplib_056_sonet</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">In the SONET problem, we are given a set of nodes and the traffic demand for each pair of nodes. The nodes are connected by a set of rings. A node is installed on a ring using an add-drop multiplexer (ADM). For two nodes to communicate, they must be on at least one common ring. Each ring has a capacity, limiting the number of nodes it can host. The objective is to satisfy all communication demands while minimizing the total number of ADMs used.  Print the total number of ADMs used (total_adms), and the configuration of nodes on rings (ring_config) where ring_config[k, i] is 1 if node i is on ring k, 0 otherwise.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">In the SONET problem, we are given a set of nodes and the traffic demand for each pair of nodes. The nodes are connected by a set of rings. A node is installed on a ring using an add-drop multiplexer (ADM). For two nodes to communicate, they must be on at least one common ring. Each ring has a capacity, limiting the number of nodes it can host. The objective is to satisfy all communication demands while minimizing the total number of ADMs used.  Print the total number of ADMs used (total_adms), and the configuration of nodes on rings (ring_config) where ring_config[k, i] is 1 if node i is on ring k, 0 otherwise.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-74">Copy</button></div><pre class="code-block"><code id="example-74" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-74-1">Copy</button></div><pre class="code-block"><code id="inst-74-1" class="language-json">{
   &quot;r&quot;: 4,
   &quot;n&quot;: 10,
   &quot;demand&quot;: [
@@ -156,12 +147,7 @@
     5,
     6
   ]
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">ring_config</span><span class="chip">total_adms</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-74">Copy</button></div><pre class="code-block"><code id="solution-74" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">ring_config</span><span class="chip">total_adms</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-74-1">Copy</button></div><pre class="code-block"><code id="sol-74-1" class="language-json">{
   &quot;ring_config&quot;: [
     [
       false,
@@ -179,7 +165,7 @@
       false,
       false,
       false,
-      false,
+      true,
       true,
       false,
       false,
@@ -189,50 +175,33 @@
     ],
     [
       true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
       false,
-      true,
-      true,
-      true,
-      true,
+      false,
       false
     ],
     [
       true,
-      true,
-      true,
-      true,
-      true,
-      true,
       false,
       false,
       false,
+      true,
+      true,
+      true,
+      true,
+      true,
       false
     ]
   ],
   &quot;total_adms&quot;: 14
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (0)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob056/models/Sonet.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob056/models/Sonet.py.html</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob056" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob056</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-74">Copy</button></div><pre class="code-block"><code id="model-74" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob056/models/Sonet.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob056/models/Sonet.py.html</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob056" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob056</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-74">Copy</button></div><pre class="code-block"><code id="model-74" class="language-python"># Import libraries
 import cpmpy as cp
 import json
 import numpy as np
@@ -271,143 +240,7 @@ if model.solve():
     }
     print(json.dumps(solution))
 else:
-    print(&quot;No solution found.&quot;)</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><p class="desc">No generated models yet.</p></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-74-1">Copy</button>Instance 1</summary><pre><code id="inst-74-1" class="language-json">{
-  &quot;r&quot;: 4,
-  &quot;n&quot;: 10,
-  &quot;demand&quot;: [
-    [
-      0,
-      1,
-      1,
-      0,
-      0,
-      0,
-      1,
-      1,
-      0,
-      0
-    ],
-    [
-      1,
-      0,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      1,
-      1,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      1,
-      1,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      1,
-      0,
-      1,
-      0,
-      0,
-      0,
-      1
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      1,
-      1,
-      0,
-      0
-    ],
-    [
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      1,
-      1,
-      0
-    ],
-    [
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      0,
-      1,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      0,
-      1
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      1,
-      0
-    ]
-  ],
-  &quot;capacity_nodes&quot;: [
-    3,
-    4,
-    5,
-    6
-  ]
-}</code></pre></details></div>
-    </div>
+    print(&quot;No solution found.&quot;)</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_056_sonet/csplib_056_sonet.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -415,8 +248,9 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_054_n_queens.html">← prev</a><a class="btn" href="csplib_057_killer_sudoku.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

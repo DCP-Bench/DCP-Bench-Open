@@ -11,85 +11,54 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">heterosquare</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / heterosquare</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / heterosquare</p>
     <h1 class="problem-title">heterosquare</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">A heterosquare of order n is a n*n square whose elements are distinct integers from 1 to n^2 such that the sums of the rows, columns and diagonals are all different. Here is an example of heterosquare of order 3             19  1  2  3    6 8  9  4    21 7  6  5    18  16 17 12   15  (Sums)  Print a heterosquare (x) of a given order as a list of lists of integers.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">A heterosquare of order n is a n*n square whose elements are distinct integers from 1 to n^2 such that the sums of the rows, columns and diagonals are all different. Here is an example of heterosquare of order 3             19  1  2  3    6 8  9  4    21 7  6  5    18  16 17 12   15  (Sums)  Print a heterosquare (x) of a given order as a list of lists of integers.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-112">Copy</button></div><pre class="code-block"><code id="example-112" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-112-1">Copy</button></div><pre class="code-block"><code id="inst-112-1" class="language-json">{
   &quot;n&quot;: 5
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">x</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-112">Copy</button></div><pre class="code-block"><code id="solution-112" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">x</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-112-1">Copy</button></div><pre class="code-block"><code id="sol-112-1" class="language-json">{
   &quot;x&quot;: [
     [
       1,
-      10,
-      20,
-      6,
-      15
+      22,
+      25,
+      24,
+      20
+    ],
+    [
+      23,
+      21,
+      19,
+      18,
+      17
     ],
     [
       16,
-      2,
-      3,
-      21,
-      13
-    ],
-    [
-      4,
-      25,
-      19,
+      15,
       14,
-      11
+      13,
+      12
     ],
     [
-      24,
-      5,
+      11,
+      10,
       9,
-      7,
-      23
+      8,
+      7
     ],
     [
-      12,
-      18,
-      8,
-      17,
-      22
+      6,
+      5,
+      4,
+      3,
+      2
     ]
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/heterosquare.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/heterosquare.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-112">Copy</button></div><pre class="code-block"><code id="model-112" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://www.hakank.org/cpmpy/heterosquare.py" target="_blank" rel="noopener">https://www.hakank.org/cpmpy/heterosquare.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-112">Copy</button></div><pre class="code-block"><code id="model-112" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
 import json
@@ -140,243 +109,7 @@ solution = {
     &quot;x&quot;: x.value().tolist(),
 }
 print(json.dumps(solution))
-# End of CPMPy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (39 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-heterosquare-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-heterosquare-documentation_prompt_gpt_5_min" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n = 5
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-x = cp.intvar(1, n*n, shape=(n, n), name=&quot;x&quot;)
-
-# Constraints
-# All entries are distinct and in 1..n^2
-model += cp.AllDifferent(x)
-
-# Row sums and column sums
-row_sums = [cp.sum(x[i, :]) for i in range(n)]
-col_sums = [cp.sum(x[:, j]) for j in range(n)]
-
-# Diagonal sums
-diag1 = cp.sum([x[i, i] for i in range(n)])
-diag2 = cp.sum([x[i, n-1-i] for i in range(n)])
-
-# All sums (rows, columns, diagonals) must be pairwise different
-all_sums = row_sums + col_sums + [diag1, diag2]
-model += cp.AllDifferent(all_sums)
-
-# Symmetry-breaking: fix one cell to reduce search (without loss of generality)
-model += (x[0, 0] == 1)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;x&#x27;: x.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/heterosquare/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (39 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-heterosquare-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-heterosquare-sampling_10_and_self_debug_10_" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n = 5
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-x = cp.intvar(1, n*n, shape=(n, n), name=&quot;x&quot;)
-
-# Constraints
-# All entries are distinct and in 1..n^2
-model += cp.AllDifferent(x)
-
-# Row sums and column sums
-row_sums = [cp.sum(x[i, :]) for i in range(n)]
-col_sums = [cp.sum(x[:, j]) for j in range(n)]
-
-# Diagonal sums
-diag1 = cp.sum([x[i, i] for i in range(n)])
-diag2 = cp.sum([x[i, n-1-i] for i in range(n)])
-
-# All sums (rows, columns, diagonals) must be pairwise different
-all_sums = row_sums + col_sums + [diag1, diag2]
-model += cp.AllDifferent(all_sums)
-
-# Symmetry-breaking: fix one cell to reduce search (without loss of generality)
-model += (x[0, 0] == 1)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;x&#x27;: x.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/heterosquare/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (56 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-heterosquare-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-heterosquare-self_debug_gpt_5" class="language-python">
-import cpmpy as cp
-import json
-import numpy as np
-
-# Data
-n = 5
-N = n * n
-all_vals_sum = N * (N + 1) // 2  # sum of 1..N = 325
-
-# Bounds for sums (tighten domains)
-min_row_sum = sum(range(1, n + 1))  # 1+2+...+n = 15
-max_row_sum = sum(range(N - n + 1, N + 1))  # (N-n+1)+...+N = 115
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-x = cp.intvar(1, N, shape=(n, n), name=&quot;x&quot;)
-
-# Sums
-row_sums = cp.intvar(min_row_sum, max_row_sum, shape=n, name=&quot;row_sums&quot;)
-col_sums = cp.intvar(min_row_sum, max_row_sum, shape=n, name=&quot;col_sums&quot;)
-diag_sums = cp.intvar(min_row_sum, max_row_sum, shape=2, name=&quot;diag_sums&quot;)
-
-# Constraints
-# All numbers 1..N exactly once
-model += cp.AllDifferent(x)
-
-# Link sums
-for i in range(n):
-    model += (row_sums[i] == cp.sum(x[i, :]))
-for j in range(n):
-    model += (col_sums[j] == cp.sum(x[:, j]))
-
-model += (diag_sums[0] == cp.sum([x[i, i] for i in range(n)]))
-model += (diag_sums[1] == cp.sum([x[i, n - 1 - i] for i in range(n)]))
-
-# All row, column, and diagonal sums are all different
-model += cp.AllDifferent(list(row_sums) + list(col_sums) + list(diag_sums))
-
-# Redundant helpful constraints
-model += (cp.sum(row_sums) == all_vals_sum)
-model += (cp.sum(col_sums) == all_vals_sum)
-
-# Symmetry breaking to speed up search (safe)
-# Sort row sums and column sums to break row/column permutation symmetry
-model += cp.IncreasingStrict(row_sums)
-model += cp.IncreasingStrict(col_sums)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;x&#x27;: x.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/heterosquare/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (39 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-heterosquare-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-heterosquare-self_debug_gpt_5_mini" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n = 5
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-x = cp.intvar(1, n*n, shape=(n, n), name=&quot;x&quot;)
-
-# Constraints
-# All entries are distinct and in 1..n^2
-model += cp.AllDifferent(x)
-
-# Row sums and column sums
-row_sums = [cp.sum(x[i, :]) for i in range(n)]
-col_sums = [cp.sum(x[:, j]) for j in range(n)]
-
-# Diagonal sums
-diag1 = cp.sum([x[i, i] for i in range(n)])
-diag2 = cp.sum([x[i, n-1-i] for i in range(n)])
-
-# All sums (rows, columns, diagonals) must be pairwise different
-all_sums = row_sums + col_sums + [diag1, diag2]
-model += cp.AllDifferent(all_sums)
-
-# Symmetry-breaking: fix one cell to reduce search (without loss of generality)
-model += (x[0, 0] == 1)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;x&#x27;: x.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/heterosquare/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-112-1">Copy</button>Instance 1</summary><pre><code id="inst-112-1" class="language-json">{
-  &quot;n&quot;: 5
-}</code></pre></details></div>
-    </div>
+# End of CPMPy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/heterosquare/heterosquare.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -384,8 +117,9 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="hanging_weights.html">← prev</a><a class="btn" href="hidato.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>6b0094c</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>
