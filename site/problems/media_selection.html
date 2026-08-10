@@ -11,21 +11,12 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">media_selection</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / media_selection</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / media_selection</p>
     <h1 class="problem-title">media_selection</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">The main media selection problem is a problem of allocating advertising budgets between possible advertising outlets. Given a set of media options, it aims to determine which media should be selected so that all audiences are reached with minimum campaign cost. It does not matter if an audience is covered more than once, as long as it is covered at least once. Moreover, the company does not wish to spend more money on the campaign than necessary.  Print the binary decision of whether each media is selected (is_selected) as a list of booleans, and the total cost (min_total_cost).</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">The main media selection problem is a problem of allocating advertising budgets between possible advertising outlets. Given a set of media options, it aims to determine which media should be selected so that all audiences are reached with minimum campaign cost. It does not matter if an audience is covered more than once, as long as it is covered at least once. Moreover, the company does not wish to spend more money on the campaign than necessary.  Print the binary decision of whether each media is selected (is_selected) as a list of booleans, and the total cost (min_total_cost).</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-125">Copy</button></div><pre class="code-block"><code id="example-125" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-125-1">Copy</button></div><pre class="code-block"><code id="inst-125-1" class="language-json">{
   &quot;target_audiences&quot;: [
     0,
     1,
@@ -58,38 +49,16 @@
     15,
     20
   ]
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">is_selected</span><span class="chip">min_total_cost</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-125">Copy</button></div><pre class="code-block"><code id="solution-125" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">is_selected</span><span class="chip">min_total_cost</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-125-1">Copy</button></div><pre class="code-block"><code id="sol-125-1" class="language-json">{
   &quot;is_selected&quot;: [
     true,
     true,
     false
   ],
   &quot;min_total_cost&quot;: 25
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (4)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/media_selection" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/media_selection</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-125">Copy</button></div><pre class="code-block"><code id="model-125" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/media_selection" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/media_selection</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-125">Copy</button></div><pre class="code-block"><code id="model-125" class="language-python"># Import libraries
 from cpmpy import *
 import json
 
@@ -123,304 +92,7 @@ solution = {
 }
 print(json.dumps(solution))
 
-# End of CPMPy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (4)</button></div><div class="tab-pane active" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-media_selection-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-media_selection-documentation_prompt_gpt_5_min" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-input_data = {
-    &quot;target_audiences&quot;: [0, 1, 2], # List of target audience IDs
-    &quot;advertising_media&quot;: [0, 1, 2], # List of advertising media IDs
-    &quot;incidence_matrix&quot;: [
-        [1, 0, 1], # incidence_matrix[t][m] is 1 if audience t is covered by media m, 0 otherwise
-        [1, 1, 0],
-        [0, 1, 1]
-    ],
-    &quot;media_costs&quot;: [10, 15, 20] # media_costs[m] is the cost of media m
-}
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Extract data
-T = input_data[&quot;target_audiences&quot;]
-M = input_data[&quot;advertising_media&quot;]
-inc = input_data[&quot;incidence_matrix&quot;]
-costs = input_data[&quot;media_costs&quot;]
-num_media = len(M)
-
-# Decision Variables
-# is_selected[m] == 1 if media m is selected, 0 otherwise
-is_selected = cp.boolvar(shape=num_media, name=&quot;is_selected&quot;)
-
-# Constraints
-# Each target audience must be covered by at least one selected media
-for t_idx, t in enumerate(T):
-    model += cp.sum([inc[t_idx][m_idx] * is_selected[m_idx] for m_idx in range(num_media)]) &gt;= 1
-
-# Objective: minimize total cost
-total_cost = cp.sum([costs[m_idx] * is_selected[m_idx] for m_idx in range(num_media)])
-model.minimize(total_cost)
-
-# Solve and print
-if model.solve():
-    # Convert boolean values to 0/1 integers
-    is_selected_list = [int(v) for v in is_selected.value().tolist()]
-    solution = {
-        &quot;is_selected&quot;: is_selected_list,
-        &quot;min_total_cost&quot;: int(model.objective_value())
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/media_selection/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-media_selection-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-media_selection-sampling_10_and_self_debug_10_" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-input_data = {
-    &quot;target_audiences&quot;: [0, 1, 2], # List of target audience IDs
-    &quot;advertising_media&quot;: [0, 1, 2], # List of advertising media IDs
-    &quot;incidence_matrix&quot;: [
-        [1, 0, 1], # incidence_matrix[t][m] is 1 if audience t is covered by media m, 0 otherwise
-        [1, 1, 0],
-        [0, 1, 1]
-    ],
-    &quot;media_costs&quot;: [10, 15, 20] # media_costs[m] is the cost of media m
-}
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Extract data
-T = input_data[&quot;target_audiences&quot;]
-M = input_data[&quot;advertising_media&quot;]
-inc = input_data[&quot;incidence_matrix&quot;]
-costs = input_data[&quot;media_costs&quot;]
-num_media = len(M)
-
-# Decision Variables
-# is_selected[m] == 1 if media m is selected, 0 otherwise
-is_selected = cp.boolvar(shape=num_media, name=&quot;is_selected&quot;)
-
-# Constraints
-# Each target audience must be covered by at least one selected media
-for t_idx, t in enumerate(T):
-    model += cp.sum([inc[t_idx][m_idx] * is_selected[m_idx] for m_idx in range(num_media)]) &gt;= 1
-
-# Objective: minimize total cost
-total_cost = cp.sum([costs[m_idx] * is_selected[m_idx] for m_idx in range(num_media)])
-model.minimize(total_cost)
-
-# Solve and print
-if model.solve():
-    # Convert boolean values to 0/1 integers
-    is_selected_list = [int(v) for v in is_selected.value().tolist()]
-    solution = {
-        &quot;is_selected&quot;: is_selected_list,
-        &quot;min_total_cost&quot;: int(model.objective_value())
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/media_selection/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-media_selection-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-media_selection-self_debug_gpt_5" class="language-python">
-import cpmpy as cp
-import json
-
-# Data (optional)
-input_data = {
-    &quot;target_audiences&quot;: [0, 1, 2],  # List of target audience IDs
-    &quot;advertising_media&quot;: [0, 1, 2],  # List of advertising media IDs
-    &quot;incidence_matrix&quot;: [
-        [1, 0, 1],  # incidence_matrix[t][m] is 1 if audience t is covered by media m, 0 otherwise
-        [1, 1, 0],
-        [0, 1, 1]
-    ],
-    &quot;media_costs&quot;: [10, 15, 20]  # media_costs[m] is the cost of media m
-}
-# End of data
-
-# Extract data
-target_audiences = input_data[&quot;target_audiences&quot;]
-advertising_media = input_data[&quot;advertising_media&quot;]
-incidence_matrix = input_data[&quot;incidence_matrix&quot;]
-media_costs = input_data[&quot;media_costs&quot;]
-
-T = len(target_audiences)
-M = len(advertising_media)
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-is_selected = cp.boolvar(shape=M, name=&quot;is_selected&quot;)
-
-# Constraints
-# Each audience must be covered by at least one selected media
-for t in range(T):
-    model += (cp.sum([is_selected[m] * incidence_matrix[t][m] for m in range(M)]) &gt;= 1)
-
-# Objective (minimize total cost)
-total_cost = cp.sum([is_selected[m] * media_costs[m] for m in range(M)])
-model.minimize(total_cost)
-
-# Solve and print
-if model.solve():
-    solution = {
-        &#x27;is_selected&#x27;: [int(v) for v in is_selected.value().tolist()],
-        &#x27;min_total_cost&#x27;: int(model.objective_value())
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/media_selection/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (51 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-media_selection-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-media_selection-self_debug_gpt_5_mini" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-input_data = {
-    &quot;target_audiences&quot;: [0, 1, 2], # List of target audience IDs
-    &quot;advertising_media&quot;: [0, 1, 2], # List of advertising media IDs
-    &quot;incidence_matrix&quot;: [
-        [1, 0, 1], # incidence_matrix[t][m] is 1 if audience t is covered by media m, 0 otherwise
-        [1, 1, 0],
-        [0, 1, 1]
-    ],
-    &quot;media_costs&quot;: [10, 15, 20] # media_costs[m] is the cost of media m
-}
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Extract data
-T = input_data[&quot;target_audiences&quot;]
-M = input_data[&quot;advertising_media&quot;]
-inc = input_data[&quot;incidence_matrix&quot;]
-costs = input_data[&quot;media_costs&quot;]
-num_media = len(M)
-
-# Decision Variables
-# is_selected[m] == 1 if media m is selected, 0 otherwise
-is_selected = cp.boolvar(shape=num_media, name=&quot;is_selected&quot;)
-
-# Constraints
-# Each target audience must be covered by at least one selected media
-for t_idx, t in enumerate(T):
-    model += cp.sum([inc[t_idx][m_idx] * is_selected[m_idx] for m_idx in range(num_media)]) &gt;= 1
-
-# Objective: minimize total cost
-total_cost = cp.sum([costs[m_idx] * is_selected[m_idx] for m_idx in range(num_media)])
-model.minimize(total_cost)
-
-# Solve and print
-if model.solve():
-    # Convert boolean values to 0/1 integers
-    is_selected_list = [int(v) for v in is_selected.value().tolist()]
-    solution = {
-        &quot;is_selected&quot;: is_selected_list,
-        &quot;min_total_cost&quot;: int(model.objective_value())
-    }
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/media_selection/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-125-1">Copy</button>Instance 1</summary><pre><code id="inst-125-1" class="language-json">{
-  &quot;target_audiences&quot;: [
-    0,
-    1,
-    2
-  ],
-  &quot;advertising_media&quot;: [
-    0,
-    1,
-    2
-  ],
-  &quot;incidence_matrix&quot;: [
-    [
-      1,
-      0,
-      1
-    ],
-    [
-      1,
-      1,
-      0
-    ],
-    [
-      0,
-      1,
-      1
-    ]
-  ],
-  &quot;media_costs&quot;: [
-    10,
-    15,
-    20
-  ]
-}</code></pre></details></div>
-    </div>
+# End of CPMPy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/media_selection/media_selection.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -428,8 +100,9 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="mario.html">← prev</a><a class="btn" href="minesweeper.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

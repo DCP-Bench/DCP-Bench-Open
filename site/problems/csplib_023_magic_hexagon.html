@@ -11,70 +11,39 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_023_magic_hexagon</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / csplib_023_magic_hexagon</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_023_magic_hexagon</p>
     <h1 class="problem-title">csplib_023_magic_hexagon</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">A magic hexagon problem involves arranging the numbers 1 to 19 in a hexagonal pattern such that the sum of the numbers in each of the 15 lines (rows and diagonals) is equal to a magic constant, which is 38.  The hexagonal grid is structured as follows:       A, B, C      D, E, F, G     H, I, J, K, L      M, N, O, P       Q, R, S  The goal is to find an assignment of numbers to the variables A through S that satisfies all the sum constraints.  Print the solution (LD) as a single list of 19 integers corresponding to the variables [A, B, ..., S].</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">A magic hexagon problem involves arranging the numbers 1 to 19 in a hexagonal pattern such that the sum of the numbers in each of the 15 lines (rows and diagonals) is equal to a magic constant, which is 38.  The hexagonal grid is structured as follows:       A, B, C      D, E, F, G     H, I, J, K, L      M, N, O, P       Q, R, S  The goal is to find an assignment of numbers to the variables A through S that satisfies all the sum constraints.  Print the solution (LD) as a single list of 19 integers corresponding to the variables [A, B, ..., S].</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-60">Copy</button></div><pre class="code-block"><code id="example-60" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-60-1">Copy</button></div><pre class="code-block"><code id="inst-60-1" class="language-json">{
   &quot;NUM_CELLS&quot;: 19,
   &quot;MAGIC_SUM&quot;: 38
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">LD</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-60">Copy</button></div><pre class="code-block"><code id="solution-60" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">LD</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-60-1">Copy</button></div><pre class="code-block"><code id="sol-60-1" class="language-json">{
   &quot;LD&quot;: [
     18,
-    17,
-    3,
     11,
-    1,
-    7,
-    19,
     9,
+    17,
+    1,
     6,
-    5,
-    2,
-    16,
     14,
+    3,
+    7,
+    5,
     8,
-    4,
-    12,
     15,
+    19,
+    2,
+    4,
     13,
+    16,
+    12,
     10
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (0)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob023/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob023/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-60">Copy</button></div><pre class="code-block"><code id="model-60" class="language-python">import cpmpy as cp
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob023/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob023/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-60">Copy</button></div><pre class="code-block"><code id="model-60" class="language-python">import cpmpy as cp
 import json
 
 # Model definition
@@ -121,15 +90,7 @@ solution = {
     &quot;LD&quot;: LD.value().tolist()
 }
 print(json.dumps(solution))
-# End of CPMpy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><p class="desc">No generated models yet.</p></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-60-1">Copy</button>Instance 1</summary><pre><code id="inst-60-1" class="language-json">{
-  &quot;NUM_CELLS&quot;: 19,
-  &quot;MAGIC_SUM&quot;: 38
-}</code></pre></details></div>
-    </div>
+# End of CPMpy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_023_magic_hexagon/csplib_023_magic_hexagon.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -137,8 +98,9 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_022_bus_driver_scheduling.html">← prev</a><a class="btn" href="csplib_024_langford.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

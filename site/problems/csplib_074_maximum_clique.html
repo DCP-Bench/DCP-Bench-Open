@@ -11,21 +11,12 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_074_maximum_clique</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / csplib_074_maximum_clique</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_074_maximum_clique</p>
     <h1 class="problem-title">csplib_074_maximum_clique</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">Given a simple undirected graph G = (V, E), a clique is a subset of vertices V where every two distinct vertices in the subset are adjacent (connected by an edge). The maximum clique problem is to find a clique of the largest possible size in a given graph.  Print a binary array (c) of n elements indicating which vertices are included in the maximum clique, where c[i] is 1 if vertex i is in the clique, 0 otherwise.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">Given a simple undirected graph G = (V, E), a clique is a subset of vertices V where every two distinct vertices in the subset are adjacent (connected by an edge). The maximum clique problem is to find a clique of the largest possible size in a given graph.  Print a binary array (c) of n elements indicating which vertices are included in the maximum clique, where c[i] is 1 if vertex i is in the clique, 0 otherwise.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-77">Copy</button></div><pre class="code-block"><code id="example-77" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-77-1">Copy</button></div><pre class="code-block"><code id="inst-77-1" class="language-json">{
   &quot;n&quot;: 5,
   &quot;adj&quot;: [
     [
@@ -64,12 +55,7 @@
       0
     ]
   ]
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">c</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-77">Copy</button></div><pre class="code-block"><code id="solution-77" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">c</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-77-1">Copy</button></div><pre class="code-block"><code id="sol-77-1" class="language-json">{
   &quot;c&quot;: [
     false,
     false,
@@ -77,26 +63,9 @@
     true,
     true
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (0)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob074/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob074/</a></dd><dt>Source model</dt><dd><a href="https://www.csplib.org/Problems/prob074/models/Clique.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob074/models/Clique.py.html</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-77">Copy</button></div><pre class="code-block"><code id="model-77" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob074/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob074/</a></dd><dt>Source model</dt><dd><a href="https://www.csplib.org/Problems/prob074/models/Clique.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob074/models/Clique.py.html</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-77">Copy</button></div><pre class="code-block"><code id="model-77" class="language-python"># Import libraries
 import cpmpy as cp
 import json
 
@@ -125,51 +94,7 @@ if model.solve():
     solution = {&quot;c&quot;: c.value().tolist()}
     print(json.dumps(solution))
 else:
-    print(&quot;No solution found.&quot;)</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><p class="desc">No generated models yet.</p></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-77-1">Copy</button>Instance 1</summary><pre><code id="inst-77-1" class="language-json">{
-  &quot;n&quot;: 5,
-  &quot;adj&quot;: [
-    [
-      0,
-      1,
-      0,
-      1,
-      0
-    ],
-    [
-      1,
-      0,
-      1,
-      0,
-      0
-    ],
-    [
-      0,
-      1,
-      0,
-      1,
-      1
-    ],
-    [
-      1,
-      0,
-      1,
-      0,
-      1
-    ],
-    [
-      0,
-      0,
-      1,
-      1,
-      0
-    ]
-  ]
-}</code></pre></details></div>
-    </div>
+    print(&quot;No solution found.&quot;)</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_074_maximum_clique/csplib_074_maximum_clique.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -177,8 +102,9 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_067_quasigroup_completion.html">← prev</a><a class="btn" href="csplib_076_costas_arrays.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

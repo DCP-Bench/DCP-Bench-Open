@@ -167,7 +167,7 @@ def derive_badge(v: dict, is_opt: bool = False) -> str:
     if v["objective"] == "failed":
         return "solution_valid_not_optimal"
     if v["objective"] == "passed":
-        return "solution_valid_and_optimal"
+        return "solution_valid_and_optimal" if is_opt else "solution_valid"
     if is_opt:
         return "solution_valid_objective_unknown"
     return "solution_valid"

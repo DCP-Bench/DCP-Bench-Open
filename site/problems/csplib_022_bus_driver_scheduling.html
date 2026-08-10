@@ -11,21 +11,12 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_022_bus_driver_scheduling</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / csplib_022_bus_driver_scheduling</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_022_bus_driver_scheduling</p>
     <h1 class="problem-title">csplib_022_bus_driver_scheduling</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">This problem requires finding an optimal schedule for bus drivers. Given a set of tasks (pieces of work) to cover and a large set of possible shifts, where each shift covers a subset of the tasks, we must select a subset of shifts that covers each piece of work exactly once.  The goal is to cover all tasks while minimizing the total number of shifts used. The cost of each shift is considered equal.  Print a binary list indicating which shifts were selected (x) where 1 means the shift is selected and 0 means it is not.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">This problem requires finding an optimal schedule for bus drivers. Given a set of tasks (pieces of work) to cover and a large set of possible shifts, where each shift covers a subset of the tasks, we must select a subset of shifts that covers each piece of work exactly once.  The goal is to cover all tasks while minimizing the total number of shifts used. The cost of each shift is considered equal.  Print a binary list indicating which shifts were selected (x) where 1 means the shift is selected and 0 means it is not.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-59">Copy</button></div><pre class="code-block"><code id="example-59" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-59-1">Copy</button></div><pre class="code-block"><code id="inst-59-1" class="language-json">{
   &quot;num_work&quot;: 12,
   &quot;num_shifts&quot;: 14,
   &quot;shifts&quot;: [
@@ -98,12 +89,7 @@
       8
     ]
   ]
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">x</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-59">Copy</button></div><pre class="code-block"><code id="solution-59" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">x</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-59-1">Copy</button></div><pre class="code-block"><code id="sol-59-1" class="language-json">{
   &quot;x&quot;: [
     false,
     true,
@@ -120,26 +106,9 @@
     false,
     false
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (0)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (1)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob022/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob022/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-59">Copy</button></div><pre class="code-block"><code id="model-59" class="language-python">import cpmpy as cp
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://www.csplib.org/Problems/prob022/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob022/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-59">Copy</button></div><pre class="code-block"><code id="model-59" class="language-python">import cpmpy as cp
 import json
 
 # Model definition
@@ -165,85 +134,7 @@ model.solve()
 
 solution = {&quot;x&quot;: x.value().tolist()}
 print(json.dumps(solution))
-# End of CPMpy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><p class="desc">No generated models yet.</p></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-59-1">Copy</button>Instance 1</summary><pre><code id="inst-59-1" class="language-json">{
-  &quot;num_work&quot;: 12,
-  &quot;num_shifts&quot;: 14,
-  &quot;shifts&quot;: [
-    [
-      0,
-      1,
-      2
-    ],
-    [
-      0,
-      1,
-      2,
-      3
-    ],
-    [
-      2,
-      3,
-      4,
-      5
-    ],
-    [
-      4,
-      5
-    ],
-    [
-      6,
-      7
-    ],
-    [
-      6,
-      7,
-      8
-    ],
-    [
-      8,
-      9
-    ],
-    [
-      8,
-      9,
-      10
-    ],
-    [
-      10,
-      11
-    ],
-    [
-      0,
-      4,
-      8
-    ],
-    [
-      0,
-      5,
-      10
-    ],
-    [
-      1,
-      6,
-      11
-    ],
-    [
-      2,
-      7,
-      9
-    ],
-    [
-      3,
-      6,
-      8
-    ]
-  ]
-}</code></pre></details></div>
-    </div>
+# End of CPMpy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_022_bus_driver_scheduling/csplib_022_bus_driver_scheduling.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -251,8 +142,9 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_021_crossfigures.html">← prev</a><a class="btn" href="csplib_023_magic_hexagon.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>

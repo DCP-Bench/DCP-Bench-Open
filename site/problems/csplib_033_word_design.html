@@ -11,171 +11,152 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_033_word_design</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">Problems</a> / csplib_033_word_design</p>
+    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_033_word_design</p>
     <h1 class="problem-title">csplib_033_word_design</h1>
 
-    <div class="card-box">
-      <h3>Description</h3>
-      <pre class="description">Find a set \( S \) of `num_words` strings (words) of length `n` over the alphabet \( W = \{ A,C,G,T \} \) with the following properties:  - Each word in \( S \) has 4 symbols from \{ C,G \}; - Each pair of distinct words in \( S \) differ in at least 4 positions; and - Each pair of words \( x \) and \( y \) in \( S \) (where \( x \) and \( y \) may be identical) are such that \( x^R \) and \( y^C \) differ in at least 4 positions. For example, when n=8, \( ( x_1,\ldots,x_8 )^R = ( x_8,\ldots,x_1 ) \) is the reverse of \( ( x_1,\ldots,x_8 ) \) and \( ( y_1,\ldots,y_8 )^C \) is the Watson-Crick complement of \( ( y_1,\ldots,y_8 ) \), i.e. the word where each \( A \) is replaced by a \( T \) and vice versa and each \( C \) is replaced by a \( G \) and vice versa.  Print the set of words (words) as a list of lists of integers, where each integer represents a letter in the word: 1 for A, 2 for C, 3 for G, and 4 for T.</pre>
-    </div>
+    <div class="card-box"><h3>Description</h3><div class="md-desc">Find a set \( S \) of `num_words` strings (words) of length `n` over the alphabet \( W = \{ A,C,G,T \} \) with the following properties:  - Each word in \( S \) has 4 symbols from \{ C,G \}; - Each pair of distinct words in \( S \) differ in at least 4 positions; and - Each pair of words \( x \) and \( y \) in \( S \) (where \( x \) and \( y \) may be identical) are such that \( x^R \) and \( y^C \) differ in at least 4 positions. For example, when n=8, \( ( x_1,\ldots,x_8 )^R = ( x_8,\ldots,x_1 ) \) is the reverse of \( ( x_1,\ldots,x_8 ) \) and \( ( y_1,\ldots,y_8 )^C \) is the Watson-Crick complement of \( ( y_1,\ldots,y_8 ) \), i.e. the word where each \( A \) is replaced by a \( T \) and vice versa and each \( C \) is replaced by a \( G \) and vice versa.  Print the set of words (words) as a list of lists of integers, where each integer represents a letter in the word: 1 for A, 2 for C, 3 for G, and 4 for T.</div></div>
 
-    
-    <details class="card-box example-box">
-      <summary><h3>Example instance &amp; solution</h3></summary>
-      <div class="example-grid">
-        <div>
-          <h4>Instance data</h4>
-          <div class="code-head"><span>json</span><button type="button" data-copy="example-65">Copy</button></div><pre class="code-block"><code id="example-65" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-65-1">Copy</button></div><pre class="code-block"><code id="inst-65-1" class="language-json">{
   &quot;n&quot;: 8,
   &quot;num_words&quot;: 8
-}</code></pre>
-        </div>
-        <div>
-          <h4>Solution</h4>
-          <div class="chip-row"><span class="chip">words</span></div>
-          <div class="code-head"><span>json</span><button type="button" data-copy="solution-65">Copy</button></div><pre class="code-block"><code id="solution-65" class="language-json">{
+}</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">words</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-65-1">Copy</button></div><pre class="code-block"><code id="sol-65-1" class="language-json">{
   &quot;words&quot;: [
     [
-      1,
-      1,
+      2,
+      2,
       2,
       4,
+      4,
       1,
-      2,
-      2,
+      1,
       2
     ],
     [
-      1,
-      1,
-      3,
+      2,
       1,
       4,
-      2,
-      2,
-      3
-    ],
-    [
-      2,
-      1,
-      1,
-      2,
-      1,
+      4,
+      3,
       2,
       1,
       2
     ],
     [
+      2,
+      3,
+      1,
+      2,
+      1,
+      4,
+      4,
+      2
+    ],
+    [
+      4,
+      1,
+      2,
+      2,
+      4,
+      2,
+      2,
+      4
+    ],
+    [
+      3,
+      3,
+      2,
+      1,
+      2,
+      1,
+      1,
+      4
+    ],
+    [
+      4,
+      3,
+      1,
+      1,
+      3,
+      1,
+      3,
+      3
+    ],
+    [
+      1,
+      1,
+      2,
+      4,
+      2,
+      3,
+      4,
+      3
+    ],
+    [
+      3,
+      3,
+      4,
+      4,
+      2,
+      1,
+      4,
+      2
+    ],
+    [
+      3,
+      3,
+      1,
+      2,
+      4,
+      1,
+      1,
+      2
+    ],
+    [
       1,
       4,
       1,
+      2,
+      2,
+      4,
       3,
+      2
+    ],
+    [
       2,
+      4,
       2,
+      1,
+      2,
+      4,
       1,
       2
     ],
     [
       4,
       2,
-      2,
       1,
-      3,
-      1,
-      2,
-      1
-    ],
-    [
-      2,
-      2,
-      1,
-      2,
-      2,
-      1,
-      1,
-      1
-    ],
-    [
-      2,
-      1,
-      2,
-      1,
-      1,
-      1,
-      2,
-      3
-    ],
-    [
       4,
-      1,
       2,
-      1,
-      2,
-      2,
-      3,
-      1
-    ],
-    [
-      1,
-      1,
-      3,
-      2,
-      3,
-      1,
-      1,
-      3
-    ],
-    [
-      1,
-      2,
-      2,
-      2,
-      1,
-      2,
-      1,
-      1
-    ],
-    [
-      1,
-      3,
-      3,
-      1,
-      1,
-      1,
+      4,
       2,
       2
-    ],
-    [
-      1,
-      1,
-      2,
-      1,
-      2,
-      3,
-      1,
-      3
     ]
   ]
-}</code></pre>
-        </div>
-      </div>
-    </details>
-    
+}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-65-2">Copy</button></div><pre class="code-block"><code id="inst-65-2" class="language-json">{
+  &quot;n&quot;: 9,
+  &quot;num_words&quot;: 8
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-65-3">Copy</button></div><pre class="code-block"><code id="inst-65-3" class="language-json">{
+  &quot;n&quot;: 10,
+  &quot;num_words&quot;: 8
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 4</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-65-4">Copy</button></div><pre class="code-block"><code id="inst-65-4" class="language-json">{
+  &quot;n&quot;: 11,
+  &quot;num_words&quot;: 8
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 5</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-65-5">Copy</button></div><pre class="code-block"><code id="inst-65-5" class="language-json">{
+  &quot;n&quot;: 12,
+  &quot;num_words&quot;: 8
+}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details></details>
 
-    <div class="tab-group">
-      <div class="tab-bar">
-        <button class="tab-btn active" type="button" data-tab="original">Original</button>
-        <button class="tab-btn" type="button" data-tab="generated">Generated (10)</button>
-        <button class="tab-btn" type="button" data-tab="instances">Instances (5)</button>
-      </div>
-      <div class="tab-pane active" data-pane="original">
-        <div class="card-box provenance">
-          <h3>Metadata</h3>
-          <dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob033/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob033/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl>
-        </div>
-        
-      <h3>Original model</h3>
-      <div class="code-head"><span>python</span><button type="button" data-copy="model-65">Copy</button></div><pre class="code-block"><code id="model-65" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob033/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob033/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-65">Copy</button></div><pre class="code-block"><code id="model-65" class="language-python"># Import libraries
 import json
 from cpmpy import *
 from cpmpy.expressions.utils import all_pairs
@@ -213,820 +194,7 @@ model.solve()
 # Print
 solution = {&quot;words&quot;: words.value().tolist()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre>
-    
-      </div>
-      <div class="tab-pane" data-pane="generated"><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="cpmpy">CPMpy (7)</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc (1)</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools (2)</button></div><div class="tab-pane active" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">anonymous_submission <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: DeepSeek-V3 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (50 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-anonymous_submission">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-anonymous_submission" class="language-python"># Import libraries
-from cpmpy import *
-import json
-
-# Parameters
-n = 8  # Number of words to find
-word_length = 8  # Length of each word
-alphabet = [&#x27;A&#x27;, &#x27;C&#x27;, &#x27;G&#x27;, &#x27;T&#x27;]  # Possible symbols in words
-
-# Decision Variables
-# Represent words as integer variables (0=A, 1=C, 2=G, 3=T)
-words = intvar(0, 3, shape=(n, word_length), name=&quot;words&quot;)
-
-# Model
-model = Model()
-
-# Constraint 1: Each word has exactly 4 symbols from {C,G} (which are 1 and 2)
-for i in range(n):
-    model += sum((words[i] == 1) | (words[i] == 2)) == 4
-
-# Constraint 2: Each pair of distinct words differ in at least 4 positions
-for i in range(n):
-    for j in range(i+1, n):
-        # Count number of differing positions
-        diff = sum(words[i,k] != words[j,k] for k in range(word_length))
-        model += diff &gt;= 4
-
-# Constraint 3: For each pair x,y (including identical pairs), x^R and y^C differ in at least 4 positions
-for i in range(n):
-    for j in range(n):
-        # Compute x^R (reverse) and y^C (complement)
-        # y^C: A&lt;-&gt;T (0&lt;-&gt;3), C&lt;-&gt;G (1&lt;-&gt;2)
-        diff_count = 0
-        for k in range(word_length):
-            x_rev = words[i, word_length-1 - k]  # x^R
-            y_val = words[j,k]  # original y value
-            # Calculate complement of y
-            y_comp = (3 - y_val) if (y_val in [0,3]) else (3 - y_val)
-            diff_count += (x_rev != y_comp)
-        model += diff_count &gt;= 4
-
-# Solve
-model.solve()
-
-# Output solution as integers
-if model.solve():
-    solution = {&quot;words&quot;: words.value().tolist()}
-    print(json.dumps(solution))
-else:
-    print(json.dumps({&quot;words&quot;: []}))
-# End of CPMPy script</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/cpmpy/anonymous_submission/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/anonymous_submission/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/anonymous_submission/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">atest <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: qwen3-32B · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (43 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-atest">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-atest" class="language-python"># Import libraries
-from cpmpy import *
-import json
-
-# Parameters
-n = 8  # Number of words to find
-word_length = 8  # Length of each word
-alphabet = [&quot;A&quot;, &quot;C&quot;, &quot;G&quot;, &quot;T&quot;]  # Alphabet
-alphabet_map = {&quot;A&quot;: 0, &quot;C&quot;: 1, &quot;G&quot;: 2, &quot;T&quot;: 3}  # Map for encoding
-alphabet_size = len(alphabet)  # Size of the alphabet
-
-# Decision variables
-# Each word is a sequence of symbols from the alphabet
-words = intvar(0, alphabet_size - 1, shape=(n, word_length), name=&quot;words&quot;)
-
-# Model
-model = Model()
-
-# Constraint 1: Each word has exactly 4 symbols from {C, G}
-for i in range(n):
-    model += [sum((words[i] == 1) | (words[i] == 2)) == 4]
-
-# Constraint 2: Each pair of distinct words differ in at least 4 positions
-for i in range(n):
-    for j in range(i + 1, n):
-        model += [sum(words[i] != words[j]) &gt;= 4]
-
-# Constraint 3: For each pair of words x and y, x^R and y^C differ in at least 4 positions
-for i in range(n):
-    for j in range(n):
-        # x^R is the reverse of the i-th word
-        x_rev = words[i, ::-1]
-        # y^C is the Watson-Crick complement of the j-th word
-        y_comp = [3 if words[j, k] == 0 else 0 if words[j, k] == 3 else words[j, k] for k in range(word_length)]
-        y_comp = cpm_array(y_comp)
-        model += [sum(x_rev != y_comp) &gt;= 4]
-
-# Solve the model
-model.solve()
-
-# Print the solution
-solution = {&quot;words&quot;: words.value().tolist()}
-print(json.dumps(solution))
-# End of CPMPy script</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/cpmpy/atest/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/atest/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/atest/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_gpt_5_min <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (41 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-documentation_prompt_gpt_5_min">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-documentation_prompt_gpt_5_min" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n = 8  # Number of words to find
-L = 8  # length of each word
-# Alphabet encoding: 1=A, 2=C, 3=G, 4=T
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables: n words of length L, values in 1..4
-words = cp.intvar(1, 4, shape=(n, L), name=&quot;words&quot;)
-
-# Constraints
-
-# 1) Each word has exactly 4 symbols from {C,G} i.e. values 2 or 3
-for i in range(n):
-    model += cp.sum([ (words[i, k] == 2) | (words[i, k] == 3) for k in range(L) ]) == 4
-
-# 2) Each pair of distinct words differ in at least 4 positions (Hamming distance &gt;= 4)
-for i in range(n):
-    for j in range(i+1, n):
-        model += cp.sum([ words[i, k] != words[j, k] for k in range(L) ]) &gt;= 4
-
-# 3) For each pair x (i) and y (j) (including i == j), x^R and y^C differ in at least 4 positions.
-# reverse of x: words[i, L-1-k]; complement of y: 5 - words[j, k]
-for i in range(n):
-    for j in range(n):
-        model += cp.sum([ words[i, L-1-k] != (5 - words[j, k]) for k in range(L) ]) &gt;= 4
-
-# Symmetry breaking: order the words lexicographically non-decreasing to reduce search space
-model += cp.LexChainLessEq([words[i] for i in range(n)])
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;words&#x27;: words.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/cpmpy/documentation_prompt_gpt_5_min/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_gpt_5_min/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_gpt_5_min/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (56 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-sampling_10_and_self_debug_10">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-sampling_10_and_self_debug_10" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n = 8  # Number of words to find
-length = 8
-alphabet = [&#x27;A&#x27;, &#x27;C&#x27;, &#x27;G&#x27;, &#x27;T&#x27;]
-# Map letters to integers for modeling: A=0, C=1, G=2, T=3
-char_map = {&#x27;A&#x27;:0, &#x27;C&#x27;:1, &#x27;G&#x27;:2, &#x27;T&#x27;:3}
-rev_char_map = {v:k for k,v in char_map.items()}
-
-# Complement map for Watson-Crick complement:
-# A &lt;-&gt; T, C &lt;-&gt; G
-# Using integers: 0&lt;-&gt;3, 1&lt;-&gt;2
-complement = [3, 2, 1, 0]
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# words: n words of length 8, values in [0..3]
-words = cp.intvar(0, 3, shape=(n, length), name=&quot;words&quot;)
-
-# Constraints
-
-# 1) Each word has exactly 4 symbols from {C,G} i.e. values 1 or 2
-for i in range(n):
-    model += (cp.Count(words[i], 1) + cp.Count(words[i], 2) == 4)
-
-# 2) Each pair of distinct words differ in at least 4 positions (Hamming distance &gt;=4)
-for i in range(n):
-    for j in range(i+1, n):
-        diff_positions = [words[i,k] != words[j,k] for k in range(length)]
-        model += (cp.sum(diff_positions) &gt;= 4)
-
-# Complement variables for words
-comp_words = cp.intvar(0,3, shape=(n,length), name=&quot;comp_words&quot;)
-for j in range(n):
-    for k in range(length):
-        model += cp.Element(complement, words[j,k]) == comp_words[j,k]
-
-# 3) For each pair x,y (including x=y), x^R and y^C differ in at least 4 positions
-for i in range(n):
-    for j in range(n):
-        diffs = []
-        for k in range(length):
-            diffs.append(words[i,length-1-k] != comp_words[j,k])
-        model += (cp.sum(diffs) &gt;= 4)
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;words&#x27;: words.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/cpmpy/sampling_10_and_self_debug_10/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">sampling_10_and_self_debug_10_ <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (42 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-sampling_10_and_self_debug_10_">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-sampling_10_and_self_debug_10_" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n = 8  # Number of words to find
-L = 8  # length of each word
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# words[i][p] in {1(A),2(C),3(G),4(T)}
-words = cp.intvar(1, 4, shape=(n, L), name=&quot;words&quot;)
-
-# Constraints
-
-# 1) Each word has exactly 4 symbols from {C=2, G=3}
-for i in range(n):
-    model += cp.Among([words[i, p] for p in range(L)], [2, 3]) == 4
-
-# 2) Pairwise Hamming distance between distinct words &gt;= 4
-for i in range(n):
-    for j in range(i + 1, n):
-        model += cp.sum([words[i, p] != words[j, p] for p in range(L)]) &gt;= 4
-
-# 3) For any pair x (i) and y (j) (including i==j), x^R and y^C differ in at least 4 positions.
-# Complement mapping: c(v) = 5 - v  (1&lt;-&gt;4, 2&lt;-&gt;3)
-for i in range(n):
-    for j in range(n):
-        model += cp.sum([words[i, L - 1 - p] != (5 - words[j, p]) for p in range(L)]) &gt;= 4
-
-# Symmetry breaking: enforce lexicographic non-decreasing order of rows
-model += cp.LexChainLessEq([words[i] for i in range(n)])
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;words&#x27;: words.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/cpmpy/sampling_10_and_self_debug_10_/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/sampling_10_and_self_debug_10_/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/sampling_10_and_self_debug_10_/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5 <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (48 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-self_debug_gpt_5">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-self_debug_gpt_5" class="language-python">
-import cpmpy as cp
-import json
-
-# Data (optional)
-n = 8  # Number of words to find
-L = 8  # Length of each word
-# End of data
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables
-# words[i][k] in {1:A, 2:C, 3:G, 4:T}
-words = cp.intvar(1, 4, shape=(n, L), name=&quot;words&quot;)
-
-# Constraints
-
-# 1) Each word has exactly 4 symbols from {C,G} i.e., values {2,3}
-for i in range(n):
-    model += (cp.Among([words[i, k] for k in range(L)], [2, 3]) == 4)
-
-# 2) Each pair of distinct words differ in at least 4 positions (Hamming distance &gt;= 4)
-for i in range(n):
-    for j in range(i + 1, n):
-        model += (cp.sum([words[i, k] != words[j, k] for k in range(L)]) &gt;= 4)
-
-# 3) For all pairs (x, y), reverse(x) and complement(y) differ in at least 4 positions
-# complement mapping: 1&lt;-&gt;4 (A&lt;-&gt;T), 2&lt;-&gt;3 (C&lt;-&gt;G) =&gt; comp(v) = 5 - v
-for i in range(n):
-    for j in range(n):
-        model += (cp.sum([words[i, L - 1 - k] != (5 - words[j, k]) for k in range(L)]) &gt;= 4)
-
-# Symmetry breaking to help the solver
-# - Enforce strict lexicographic ordering of the words
-model += cp.LexChainLess(words)
-# - Fix the first symbol of the first word to &#x27;A&#x27; to break global symmetries
-model += (words[0, 0] == 1)
-
-# Objective (optional)
-# No objective; we only need a feasible set of n words
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;words&#x27;: words.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/cpmpy/self_debug_gpt_5/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">self_debug_gpt_5_mini <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-5-mini-2025-08-07 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (41 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-self_debug_gpt_5_mini">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-self_debug_gpt_5_mini" class="language-python">
-import cpmpy as cp
-import json
-
-# Data
-n = 8  # Number of words to find
-L = 8  # length of each word
-# Alphabet encoding: 1=A, 2=C, 3=G, 4=T
-
-# Model definition
-model = cp.Model()
-
-# Decision Variables: n words of length L, values in 1..4
-words = cp.intvar(1, 4, shape=(n, L), name=&quot;words&quot;)
-
-# Constraints
-
-# 1) Each word has exactly 4 symbols from {C,G} i.e. values 2 or 3
-for i in range(n):
-    model += cp.sum([ (words[i, k] == 2) | (words[i, k] == 3) for k in range(L) ]) == 4
-
-# 2) Each pair of distinct words differ in at least 4 positions (Hamming distance &gt;= 4)
-for i in range(n):
-    for j in range(i+1, n):
-        model += cp.sum([ words[i, k] != words[j, k] for k in range(L) ]) &gt;= 4
-
-# 3) For each pair x (i) and y (j) (including i == j), x^R and y^C differ in at least 4 positions.
-# reverse of x: words[i, L-1-k]; complement of y: 5 - words[j, k]
-for i in range(n):
-    for j in range(n):
-        model += cp.sum([ words[i, L-1-k] != (5 - words[j, k]) for k in range(L) ]) &gt;= 4
-
-# Symmetry breaking: order the words lexicographically non-decreasing to reduce search space
-model += cp.LexChainLessEq([words[i] for i in range(n)])
-
-# Solve and print
-if model.solve():
-    solution = {&#x27;words&#x27;: words.value().tolist()}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)
-</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/cpmpy/self_debug_gpt_5_mini/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/self_debug_gpt_5_mini/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/self_debug_gpt_5_mini/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="minizinc">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.mzn (69 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_033_word_design-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
-
-% Problem parameters
-int: n = 8; % Number of words to find
-int: len = 8; % Length of each word
-set of int: POS = 1..len;
-
-% Alphabet encoding: A=1, C=2, G=3, T=4
-% Complement mapping: A&lt;-&gt;T, C&lt;-&gt;G
-array[1..4] of int: complement = [4, 3, 2, 1];
-
-% Decision variables: words[w,p] in 1..4 representing the letter at position p of word w
-array[1..n, POS] of var 1..4: words;
-
-% Constraint 1: Each word has exactly 4 symbols from {C=2, G=3}
-constraint
-  forall(w in 1..n) (
-    sum(p in POS)(bool2int(words[w,p] == 2 \/ words[w,p] == 3)) == 4
-  );
-
-% Helper function: Hamming distance between two words
-function var int: hamming_distance(array[int] of var int: x, array[int] of var int: y) =
-  sum(i in index_set(x)) (bool2int(x[i] != y[i]));
-
-% Compute reverse of a word
-function array[int] of var int: reverse_word(array[int] of var int: x) =
-  [ x[len - i + 1] | i in 1..len ];
-
-% Compute complement of a word
-function array[int] of var int: complement_word(array[int] of var int: x) =
-  [ complement[x[i]] | i in 1..len ];
-
-% Constraint 2: Each pair of distinct words differ in at least 4 positions
-constraint
-  forall(i,j in 1..n where i &lt; j) (
-    hamming_distance(words[i,], words[j,]) &gt;= 4
-  );
-
-% Constraint 3: For each pair of words x,y (including x=y),
-% the reverse of x and complement of y differ in at least 4 positions
-constraint
-  forall(i,j in 1..n) (
-    let {
-      array[int] of var int: rev_x = reverse_word(words[i,]),
-      array[int] of var int: comp_y = complement_word(words[j,])
-    } in
-      hamming_distance(rev_x, comp_y) &gt;= 4
-  );
-
-solve satisfy;
-
-% Convert integer letter to char
-function string: letter_to_char(int: l) =
-  if l == 1 then &quot;A&quot;
-  elseif l == 2 then &quot;C&quot;
-  elseif l == 3 then &quot;G&quot;
-  else &quot;T&quot;
-  endif;
-
-% Output the set of words as list of strings
-output [
-  &quot;{\n&quot;,
-  &quot;  \&quot;words\&quot;: [&quot;,
-  join(&quot;,\n&quot;, [
-    &quot;\&quot;&quot; ++ concat([letter_to_char(fix(words[w,p])) | p in POS]) ++ &quot;\&quot;&quot;
-    | w in 1..n
-  ]),
-  &quot;]\n&quot;,
-  &quot;}&quot;
-];</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="or-tools">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (152 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
-import json
-
-# Input data
-n = 8  # Number of words to find
-length = 8
-alphabet = [&#x27;A&#x27;, &#x27;C&#x27;, &#x27;G&#x27;, &#x27;T&#x27;]
-# Map letters to integers for easier handling
-letter_to_int = {&#x27;A&#x27;: 0, &#x27;C&#x27;: 1, &#x27;G&#x27;: 2, &#x27;T&#x27;: 3}
-int_to_letter = {v: k for k, v in letter_to_int.items()}
-
-# Complement mapping: A&lt;-&gt;T, C&lt;-&gt;G
-complement_map = {0: 3, 1: 2, 2: 1, 3: 0}
-
-model = cp_model.CpModel()
-
-# Decision variables: words[i][j] in {0,1,2,3} representing letters
-words = []
-for i in range(n):
-    word = [model.NewIntVar(0, 3, f&#x27;word_{i}_{j}&#x27;) for j in range(length)]
-    words.append(word)
-
-# Constraint 1: Each word has exactly 4 symbols from {C,G} (i.e. letters 1 or 2)
-for i in range(n):
-    # Create boolean variables indicating if position j is C or G
-    cg_bools = []
-    for j in range(length):
-        is_cg = model.NewBoolVar(f&#x27;is_cg_{i}_{j}&#x27;)
-        # is_cg == 1 if words[i][j] in {1,2}
-        model.Add(words[i][j] == 1).OnlyEnforceIf(is_cg)
-        model.Add(words[i][j] != 1).OnlyEnforceIf(is_cg.Not())
-        is_g = model.NewBoolVar(f&#x27;is_g_{i}_{j}&#x27;)
-        model.Add(words[i][j] == 2).OnlyEnforceIf(is_g)
-        model.Add(words[i][j] != 2).OnlyEnforceIf(is_g.Not())
-        # is_cg = is_c or is_g
-        model.AddBoolOr([is_cg, is_g]).OnlyEnforceIf(is_cg)
-        model.AddBoolAnd([is_cg.Not(), is_g.Not()]).OnlyEnforceIf(is_cg.Not())
-        # Actually, we can just say is_cg = is_c or is_g
-        # But to simplify, we can just define is_cg as (words[i][j] in {1,2})
-        # So we can define is_cg as a bool var and add:
-        # is_cg == (words[i][j] == 1 or words[i][j] == 2)
-        # We can do this by:
-        # is_cg == max(is_c, is_g)
-        # But OR-Tools does not have max for bools, so we do:
-        # is_cg &gt;= is_c, is_cg &gt;= is_g, is_cg &lt;= is_c + is_g
-        # Let&#x27;s do that:
-        # But we already defined is_cg as words[i][j]==1, so let&#x27;s redefine:
-        # Let&#x27;s remove previous and do simpler:
-    # Let&#x27;s redo this constraint more simply:
-    # We create two bools: is_c and is_g, then is_cg = is_c or is_g
-    # Then sum is_cg == 4
-    # Let&#x27;s do it cleanly:
-    # Remove previous and do:
-    pass
-
-# Re-implement constraint 1 cleanly:
-for i in range(n):
-    is_cg = []
-    for j in range(length):
-        b = model.NewBoolVar(f&#x27;is_cg_{i}_{j}&#x27;)
-        # b == 1 if words[i][j] in {1,2}
-        model.Add(words[i][j] == 1).OnlyEnforceIf(b)
-        model.Add(words[i][j] != 1).OnlyEnforceIf(b.Not())
-        b2 = model.NewBoolVar(f&#x27;is_g_{i}_{j}&#x27;)
-        model.Add(words[i][j] == 2).OnlyEnforceIf(b2)
-        model.Add(words[i][j] != 2).OnlyEnforceIf(b2.Not())
-        # b == b or b2
-        # So b == max(b, b2)
-        # We enforce b &gt;= b2 and b &lt;= b + b2
-        model.AddBoolOr([b, b2]).OnlyEnforceIf(b)
-        model.AddBoolAnd([b.Not(), b2.Not()]).OnlyEnforceIf(b.Not())
-        # Actually, the above is redundant, we want b == (b or b2)
-        # So we can do:
-        # b &gt;= b2
-        model.AddImplication(b2, b)
-        # b &lt;= b + b2 is always true
-        # Also b &gt;= b (trivial)
-        # To ensure b == b or b2, we add:
-        model.AddBoolOr([b, b2]).OnlyEnforceIf(b)
-        model.AddBoolAnd([b.Not(), b2.Not()]).OnlyEnforceIf(b.Not())
-        # But this is complicated, simpler is:
-        # b == 1 if words[i][j] in {1,2}
-        # So we can do:
-        # b == 1 if words[i][j] == 1 or words[i][j] == 2
-        # So b == (words[i][j] == 1) or (words[i][j] == 2)
-        # We can do:
-        # b == b_cg
-        # So let&#x27;s just define b as a bool var and add:
-        # b == (words[i][j] == 1 or words[i][j] == 2)
-        # This can be done by:
-        # b == b_c or b_g
-        # So we create b_c and b_g:
-        b_c = model.NewBoolVar(f&#x27;is_c_{i}_{j}&#x27;)
-        b_g = model.NewBoolVar(f&#x27;is_g_{i}_{j}&#x27;)
-        model.Add(words[i][j] == 1).OnlyEnforceIf(b_c)
-        model.Add(words[i][j] != 1).OnlyEnforceIf(b_c.Not())
-        model.Add(words[i][j] == 2).OnlyEnforceIf(b_g)
-        model.Add(words[i][j] != 2).OnlyEnforceIf(b_g.Not())
-        model.AddBoolOr([b_c, b_g]).OnlyEnforceIf(b)
-        model.AddBoolAnd([b_c.Not(), b_g.Not()]).OnlyEnforceIf(b.Not())
-        is_cg.append(b)
-    model.Add(sum(is_cg) == 4)
-
-# Constraint 2: Each pair of distinct words differ in at least 4 positions
-for i in range(n):
-    for j in range(i + 1, n):
-        diffs = []
-        for k in range(length):
-            diff = model.NewBoolVar(f&#x27;diff_{i}_{j}_{k}&#x27;)
-            model.Add(words[i][k] != words[j][k]).OnlyEnforceIf(diff)
-            model.Add(words[i][k] == words[j][k]).OnlyEnforceIf(diff.Not())
-            diffs.append(diff)
-        model.Add(sum(diffs) &gt;= 4)
-
-# Constraint 3: For each pair x,y (including x=y), x^R and y^C differ in at least 4 positions
-# x^R is reverse of x
-# y^C is complement of y
-for i in range(n):
-    for j in range(n):
-        diffs_rc = []
-        for k in range(length):
-            # x^R[k] = words[i][length-1-k]
-            # y^C[k] = complement(words[j][k])
-            diff = model.NewBoolVar(f&#x27;diff_rc_{i}_{j}_{k}&#x27;)
-            # We need to check if words[i][length-1-k] != complement(words[j][k])
-            # Since complement is a function, we create an intermediate variable for complement
-            yj_k = words[j][k]
-            comp_yj_k = model.NewIntVar(0, 3, f&#x27;comp_{j}_{k}&#x27;)
-            # comp_yj_k == complement_map[yj_k]
-            # We use AddElement to model complement
-            model.AddElement(yj_k, [complement_map[0], complement_map[1], complement_map[2], complement_map[3]], comp_yj_k)
-            model.Add(words[i][length - 1 - k] != comp_yj_k).OnlyEnforceIf(diff)
-            model.Add(words[i][length - 1 - k] == comp_yj_k).OnlyEnforceIf(diff.Not())
-            diffs_rc.append(diff)
-        model.Add(sum(diffs_rc) &gt;= 4)
-
-# Objective: maximize the number of words found
-# But n is fixed input, so just find feasible solution with n words
-
-solver = cp_model.CpSolver()
-solver.parameters.max_time_in_seconds = 60.0  # Limit time to 60 seconds
-
-status = solver.Solve(model)
-
-if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-    solution_words = []
-    for i in range(n):
-        w = &#x27;&#x27;.join(int_to_letter[solver.Value(words[i][j])] for j in range(length))
-        solution_words.append(w)
-    solution = {&#x27;words&#x27;: solution_words}
-    print(json.dumps(solution, indent=4))
-else:
-    print(&quot;No solution found.&quot;)</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/ortools/documentation_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">multi_agents_requirements_gath <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: o3 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#6b7280" title="No verdict available (execution failed, model skipped, or evaluation incomplete)">status unknown</span></div>
-      </div>
-      <p class="desc" style="color:#b91c1c;margin:6px 0">ground-truth model not found in dataset, evaluation skipped</p>
-      <details class="gmodel"><summary>model.py (111 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-csplib_033_word_design-multi_agents_requirements_gath">Copy</button></div><pre class="code-block"><code id="gmod-csplib_033_word_design-multi_agents_requirements_gath" class="language-python">&quot;&quot;&quot; 
-Feasibility model for constructing a set S of n=8 DNA words that satisfy
- all distance / GC–content requirements stated in the problem description.
-
-The model uses Google OR-Tools CP-SAT.  Each character is represented by an
- IntVar in domain {0:A, 1:C, 2:G, 3:T}.  Auxiliary variables implement
- complement, GC-indicator, and pairwise distance reification.
-The solver is asked for the first feasible solution and prints it as JSON.
-&quot;&quot;&quot;
-
-from ortools.sat.python import cp_model
-import json
-
-# ---------------------------------------------------------------------------
-# Input data (immutable as required)
-# ---------------------------------------------------------------------------
-n = 8  # Number of words to find (|S|)
-L = 8  # Length of each word
-ALPHABET = [&#x27;A&#x27;, &#x27;C&#x27;, &#x27;G&#x27;, &#x27;T&#x27;]  # index -&gt; letter
-
-# ---------------------------------------------------------------------------
-# CP-SAT model
-# ---------------------------------------------------------------------------
-model = cp_model.CpModel()
-
-# 1. Decision variables : word characters ------------------------------------------------
-char = [[model.NewIntVar(0, 3, f&quot;w{j}_p{k}&quot;) for k in range(L)]
-        for j in range(n)]  # 0:A, 1:C, 2:G, 3:T
-
-# 2. Watson–Crick complement variables ---------------------------------------------------
-comp = [[model.NewIntVar(0, 3, f&quot;c{j}_p{k}&quot;) for k in range(L)]
-        for j in range(n)]
-allowed_comp = [(0, 3),  # A -&gt; T
-                (1, 2),  # C -&gt; G
-                (2, 1),  # G -&gt; C
-                (3, 0)]  # T -&gt; A
-for j in range(n):
-    for k in range(L):
-        model.AddAllowedAssignments([char[j][k], comp[j][k]], allowed_comp)
-
-# 3. GC-content (exactly 4 of the 8 positions must be C or G) -----------------------------
-allowed_cg = [(0, 0),  # A  -&gt; not CG
-              (1, 1),  # C  -&gt; CG
-              (2, 1),  # G  -&gt; CG
-              (3, 0)]  # T  -&gt; not CG
-for j in range(n):
-    cg_flags = []
-    for k in range(L):
-        cg = model.NewBoolVar(f&quot;isCG_{j}_{k}&quot;)
-        model.AddAllowedAssignments([char[j][k], cg], allowed_cg)
-        cg_flags.append(cg)
-    model.Add(sum(cg_flags) == 4)
-
-# 4. Pairwise Hamming distance between distinct words &gt;= 4 -------------------------------
-for i in range(n):
-    for j2 in range(i + 1, n):
-        diffs = []
-        for k in range(L):
-            d = model.NewBoolVar(f&quot;diff_{i}_{j2}_{k}&quot;)
-            model.Add(char[i][k] == char[j2][k]).OnlyEnforceIf(d.Not())
-            model.Add(char[i][k] != char[j2][k]).OnlyEnforceIf(d)
-            diffs.append(d)
-        model.Add(sum(diffs) &gt;= 4)
-
-# 5. Distance between reverse of any word and complement of any (inc. itself) &gt;= 4 -------
-for i in range(n):
-    for j2 in range(n):  # note: j2 may equal i
-        rc_diffs = []
-        for k in range(L):
-            # k-th symbol of reverse(word_i)
-            rev_char = char[i][L - 1 - k]
-            comp_char = comp[j2][k]
-            d = model.NewBoolVar(f&quot;rcdiff_{i}_{j2}_{k}&quot;)
-            model.Add(rev_char == comp_char).OnlyEnforceIf(d.Not())
-            model.Add(rev_char != comp_char).OnlyEnforceIf(d)
-            rc_diffs.append(d)
-        model.Add(sum(rc_diffs) &gt;= 4)
-
-# 6. Mild symmetry breaking (lexicographic order of words) -------------------------------
-weights = [4 ** (L - 1 - k) for k in range(L)]  # high-order weight first char
-codes = []
-for j in range(n):
-    code = model.NewIntVar(0, 4 ** L - 1, f&quot;code_{j}&quot;)
-    model.Add(code == sum(char[j][k] * weights[k] for k in range(L)))
-    codes.append(code)
-for j in range(n - 1):
-    model.Add(codes[j] &lt; codes[j + 1])
-
-# Also fix first letter of first word to &#x27;A&#x27; to break some symmetry
-model.Add(char[0][0] == 0)
-
-# ---------------------------------------------------------------------------
-# Solve
-# ---------------------------------------------------------------------------
-solver = cp_model.CpSolver()
-solver.parameters.max_time_in_seconds = 30.0  # safety (can be removed)
-status = solver.Solve(model)
-
-if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-    raise RuntimeError(&quot;No solution found.&quot;)
-
-# ---------------------------------------------------------------------------
-# Extract solution
-# ---------------------------------------------------------------------------
-words = []
-for j in range(n):
-    word = &#x27;&#x27;.join(ALPHABET[solver.Value(char[j][k])] for k in range(L))
-    words.append(word)
-
-# ---------------------------------------------------------------------------
-# Output as JSON -------------------------------------------------------------------------
-print(json.dumps({&quot;words&quot;: words}))</code></pre></details>
-      
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_033_word_design/ortools/multi_agents_requirements_gath/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/multi_agents_requirements_gath/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/multi_agents_requirements_gath/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
-      <div class="tab-pane" data-pane="instances"><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-65-1">Copy</button>Instance 1</summary><pre><code id="inst-65-1" class="language-json">{
-  &quot;n&quot;: 8,
-  &quot;num_words&quot;: 8
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-65-2">Copy</button>Instance 2</summary><pre><code id="inst-65-2" class="language-json">{
-  &quot;n&quot;: 9,
-  &quot;num_words&quot;: 8
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-65-3">Copy</button>Instance 3</summary><pre><code id="inst-65-3" class="language-json">{
-  &quot;n&quot;: 10,
-  &quot;num_words&quot;: 8
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-65-4">Copy</button>Instance 4</summary><pre><code id="inst-65-4" class="language-json">{
-  &quot;n&quot;: 11,
-  &quot;num_words&quot;: 8
-}</code></pre></details><details class="instance"><summary><button class="copy-mini" type="button" data-copy="inst-65-5">Copy</button>Instance 5</summary><pre><code id="inst-65-5" class="language-json">{
-  &quot;n&quot;: 12,
-  &quot;num_words&quot;: 8
-}</code></pre></details></div>
-    </div>
+# End of CPMPy script</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_033_word_design/csplib_033_word_design.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -1034,8 +202,9 @@ print(json.dumps({&quot;words&quot;: words}))</code></pre></details>
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_032_max_density_still_life.html">← prev</a><a class="btn" href="csplib_034_warehouse_location.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>66fdf22</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>93215a3</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
 <script src="../app.js"></script>
 </body>
