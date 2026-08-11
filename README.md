@@ -10,6 +10,8 @@ This benchmark has two primary goals:
 1.  **To provide a centralized repository** of discrete combinatorial optimisation and satisfaction problems, including clear natural language descriptions, corresponding data instances and ground-truth constraint models. You are more than welcome to contribute new problems and/or problem instances for existing problems (please see the [Contributing Guide](CONTRIBUTING.md) for more details).
 2.  **To serve as an evaluation framework** for evaluating generative AI systems (e.g. LLMs) in their ability to generate executable constraint models from natural language descriptions.
 
+For the proposed evolution into a multi-framework problem and model registry, see the [registry architecture and implementation roadmap](docs/ARCHITECTURE_ROADMAP.md).
+
 In the repository, the ground-truth models are (currently) using the CPMpy library. The evaluation framework can (currently) evaluate generated models in CPMpy, MiniZinc or Or-Tools CP-SAT and more can be added with limited effort.
 
 This benchmark is an open source project that welcomes additional problems, data instances and evaluation tooling from interested developers. For reproducibility, always use a specific 'Release' in your research (see below). This project started as an extension of the original [CP-Bench](https://huggingface.co/datasets/kostis-init/CP-Bench) published at ECAI 2025.
