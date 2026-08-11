@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">circular_table_averbach_1_2</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">circular_table_averbach_1_2</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / circular_table_averbach_1_2</p>
     <h1 class="problem-title">circular_table_averbach_1_2</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Three players (X, Y, Z) of different nationalities (American, English, French) are seated around a circular table playing a game of Hearts. Each passed three cards to the person on their right. Y passed three hearts to the American, X passed the queen of spades and two diamonds to the person who passed their cards to the Frenchwoman. Determine the nationality of each person.  Print the values of X, Y, Z, American, English, French (x, y, z, american, english, french), such that the same value denotes the matching between the person and their nationality. Use 0, 1 or 2. Also, assume that 1 is right of 0, and 2 is right of 1 and so on.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-31-0">Copy</button></div><pre class="code-block"><code id="sol-31-0" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-31-0">Copy</button></div><pre class="code-block"><code id="sol-31-0" class="language-json">{
   &quot;x&quot;: 1,
   &quot;y&quot;: 0,
   &quot;z&quot;: 2,
@@ -25,7 +25,21 @@
   &quot;french&quot;: 0
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/averbach_1_2.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/averbach_1_2.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-31">Copy</button></div><pre class="code-block"><code id="model-31" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/averbach_1_2.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/averbach_1_2.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-31">Copy</button></div><pre class="code-block"><code id="model-31" class="language-python">#!/usr/bin/python3
+# Category: hakan_examples
+# Source: http://www.hakank.org/cpmpy/averbach_1_2.py
+
+&quot;&quot;&quot;Three players (X, Y, Z) of different nationalities (American, English, French) are seated around a circular
+table playing a game of Hearts. Each passed three cards to the person on their right. Y passed three hearts to the
+American, X passed the queen of spades and two diamonds to the person who passed their cards to the Frenchwoman.
+Determine the nationality of each person.
+
+Print the values of X, Y, Z, American, English, French (x, y, z, american, english, french), such that the
+same value denotes the matching between the person and their nationality. Use 0, 1 or 2.
+Also, assume that 1 is right of 0, and 2 is right of 1 and so on.
+&quot;&quot;&quot;
+
+# Import libraries
 from cpmpy import *
 import json
 
@@ -61,7 +75,8 @@ model.solve()
 solution = {&quot;x&quot;: x.value(), &quot;y&quot;: y.value(), &quot;z&quot;: z.value(), &quot;american&quot;: american.value(), &quot;english&quot;: english.value(),
             &quot;french&quot;: french.value()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/circular_table_averbach_1_2/circular_table_averbach_1_2.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -69,7 +84,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="circling_squares.html">← prev</a><a class="btn" href="clock_triplets.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

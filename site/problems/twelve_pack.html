@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">twelve_pack</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">twelve_pack</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / twelve_pack</p>
     <h1 class="problem-title">twelve_pack</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Given a target number of items, find the closest combination of packs of different sizes that meets or exceeds the target.  Print the counts of each pack size used (counts) as a list of integers.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-160-1">Copy</button></div><pre class="code-block"><code id="inst-160-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-160-1">Copy</button></div><pre class="code-block"><code id="inst-160-1" class="language-json">{
   &quot;target&quot;: 94,
   &quot;packs&quot;: [
     7,
@@ -29,7 +29,22 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/12_pack_problem.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/12_pack_problem.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-160">Copy</button></div><pre class="code-block"><code id="model-160" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/12_pack_problem.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/12_pack_problem.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-160">Copy</button></div><pre class="code-block"><code id="model-160" class="language-python">#!/usr/bin/python3
+# Category: hakan_examples
+# Source: http://www.hakank.org/cpmpy/12_pack_problem.py
+
+&quot;&quot;&quot;
+Given a target number of items, find the closest combination of packs of different sizes that meets or exceeds the target.
+
+Print the counts of each pack size used (counts) as a list of integers.
+&quot;&quot;&quot;
+
+# Data
+target = 94  # Target number of items
+packs = [7, 13]  # Pack sizes
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 import builtins
@@ -57,17 +72,7 @@ model.solve()
 # Print the solution
 solution = {&quot;counts&quot;: counts.value().tolist()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div><div class="tab-pane" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
-      </div>
-      
-      <details class="gmodel"><summary>model.py (63 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-twelve_pack-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-twelve_pack-cpagent" class="language-python">import cpmpy as cp
+# End of CPMPy script</code></pre></div><div class="tab-pane" data-pane="cpmpy"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>cpagent</dd><dt>Base LLM</dt><dd>Claude 4 Sonnet</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/twelve_pack/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="gmod-twelve_pack-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-twelve_pack-cpagent" class="language-python">import cpmpy as cp
 import numpy as np
 import json
 
@@ -130,26 +135,7 @@ if model.solve():
     # Step 4: Output
     print(json.dumps(solution))
 else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-twelve_pack-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-twelve_pack-cpagent" class="language-json">{
-  &quot;counts&quot;: [
-    1,
-    1
-  ]
-}</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/twelve_pack/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="minizinc">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_mnz <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
-      </div>
-      
-      <details class="gmodel"><summary>model.mzn (23 lines)</summary><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-twelve_pack-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-twelve_pack-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></div><div class="tab-pane" data-pane="minizinc"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>documentation_prompt_mnz</dd><dt>Base LLM</dt><dd>gpt-4.1-mini</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/twelve_pack/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-twelve_pack-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-twelve_pack-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
 
 % Input data
 int: target = 20;
@@ -172,26 +158,7 @@ output [
     &quot;{&quot;,
     &quot;\&quot;counts\&quot;: [&quot;, show(count_7), &quot;, &quot;, show(count_13), &quot;]&quot;,
     &quot;}&quot;
-];</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-twelve_pack-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gsol-twelve_pack-documentation_prompt_mnz" class="language-json">{
-  &quot;counts&quot;: [
-    1,
-    1
-  ]
-}</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/twelve_pack/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="or-tools">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">documentation_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: gpt-4.1-mini · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></div>
-      </div>
-      
-      <details class="gmodel"><summary>model.py (39 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-twelve_pack-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-twelve_pack-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
+];</code></pre></div><div class="tab-pane" data-pane="or-tools"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>documentation_prompt_ort</dd><dt>Base LLM</dt><dd>gpt-4.1-mini</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/twelve_pack/ortools/documentation_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="gmod-twelve_pack-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-twelve_pack-documentation_prompt_ort" class="language-python">from ortools.sat.python import cp_model
 import json
 
 # Input data
@@ -230,16 +197,7 @@ if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
     }
     print(json.dumps(solution, indent=4))
 else:
-    print(&quot;No solution found.&quot;)</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-twelve_pack-documentation_prompt_ort">Copy</button></div><pre class="code-block"><code id="gsol-twelve_pack-documentation_prompt_ort" class="language-json">{
-  &quot;counts&quot;: [
-    1,
-    1
-  ]
-}</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/twelve_pack/ortools/documentation_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
+    print(&quot;No solution found.&quot;)</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/twelve_pack/twelve_pack.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -247,7 +205,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="tsp.html">← prev</a><a class="btn" href="who_killed_agatha.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

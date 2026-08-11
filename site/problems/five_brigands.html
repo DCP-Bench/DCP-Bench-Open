@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">five_brigands</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">five_brigands</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / five_brigands</p>
     <h1 class="problem-title">five_brigands</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">The five Spanish brigands, Alfonso, Benito, Carlos, Diego, and Esteban, were counting their spoils after a raid, when it was found that they had captured altogether exactly 200 doubloons. One of the band pointed out that if Alfonso had twelve times as much, Benito three times as much, Carlos the same amount, Diego half as much, and Esteban one- third as much, they would still have altogether just 200 doubloons. How many doubloons had each? Also, no brigand had less than one doubloon.  Print the number of doubloons that each brigand may have according to the above information (A, B, C, D, E).</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-97-0">Copy</button></div><pre class="code-block"><code id="sol-97-0" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-97-0">Copy</button></div><pre class="code-block"><code id="sol-97-0" class="language-json">{
   &quot;A&quot;: 8,
   &quot;B&quot;: 3,
   &quot;C&quot;: 2,
@@ -24,7 +24,24 @@
   &quot;E&quot;: 3
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/five_brigands.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/five_brigands.py</a></dd><dt>Source description</dt><dd>From <a href="http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/index.html," target="_blank" rel="noopener">http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/index.html,</a> The Five Brigands from &#x27;Amusements in Mathematics, Dudeney&#x27;, number 133.</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-97">Copy</button></div><pre class="code-block"><code id="model-97" class="language-python">from cpmpy import *
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/five_brigands.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/five_brigands.py</a></dd><dt>Source description</dt><dd>From <a href="http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/index.html," target="_blank" rel="noopener">http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/index.html,</a> The Five Brigands from &#x27;Amusements in Mathematics, Dudeney&#x27;, number 133.</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-97">Copy</button></div><pre class="code-block"><code id="model-97" class="language-python">#!/usr/bin/python3
+# Category: hakan_examples
+# Source: http://www.hakank.org/cpmpy/five_brigands.py
+# Source description: From http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/index.html, The Five Brigands from &#x27;Amusements in Mathematics, Dudeney&#x27;, number 133.
+
+&quot;&quot;&quot;
+The five Spanish brigands, Alfonso, Benito, Carlos, Diego, and Esteban,
+were counting their spoils after a raid, when it was found that they
+had captured altogether exactly 200 doubloons. One of the band pointed
+out that if Alfonso had twelve times as much, Benito three times as
+much, Carlos the same amount, Diego half as much, and Esteban one-
+third as much, they would still have altogether just 200 doubloons.
+How many doubloons had each? Also, no brigand had less than one doubloon.
+
+Print the number of doubloons that each brigand may have according to the above information (A, B, C, D, E).
+&quot;&quot;&quot;
+
+from cpmpy import *
 import json
 
 A, B, C, D, E = x = intvar(1, 200, shape=5, name=&quot;x&quot;)
@@ -37,7 +54,8 @@ model = Model([
 model.solve()
 
 solution = {&quot;A&quot;: A.value(), &quot;B&quot;: B.value(), &quot;C&quot;: C.value(), &quot;D&quot;: D.value(), &quot;E&quot;: E.value()}
-print(json.dumps(solution))</code></pre></div></div></div>
+print(json.dumps(solution))
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/five_brigands/five_brigands.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -45,7 +63,7 @@ print(json.dumps(solution))</code></pre></div></div></div>
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="finding_celebrities.html">← prev</a><a class="btn" href="five_statements.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

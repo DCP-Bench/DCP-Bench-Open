@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">cell_tower</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">cell_tower</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / cell_tower</p>
     <h1 class="problem-title">cell_tower</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">A telecom company needs to build a set of cell towers to provide signal coverage for the inhabitants of a given city. A number of potential locations where the towers could be built have been identified. The towers have a fixed range, and due to budget constraints only a limited number of them can be built. Given these restrictions, the company wishes to provide coverage to the largest percentage of the population possible. To simplify the problem, the company has split the area it wishes to cover into a set of regions, each of which has a known population. The goal is then to choose which of the potential locations the company should build cell towers on in order to provide coverage to as many people as possible.  Print the binary decision of whether to build a tower at each site (build_tower) as a list of booleans, and the total population covered (total_population_covered) as an integer.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-28-1">Copy</button></div><pre class="code-block"><code id="inst-28-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-28-1">Copy</button></div><pre class="code-block"><code id="inst-28-1" class="language-json">{
   &quot;delta&quot;: [
     [
       1,
@@ -47,7 +47,34 @@
   &quot;total_population_covered&quot;: 250
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cell_tower" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cell_tower</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-28">Copy</button></div><pre class="code-block"><code id="model-28" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cell_tower" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cell_tower</a></dd><dt>Category</dt><dd>complex_or</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-28">Copy</button></div><pre class="code-block"><code id="model-28" class="language-python">#!/usr/bin/python3
+# Category: complex_or
+# Source: https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/cell_tower
+
+&quot;&quot;&quot;
+A telecom company needs to build a set of cell towers to provide signal coverage for the inhabitants of a given city.
+A number of potential locations where the towers could be built have been identified. The towers have a fixed range,
+and due to budget constraints only a limited number of them can be built. Given these restrictions, the company wishes
+to provide coverage to the largest percentage of the population possible. To simplify the problem, the company has split
+the area it wishes to cover into a set of regions, each of which has a known population. The goal is then to choose which
+of the potential locations the company should build cell towers on in order to provide coverage to as many people as possible.
+
+Print the binary decision of whether to build a tower at each site (build_tower) as a list of booleans, and the total population covered (total_population_covered) as an integer.
+&quot;&quot;&quot;
+
+# Data
+
+delta = [
+    [1, 0, 1],  # delta[i][j] is 1 if site i covers region j, 0 otherwise
+    [0, 1, 0]
+]
+cost = [3, 4]  # cost[i] is the cost of building a tower at site i
+population = [100, 200, 150]  # population[j] is the population of region j
+budget = 4  # The total budget allowed for building towers
+
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 
@@ -87,7 +114,8 @@ solution = {
     &quot;total_population_covered&quot;: int(model.objective_value())
 }
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/cell_tower/cell_tower.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -95,7 +123,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="car_selection.html">← prev</a><a class="btn" href="chess_set.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

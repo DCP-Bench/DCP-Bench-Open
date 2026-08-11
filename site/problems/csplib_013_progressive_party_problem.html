@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_013_progressive_party_problem</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_013_progressive_party_problem</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_013_progressive_party_problem</p>
     <h1 class="problem-title">csplib_013_progressive_party_problem</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">The problem is to timetable a party at a yacht club. Certain boats are to be designated hosts, and the crews of the remaining boats in turn visit the host boats for several successive half-hour periods. The crew of a host boat remains on board to act as hosts while the crew of a guest boat together visits several hosts. Every boat can only hold a limited number of people at a time (its capacity) and crew sizes are different. The total number of people aboard a boat, including the host crew and guest crews, must not exceed the capacity. A guest boat cannot revisit a host and guest crews cannot meet more than once. The problem facing the rally organizer is that of minimizing the number of host boats.  Print the visit schedule (visits) as a list of lists, where each inner list represents the boats visited - 0-based index - in each period, e.g. visits[p,b] == v means that in period p, boat b visits boat v. Also print whether each boat is a host (is_host) as a list of booleans.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-1">Copy</button></div><pre class="code-block"><code id="inst-52-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-1">Copy</button></div><pre class="code-block"><code id="inst-52-1" class="language-json">{
   &quot;n_boats&quot;: 5,
   &quot;n_periods&quot;: 4,
   &quot;capacity&quot;: [
@@ -71,7 +71,7 @@
     true,
     true
   ]
-}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-2">Copy</button></div><pre class="code-block"><code id="inst-52-2" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-2">Copy</button></div><pre class="code-block"><code id="inst-52-2" class="language-json">{
   &quot;name&quot;: &quot;lan02&quot;,
   &quot;n_boats&quot;: 6,
   &quot;n_periods&quot;: 5,
@@ -91,7 +91,7 @@
     4,
     4
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-3">Copy</button></div><pre class="code-block"><code id="inst-52-3" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-3">Copy</button></div><pre class="code-block"><code id="inst-52-3" class="language-json">{
   &quot;name&quot;: &quot;lan03&quot;,
   &quot;n_boats&quot;: 7,
   &quot;n_periods&quot;: 6,
@@ -113,7 +113,7 @@
     4,
     4
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 4</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-4">Copy</button></div><pre class="code-block"><code id="inst-52-4" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 4</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-4">Copy</button></div><pre class="code-block"><code id="inst-52-4" class="language-json">{
   &quot;name&quot;: &quot;lan04&quot;,
   &quot;n_boats&quot;: 8,
   &quot;n_periods&quot;: 6,
@@ -137,7 +137,7 @@
     4,
     1
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 5</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-5">Copy</button></div><pre class="code-block"><code id="inst-52-5" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 5</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-5">Copy</button></div><pre class="code-block"><code id="inst-52-5" class="language-json">{
   &quot;name&quot;: &quot;lan05&quot;,
   &quot;n_boats&quot;: 9,
   &quot;n_periods&quot;: 5,
@@ -163,7 +163,7 @@
     1,
     2
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 6</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-6">Copy</button></div><pre class="code-block"><code id="inst-52-6" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 6</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-6">Copy</button></div><pre class="code-block"><code id="inst-52-6" class="language-json">{
   &quot;name&quot;: &quot;lan06&quot;,
   &quot;n_boats&quot;: 10,
   &quot;n_periods&quot;: 5,
@@ -191,7 +191,7 @@
     2,
     2
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 7</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-7">Copy</button></div><pre class="code-block"><code id="inst-52-7" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 7</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-7">Copy</button></div><pre class="code-block"><code id="inst-52-7" class="language-json">{
   &quot;name&quot;: &quot;lan07&quot;,
   &quot;n_boats&quot;: 11,
   &quot;n_periods&quot;: 5,
@@ -221,7 +221,7 @@
     2,
     2
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 8</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-8">Copy</button></div><pre class="code-block"><code id="inst-52-8" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 8</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-8">Copy</button></div><pre class="code-block"><code id="inst-52-8" class="language-json">{
   &quot;name&quot;: &quot;lan08&quot;,
   &quot;n_boats&quot;: 12,
   &quot;n_periods&quot;: 5,
@@ -253,7 +253,7 @@
     2,
     3
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 9</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-9">Copy</button></div><pre class="code-block"><code id="inst-52-9" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 9</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-9">Copy</button></div><pre class="code-block"><code id="inst-52-9" class="language-json">{
   &quot;name&quot;: &quot;lan09&quot;,
   &quot;n_boats&quot;: 13,
   &quot;n_periods&quot;: 5,
@@ -287,7 +287,7 @@
     3,
     4
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 10</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-10">Copy</button></div><pre class="code-block"><code id="inst-52-10" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 10</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-52-10">Copy</button></div><pre class="code-block"><code id="inst-52-10" class="language-json">{
   &quot;name&quot;: &quot;csplib_example&quot;,
   &quot;n_boats&quot;: 42,
   &quot;n_periods&quot;: 6,
@@ -379,9 +379,33 @@
     3,
     4
   ]
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details></details>
+}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source and problem instances</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob013/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob013/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-52">Copy</button></div><pre class="code-block"><code id="model-52" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source and problem instances</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob013/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob013/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-52">Copy</button></div><pre class="code-block"><code id="model-52" class="language-python">#!/usr/bin/python3
+# Category: csplib
+# Source and problem instances: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py
+# Source description: https://www.csplib.org/Problems/prob013/
+
+&quot;&quot;&quot;
+The problem is to timetable a party at a yacht club. Certain boats are to be designated hosts, and the crews of the
+remaining boats in turn visit the host boats for several successive half-hour periods. The crew of a host boat remains
+on board to act as hosts while the crew of a guest boat together visits several hosts. Every boat can only hold a limited
+number of people at a time (its capacity) and crew sizes are different. The total number of people aboard a boat,
+including the host crew and guest crews, must not exceed the capacity. A guest boat cannot revisit a host and guest
+crews cannot meet more than once. The problem facing the rally organizer is that of minimizing the number of host boats.
+
+Print the visit schedule (visits) as a list of lists, where each inner list represents the boats visited - 0-based index - in each period,
+e.g. visits[p,b] == v means that in period p, boat b visits boat v. Also print whether each boat is a host (is_host) as a list of booleans.
+&quot;&quot;&quot;
+
+# Data
+n_boats = 5  # Number of boats
+n_periods = 4  # Number of periods
+capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
+crew_size = [2, 2, 2, 2, 4]  # Crew sizes of the boats
+# End of data
+
+# Import libraries
 import json
 from cpmpy import *
 from cpmpy.expressions.utils import all_pairs
@@ -430,7 +454,8 @@ solution = {
     &quot;is_host&quot;: is_host.value().tolist()
 }
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_013_progressive_party_problem/csplib_013_progressive_party_problem.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -438,7 +463,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_012_nonogram.html">← prev</a><a class="btn" href="csplib_014_solitaire_battleships.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

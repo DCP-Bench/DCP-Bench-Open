@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">crew</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">crew</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / crew</p>
     <h1 class="problem-title">crew</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Assign 20 flight attendants to 10 flights. Each flight needs a certain number of cabin crew, and they have to speak certain languages. Every cabin crew member has two flights off after an attended flight.  Print whether for each flight a person is assigned to it (crew) as a list of lists of 0/1 values, where crew[f][p] is 1 if person p is assigned to flight f, and 0 otherwise.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-38-1">Copy</button></div><pre class="code-block"><code id="inst-38-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-38-1">Copy</button></div><pre class="code-block"><code id="inst-38-1" class="language-json">{
   &quot;attributes&quot;: [
     [
       1,
@@ -466,7 +466,65 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/crew.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/crew.py</a></dd><dt>Source description</dt><dd>From Gecode example crew, examples/crew.cc</dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-38">Copy</button></div><pre class="code-block"><code id="model-38" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/crew.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/crew.py</a></dd><dt>Source description</dt><dd>From Gecode example crew, examples/crew.cc</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-38">Copy</button></div><pre class="code-block"><code id="model-38" class="language-python">#!/usr/bin/python3
+# Category: hakan_examples
+# Source: http://www.hakank.org/cpmpy/crew.py
+# Source description: From Gecode example crew, examples/crew.cc
+
+&quot;&quot;&quot;
+Assign 20 flight attendants to 10 flights. Each flight needs a certain number of cabin crew, and they have to
+speak certain languages. Every cabin crew member has two flights off after an attended flight.
+
+Print whether for each flight a person is assigned to it (crew) as a list of lists of 0/1 values, where crew[f][p] is 1 if person p is assigned to flight f, and 0 otherwise.
+&quot;&quot;&quot;
+
+# Data
+attributes = [
+    #  steward, hostess, french, spanish, german
+    [1, 0, 0, 0, 1],  # Tom     = 1
+    [1, 0, 0, 0, 0],  # David   = 2
+    [1, 0, 0, 0, 1],  # Jeremy  = 3
+    [1, 0, 0, 0, 0],  # Ron     = 4
+    [1, 0, 0, 1, 0],  # Joe     = 5
+    [1, 0, 1, 1, 0],  # Bill    = 6
+    [1, 0, 0, 1, 0],  # Fred    = 7
+    [1, 0, 0, 0, 0],  # Bob     = 8
+    [1, 0, 0, 1, 1],  # Mario   = 9
+    [1, 0, 0, 0, 0],  # Ed      = 10
+    [0, 1, 0, 0, 0],  # Carol   = 11
+    [0, 1, 0, 0, 0],  # Janet   = 12
+    [0, 1, 0, 0, 0],  # Tracy   = 13
+    [0, 1, 0, 1, 1],  # Marilyn = 14
+    [0, 1, 0, 0, 0],  # Carolyn = 15
+    [0, 1, 0, 0, 0],  # Cathy   = 16
+    [0, 1, 1, 1, 1],  # Inez    = 17
+    [0, 1, 1, 0, 0],  # Jean    = 18
+    [0, 1, 0, 1, 1],  # Heather = 19
+    [0, 1, 1, 0, 0]  # Juliet  = 20
+]
+
+# The columns are in the following order:
+# staff     : Overall number of cabin crew needed
+# stewards  : How many stewards are required
+# hostesses : How many hostesses are required
+# french    : How many French speaking employees are required
+# spanish   : How many Spanish speaking employees are required
+# german    : How many German speaking employees are required
+required_crew = [
+    [4, 1, 1, 1, 1, 1],  # Flight 1
+    [5, 1, 1, 1, 1, 1],  # Flight 2
+    [5, 1, 1, 1, 1, 1],  # ..
+    [6, 2, 2, 1, 1, 1],
+    [7, 3, 3, 1, 1, 1],
+    [4, 1, 1, 1, 1, 1],
+    [5, 1, 1, 1, 1, 1],
+    [6, 1, 1, 1, 1, 1],
+    [6, 2, 2, 1, 1, 1],  # ...
+    [7, 3, 3, 1, 1, 1]  # Flight 10
+]
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 
@@ -517,7 +575,8 @@ model.solve()
 # Print the solution
 solution = {&quot;crew&quot;: crew.value().tolist()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/crew/crew.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -525,7 +584,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="covering_opl.html">← prev</a><a class="btn" href="crossword.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

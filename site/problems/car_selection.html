@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">car_selection</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">car_selection</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / car_selection</p>
     <h1 class="problem-title">car_selection</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">This problem aims to assign participants to cars to maximize the total number of assignments. Each participant may be interested in a subset of available cars. The problem ensures that each participant is assigned to at most one car, and each car is assigned to at most one participant.  Print the assignment matrix (assignments) as a list of lists of booleans, where assignments[i][j] is 1 if participant i is assigned to car j, and 0 otherwise.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-27-1">Copy</button></div><pre class="code-block"><code id="inst-27-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-27-1">Copy</button></div><pre class="code-block"><code id="inst-27-1" class="language-json">{
   &quot;possible_assignments&quot;: [
     [
       1,
@@ -94,7 +94,30 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/car_selection" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/car_selection</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-27">Copy</button></div><pre class="code-block"><code id="model-27" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/car_selection" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/car_selection</a></dd><dt>Category</dt><dd>complex_or</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-27">Copy</button></div><pre class="code-block"><code id="model-27" class="language-python">#!/usr/bin/python3
+# Category: complex_or
+# Source: https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/car_selection
+
+&quot;&quot;&quot;
+This problem aims to assign participants to cars to maximize the total number of assignments.
+Each participant may be interested in a subset of available cars. The problem ensures that each participant is assigned to at most one car, and each car is assigned to at most one participant.
+
+Print the assignment matrix (assignments) as a list of lists of booleans, where assignments[i][j] is 1 if participant i is assigned to car j, and 0 otherwise.
+&quot;&quot;&quot;
+
+# Data
+
+possible_assignments = [
+        [1, 0, 1, 0, 0], # possible_assignments[i][j] is 1 if participant i is interested in car j, 0 otherwise
+        [0, 0, 1, 1, 0],
+        [1, 1, 1, 0, 1],
+        [0, 1, 0, 1, 1],
+        [1, 0, 0, 1, 0]
+    ]
+
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 
@@ -140,7 +163,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="capital_budget.html">← prev</a><a class="btn" href="cell_tower.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

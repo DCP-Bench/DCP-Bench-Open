@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">aircraft_landing</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">aircraft_landing</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / aircraft_landing</p>
     <h1 class="problem-title">aircraft_landing</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">The Aircraft Landing Problem involves scheduling the landing of a set of aircraft on a single runway. Each aircraft has a specified time window (earliest and latest possible landing time) and a target landing time. Penalties are incurred for landing earlier or later than the target time. Additionally, a minimum separation time between the landings of any two aircraft must be respected. This specific problem instance assumes a fixed landing sequence for the aircraft. The objective is to determine the exact landing time for each aircraft to minimize the total penalty, while respecting all time windows and separation constraints.  Print the landing time for each aircraft (landing_times) as a list of integers, and the minimized total penalty (total_penalty) as an integer.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-5-1">Copy</button></div><pre class="code-block"><code id="inst-5-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-5-1">Copy</button></div><pre class="code-block"><code id="inst-5-1" class="language-json">{
   &quot;earliest_landing&quot;: [
     1,
     3,
@@ -68,7 +68,35 @@
   &quot;total_penalty&quot;: 50
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/tree/main/dataset/ComplexOR/aircraft_landing" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/tree/main/dataset/ComplexOR/aircraft_landing</a></dd><dt>Category</dt><dd>complex_or</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-5">Copy</button></div><pre class="code-block"><code id="model-5" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/xzymustbexzy/Chain-of-Experts/tree/main/dataset/ComplexOR/aircraft_landing" target="_blank" rel="noopener">https://github.com/xzymustbexzy/Chain-of-Experts/tree/main/dataset/ComplexOR/aircraft_landing</a></dd><dt>Category</dt><dd>complex_or</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-5">Copy</button></div><pre class="code-block"><code id="model-5" class="language-python">#!/usr/bin/python3
+# Category: complex_or
+# Source: https://github.com/xzymustbexzy/Chain-of-Experts/tree/main/dataset/ComplexOR/aircraft_landing
+
+&quot;&quot;&quot;
+The Aircraft Landing Problem involves scheduling the landing of a set of aircraft on a single runway.
+Each aircraft has a specified time window (earliest and latest possible landing time) and a target landing time.
+Penalties are incurred for landing earlier or later than the target time. Additionally, a minimum separation time between the landings of any two aircraft must be respected.
+This specific problem instance assumes a fixed landing sequence for the aircraft.
+The objective is to determine the exact landing time for each aircraft to minimize the total penalty, while respecting all time windows and separation constraints.
+
+Print the landing time for each aircraft (landing_times) as a list of integers, and the minimized total penalty (total_penalty) as an integer.
+&quot;&quot;&quot;
+
+# Data
+earliest_landing = [1, 3, 5] # EarliestLanding[i] is the earliest landing time for aircraft i
+latest_landing = [10, 12, 15] # LatestLanding[i] is the latest landing time for aircraft i
+target_landing = [5, 6, 7]  # TargetLanding[i] is the target landing time for aircraft i
+penalty_after = [10, 20, 30] # PenaltyAfterTarget[i] is the penalty per unit of time for landing after the target for aircraft i
+penalty_before = [5, 10, 15] # PenaltyBeforeTarget[i] is the penalty per unit of time for landing before the target for aircraft i
+separation_time = [
+        [0, 2, 3], # SeparationTime[i][j] is the minimum separation time between aircraft i and aircraft j
+        [2, 0, 4],
+        [3, 4, 0]
+    ]
+
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 
@@ -121,7 +149,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="aircraft_assignment.html">← prev</a><a class="btn" href="allergy.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

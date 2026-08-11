@@ -368,7 +368,7 @@ pre.code-block code { font-family: inherit; background: none; padding: 0; }
 .code-head button:hover { background: rgba(255, 255, 255, 0.22); }
 
 details.instance { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: var(--card); }
-details.instance summary {
+details.instance > summary {
   cursor: pointer;
   padding: 10px 14px;
   font-family: var(--mono);
@@ -379,15 +379,15 @@ details.instance summary {
   align-items: center;
   gap: 10px;
 }
-details.instance summary::-webkit-details-marker { display: none; }
-details.instance summary::before {
+details.instance > summary::-webkit-details-marker { display: none; }
+details.instance > summary::before {
   content: "▶";
   font-size: 0.7rem;
   color: var(--accent);
   transition: transform 0.15s ease;
 }
-details.instance[open] summary::before { transform: rotate(90deg); }
-details.instance summary:hover { background: var(--accent-soft); }
+details.instance[open] > summary::before { transform: rotate(90deg); }
+details.instance > summary:hover { background: var(--accent-soft); }
 details.instance pre {
   max-height: 420px;
   overflow: auto;
@@ -413,7 +413,7 @@ details.instance pre code { background: none; padding: 0; }
 .chip-row { margin-bottom: 8px; }
 
 /* ---------- Instances section ---------- */
-details.instances-box summary {
+details.instances-box > summary {
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -422,16 +422,16 @@ details.instances-box summary {
   flex-wrap: wrap;
   list-style: none;
 }
-details.instances-box summary::-webkit-details-marker { display: none; }
-details.instances-box summary::before {
+details.instances-box > summary::-webkit-details-marker { display: none; }
+details.instances-box > summary::before {
   content: "▶";
   font-size: 0.7rem;
   color: var(--accent);
   transition: transform 0.15s ease;
 }
-details.instances-box[open] summary::before { transform: rotate(90deg); }
-details.instances-box summary h3 { margin: 0; }
-details.instances-box[open] summary { margin-bottom: 16px; }
+details.instances-box[open] > summary::before { transform: rotate(90deg); }
+details.instances-box > summary h3 { margin: 0; }
+details.instances-box[open] > summary { margin-bottom: 16px; }
 
 details.instance .tab-group { margin-top: 10px; }
 details.instance pre.code-block {

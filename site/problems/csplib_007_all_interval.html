@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_007_all_interval</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_007_all_interval</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_007_all_interval</p>
     <h1 class="problem-title">csplib_007_all_interval</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Given the twelve standard pitch-classes (c, c#, d, …), represented by numbers \(0, 1, \ldots, 11\), find a series in which each pitch-class occurs exactly once and in which the musical intervals between neighbouring notes cover the full set of intervals from the minor second (1 semitone) to the major seventh (11 semitones). That is, for each of the intervals, there is a pair of neighbouring pitch-classes in the series, between which this interval appears.  The problem of finding such a series can be easily formulated as an instance of a more general arithmetic problem on \(\mathbb{Z}_n\), the set of integer residues modulo \(n\). Given \(n \in \mathbb{N}\), find a vector \(s = (s_1, \ldots, s_n)\), such that  - \(s\) is a permutation of \(\mathbb{Z}_n = \{0, 1, \ldots, n-1\}\); and - the interval vector \(v = (|s_2 - s_1|, |s_3 - s_2|, \ldots, |s_n - s_{n-1}|)\) is a permutation of   \(\mathbb{Z}_n \setminus \{0\} = \{1, 2, \ldots, n-1\}\).  A vector \(v\) satisfying these conditions is called an all-interval series of size \(n\); the problem of finding such a series is the all-interval series problem of size \(n\).  Print the sequence of pitch-classes (x) as a list of n integers -between 0 and n-1- and the corresponding intervals (diffs) as a list of n-1 integers.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-46-1">Copy</button></div><pre class="code-block"><code id="inst-46-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-46-1">Copy</button></div><pre class="code-block"><code id="inst-46-1" class="language-json">{
   &quot;n&quot;: 12
 }</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">diffs</span><span class="chip">x</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-46-1">Copy</button></div><pre class="code-block"><code id="sol-46-1" class="language-json">{
   &quot;x&quot;: [
@@ -46,13 +46,43 @@
     2,
     1
   ]
-}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-46-2">Copy</button></div><pre class="code-block"><code id="inst-46-2" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-46-2">Copy</button></div><pre class="code-block"><code id="inst-46-2" class="language-json">{
   &quot;n&quot;: 13
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-46-3">Copy</button></div><pre class="code-block"><code id="inst-46-3" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-46-3">Copy</button></div><pre class="code-block"><code id="inst-46-3" class="language-json">{
   &quot;n&quot;: 14
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details></details>
+}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob007_all_interval.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob007_all_interval.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob007/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob007/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-46">Copy</button></div><pre class="code-block"><code id="model-46" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob007_all_interval.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob007_all_interval.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob007/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob007/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-46">Copy</button></div><pre class="code-block"><code id="model-46" class="language-python">#!/usr/bin/python3
+# Category: csplib
+# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob007_all_interval.py
+# Source description: https://www.csplib.org/Problems/prob007/
+
+&quot;&quot;&quot;
+Given the twelve standard pitch-classes (c, c#, d, …), represented by numbers \(0, 1, \ldots, 11\), find a series
+in which each pitch-class occurs exactly once and in which the musical intervals between neighbouring notes cover
+the full set of intervals from the minor second (1 semitone) to the major seventh (11 semitones). That is, for each
+of the intervals, there is a pair of neighbouring pitch-classes in the series, between which this interval appears.
+
+The problem of finding such a series can be easily formulated as an instance of a more general arithmetic problem
+on \(\mathbb{Z}_n\), the set of integer residues modulo \(n\). Given \(n \in \mathbb{N}\), find a vector
+\(s = (s_1, \ldots, s_n)\), such that
+
+- \(s\) is a permutation of \(\mathbb{Z}_n = \{0, 1, \ldots, n-1\}\); and
+- the interval vector \(v = (|s_2 - s_1|, |s_3 - s_2|, \ldots, |s_n - s_{n-1}|)\) is a permutation of
+  \(\mathbb{Z}_n \setminus \{0\} = \{1, 2, \ldots, n-1\}\).
+
+A vector \(v\) satisfying these conditions is called an all-interval series of size \(n\); the problem of finding
+such a series is the all-interval series problem of size \(n\).
+
+Print the sequence of pitch-classes (x) as a list of n integers -between 0 and n-1- and the corresponding intervals (diffs)
+as a list of n-1 integers.
+&quot;&quot;&quot;
+
+# Data
+n = 12  # Number of pitch-classes
+# End of data
+
+# Import libraries
 from cpmpy import *
 import numpy as np
 import json
@@ -83,7 +113,8 @@ model.solve()
 # Print
 solution = {&quot;x&quot;: x.value().tolist(), &quot;diffs&quot;: diffs.value().tolist()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_007_all_interval/csplib_007_all_interval.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -91,7 +122,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_006_golomb_rulers.html">← prev</a><a class="btn" href="csplib_008_vessel_loading.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_028_bibd</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_028_bibd</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_028_bibd</p>
     <h1 class="problem-title">csplib_028_bibd</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Balanced Incomplete Block Design (BIBD) generation is a standard combinatorial problem from design theory, originally used in the design of statistical experiments but since finding other applications such as cryptography. It is a special case of Block Design, which also includes Latin Square problems.  A BIBD is defined as an arrangement of \( v \) distinct objects into \( b \) blocks such that each block contains exactly \( k \) distinct objects, each object occurs in exactly \( r \) different blocks, and every two distinct objects occur together in exactly \( \lambda \) blocks. Another way of defining a BIBD is in terms of its incidence matrix, which is a \( v \) by \( b \) binary matrix with exactly \( r \) ones per row, \( k \) ones per column, and with a scalar product of \( \lambda \) between any pair of distinct rows. A BIBD is therefore specified by its parameters \( (v, b, r, k, \lambda) \). An example of a solution for \( (7, 7, 3, 3, 1) \) is:  0 1 1 0 0 1 0 1 0 1 0 1 0 0 0 0 1 1 0 0 1 1 1 0 0 0 0 1 0 0 0 0 1 1 1 1 0 0 1 0 1 0 0 1 0 1 1 0 0  Print the incidence matrix of the BIBD (matrix) as a list of lists of integers - 0s and 1s.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-63-1">Copy</button></div><pre class="code-block"><code id="inst-63-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-63-1">Copy</button></div><pre class="code-block"><code id="inst-63-1" class="language-json">{
   &quot;v&quot;: 9,
   &quot;b&quot;: 12,
   &quot;r&quot;: 4,
@@ -153,7 +153,43 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob028/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob028/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-63">Copy</button></div><pre class="code-block"><code id="model-63" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob028/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob028/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-63">Copy</button></div><pre class="code-block"><code id="model-63" class="language-python">#!/usr/bin/python3
+# Category: csplib
+# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py
+# Source description: https://www.csplib.org/Problems/prob028/
+
+&quot;&quot;&quot;
+Balanced Incomplete Block Design (BIBD) generation is a standard combinatorial problem from design theory, originally
+used in the design of statistical experiments but since finding other applications such as cryptography. It is a
+special case of Block Design, which also includes Latin Square problems.
+
+A BIBD is defined as an arrangement of \( v \) distinct objects into \( b \) blocks such that each block contains exactly \( k \) distinct objects, each object occurs
+in exactly \( r \) different blocks, and every two distinct objects occur together in exactly \( \lambda \) blocks.
+Another way of defining a BIBD is in terms of its incidence matrix, which is a \( v \) by \( b \) binary matrix with
+exactly \( r \) ones per row, \( k \) ones per column, and with a scalar product of \( \lambda \) between any pair of
+distinct rows. A BIBD is therefore specified by its parameters \( (v, b, r, k, \lambda) \). An example of a solution
+for \( (7, 7, 3, 3, 1) \) is:
+
+0 1 1 0 0 1 0
+1 0 1 0 1 0 0
+0 0 1 1 0 0 1
+1 1 0 0 0 0 1
+0 0 0 0 1 1 1
+1 0 0 1 0 1 0
+0 1 0 1 1 0 0
+
+Print the incidence matrix of the BIBD (matrix) as a list of lists of integers - 0s and 1s.
+&quot;&quot;&quot;
+
+# Data
+v = 9  # Number of distinct objects
+b = 12  # Number of blocks
+r = 4  # Number of blocks each object occurs in
+k = 3  # Number of objects each block contains
+l = 1  # Number of blocks in which each pair of distinct objects occurs together
+# End of data
+
+# Import libraries
 import json
 import numpy as np
 from cpmpy import *
@@ -181,7 +217,9 @@ model.solve()
 # Print
 solution = {&quot;matrix&quot;: matrix.value().tolist()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_028_bibd/csplib_028_bibd.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -189,7 +227,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_026_sports_tournament_scheduling.html">← prev</a><a class="btn" href="csplib_032_max_density_still_life.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

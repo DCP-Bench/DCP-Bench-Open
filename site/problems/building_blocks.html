@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">building_blocks</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">building_blocks</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / building_blocks</p>
     <h1 class="problem-title">building_blocks</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Each of a number of alphabet blocks has a single letter of the alphabet on each of its sides. In all, the blocks contain every letter but Q and Z. By arranging the blocks in various ways, you can spell all of the words in a given list. Can you figure out how the letters are arranged on the blocks?  Print the solution as a list of num_letters numbers representing at which block each letter is placed (dice), between 0 and num_blocks-1.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-21-1">Copy</button></div><pre class="code-block"><code id="inst-21-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-21-1">Copy</button></div><pre class="code-block"><code id="inst-21-1" class="language-json">{
   &quot;num_blocks&quot;: 4,
   &quot;num_sides&quot;: 6,
   &quot;words_str&quot;: [
@@ -64,7 +64,34 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/building_blocks.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/building_blocks.py</a></dd><dt>Source description</dt><dd><a href="http://brownbuffalo.sourceforge.net/BuildingBlocksClues.html" target="_blank" rel="noopener">http://brownbuffalo.sourceforge.net/BuildingBlocksClues.html</a></dd><dt>Misc</dt><dd><a href="http://www.hakank.org/cpmpy/cpmpy_hakank.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cpmpy_hakank.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-21">Copy</button></div><pre class="code-block"><code id="model-21" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/building_blocks.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/building_blocks.py</a></dd><dt>Source description</dt><dd><a href="http://brownbuffalo.sourceforge.net/BuildingBlocksClues.html" target="_blank" rel="noopener">http://brownbuffalo.sourceforge.net/BuildingBlocksClues.html</a></dd><dt>Misc</dt><dd><a href="http://www.hakank.org/cpmpy/cpmpy_hakank.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/cpmpy_hakank.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-21">Copy</button></div><pre class="code-block"><code id="model-21" class="language-python">#!/usr/bin/python3
+# Category: hakan_examples
+# Source: http://www.hakank.org/cpmpy/building_blocks.py
+# Source description: http://brownbuffalo.sourceforge.net/BuildingBlocksClues.html
+# Misc: http://www.hakank.org/cpmpy/cpmpy_hakank.py
+
+&quot;&quot;&quot;
+Each of a number of alphabet blocks has a single letter of the alphabet on each
+of its sides. In all, the blocks contain every letter but
+Q and Z. By arranging the blocks in various ways, you can spell all of
+the words in a given list. Can you figure out how the letters are arranged
+on the blocks?
+
+Print the solution as a list of num_letters numbers representing at which block each letter is placed (dice), between 0 and num_blocks-1.
+&quot;&quot;&quot;
+
+# Data
+num_blocks = 4
+num_sides = 6
+words_str = [
+    &quot;BAKE&quot;, &quot;ONYX&quot;, &quot;ECHO&quot;, &quot;OVAL&quot;, &quot;GIRD&quot;, &quot;SMUG&quot;, &quot;JUMP&quot;, &quot;TORN&quot;,
+    &quot;LUCK&quot;, &quot;VINY&quot;, &quot;LUSH&quot;, &quot;WRAP&quot;
+]
+alphabet = &quot;ABCDEFGHIJKLMNOPRSTUVWXY&quot;
+num_letters = 24
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 import numpy as np
@@ -129,7 +156,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="broken_weights.html">← prev</a><a class="btn" href="bus_scheduling.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

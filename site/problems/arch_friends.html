@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">arch_friends</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">arch_friends</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / arch_friends</p>
     <h1 class="problem-title">arch_friends</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Harriet, upon returning from the mall, is happily describing her four shoe purchases to her friend Aurora. Aurora just loves the four different kinds of shoes that Harriet bought   (ecru espadrilles, fuchsia flats, purple pumps, and suede sandals), but Harriet can&#x27;t recall at which different store   (Foot Farm, Heels in a Handcart, The Shoe Palace, or Tootsies) she got each pair. Can you help these two figure out the order in which Harriet bought each pair of shoes, and where she bought each?  1. Harriet bought fuchsia flats at Heels in a Handcart. 2. The store she visited just after buying her purple pumps was not   Tootsies. 3. The Foot Farm was Harriet&#x27;s second stop. 4. Two stops after leaving The Shoe Place, Harriet bought her suede   sandals.  Print the values of each shoe (ecruespadrilles, fuchsiaflats, purplepumps, suedesandals) and store (footfarm, heelsinahandcart, theshoepalace, tootsies), such that the same value denotes the same shoe or store; values are integers from 1 to 4.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-10-0">Copy</button></div><pre class="code-block"><code id="sol-10-0" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-10-0">Copy</button></div><pre class="code-block"><code id="sol-10-0" class="language-json">{
   &quot;ecruespadrilles&quot;: 2,
   &quot;fuchsiaflats&quot;: 4,
   &quot;purplepumps&quot;: 1,
@@ -27,7 +27,32 @@
   &quot;tootsies&quot;: 3
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/arch_friends.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/arch_friends.py</a></dd><dt>Category</dt><dd>hakan_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-10">Copy</button></div><pre class="code-block"><code id="model-10" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/arch_friends.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/arch_friends.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-10">Copy</button></div><pre class="code-block"><code id="model-10" class="language-python">#!/usr/bin/python3
+# Category: hakan_examples
+# Source: http://www.hakank.org/cpmpy/arch_friends.py
+
+&quot;&quot;&quot;
+Harriet, upon returning from the mall, is happily describing her four
+shoe purchases to her friend Aurora. Aurora just loves the four
+different kinds of shoes that Harriet bought
+  (ecru espadrilles, fuchsia flats, purple pumps, and suede sandals),
+but Harriet can&#x27;t recall at which different store
+  (Foot Farm, Heels in a Handcart, The Shoe Palace, or Tootsies)
+she got each pair. Can you help these two figure out the order in
+which Harriet bought each pair of shoes, and where she bought each?
+
+1. Harriet bought fuchsia flats at Heels in a Handcart.
+2. The store she visited just after buying her purple pumps was not
+  Tootsies.
+3. The Foot Farm was Harriet&#x27;s second stop.
+4. Two stops after leaving The Shoe Place, Harriet bought her suede
+  sandals.
+
+Print the values of each shoe (ecruespadrilles, fuchsiaflats, purplepumps, suedesandals) and store (footfarm,
+heelsinahandcart, theshoepalace, tootsies), such that the same value denotes the same shoe or store; values are integers from 1 to 4.
+&quot;&quot;&quot;
+
+# Import libraries
 from cpmpy import *
 import numpy as np
 import json
@@ -73,7 +98,8 @@ solution = {&quot;ecruespadrilles&quot;: ecruespadrilles.value(),
             &quot;tootsies&quot;: tootsies.value()
             }
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/arch_friends/arch_friends.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -81,7 +107,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="archery_puzzle.html">← prev</a><a class="btn" href="assignment_costs.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

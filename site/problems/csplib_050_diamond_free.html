@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_050_diamond_free</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_050_diamond_free</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_050_diamond_free</p>
     <h1 class="problem-title">csplib_050_diamond_free</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Given a simple undirected graph \( G = (V, E) \), where \( V \) is the set of vertices and \( E \) the set of undirected edges, the edge \(\{u, v\}\) is in \( E \) if and only if vertex \( u \) is adjacent to vertex \( v \in G \). The graph is simple in that there are no loop edges, i.e., we have no edges of the form \(\{v, v\}\). Each vertex \( v \in V \) has a degree \( d_v \) i.e., the number of edges incident on that vertex. Consequently, a graph has a degree sequence \( d_1, \ldots, d_n \), where \( d_i \geq d_{i+1} \). A diamond is a set of four vertices in \( V \) such that there are at least five edges between those vertices. Conversely, a graph is diamond-free if it has no diamond as an induced subgraph, i.e., for every set of four vertices the number of edges between those vertices is at most four.  In our problem, we have additional properties required of the degree sequences of the graphs, in particular, that the degree of each vertex is greater than zero (i.e., isolated vertices are disallowed), the degree of each vertex is modulo 3, and the sum of the degrees is modulo 12 (i.e., \(|E|\) is modulo 6).  The problem is then for a given value of \( n \), produce all unique degree sequences \( d_1, \ldots, d_n \) such that  - \( d_i \geq d_{i+1} \) - Each degree \( d_i &gt; 0 \) and \( d_i \) is modulo 3 - The sum of the degrees is modulo 12 - There exists a simple diamond-free graph with that degree sequence  Print the adjacency matrix of the graph (matrix) as a list of lists of booleans.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-1">Copy</button></div><pre class="code-block"><code id="inst-71-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-1">Copy</button></div><pre class="code-block"><code id="inst-71-1" class="language-json">{
   &quot;N&quot;: 10
 }</code></pre></div><div class="tab-pane" data-pane="solution"><div class="chip-row"><span class="chip">matrix</span></div><div class="code-head"><span>json</span><button type="button" data-copy="sol-71-1">Copy</button></div><pre class="code-block"><code id="sol-71-1" class="language-json">{
   &quot;matrix&quot;: [
@@ -141,19 +141,51 @@
       false
     ]
   ]
-}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-2">Copy</button></div><pre class="code-block"><code id="inst-71-2" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 2</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-2">Copy</button></div><pre class="code-block"><code id="inst-71-2" class="language-json">{
   &quot;N&quot;: 11
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-3">Copy</button></div><pre class="code-block"><code id="inst-71-3" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 3</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-3">Copy</button></div><pre class="code-block"><code id="inst-71-3" class="language-json">{
   &quot;N&quot;: 12
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 4</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-4">Copy</button></div><pre class="code-block"><code id="inst-71-4" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 4</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-4">Copy</button></div><pre class="code-block"><code id="inst-71-4" class="language-json">{
   &quot;N&quot;: 13
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 5</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-5">Copy</button></div><pre class="code-block"><code id="inst-71-5" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 5</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-5">Copy</button></div><pre class="code-block"><code id="inst-71-5" class="language-json">{
   &quot;N&quot;: 14
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details><details class="instance"><summary>Instance 6</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-6">Copy</button></div><pre class="code-block"><code id="inst-71-6" class="language-json">{
+}</code></pre></div></div></details><details class="instance"><summary>Instance 6</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-71-6">Copy</button></div><pre class="code-block"><code id="inst-71-6" class="language-json">{
   &quot;N&quot;: 15
-}</code></pre></div><div class="tab-pane" data-pane="solution"><p class="desc">No solution yet, will be added shortly.</p></div></div></details></details>
+}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob050_diamond_free.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob050_diamond_free.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob050/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob050/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-71">Copy</button></div><pre class="code-block"><code id="model-71" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob050_diamond_free.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob050_diamond_free.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob050/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob050/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-71">Copy</button></div><pre class="code-block"><code id="model-71" class="language-python">#!/usr/bin/python3
+# Category: csplib
+# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob050_diamond_free.py
+# Source description: https://www.csplib.org/Problems/prob050/
+
+&quot;&quot;&quot;
+Given a simple undirected graph \( G = (V, E) \), where \( V \) is the set of vertices and \( E \) the set of undirected edges,
+the edge \(\{u, v\}\) is in \( E \) if and only if vertex \( u \) is adjacent to vertex \( v \in G \). The graph is simple in
+that there are no loop edges, i.e., we have no edges of the form \(\{v, v\}\). Each vertex \( v \in V \) has a degree \( d_v \)
+i.e., the number of edges incident on that vertex. Consequently, a graph has a degree sequence \( d_1, \ldots, d_n \), where
+\( d_i \geq d_{i+1} \). A diamond is a set of four vertices in \( V \) such that there are at least five edges between those
+vertices. Conversely, a graph is diamond-free if it has no diamond as an induced subgraph, i.e., for every set of four vertices
+the number of edges between those vertices is at most four.
+
+In our problem, we have additional properties required of the degree sequences of the graphs, in particular, that the degree
+of each vertex is greater than zero (i.e., isolated vertices are disallowed), the degree of each vertex is modulo 3, and the
+sum of the degrees is modulo 12 (i.e., \(|E|\) is modulo 6).
+
+The problem is then for a given value of \( n \), produce all unique degree sequences \( d_1, \ldots, d_n \) such that
+
+- \( d_i \geq d_{i+1} \)
+- Each degree \( d_i &gt; 0 \) and \( d_i \) is modulo 3
+- The sum of the degrees is modulo 12
+- There exists a simple diamond-free graph with that degree sequence
+
+Print the adjacency matrix of the graph (matrix) as a list of lists of booleans.
+&quot;&quot;&quot;
+
+# Data
+N = 10  # Number of vertices in the graph
+# End of data
+
+# Import libraries
 import json
 import numpy as np
 from cpmpy import *
@@ -191,7 +223,8 @@ model.solve()
 # Print
 solution = {&quot;matrix&quot;: matrix.value().tolist()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div></div></div>
+# End of CPMPy script
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/csplib_050_diamond_free/csplib_050_diamond_free.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -199,7 +232,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_049_number_partitioning.html">← prev</a><a class="btn" href="csplib_053_graceful_graphs.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

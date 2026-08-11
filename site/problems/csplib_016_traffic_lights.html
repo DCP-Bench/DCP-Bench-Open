@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_016_traffic_lights</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_016_traffic_lights</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_016_traffic_lights</p>
     <h1 class="problem-title">csplib_016_traffic_lights</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Imagine a four-way traffic junction with eight traffic lights. Four lights (V1 to V4) are for vehicles, and four (P1 to P4) are for pedestrians. The lights have different states (e.g., red, green). The problem parameters describe constraints on which combinations of light states are safe. Specifically, certain combinations of vehicle and pedestrian light states for intersecting roads are disallowed to prevent accidents: (V_i, P_i, V_{i+1}, P_{i+1}) for i=1..4 (with V_5=V_1 and P_5=P_1).  Vehicle light states: 0=red, 1=red-yellow, 2=green, 3=yellow Pedestrian light states: 0=red, 1=green  Print a valid 8-tuple of light states (lights) as a list of integers with the order [V1, V2, V3, V4, P1, P2, P3, P4].</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-55-1">Copy</button></div><pre class="code-block"><code id="inst-55-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-55-1">Copy</button></div><pre class="code-block"><code id="inst-55-1" class="language-json">{
   &quot;allowed_tuples&quot;: [
     [
       0,
@@ -56,7 +56,34 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob016/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob016/</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-55">Copy</button></div><pre class="code-block"><code id="model-55" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob016/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob016/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-55">Copy</button></div><pre class="code-block"><code id="model-55" class="language-python">#!/usr/bin/python3
+# Category: csplib
+# Source description: https://www.csplib.org/Problems/prob016/
+
+&quot;&quot;&quot;
+Imagine a four-way traffic junction with eight traffic lights. Four lights (V1 to V4) are for vehicles, and four (P1 to P4)
+are for pedestrians. The lights have different states (e.g., red, green). The problem parameters describe constraints on which
+combinations of light states are safe. Specifically, certain combinations of vehicle and pedestrian light states for
+intersecting roads are disallowed to prevent accidents: (V_i, P_i, V_{i+1}, P_{i+1}) for i=1..4 (with V_5=V_1 and P_5=P_1).
+
+Vehicle light states: 0=red, 1=red-yellow, 2=green, 3=yellow
+Pedestrian light states: 0=red, 1=green
+
+Print a valid 8-tuple of light states (lights) as a list of integers with the order [V1, V2, V3, V4, P1, P2, P3, P4].
+&quot;&quot;&quot;
+
+# Data
+# Allowed combinations for (V_i, P_i, V_{i+1}, P_{i+1}) for i=1..4 (with V_5=V_1 and P_5=P_1)
+# where V_i is the vehicle light state and P_i is the pedestrian light state.
+# (r, r, g, g) -&gt; (0, 0, 2, 1)
+# (ry, r, y, r) -&gt; (1, 0, 3, 0)
+# (g, g, r, r) -&gt; (2, 1, 0, 0)
+# (y, r, ry, r) -&gt; (3, 0, 1, 0)
+# These combinations ensure that intersecting roads do not have green lights simultaneously.
+allowed_tuples = [[0, 0, 2, 1], [1, 0, 3, 0], [2, 1, 0, 0], [3, 0, 1, 0]]
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 
@@ -98,7 +125,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_015_schurs_lemma.html">← prev</a><a class="btn" href="csplib_018_water_bucket.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

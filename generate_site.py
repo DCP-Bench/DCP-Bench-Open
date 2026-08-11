@@ -123,6 +123,17 @@ def detect_frameworks(model_code: str) -> list:
     return found or ["CPMpy"]
 
 
+def reference_model_code(problem_id: str, fallback: str) -> str:
+    """Load the complete runnable reference model shown on the website."""
+    path = Path("dataset") / problem_id / f"{problem_id}.cpmpy.py"
+    try:
+        code = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return fallback
+    trailing_newline = "\n" if code.endswith("\n") else ""
+    return "\n".join(line.rstrip() for line in code.splitlines()) + trailing_newline
+
+
 def snippet(text: str, limit: int = 180) -> str:
     text = " ".join(text.split())
     return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
@@ -139,7 +150,6 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "")
     nav_items = [
         ("index.html", "Problems", "problems"),
         ("framework.html", "Frameworks", "frameworks"),
-        ("stats.html", "Stats", "stats"),
     ]
     nav = [f'<a class="brand" href="{prefix}index.html">{TITLE}</a>']
     for href, label, key in nav_items:
@@ -333,6 +343,62 @@ def generated_model_card(entry: dict) -> str:
     """
 
 
+def generated_model_html(entry: dict) -> str:
+    """Render a generated model with the reference model's Metadata + Model layout."""
+    metrics = entry["metrics"]
+    generated_by = metrics.get("generated_by", {})
+    source = metrics.get("source", {})
+    uid = f"{metrics.get('problem', '')}-{entry['submission']}"
+
+    rows = [
+        f"<dt>Submission</dt><dd>{esc(entry['submission'])}</dd>",
+        f"<dt>Base LLM</dt><dd>{esc(generated_by.get('base_llm') or 'Unknown')}</dd>",
+    ]
+    if generated_by.get("dataset_version"):
+        rows.append(
+            f"<dt>Dataset version</dt><dd>{esc(generated_by['dataset_version'])}</dd>"
+        )
+    rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}</dd>")
+
+    links = []
+    if source.get("leaderboard"):
+        links.append(
+            f'<a href="{esc(source["leaderboard"])}" target="_blank" rel="noopener">Leaderboard</a>'
+        )
+    if entry["model_file"]:
+        links.append(
+            f'<a href="{REPO_URL}/blob/main/generated_models/'
+            f'{esc(metrics.get("problem", ""))}/{esc(framework_dir(metrics.get("framework", "")))}/'
+            f'{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" '
+            f'rel="noopener">Model file (GitHub)</a>'
+        )
+    if source.get("submission_file"):
+        links.append(
+            f'<a href="{esc(source["submission_file"])}" target="_blank" rel="noopener">Submission file</a>'
+        )
+    if source.get("report_file"):
+        links.append(
+            f'<a href="{esc(source["report_file"])}" target="_blank" rel="noopener">Report (PDF)</a>'
+        )
+    if source.get("result_file"):
+        links.append(
+            f'<a href="{esc(source["result_file"])}" target="_blank" rel="noopener">Result summary</a>'
+        )
+    if links:
+        rows.append(f'<dt>Sources</dt><dd>{" &middot; ".join(links)}</dd>')
+
+    if entry["model_file"]:
+        lang = "minizinc" if entry["model_file"].endswith(".mzn") else "python"
+        model = code_block(entry["code"], lang, copy_id=f"gmod-{uid}")
+    else:
+        model = '<p class="desc">Code file not found.</p>'
+
+    return (
+        f'<div class="card-box provenance"><h3>Metadata</h3><dl>{"".join(rows)}</dl></div>'
+        f'<h3>Model</h3>{model}'
+    )
+
+
 VALID_BADGE_ORDER = [
     "solution_valid_and_optimal",
     "solution_valid_objective_unknown",
@@ -510,26 +576,35 @@ def var_chips_short(vars_list: list) -> str:
 
 
 def instance_card_html(inst, i: int, idx: int, is_example: bool, example_solution, decision_vars: list) -> str:
-    label = "Example instance" if is_example else f"Instance {i}"
+    label = "Example (Instance 1)" if is_example else f"Instance {i}"
     pretty = json.dumps(inst, indent=2, ensure_ascii=False)
     data_pane = code_block(pretty, "json", copy_id=f"inst-{idx}-{i}")
+    open_attr = " open" if is_example else ""
     if is_example and example_solution:
         sol_code = json.dumps(example_solution, indent=2, ensure_ascii=False)
         solution_pane = (
             f'<div class="chip-row">{var_chips_short(decision_vars)}</div>'
             f'{code_block(sol_code, "json", copy_id=f"sol-{idx}-{i}")}'
         )
+        tabs = (
+            '<div class="tab-bar">'
+            '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
+            '<button class="tab-btn" type="button" data-tab="solution">Solution</button>'
+            '</div>'
+            f'<div class="tab-pane active" data-pane="data">{data_pane}</div>'
+            f'<div class="tab-pane" data-pane="solution">{solution_pane}</div>'
+        )
     else:
-        solution_pane = '<p class="desc">No solution yet, will be added shortly.</p>'
+        tabs = (
+            '<div class="tab-bar">'
+            '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
+            '</div>'
+            f'<div class="tab-pane active" data-pane="data">{data_pane}</div>'
+        )
     return (
-        f'<details class="instance"><summary>{label}</summary>'
+        f'<details class="instance"{open_attr}><summary>{label}</summary>'
         f'<div class="tab-group">'
-        f'<div class="tab-bar">'
-        f'<button class="tab-btn active" type="button" data-tab="data">Data</button>'
-        f'<button class="tab-btn" type="button" data-tab="solution">Solution</button>'
-        f'</div>'
-        f'<div class="tab-pane active" data-pane="data">{data_pane}</div>'
-        f'<div class="tab-pane" data-pane="solution">{solution_pane}</div>'
+        f'{tabs}'
         f'</div></details>'
     )
 
@@ -542,7 +617,7 @@ def instances_section_html(p: dict, idx: int) -> str:
             return (
                 '<details class="card-box instances-box">'
                 '<summary><h3>Instances</h3></summary>'
-                '<details class="instance"><summary>Example instance</summary>'
+                '<details class="instance" open><summary>Example (Instance 1)</summary>'
                 '<div class="tab-group"><div class="tab-bar">'
                 '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
                 '<button class="tab-btn" type="button" data-tab="solution">Solution</button>'
@@ -579,7 +654,7 @@ def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
     panes = [
         f'<div class="tab-pane active" data-pane="ground_truth">'
         f'<div class="card-box provenance"><h3>Metadata</h3>{metadata_html(meta, p)}</div>'
-        f'<h3>Model</h3>{code_block(p["model"], "python", copy_id=f"model-{idx}")}'
+        f'<h3>Model</h3>{code_block(p["display_model"], "python", copy_id=f"model-{idx}")}'
         f'</div>'
     ]
     for fw in FRAMEWORK_ORDER + [f for f in best if f not in FRAMEWORK_ORDER]:
@@ -590,7 +665,7 @@ def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
         buttons.append(
             f'<button class="tab-btn" type="button" data-tab="{slug}">{esc(fw)}</button>'
         )
-        panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_card(entry)}</div>')
+        panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_html(entry)}</div>')
     return (
         f'<div class="page-section"><h2>Models</h2>'
         f'<div class="tab-group"><div class="tab-bar">{"".join(buttons)}</div>'
@@ -664,7 +739,6 @@ def metadata_html(meta: dict, p: dict) -> str:
         rows.append(f"<dt>{esc(humanize_key(key))}</dt><dd>{linkify(value)}</dd>")
     if meta.get("category"):
         rows.append(f"<dt>Category</dt><dd>{esc(meta['category'])}</dd>")
-    rows.append(f"<dt>Origin</dt><dd>{esc(origin_label(p['origin']))}</dd>")
     return "<dl>" + "".join(rows) + "</dl>"
 
 
@@ -673,31 +747,10 @@ def metadata_html(meta: dict, p: dict) -> str:
 # --------------------------------------------------------------------------
 
 def build_frameworks(problems: list, stats: dict, generated: dict) -> None:
-    by_fw = {}
-    for p in problems:
-        for fw in p["frameworks"]:
-            by_fw.setdefault(fw, []).append(p)
-
-    sections = []
-    for fw in sorted(by_fw):
-        items = "".join(
-            f'<li><a href="problems/{p["id"]}.html">{esc(p["id"])}</a></li>'
-            for p in by_fw[fw]
-        )
-        sections.append(
-            f'<div class="section"><h2>{badge(fw, fw)} {stats["frameworks"][fw]} problems</h2>'
-            f'<ul class="fw-list" style="columns:3;column-gap:24px;list-style:none;padding:0">{items}</ul></div>'
-        )
-
     gen_tabs = generated_framework_tabs(problems, generated)
-
     body = (
-        '<p class="desc" style="margin-top:0">All problems with at least one model per framework.</p>'
-        + "".join(sections)
-        + f'<div class="section"><h2>Generated models by framework</h2>'
-        + f'<p class="desc">The best valid generated model per framework, when one exists.</p>'
-        + gen_tabs
-        + "</div>"
+        '<p class="desc" style="margin-top:0">Generated models grouped by framework.</p>'
+        f'<div class="section">{gen_tabs}</div>'
     )
     (OUTPUT_DIR / "framework.html").write_text(
         page("Framework view", "", "frameworks", body), encoding="utf-8"
@@ -725,7 +778,7 @@ def generated_framework_tabs(problems: list, generated: dict) -> str:
         items = "".join(
             f'<div class="gen-fw-item"><a href="problems/{p["id"]}.html">{esc(p["id"])}</a>'
             f'<span class="muted mono"> · {esc(entry["submission"])}</span>'
-            f'<span class="gen-fw-badge">{verdict_badge(entry["metrics"])}</span></div>'
+            f'</div>'
             for p, entry in sorted(by_fw[fw], key=lambda pe: pe[0]["id"])
         )
         panes.append(f'<div class="tab-pane{active}" data-pane="{slug}">{items}</div>')
@@ -929,6 +982,7 @@ def main() -> None:
                     "id": data["id"],
                     "description": data.get("description", ""),
                     "model": data.get("model", ""),
+                    "display_model": reference_model_code(data["id"], data.get("model", "")),
                     "example_instance": data.get("example_instance", ""),
                     "instances": data.get("instances") or [],
                     "example_solution": data.get("example_solution", {}),
@@ -964,7 +1018,6 @@ def main() -> None:
 
     build_index(problems, stats, generated)
     build_frameworks(problems, stats, generated)
-    build_stats(problems, stats, generated)
     for idx, p in enumerate(problems):
         build_problem_page(p, p["meta"], idx, len(problems), generated)
 

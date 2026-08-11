@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_018_water_bucket</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_018_water_bucket</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_018_water_bucket</p>
     <h1 class="problem-title">csplib_018_water_bucket</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">You are given an 8 pint bucket of water, and two empty buckets which can contain 5 and 3 pints respectively. You are required to divide the water into two by pouring water between buckets (that is, to end up with 4 pints in the 8 pint bucket, and 4 pints in the 5 pint bucket).  This task is to find the minimum number of transfers of water between buckets to reach the goal.  Print the minimum number of transfers (cost) and the sequence of states (sequence). The sequence must be a list of exactly MAX_STEPS integer lists. After the goal state is reached, the remainder of the list must be padded with the padding states, e.g. [-1, -1, -1].</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-56-1">Copy</button></div><pre class="code-block"><code id="inst-56-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-56-1">Copy</button></div><pre class="code-block"><code id="inst-56-1" class="language-json">{
   &quot;capacities&quot;: [
     8,
     5,
@@ -140,7 +140,32 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob018/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob018/</a></dd><dt>Source model</dt><dd><a href="https://www.csplib.org/Problems/prob018/models/WaterBucket.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob018/models/WaterBucket.py.html</a></dd><dt>Category</dt><dd>csplib</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-56">Copy</button></div><pre class="code-block"><code id="model-56" class="language-python">import cpmpy as cp
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob018/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob018/</a></dd><dt>Source model</dt><dd><a href="https://www.csplib.org/Problems/prob018/models/WaterBucket.py.html" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob018/models/WaterBucket.py.html</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-56">Copy</button></div><pre class="code-block"><code id="model-56" class="language-python">#!/usr/bin/python3
+# Category: csplib
+# Source description: https://www.csplib.org/Problems/prob018/
+# Source model: https://www.csplib.org/Problems/prob018/models/WaterBucket.py.html
+
+&quot;&quot;&quot;
+You are given an 8 pint bucket of water, and two empty buckets which can contain 5 and 3 pints respectively.
+You are required to divide the water into two by pouring water between buckets (that is, to end up with
+4 pints in the 8 pint bucket, and 4 pints in the 5 pint bucket).
+
+This task is to find the minimum number of transfers of water between buckets to reach the goal.
+
+Print the minimum number of transfers (cost) and the sequence of states (sequence). The sequence must
+be a list of exactly MAX_STEPS integer lists. After the goal state is reached, the remainder of the list must be
+padded with the padding states, e.g. [-1, -1, -1].
+&quot;&quot;&quot;
+
+# Data
+capacities = [8, 5, 3]
+initial_state = [8, 0, 0]
+goal_state = [4, 4, 0]
+MAX_STEPS = 20      # The fixed length of the output sequence.
+PADDING_VALUE = -1   # The value used for padding unused steps.
+# End of data
+
+import cpmpy as cp
 import json
 import numpy as np
 
@@ -228,7 +253,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_016_traffic_lights.html">← prev</a><a class="btn" href="csplib_019_magic_squares_and_sequences.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

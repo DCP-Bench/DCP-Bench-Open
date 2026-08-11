@@ -9,14 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
-<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><a class="" href="../stats.html">Stats</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">set_game</h1></div></header>
+<header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">set_game</h1></div></header>
 <main>
     <p class="breadcrumbs"><a href="index.html">problem</a> / set_game</p>
     <h1 class="problem-title">set_game</h1>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Set (stylized as SET or SET!) is a real-time card game designed by Marsha Falco in 1974 and published by Set Enterprises in 1991. The deck consists of 81 unique cards that vary in four features across three possibilities for each kind of feature: number of shapes (one, two, or three), shape (diamond, squiggle, oval), shading (solid, striped, or open), and color (red, green, or purple).[2] Each possible combination of features (e.g. a card with three striped green diamonds) appears as a card precisely once in the deck.  In the game, certain combinations of three cards are said to make up a &quot;set&quot;. For each one of the four categories of features—color, number, shape, and shading—the three cards must display that feature as either a) all the same, or b) all different. Put another way: For each feature the three cards must avoid having two cards showing one version of the feature and the remaining card showing a different version.  For example, 3 solid red diamonds, 2 solid green squiggles, and 1 solid purple oval form a set, because the shadings of the three cards are all the same, while the numbers, the colors, and the shapes among the three cards are all different.  For any set, the number of features that are constant (the same on all three cards) and the number of features that differ (different on all three cards) may break down as: all 4 features differing; or 1 feature being constant and 3 differing; or 2 constant and 2 differing; or 3 constant and 1 differing. (All 4 features being constant would imply that the three cards in the set are identical, which is impossible since no cards in the Set deck are identical.)  Print the 0-based indices of the winning set of cards (winning_cards).</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance"><summary>Example instance</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-155-1">Copy</button></div><pre class="code-block"><code id="inst-155-1" class="language-json">{
+    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><div class="code-head"><span>json</span><button type="button" data-copy="inst-155-1">Copy</button></div><pre class="code-block"><code id="inst-155-1" class="language-json">{
   &quot;numbers&quot;: [
     1,
     2,
@@ -131,7 +131,60 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/set_game.ipynb" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/set_game.ipynb</a></dd><dt>Description</dt><dd><a href="https://en.wikipedia.org/wiki/Set_(card_game)" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Set_(card_game)</a></dd><dt>Category</dt><dd>cpmpy_examples</dd><dt>Origin</dt><dd>hand-written</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-155">Copy</button></div><pre class="code-block"><code id="model-155" class="language-python"># Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/set_game.ipynb" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/set_game.ipynb</a></dd><dt>Description</dt><dd><a href="https://en.wikipedia.org/wiki/Set_(card_game)" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Set_(card_game)</a></dd><dt>Category</dt><dd>cpmpy_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-155">Copy</button></div><pre class="code-block"><code id="model-155" class="language-python">#!/usr/bin/python3
+# Category: cpmpy_examples
+# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/set_game.ipynb
+# Description: https://en.wikipedia.org/wiki/Set_(card_game)
+
+&quot;&quot;&quot;
+Set (stylized as SET or SET!) is a real-time card game designed by Marsha Falco in 1974 and published by Set
+Enterprises in 1991. The deck consists of 81 unique cards that vary in four features across three possibilities for
+each kind of feature: number of shapes (one, two, or three), shape (diamond, squiggle, oval), shading (solid,
+striped, or open), and color (red, green, or purple).[2] Each possible combination of features (e.g. a card with
+three striped green diamonds) appears as a card precisely once in the deck.
+
+In the game, certain combinations of three cards are said to make up a &quot;set&quot;. For each one of the four categories of
+features—color, number, shape, and shading—the three cards must display that feature as either a) all the same,
+or b) all different. Put another way: For each feature the three cards must avoid having two cards showing one
+version of the feature and the remaining card showing a different version.
+
+For example, 3 solid red diamonds, 2 solid green squiggles, and 1 solid purple oval form a set, because the shadings
+of the three cards are all the same, while the numbers, the colors, and the shapes among the three cards are all
+different.
+
+For any set, the number of features that are constant (the same on all three cards) and the number of features that
+differ (different on all three cards) may break down as: all 4 features differing; or 1 feature being constant and 3
+differing; or 2 constant and 2 differing; or 3 constant and 1 differing. (All 4 features being constant would imply
+that the three cards in the set are identical, which is impossible since no cards in the Set deck are identical.)
+
+Print the 0-based indices of the winning set of cards (winning_cards).
+&quot;&quot;&quot;
+
+# Data
+# Constants
+numbers = ONE, TWO, THREE = 1, 2, 3
+colors = RED, PURPLE, GREEN = 1, 2, 3
+shapes = DIAMOND, RECT, ELLIPSE = 1, 2, 3
+fills = FULL, EMPTY, STRIPED = 1, 2, 3
+
+# Make the card deck
+cards_data = [  # Each card is represented as a list of [number, fill, color, shape]
+    [ONE, EMPTY, GREEN, DIAMOND],
+    [TWO, STRIPED, RED, RECT],
+    [THREE, STRIPED, GREEN, DIAMOND],
+    [THREE, FULL, RED, DIAMOND],
+    [ONE, STRIPED, GREEN, DIAMOND],
+    [ONE, EMPTY, RED, DIAMOND],
+    [TWO, FULL, PURPLE, DIAMOND],
+    [THREE, FULL, PURPLE, ELLIPSE],
+    [THREE, FULL, GREEN, RECT],
+    [ONE, FULL, PURPLE, DIAMOND],
+    [ONE, STRIPED, PURPLE, DIAMOND],
+    [ONE, FULL, GREEN, RECT]
+]
+# End of data
+
+# Import libraries
 from cpmpy import *
 import json
 
@@ -170,17 +223,8 @@ model.solve()
 # Print
 solution = {&quot;winning_cards&quot;: winning_cards.value().tolist()}
 print(json.dumps(solution))
-# End of CPMPy script</code></pre></div><div class="tab-pane" data-pane="cpmpy">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">cpagent <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: Claude 4 Sonnet · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
-      </div>
-      
-      <details class="gmodel"><summary>model.py (105 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-set_game-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-set_game-cpagent" class="language-python">import cpmpy as cp
+# End of CPMPy script
+</code></pre></div><div class="tab-pane" data-pane="cpmpy"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>cpagent</dd><dt>Base LLM</dt><dd>Claude 4 Sonnet</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/set_game/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="gmod-set_game-cpagent">Copy</button></div><pre class="code-block"><code id="gmod-set_game-cpagent" class="language-python">import cpmpy as cp
 import json
 
 # Step 1: Deconstruct &amp; Pre-compute
@@ -285,27 +329,7 @@ if model.solve():
     # Step 4: Output
     print(json.dumps(solution))
 else:
-    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-set_game-cpagent">Copy</button></div><pre class="code-block"><code id="gsol-set_game-cpagent" class="language-json">{
-  &quot;winning_cards&quot;: [
-    4,
-    5,
-    9
-  ]
-}</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/set_game/cpmpy/cpagent/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/cpagent/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/cpagent/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div><div class="tab-pane" data-pane="or-tools">
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">guidelines_prompt_ort <span class="badge outline" title="Imported from the CP-Bench leaderboard (kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, not re-verified in this repository">legacy · CP-Bench leaderboard</span></div>
-          <div class="muted">base LLM: o4-mini-2025-04-16 · v1_verified</div>
-        </div>
-        <div><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></div>
-      </div>
-      
-      <details class="gmodel"><summary>model.py (86 lines)</summary><div class="code-head"><span>python</span><button type="button" data-copy="gmod-set_game-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-set_game-guidelines_prompt_ort" class="language-python">
+    print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></div><div class="tab-pane" data-pane="or-tools"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>guidelines_prompt_ort</dd><dt>Base LLM</dt><dd>o4-mini-2025-04-16</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#2563eb" title="Model produces a valid solution (satisfaction problem, or optimality not applicable)">solution valid</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/set_game/ortools/guidelines_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="gmod-set_game-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gmod-set_game-guidelines_prompt_ort" class="language-python">
 from ortools.sat.python import cp_model
 import json
 
@@ -391,17 +415,7 @@ if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
     print(json.dumps(solution, indent=4))
 else:
     print(&quot;No solution found.&quot;)
-</code></pre></details>
-      <details class="gmodel"><summary>solution</summary><div class="code-head"><span>json</span><button type="button" data-copy="gsol-set_game-guidelines_prompt_ort">Copy</button></div><pre class="code-block"><code id="gsol-set_game-guidelines_prompt_ort" class="language-json">{
-  &quot;winning_cards&quot;: [
-    2,
-    5,
-    6
-  ]
-}</code></pre></details>
-      <div class="model-card-links"><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/set_game/ortools/guidelines_prompt_ort/model.py" target="_blank" rel="noopener">Model file (GitHub)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/submission.jsonl" target="_blank" rel="noopener">Submission file</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_ort/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> · <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_ort/summary.txt" target="_blank" rel="noopener">Result summary</a></div>
-    </div>
-    </div></div></div>
+</code></pre></div></div></div>
 
     <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
       <a class="btn" href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/dataset/set_game/set_game.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
@@ -409,7 +423,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session5_hardy_1729_square.html">← prev</a><a class="btn" href="sudoku.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>aa1021d</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
