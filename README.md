@@ -1,9 +1,13 @@
-# DCP-Bench-Open
+# DCP-Bench Open
 
+[![Website](https://img.shields.io/badge/Website-DCP--Bench%20Open-4f46e5?logo=googlechrome&logoColor=white)](https://dcp-bench.github.io/DCP-Bench-Open/)
+[![Paper](https://img.shields.io/badge/Paper-arXiv%3A2506.06052-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2506.06052)
 [![Release](https://img.shields.io/github/v/release/DCP-Bench/DCP-Bench-Open?label=release)](https://github.com/DCP-Bench/DCP-Bench-Open/releases)
 [![License](https://img.shields.io/github/license/DCP-Bench/DCP-Bench-Open)](LICENSE)
 
-DCP-Bench-Open is a collaborative benchmark of Discrete Combinatorial Problems, with only involving integer and Boolean decision variables. Many problem formulations come from the Constraint Programming (CP) community, as well as the Integer Programming community (no continuous variables), Pseudo-Boolean and Satisfiability communities.
+DCP-Bench Open is a collaborative benchmark of Discrete Combinatorial Problems using only integer and Boolean decision variables. Many problem formulations come from the Constraint Programming (CP) community, as well as the Integer Programming community (without continuous variables), Pseudo-Boolean and Satisfiability communities.
+
+[**Open the interactive DCP-Bench Open catalogue →**](https://dcp-bench.github.io/DCP-Bench-Open/)
 
 This benchmark has two primary goals:
 
@@ -39,6 +43,8 @@ The `dataset/` directory contains the source problems for the benchmark. Each pr
 
 *   `<problem_name>/<problem_name>.cpmpy.py`: A Python script containing the natural language problem description, a sample instance, and a ground-truth CPMpy model.
 *   `<problem_name>/<problem_name>.json`: A JSON file containing one or more instances for the problem, compatible with the python script.
+
+The source catalogue for these problems is documented in [SOURCES.md](SOURCES.md).
 
 
 ## Evaluation framework
