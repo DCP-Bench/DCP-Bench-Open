@@ -11,46 +11,13 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">circling_squares</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / circling_squares</p>
-    <h1 class="problem-title">circling_squares</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Circling the squares:  The puzzle is to place a different number in each of the ten squares so that the sum of the squares of any two adjacent numbers shall be equal to the sum of the squares of the two numbers diametrically opposite to them. The four numbers placed, as examples, must stand as they are. The square of 16 is 256, and the square of 2 is 4. Add these together, and the result is 260. Also—the square of 14 is 196, and the square of 8 is 64. These together also make 260. Now, in precisely the same way, B and C should be equal to G and H (the sum will not necessarily be 260), A and K to F and E, H and I to C and D, and so on, with any two adjoining squares in the circle.  All you have to do is to fill in the remaining six numbers. Fractions are not allowed, and I shall show that no number need contain more than two figures.  Print the 10 numbers in the circle (A, B, C, D, E, F, G, H, I, K) when A=16, B=2, F=8, G=14.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-30-0">Copy</button></div><pre class="code-block"><code id="sol-30-0" class="language-json">{
-  &quot;A&quot;: 16,
-  &quot;B&quot;: 2,
-  &quot;C&quot;: 19,
-  &quot;D&quot;: 22,
-  &quot;E&quot;: 49,
-  &quot;F&quot;: 8,
-  &quot;G&quot;: 14,
-  &quot;H&quot;: 13,
-  &quot;I&quot;: 26,
-  &quot;K&quot;: 47
-}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/circling_squares.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/circling_squares.py</a></dd><dt>Source description</dt><dd>From the Oz examples <a href="http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/circlingsquares.html" target="_blank" rel="noopener">http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/circlingsquares.html</a> from &#x27;Amusements in Mathematics, Dudeney&#x27;, number 43.</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-30">Copy</button></div><pre class="code-block"><code id="model-30" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/circling_squares.py
-# Source description: From the Oz examples http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/circlingsquares.html from &#x27;Amusements in Mathematics, Dudeney&#x27;, number 43.
 
-&quot;&quot;&quot;
-Circling the squares:
-
-The puzzle is to place a different number in each of the ten squares so that the sum of the squares of any two
-adjacent numbers shall be equal to the sum of the squares of the two numbers diametrically opposite to them. The four
-numbers placed, as examples, must stand as they are. The square of 16 is 256, and the square of 2 is 4. Add these
-together, and the result is 260. Also—the square of 14 is 196, and the square of 8 is 64. These together also make
-260. Now, in precisely the same way, B and C should be equal to G and H (the sum will not necessarily be 260),
-A and K to F and E, H and I to C and D, and so on, with any two adjoining squares in the circle.
-
-All you have to do is to fill in the remaining six numbers. Fractions are not allowed, and I shall show that no
-number need contain more than two figures.
-
-Print the 10 numbers in the circle (A, B, C, D, E, F, G, H, I, K) when A=16, B=2, F=8, G=14.
-&quot;&quot;&quot;
-
-# Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/circling_squares.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/circling_squares.py</a></dd><dt>Source description</dt><dd>From the Oz examples <a href="http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/circlingsquares.html" target="_blank" rel="noopener">http://www.comp.nus.edu.sg/~henz/projects/puzzles/arith/circlingsquares.html</a> from &#x27;Amusements in Mathematics, Dudeney&#x27;, number 43.</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-30">Copy</button></div><pre class="code-block"><code id="model-30" class="language-python"># Import libraries
 from cpmpy import *
 import json
 
@@ -223,7 +190,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="chess_set.html">← prev</a><a class="btn" href="circular_table_averbach_1_2.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

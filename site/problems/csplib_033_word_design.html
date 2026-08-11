@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_033_word_design</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_033_word_design</p>
-    <h1 class="problem-title">csplib_033_word_design</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Find a set \( S \) of `num_words` strings (words) of length `n` over the alphabet \( W = \{ A,C,G,T \} \) with the following properties:  - Each word in \( S \) has 4 symbols from \{ C,G \}; - Each pair of distinct words in \( S \) differ in at least 4 positions; and - Each pair of words \( x \) and \( y \) in \( S \) (where \( x \) and \( y \) may be identical) are such that \( x^R \) and \( y^C \) differ in at least 4 positions. For example, when n=8, \( ( x_1,\ldots,x_8 )^R = ( x_8,\ldots,x_1 ) \) is the reverse of \( ( x_1,\ldots,x_8 ) \) and \( ( y_1,\ldots,y_8 )^C \) is the Watson-Crick complement of \( ( y_1,\ldots,y_8 ) \), i.e. the word where each \( A \) is replaced by a \( T \) and vice versa and each \( C \) is replaced by a \( G \) and vice versa.  Print the set of words (words) as a list of lists of integers, where each integer represents a letter in the word: 1 for A, 2 for C, 3 for G, and 4 for T.</div></div>
 
@@ -156,22 +155,7 @@
   &quot;num_words&quot;: 8
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob033/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob033/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-65">Copy</button></div><pre class="code-block"><code id="model-65" class="language-python">#!/usr/bin/python3
-# Category: csplib
-# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py
-# Source description: https://www.csplib.org/Problems/prob033/
-
-&quot;&quot;&quot;
-Find a set \( S \) of `num_words` strings (words) of length `n` over the alphabet \( W = \{ A,C,G,T \} \) with the following properties:
-
-- Each word in \( S \) has 4 symbols from \{ C,G \};
-- Each pair of distinct words in \( S \) differ in at least 4 positions; and
-- Each pair of words \( x \) and \( y \) in \( S \) (where \( x \) and \( y \) may be identical) are such that \( x^R \) and \( y^C \) differ in at least 4 positions. For example, when n=8, \( ( x_1,\ldots,x_8 )^R = ( x_8,\ldots,x_1 ) \) is the reverse of \( ( x_1,\ldots,x_8 ) \) and \( ( y_1,\ldots,y_8 )^C \) is the Watson-Crick complement of \( ( y_1,\ldots,y_8 ) \), i.e. the word where each \( A \) is replaced by a \( T \) and vice versa and each \( C \) is replaced by a \( G \) and vice versa.
-
-Print the set of words (words) as a list of lists of integers, where each integer represents a letter in the word: 1 for A, 2 for C, 3 for G, and 4 for T.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob033/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob033/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-65">Copy</button></div><pre class="code-block"><code id="model-65" class="language-python"># Data
 n = 8  # Length of each word
 num_words = 12  # Number of words to find
 # End of data
@@ -224,7 +208,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_032_max_density_still_life.html">← prev</a><a class="btn" href="csplib_034_warehouse_location.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

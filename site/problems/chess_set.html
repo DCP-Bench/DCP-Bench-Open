@@ -11,34 +11,13 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">chess_set</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / chess_set</p>
-    <h1 class="problem-title">chess_set</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">A small joinery makes two different sizes of boxwood chess sets. The small set requires 3 hours of machining on a lathe, and the large set requires 2 hours. There are four lathes with skilled operators who each work a 40 hour week, so we have 160 lathe-hours per week. The small chess set requires 1 kg of boxwood, and the large set requires 3 kg. Unfortunately, boxwood is scarce and only 200 kg per week can be obtained. When sold, each of the large chess sets yields a profit of $20, and one of the small chess set has a profit of $5. The problem is to decide how many sets of each kind should be made each week so as to maximize profit.  Print the number of small sets and large sets, and the maximum profit (small_set, large_set, max_profit).</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-29-0">Copy</button></div><pre class="code-block"><code id="sol-29-0" class="language-json">{
-  &quot;small_set&quot;: 2,
-  &quot;large_set&quot;: 66,
-  &quot;max_profit&quot;: 1330
-}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/chess_set.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/chess_set.py</a></dd><dt>Source description</dt><dd>Applications of Optimization with XPress-MP.pdf page 11. The problem is presented on page 7.</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-29">Copy</button></div><pre class="code-block"><code id="model-29" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/chess_set.py
-# Source description: Applications of Optimization with XPress-MP.pdf page 11. The problem is presented on page 7.
 
-&quot;&quot;&quot;
-A small joinery makes two different sizes of boxwood chess sets. The small set requires 3 hours of machining on a
-lathe, and the large set requires 2 hours. There are four lathes with skilled operators who each work a 40 hour week,
-so we have 160 lathe-hours per week. The small chess set requires 1 kg of boxwood, and the large set requires 3 kg.
-Unfortunately, boxwood is scarce and only 200 kg per week can be obtained. When sold, each of the large chess sets
-yields a profit of $20, and one of the small chess set has a profit of $5. The problem is to decide how many sets of
-each kind should be made each week so as to maximize profit.
-
-Print the number of small sets and large sets, and the maximum profit (small_set, large_set, max_profit).
-&quot;&quot;&quot;
-
-# Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/chess_set.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/chess_set.py</a></dd><dt>Source description</dt><dd>Applications of Optimization with XPress-MP.pdf page 11. The problem is presented on page 7.</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-29">Copy</button></div><pre class="code-block"><code id="model-29" class="language-python"># Import libraries
 from cpmpy import *
 import json
 
@@ -101,30 +80,30 @@ if model.solve():
         &quot;large_set&quot;: int(large_set.value()),
         &quot;max_profit&quot;: int(profit.value())
     }
-    
+
     # Verification
     def verify_solution(sol):
         small = sol[&quot;small_set&quot;]
         large = sol[&quot;large_set&quot;]
         profit_val = sol[&quot;max_profit&quot;]
-        
+
         # Check constraints
         lathe_hours = 3 * small + 2 * large
         boxwood = 1 * small + 3 * large
         calculated_profit = 5 * small + 20 * large
-        
+
         if lathe_hours &gt; 160:
             return False, f&quot;Lathe hours violated: {lathe_hours} &gt; 160&quot;
         if boxwood &gt; 200:
             return False, f&quot;Boxwood violated: {boxwood} &gt; 200&quot;
         if calculated_profit != profit_val:
             return False, f&quot;Profit mismatch: {calculated_profit} != {profit_val}&quot;
-        
+
         return True, &quot;Solution verified&quot;
-    
+
     valid, msg = verify_solution(solution)
     assert valid, f&quot;Verification failed: {msg}&quot;
-    
+
     print(json.dumps(solution))
 else:
     print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></div><div class="tab-pane" data-pane="minizinc"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>documentation_prompt_mnz</dd><dt>Base LLM</dt><dd>gpt-4.1-mini</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/chess_set/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-chess_set-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-chess_set-documentation_prompt_mnz" class="language-minizinc">% Include the globals library for global constraints if needed
@@ -262,7 +241,7 @@ print(json.dumps(result))</code></pre></div></div></div>
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="cell_tower.html">← prev</a><a class="btn" href="circling_squares.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

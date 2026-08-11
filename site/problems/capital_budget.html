@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">capital_budget</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / capital_budget</p>
-    <h1 class="problem-title">capital_budget</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">A company is considering a number of investments. Each investment will yield a net present value (NPV). Each investment requires a certain cash outflow at the present time. There is a total budget available for investment. How to maximize the NPV obtained from the investments?  Print whether each investment is chosen (x) as a list of booleans, and the total NPV (z) as an integer.</div></div>
 
@@ -40,21 +39,7 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/capital_budget.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/capital_budget.py</a></dd><dt>Source description</dt><dd>Winston &#x27;Operations Research&#x27;, page 478: Capital budgeting</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-26">Copy</button></div><pre class="code-block"><code id="model-26" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/capital_budget.py
-# Source description: Winston &#x27;Operations Research&#x27;, page 478: Capital budgeting
-
-&quot;&quot;&quot;
-A company is considering a number of investments. Each investment will yield a net present value (NPV). Each investment requires a
-certain cash outflow at the present time. There is a total budget available for investment. How to maximize the NPV obtained from
-the investments?
-
-Print whether each investment is chosen (x) as a list of booleans,
-and the total NPV (z) as an integer.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/capital_budget.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/capital_budget.py</a></dd><dt>Source description</dt><dd>Winston &#x27;Operations Research&#x27;, page 478: Capital budgeting</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-26">Copy</button></div><pre class="code-block"><code id="model-26" class="language-python"># Data
 budget = 14000
 npv = [16000, 22000, 12000, 8000]
 cash_flow = [5000, 7000, 4000, 3000]
@@ -95,7 +80,7 @@ import json
 
 # Problem data
 npv = [16, 22, 12, 8]  # NPV in thousands of dollars
-cost = [5, 7, 4, 3]    # Cost in thousands of dollars  
+cost = [5, 7, 4, 3]    # Cost in thousands of dollars
 budget = 14            # Available budget in thousands
 n = 4                  # Number of investments
 
@@ -119,22 +104,22 @@ if model.solve():
         &quot;z&quot;: int(total_npv.value()),  # NPV in thousands
         &quot;x&quot;: x.value().tolist()       # Boolean list for investment choices
     }
-    
+
     # Verification
     def verify_solution(x_sol, expected_npv):
         x_binary = [1 if val else 0 for val in x_sol]
         total_cost_check = sum(x_binary[i] * cost[i] for i in range(4))
         calculated_npv = sum(x_binary[i] * npv[i] for i in range(4))
-        
+
         if total_cost_check &gt; budget:
             return False, f&quot;Budget constraint violated: cost={total_cost_check}, budget={budget}&quot;
         if calculated_npv != expected_npv:
             return False, f&quot;NPV mismatch: calculated={calculated_npv}, expected={expected_npv}&quot;
         return True, &quot;All constraints satisfied&quot;
-    
+
     valid, message = verify_solution(solution[&quot;x&quot;], solution[&quot;z&quot;])
     assert valid, f&quot;Solution verification failed: {message}&quot;
-    
+
     # Output solution
     print(json.dumps(solution))
 else:
@@ -198,7 +183,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="candies.html">← prev</a><a class="btn" href="car_selection.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

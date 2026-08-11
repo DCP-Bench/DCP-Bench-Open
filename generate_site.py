@@ -124,12 +124,15 @@ def detect_frameworks(model_code: str) -> list:
 
 
 def reference_model_code(problem_id: str, fallback: str) -> str:
-    """Load the complete runnable reference model shown on the website."""
+    """Load the runnable reference model body, omitting metadata and its description."""
     path = Path("dataset") / problem_id / f"{problem_id}.cpmpy.py"
     try:
         code = path.read_text(encoding="utf-8")
     except (OSError, UnicodeError):
         return fallback
+    description = re.search(r'""".*?"""|\'\'\'.*?\'\'\'', code, re.DOTALL)
+    if description:
+        code = code[description.end():].lstrip("\r\n")
     trailing_newline = "\n" if code.endswith("\n") else ""
     return "\n".join(line.rstrip() for line in code.splitlines()) + trailing_newline
 
@@ -481,7 +484,7 @@ def option(value: str, label: str, current: str = "") -> str:
     return f'<option value="{esc(value)}"{sel}>{esc(label)}</option>'
 
 
-def build_index(problems: list, stats: dict, generated: dict) -> None:
+def build_index_legacy(problems: list, stats: dict, generated: dict) -> None:
     gt_frameworks = sorted({fw for p in problems for fw in p["frameworks"]})
     gen_frameworks = sorted({fw for by_fw in generated.values() for fw in by_fw})
     gen_total = sum(len(v) for by_fw in generated.values() for v in by_fw.values())
@@ -571,6 +574,47 @@ def coverage_matrix(problems: list, frameworks: list) -> str:
 # Problem pages
 # --------------------------------------------------------------------------
 
+
+def build_index(problems: list, generated: dict) -> None:
+    """Build the problem catalogue without the old summary-stat dashboard."""
+    source_opts = "".join(option(s, s) for s in sorted({p["source"] for p in problems}))
+    body = f"""
+    <div class="controls" aria-label="Problem filters and sorting">
+      <label class="search-field"><span class="sr-only">Search problems</span>
+        <input type="search" id="filter-q" placeholder="Search problems or descriptions" autocomplete="off">
+      </label>
+      <label class="control-field"><span>Type</span>
+        <select id="filter-type"><option value="">All types</option>
+          {option("optimization", "Optimization")}{option("satisfaction", "Satisfaction")}</select>
+      </label>
+      <label class="control-field"><span>Source</span>
+        <select id="filter-source"><option value="">All sources</option>{source_opts}</select>
+      </label>
+      <label class="control-field"><span>Instances</span>
+        <select id="filter-instances"><option value="">Any count</option>
+          {option("single", "Single")}{option("multiple", "Multiple")}</select>
+      </label>
+      <label class="control-field sort-field"><span>Sort by</span>
+        <select id="sort-by">
+          {option("name", "Name", "name")}
+          {option("type", "Type")}
+          {option("source", "Source")}
+          {option("instances", "Instances")}
+          {option("generated", "Generated models")}
+        </select>
+      </label>
+      <div class="view-toggle" role="group" aria-label="Problem view">
+        <button type="button" class="view-btn active" id="view-grid" data-view="grid" aria-pressed="true">Grid</button>
+        <button type="button" class="view-btn" id="view-list" data-view="list" aria-pressed="false">List</button>
+      </div>
+    </div>
+    <p class="result-count" id="result-count"></p>
+    <div class="cards" id="cards"></div>
+    """
+    (OUTPUT_DIR / "index.html").write_text(
+        page("Problems", "", "index", body, SUBTITLE), encoding="utf-8"
+    )
+
 def var_chips_short(vars_list: list) -> str:
     return "".join(f'<span class="chip">{esc(v)}</span>' for v in vars_list) or ""
 
@@ -612,25 +656,7 @@ def instance_card_html(inst, i: int, idx: int, is_example: bool, example_solutio
 def instances_section_html(p: dict, idx: int) -> str:
     insts = p["instances"] or ([p["example_instance"]] if p["example_instance"] else [])
     if not insts:
-        if p["example_solution"]:
-            sol_code = json.dumps(p["example_solution"], indent=2, ensure_ascii=False)
-            return (
-                '<details class="card-box instances-box">'
-                '<summary><h3>Instances</h3></summary>'
-                '<details class="instance" open><summary>Example (Instance 1)</summary>'
-                '<div class="tab-group"><div class="tab-bar">'
-                '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
-                '<button class="tab-btn" type="button" data-tab="solution">Solution</button>'
-                '</div>'
-                f'<div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div>'
-                f'<div class="tab-pane" data-pane="solution">{code_block(sol_code, "json", copy_id=f"sol-{idx}-0")}</div>'
-                '</div></details></details>'
-            )
-        return (
-            '<details class="card-box instances-box">'
-            '<summary><h3>Instances</h3></summary>'
-            '<p class="desc">No instances available.</p></details>'
-        )
+        return ""
     cards = "".join(
         instance_card_html(
             inst, i, idx,
@@ -694,8 +720,7 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
         prev_next += "</div>"
 
     body = f"""
-    <p class="breadcrumbs"><a href="index.html">problem</a> / {esc(pid)}</p>
-    <h1 class="problem-title">{esc(pid)}</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     {description_box}
 
@@ -711,8 +736,10 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
     """
 
     (OUTPUT_DIR / "problems").mkdir(parents=True, exist_ok=True)
+    rendered_page = page(pid, "../", "problems", body, snippet(p["description"], 160))
+    rendered_page = "\n".join(line.rstrip() for line in rendered_page.splitlines()) + "\n"
     (OUTPUT_DIR / "problems" / f"{pid}.html").write_text(
-        page(pid, "../", "problems", body, snippet(p["description"], 160)),
+        rendered_page,
         encoding="utf-8",
     )
 
@@ -746,7 +773,7 @@ def metadata_html(meta: dict, p: dict) -> str:
 # Framework view + Stats
 # --------------------------------------------------------------------------
 
-def build_frameworks(problems: list, stats: dict, generated: dict) -> None:
+def build_frameworks(problems: list, generated: dict) -> None:
     gen_tabs = generated_framework_tabs(problems, generated)
     body = (
         '<p class="desc" style="margin-top:0">Generated models grouped by framework.</p>'
@@ -1001,23 +1028,8 @@ def main() -> None:
     problems_list = problems
 
     generated = load_generated_models()
-    gen_total = sum(len(v) for by_fw in generated.values() for v in by_fw.values())
-
-    stats = {
-        "problems": len(problems),
-        "instances": sum(len(p["instances"]) for p in problems),
-        "models": sum(len(p["frameworks"]) for p in problems),
-        "generated_models": gen_total,
-        "frameworks": {},
-        "origins": {},
-    }
-    for p in problems:
-        for fw in p["frameworks"]:
-            stats["frameworks"][fw] = stats["frameworks"].get(fw, 0) + 1
-        stats["origins"][p["origin"]] = stats["origins"].get(p["origin"], 0) + 1
-
-    build_index(problems, stats, generated)
-    build_frameworks(problems, stats, generated)
+    build_index(problems, generated)
+    build_frameworks(problems, generated)
     for idx, p in enumerate(problems):
         build_problem_page(p, p["meta"], idx, len(problems), generated)
 

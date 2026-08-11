@@ -11,70 +11,13 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">football</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / football</p>
-    <h1 class="problem-title">football</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Statistics show that, in the Premiership, there is a strong correlation between the value of a team&#x27;s players and their final position in that league - so you want to spend as much money as you can. The chairman gives you an upper limit of GBP 30 million - so you want your purchases to add up to as close to that figure as possible (without going over).  Here are the groups of players available, their price (in GBP millions) and the numbers of each type you are obliged to buy:  Goalkeepers (must buy 1 exactly): g1: 0.73 g2: 1.28 g3: 3.88  Defenders (must buy 2 or more): d1: 0.92 d2: 1.31 d3: 1.62 d4: 2.41 d5: 2.79 d6: 3.28 d7: 3.91 d8: 4.57  Midfielders (must buy 3 or more): m1: 1.8 m2: 2.63 m3: 3.17 m4: 3.769 m5: 4.14 m6: 4.75 m7: 5.38 m8: 5.93 m9: 6.78 m10: 7.13  Strikers (must buy 2 or more): s1: 4.46 s2: 6.47 s3: 7.78 s4: 8.39 s5: 9.5  Also, you must buy at least eleven players in total.  Print out the total price of the players you have selected (z) in GBP thousands; e.g. if the total is GBP 12,345 million, the output should be 12345.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-103-0">Copy</button></div><pre class="code-block"><code id="sol-103-0" class="language-json">{
-  &quot;z&quot;: 29999
-}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/football.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/football.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-103">Copy</button></div><pre class="code-block"><code id="model-103" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/football.py
 
-&quot;&quot;&quot;
-Statistics show that, in the Premiership, there is a strong
-correlation between the value of a team&#x27;s players and their final
-position in that league - so you want to spend as much money as you
-can. The chairman gives you an upper limit of GBP 30 million - so you
-want your purchases to add up to as close to that figure as possible
-(without going over).
-
-Here are the groups of players available, their price (in GBP
-millions) and the numbers of each type you are obliged to buy:
-
-Goalkeepers (must buy 1 exactly):
-g1: 0.73
-g2: 1.28
-g3: 3.88
-
-Defenders (must buy 2 or more):
-d1: 0.92
-d2: 1.31
-d3: 1.62
-d4: 2.41
-d5: 2.79
-d6: 3.28
-d7: 3.91
-d8: 4.57
-
-Midfielders (must buy 3 or more):
-m1: 1.8
-m2: 2.63
-m3: 3.17
-m4: 3.769
-m5: 4.14
-m6: 4.75
-m7: 5.38
-m8: 5.93
-m9: 6.78
-m10: 7.13
-
-Strikers (must buy 2 or more):
-s1: 4.46
-s2: 6.47
-s3: 7.78
-s4: 8.39
-s5: 9.5
-
-Also, you must buy at least eleven players in total.
-
-Print out the total price of the players you have selected (z) in GBP thousands; e.g. if the total is GBP 12,345 million, the output should be 12345.
-&quot;&quot;&quot;
-
-# Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/football.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/football.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-103">Copy</button></div><pre class="code-block"><code id="model-103" class="language-python"># Import libraries
 from cpmpy import *
 import numpy as np
 import json
@@ -137,7 +80,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="flow_free_game.html">← prev</a><a class="btn" href="four_islands.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

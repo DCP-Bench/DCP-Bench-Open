@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">coins_grid</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / coins_grid</p>
-    <h1 class="problem-title">coins_grid</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">In a quadratic grid (or a larger chessboard) n by n, one should  place coins in such a way that the following conditions are fulfilled:    1. In each row exactly c coins must be placed.    2. In each column exactly c coins must be placed.    3. The sum of the quadratic horizontal distance from the main       diagonal of all cells containing a coin must be as       small as possible.    4. In each cell at most one coin can be placed.  Print whether a coin is placed in each cell (x) as a list of lists of booleans, and the sum of the quadratic horizontal distance from the main diagonal (z) as an integer.</div></div>
 
@@ -145,26 +144,7 @@
   &quot;z&quot;: 200
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/coins_grid.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/coins_grid.py</a></dd><dt>Source description</dt><dd>Tony Hurlimann: &quot;A coin puzzle - SVOR-contest 2007&quot; <a href="http://www.svor.ch/competitions/competition2007/AsroContestSolution.pdf" target="_blank" rel="noopener">http://www.svor.ch/competitions/competition2007/AsroContestSolution.pdf</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-35">Copy</button></div><pre class="code-block"><code id="model-35" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/coins_grid.py
-# Source description: Tony Hurlimann: &quot;A coin puzzle - SVOR-contest 2007&quot; http://www.svor.ch/competitions/competition2007/AsroContestSolution.pdf
-
-&quot;&quot;&quot;
-In a quadratic grid (or a larger chessboard) n by n, one should
- place coins in such a way that the following conditions are fulfilled:
-   1. In each row exactly c coins must be placed.
-   2. In each column exactly c coins must be placed.
-   3. The sum of the quadratic horizontal distance from the main
-      diagonal of all cells containing a coin must be as
-      small as possible.
-   4. In each cell at most one coin can be placed.
-
-Print whether a coin is placed in each cell (x) as a list of lists of booleans, and the sum of the quadratic horizontal
-distance from the main diagonal (z) as an integer.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/coins_grid.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/coins_grid.py</a></dd><dt>Source description</dt><dd>Tony Hurlimann: &quot;A coin puzzle - SVOR-contest 2007&quot; <a href="http://www.svor.ch/competitions/competition2007/AsroContestSolution.pdf" target="_blank" rel="noopener">http://www.svor.ch/competitions/competition2007/AsroContestSolution.pdf</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-35">Copy</button></div><pre class="code-block"><code id="model-35" class="language-python"># Data
 n = 10  # Size of the grid (n x n)
 c = 5   # Number of coins in each row and column
 # End of data
@@ -204,7 +184,7 @@ import json
 # Step 1: Deconstruct &amp; Pre-compute
 # Problem: 31x31 grid, place coins such that:
 # 1. Each row has exactly 14 coins
-# 2. Each column has exactly 14 coins  
+# 2. Each column has exactly 14 coins
 # 3. At most 1 coin per cell (implicit with boolvar)
 # 4. Minimize sum of quadratic horizontal distance from main diagonal
 # Quadratic horizontal distance for cell (i,j) = (j-i)^2
@@ -223,7 +203,7 @@ model = cp.Model()
 for i in range(n):
     model += cp.sum(x[i, :]) == coins_per_row
 
-# Constraint 2: Each column has exactly 14 coins  
+# Constraint 2: Each column has exactly 14 coins
 for j in range(n):
     model += cp.sum(x[:, j]) == coins_per_col
 
@@ -241,52 +221,52 @@ if model.solve():
     # Extract solution
     x_solution = x.value()
     z_value = total_distance.value()
-    
+
     # Convert to proper format (0/1 integers)
     x_list = [[int(x_solution[i, j]) for j in range(n)] for i in range(n)]
-    
+
     # Verification
     def verify_solution(x_sol, z_val):
         &quot;&quot;&quot;Independent verification of the solution&quot;&quot;&quot;
         n = len(x_sol)
-        
+
         # Structural verification
         if n != 31 or len(x_sol[0]) != 31:
             return False, f&quot;Wrong dimensions: {n}x{len(x_sol[0])}, expected 31x31&quot;
-        
+
         # Logical verification - row constraints
         for i in range(n):
             row_sum = sum(x_sol[i])
             if row_sum != 14:
                 return False, f&quot;Row {i} has {row_sum} coins, expected 14&quot;
-        
+
         # Logical verification - column constraints
         for j in range(n):
             col_sum = sum(x_sol[i][j] for i in range(n))
             if col_sum != 14:
                 return False, f&quot;Column {j} has {col_sum} coins, expected 14&quot;
-        
+
         # Verify objective calculation
         calculated_z = 0
         for i in range(n):
             for j in range(n):
                 if x_sol[i][j] == 1:
                     calculated_z += (j - i) ** 2
-        
+
         if calculated_z != z_val:
             return False, f&quot;Objective mismatch: calculated {calculated_z}, reported {z_val}&quot;
-        
+
         return True, &quot;All constraints satisfied&quot;
-    
+
     valid, msg = verify_solution(x_list, int(z_value))
     assert valid, f&quot;Verification failed: {msg}&quot;
-    
+
     # Step 4: Output
     solution = {
         &quot;x&quot;: x_list,
         &quot;z&quot;: int(z_value)
     }
-    
+
     print(json.dumps(solution))
 else:
     print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></div><div class="tab-pane" data-pane="minizinc"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>documentation_prompt_mnz</dd><dt>Base LLM</dt><dd>gpt-4.1-mini</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#d97706" title="Model produces a valid solution, but the objective value is not optimal">solution valid · not optimal</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/coins_grid/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-coins_grid-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-coins_grid-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -393,7 +373,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="coin3_application.html">← prev</a><a class="btn" href="contracting_costs.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

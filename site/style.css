@@ -538,6 +538,110 @@ table.plain th, table.plain td {
   padding: 8px 12px;
   text-align: left;
 }
+
+/* ---------- Catalogue controls and list view ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.controls {
+  align-items: flex-end;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.controls label { display: flex; flex-direction: column; gap: 4px; }
+.controls label > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.controls .search-field { flex: 1 1 260px; }
+.controls .search-field input { width: 100%; min-width: 0; }
+.controls .control-field { flex: 0 1 150px; }
+.controls .sort-field { flex-basis: 170px; }
+.controls .view-toggle { margin-left: auto; }
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.view-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.view-btn + .view-btn { border-left: 1px solid var(--border); }
+.view-btn:hover { color: var(--text); background: var(--accent-soft); }
+.view-btn.active { color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.cards.list-view { display: block; }
+.list-header, .list-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr) minmax(130px, 1.2fr) 100px 110px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+.list-header {
+  min-height: 42px;
+  background: #eef2ff;
+  border: 1px solid var(--border);
+  border-radius: 8px 8px 0 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.list-row {
+  min-height: 52px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: none;
+  font-size: 0.9rem;
+}
+.list-row:last-child { border-radius: 0 0 8px 8px; }
+.list-row:hover { background: #fafaff; }
+.list-name { font-family: var(--mono); font-size: 0.84rem; }
+.list-cell:nth-child(4), .list-cell:nth-child(5) { text-align: right; }
+.list-sort {
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+.list-sort:hover { color: var(--accent); }
+.empty-state { padding: 18px 0; }
+.back-link { display: inline-block; margin-bottom: 18px; font-size: 0.9rem; }
+
+@media (max-width: 720px) {
+  .controls .view-toggle { margin-left: 0; }
+  .list-header, .list-row {
+    grid-template-columns: minmax(150px, 2fr) minmax(110px, 1fr) 80px 80px;
+  }
+  .list-header .list-cell:nth-child(3), .list-row .list-cell:nth-child(3) { display: none; }
+}
 table.plain th { background: #f1f2f7; font-weight: 600; }
 table.plain td.num { text-align: right; font-variant-numeric: tabular-nums; }
 table.plain td.mono { font-family: var(--mono); font-size: 0.85rem; }

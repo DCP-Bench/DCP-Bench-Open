@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">wolf_goat_cabbage</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / wolf_goat_cabbage</p>
-    <h1 class="problem-title">wolf_goat_cabbage</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">The wolf, goat and cabbage problem is a river crossing puzzle. It dates back to at least the 9th century, and has entered the folklore of several cultures.  The story: A farmer with a wolf, a goat, and a cabbage must cross a river by boat. The boat can carry only the farmer and a single item. If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage. How can they cross the river without anything being eaten?  Print whether the wolf, goat, cabbage, and boat are on the destination shore -1- or the starting shore -0- at each stage (wolf_pos, goat_pos, cabbage_pos, boat_pos) as lists of 0/1.</div></div>
 
@@ -61,24 +60,7 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/wolf_goat_cabbage.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/wolf_goat_cabbage.py</a></dd><dt>Description</dt><dd><a href="https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem</a></dd><dt>Category</dt><dd>cpmpy_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-162">Copy</button></div><pre class="code-block"><code id="model-162" class="language-python">#!/usr/bin/python3
-# Category: cpmpy_examples
-# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/wolf_goat_cabbage.py
-# Description: https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem
-
-&quot;&quot;&quot;
-The wolf, goat and cabbage problem is a river crossing puzzle. It dates back to at least the 9th century,
-and has entered the folklore of several cultures.
-
-The story: A farmer with a wolf, a goat, and a cabbage must cross a river by boat. The boat can carry only the farmer
-and a single item. If left unattended together, the wolf would eat the goat, or the goat would eat the cabbage. How
-can they cross the river without anything being eaten?
-
-Print whether the wolf, goat, cabbage, and boat are on the destination shore -1- or the starting shore -0- at each
-stage (wolf_pos, goat_pos, cabbage_pos, boat_pos) as lists of 0/1.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/wolf_goat_cabbage.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/wolf_goat_cabbage.py</a></dd><dt>Description</dt><dd><a href="https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem</a></dd><dt>Category</dt><dd>cpmpy_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-162">Copy</button></div><pre class="code-block"><code id="model-162" class="language-python"># Data
 stage = 8  # Number of stages
 # End of data
 
@@ -158,13 +140,13 @@ model += boat_pos[-1] == 1
 for i in range(stage - 1):
     # The boat must change sides
     model += boat_pos[i+1] != boat_pos[i]
-    
+
     # Only one item can be moved with the boat (or none)
     moved_wolf = (wolf_pos[i+1] != wolf_pos[i]) &amp; (boat_pos[i] == wolf_pos[i])
     moved_goat = (goat_pos[i+1] != goat_pos[i]) &amp; (boat_pos[i] == goat_pos[i])
     moved_cabbage = (cabbage_pos[i+1] != cabbage_pos[i]) &amp; (boat_pos[i] == cabbage_pos[i])
     model += (moved_wolf + moved_goat + moved_cabbage) &lt;= 1
-    
+
     # Safety constraints: wolf and goat cannot be left alone, goat and cabbage cannot be left alone
     wolf_goat_unsafe = (wolf_pos[i+1] == goat_pos[i+1]) &amp; (boat_pos[i+1] != goat_pos[i+1])
     goat_cabbage_unsafe = (goat_pos[i+1] == cabbage_pos[i+1]) &amp; (boat_pos[i+1] != goat_pos[i+1])
@@ -355,7 +337,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="who_killed_agatha.html">← prev</a><a class="btn" href="zebra.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

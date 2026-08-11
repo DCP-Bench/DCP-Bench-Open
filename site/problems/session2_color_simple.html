@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">session2_color_simple</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / session2_color_simple</p>
-    <h1 class="problem-title">session2_color_simple</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">We want to assign a different colour to the following countries: Belgium, Denmark, France, Germany, Netherlands and Luxembourg. Two neighbouring countries cannot have the same colour. You can use integers starting from 1 to represent the colours. Find a colouring that minimizes the number of colours used.  Print the colour assigned to each country as a list (colors) of 6 integers. Each colour is represented by an integer starting from 1, where the first colour is 1, the second is 2, and so on.</div></div>
 
@@ -66,20 +65,7 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/color_simple.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/color_simple.mzn</a></dd><dt>Category</dt><dd>aplai_course</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-143">Copy</button></div><pre class="code-block"><code id="model-143" class="language-python">#!/usr/bin/python3
-# Category: aplai_course
-# Source: http://www.hakank.org/minizinc/color_simple.mzn
-
-&quot;&quot;&quot;
-We want to assign a different colour to the following countries: Belgium, Denmark, France, Germany, Netherlands
-and Luxembourg. Two neighbouring countries cannot have the same colour. You can use integers starting from 1 to
-represent the colours. Find a colouring that minimizes the number of colours used.
-
-Print the colour assigned to each country as a list (colors) of 6 integers. Each colour is represented by an integer
-starting from 1, where the first colour is 1, the second is 2, and so on.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/color_simple.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/color_simple.mzn</a></dd><dt>Category</dt><dd>aplai_course</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-143">Copy</button></div><pre class="code-block"><code id="model-143" class="language-python"># Data
 graph = [  # the adjacency of the countries, (i, j) means that country i is adjacent to country j
     [3, 1],
     [3, 6],
@@ -134,7 +120,7 @@ import json
 # Input data - adjacency relationships
 graph = [
     [3, 1],     # France-Belgium
-    [3, 6],     # France-Luxembourg  
+    [3, 6],     # France-Luxembourg
     [3, 4],     # France-Germany
     [6, 4],     # Luxembourg-Germany
     [6, 1],     # Luxembourg-Belgium
@@ -173,30 +159,30 @@ model.minimize(max_color_used)
 if model.solve():
     # Extract solution
     color_assignment = colors.value().tolist()
-    
+
     # Verification
     def verify_solution(sol, graph_edges):
         &quot;&quot;&quot;Verify that the coloring solution is valid&quot;&quot;&quot;
         colors_list = sol[&quot;colors&quot;]
-        
+
         # Structural verification
         if len(colors_list) != 6:
             return False, f&quot;Expected 6 colors, got {len(colors_list)}&quot;
-        
+
         # Logical verification - check all adjacency constraints
         for edge in graph_edges:
             i, j = edge[0] - 1, edge[1] - 1  # Convert to 0-indexed
             if colors_list[i] == colors_list[j]:
                 return False, f&quot;Adjacent countries {i+1} and {j+1} have same color&quot;
-        
+
         return True, &quot;Valid coloring&quot;
-    
+
     solution = {&quot;colors&quot;: color_assignment}
-    
+
     # Verify solution
     valid, message = verify_solution(solution, graph)
     assert valid, f&quot;Verification failed: {message}&quot;
-    
+
     # Step 4: Output
     print(json.dumps(solution))
 else:
@@ -261,7 +247,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session1_thick_as_thieves.html">← prev</a><a class="btn" href="session2_maximal_independent_sets.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

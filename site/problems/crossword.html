@@ -11,55 +11,13 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">crossword</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / crossword</p>
-    <h1 class="problem-title">crossword</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">We are to complete the puzzle       1   2   3   4   5    +---+---+---+---+---+       Given the list of words:  1 | 1 |   | 2 |   | 3 |             AFT     LASER    +---+---+---+---+---+             ALE     LEE  2 | # | # |   | # |   |             EEL     LINE    +---+---+---+---+---+             HEEL    SAILS  3 | # | 4 |   | 5 |   |             HIKE    SHEET    +---+---+---+---+---+             HOSES   STEER  4 | 6 | # | 7 |   |   |             KEEL    TIE    +---+---+---+---+---+             KNOT  5 | 8 |   |   |   |   |    +---+---+---+---+---+  6 |   | # | # |   | # |       The numbers 1,2,3,4,5,6,7,8 in the crossword    +---+---+---+---+---+       puzzle correspond to the words                                that will start at those locations.  We need to select 8 words from the list of 15 words above, such that the above crossword puzzle can be completed.  Print the selected words (E) as a list of 8 integers starting from 0. Assume that the words are first sorted starting from the longest word and then alphabetically. So, word 0 corresponds to HOSES, word 1 to LASER, ..., word 14 to TIE.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-39-0">Copy</button></div><pre class="code-block"><code id="sol-39-0" class="language-json">{
-  &quot;E&quot;: [
-    0,
-    2,
-    4,
-    6,
-    7,
-    11,
-    13,
-    1
-  ]
-}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/crossword2.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/crossword2.py</a></dd><dt>Source description</dt><dd><a href="http://www.cis.temple.edu/~ingargio/cis587/readings/constraints.html" target="_blank" rel="noopener">http://www.cis.temple.edu/~ingargio/cis587/readings/constraints.html</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-39">Copy</button></div><pre class="code-block"><code id="model-39" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/crossword2.py
-# Source description: http://www.cis.temple.edu/~ingargio/cis587/readings/constraints.html
 
-&quot;&quot;&quot;
-We are to complete the puzzle
-
-     1   2   3   4   5
-   +---+---+---+---+---+       Given the list of words:
- 1 | 1 |   | 2 |   | 3 |             AFT     LASER
-   +---+---+---+---+---+             ALE     LEE
- 2 | # | # |   | # |   |             EEL     LINE
-   +---+---+---+---+---+             HEEL    SAILS
- 3 | # | 4 |   | 5 |   |             HIKE    SHEET
-   +---+---+---+---+---+             HOSES   STEER
- 4 | 6 | # | 7 |   |   |             KEEL    TIE
-   +---+---+---+---+---+             KNOT
- 5 | 8 |   |   |   |   |
-   +---+---+---+---+---+
- 6 |   | # | # |   | # |       The numbers 1,2,3,4,5,6,7,8 in the crossword
-   +---+---+---+---+---+       puzzle correspond to the words
-                               that will start at those locations.
-
-We need to select 8 words from the list of 15 words above, such that the above crossword puzzle can be completed.
-
-Print the selected words (E) as a list of 8 integers starting from 0. Assume that the words are first sorted starting
-from the longest word and then alphabetically. So, word 0 corresponds to HOSES, word 1 to LASER, ..., word 14 to TIE.
-&quot;&quot;&quot;
-
-# Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/crossword2.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/crossword2.py</a></dd><dt>Source description</dt><dd><a href="http://www.cis.temple.edu/~ingargio/cis587/readings/constraints.html" target="_blank" rel="noopener">http://www.cis.temple.edu/~ingargio/cis587/readings/constraints.html</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-39">Copy</button></div><pre class="code-block"><code id="model-39" class="language-python"># Import libraries
 from cpmpy import *
 import json
 
@@ -174,7 +132,7 @@ for i, word in enumerate(words_sorted):
 # These represent where words cross in the crossword grid
 intersections = [
     (1, 2, 2, 0, (0, 2)),  # Word 1 char 2 = Word 2 char 0
-    (1, 3, 4, 0, (0, 4)),  # Word 1 char 4 = Word 3 char 0  
+    (1, 3, 4, 0, (0, 4)),  # Word 1 char 4 = Word 3 char 0
     (2, 4, 2, 1, (2, 2)),  # Word 2 char 2 = Word 4 char 1
     (2, 7, 3, 0, (3, 2)),  # Word 2 char 3 = Word 7 char 0
     (2, 8, 4, 2, (4, 2)),  # Word 2 char 4 = Word 8 char 2
@@ -205,20 +163,20 @@ for pos in range(1, 9):
 for pos1, pos2, idx1, idx2, cell in intersections:
     # Create allowed combinations where characters match
     allowed_pairs = []
-    
+
     # Get valid words for each position
     valid_words1 = words_by_length[required_lengths[pos1]]
     valid_words2 = words_by_length[required_lengths[pos2]]
-    
+
     for w1_idx in valid_words1:
         for w2_idx in valid_words2:
             word1 = words_sorted[w1_idx]
             word2 = words_sorted[w2_idx]
-            
+
             # Check if characters at intersection match
             if word1[idx1] == word2[idx2]:
                 allowed_pairs.append((w1_idx, w2_idx))
-    
+
     # Add table constraint for this intersection
     if allowed_pairs:
         model += cp.Table([E[pos1-1], E[pos2-1]], allowed_pairs)
@@ -227,15 +185,15 @@ for pos1, pos2, idx1, idx2, cell in intersections:
 if model.solve():
     solution_values = E.value()
     solution = {&quot;E&quot;: solution_values.tolist()}
-    
+
     # Verification
     def verify_solution(sol):
         E_vals = sol[&quot;E&quot;]
-        
+
         # Check 1: All different words used
         if len(set(E_vals)) != len(E_vals):
             return False, &quot;Not all different words&quot;
-        
+
         # Check 2: Word lengths match position requirements
         for pos in range(1, 9):
             word_idx = E_vals[pos-1]
@@ -243,22 +201,22 @@ if model.solve():
             required_len = required_lengths[pos]
             if len(word) != required_len:
                 return False, f&quot;Position {pos} needs length {required_len}, got {len(word)}&quot;
-        
+
         # Check 3: All intersections have matching characters
         for pos1, pos2, idx1, idx2, cell in intersections:
             word1_idx = E_vals[pos1-1]
             word2_idx = E_vals[pos2-1]
             word1 = words_sorted[word1_idx]
             word2 = words_sorted[word2_idx]
-            
+
             if word1[idx1] != word2[idx2]:
                 return False, f&quot;Intersection {pos1}-{pos2}: {word1}[{idx1}]=&#x27;{word1[idx1]}&#x27; != {word2}[{idx2}]=&#x27;{word2[idx2]}&#x27;&quot;
-        
+
         return True, &quot;All constraints satisfied&quot;
-    
+
     valid, msg = verify_solution(solution)
     assert valid, f&quot;Verification failed: {msg}&quot;
-    
+
     # Step 4: Output
     print(json.dumps(solution))
 else:
@@ -360,7 +318,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="crew.html">← prev</a><a class="btn" href="crypta.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

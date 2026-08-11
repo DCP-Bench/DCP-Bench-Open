@@ -11,52 +11,39 @@
 <body>
 <header><nav><a class="brand" href="index.html">DCP-Bench Open</a><a class="" href="index.html">Problems</a><a class="" href="framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero"><h1>DCP-Bench Open</h1><p>A growing collection of discrete combinatorial problems, with hand-written and agent-generated models in many frameworks — instances, solutions, and evaluation results for every model.</p></div></header>
 <main>
-    
-    <div class="stat-groups">
-      <div class="stat-group">
-        <div class="stat-group-title">Benchmark</div>
-        <div class="stat-row">
-          <div class="stat"><div class="num">164</div><div class="lbl">problems</div></div>
-          <div class="stat"><div class="num">311</div><div class="lbl">instances</div></div>
-        </div>
+    <div class="controls" aria-label="Problem filters and sorting">
+      <label class="search-field"><span class="sr-only">Search problems</span>
+        <input type="search" id="filter-q" placeholder="Search problems or descriptions" autocomplete="off">
+      </label>
+      <label class="control-field"><span>Type</span>
+        <select id="filter-type"><option value="">All types</option>
+          <option value="optimization">Optimization</option><option value="satisfaction">Satisfaction</option></select>
+      </label>
+      <label class="control-field"><span>Source</span>
+        <select id="filter-source"><option value="">All sources</option><option value="CPMpy examples">CPMpy examples</option><option value="CSPLib">CSPLib</option><option value="ComplexOR">ComplexOR</option><option value="Hakan K">Hakan K</option><option value="unknown">unknown</option></select>
+      </label>
+      <label class="control-field"><span>Instances</span>
+        <select id="filter-instances"><option value="">Any count</option>
+          <option value="single">Single</option><option value="multiple">Multiple</option></select>
+      </label>
+      <label class="control-field sort-field"><span>Sort by</span>
+        <select id="sort-by">
+          <option value="name" selected>Name</option>
+          <option value="type">Type</option>
+          <option value="source">Source</option>
+          <option value="instances">Instances</option>
+          <option value="generated">Generated models</option>
+        </select>
+      </label>
+      <div class="view-toggle" role="group" aria-label="Problem view">
+        <button type="button" class="view-btn active" id="view-grid" data-view="grid" aria-pressed="true">Grid</button>
+        <button type="button" class="view-btn" id="view-list" data-view="list" aria-pressed="false">List</button>
       </div>
-      <div class="stat-group">
-        <div class="stat-group-title">Ground truth</div>
-        <div class="stat-row">
-          <div class="stat"><div class="num">164</div><div class="lbl">reference models</div></div>
-          <div class="stat"><div class="num">1</div><div class="lbl">reference framework · CPMpy</div></div>
-        </div>
-      </div>
-      <div class="stat-group">
-        <div class="stat-group-title">Generated models</div>
-        <div class="stat-row">
-          <div class="stat"><div class="num">1,692</div><div class="lbl">models</div></div>
-          <div class="stat"><div class="num">3</div><div class="lbl">frameworks · CPMpy · MiniZinc · OR-Tools</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="controls">
-      <input type="search" id="filter-q" placeholder="Search problems…" autocomplete="off">
-      <select id="filter-type"><option value="">All types</option>
-        <option value="optimization">Optimization</option><option value="satisfaction">Satisfaction</option></select>
-      <select id="filter-source"><option value="">All sources</option><option value="CPMpy examples">CPMpy examples</option><option value="CSPLib">CSPLib</option><option value="ComplexOR">ComplexOR</option><option value="Hakan K">Hakan K</option><option value="unknown">unknown</option></select>
-      <select id="filter-instances"><option value="">Any instances</option>
-        <option value="single">Single instance</option><option value="multiple">Multiple instances</option><option value="none">No instance</option></select>
-      <select id="filter-gen"><option value="">Any generated models</option>
-        <option value="yes">Has generated models</option><option value="no">No generated models</option></select>
-      <select id="filter-eval"><option value="">Any evaluation status</option>
-        <option value="optimal">Valid · optimal</option><option value="valid">Valid</option>
-        <option value="no_valid">No valid model</option><option value="no_models">No generated models</option></select>
-      <select id="sort-by">
-        <option value="name" selected>Sort: name</option>
-        <option value="instances">Sort: instances</option>
-        <option value="generated">Sort: generated models</option>
-      </select>
     </div>
     <p class="result-count" id="result-count"></p>
     <div class="cards" id="cards"></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="data.js"></script>

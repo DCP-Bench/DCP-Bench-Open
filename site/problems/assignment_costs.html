@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">assignment_costs</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / assignment_costs</p>
-    <h1 class="problem-title">assignment_costs</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Assign people to 4 tasks with different costs, so that the total cost is minimized. Each task must be assigned to exactly one person, but it is not necessary to assign all people to a task.  Print whether each task is assigned to a person (x) as a list of lists of booleans, where x[i][j] is True if task i is assigned to person j, and False otherwise.</div></div>
 
@@ -80,19 +79,7 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/assignment.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/assignment.py</a></dd><dt>Source description</dt><dd>Winston &#x27;Operations Research&#x27;, Assignment Problems, page 393f</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-11">Copy</button></div><pre class="code-block"><code id="model-11" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/assignment.py
-# Source description: Winston &#x27;Operations Research&#x27;, Assignment Problems, page 393f
-
-&quot;&quot;&quot;
-Assign people to 4 tasks with different costs, so that the total cost is minimized.
-Each task must be assigned to exactly one person, but it is not necessary to assign all people to a task.
-
-Print whether each task is assigned to a person (x) as a list of lists of booleans, where x[i][j] is True if task i is assigned to person j, and False otherwise.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/assignment.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/assignment.py</a></dd><dt>Source description</dt><dd>Winston &#x27;Operations Research&#x27;, Assignment Problems, page 393f</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-11">Copy</button></div><pre class="code-block"><code id="model-11" class="language-python"># Data
 cost = [  # Cost matrix, rows are tasks, columns are people
     [14, 5, 8, 7, 15],
     [2, 12, 6, 5, 3],
@@ -151,7 +138,7 @@ import json
 # Input data
 cost = [
     [14, 5, 8, 7, 15],   # Task 0 costs
-    [2, 12, 6, 5, 3],    # Task 1 costs  
+    [2, 12, 6, 5, 3],    # Task 1 costs
     [7, 8, 3, 9, 7],     # Task 2 costs
     [2, 4, 6, 10, 1]     # Task 3 costs
 ]
@@ -178,36 +165,36 @@ model.minimize(total_cost)
 if model.solve():
     # Extract solution
     x_solution = x.value()
-    
+
     # Verification
     def verify_solution(x_matrix):
         # Check structural correctness
         if x_matrix.shape != (n_tasks, n_people):
             return False
-        
+
         # Check logical correctness: each task assigned to exactly one person
         task_assignments = np.sum(x_matrix, axis=1)
         if not np.all(task_assignments == 1):
             return False
-        
+
         # Check objective calculation
         calculated_cost = 0
         for i in range(n_tasks):
             for j in range(n_people):
                 if x_matrix[i][j] == 1:
                     calculated_cost += cost[i][j]
-        
+
         return calculated_cost == total_cost.value()
-    
+
     assert verify_solution(x_solution), &quot;Solution verification failed!&quot;
-    
+
     # Step 4: Output in required format
     solution = {
         &quot;x&quot;: [[int(val) for val in row] for row in x_solution]
     }
-    
+
     print(json.dumps(solution))
-    
+
 else:
     print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></div><div class="tab-pane" data-pane="minizinc"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>guidelines_prompt_mnz</dd><dt>Base LLM</dt><dd>o4-mini-2025-04-16</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/assignment_costs/minizinc/guidelines_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/guidelines_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/guidelines_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-assignment_costs-guidelines_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-assignment_costs-guidelines_prompt_mnz" class="language-minizinc">
 include &quot;globals.mzn&quot;;
@@ -215,7 +202,7 @@ include &quot;globals.mzn&quot;;
 % Input data
 int: num_tasks = 4;
 int: num_people = 5;
-array[1..num_tasks, 1..num_people] of int: cost = 
+array[1..num_tasks, 1..num_people] of int: cost =
     [| 14, 5, 8, 7, 15
      | 2, 12, 6, 5, 3
      | 7, 8, 3, 9, 7
@@ -231,7 +218,7 @@ constraint
     );
 
 % Objective: minimize total assignment cost
-var int: total_cost = 
+var int: total_cost =
     sum(t in 1..num_tasks, p in 1..num_people)(cost[t,p] * x[t,p]);
 
 solve minimize total_cost;
@@ -299,7 +286,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="arch_friends.html">← prev</a><a class="btn" href="autoref.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

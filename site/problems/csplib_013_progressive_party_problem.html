@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_013_progressive_party_problem</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_013_progressive_party_problem</p>
-    <h1 class="problem-title">csplib_013_progressive_party_problem</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">The problem is to timetable a party at a yacht club. Certain boats are to be designated hosts, and the crews of the remaining boats in turn visit the host boats for several successive half-hour periods. The crew of a host boat remains on board to act as hosts while the crew of a guest boat together visits several hosts. Every boat can only hold a limited number of people at a time (its capacity) and crew sizes are different. The total number of people aboard a boat, including the host crew and guest crews, must not exceed the capacity. A guest boat cannot revisit a host and guest crews cannot meet more than once. The problem facing the rally organizer is that of minimizing the number of host boats.  Print the visit schedule (visits) as a list of lists, where each inner list represents the boats visited - 0-based index - in each period, e.g. visits[p,b] == v means that in period p, boat b visits boat v. Also print whether each boat is a host (is_host) as a list of booleans.</div></div>
 
@@ -381,24 +380,7 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source and problem instances</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob013/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob013/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-52">Copy</button></div><pre class="code-block"><code id="model-52" class="language-python">#!/usr/bin/python3
-# Category: csplib
-# Source and problem instances: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py
-# Source description: https://www.csplib.org/Problems/prob013/
-
-&quot;&quot;&quot;
-The problem is to timetable a party at a yacht club. Certain boats are to be designated hosts, and the crews of the
-remaining boats in turn visit the host boats for several successive half-hour periods. The crew of a host boat remains
-on board to act as hosts while the crew of a guest boat together visits several hosts. Every boat can only hold a limited
-number of people at a time (its capacity) and crew sizes are different. The total number of people aboard a boat,
-including the host crew and guest crews, must not exceed the capacity. A guest boat cannot revisit a host and guest
-crews cannot meet more than once. The problem facing the rally organizer is that of minimizing the number of host boats.
-
-Print the visit schedule (visits) as a list of lists, where each inner list represents the boats visited - 0-based index - in each period,
-e.g. visits[p,b] == v means that in period p, boat b visits boat v. Also print whether each boat is a host (is_host) as a list of booleans.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source and problem instances</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob013_progressive_party.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob013/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob013/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-52">Copy</button></div><pre class="code-block"><code id="model-52" class="language-python"># Data
 n_boats = 5  # Number of boats
 n_periods = 4  # Number of periods
 capacity = [6, 8, 12, 12, 12]  # Capacities of the boats
@@ -463,7 +445,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_012_nonogram.html">← prev</a><a class="btn" href="csplib_014_solitaire_battleships.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

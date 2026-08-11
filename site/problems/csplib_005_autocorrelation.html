@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">csplib_005_autocorrelation</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / csplib_005_autocorrelation</p>
-    <h1 class="problem-title">csplib_005_autocorrelation</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">These problems have many practical applications in communications and electrical engineering. The objective is to construct a binary sequence of length n that minimizes the autocorrelations between bits. Each bit in the sequence takes the value +1 or -1. With non-periodic (or open) boundary conditions, the k-th autocorrelation, Ck is defined to be \[ C_k = \sum_{i=0}^{n-k-1} S_i \cdot S_{i+k} \]. With periodic (or cyclic) boundary conditions, the k-th autocorrelation, Ck is defined to be \[ C_k = \sum_{i=0}^{n-1} S_i \cdot S_{(i+k) \mod n} \]. The aim is to minimize the sum of the squares of these autocorrelations. That is, to minimize \[ E = \sum_{k=1}^{n-1} C_k^2 \].  Print the binary sequence (sequence) as a list of integers, where -1 represents a bit value of -1 and 1 represents a bit value of +1.</div></div>
 
@@ -37,23 +36,7 @@
   &quot;n&quot;: 16
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob005/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob005/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-44">Copy</button></div><pre class="code-block"><code id="model-44" class="language-python">#!/usr/bin/python3
-# Category: csplib
-# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py
-# Source description: https://www.csplib.org/Problems/prob005/
-
-&quot;&quot;&quot;
-These problems have many practical applications in communications and electrical engineering. The objective is to
-construct a binary sequence of length n that minimizes the autocorrelations between bits. Each bit in the sequence
-takes the value +1 or -1. With non-periodic (or open) boundary conditions, the k-th autocorrelation, Ck is defined to
-be \[ C_k = \sum_{i=0}^{n-k-1} S_i \cdot S_{i+k} \]. With periodic (or cyclic) boundary conditions, the k-th
-autocorrelation, Ck is defined to be \[ C_k = \sum_{i=0}^{n-1} S_i \cdot S_{(i+k) \mod n} \]. The aim is to
-minimize the sum of the squares of these autocorrelations. That is, to minimize \[ E = \sum_{k=1}^{n-1} C_k^2 \].
-
-Print the binary sequence (sequence) as a list of integers, where -1 represents a bit value of -1 and 1 represents a bit value of +1.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py</a></dd><dt>Source description</dt><dd><a href="https://www.csplib.org/Problems/prob005/" target="_blank" rel="noopener">https://www.csplib.org/Problems/prob005/</a></dd><dt>Category</dt><dd>csplib</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-44">Copy</button></div><pre class="code-block"><code id="model-44" class="language-python"># Data
 n = 10  # Length of the binary sequence
 # End of data
 
@@ -120,7 +103,7 @@ for k in range(1, n):  # k from 1 to n-1
     for i in range(n):
         j = (i + k) % n
         terms.append(S[i] * S[j])
-    
+
     # C_k can range from -n to +n
     C_k = cp.intvar(-n, n, name=f&quot;C_{k}&quot;)
     model += C_k == cp.sum(terms)
@@ -148,7 +131,7 @@ if model.solve():
     # Extract solution
     sequence = S.value().tolist()
     energy = E.value()
-    
+
     # Verification: Independent calculation
     def verify_solution(seq):
         n = len(seq)
@@ -158,16 +141,16 @@ if model.solve():
             autocorrelations.append(C_k)
         calculated_energy = sum(C_k * C_k for C_k in autocorrelations)
         return calculated_energy
-    
+
     verified_energy = verify_solution(sequence)
     assert verified_energy == energy, f&quot;Energy mismatch: {verified_energy} != {energy}&quot;
-    
+
     # Step 4: Output
     solution = {
         &quot;sequence&quot;: sequence,
         &quot;E&quot;: energy
     }
-    
+
     print(json.dumps(solution))
 else:
     print(json.dumps({&quot;error&quot;: &quot;No solution found&quot;}))</code></pre></div><div class="tab-pane" data-pane="minizinc"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Submission</dt><dd>documentation_prompt_mnz</dd><dt>Base LLM</dt><dd>gpt-4.1-mini</dd><dt>Dataset version</dt><dd>v1_verified</dd><dt>Evaluation</dt><dd><span class="badge" style="background:#16a34a" title="Model produces a valid solution with the optimal objective value">solution valid · optimal</span></dd><dt>Sources</dt><dd><a href="https://huggingface.co/spaces/kostis-init/CP-Bench-Leaderboard-Live" target="_blank" rel="noopener">Leaderboard</a> &middot; <a href="https://github.com/DCP-Bench/DCP-Bench-Open/blob/main/generated_models/csplib_005_autocorrelation/minizinc/documentation_prompt_mnz/model.mzn" target="_blank" rel="noopener">Model file (GitHub)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/submission.jsonl" target="_blank" rel="noopener">Submission file</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/submissions/v1_verified/documentation_prompt_mnz/report.pdf" target="_blank" rel="noopener">Report (PDF)</a> &middot; <a href="https://huggingface.co/datasets/kostis-init/my-storage/blob/main/results/v1_verified/documentation_prompt_mnz/summary.txt" target="_blank" rel="noopener">Result summary</a></dd></dl></div><h3>Model</h3><div class="code-head"><span>minizinc</span><button type="button" data-copy="gmod-csplib_005_autocorrelation-documentation_prompt_mnz">Copy</button></div><pre class="code-block"><code id="gmod-csplib_005_autocorrelation-documentation_prompt_mnz" class="language-minizinc">include &quot;globals.mzn&quot;;
@@ -209,7 +192,7 @@ output [
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="csplib_003_quasigroup_existence.html">← prev</a><a class="btn" href="csplib_006_golomb_rulers.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

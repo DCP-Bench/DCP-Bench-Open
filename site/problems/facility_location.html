@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">facility_location</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / facility_location</p>
-    <h1 class="problem-title">facility_location</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">A company is considering opening warehouses in four cities to meet regional demands at minimal costs. The potential cities for these warehouses are New York, Los Angeles, Chicago, and Atlanta. The company needs to decide which warehouses to open based on several constraints: 1. If the New York warehouse is opened, then the Los Angeles warehouse must also be opened. 2. No more than three warehouses can be operational in any given week. 3. Either the  Atlanta or the Los Angeles warehouse must be opened. The objective is to determine the optimal set of warehouses to open and the distribution of shipments to various regions to minimize total costs.  Print the total cost (total_cost) as an integer, whether the warehouses are open (open_warehouse) as a list of booleans, and the shipping details for each region per warehouse (ships) as a list of lists where ships[i][j] indicates the number of units shipped from warehouse i to region j - including the non-opened warehouses as 0s.</div></div>
 
@@ -89,23 +88,7 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/facility_location_problem.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/facility_location_problem.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-92">Copy</button></div><pre class="code-block"><code id="model-92" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/facility_location_problem.py
-
-&quot;&quot;&quot;
-A company is considering opening warehouses in four cities to meet regional demands at minimal costs. The potential
-cities for these warehouses are New York, Los Angeles, Chicago, and Atlanta. The company needs to decide which
-warehouses to open based on several constraints: 1. If the New York warehouse is opened, then the Los Angeles
-warehouse must also be opened. 2. No more than three warehouses can be operational in any given week. 3. Either the
-Atlanta or the Los Angeles warehouse must be opened. The objective is to determine the optimal set of warehouses to open
-and the distribution of shipments to various regions to minimize total costs.
-
-Print the total cost (total_cost) as an integer, whether the warehouses are open (open_warehouse) as a list of booleans, and the shipping details for each
-region per warehouse (ships) as a list of lists where ships[i][j] indicates the number of units shipped from warehouse i to region j - including the non-opened warehouses as 0s.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/facility_location_problem.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/facility_location_problem.py</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-92">Copy</button></div><pre class="code-block"><code id="model-92" class="language-python"># Data
 warehouse_s = [&quot;New York&quot;, &quot;Los Angeles&quot;, &quot;Chicago&quot;, &quot;Atlanta&quot;]
 fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
 max_shipping = 100  # Max units per week per warehouse
@@ -225,8 +208,8 @@ for w in range(n_warehouses):
 
 # Objective: Minimize total cost
 fixed_cost_total = cp.sum(fixed_costs[w] * open_warehouse[w] for w in range(n_warehouses))
-shipping_cost_total = cp.sum(shipping_costs[w][r] * ships[w, r] 
-                           for w in range(n_warehouses) 
+shipping_cost_total = cp.sum(shipping_costs[w][r] * ships[w, r]
+                           for w in range(n_warehouses)
                            for r in range(n_regions))
 total_cost = fixed_cost_total + shipping_cost_total
 
@@ -238,51 +221,51 @@ if model.solve():
     open_vals = open_warehouse.value()
     ships_vals = ships.value()
     total_cost_val = total_cost.value()
-    
+
     # Create solution dictionary
     solution = {
         &quot;total_cost&quot;: int(total_cost_val),
         &quot;open_warehouse&quot;: [int(x) for x in open_vals],
         &quot;ships&quot;: [[int(ships_vals[w][r]) for r in range(n_regions)] for w in range(n_warehouses)]
     }
-    
+
     # Verification
     def verify_solution(sol):
         open_wh = sol[&quot;open_warehouse&quot;]
         ships_matrix = sol[&quot;ships&quot;]
-        
+
         # Check all constraints
         # 1. NY -&gt; LA implication
         if open_wh[0] == 1 and open_wh[1] != 1:
             return False
-        
+
         # 2. Max 3 warehouses
         if sum(open_wh) &gt; 3:
             return False
-        
+
         # 3. Atlanta OR Los Angeles
         if open_wh[3] == 0 and open_wh[1] == 0:
             return False
-        
+
         # 4. Demand satisfaction
         for r in range(n_regions):
             if sum(ships_matrix[w][r] for w in range(n_warehouses)) != demands[r]:
                 return False
-        
+
         # 5. Shipping limits
         for w in range(n_warehouses):
             if sum(ships_matrix[w][r] for r in range(n_regions)) &gt; max_shipping:
                 return False
-        
+
         # 6. Only open warehouses ship
         for w in range(n_warehouses):
             if open_wh[w] == 0 and sum(ships_matrix[w][r] for r in range(n_regions)) &gt; 0:
                 return False
-        
+
         return True
-    
+
     assert verify_solution(solution), &quot;Solution verification failed!&quot;
-    
+
     # Step 4: Output
     print(json.dumps(solution))
 else:
@@ -299,8 +282,8 @@ array[1..num_warehouses] of string: warehouse_s = [&quot;New York&quot;, &quot;L
 array[1..num_warehouses] of int: fixed_costs = [400, 500, 300, 150];
 int: max_shipping = 100;
 array[1..num_regions] of int: demands = [80, 70, 40];
-array[1..num_warehouses, 1..num_regions] of int: shipping_costs = 
-    array2d(1..num_warehouses, 1..num_regions, 
+array[1..num_warehouses, 1..num_regions] of int: shipping_costs =
+    array2d(1..num_warehouses, 1..num_regions,
         [20,40,50,  % New York
          48,15,26,  % Los Angeles
          26,35,18,  % Chicago
@@ -314,7 +297,7 @@ array[1..num_warehouses] of var 0..1: open_warehouse;
 array[1..num_warehouses, 1..num_regions] of var 0..max_shipping: ships;
 
 % Total cost: fixed + shipping
-var int: total_cost = 
+var int: total_cost =
     sum(w in 1..num_warehouses)(fixed_costs[w] * open_warehouse[w])
   + sum(w in 1..num_warehouses, r in 1..num_regions)(shipping_costs[w,r] * ships[w,r]);
 
@@ -488,7 +471,7 @@ if __name__ == &quot;__main__&quot;:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="equal_sized_groups.html">← prev</a><a class="btn" href="fancy_dress.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

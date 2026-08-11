@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">session2_movie_scheduling</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / session2_movie_scheduling</p>
-    <h1 class="problem-title">session2_movie_scheduling</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Consider the following scheduling problem. Imagine you are a highly-in- demand actor, who has been presented with offers to star in n different movie projects under development. Each offer comes specified with the first and last day of filming. To take the job, you must commit to being available throughout this entire period. Thus, you cannot simultaneously accept two jobs whose intervals overlap. For an artist such as yourself, the criteria for job acceptance is clear: you want to make as much money as possible. Because each of these films pays the same fee per film, this implies you seek the largest possible set of jobs (intervals) such that no two of them conflict with each other.  Input is a list of movies along with their first and last day of filming  Print which movies are accepted (selected_movies) as a list of booleans, where 1 indicates that the movie is selected and 0 indicates that it is not selected-in the order of the input list.</div></div>
 
@@ -78,30 +77,7 @@
   ]
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/movie_scheduling.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/movie_scheduling.mzn</a></dd><dt>Source description</dt><dd>Steven S. Skiena&#x27;s The Algorithm Design Manual</dd><dt>Category</dt><dd>aplai_course</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-145">Copy</button></div><pre class="code-block"><code id="model-145" class="language-python">#!/usr/bin/python3
-# Category: aplai_course
-# Source: http://www.hakank.org/minizinc/movie_scheduling.mzn
-# Source description: Steven S. Skiena&#x27;s The Algorithm Design Manual
-
-&quot;&quot;&quot;
-Consider the following scheduling problem. Imagine you are a highly-in-
-demand actor, who has been presented with offers to star in n different movie
-projects under development. Each offer comes specified with the first and last day
-of filming. To take the job, you must commit to being available throughout this
-entire period. Thus, you cannot simultaneously accept two jobs whose intervals
-overlap.
-For an artist such as yourself, the criteria for job acceptance is clear: you want
-to make as much money as possible. Because each of these films pays the same fee
-per film, this implies you seek the largest possible set of jobs (intervals) such that
-no two of them conflict with each other.
-
-Input is a list of movies along with their first and last day of filming
-
-Print which movies are accepted (selected_movies) as a list of booleans, where 1 indicates that the movie is selected
-and 0 indicates that it is not selected-in the order of the input list.
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/minizinc/movie_scheduling.mzn" target="_blank" rel="noopener">http://www.hakank.org/minizinc/movie_scheduling.mzn</a></dd><dt>Source description</dt><dd>Steven S. Skiena&#x27;s The Algorithm Design Manual</dd><dt>Category</dt><dd>aplai_course</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-145">Copy</button></div><pre class="code-block"><code id="model-145" class="language-python"># Data
 movies = [  # title, start, end
     [&quot;Tarjan of the Jungle&quot;, 4, 13],
     [&quot;The Four Volume Problem&quot;, 17, 27],
@@ -156,7 +132,7 @@ import json
 # Step 1: Deconstruct &amp; Pre-compute
 # Problem: Interval scheduling maximization
 # Objective: Maximize number of non-overlapping movie intervals
-# Constraints: 
+# Constraints:
 # 1. Each movie can be selected (1) or not selected (0)
 # 2. No two selected movies can have overlapping time intervals
 # 3. Two intervals [a,b] and [c,d] overlap if max(a,c) &lt;= min(b,d)
@@ -187,7 +163,7 @@ for i in range(n):
     for j in range(i+1, n):
         start_i, end_i = starts[i], ends[i]
         start_j, end_j = starts[j], ends[j]
-        
+
         # Check if intervals overlap
         if max(start_i, start_j) &lt;= min(end_i, end_j):
             overlapping_pairs.append((i, j))
@@ -212,50 +188,50 @@ if model.solve():
     # Extract solution
     selected_movies = select.value().tolist()
     num_selected_movies = int(num_selected.value())
-    
+
     # Verification (independent of CPMpy)
     def verify_solution(sol):
         &quot;&quot;&quot;Verify the solution satisfies all constraints&quot;&quot;&quot;
         selected = sol[&quot;selected_movies&quot;]
         num_selected = sol[&quot;num_selected_movies&quot;]
-        
+
         # Structural verification
         if len(selected) != n:
             return False, f&quot;Wrong length: {len(selected)} vs {n}&quot;
-        
+
         # Convert to boolean for consistency
         selected_bool = [bool(x) for x in selected]
-        
+
         # Check count matches
         actual_count = sum(selected_bool)
         if actual_count != num_selected:
             return False, f&quot;Count mismatch: {actual_count} vs {num_selected}&quot;
-        
+
         # Check no overlapping movies are both selected
         selected_indices = [i for i, sel in enumerate(selected_bool) if sel]
-        
+
         for i in selected_indices:
             for j in selected_indices:
                 if i &lt; j:  # Check each pair once
                     start_i, end_i = starts[i], ends[i]
                     start_j, end_j = starts[j], ends[j]
-                    
+
                     # Check if intervals overlap
                     if max(start_i, start_j) &lt;= min(end_i, end_j):
                         return False, f&quot;Movies {i} and {j} overlap&quot;
-        
+
         return True, &quot;All constraints satisfied&quot;
-    
+
     # Convert to required format (integers instead of booleans)
     solution = {
         &quot;num_selected_movies&quot;: num_selected_movies,
         &quot;selected_movies&quot;: [1 if x else 0 for x in selected_movies]
     }
-    
+
     # Verify solution
     valid, msg = verify_solution(solution)
     assert valid, f&quot;Verification failed: {msg}&quot;
-    
+
     # Step 4: Output
     print(json.dumps(solution))
 else:
@@ -356,7 +332,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="session2_maximal_independent_sets.html">← prev</a><a class="btn" href="session2_subsets_100.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

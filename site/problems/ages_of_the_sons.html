@@ -11,42 +11,13 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">ages_of_the_sons</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / ages_of_the_sons</p>
-    <h1 class="problem-title">ages_of_the_sons</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">An old man asked a mathematician to guess the ages of his three sons.  Old man said: &quot;The product of their ages is 36.&quot; Mathematician said: &quot;I need more information.&quot;  Old man said:&quot;Over there you can see a building. The sum of their ages equals the number of the windows in that building.&quot; After a short while the mathematician said: &quot;I need more information.&quot;  Old man said: &quot;The oldest son has blue eyes.&quot; Mathematician said: &quot;I got it.&quot;  What are the ages of the three sons of the old man?  Print the ages of the sons (A1, A2, A3) starting from the oldest.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-2-0">Copy</button></div><pre class="code-block"><code id="sol-2-0" class="language-json">{
-  &quot;A1&quot;: 9,
-  &quot;A2&quot;: 2,
-  &quot;A3&quot;: 2
-}</code></pre></div></div></details></details>
-
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/ages_of_the_sons.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/ages_of_the_sons.py</a></dd><dt>Source description</dt><dd><a href="http://blog.athico.com/2007/08/drools-puzzle-round-1-ages-of-sons.html" target="_blank" rel="noopener">http://blog.athico.com/2007/08/drools-puzzle-round-1-ages-of-sons.html</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-2">Copy</button></div><pre class="code-block"><code id="model-2" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/ages_of_the_sons.py
-# Source description: http://blog.athico.com/2007/08/drools-puzzle-round-1-ages-of-sons.html
 
 
-&quot;&quot;&quot;
-An old man asked a mathematician to guess the ages of his three sons.
-
-Old man said: &quot;The product of their ages is 36.&quot;
-Mathematician said: &quot;I need more information.&quot;
-
-Old man said:&quot;Over there you can see a building. The sum of their ages
-equals the number of the windows in that building.&quot;
-After a short while the mathematician said: &quot;I need more information.&quot;
-
-Old man said: &quot;The oldest son has blue eyes.&quot;
-Mathematician said: &quot;I got it.&quot;
-
-What are the ages of the three sons of the old man?
-
-Print the ages of the sons (A1, A2, A3) starting from the oldest.
-&quot;&quot;&quot;
-
-# Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="minizinc">MiniZinc</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/ages_of_the_sons.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/ages_of_the_sons.py</a></dd><dt>Source description</dt><dd><a href="http://blog.athico.com/2007/08/drools-puzzle-round-1-ages-of-sons.html" target="_blank" rel="noopener">http://blog.athico.com/2007/08/drools-puzzle-round-1-ages-of-sons.html</a></dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-2">Copy</button></div><pre class="code-block"><code id="model-2" class="language-python"># Import libraries
 from cpmpy import *
 import json
 
@@ -143,7 +114,7 @@ constraint A1 * A2 * A3 = 36;
 var int: windows = A1 + A2 + A3;
 
 % Count how many (B1,B2,B3) meet the same product=36, sum=windows and sorted order
-var int: count_solutions = 
+var int: count_solutions =
   sum([ bool2int(
            B1*B2*B3 = 36
         /\ B1 + B2 + B3 = windows
@@ -251,7 +222,7 @@ else:
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="added_corners.html">← prev</a><a class="btn" href="age_changing.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

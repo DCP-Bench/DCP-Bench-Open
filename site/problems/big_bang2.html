@@ -11,88 +11,13 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">big_bang2</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / big_bang2</p>
-    <h1 class="problem-title">big_bang2</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Nontransitive dice: The idea is to create a set of five dice such that the dominance relationships between the dice is isomorphic to the corresponding relationships in the game Rock-Paper-Scissors extended by the choices Lizard and Spock. Each choice beats two other choices and is beaten by two other choices. In particular, we have the following ten &#x27;beats&#x27; relationships  1:  Rock(1) crushes Scissors(3) 2:  Rock(1) crushes Lizard(4) 3:  Paper(2) covers Rock(1) 4:  Paper(2) disproves Spock(5) 5:  Scissors(3) cuts Paper(2) 6:  Scissors(3) decapitate Lizard(4) 7:  Lizard(4) eats Paper(2) 8:  Lizard(4) poisons Spock(5) 9:  Spock(5) vaporizes Rock(1) 10: Spock(5) smashes Scissors(3)  Each die has six integer-valued faces, and each face value must be between 1 and 12 inclusive. Face values may repeat, both within a die and across dice. We define the &#x27;beats&#x27; relationship between two dice to be the following: A has a strictly larger face value than die B in more than half of all possible pairs of faces.  Print the dice (dice) as a list of lists where each sublist is a die; row 0 is Rock, row 1 is Paper, row 2 is Scissors, row 3 is Lizard, and row 4 is Spock.</div></div>
 
-    <details class="card-box instances-box"><summary><h3>Instances</h3></summary><details class="instance" open><summary>Example (Instance 1)</summary><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="data">Data</button><button class="tab-btn" type="button" data-tab="solution">Solution</button></div><div class="tab-pane active" data-pane="data"><p class="desc">No instance data available.</p></div><div class="tab-pane" data-pane="solution"><div class="code-head"><span>json</span><button type="button" data-copy="sol-16-0">Copy</button></div><pre class="code-block"><code id="sol-16-0" class="language-json">{
-  &quot;dice&quot;: [
-    [
-      1,
-      2,
-      6,
-      6,
-      6,
-      1
-    ],
-    [
-      3,
-      2,
-      3,
-      3,
-      9,
-      3
-    ],
-    [
-      5,
-      1,
-      4,
-      5,
-      5,
-      1
-    ],
-    [
-      4,
-      3,
-      1,
-      4,
-      4,
-      4
-    ],
-    [
-      2,
-      7,
-      2,
-      7,
-      2,
-      2
-    ]
-  ]
-}</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/big_bang2.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/big_bang2.py</a></dd><dt>Misc</dt><dd>Model adjusted for clarity</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-16">Copy</button></div><pre class="code-block"><code id="model-16" class="language-python">#!/usr/bin/python3
-# Category: hakan_examples
-# Source: http://www.hakank.org/cpmpy/big_bang2.py
-# Misc: Model adjusted for clarity
 
-&quot;&quot;&quot;
-Nontransitive dice: The idea is to create a set of five dice such that the dominance relationships
-between the dice is isomorphic to the corresponding relationships in the game
-Rock-Paper-Scissors extended by the choices Lizard and Spock.
-Each choice beats two other choices and is beaten by two other choices.
-In particular, we have the following ten &#x27;beats&#x27; relationships
-
-1:  Rock(1) crushes Scissors(3)
-2:  Rock(1) crushes Lizard(4)
-3:  Paper(2) covers Rock(1)
-4:  Paper(2) disproves Spock(5)
-5:  Scissors(3) cuts Paper(2)
-6:  Scissors(3) decapitate Lizard(4)
-7:  Lizard(4) eats Paper(2)
-8:  Lizard(4) poisons Spock(5)
-9:  Spock(5) vaporizes Rock(1)
-10: Spock(5) smashes Scissors(3)
-
-Each die has six integer-valued faces, and each face value must be between 1 and 12 inclusive.
-Face values may repeat, both within a die and across dice.
-We define the &#x27;beats&#x27; relationship between two dice to be the following:
-A has a strictly larger face value than die B in more than half of all possible pairs of faces.
-
-Print the dice (dice) as a list of lists where each sublist is a die; row 0 is Rock, row 1 is Paper, row 2 is Scissors, row 3 is Lizard, and row 4 is Spock.
-&quot;&quot;&quot;
-
-# Import libraries
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="http://www.hakank.org/cpmpy/big_bang2.py" target="_blank" rel="noopener">http://www.hakank.org/cpmpy/big_bang2.py</a></dd><dt>Misc</dt><dd>Model adjusted for clarity</dd><dt>Category</dt><dd>hakan_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-16">Copy</button></div><pre class="code-block"><code id="model-16" class="language-python"># Import libraries
 from cpmpy import *
 import json
 
@@ -157,7 +82,7 @@ print(json.dumps(solution))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="best_host.html">← prev</a><a class="btn" href="bin_packing.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>

@@ -11,8 +11,7 @@
 <body>
 <header><nav><a class="brand" href="../index.html">DCP-Bench Open</a><a class="active" href="../index.html">Problems</a><a class="" href="../framework.html">Frameworks</a><span class="spacer"></span><a class="gh" href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">GitHub</a></nav><div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">who_killed_agatha</h1></div></header>
 <main>
-    <p class="breadcrumbs"><a href="index.html">problem</a> / who_killed_agatha</p>
-    <h1 class="problem-title">who_killed_agatha</h1>
+    <a class="back-link" href="index.html">&larr; All problems</a>
 
     <div class="card-box"><h3>Description</h3><div class="md-desc">Someone in Dreadsbury Mansion killed Aunt Agatha. Agatha, the butler, and Charles live in Dreadsbury Mansion, and are the only ones to live there. A killer always hates, and is no richer than his victim. Charles hates noone that Agatha hates. Agatha hates everybody except the butler. The butler hates everyone not richer than Aunt Agatha. The butler hates everyone whom Agatha hates. Noone hates everyone. Who killed Agatha?  Print the 0-based index of the killer (killer).</div></div>
 
@@ -26,24 +25,7 @@
   &quot;killer&quot;: 0
 }</code></pre></div></div></details></details>
 
-    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/who_killed_agatha.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/who_killed_agatha.py</a></dd><dt>Source description</dt><dd><a href="http://www.hakank.org/constraint_programming_blog/2014/11/decision_management_community_november_2014_challenge_who_killed_agath.html" target="_blank" rel="noopener">http://www.hakank.org/constraint_programming_blog/2014/11/decision_management_community_november_2014_challenge_who_killed_agath.html</a></dd><dt>Category</dt><dd>cpmpy_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-161">Copy</button></div><pre class="code-block"><code id="model-161" class="language-python">#!/usr/bin/python3
-# Category: cpmpy_examples
-# Source: https://github.com/CPMpy/cpmpy/blob/master/examples/who_killed_agatha.py
-# Source description: http://www.hakank.org/constraint_programming_blog/2014/11/decision_management_community_november_2014_challenge_who_killed_agath.html
-
-&quot;&quot;&quot;
-Someone in Dreadsbury Mansion killed Aunt Agatha.
-Agatha, the butler, and Charles live in Dreadsbury Mansion, and
-are the only ones to live there. A killer always hates, and is
-no richer than his victim. Charles hates noone that Agatha hates.
-Agatha hates everybody except the butler. The butler hates everyone
-not richer than Aunt Agatha. The butler hates everyone whom Agatha hates.
-Noone hates everyone. Who killed Agatha?
-
-Print the 0-based index of the killer (killer).
-&quot;&quot;&quot;
-
-# Data
+    <div class="page-section"><h2>Models</h2><div class="tab-group"><div class="tab-bar"><button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button><button class="tab-btn" type="button" data-tab="cpmpy">CPMpy</button><button class="tab-btn" type="button" data-tab="or-tools">OR-Tools</button></div><div class="tab-pane active" data-pane="ground_truth"><div class="card-box provenance"><h3>Metadata</h3><dl><dt>Source</dt><dd><a href="https://github.com/CPMpy/cpmpy/blob/master/examples/who_killed_agatha.py" target="_blank" rel="noopener">https://github.com/CPMpy/cpmpy/blob/master/examples/who_killed_agatha.py</a></dd><dt>Source description</dt><dd><a href="http://www.hakank.org/constraint_programming_blog/2014/11/decision_management_community_november_2014_challenge_who_killed_agath.html" target="_blank" rel="noopener">http://www.hakank.org/constraint_programming_blog/2014/11/decision_management_community_november_2014_challenge_who_killed_agath.html</a></dd><dt>Category</dt><dd>cpmpy_examples</dd></dl></div><h3>Model</h3><div class="code-head"><span>python</span><button type="button" data-copy="model-161">Copy</button></div><pre class="code-block"><code id="model-161" class="language-python"># Data
 names = [&quot;Agatha herself&quot;, &quot;the butler&quot;, &quot;Charles&quot;]
 # End of data
 
@@ -168,45 +150,45 @@ if model.solve():
         if killed.value()[i] == 1:
             killer_index = i
             break
-    
+
     # Verification
     def verify_solution(killer_idx, hates_matrix, richer_matrix):
         &quot;&quot;&quot;Verify the solution satisfies all constraints&quot;&quot;&quot;
         h = hates_matrix
         r = richer_matrix
-        
+
         # Check constraint 1: Killer hates and is not richer than victim
         if not (h[killer_idx][AGATHA] and not r[killer_idx][AGATHA]):
             return False
-        
+
         # Check constraint 2: Charles hates noone that Agatha hates
         for j in range(n):
             if h[AGATHA][j] and h[CHARLES][j]:
                 return False
-        
+
         # Check constraint 3: Agatha hates everybody except the butler
         if not (h[AGATHA][AGATHA] and not h[AGATHA][BUTLER] and h[AGATHA][CHARLES]):
             return False
-        
+
         # Check constraint 4: Butler hates everyone not richer than Agatha
         for i in range(n):
             if not r[i][AGATHA] and not h[BUTLER][i]:
                 return False
-        
+
         # Check constraint 5: Butler hates everyone whom Agatha hates
         for j in range(n):
             if h[AGATHA][j] and not h[BUTLER][j]:
                 return False
-        
+
         # Check constraint 6: Noone hates everyone
         for i in range(n):
             if sum(h[i]) == n:
                 return False
-        
+
         return True
-    
+
     assert verify_solution(killer_index, hates.value(), richer.value()), &quot;Solution verification failed!&quot;
-    
+
     # Step 4: Output
     solution = {&quot;killer&quot;: killer_index}
     print(json.dumps(solution))
@@ -316,7 +298,7 @@ print(json.dumps({&quot;killer&quot;: killer_index}))
     </div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px"><a class="btn" href="twelve_pack.html">← prev</a><a class="btn" href="wolf_goat_cabbage.html">next →</a></div>
     </main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>280fcf8</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
+<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code> · commit <code>9337207</code> · <a href="https://github.com/DCP-Bench/DCP-Bench-Open" target="_blank" rel="noopener">DCP-Bench Open</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="../data.js"></script>
