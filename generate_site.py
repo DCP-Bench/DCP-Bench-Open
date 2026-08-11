@@ -25,7 +25,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 RAW_URL = "https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main"
 
 TITLE = "DCP-Bench Open"
-ASSET_VERSION = "catalogue-v3"
+ASSET_VERSION = "catalogue-v4"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -152,15 +152,19 @@ def badge(label: str, key: str = None) -> str:
 
 def page(title: str, prefix: str, active: str, body: str, description: str = "") -> str:
     nav_items = [
-        ("index.html", "Problems", "problems"),
-        ("framework.html", "Frameworks", "frameworks"),
+        ("index.html", "Homepage", "index"),
     ]
     nav = [f'<a class="brand" href="{prefix}index.html">{TITLE}</a>']
     for href, label, key in nav_items:
         cls = " active" if key == active else ""
         nav.append(f'<a class="{cls.strip()}" href="{prefix}{href}">{label}</a>')
     nav.append(f'<span class="spacer"></span>')
-    nav.append(f'<a class="gh" href="{REPO_URL}" target="_blank" rel="noopener">GitHub</a>')
+    nav.append(
+        f'<a class="gh" href="{REPO_URL}" target="_blank" rel="noopener">'
+        '<svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true">'
+        '<path fill="currentColor" d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.04c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.84 1.23 1.84 1.23 1.07 1.83 2.8 1.3 3.48.99.11-.77.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.6-2.8 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5Z"/>'
+        '</svg><span>GitHub</span></a>'
+    )
 
     if active == "index":
         hero = (
@@ -570,9 +574,16 @@ def coverage_matrix(problems: list, frameworks: list) -> str:
 
 def build_index(problems: list, generated: dict) -> None:
     """Build the problem catalogue without the old summary-stat dashboard."""
-    source_opts = "".join(option(s, s) for s in sorted({p["source"] for p in problems}))
+    generated_frameworks = sorted(
+        {framework for models in generated.values() for framework in models}
+    )
+    framework_options = "".join(
+        f'<label><input type="checkbox" data-filter-group="framework" value="{esc(framework)}">'
+        f'{esc(framework)}</label>'
+        for framework in generated_frameworks
+    )
     body = f"""
-    <div class="controls" aria-label="Problem filters and sorting">
+    <div class="controls" aria-label="Problem filters">
       <label class="search-field"><span class="sr-only">Search problems</span>
         <input type="search" id="filter-q" placeholder="Search problems or descriptions" autocomplete="off">
       </label>
@@ -597,20 +608,33 @@ def build_index(problems: list, generated: dict) -> None:
           <label><input type="checkbox" data-filter-group="instances" value="multiple">Multiple</label>
         </div>
       </div>
-      <label class="control-field sort-field"><span>Sort by</span>
-        <select id="sort-by">
-          {option("name", "Name", "name")}
-          {option("type", "Type")}
-          {option("source", "Source")}
-          {option("instances", "Instances")}
-        </select>
-      </label>
-      <div class="view-toggle" role="group" aria-label="Problem view">
-        <button type="button" class="view-btn active" id="view-grid" data-view="grid" aria-pressed="true">Grid</button>
-        <button type="button" class="view-btn" id="view-list" data-view="list" aria-pressed="false">List</button>
+      <div class="filter-menu" data-filter-menu="framework">
+        <button type="button" class="filter-trigger" id="filter-framework" aria-expanded="false">Generated framework: Any</button>
+        <div class="filter-options" role="group" aria-label="Filter by generated model framework">
+          <label><input type="checkbox" data-filter-group="framework" value="any">Any (unfiltered)</label>
+          <label><input type="checkbox" data-filter-group="framework" value="none">None (no generated model)</label>
+          {framework_options}
+        </div>
+      </div>
+      <button type="button" id="reset-filters" class="reset-btn">Reset filters</button>
+    </div>
+    <div class="results-toolbar">
+      <p class="result-count" id="result-count"></p>
+      <div class="results-actions">
+        <label class="control-field sort-field"><span>Sort by</span>
+          <select id="sort-by">
+            {option("name", "Name", "name")}
+            {option("type", "Type")}
+            {option("source", "Source")}
+            {option("instances", "Instances")}
+          </select>
+        </label>
+        <div class="view-toggle" role="group" aria-label="Problem view">
+          <button type="button" class="view-btn active" id="view-grid" data-view="grid" aria-pressed="true">Grid</button>
+          <button type="button" class="view-btn" id="view-list" data-view="list" aria-pressed="false">List</button>
+        </div>
       </div>
     </div>
-    <p class="result-count" id="result-count"></p>
     <div class="cards" id="cards"></div>
     """
     (OUTPUT_DIR / "index.html").write_text(
@@ -722,8 +746,6 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
         prev_next += "</div>"
 
     body = f"""
-    <a class="back-link" href="../index.html">&larr; All problems</a>
-
     {description_box}
 
     {instances_html}
@@ -738,7 +760,7 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
     """
 
     (OUTPUT_DIR / "problems").mkdir(parents=True, exist_ok=True)
-    rendered_page = page(pid, "../", "problems", body, snippet(p["description"], 160))
+    rendered_page = page(pid, "../", "problem", body, snippet(p["description"], 160))
     rendered_page = "\n".join(line.rstrip() for line in rendered_page.splitlines()) + "\n"
     (OUTPUT_DIR / "problems" / f"{pid}.html").write_text(
         rendered_page,
@@ -767,51 +789,6 @@ def metadata_html(meta: dict, p: dict) -> str:
             continue
         rows.append(f"<dt>{esc(humanize_key(key))}</dt><dd>{linkify(value)}</dd>")
     return "<dl>" + "".join(rows) + "</dl>"
-
-
-# --------------------------------------------------------------------------
-# Framework view + Stats
-# --------------------------------------------------------------------------
-
-def build_frameworks(problems: list, generated: dict) -> None:
-    gen_tabs = generated_framework_tabs(problems, generated)
-    body = (
-        '<p class="desc" style="margin-top:0">Generated models grouped by framework.</p>'
-        f'<div class="section">{gen_tabs}</div>'
-    )
-    (OUTPUT_DIR / "framework.html").write_text(
-        page("Framework view", "", "frameworks", body), encoding="utf-8"
-    )
-
-
-def generated_framework_tabs(problems: list, generated: dict) -> str:
-    """Tab-group listing, per framework, the problems with a valid generated model."""
-    by_fw = {}
-    for p in problems:
-        best = select_best_generated(generated.get(p["id"], {}))
-        for fw, entry in best.items():
-            by_fw.setdefault(fw, []).append((p, entry))
-    if not by_fw:
-        return '<p class="desc">No valid generated models yet.</p>'
-    present = [fw for fw in FRAMEWORK_ORDER if fw in by_fw] + [fw for fw in by_fw if fw not in FRAMEWORK_ORDER]
-    buttons, panes = [], []
-    for fw in present:
-        slug = fw.lower().replace(" ", "_")
-        active = " active" if fw == present[0] else ""
-        buttons.append(
-            f'<button class="tab-btn{active}" type="button" data-tab="{slug}">'
-            f"{esc(fw)} ({len(by_fw[fw])})</button>"
-        )
-        items = "".join(
-            f'<div class="gen-fw-item"><a href="problems/{p["id"]}.html">{esc(p["id"])}</a></div>'
-            for p, entry in sorted(by_fw[fw], key=lambda pe: pe[0]["id"])
-        )
-        panes.append(f'<div class="tab-pane{active}" data-pane="{slug}">{items}</div>')
-    return (
-        f'<div class="tab-group"><div class="tab-bar">{"".join(buttons)}</div>'
-        + "".join(panes)
-        + "</div>"
-    )
 
 
 def svg_hist(items: list, width: int = 760, height: int = 250, color: str = "#4f46e5") -> str:
@@ -1027,7 +1004,6 @@ def main() -> None:
 
     generated = load_generated_models()
     build_index(problems, generated)
-    build_frameworks(problems, generated)
     for idx, p in enumerate(problems):
         build_problem_page(p, p["meta"], idx, len(problems), generated)
 
@@ -1042,6 +1018,7 @@ def main() -> None:
                 "snippet": p["snippet"],
                 "instances": len(p["instances"]),
                 "generated": sum(len(v) for v in generated.get(p["id"], {}).values()),
+                "generatedFrameworks": sorted(generated.get(p["id"], {}).keys()),
                 "evalBadge": problem_eval_status(generated.get(p["id"], {})),
             }
             for p in problems

@@ -66,7 +66,8 @@
     var labels = {
       type: { id: "filter-type", name: "Type" },
       source: { id: "filter-source", name: "Source" },
-      instances: { id: "filter-instances", name: "Instances" }
+      instances: { id: "filter-instances", name: "Instances" },
+      framework: { id: "filter-framework", name: "Generated framework" }
     };
     var config = labels[group];
     if (!config) return;
@@ -75,7 +76,9 @@
     if (!button) return;
     var label = config.name + ": ";
     if (!values.length) {
-      label += "All";
+      label += group === "framework" ? "Any" : "All";
+    } else if (group === "framework" && values.indexOf("any") !== -1) {
+      label += "Any";
     } else if (values.length === 1) {
       var input = document.querySelector('input[data-filter-group="' + group + '"][value="' + values[0] + '"]');
       label += input ? input.parentElement.textContent.trim() : "1 selected";
@@ -159,7 +162,7 @@
     header.className = "list-header";
     header.setAttribute("role", "row");
     [["Problem", "name"], ["Type", "type"], ["Source", "source"],
-      ["Instances", "instances"], ["Generated", "generated"]].forEach(function (item) {
+      ["Instances", "instances"]].forEach(function (item) {
       var cell = document.createElement("div");
       cell.className = "list-cell";
       var button = document.createElement("button");
@@ -186,7 +189,6 @@
       appendListCell(row, problem.type === "optimization" ? "Optimization" : "Satisfaction");
       appendListCell(row, problem.source || "Unknown");
       appendListCell(row, String(problem.instances || 0));
-      appendListCell(row, String(problem.generated || 0));
       container.appendChild(row);
     });
   }
@@ -201,6 +203,7 @@
     var types = selectedFilterValues("type");
     var sources = selectedFilterValues("source");
     var instances = selectedFilterValues("instances");
+    var frameworks = selectedFilterValues("framework");
 
     var filtered = data.filter(function (problem) {
       if (types.length && types.indexOf(problem.type || "satisfaction") === -1) return false;
@@ -208,6 +211,13 @@
       if (instances.length) {
         var instanceType = problem.instances === 0 ? "none" : (problem.instances === 1 ? "single" : "multiple");
         if (instances.indexOf(instanceType) === -1) return false;
+      }
+      if (frameworks.length && frameworks.indexOf("any") === -1) {
+        var problemFrameworks = problem.generatedFrameworks || [];
+        var matchesFramework = frameworks.some(function (framework) {
+          return framework === "none" ? problemFrameworks.length === 0 : problemFrameworks.indexOf(framework) !== -1;
+        });
+        if (!matchesFramework) return false;
       }
       if (q) {
         var haystack = (problem.id + " " + problem.snippet).toLowerCase();
@@ -245,6 +255,24 @@
       sortKey = sort.value;
       sortDirection = 1;
       renderCards();
+    });
+    var reset = document.getElementById("reset-filters");
+    if (reset) reset.addEventListener("click", function () {
+      var searchInput = document.getElementById("filter-q");
+      if (searchInput) searchInput.value = "";
+      document.querySelectorAll('input[data-filter-group]').forEach(function (input) {
+        input.checked = false;
+      });
+      document.querySelectorAll(".filter-menu.open").forEach(function (menu) {
+        menu.classList.remove("open");
+        var trigger = menu.querySelector(".filter-trigger");
+        if (trigger) trigger.setAttribute("aria-expanded", "false");
+      });
+      ["type", "source", "instances", "framework"].forEach(updateFilterButton);
+      sortKey = "name";
+      sortDirection = 1;
+      if (sort) sort.value = "name";
+      setViewMode("grid");
     });
     document.addEventListener("click", function (event) {
       var button = event.target.closest ? event.target.closest(".view-btn") : null;
