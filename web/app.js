@@ -108,7 +108,7 @@
           trigger.setAttribute("aria-expanded", open ? "true" : "false");
         });
       }
-      menu.querySelectorAll('input[type="checkbox"]').forEach(function (input) {
+      menu.querySelectorAll('input[data-filter-group]').forEach(function (input) {
         input.addEventListener("change", function () {
           updateFilterButton(input.getAttribute("data-filter-group"));
           renderCards();
@@ -263,6 +263,8 @@
       document.querySelectorAll('input[data-filter-group]').forEach(function (input) {
         input.checked = false;
       });
+      var anyFramework = document.querySelector('input[data-filter-group="framework"][value="any"]');
+      if (anyFramework) anyFramework.checked = true;
       document.querySelectorAll(".filter-menu.open").forEach(function (menu) {
         menu.classList.remove("open");
         var trigger = menu.querySelector(".filter-trigger");

@@ -25,7 +25,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 RAW_URL = "https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main"
 
 TITLE = "DCP-Bench Open"
-ASSET_VERSION = "catalogue-v4"
+ASSET_VERSION = "catalogue-v5"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -151,13 +151,7 @@ def badge(label: str, key: str = None) -> str:
 
 
 def page(title: str, prefix: str, active: str, body: str, description: str = "") -> str:
-    nav_items = [
-        ("index.html", "Homepage", "index"),
-    ]
-    nav = [f'<a class="brand" href="{prefix}index.html">{TITLE}</a>']
-    for href, label, key in nav_items:
-        cls = " active" if key == active else ""
-        nav.append(f'<a class="{cls.strip()}" href="{prefix}{href}">{label}</a>')
+    nav = [f'<a class="brand" href="{prefix}index.html">Homepage</a>']
     nav.append(f'<span class="spacer"></span>')
     nav.append(
         f'<a class="gh" href="{REPO_URL}" target="_blank" rel="noopener">'
@@ -172,7 +166,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "")
             f'<h1>{TITLE}</h1><p>{SUBTITLE}</p></div>'
         )
     else:
-        hero = f'<div class="hero" style="padding-bottom:16px"><h1 style="font-size:1.4rem;margin:0">{esc(title)}</h1></div>'
+        hero = f'<div class="hero problem-hero"><h1>{esc(title)}</h1></div>'
 
     footer_head = f" · commit <code>{esc(REPO_HEAD)}</code>" if REPO_HEAD else ""
     head_desc = f'<meta name="description" content="{esc(description)}">' if description else ""
@@ -575,10 +569,14 @@ def coverage_matrix(problems: list, frameworks: list) -> str:
 def build_index(problems: list, generated: dict) -> None:
     """Build the problem catalogue without the old summary-stat dashboard."""
     generated_frameworks = sorted(
-        {framework for models in generated.values() for framework in models}
+        {
+            framework
+            for models in generated.values()
+            for framework in select_best_generated(models)
+        }
     )
     framework_options = "".join(
-        f'<label><input type="checkbox" data-filter-group="framework" value="{esc(framework)}">'
+        f'<label><input type="radio" name="framework-filter" data-filter-group="framework" value="{esc(framework)}">'
         f'{esc(framework)}</label>'
         for framework in generated_frameworks
     )
@@ -611,8 +609,8 @@ def build_index(problems: list, generated: dict) -> None:
       <div class="filter-menu" data-filter-menu="framework">
         <button type="button" class="filter-trigger" id="filter-framework" aria-expanded="false">Generated framework: Any</button>
         <div class="filter-options" role="group" aria-label="Filter by generated model framework">
-          <label><input type="checkbox" data-filter-group="framework" value="any">Any (unfiltered)</label>
-          <label><input type="checkbox" data-filter-group="framework" value="none">None (no generated model)</label>
+          <label><input type="radio" name="framework-filter" data-filter-group="framework" value="any" checked>Any (unfiltered)</label>
+          <label><input type="radio" name="framework-filter" data-filter-group="framework" value="none">None (no generated model)</label>
           {framework_options}
         </div>
       </div>
@@ -1018,7 +1016,7 @@ def main() -> None:
                 "snippet": p["snippet"],
                 "instances": len(p["instances"]),
                 "generated": sum(len(v) for v in generated.get(p["id"], {}).values()),
-                "generatedFrameworks": sorted(generated.get(p["id"], {}).keys()),
+                "generatedFrameworks": sorted(select_best_generated(generated.get(p["id"], {})).keys()),
                 "evalBadge": problem_eval_status(generated.get(p["id"], {})),
             }
             for p in problems
