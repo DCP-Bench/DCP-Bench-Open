@@ -344,6 +344,7 @@ pre.code-block {
   margin: 0;
 }
 pre.code-block code { font-family: inherit; background: none; padding: 0; }
+.code-head + pre.code-block { border-radius: 0 0 8px 8px; }
 .code-head {
   display: flex;
   align-items: center;
@@ -569,9 +570,57 @@ table.plain th, table.plain td {
 }
 .controls .search-field { flex: 1 1 260px; }
 .controls .search-field input { width: 100%; min-width: 0; }
-.controls .control-field { flex: 0 1 150px; }
 .controls .sort-field { flex-basis: 170px; }
 .controls .view-toggle { margin-left: auto; }
+.filter-menu { position: relative; flex: 0 1 170px; }
+.filter-trigger {
+  width: 100%;
+  min-height: 39px;
+  padding: 9px 30px 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+.filter-trigger::after {
+  content: "⌄";
+  position: absolute;
+  right: 11px;
+  color: var(--muted);
+}
+.filter-menu.open .filter-trigger { border-color: var(--accent); outline: 2px solid var(--accent-soft); }
+.filter-options {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.14);
+}
+.filter-menu.open .filter-options { display: grid; gap: 2px; }
+.filter-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+.filter-options label:hover { background: var(--accent-soft); }
+.filter-options input { accent-color: var(--accent); }
 .view-toggle {
   display: inline-flex;
   border: 1px solid var(--border);

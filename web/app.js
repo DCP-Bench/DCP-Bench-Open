@@ -55,6 +55,73 @@
     renderCards();
   }
 
+  function selectedFilterValues(group) {
+    var selector = 'input[data-filter-group="' + group + '"]:checked';
+    return Array.prototype.map.call(document.querySelectorAll(selector), function (input) {
+      return input.value;
+    });
+  }
+
+  function updateFilterButton(group) {
+    var labels = {
+      type: { id: "filter-type", name: "Type" },
+      source: { id: "filter-source", name: "Source" },
+      instances: { id: "filter-instances", name: "Instances" }
+    };
+    var config = labels[group];
+    if (!config) return;
+    var values = selectedFilterValues(group);
+    var button = document.getElementById(config.id);
+    if (!button) return;
+    var label = config.name + ": ";
+    if (!values.length) {
+      label += "All";
+    } else if (values.length === 1) {
+      var input = document.querySelector('input[data-filter-group="' + group + '"][value="' + values[0] + '"]');
+      label += input ? input.parentElement.textContent.trim() : "1 selected";
+    } else {
+      label += values.length + " selected";
+    }
+    button.textContent = label;
+  }
+
+  function setViewMode(mode) {
+    viewMode = mode;
+    document.querySelectorAll(".view-btn").forEach(function (button) {
+      var active = button.getAttribute("data-view") === mode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    renderCards();
+  }
+
+  function initFilterMenus() {
+    document.querySelectorAll(".filter-menu").forEach(function (menu) {
+      menu.addEventListener("click", function (event) { event.stopPropagation(); });
+      var trigger = menu.querySelector(".filter-trigger");
+      if (trigger) {
+        trigger.addEventListener("click", function () {
+          var open = menu.classList.toggle("open");
+          trigger.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+      }
+      menu.querySelectorAll('input[type="checkbox"]').forEach(function (input) {
+        input.addEventListener("change", function () {
+          updateFilterButton(input.getAttribute("data-filter-group"));
+          renderCards();
+        });
+      });
+      updateFilterButton(menu.getAttribute("data-filter-menu"));
+    });
+    document.addEventListener("click", function () {
+      document.querySelectorAll(".filter-menu.open").forEach(function (menu) {
+        menu.classList.remove("open");
+        var trigger = menu.querySelector(".filter-trigger");
+        if (trigger) trigger.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
   function appendGridCard(container, problem) {
     var card = document.createElement("div");
     card.className = "card";
@@ -71,24 +138,11 @@
 
     var meta = document.createElement("div");
     meta.className = "meta";
-    meta.appendChild(pill(problem.type === "optimization" ? "Optimization" : "Satisfaction",
-      problem.type === "optimization" ? "#7c3aed" : null));
-
-    var foot = document.createElement("div");
-    foot.className = "card-foot";
-    var instanceLabel = (problem.instances || 0) + " instance" + (problem.instances === 1 ? "" : "s");
-    foot.appendChild(document.createTextNode(instanceLabel));
-    if (problem.generated) {
-      foot.appendChild(document.createTextNode(" · " + problem.generated + " generated model" +
-        (problem.generated === 1 ? "" : "s")));
-    }
-    var ev = EVAL_STATUS[problem.evalBadge] || EVAL_STATUS.no_models;
-    foot.appendChild(pill(ev.label, ev.color));
+    meta.appendChild(pill(problem.type === "optimization" ? "Optimization" : "Satisfaction", null));
 
     card.appendChild(h3);
     card.appendChild(desc);
     card.appendChild(meta);
-    card.appendChild(foot);
     container.appendChild(card);
   }
 
@@ -144,15 +198,17 @@
 
     var data = window.DCP_DATA.problems || [];
     var q = (document.getElementById("filter-q") || { value: "" }).value.trim().toLowerCase();
-    var type = (document.getElementById("filter-type") || { value: "" }).value;
-    var source = (document.getElementById("filter-source") || { value: "" }).value;
-    var inst = (document.getElementById("filter-instances") || { value: "" }).value;
+    var types = selectedFilterValues("type");
+    var sources = selectedFilterValues("source");
+    var instances = selectedFilterValues("instances");
 
     var filtered = data.filter(function (problem) {
-      if (type && (problem.type || "satisfaction") !== type) return false;
-      if (source && problem.source !== source) return false;
-      if (inst === "single" && problem.instances !== 1) return false;
-      if (inst === "multiple" && problem.instances < 2) return false;
+      if (types.length && types.indexOf(problem.type || "satisfaction") === -1) return false;
+      if (sources.length && sources.indexOf(problem.source) === -1) return false;
+      if (instances.length) {
+        var instanceType = problem.instances === 0 ? "none" : (problem.instances === 1 ? "single" : "multiple");
+        if (instances.indexOf(instanceType) === -1) return false;
+      }
       if (q) {
         var haystack = (problem.id + " " + problem.snippet).toLowerCase();
         if (haystack.indexOf(q) === -1) return false;
@@ -181,26 +237,18 @@
 
   function initIndex() {
     if (!window.DCP_DATA) return;
-    ["filter-q", "filter-type", "filter-source", "filter-instances"].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", renderCards);
-    });
+    initFilterMenus();
+    var search = document.getElementById("filter-q");
+    if (search) search.addEventListener("input", renderCards);
     var sort = document.getElementById("sort-by");
     if (sort) sort.addEventListener("change", function () {
       sortKey = sort.value;
       sortDirection = 1;
       renderCards();
     });
-    document.querySelectorAll(".view-btn").forEach(function (button) {
-      button.addEventListener("click", function () {
-        viewMode = button.getAttribute("data-view");
-        document.querySelectorAll(".view-btn").forEach(function (other) {
-          var active = other === button;
-          other.classList.toggle("active", active);
-          other.setAttribute("aria-pressed", active ? "true" : "false");
-        });
-        renderCards();
-      });
+    document.addEventListener("click", function (event) {
+      var button = event.target.closest ? event.target.closest(".view-btn") : null;
+      if (button) setViewMode(button.getAttribute("data-view"));
     });
     renderCards();
   }
