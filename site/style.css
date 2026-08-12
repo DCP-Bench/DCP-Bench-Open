@@ -300,24 +300,38 @@ table.matrix td.no { color: #d1d5db; }
 
 /* ---------- Tabs ---------- */
 .tab-bar { display: flex; gap: 6px; border-bottom: 2px solid var(--border); margin-bottom: 0; flex-wrap: wrap; }
-.model-tab-bar { align-items: flex-end; }
+.model-tab-bar { align-items: center; }
 .generated-model-tab-group {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
-  flex-direction: column;
-  margin-left: 18px;
+  align-items: center;
+  margin-left: 4px;
+}
+.model-tab-separator {
+  width: 1px;
+  height: 20px;
+  flex: 0 0 1px;
+  margin: 0 10px 0 2px;
+  background: var(--border);
 }
 .generated-model-tab-label {
-  padding: 0 16px 5px;
+  flex: 0 0 auto;
+  margin-right: 2px;
   color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 600;
   line-height: 1.2;
-  text-transform: uppercase;
+  white-space: nowrap;
 }
-.generated-model-tab-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.generated-model-tab-row {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.generated-model-tab-row .tab-btn { white-space: nowrap; }
 .tab-btn {
   border: none;
   background: transparent;
@@ -786,12 +800,11 @@ footer {
   .hero h1 { font-size: 1.5rem; }
   .provenance dl { grid-template-columns: 1fr; gap: 2px 0; }
   .provenance dt { margin-top: 8px; }
-  .model-tab-bar { align-items: stretch; }
+  .model-tab-bar { align-items: center; row-gap: 0; }
   .generated-model-tab-group {
     flex-basis: 100%;
     margin-left: 0;
-    padding-top: 6px;
   }
-  .generated-model-tab-label { padding-left: 12px; }
+  .model-tab-separator { display: none; }
   .generated-model-tab-row { gap: 2px; }
 }
