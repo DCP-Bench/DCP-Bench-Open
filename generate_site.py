@@ -25,7 +25,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 RAW_URL = "https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main"
 
 TITLE = "DCP-Bench Open"
-ASSET_VERSION = "catalogue-v7"
+ASSET_VERSION = "catalogue-v8"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -729,7 +729,7 @@ def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
     return (
         f'<div class="page-section"><h2>Models</h2>'
         f'<div class="tab-group"><div class="tab-bar model-tab-bar">'
-        f'<button class="tab-btn active" type="button" data-tab="ground_truth">Reference Model</button>'
+        f'<button class="tab-btn reference-model-tab active" type="button" data-tab="ground_truth">Reference Model</button>'
         f'{generated_group}</div>'
         + "".join(panes)
         + "</div></div>"
