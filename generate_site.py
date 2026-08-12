@@ -25,7 +25,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 RAW_URL = "https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main"
 
 TITLE = "DCP-Bench Open"
-ASSET_VERSION = "catalogue-v5"
+ASSET_VERSION = "catalogue-v6"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -698,9 +698,7 @@ def instances_section_html(p: dict, idx: int) -> str:
 
 def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
     best = select_best_generated(generated)
-    buttons = [
-        f'<button class="tab-btn active" type="button" data-tab="ground_truth">Ground Truth</button>'
-    ]
+    generated_buttons = []
     panes = [
         f'<div class="tab-pane active" data-pane="ground_truth">'
         f'<div class="card-box provenance"><h3>Metadata</h3>{metadata_html(meta, p)}</div>'
@@ -712,13 +710,27 @@ def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
         if entry is None:
             continue
         slug = fw.lower().replace(" ", "_")
-        buttons.append(
+        generated_buttons.append(
             f'<button class="tab-btn" type="button" data-tab="{slug}">{esc(fw)}</button>'
         )
         panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_html(entry)}</div>')
+
+    generated_group = ""
+    if generated_buttons:
+        generated_group = (
+            f'<div class="generated-model-tab-group" role="group" '
+            f'aria-labelledby="generated-models-label-{idx}">'
+            f'<span class="generated-model-tab-label" id="generated-models-label-{idx}">'
+            f'Generated Models</span>'
+            f'<div class="generated-model-tab-row">{"".join(generated_buttons)}</div>'
+            f'</div>'
+        )
+
     return (
         f'<div class="page-section"><h2>Models</h2>'
-        f'<div class="tab-group"><div class="tab-bar">{"".join(buttons)}</div>'
+        f'<div class="tab-group"><div class="tab-bar model-tab-bar">'
+        f'<button class="tab-btn active" type="button" data-tab="ground_truth">Reference Model</button>'
+        f'{generated_group}</div>'
         + "".join(panes)
         + "</div></div>"
     )
