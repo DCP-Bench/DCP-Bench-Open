@@ -6,7 +6,6 @@ import sys
 import tempfile
 import click
 from pathlib import Path
-import minizinc
 import datetime
 from tqdm import tqdm
 
@@ -29,6 +28,8 @@ def exec_code_minizinc(code: str, timeout_sec):
     :param timeout_sec: The maximum time to wait for the solver in seconds.
     :return: A tuple of (success, output, timeout_occured)
     """
+    import minizinc
+
     timeout_duration = datetime.timedelta(seconds=timeout_sec)
 
     try:
@@ -83,7 +84,7 @@ def exec_code(code: str, timeout=10, modelling_language='cpmpy'):
 
     :param code: The code to execute as a string
     :param timeout: The maximum time to wait for the code to execute in seconds
-    :param modelling_language: The language to use for execution (cpmpy, minizinc, or-tools)
+    :param modelling_language: MiniZinc uses the MiniZinc API; any other value runs Python
     :return: A tuple of (success, output, timeout_occured)
     """
 
@@ -92,26 +93,24 @@ def exec_code(code: str, timeout=10, modelling_language='cpmpy'):
     temp_dir = os.path.join(os.getcwd(), temp_dir_name)
     os.makedirs(temp_dir, exist_ok=True)
 
-    # write the code to a temporary file
-    suffix = '.__hidden_py__' if modelling_language == CPMPY_FRAMEWORK or modelling_language == ORTOOLS_FRAMEWORK else '.mzn'
+    # MiniZinc is the only non-Python execution path; everything else prints JSON from Python.
+    is_minizinc = modelling_language == MINIZINC_FRAMEWORK
+    suffix = '.mzn' if is_minizinc else '.__hidden_py__'
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=suffix, dir=temp_dir,
                                      encoding='utf-8') as temp_file:
         temp_instance_path = temp_file.name
         temp_file.write(code)
 
     try:
-        # execute the code
-        if modelling_language == CPMPY_FRAMEWORK or modelling_language == ORTOOLS_FRAMEWORK:
+        if is_minizinc:
+            successfully_executed, output, timeout_occurred = exec_code_minizinc(code, timeout)
+        else:
             command = [sys.executable, temp_instance_path]
             result = subprocess.run(command, capture_output=True, text=True, timeout=timeout, encoding='utf-8')
 
             successfully_executed = (result.returncode == 0)
             output = result.stdout if successfully_executed else result.stderr
             timeout_occurred = False
-        elif modelling_language == MINIZINC_FRAMEWORK:
-            successfully_executed, output, timeout_occurred = exec_code_minizinc(code, timeout)
-        else:
-            raise ValueError(f"MODELLING_LANGUAGE not supported: {modelling_language}")
 
     except subprocess.TimeoutExpired as e:
         successfully_executed = False
@@ -353,9 +352,9 @@ def evaluate_submission(submitted_models, summary_file_path, modelling_framw, to
 @click.option('--test_file', required=True,
               type=click.Path(exists=True, dir_okay=False, path_type=Path),
               help='Path to the submission JSONL file')
-@click.option('--modelling_framework', required=True,
-              type=click.Choice([CPMPY_FRAMEWORK, ORTOOLS_FRAMEWORK, MINIZINC_FRAMEWORK]),
-              help='Modelling framework used in the submission')
+@click.option('--modelling_framework', required=True, type=str,
+              help='How to execute the submission: MiniZinc uses the MiniZinc API; '
+                   'any other value runs the model as Python (must print JSON).')
 def main(dataset_file: Path, test_file: Path, modelling_framework: str):
     """Evaluate a file containing generated models against a ground-truth dataset."""
 
