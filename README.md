@@ -16,7 +16,7 @@ This benchmark has two primary goals:
 
 For the proposed evolution into a multi-framework problem and model registry, see the [registry architecture and implementation roadmap](docs/ARCHITECTURE_ROADMAP.md).
 
-In the repository, the ground-truth models are (currently) using the CPMpy library. The evaluation framework can (currently) evaluate generated models in CPMpy, MiniZinc or Or-Tools CP-SAT and more can be added with limited effort.
+In the repository, the ground-truth models are (currently) using the CPMpy library. The evaluation framework runs MiniZinc models through the MiniZinc API and any other modelling framework as Python that prints a JSON solution.
 
 This benchmark is an open source project that welcomes additional problems, data instances and evaluation tooling from interested developers. For reproducibility, always use a specific 'Release' in your research (see below). This project started as an extension of the original [CP-Bench](https://huggingface.co/datasets/kostis-init/CP-Bench) published at ECAI 2025.
 
@@ -81,7 +81,25 @@ The `eval.py` script can be used to automate this evaluation process provided th
  python eval.py --dataset_file dcp-bench-open.jsonl --test_file sample_test.jsonl --modelling_framework CPMpy
 ```
 
-Here, `--dataset_file` specifies the path to the jsonl version of the benchmark, `--test_file` specifies the path to the file with generated models, and `--modelling_framework` indicates the modelling framework used in the generated models. 
+Here, `--dataset_file` specifies the path to the jsonl version of the benchmark, `--test_file` specifies the path to the file with generated models, and `--modelling_framework` indicates how to execute them: `MiniZinc` uses the MiniZinc API; any other value runs the model as Python.
+
+### Checking stored generated models
+
+Models kept under `generated_models/<problem>/<framework>/<submission>/model.py` can be checked in place with `verify_models.py`. It runs the file, parses the JSON solution from stdout, and tests that assignment against the CPMpy ground-truth model. A passing run writes `metrics_passed.json` next to the model.
+
+Cursor-generated Python solver models for abbots puzzle:
+
+```bash
+python verify_models.py --problem abbots_puzzle
+```
+
+A single file:
+
+```bash
+python verify_models.py --model generated_models/abbots_puzzle/z3/cursor/model.py
+```
+
+Core evaluation needs `requirements.txt`. Extra solver packages used by those Cursor models are listed in `requirements-solvers.txt` and are optional: a missing package fails only that model.
 
 ### Creating your test file with models to be evaluated
 
