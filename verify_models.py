@@ -44,6 +44,30 @@ FRAMEWORK_LABELS = {
     "hermax": "Hermax",
     "clingo": "Clingo",
     "clyngor": "Clyngor",
+    "mip": "CBC",
+    "glpk": "GLPK",
+    "cylp": "CyLP",
+    "ace": "ACE",
+    "nucs": "NuCS",
+    "clingcon": "clingcon",
+    "pycryptosat": "CryptoMiniSat",
+    "pycosat": "PicoSAT",
+    "bitwuzla": "Bitwuzla",
+    "yices": "Yices",
+    "gekko": "GEKKO",
+    "dd": "dd",
+    "pysdd": "PySDD",
+    "ortools_cp": "OR-Tools CP",
+    "pulp": "PuLP",
+    "cvxpy": "CVXPY",
+    "pyomo": "Pyomo",
+    "scipy": "SciPy",
+    "linopy": "linopy",
+    "optlang": "optlang",
+    "picos": "PICOS",
+    "pyoptinterface": "PyOptInterface",
+    "cvxopt": "CVXOPT",
+    "pysmt": "PySMT",
 }
 
 
@@ -189,15 +213,18 @@ def main() -> int:
 
     failed = 0
     for model_path in models:
-        print(f"Verifying {model_path} ...", flush=True)
         metrics = verify_model(model_path)
         out_path = model_path.parent / "metrics_passed.json"
         out_path.write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
         badge = metrics["verdict"]["badge"]
-        err = metrics["verdict"].get("error")
-        print(f"  {metrics['framework']}: {badge}" + (f" ({err})" if err else ""), flush=True)
         if badge not in {"solution_valid", "solution_valid_and_optimal"}:
             failed += 1
+            err = metrics["verdict"].get("error")
+            print(
+                f"FAIL {model_path}: {metrics['framework']}: {badge}"
+                + (f" ({err})" if err else ""),
+                flush=True,
+            )
 
     print(f"Done. {len(models) - failed}/{len(models)} passed.")
     return 0 if failed == 0 else 1
