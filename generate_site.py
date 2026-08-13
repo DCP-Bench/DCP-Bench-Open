@@ -332,7 +332,7 @@ def generated_model_card(entry: dict) -> str:
     <div class="model-card">
       <div class="model-card-head">
         <div>
-          <div class="model-card-title">{esc(entry["submission"])} {LEGACY_BADGE}</div>
+          <div class="model-card-title">{esc(entry["submission"])}{(" " + LEGACY_BADGE) if src.get("leaderboard") else ""}</div>
           <div class="muted">{" · ".join(meta_bits)}</div>
         </div>
         <div>{verdict_badge(m)}</div>
