@@ -57,7 +57,6 @@ FRAMEWORK_LABELS = {
     "gekko": "GEKKO",
     "dd": "dd",
     "pysdd": "PySDD",
-    "ortools_cp": "OR-Tools CP",
     "pulp": "PuLP",
     "cvxpy": "CVXPY",
     "pyomo": "Pyomo",
