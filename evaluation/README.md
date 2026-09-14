@@ -38,7 +38,7 @@ target linux/amd64 and pin their solver versions. Build them explicitly —
 `evaluate()` never builds or installs anything:
 
 ```sh
-python -m evaluation.build                      # all six, or name specific ids
+python -m evaluation.build                      # all seven, or name specific ids
 python -m evaluation.check examples/abbots.py --problem abbots_puzzle --solver cpmpy_python
 python -m evaluation.check examples/abbots.py --problem abbots_puzzle --solver cpmpy_python --solution-limit 2
 ```
@@ -79,14 +79,16 @@ startup and compilation, so it is not comparable to the runner's
 ## Submitting a model
 
 Pick an integration: `cpmpy_python`, `ortools_cp_sat_python`,
-`ortools_cp_sat_cpp`, `minizinc_gecode`, `z3_python` or `clingo_asp`. Read its
+`ortools_cp_sat_cpp`, `minizinc_gecode`, `z3_python`, `clingo_asp` or
+`swipl_clpfd`. Read its
 modelling skill first, at `solvers/<id>/skills/<name>/SKILL.md`. Each
 `solvers/<id>/` holds `metadata.yaml`, `run.py`, a `Dockerfile`, the
 `readiness_test.py` that certifies it, and that skill.
 
 Models are instance-agnostic. Python implements `build(instance)`, C++
 implements `Build(instance, model, outputs)`, MiniZinc declares matching data
-parameters and emits JSON, and an ASP program reads facts and shows atoms.
+parameters and emits JSON, an ASP program reads facts and shows atoms, and a
+Prolog program defines `model/3` or `model/4` over the instance dict.
 Working examples live in `tests/fixtures/`.
 
 Only the entrypoint file is copied into the container; its parent directory is
