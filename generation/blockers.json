@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "comment": "Pairs not worth attempting again without new information. A null solver blocks the problem for every integration, which is right when the limit is in the reference itself. generation.coverage drops these from the work queue; add an entry when you block a pair, with the evidence that justifies it.",
+  "blockers": [
+    {
+      "problem": "csplib_001_car_sequencing",
+      "solver": null,
+      "reason": "reference_timeout",
+      "detail": "The reference's own model is unsolved at both 60s and 180s on json:1, with the candidate never running. Solver-independent, so no integration can get past the second instance. Recorded second-hand from an earlier cpmpy_python run whose artifacts were not retained; the pair_deferred event in the cited ledger is the surviving record. Re-prove it before lifting this blocker.",
+      "evidence": "generation/runs/z3-20260910t125536z-166594/events.jsonl",
+      "recorded": "2026-09-10"
+    },
+    {
+      "problem": "csplib_002_template_design",
+      "solver": null,
+      "reason": "reference_timeout",
+      "detail": "Only the embedded example of 7 distinct instances is reachable; the reference exceeds 60s on json:2 with the candidate never running. One instance is too little to retain.",
+      "evidence": "generation/runs/z3-20260910t125536z-166594/attempts/csplib_002_template_design/z3_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-10"
+    },
+    {
+      "problem": "csplib_006_golomb_rulers",
+      "solver": "z3_python",
+      "reason": "execution_timeout",
+      "detail": "Z3 could not prove the minimum ruler length for any of the three instances at 180s. A performance limit of this solver on this problem, not a reference or contract fault, so it is blocked for z3_python only. A materially better encoding would justify retrying.",
+      "evidence": "generation/runs/z3-20260910t125536z-166594-r3/attempts/csplib_006_golomb_rulers/z3_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-10"
+    }
+  ]
+}
