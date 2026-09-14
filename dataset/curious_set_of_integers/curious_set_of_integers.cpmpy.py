@@ -12,16 +12,17 @@ this property.
 Print this number (number).
 """
 
+# Data
+n = 5
+max_val = 10000
+# End of data
+
 # Import libraries
 from cpmpy import *
 import json
 
 
 model = Model()
-
-# data
-n = 5
-max_val = 10000
 
 # variables
 x = intvar(0, max_val, shape=n)

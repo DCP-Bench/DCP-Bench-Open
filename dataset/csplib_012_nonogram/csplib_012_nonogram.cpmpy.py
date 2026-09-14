@@ -50,30 +50,19 @@ from cpmpy import *
 
 
 def nonogram(row_rules, col_rules, **kwargs):
-    solver = SolverLookup.get("ortools")
+    model = Model()
     n_rows, n_cols = len(row_rules), len(col_rules)
     board = intvar(0, 1, shape=(n_rows, n_cols), name="board")
-    solver.user_vars.update(set(board.flatten()))
 
     # Patterns of each row must be correct
     for r, pattern in enumerate(row_rules):
-        automaton_func, final_states = transition_function(pattern)
-        solver.ort_model.AddAutomaton(
-            solver.solver_vars(board[r]),
-            starting_state=0, final_states=final_states,
-            transition_triples=automaton_func
-        )
+        model += run_constraint(board[r], pattern)
 
     # Patterns of each column must be correct
     for c, pattern in enumerate(col_rules):
-        automaton_func, final_states = transition_function(pattern)
-        solver.ort_model.AddAutomaton(
-            solver.solver_vars(board[:, c]),
-            starting_state=0, final_states=final_states,
-            transition_triples=automaton_func
-        )
+        model += run_constraint(board[:, c], pattern)
 
-    return solver, (board,)
+    return model, (board,)
 
 
 def transition_function(pattern):
@@ -96,6 +85,18 @@ def transition_function(pattern):
     func += [(n_states, 0, n_states)]
     # Line can end with 0 or 1
     return func, [n_states - 1, n_states]
+
+
+def run_constraint(line, pattern):
+    """
+    Same automaton as the original OR-Tools AddAutomaton, expressed as a CPMpy
+    Regular constraint. Zero pattern entries are padding; nonzero entries are
+    the exact block lengths in order.
+    """
+    transitions, final_states = transition_function(pattern)
+    # An all-zero pattern yields accepting state -1, which no transition reaches.
+    accepting = [state for state in final_states if state >= 0]
+    return [Regular(list(line), transitions, 0, accepting)]
 
 
 # Example usage
