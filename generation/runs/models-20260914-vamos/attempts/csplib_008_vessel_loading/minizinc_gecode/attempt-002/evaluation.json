@@ -1,0 +1,69 @@
+{
+  "accepted": false,
+  "detail": "cumulative: durations and resource usages must be non-negative",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:9e7414c03ec8d8826d0f529a4feae4e3054f8626699aa86c9825f5d99e9f9715",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.0999501682817936e-06,
+      "detail": "cumulative: durations and resource usages must be non-negative",
+      "execution_wall_seconds": 1.3222204999765381,
+      "id": "example",
+      "instance_hash": "95a32a0ac82eacfd2f4acb4f197e2fc5706a3e29727d50697b30ed7e9f94a3ec",
+      "is_optimization": false,
+      "optimum": null,
+      "outputs": [
+        "left",
+        "right",
+        "top",
+        "bottom"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.0870215999893844,
+      "runner_status": {
+        "detail": "cumulative: durations and resource usages must be non-negative",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 265, in main\n    minizinc_solver(request)\n  File \"/opt/runner/runtime.py\", line 203, in minizinc_solver\n    asyncio.run(enumerate_solutions())\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/opt/runner/runtime.py\", line 186, in enumerate_solutions\n    async for result in stream:\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 618, in solutions\n    async for obj in decode_async_json_stream(\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/json.py\", line 122, in decode_async_json_stream\n    raise error_from_stream_obj(obj)\nminizinc.error.AssertionError: cumulative: durations and resource usages must be non-negative\n"
+    }
+  ],
+  "instances_available": 2,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "56413fae020c2902f667b382977e08539bf52d7868e9dd5e11d95b8ae1f3a2fc",
+  "problem_id": "csplib_008_vessel_loading",
+  "reason": "execution_error",
+  "reference_hash": "57f871089ad0f43642d8d4362fe4aa82c5cc2d647921c4ee8223fe5e70650734",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 2.8511016000411473,
+  "unperformed_instances": [
+    "json:1"
+  ]
+}
