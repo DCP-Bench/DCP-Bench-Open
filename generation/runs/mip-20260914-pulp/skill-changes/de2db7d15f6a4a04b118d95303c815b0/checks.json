@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "tests/minizinc_gecode_skill_regression.py",
+        "{skill}"
+      ],
+      "timeout": 300
+    }
+  ],
+  "results": [
+    {
+      "version": "before",
+      "argv": [
+        "python",
+        "tests/minizinc_gecode_skill_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\mip-20260914-pulp\\skill-changes\\de2db7d15f6a4a04b118d95303c815b0\\before\\minizinc-gecode"
+      ],
+      "returncode": 1,
+      "stdout": "FAIL C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\mip-20260914-pulp\\skill-changes\\de2db7d15f6a4a04b118d95303c815b0\\before\\minizinc-gecode has no line about implied constraints\n",
+      "stderr": "<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n"
+    },
+    {
+      "version": "candidate",
+      "argv": [
+        "python",
+        "tests/minizinc_gecode_skill_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\mip-20260914-pulp\\skill-changes\\de2db7d15f6a4a04b118d95303c815b0\\candidate\\minizinc-gecode"
+      ],
+      "returncode": 0,
+      "stdout": "ok C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\mip-20260914-pulp\\skill-changes\\de2db7d15f6a4a04b118d95303c815b0\\candidate\\minizinc-gecode: implied constraints decide the instance, and the skill says so\n",
+      "stderr": "<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n<unknown>:13: SyntaxWarning: invalid escape sequence '\\('\n"
+    }
+  ],
+  "passed": true,
+  "at": "2026-09-14T21:25:23.410729+00:00"
+}

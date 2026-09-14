@@ -11,21 +11,3 @@ The integration uses MiniZinc 2.9.3 and Gecode. Data with native sets/enums or o
 A working example is `tests/fixtures/model.mzn`; the evaluator is documented in `evaluation/README.md`.
 Check with `python -m evaluation.check MODEL.mzn --problem PROBLEM --solver minizinc_gecode`.
 Repair the candidate, not the reference or acceptance rules.
-
-## When Gecode runs out of time
-
-`execution_timeout` on a larger instance is usually propagation, not encoding.
-Before reaching for a different model, add the constraints every solution
-already satisfies but that Gecode cannot derive — a total that follows from an
-`all_different` over a known set, a bound implied elsewhere in the model. They
-remove no solution, and on this benchmark they are often the difference between
-finishing an instance and not: `csplib_049_number_partitioning` times out on
-n = 20 without the two implied half-totals and is accepted with them.
-
-Search annotations are not available here — the solve item must stay
-`solve satisfy;` or an unannotated `solve minimize objective;` — so implied
-constraints and a tighter domain are the tools you have.
-
-Never add a constraint that removes solutions to buy speed. Symmetry breaking a
-reference keeps commented out is not part of the contract, and a model that
-narrows the problem can pass the evaluator while being wrong.

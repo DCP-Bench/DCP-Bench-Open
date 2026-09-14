@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "skill_name": "minizinc-gecode",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write a minizinc_gecode submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "prerequisites": ["ready minizinc_gecode integration", "repository Python environment", "Docker"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        {"id": "parameters", "requirement": "Declares the instance parameters by the names the JSON uses and assigns none of them, so the runner can bind every instance."},
+        {"id": "output", "requirement": "The output item emits one JSON object with exactly the declared output names and no auxiliary fields."},
+        {"id": "general", "requirement": "The evaluator accepts all six listed instances, so nothing from the embedded example is baked in."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    },
+    {
+      "id": "implied-constraints-under-timeout",
+      "prompt": "Using this skill, repair a minizinc_gecode submission that is accepted on the small instances of its problem but reaches execution_timeout on a larger one.",
+      "prerequisites": ["ready minizinc_gecode integration", "a problem whose larger instance times out"],
+      "expected_output": "Either a model accepted on more instances than before, or a recorded performance limit with the instances the model is actually evidenced on.",
+      "assertions": [
+        {"id": "solution-preserving", "requirement": "Anything added is implied by the constraints already present; no symmetry breaking or bound that removes solutions is introduced to buy speed."},
+        {"id": "honest-coverage", "requirement": "If the timeout remains, the result is reported as a performance limit naming the instances covered, not as a blocked problem."}
+      ],
+      "evidence_required": ["both candidate models", "evaluator result JSON for each"]
+    }
+  ]
+}
