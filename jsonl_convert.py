@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Build dcp-bench-open.jsonl from the dataset/ directory."""
 import os
 import re
 import json

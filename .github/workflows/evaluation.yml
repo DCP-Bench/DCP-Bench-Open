@@ -1,0 +1,37 @@
+name: Evaluation checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'evaluation/**'
+      - 'solvers/**'
+      - 'runner/**'
+      - 'generation/**'
+      - 'skills/**'
+      - 'tests/**'
+      - 'dataset/**'
+      - 'eval.py'
+      - 'verify_models.py'
+      - 'requirements.txt'
+      - '.gitattributes'
+      - '.github/workflows/evaluation.yml'
+  workflow_dispatch:
+jobs:
+  evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python -W ignore::SyntaxWarning -m unittest tests.test_evaluation tests.test_generation tests.test_skill_workflow tests.test_readiness -v
+      - run: python -m generation.skills validate skills/model-generator --project
+      - run: python -m generation.skills validate skills/solver-setup --project
+      - run: python -m generation.next_work --limit 1
+      - run: python -m evaluation.build
+      - run: python -m unittest tests.test_solvers tests.test_generation_containers -v
+        env:
+          DCP_CONTAINER_TESTS: '1'

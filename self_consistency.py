@@ -1,3 +1,5 @@
+"""Check that every problem's example solution is valid: re-solve each
+reference with its own printed solution added as a constraint."""
 import os
 import subprocess
 import json

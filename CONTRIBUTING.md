@@ -12,7 +12,14 @@ The process for adding a new problem is straightforward. Please follow these ste
     *   `<problem_name>/<problem_name>.json`: This file contains the problem instances as a list of JSON objects.
 3.  **Add the problem source** to `SOURCES.md` if it comes from a new source not already listed (this is optional but encouraged).
 4.  **Run the self-consistency check** by executing the `self_consistency.py` script. This ensures that your files are correctly formatted and the provided example solution is valid.
-5.  **Create a pull request** to the main repository with your changes.
+5.  **Run the dataset audit**, which is what CI enforces:
+
+    ```bash
+    python -W ignore::SyntaxWarning -m unittest tests.test_evaluation
+    ```
+
+    It checks that every reference loads, that the first entry of the `.json` matches the embedded example exactly, that every listed instance builds the model, and that instances carry no extra keys beyond `name` and `note`.
+6.  **Create a pull request** to the main repository with your changes.
 
 ### Python Model File (`<problem_name>/<problem_name>.cpmpy.py`)
 
@@ -72,6 +79,8 @@ Please follow the structure of existing problems. We use `dataset/csplib_054_n_q
 *   This file should contain a list of JSON objects.
 *   Each object represents one instance of the problem, with keys corresponding to the parameters used in the Python model.
 *   Remember, the first instance in this file must match the default instance in the `.py` file.
+*   Besides those parameters, only `name` and `note` are allowed as extra keys.
+*   Every instance must be satisfiable (for now).
 
 Example for `csplib_054_n_queens.json`:
 ```json
