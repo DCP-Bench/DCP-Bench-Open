@@ -6,3 +6,8 @@ constraints for propagation:
   attempt 001 only implied through the element constraints;
 - the first place of value i cannot be later than 2k - i - 1, which follows from
   `position[i + k] = position[i] + i + 1`.
+
+Result: the implied constraints moved Gecode from 2 of 5 instances to 3 of 5
+(k = 12, 15, 16 now finish; k = 19 and k = 20 still hit the 180 s execution
+budget). Retained with that coverage, as a Gecode performance limit rather than
+a modelling error: CP-SAT and CPMpy solve all five with the same formulation.
