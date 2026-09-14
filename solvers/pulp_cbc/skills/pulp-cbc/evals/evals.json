@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "skill_name": "pulp-cbc",
+  "evals": [
+    {
+      "id": "instance-agnostic-optimization",
+      "prompt": "Using this skill, write a pulp_cbc submission for a linear optimization problem in the dataset, such as knapsack or diet, and check it with the repository evaluator across every listed instance.",
+      "prerequisites": ["ready pulp_cbc integration", "repository Python environment", "Docker"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        {"id": "contract", "requirement": "Defines build(instance) returning a pulp.LpProblem and a dict of exactly the declared output names, and never calls problem.solve() or pulp.value()."},
+        {"id": "objective", "requirement": "The objective is one bare expression added to a problem whose sense matches the reference's direction, and the evaluator reports accepted rather than suboptimal_solution."},
+        {"id": "general", "requirement": "Every instance-dependent quantity is read from the instance argument, and every listed instance is accepted."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    },
+    {
+      "id": "nonlinear-pattern-encoded",
+      "prompt": "Using this skill, write a pulp_cbc submission for a problem whose reference uses a constraint PuLP cannot express directly, such as an all-different or a disjunction, and check it with the repository evaluator.",
+      "prerequisites": ["ready pulp_cbc integration", "a problem whose reference uses AllDifferent or a disjunction"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        {"id": "encoded", "requirement": "The constraint is encoded with indicator binaries or an assignment matrix rather than attempted directly; no expression multiplies two variables."},
+        {"id": "big-m", "requirement": "Every big-M constant is derived from the instance's own bounds, and the evaluator does not report invalid_solution, which is what a too-small M would cause."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    },
+    {
+      "id": "integral-bounded-outputs",
+      "prompt": "Using this skill, write a pulp_cbc submission and confirm the evaluator accepts two distinct solutions for a satisfaction problem.",
+      "prerequisites": ["ready pulp_cbc integration", "a satisfaction problem with several solutions"],
+      "expected_output": "An accepted model checked with solution_limit above one, or a recorded blocker.",
+      "assertions": [
+        {"id": "integral", "requirement": "Declared output variables are Integer or Binary, so no output is rejected as fractional."},
+        {"id": "bounded", "requirement": "Declared output variables carry finite bounds, so the runner can add the no-good cut instead of reporting unsupported."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    }
+  ]
+}

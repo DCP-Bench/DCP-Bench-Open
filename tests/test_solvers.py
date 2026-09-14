@@ -11,7 +11,7 @@ from tests.test_evaluation import SOURCE, ROOT
 PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_sat.py",
           "ortools_cp_sat_cpp": "model.cpp", "minizinc_gecode": "model.mzn",
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
-          "swipl_clpfd": "model_swipl.pl"}
+          "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py"}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.
@@ -75,7 +75,8 @@ class ContainerTests(unittest.TestCase):
                         "ortools_cp_sat_cpp": ("Minimize", "Maximize"), "minizinc_gecode": ("minimize", "maximize"),
                         "z3_python": ("minimize", "maximize"),
                         "clingo_asp": ("minimize", "maximize"),
-                        "swipl_clpfd": ("min(", "max(")}
+                        "swipl_clpfd": ("min(", "max("),
+                        "pulp_cbc": ("LpMinimize", "LpMaximize")}
         for solver, filename in PILOTS.items():
             with self.subTest(solver=solver), tempfile.TemporaryDirectory() as temp:
                 original = ROOT / "tests/fixtures" / filename
