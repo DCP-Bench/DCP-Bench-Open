@@ -209,3 +209,11 @@ __marimo__/
 dcp-bench-open.jsonl
 summary.txt
 jsonl_conversion.log
+
+# Build output: generate_site.py rebuilds site/ from web/ + dcp-bench-open.jsonl,
+# and the deploy workflow regenerates it before publishing. Committing it churned
+# every page on each rebuild, because the footer stamps the current commit.
+site/
+
+# Local logs
+*.log
