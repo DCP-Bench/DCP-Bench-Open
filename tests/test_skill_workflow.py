@@ -53,6 +53,21 @@ class SkillWorkflowTests(unittest.TestCase):
         (self.bundle / "SKILL.md").write_text(self.text + "[escape](../../missing.md)")
         with self.assertRaises(ValueError): skills.validate(self.bundle)
 
+    def test_shared_references_stay_in_sync_across_bundles(self):
+        """A skill bundle may not link outside itself, so shared guidance is copied.
+
+        validate() refuses an outside link and hashes() covers the whole bundle,
+        which together make a skill's instructions exactly the bytes an attempt
+        records. Copies are the price of that, so the copies must not drift.
+        """
+        root = Path(__file__).resolve().parents[1] / "skills"
+        copies = sorted(root.glob("*/references/skill-standard.md"))
+        self.assertGreater(len(copies), 1, "expected the standard in several bundles")
+        contents = {path.read_bytes() for path in copies}
+        self.assertEqual(len(contents), 1,
+                         "skill-standard.md has drifted between bundles: " +
+                         ", ".join(str(p.relative_to(root)) for p in copies))
+
     def test_bundle_hashes_cover_every_file(self):
         """Attempt snapshots rely on these hashes, so nothing may be skipped."""
         expected = {"SKILL.md", "evals/evals.json", "sources.md"}
