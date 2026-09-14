@@ -1,0 +1,120 @@
+{
+  "attempt": {
+    "agent": "claude-opus-5, interactive session, coordinator and modeller",
+    "attempt_id": "attempt-001",
+    "created_at": 1789421896.4511478,
+    "problem_id": "diet",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "7b53a2249bb5905e73620fe2ff102d19a9678fe388f9b0f43ba263ecd4d7ef74",
+    "run_id": "mip-20260914-pulp",
+    "schema": 2,
+    "skill_bundle_hash": "870e5e06e2def5466ddd4e05673ff92770b3ea8f355d64676a97adec8e881996",
+    "skill_source": "solvers\\pulp_cbc\\skills\\pulp-cbc",
+    "skill_version": {
+      "commit": "529e47a04374c7ebd784ffbeaa42b7cf743e1245",
+      "modified": false,
+      "path": "solvers/pulp_cbc/skills/pulp-cbc"
+    },
+    "solver_id": "pulp_cbc"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:8a21cd8ade8fdff5cd1536d2f69bc914941930aaa24c9dd7eb9bc8957527bca9",
+      "tag": "dcp-eval/pulp_cbc:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.004603100009262562,
+        "execution_wall_seconds": 1.146632399992086,
+        "first_solution": {
+          "cost": 90
+        },
+        "id": "example",
+        "instance_hash": "14a9f767892bf9c92f84e9d0ee4d06bd264192cc0dc58fe9968710d08d921969",
+        "is_optimization": true,
+        "optimum": 90,
+        "outputs": [
+          "cost"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.7953747999854386,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "22984dff9cc346792f0ec42c73045523b6a824c2cec91721773d4513e23981ec",
+    "problem_id": "diet",
+    "reason": "accepted",
+    "reference_hash": "5cc28a71e145d319c0367363fd5dc1a2d6f27c3bb906485602c444df55f3c664",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "pulp_cbc",
+    "total_wall_seconds": 2.3459534000139683,
+    "unperformed_instances": []
+  },
+  "framework": "PuLP \u2014 CBC",
+  "generated_by": {
+    "base_llm": "claude-opus-5, interactive session, coordinator and modeller",
+    "coverage": "1 of 1 instances",
+    "run": "mip-20260914-pulp"
+  },
+  "instances_checked": [
+    "example"
+  ],
+  "is_optimization": true,
+  "model_file": "model.py",
+  "origin_type": "machine_generated",
+  "problem": "diet",
+  "schema": 2,
+  "solver": "pulp_cbc",
+  "source": {
+    "note": "Retained by the container evaluator: 1 of 1 instances, 1 solutions checked."
+  },
+  "submission": "mip-20260914-pulp-attempt-001",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

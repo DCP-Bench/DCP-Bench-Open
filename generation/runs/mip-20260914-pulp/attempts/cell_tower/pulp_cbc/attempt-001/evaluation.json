@@ -1,0 +1,65 @@
+{
+  "accepted": false,
+  "detail": "keys must be str, int, float, bool or None, not LpVariable",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:8a21cd8ade8fdff5cd1536d2f69bc914941930aaa24c9dd7eb9bc8957527bca9",
+    "tag": "dcp-eval/pulp_cbc:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 6.00004568696022e-07,
+      "detail": "keys must be str, int, float, bool or None, not LpVariable",
+      "execution_wall_seconds": 1.3081485999864526,
+      "id": "example",
+      "instance_hash": "1cdf9c58cb92e7e6b0ac74c582b89acf9daa41de9a02793d2578c1685d2e94ce",
+      "is_optimization": true,
+      "optimum": 250,
+      "outputs": [
+        "build_tower",
+        "total_population_covered"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 0.7896038999897428,
+      "runner_status": {
+        "detail": "keys must be str, int, float, bool or None, not LpVariable",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 193, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 165, in solve\n    key = json.dumps(values, sort_keys=True)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/json/__init__.py\", line 238, in dumps\n    **kw).encode(obj)\n          ^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/json/encoder.py\", line 200, in encode\n    chunks = self.iterencode(o, _one_shot=True)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/json/encoder.py\", line 258, in iterencode\n    return _iterencode(o, 0)\n           ^^^^^^^^^^^^^^^^^\nTypeError: keys must be str, int, float, bool or None, not LpVariable\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "d0d148b9e0101a14d26bb4e96a189ec9f44b0dc947f5486b347061ac9820b67e",
+  "problem_id": "cell_tower",
+  "reason": "execution_error",
+  "reference_hash": "d43b8c074a09fd411cd757a0319f089cb5f4e7e2def537b27b9891f30a2845a3",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "pulp_cbc",
+  "total_wall_seconds": 2.4903460000059567,
+  "unperformed_instances": []
+}
