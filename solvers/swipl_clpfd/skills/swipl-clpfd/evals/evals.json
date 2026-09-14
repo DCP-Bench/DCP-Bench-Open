@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "skill_name": "swipl-clpfd",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write a swipl_clpfd submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "prerequisites": ["ready swipl_clpfd integration", "repository Python environment", "Docker"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        {"id": "contract", "requirement": "Defines model/3 returning the variables to label and a list of Name-Value pairs holding exactly the declared output names, and never calls label/1, labeling/2, format/2 or write/1."},
+        {"id": "general", "requirement": "Every instance-dependent quantity is read from the Instance dict, and the evaluator accepts all six listed instances."},
+        {"id": "domains", "requirement": "Every decision variable is given a finite domain with ins/in before labelling, so no instance fails with 'Arguments are not sufficiently instantiated'."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    },
+    {
+      "id": "optimization-contract",
+      "prompt": "Using this skill, write a swipl_clpfd submission for a problem whose reference has an objective, and confirm the evaluator agrees the optimum was reached.",
+      "prerequisites": ["ready swipl_clpfd integration", "an optimization problem in the dataset"],
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        {"id": "model4", "requirement": "Uses model/4 with min(Expr) or max(Expr) rather than bounding the objective itself or proving the optimum inside the submission."},
+        {"id": "no-hardcoded-optimum", "requirement": "The objective expression is built from the model's own variables, with no constant taken from a known answer."},
+        {"id": "not-suboptimal", "requirement": "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    },
+    {
+      "id": "matrix-outputs",
+      "prompt": "Using this skill, write a swipl_clpfd submission for a problem whose declared output is a matrix, such as csplib_003_quasigroup_existence, and check it with the repository evaluator.",
+      "prerequisites": ["ready swipl_clpfd integration", "repository Python environment", "Docker"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        {"id": "shape", "requirement": "The declared output is a list of rows matching the reference's shape exactly, and the evaluator does not report invalid_output."},
+        {"id": "variable-index", "requirement": "Where a cell is selected by a decision variable, the model uses element/3 over a flattened matrix with a 1-based position rather than nth0/nth1."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    }
+  ]
+}
