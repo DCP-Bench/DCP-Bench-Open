@@ -49,6 +49,12 @@ OPTIMAL = HEADER + ("    problem = pulp.LpProblem('optimal', pulp.SENSE)\n" + BO
                     "    problem += x + y >= n\n"
                     "    problem += x + y\n"
                     "    return problem, {'x': x, 'y': y}\n")
+# A declared output that is an expression rather than a variable. PuLP's
+# LpAffineExpression is a dict subclass, so a runner that walks outputs naively
+# serialises its coefficients instead of its value.
+EXPRESSION = HEADER + ("    problem = pulp.LpProblem('expression', pulp.LpMinimize)\n"
+                       "    x = pulp.LpVariable('x', 0, n, cat='Integer')\n"
+                       "    return problem, {'x': x, 'y': n - x}\n")
 MALFORMED = "def build(instance):\n    return None, {}\n"
 UNSATISFIABLE = HEADER + ("    problem = pulp.LpProblem('unsat', pulp.LpMinimize)\n" + BOUNDED +
                           "    problem += x >= n + 1\n"
@@ -66,8 +72,8 @@ UNPROVEN = HEADER + ("    import random\n"
                      "    problem = pulp.LpProblem('unproven', pulp.LpMaximize)\n" + BOUNDED +
                      "    problem += x + y == n\n"
                      "    random.seed(1)\n"
-                     "    weights = [random.randint(10 ** 6, 2 * 10 ** 6) for _ in range(60)]\n"
-                     "    picks = [pulp.LpVariable(f'b{i}', cat='Binary') for i in range(60)]\n"
+                     "    weights = [random.randint(10 ** 6, 4 * 10 ** 6) for _ in range(150)]\n"
+                     "    picks = [pulp.LpVariable(f'b{i}', cat='Binary') for i in range(150)]\n"
                      "    load = pulp.lpSum(w * b for w, b in zip(weights, picks))\n"
                      "    problem += load <= sum(weights) // 2\n"
                      "    problem += load\n"
@@ -113,6 +119,7 @@ def main():
             and exhausted["instances"][0]["runner_status"]["status"] == "complete")
         check("minimization", OPTIMAL.replace("SENSE", "LpMinimize"), reference=OPTIMIZING)
         check("maximization", OPTIMAL.replace("SENSE", "LpMaximize"), reference=MAXIMIZING)
+        check("expression_output", EXPRESSION, solution_limit=2)
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})

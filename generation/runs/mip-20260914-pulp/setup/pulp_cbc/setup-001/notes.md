@@ -90,3 +90,26 @@ rather than a shortfall.
   with all-different or disjunctions need big-M encodings, and those are the
   ones where it runs out of the execution budget first.
 - Only one submission file is staged, so a model cannot ship a helper module.
+
+## Setup repair, after the first six models
+
+`cell_tower` declares `total_population_covered` as an expression rather than a
+variable, and the runner failed on it with
+`keys must be str, int, float, bool or None, not LpVariable`. The cause was in
+the integration, not the model: `LpAffineExpression` is a `dict` subclass, so the
+shared `runner/runtime.py` helpers walked into an expression and returned its
+coefficients. The runner now carries its own `leaves`/`resolved` pair that treats
+both PuLP types as leaves.
+
+Registering outputs came out of the same repair: PuLP writes out only the
+variables its objective and constraints mention, so a declared output no
+constraint touches came back without a value. The runner now adds the bound such
+a variable already has, the same thing the CPMpy runner does for an
+unconstrained output.
+
+The image was rebuilt (`sha256:c5ee70f9f723813...`) and readiness re-recorded
+with two more checks — `expression_output` and a harder `unproven_optimum`
+fixture, the first version of which CBC could sometimes prove inside the budget.
+All fourteen pass. The five models retained before the repair were evaluated
+against the previous image, whose only difference is that it could not serialise
+an expression-valued output; none of them uses one.

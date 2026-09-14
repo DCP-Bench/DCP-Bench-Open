@@ -28,7 +28,7 @@ import sys
 import time
 
 sys.path.insert(0, "/opt/runner")
-from runtime import emit, finish, flatten, mapped  # noqa: E402
+from runtime import emit, finish  # noqa: E402
 
 import pulp  # noqa: E402
 
@@ -36,6 +36,33 @@ INPUT = Path("/input")
 # CBC returns floats; a declared output has to be an integer, and anything
 # further from one than this is a modelling error rather than solver noise.
 TOLERANCE = 1e-6
+
+
+def leaves(value):
+    """Every declared output value, with PuLP's own containers left whole.
+
+    `LpAffineExpression` is a dict of variable to coefficient, so the shared
+    `flatten` would walk into an expression and return its coefficients. Both
+    PuLP types are leaves here.
+    """
+    if isinstance(value, (pulp.LpVariable, pulp.LpAffineExpression)):
+        return [value]
+    if isinstance(value, dict):
+        return [x for v in value.values() for x in leaves(v)]
+    if isinstance(value, (list, tuple)):
+        return [x for v in value for x in leaves(v)]
+    return [value]
+
+
+def resolved(value, read_one):
+    """The declared outputs with every leaf replaced by its integer value."""
+    if isinstance(value, (pulp.LpVariable, pulp.LpAffineExpression)):
+        return read_one(value)
+    if isinstance(value, dict):
+        return {k: resolved(v, read_one) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [resolved(v, read_one) for v in value]
+    return read_one(value)
 
 
 def load(instance):
@@ -72,7 +99,7 @@ def read(expression):
 def cut_variables(outputs):
     """The variables a no-good cut has to move, with their bounds."""
     collected = {}
-    for leaf in flatten(outputs):
+    for leaf in leaves(outputs):
         if isinstance(leaf, pulp.LpVariable):
             found = [leaf]
         elif isinstance(leaf, pulp.LpAffineExpression):
@@ -134,10 +161,31 @@ def attempt(problem, deadline):
     return "solved"
 
 
+def register(problem, variables):
+    """Make sure every declared output variable reaches the solver.
+
+    PuLP only writes out the variables its objective and constraints mention, so
+    an output no constraint touches would come back without a value. A bound it
+    already has is enough to put it in the program.
+    """
+    known = {variable.name for variable in problem.variables()}
+    for variable in variables:
+        if variable.name in known:
+            continue
+        if variable.lowBound is not None:
+            problem += variable >= variable.lowBound
+        elif variable.upBound is not None:
+            problem += variable <= variable.upBound
+        else:
+            raise ValueError(f"Declared output {variable.name} is in no constraint and has "
+                             "no bound, so the solver would never give it a value")
+
+
 def solve(request):
     deadline = time.monotonic() + request["execution_timeout"]
     problem, outputs = load(request["instance"])
     optimizing = problem.objective is not None
+    register(problem, cut_variables(outputs))
 
     verdict = attempt(problem, deadline)
     if verdict == "infeasible":
@@ -161,7 +209,7 @@ def solve(request):
 
     seen, count, index = set(), 0, 0
     while True:
-        values = mapped(outputs, read)
+        values = resolved(outputs, read)
         key = json.dumps(values, sort_keys=True)
         if key not in seen:
             seen.add(key)
