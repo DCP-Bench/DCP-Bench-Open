@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "skill_name": "clingo-asp",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write a clingo_asp submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "prerequisites": ["ready clingo_asp integration", "repository Python environment", "Docker"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        {"id": "facts", "requirement": "Reads the instance from the generated facts rather than hardcoding sizes, so every listed instance is accepted."},
+        {"id": "show", "requirement": "Shows exactly one predicate per declared output, named after the reference's output key, with 0-based contiguous indices before the value."},
+        {"id": "grounding", "requirement": "Domains are constrained in rule bodies so grounding stays within the memory bound."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    },
+    {
+      "id": "optimization-contract",
+      "prompt": "Using this skill, write a clingo_asp submission for a problem whose reference has an objective, and confirm the evaluator agrees the optimum was reached.",
+      "prerequisites": ["ready clingo_asp integration", "an optimization problem in the dataset"],
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        {"id": "direction", "requirement": "Uses #minimize or #maximize matching the reference's direction."},
+        {"id": "proven", "requirement": "The evaluator reports accepted rather than execution_timeout, meaning clingo proved the optimum inside the budget."},
+        {"id": "not-suboptimal", "requirement": "The result is not suboptimal_solution, confirming the objective expression matches the reference's."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    }
+  ]
+}

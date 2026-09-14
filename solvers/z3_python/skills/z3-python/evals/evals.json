@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "skill_name": "z3-python",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write a z3_python submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "prerequisites": ["ready z3_python integration", "repository Python environment", "Docker"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        {"id": "contract", "requirement": "Defines build(instance) returning constraints and a dict of exactly the declared output names, with no check(), model() or print()."},
+        {"id": "general", "requirement": "Every instance-dependent quantity is read from the instance argument, and the evaluator accepts all six listed instances."},
+        {"id": "encoding", "requirement": "Uses Distinct rather than a missing AllDifferent, gives every integer variable explicit bounds, and avoids the Python built-ins that raise on Z3 expressions."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    },
+    {
+      "id": "optimization-contract",
+      "prompt": "Using this skill, write a z3_python submission for a problem whose reference has an objective, and confirm the evaluator agrees the optimum was reached.",
+      "prerequisites": ["ready z3_python integration", "an optimization problem in the dataset"],
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        {"id": "third-element", "requirement": "Returns the objective as a third element ('minimize'|'maximize', expression) instead of building a z3.Optimize itself."},
+        {"id": "bounded", "requirement": "The objective expression is bounded by the model's constraints, so it is not reported as a non-finite objective."},
+        {"id": "not-suboptimal", "requirement": "The evaluator reports accepted rather than suboptimal_solution, confirming the direction and encoding match the reference."}
+      ],
+      "evidence_required": ["candidate model", "evaluator result JSON"]
+    }
+  ]
+}

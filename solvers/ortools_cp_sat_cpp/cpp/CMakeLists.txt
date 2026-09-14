@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.18)
+project(dcp_candidate LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+find_package(ortools CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+add_executable(candidate driver.cpp /tmp/model.cpp)
+target_link_libraries(candidate PRIVATE ortools::ortools nlohmann_json::nlohmann_json)
