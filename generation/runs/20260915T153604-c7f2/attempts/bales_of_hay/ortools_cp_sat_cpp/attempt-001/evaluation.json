@@ -1,0 +1,64 @@
+{
+  "accepted": false,
+  "detail": "C++ compilation failed; see stderr",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:8b2d46ba26ce2f1950f370bfcc880997b25491c50bfb160cfa84c51d50efc445",
+    "tag": "dcp-eval/ortools_cp_sat_cpp:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 5.00003807246685e-07,
+      "detail": "C++ compilation failed; see stderr",
+      "execution_wall_seconds": 14.53334680001717,
+      "id": "example",
+      "instance_hash": "2a2c3f7961ad09ffa01fddb3fe037d86217b7ac5173320caac1d3d40fcd12de7",
+      "is_optimization": false,
+      "optimum": null,
+      "outputs": [
+        "bales"
+      ],
+      "reason": "compilation_error",
+      "reference_setup_seconds": 0.7555469999788329,
+      "runner_status": {
+        "detail": "C++ compilation failed; see stderr",
+        "status": "compilation_error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "raint AddElement(LinearExpr index,\n      |              ^~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:859:59: note:   no known conversion for argument 2 from \u2018std::vector<operations_research::sat::IntVar>\u2019 to \u2018std::initializer_list<operations_research::sat::LinearExpr>\u2019\n  859 |                         std::initializer_list<LinearExpr> expressions,\n      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:863:14: note: candidate: \u2018operations_research::sat::Constraint operations_research::sat::CpModelBuilder::AddElement(operations_research::sat::LinearExpr, absl::lts_20250814::Span<const long int>, operations_research::sat::LinearExpr)\u2019\n  863 |   Constraint AddElement(LinearExpr index, absl::Span<const int64_t> values,\n      |              ^~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:863:69: note:   no known conversion for argument 2 from \u2018std::vector<operations_research::sat::IntVar>\u2019 to \u2018absl::lts_20250814::Span<const long int>\u2019\n  863 |   Constraint AddElement(LinearExpr index, absl::Span<const int64_t> values,\n      |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~\n/tmp/model.cpp:32:21: error: no matching function for call to \u2018operations_research::sat::CpModelBuilder::AddElement(operations_research::sat::IntVar&, std::vector<operations_research::sat::IntVar>&, operations_research::sat::IntVar&)\u2019\n   32 |     model.AddElement(j, bales, bj);\n      |     ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:853:14: note: candidate: \u2018operations_research::sat::Constraint operations_research::sat::CpModelBuilder::AddElement(operations_research::sat::LinearExpr, absl::lts_20250814::Span<const operations_research::sat::LinearExpr>, operations_research::sat::LinearExpr)\u2019\n  853 |   Constraint AddElement(LinearExpr index,\n      |              ^~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:854:54: note:   no known conversion for argument 2 from \u2018std::vector<operations_research::sat::IntVar>\u2019 to \u2018absl::lts_20250814::Span<const operations_research::sat::LinearExpr>\u2019\n  854 |                         absl::Span<const LinearExpr> expressions,\n      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:858:14: note: candidate: \u2018operations_research::sat::Constraint operations_research::sat::CpModelBuilder::AddElement(operations_research::sat::LinearExpr, std::initializer_list<operations_research::sat::LinearExpr>, operations_research::sat::LinearExpr)\u2019\n  858 |   Constraint AddElement(LinearExpr index,\n      |              ^~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:859:59: note:   no known conversion for argument 2 from \u2018std::vector<operations_research::sat::IntVar>\u2019 to \u2018std::initializer_list<operations_research::sat::LinearExpr>\u2019\n  859 |                         std::initializer_list<LinearExpr> expressions,\n      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:863:14: note: candidate: \u2018operations_research::sat::Constraint operations_research::sat::CpModelBuilder::AddElement(operations_research::sat::LinearExpr, absl::lts_20250814::Span<const long int>, operations_research::sat::LinearExpr)\u2019\n  863 |   Constraint AddElement(LinearExpr index, absl::Span<const int64_t> values,\n      |              ^~~~~~~~~~\n/opt/ortools/include/ortools/sat/cp_model.h:863:69: note:   no known conversion for argument 2 from \u2018std::vector<operations_research::sat::IntVar>\u2019 to \u2018absl::lts_20250814::Span<const long int>\u2019\n  863 |   Constraint AddElement(LinearExpr index, absl::Span<const int64_t> values,\n      |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~\ngmake[2]: *** [CMakeFiles/candidate.dir/build.make:90: CMakeFiles/candidate.dir/tmp/model.cpp.o] Error 1\ngmake[1]: *** [CMakeFiles/Makefile2:83: CMakeFiles/candidate.dir/all] Error 2\ngmake: *** [Makefile:91: all] Error 2\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "d978a947eb1d0468e8de17114850ae856c56e894c5e4c1e98664e7f33c66d242",
+  "problem_id": "bales_of_hay",
+  "reason": "compilation_error",
+  "reference_hash": "2b166edf32fc05357c24ab770efe5d23e78fde94af47bfcb4da3b4819fed20cc",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "ortools_cp_sat_cpp",
+  "total_wall_seconds": 15.682352699979674,
+  "unperformed_instances": []
+}
