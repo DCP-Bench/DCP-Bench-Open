@@ -27,8 +27,8 @@ class SkillWorkflowTests(unittest.TestCase):
         (self.bundle / "SKILL.md").write_text(self.text)
         (self.bundle / "evals").mkdir()
         (self.bundle / "evals/evals.json").write_text(json.dumps({"schema_version": 1, "skill_name": "test-skill", "evals": [
-            {"id": "tiny", "prompt": "Test something.", "expected_output": "Evidence", "prerequisites": [],
-             "evidence_required": ["output"], "assertions": [{"id": "done", "requirement": "Output exists"}]}]}))
+            {"id": "tiny", "prompt": "Test something.", "expected_output": "Evidence",
+             "assertions": ["Output exists"]}]}))
         write_sources(self.bundle)
         self.run = self.root / "generation/runs/run"
         self.run.mkdir(parents=True)
@@ -101,7 +101,8 @@ class SkillWorkflowTests(unittest.TestCase):
         assessment.write_text(json.dumps({"assessor": "independent", "execution": "agent-run", "assertions": {}}))
         with self.assertRaises(ValueError): behaviour.assess(output, assessment)
         assessment.write_text(json.dumps({"assessor": "independent", "execution": "agent-run", "assertions": {
-            "done": {"passed": False, "observation": "Did not finish", "evidence": [str(output / "prompt.md")]}}}))
+            "Output exists": {"passed": False, "observation": "Did not finish",
+                              "evidence": [str(output / "prompt.md")]}}}))
         self.assertFalse(behaviour.assess(output, assessment)["passed"])
 
     def test_project_gate_requires_sources_and_cases(self):
@@ -110,9 +111,20 @@ class SkillWorkflowTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "sources.md"):
             skills.validate(self.bundle, project=True)
         write_sources(self.bundle)
-        (self.bundle / "evals/evals.json").write_text('{"schema_version":1,"skill_name":"test-skill","evals":[]}')
-        with self.assertRaisesRegex(ValueError, "eval manifest"):
+        # Evals are optional, as in the Agent Skills standard, but a manifest
+        # that is present has to be usable.
+        manifest = self.bundle / "evals/evals.json"
+        kept = manifest.read_text()
+        manifest.write_text('{"skill_name":"test-skill","evals":[]}')
+        with self.assertRaisesRegex(ValueError, "list cases"):
             skills.validate(self.bundle, project=True)
+        manifest.write_text('{"skill_name":"test-skill","evals":[{"id":"a","prompt":"p",'
+                            '"expected_output":"o","assertions":[{"id":"x"}]}]}')
+        with self.assertRaisesRegex(ValueError, "plain strings"):
+            skills.validate(self.bundle, project=True)
+        manifest.unlink()
+        skills.validate(self.bundle, project=True)
+        manifest.write_text(kept)
 
 
 if __name__ == "__main__":

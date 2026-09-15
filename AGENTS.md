@@ -13,3 +13,8 @@
 
 Follow `skills/model-generator`, which runs a
 campaign end to end, and `skills/solver-setup` for adding a framework/solver. A generated model should be kept only when the evaluator accepts it.
+
+`python -m generation.brief PROBLEM` prints what a model has to satisfy: the declared
+output names with their shapes, the objective direction, and every instance field with
+its shape. `python -m generation.next_work` says what is left, and withholds pairs whose
+instance shape an integration cannot bind at all.

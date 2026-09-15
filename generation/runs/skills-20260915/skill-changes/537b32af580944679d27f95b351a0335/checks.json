@@ -1,0 +1,68 @@
+{
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "tests/model_generator_brief_regression.py",
+        "{skill}"
+      ],
+      "timeout": 300
+    },
+    {
+      "argv": [
+        "python",
+        "tests/model_generator_resume_regression.py",
+        "{skill}"
+      ],
+      "timeout": 300
+    }
+  ],
+  "results": [
+    {
+      "version": "before",
+      "argv": [
+        "python",
+        "tests/model_generator_brief_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\before\\model-generator"
+      ],
+      "returncode": 1,
+      "stdout": "FAIL C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\before\\model-generator does not tell the agent to read the contract with generation.brief\n",
+      "stderr": ""
+    },
+    {
+      "version": "before",
+      "argv": [
+        "python",
+        "tests/model_generator_resume_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\before\\model-generator"
+      ],
+      "returncode": 0,
+      "stdout": "ok C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\before\\model-generator: an uncommitted run is still resumable, and the skill batches commits\n",
+      "stderr": ""
+    },
+    {
+      "version": "candidate",
+      "argv": [
+        "python",
+        "tests/model_generator_brief_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\candidate\\model-generator"
+      ],
+      "returncode": 0,
+      "stdout": "ok C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\candidate\\model-generator: the contract is produced mechanically, and the skill says to use it\n",
+      "stderr": ""
+    },
+    {
+      "version": "candidate",
+      "argv": [
+        "python",
+        "tests/model_generator_resume_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\candidate\\model-generator"
+      ],
+      "returncode": 0,
+      "stdout": "ok C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\skills-20260915\\skill-changes\\537b32af580944679d27f95b351a0335\\candidate\\model-generator: an uncommitted run is still resumable, and the skill batches commits\n",
+      "stderr": ""
+    }
+  ],
+  "passed": true,
+  "at": "2026-09-15T13:11:41.124343+00:00"
+}

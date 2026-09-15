@@ -40,7 +40,9 @@ def assess(trial, assessment):
         raise ValueError("Frozen skill changed during trial")
     if not report.get("assessor") or not report.get("execution"):
         raise ValueError("Identify assessor and actual execution; prepared is not executed")
-    expected = {a["id"] for a in data["case"]["assertions"]}
+    # Assertions are the plain statements the manifest lists, keyed by their own
+    # text, which is how the Agent Skills standard records a grading.
+    expected = set(data["case"]["assertions"])
     observations = report.get("assertions", {})
     if set(observations) != expected:
         raise ValueError("Every assertion needs an explicit assessment")

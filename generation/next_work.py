@@ -18,6 +18,7 @@ import sys
 from evaluation.execution import ROOT, integration
 from evaluation.results import EvaluationError
 
+from .brief import RECTANGULAR_UNIFORM, unbindable
 from .readiness import ReadinessError, verify
 
 GENERATED = ROOT / "generated_models"
@@ -34,6 +35,7 @@ def integrations():
         try:
             metadata = integration(solver_id)
             record["enumeration"] = bool(metadata.get("enumeration"))
+            record["instance_binding"] = metadata.get("instance_binding", "any")
             if not readiness.is_file():
                 raise ReadinessError("No readiness record: run the readiness checklist for this "
                                      "integration, then generation.readiness check")
@@ -107,9 +109,24 @@ def report(limit=20, include_unready=False):
         return any(item["problem"] == problem and item.get("solver") in (None, solver)
                    for item in blockers)
 
+    # An integration whose data interface takes only rectangular, single-type
+    # arrays cannot be given a ragged or mixed-type instance field, whatever the
+    # model says. Those pairs are withheld here rather than discovered by a
+    # failed attempt.
+    binding = {item["id"]: item.get("instance_binding", "any") for item in declared}
+    awkward = {problem: unbindable(problem) for problem in problems}
+
+    def unbindable_for(problem, solver):
+        return awkward[problem] if binding.get(solver) == RECTANGULAR_UNIFORM else []
+
     eligible = [{"problem": problem, "solver": solver, "instances": counts[problem]}
                 for solver in usable for problem in problems
-                if (problem, solver) not in accepted and not blocked(problem, solver)]
+                if (problem, solver) not in accepted and not blocked(problem, solver)
+                and not unbindable_for(problem, solver)]
+    unbindable_pairs = sorted(f'{problem} / {solver}: {", ".join(awkward[problem])}'
+                              for solver in usable for problem in problems
+                              if (problem, solver) not in accepted
+                              and not blocked(problem, solver) and unbindable_for(problem, solver))
     withheld = [f'{item["problem"]} / {item.get("solver") or "every integration"}'
                 for item in blockers]
     # Prefer pairs whose problem has several instances: there, a model that
@@ -121,6 +138,7 @@ def report(limit=20, include_unready=False):
             "eligible_pairs": len(eligible), "next_pairs": eligible[:limit],
             "single_instance_problems": single,
             "blocked_pairs": withheld,
+            "unbindable_pairs": unbindable_pairs,
             "legacy_only_problems": len(legacy - {p for p, _ in accepted}),
             "note": "A model carrying another evaluator's verdict is not acceptance evidence. An integration "
                     "without a current readiness record cannot be used; set it up first. "
@@ -128,7 +146,10 @@ def report(limit=20, include_unready=False):
                     "so for those the evaluator cannot detect a model that hardcoded it: "
                     "read such a model yourself before retaining it. Pairs in "
                     "generation/blockers.json are withheld from the queue; do not retry one "
-                    "without new information, and add an entry when you block a pair."}
+                    "without new information, and add an entry when you block a pair. Pairs under "
+                    "unbindable_pairs are withheld because the instance field named is ragged or "
+                    "mixes types within a row and that integration binds only rectangular "
+                    "single-type arrays; run generation.brief PROBLEM to see the shapes."}
 
 
 def main(argv=None):

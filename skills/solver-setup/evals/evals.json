@@ -1,68 +1,25 @@
 {
-  "schema_version": 1,
   "skill_name": "solver-setup",
   "evals": [
     {
       "id": "new-integration",
       "prompt": "Use solver-setup to create a new CPU solver integration in the isolated checkout from official API/build documentation. Build a fresh image, write a portable skill with provenance and behavioural cases, and test its advertised capabilities.",
-      "prerequisites": [
-        "isolated checkout",
-        "Docker",
-        "Python environment"
-      ],
       "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
       "assertions": [
-        {
-          "id": "files",
-          "requirement": "Required integration files and standard modelling skill exist."
-        },
-        {
-          "id": "tests",
-          "requirement": "Real satisfaction, changed-instance, optimization and error/isolation checks passed where supported."
-        },
-        {
-          "id": "provenance",
-          "requirement": "Sources, dependency versions, image identity and files recorded."
-        },
-        {
-          "id": "return",
-          "requirement": "Ready/blocked outcome returned to caller with shared run ID and no nested campaign."
-        }
-      ],
-      "evidence_required": [
-        "run events",
-        "attempt artifacts",
-        "evaluation/test results",
-        "skill versions used"
+        "Required integration files and standard modelling skill exist.",
+        "Real satisfaction, changed-instance, optimization and error/isolation checks passed where supported.",
+        "Sources, dependency versions, image identity and files recorded.",
+        "Ready/blocked outcome returned to caller with shared run ID and no nested campaign."
       ]
     },
     {
       "id": "setup-lesson",
       "prompt": "Repair the supplied integration setup mistake. Propose a general correction to solver-setup, run a regression against both versions, and apply only if it passes.",
-      "prerequisites": [
-        "setup fault fixture",
-        "trusted regression command"
-      ],
       "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
       "assertions": [
-        {
-          "id": "repair",
-          "requirement": "Integration repair verified with real tests."
-        },
-        {
-          "id": "proposal",
-          "requirement": "Setup skill proposal linked to cause evidence and frozen versions."
-        },
-        {
-          "id": "regression",
-          "requirement": "Independent check result governs update; no retroactive edit to attempt snapshot."
-        }
-      ],
-      "evidence_required": [
-        "run events",
-        "attempt artifacts",
-        "evaluation/test results",
-        "skill versions used"
+        "Integration repair verified with real tests.",
+        "Setup skill proposal linked to cause evidence and frozen versions.",
+        "Independent check result governs update; no retroactive edit to attempt snapshot."
       ]
     }
   ]

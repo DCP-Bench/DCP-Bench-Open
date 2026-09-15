@@ -1,30 +1,25 @@
 {
-  "schema_version": 1,
   "skill_name": "cpmpy-python",
   "evals": [
     {
       "id": "instance-agnostic-model",
       "prompt": "Using this skill, write a cpmpy_python submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "prerequisites": ["ready cpmpy_python integration", "repository Python environment", "Docker"],
       "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
       "assertions": [
-        {"id": "contract", "requirement": "Defines build(instance) returning a CPMpy Model and a dict of exactly the declared output names; does not solve, print, or read values."},
-        {"id": "general", "requirement": "Every instance-dependent quantity is read from the instance argument, and the evaluator accepts all six listed instances."},
-        {"id": "api", "requirement": "Uses CPMpy aggregations rather than the Python built-ins that raise on expressions, and no float constants."}
-      ],
-      "evidence_required": ["candidate model", "evaluator result JSON"]
+        "Defines build(instance) returning a CPMpy Model and a dict of exactly the declared output names; does not solve, print, or read values.",
+        "Every instance-dependent quantity is read from the instance argument, and the evaluator accepts all six listed instances.",
+        "Uses CPMpy aggregations rather than the Python built-ins that raise on expressions, and no float constants."
+      ]
     },
     {
       "id": "repair-from-reason",
       "prompt": "Using this skill, repair a cpmpy_python submission the evaluator rejected. Diagnose from the reported reason and detail rather than by guessing.",
-      "prerequisites": ["ready cpmpy_python integration", "rejected candidate with its evaluation result"],
       "expected_output": "A repaired accepted model, or a recorded blocker, with both versions preserved.",
       "assertions": [
-        {"id": "diagnosis", "requirement": "The change addresses the reported reason: invalid_solution as an over-permissive model, suboptimal_solution as a wrong objective, invalid_output as wrong output keys, shapes, or types."},
-        {"id": "no-cheating", "requirement": "The reference, dataset and evaluator are unchanged, and coverage was not reduced to obtain the pass."},
-        {"id": "preserved", "requirement": "The rejected candidate and its evaluation remain available alongside the repaired one."}
-      ],
-      "evidence_required": ["both candidates", "both evaluator results"]
+        "The change addresses the reported reason: invalid_solution as an over-permissive model, suboptimal_solution as a wrong objective, invalid_output as wrong output keys, shapes, or types.",
+        "The reference, dataset and evaluator are unchanged, and coverage was not reduced to obtain the pass.",
+        "The rejected candidate and its evaluation remain available alongside the repaired one."
+      ]
     }
   ]
 }

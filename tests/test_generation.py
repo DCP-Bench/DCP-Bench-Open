@@ -249,6 +249,18 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(ready["next_pairs"], [{"problem": "p2", "solver": "s1", "instances": 1}])
         self.assertEqual((ready["legacy_only_problems"], ready["single_instance_problems"]), (1, 2))
 
+    def test_instance_shapes_that_no_rectangular_binder_can_take(self):
+        """A ragged or mixed-type field is why a pair is impossible, not a bad model."""
+        from generation.brief import describe, unbindable
+        self.assertFalse(describe([[1, 2], [3, 4]])["ragged"])
+        self.assertTrue(describe([[1, 2], [3]])["ragged"])
+        self.assertTrue(describe([["title", 4, 13]])["mixed"])
+        self.assertEqual(describe([[1, 2], [3, 4]])["shape"], "[2][2]int")
+        # The two real cases this came from.
+        self.assertEqual(unbindable("covering_opl"), ["Qualified"])
+        self.assertEqual(unbindable("session2_movie_scheduling"), ["movies"])
+        self.assertEqual(unbindable("csplib_054_n_queens"), [])
+
     def test_recorded_blockers_leave_the_queue(self):
         """A pair known not to be worth retrying must not keep being offered."""
         (self.root / "dataset" / "p1").mkdir(parents=True)

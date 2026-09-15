@@ -90,20 +90,25 @@ def validate(folder, project=False):
         # came from. Bundle bytes are hashed per attempt, where it matters.
         if not (folder / "sources.md").is_file():
             raise ValueError("Project skill needs sources.md listing the documentation used")
-        cases = read(folder / "evals/evals.json")
-        if cases.get("schema_version") != 1 or cases.get("skill_name") != name or not cases.get("evals"):
-            raise ValueError("Invalid project eval manifest")
-        ids = set()
-        for case in cases["evals"]:
-            if (not isinstance(case, dict) or not isinstance(case.get("id"), str) or not case["id"]
-                    or case["id"] in ids or not case.get("prompt") or not case.get("expected_output")
-                    or not isinstance(case.get("prerequisites"), list) or not case.get("evidence_required")):
-                raise ValueError("Invalid/duplicate behavioural case")
-            ids.add(case["id"])
-            assertions = case.get("assertions", [])
-            if (not assertions or any(not isinstance(a, dict) or not a.get("id") or not a.get("requirement") for a in assertions)
-                    or len({a["id"] for a in assertions}) != len(assertions)):
-                raise ValueError("Invalid/duplicate behavioural assertions")
+        # Evals are optional, as in the Agent Skills standard: they are a tool
+        # for improving a skill against its own test cases, not an artifact
+        # every bundle owes. When present they are checked for the shape that
+        # standard uses - id, prompt, expected_output and string assertions.
+        manifest = folder / "evals/evals.json"
+        if manifest.is_file():
+            cases = read(manifest)
+            if cases.get("skill_name") != name or not cases.get("evals"):
+                raise ValueError("Eval manifest must name this skill and list cases")
+            ids = set()
+            for case in cases["evals"]:
+                identifier = case.get("id") if isinstance(case, dict) else None
+                if (identifier is None or identifier in ids
+                        or not case.get("prompt") or not case.get("expected_output")):
+                    raise ValueError("Each eval needs a unique id, a prompt and an expected_output")
+                ids.add(identifier)
+                assertions = case.get("assertions", [])
+                if any(not isinstance(item, str) or not item.strip() for item in assertions):
+                    raise ValueError("Eval assertions are plain strings, one statement each")
     return {"name": name, "files": files, "entrypoint_lines": len(text.splitlines()), "project_checked": project}
 
 

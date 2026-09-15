@@ -360,6 +360,16 @@ def retained_record(record: dict[str, Any], evaluation: dict[str, Any], model_fi
         "origin_type": "machine_generated",
         "is_optimization": optimization,
         "instances_checked": [item.get("id") for item in instances if item.get("accepted")],
+        # What the acceptance is evidence of. A problem with one instance cannot
+        # catch a model that fitted it, so say so here rather than leave a reader
+        # to work it out from the instance list.
+        "generality": {
+            "instances_available": available,
+            "evidenced_on": [item.get("id") for item in instances if item.get("accepted")],
+            "skipped": [{"id": item.get("id"), "reason": item.get("reason")}
+                        for item in instances if item.get("id") in skipped],
+            "example_only": available == 1,
+        },
         "generated_by": {"base_llm": record.get("agent", "unknown"),
                          "run": record["run_id"], "coverage": coverage},
         "source": {"note": f"Retained by the container evaluator: {coverage}, "
