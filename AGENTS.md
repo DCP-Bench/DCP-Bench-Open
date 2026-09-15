@@ -4,6 +4,8 @@
 
 - For each new feature or bug fix, always create a new branch and start coding there.
 - Make appropriate commits on that branch, but never push — the user handles all pushing.
+- Group a batch of related work into one commit rather than committing each file or each
+  generated model on its own, and say in the message what the batch carries.
 - After coding is done, the user and the agent review whether the request is done.
 - Once the request is accepted, the user handles deployment.
 

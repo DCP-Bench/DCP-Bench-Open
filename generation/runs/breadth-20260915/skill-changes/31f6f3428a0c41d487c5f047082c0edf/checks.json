@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "tests/model_generator_resume_regression.py",
+        "{skill}"
+      ],
+      "timeout": 300
+    }
+  ],
+  "results": [
+    {
+      "version": "before",
+      "argv": [
+        "python",
+        "tests/model_generator_resume_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\breadth-20260915\\skill-changes\\31f6f3428a0c41d487c5f047082c0edf\\before\\model-generator"
+      ],
+      "returncode": 1,
+      "stdout": "FAIL C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\breadth-20260915\\skill-changes\\31f6f3428a0c41d487c5f047082c0edf\\before\\model-generator does not say commits are batched\n",
+      "stderr": ""
+    },
+    {
+      "version": "candidate",
+      "argv": [
+        "python",
+        "tests/model_generator_resume_regression.py",
+        "C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\breadth-20260915\\skill-changes\\31f6f3428a0c41d487c5f047082c0edf\\candidate\\model-generator"
+      ],
+      "returncode": 0,
+      "stdout": "ok C:\\Users\\kostis\\code\\DCP-Bench-Open\\generation\\runs\\breadth-20260915\\skill-changes\\31f6f3428a0c41d487c5f047082c0edf\\candidate\\model-generator: an uncommitted run is still resumable, and the skill batches commits\n",
+      "stderr": ""
+    }
+  ],
+  "passed": true,
+  "at": "2026-09-15T10:50:32.043515+00:00"
+}

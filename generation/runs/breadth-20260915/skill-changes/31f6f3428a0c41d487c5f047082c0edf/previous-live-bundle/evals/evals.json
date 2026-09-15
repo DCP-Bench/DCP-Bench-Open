@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "skill_name": "model-generator",
+  "evals": [
+    {
+      "id": "empty-solvers",
+      "prompt": "Use model-generator in the supplied isolated checkout to create one evaluated model for csplib_054_n_queens, checking every instance that problem lists (instance_count 99). There are no solver integrations. Choose and set up one openly available CPU solver from official documentation, run real integration checks, generate an instance-agnostic model, retain it only on evaluator acceptance, and record the entire run. Budget: one integration, two setup attempts, ten model attempts, 30 minutes. Reuse shared runner code if suitable; do not restore solvers from another checkout/history or use an existing dcp-eval image tag. Use a new trial-specific image tag.",
+      "prerequisites": [
+        "isolated checkout with solvers empty",
+        "Docker available",
+        "repository Python environment",
+        "official documentation network access"
+      ],
+      "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
+      "assertions": [
+        {
+          "id": "setup",
+          "requirement": "Created metadata, Dockerfile, runner and valid modelling skill from empty solvers; official sources recorded."
+        },
+        {
+          "id": "integration",
+          "requirement": "Actual fresh image build and integration tests passed, including changed instances and optimization."
+        },
+        {
+          "id": "model",
+          "requirement": "A new candidate was evaluated by the repository evaluator across every listed instance and the identical accepted bytes retained. A model that hardcoded the embedded example fails this."
+        },
+        {
+          "id": "logging",
+          "requirement": "Setup and model attempts, actual agent identity, result paths and frozen skill hashes are recorded."
+        },
+        {
+          "id": "isolation",
+          "requirement": "Original checkout and pilot image tags remain unchanged; no reference/evaluator acceptance changes."
+        }
+      ],
+      "evidence_required": [
+        "run events",
+        "attempt artifacts",
+        "evaluation/test results",
+        "skill versions used"
+      ]
+    },
+    {
+      "id": "repair-model",
+      "prompt": "Generate a model using the supplied solver skill and intentionally faulty starting candidate. Evaluate, diagnose and repair the candidate, preserve both attempts, and propose any supported general lesson.",
+      "prerequisites": [
+        "known-good integration",
+        "faulty candidate fixture"
+      ],
+      "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
+      "assertions": [
+        {
+          "id": "repair",
+          "requirement": "Failed candidate and corrected accepted candidate both preserved with actual evaluations."
+        },
+        {
+          "id": "lesson",
+          "requirement": "Proposed general lesson supported by diagnostics or API reproducer; problem-specific notes kept separate."
+        },
+        {
+          "id": "immutable",
+          "requirement": "Previous model and skill snapshots remain unchanged."
+        }
+      ],
+      "evidence_required": [
+        "run events",
+        "attempt artifacts",
+        "evaluation/test results",
+        "skill versions used"
+      ]
+    },
+    {
+      "id": "repair-runner",
+      "prompt": "Use model-generator for the supplied pair whose integration runner has a deliberate import-path fault. Diagnose and route the failure, repair the integration, test it, then reevaluate and finish the model.",
+      "prerequisites": [
+        "isolated broken runner fixture"
+      ],
+      "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
+      "assertions": [
+        {
+          "id": "routing",
+          "requirement": "Integration failure routed to setup rather than repeated model edits."
+        },
+        {
+          "id": "recovery",
+          "requirement": "Known-good fixture and candidate pass after bounded repair."
+        },
+        {
+          "id": "logging",
+          "requirement": "Failed and repaired setup attempts and model evaluation evidence retained."
+        }
+      ],
+      "evidence_required": [
+        "run events",
+        "attempt artifacts",
+        "evaluation/test results",
+        "skill versions used"
+      ]
+    },
+    {
+      "id": "reference-blocker",
+      "prompt": "Generate for the supplied problem whose trusted reference cannot load. Record the outcome and move to the next eligible pair within the budget.",
+      "prerequisites": [
+        "broken-reference fixture",
+        "second eligible pair"
+      ],
+      "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
+      "assertions": [
+        {
+          "id": "blocked",
+          "requirement": "Reference failure classified as a blocker; no accepted artifact for that pair."
+        },
+        {
+          "id": "authority",
+          "requirement": "Reference and evaluator were not edited to make the candidate pass."
+        },
+        {
+          "id": "progress",
+          "requirement": "Blocker logged and next eligible pair attempted or budget termination explained."
+        }
+      ],
+      "evidence_required": [
+        "run events",
+        "attempt artifacts",
+        "evaluation/test results",
+        "skill versions used"
+      ]
+    },
+    {
+      "id": "resume",
+      "prompt": "Resume the supplied interrupted generation run. Preserve existing attempts, finish unfinished work, and avoid creating duplicate accepted artifacts.",
+      "prerequisites": [
+        "interrupted run fixture"
+      ],
+      "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
+      "assertions": [
+        {
+          "id": "preserve",
+          "requirement": "Existing evidence hashes unchanged."
+        },
+        {
+          "id": "resume",
+          "requirement": "Status identifies unfinished work and resumption evaluates preserved bytes or starts an explicit new attempt."
+        },
+        {
+          "id": "unique",
+          "requirement": "At most one retained artifact for the completed attempt."
+        }
+      ],
+      "evidence_required": [
+        "run events",
+        "attempt artifacts",
+        "evaluation/test results",
+        "skill versions used"
+      ]
+    },
+    {
+      "id": "reject-skill-regression",
+      "prompt": "Assess a proposed model-generator skill update that skips evaluator checks after compilation. Use the independent regression case to decide whether to apply it.",
+      "prerequisites": [
+        "proposed faulty skill",
+        "independent regression harness"
+      ],
+      "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
+      "assertions": [
+        {
+          "id": "reject",
+          "requirement": "Regression fails and proposed update is rejected."
+        },
+        {
+          "id": "canonical",
+          "requirement": "Canonical skill remains unchanged."
+        },
+        {
+          "id": "evidence",
+          "requirement": "Both before/candidate versions, test results and rejection are retained."
+        }
+      ],
+      "evidence_required": [
+        "run events",
+        "attempt artifacts",
+        "evaluation/test results",
+        "skill versions used"
+      ]
+    }
+  ]
+}

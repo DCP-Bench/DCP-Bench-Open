@@ -193,15 +193,9 @@ differ, and never weaken a profile mid-run to turn a failure into a pass.
    python -m generation.manage retain --attempt ATTEMPT_PATH
    ```
 
-8. **Commit in batches**, not once per model: a coherent group of accepted
-   models in one commit — a sweep of related problems, or one integration's
-   share of the run — with a message naming what it carries and any reduced
-   coverage among them. Commit a batch before starting a long wait, so accepted
-   work is never left uncommitted across one, and again at the end of the run.
-   What makes an interrupted run resumable is the ledger, not git: `retain`
-   writes `retained.json` and the record under `generated_models/` as it goes,
-   and `generation.manage status` reads those back whether or not anything was
-   committed. Then return to step 1.
+8. **Commit that one model before starting the next pair**, so the history has
+   one commit per accepted model and an interrupted run always resumes from a
+   clean state. Then return to step 1.
 
 ## Deciding a model is correct
 
