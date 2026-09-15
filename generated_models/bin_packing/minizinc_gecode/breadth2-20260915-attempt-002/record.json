@@ -1,0 +1,128 @@
+{
+  "attempt": {
+    "agent": "claude-opus-5, interactive session, coordinator and modeller",
+    "attempt_id": "attempt-002",
+    "created_at": 1789471829.477201,
+    "problem_id": "bin_packing",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "0e80c1e8e27b48ec8506a379cb484c5ab17df10c5ab75605f272180d6b1f3cc9",
+    "run_id": "breadth2-20260915",
+    "schema": 2,
+    "skill_bundle_hash": "40b98097be6b194ef98aa9936450329aa23ea08a1b924fc0647054e51484db4d",
+    "skill_source": "solvers\\minizinc_gecode\\skills\\minizinc-gecode",
+    "skill_version": {
+      "commit": "018c18c13a4751b24f11f083a92e31f6b224e09a",
+      "modified": false,
+      "path": "solvers/minizinc_gecode/skills/minizinc-gecode"
+    },
+    "solver_id": "minizinc_gecode"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+      "tag": "dcp-eval/minizinc_gecode:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.02070250001270324,
+        "execution_wall_seconds": 1.1937872999696992,
+        "first_solution": {
+          "bins": [
+            4,
+            3,
+            0,
+            2,
+            0,
+            1,
+            0
+          ]
+        },
+        "id": "example",
+        "instance_hash": "88d83a2187fdda2a7dffa68935b7e911afc0fd2f8cef58237659ae21c486a4a6",
+        "is_optimization": false,
+        "optimum": null,
+        "outputs": [
+          "bins"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.7517367999535054,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7d3f90258180>\nTraceback (most recent call last):\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 126, in __del__\n    self.close()\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 104, in close\n    proto.pipe.close()\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 568, in close\n    self._close(None)\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 592, in _close\n    self._loop.call_soon(self._call_connection_lost, exc)\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 799, in call_soon\n    self._check_closed()\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 545, in _check_closed\n    raise RuntimeError('Event loop is closed')\nRuntimeError: Event loop is closed\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "28473f37bac5b50a19156e940f34fa2423a0586f67950db957d3cd01c8477c22",
+    "problem_id": "bin_packing",
+    "reason": "accepted",
+    "reference_hash": "fef50a03eedc3dca02313ea15006b18b7f52a1b9fe60a991858cb03790b3dfce",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 2,
+    "solver_id": "minizinc_gecode",
+    "total_wall_seconds": 2.352886300010141,
+    "unperformed_instances": []
+  },
+  "framework": "MiniZinc \u2014 Gecode",
+  "generated_by": {
+    "base_llm": "claude-opus-5, interactive session, coordinator and modeller",
+    "coverage": "1 of 1 instances",
+    "run": "breadth2-20260915"
+  },
+  "instances_checked": [
+    "example"
+  ],
+  "is_optimization": false,
+  "model_file": "model.mzn",
+  "origin_type": "machine_generated",
+  "problem": "bin_packing",
+  "schema": 2,
+  "solver": "minizinc_gecode",
+  "source": {
+    "note": "Retained by the container evaluator: 1 of 1 instances, 2 solutions checked."
+  },
+  "submission": "breadth2-20260915-attempt-002",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}
