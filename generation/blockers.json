@@ -25,6 +25,14 @@
       "detail": "Z3 could not prove the minimum ruler length for any of the three instances at 180s. A performance limit of this solver on this problem, not a reference or contract fault, so it is blocked for z3_python only. A materially better encoding would justify retrying.",
       "evidence": "generation/runs/z3-20260910t125536z-166594-r3/attempts/csplib_006_golomb_rulers/z3_python/attempt-001/evaluation.json",
       "recorded": "2026-09-10"
+    },
+    {
+      "problem": "covering_opl",
+      "solver": "minizinc_gecode",
+      "reason": "unsupported_instance_shape",
+      "detail": "The instance field Qualified is a ragged array: one variable-length list of qualified workers per task. MiniZinc's data interface binds a list of lists as a rectangular 2D array, so the runner fails with 'non-uniform array literal' before solving, whatever the model says. Reshaping the field inside run.py would be the problem-specific converter the integration's skill rules out, so this is an integration limit rather than a modelling one.",
+      "evidence": "generation/runs/breadth-20260915/attempts/covering_opl/minizinc_gecode/attempt-001/evaluation.json",
+      "recorded": "2026-09-15"
     }
   ]
 }

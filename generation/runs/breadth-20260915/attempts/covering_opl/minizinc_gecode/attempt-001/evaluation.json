@@ -1,0 +1,65 @@
+{
+  "accepted": false,
+  "detail": "non-uniform array literal. Expected `tuple(int, int, int, int, int, int, int)' but got `tuple(int, int, int, int, int, int, int, int, int, int, int)'.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 8.00006091594696e-07,
+      "detail": "non-uniform array literal. Expected `tuple(int, int, int, int, int, int, int)' but got `tuple(int, int, int, int, int, int, int, int, int, int, int)'.",
+      "execution_wall_seconds": 2.756595399987418,
+      "id": "example",
+      "instance_hash": "edf73c70e40f5329c3351256085550824f971f45eb059a569c798b01d4f35461",
+      "is_optimization": true,
+      "optimum": 14,
+      "outputs": [
+        "total_cost",
+        "workers"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.6313047999865375,
+      "runner_status": {
+        "detail": "non-uniform array literal. Expected `tuple(int, int, int, int, int, int, int)' but got `tuple(int, int, int, int, int, int, int, int, int, int, int)'.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 265, in main\n    minizinc_solver(request)\n  File \"/opt/runner/runtime.py\", line 156, in minizinc_solver\n    result = inst.solve(time_limit=timedelta(seconds=request[\"execution_timeout\"]), intermediate_solutions=False)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 193, in solve\n    return asyncio.run(coroutine)\n           ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 248, in solve_async\n    async for result in self.solutions(\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 618, in solutions\n    async for obj in decode_async_json_stream(\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/json.py\", line 122, in decode_async_json_stream\n    raise error_from_stream_obj(obj)\nminizinc.error.TypeError: non-uniform array literal. Expected `tuple(int, int, int, int, int, int, int)' but got `tuple(int, int, int, int, int, int, int, int, int, int, int)'.\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "c5c8fa2ed2ab340d81f82aceeb4d2304f2e89599ddd14cc662c0f4cb999b6b66",
+  "problem_id": "covering_opl",
+  "reason": "execution_error",
+  "reference_hash": "5278097c169a901cae5e7c247a7fec03fe63df9600fd0fdb0f74e2fb518cdc04",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 4.904566599987447,
+  "unperformed_instances": []
+}
