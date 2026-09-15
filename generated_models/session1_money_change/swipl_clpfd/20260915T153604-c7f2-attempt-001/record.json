@@ -1,0 +1,136 @@
+{
+  "attempt": {
+    "agent": "claude-opus-5 / model-generator campaign (100-model target)",
+    "attempt_id": "attempt-001",
+    "created_at": 1789491129.1527565,
+    "problem_id": "session1_money_change",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "c997041fdf558942fbb5978dabd57d631df5f3da6abccede162ed48cc5d99b0e",
+    "run_id": "20260915T153604-c7f2",
+    "schema": 2,
+    "skill_bundle_hash": "7b9e47a9be7123c5be605b959c443d3fee0f1130cdb5101016d83a7ae8d4a98e",
+    "skill_source": "solvers\\swipl_clpfd\\skills\\swipl-clpfd",
+    "skill_version": {
+      "commit": "0eea9c9385746f81e325191888b604eafe864a87",
+      "modified": false,
+      "path": "solvers/swipl_clpfd/skills/swipl-clpfd"
+    },
+    "solver_id": "swipl_clpfd"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:c4ae2fc9f8971ad51b7c458bf7b0e221ae19250abe1147d5dd6097a0b33efe42",
+      "tag": "dcp-eval/swipl_clpfd:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.0025348999770358205,
+        "execution_wall_seconds": 1.5481347999884747,
+        "first_solution": {
+          "coin_counts": [
+            0,
+            2,
+            0,
+            2,
+            3,
+            2
+          ]
+        },
+        "id": "example",
+        "instance_hash": "932091917ca1ca846ab5870bfd163b2e1692efd2cf43afa929c2c0d41744d48b",
+        "is_optimization": true,
+        "optimum": 9,
+        "outputs": [
+          "coin_counts"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.0337500000023283,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.10212540626525879,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "4a7a859f47ec731d3b5a7d4da6f06cd6432931a533829450fa96a6be5122a7e9",
+    "problem_id": "session1_money_change",
+    "reason": "accepted",
+    "reference_hash": "f71435a4a8de69c21fcc34df9e9b0d8147f0c8ec1b928c592b426643d7958805",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "swipl_clpfd",
+    "total_wall_seconds": 3.0237339999875985,
+    "unperformed_instances": []
+  },
+  "framework": "SWI-Prolog \u2014 CLP(FD)",
+  "generality": {
+    "evidenced_on": [
+      "example"
+    ],
+    "example_only": true,
+    "instances_available": 1,
+    "skipped": []
+  },
+  "generated_by": {
+    "base_llm": "claude-opus-5 / model-generator campaign (100-model target)",
+    "coverage": "1 of 1 instances",
+    "run": "20260915T153604-c7f2"
+  },
+  "instances_checked": [
+    "example"
+  ],
+  "is_optimization": true,
+  "model_file": "model.pl",
+  "origin_type": "machine_generated",
+  "problem": "session1_money_change",
+  "schema": 2,
+  "solver": "swipl_clpfd",
+  "source": {
+    "note": "Retained by the container evaluator: 1 of 1 instances, 1 solutions checked."
+  },
+  "submission": "20260915T153604-c7f2-attempt-001",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
