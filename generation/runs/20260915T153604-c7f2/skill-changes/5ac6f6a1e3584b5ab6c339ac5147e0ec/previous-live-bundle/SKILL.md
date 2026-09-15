@@ -33,9 +33,7 @@ model(Instance, Vars, [x-X, y-Y]) :-
   lists, and JSON strings as atoms.
 - **`Vars`** is a flat list of the finite-domain variables to label. Every
   variable still free in `Outputs` is labelled too, so an output variable no
-  constraint mentions still gets a value. Auxiliary variables are neither: put
-  every one that carries a constraint into `Vars` yourself, or it is never
-  labelled.
+  constraint mentions still gets a value.
 - **`Outputs`** is a nonempty list of `Name-Value` pairs holding **exactly** the
   problem's declared output names. `Name` must be an atom: write `'A'-Xs` with
   quotes when the declared name starts with a capital. `Value` is an integer, a
@@ -101,19 +99,6 @@ labeling_options([ffc, bisect]).
   ignores a constraint you can see in the source. Use `findall/3` for ground
   data such as index pairs, and build lists of variables by mapping or
   recursion, which unify rather than copy.
-- **An auxiliary variable you leave out of `Vars` is never labelled.** A
-  constraint posted on it then only has to stay *consistent*, not be satisfied,
-  so the values that do get reported can violate it — which the evaluator
-  reports as `invalid_solution`. This bites hardest when channelling: given
-  `sum(Row) #= 1` and `scalar_product([0,1,2|...], Row) #= Value`, fixing
-  `Value` does **not** narrow `Row`, because neither constraint prunes on its
-  own and CLP(FD) propagates them separately. Label the channelled row, not
-  just the variable it stands for.
-- **Labelling order is part of the model.** `ff` has nothing to go on when every
-  variable shares a domain size, which is the usual case for a Boolean matrix.
-  Put the variables that constrain the most first — the heaviest item in a
-  partition, the largest task in a schedule — and select `leftmost` through
-  `labeling_options/1` to honour that order.
 - **A lambda shares only the variables named in its `{...}` set.** `library(yall)`
   expands a lambda at compile time, so a variable from the surrounding clause
   that is not declared is local to the lambda however bound it is at call time.

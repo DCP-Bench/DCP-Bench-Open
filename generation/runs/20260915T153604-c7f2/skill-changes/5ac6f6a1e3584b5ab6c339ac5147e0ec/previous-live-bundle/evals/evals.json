@@ -38,16 +38,6 @@
         "Groups of decision variables are gathered by mapping or recursion, not by findall/3, so no constraint is posted on a copy; the evaluator does not report invalid_solution.",
         "Every variable a lambda uses from the surrounding clause appears in its {...} set, so no goal runs with a locally unbound copy."
       ]
-    },
-    {
-      "id": "channelled-auxiliaries-are-labelled",
-      "prompt": "Using this skill, write a swipl_clpfd submission for a problem that partitions items into groups under a per-group total, such as session3_farmer_and_cows, and check it with the repository evaluator.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Every auxiliary variable carrying a constraint appears in Vars, so none is left unlabelled; the evaluator does not report invalid_solution for a per-group total that the reported values violate.",
-        "Where the model channels a decision variable to a 0/1 row, the row itself is labelled rather than relied on to follow from the variable it stands for.",
-        "If the submission chooses a labelling order through labeling_options/1, the order is justified by which variables constrain the most rather than left to the ff default over equal-sized domains."
-      ]
     }
   ]
 }

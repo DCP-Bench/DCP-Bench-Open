@@ -1,0 +1,43 @@
+{
+  "skill_name": "ortools-cp-sat-cpp",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write an ortools_cp_sat_cpp submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Defines Build with the documented signature, defines no main, calls no solver, and writes nothing to standard output.",
+        "Every instance-dependent quantity is read from the instance argument, and the evaluator accepts all six listed instances.",
+        "The declared output carries IntVar proto indices obtained with .index(), not solution values, and the evaluator does not report invalid_output."
+      ]
+    },
+    {
+      "id": "element-at-a-variable-position",
+      "prompt": "Using this skill, write an ortools_cp_sat_cpp submission for a problem that reads an array at a position chosen by a decision variable, such as bales_of_hay or csplib_024_langford, and check it with the repository evaluator.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "AddElement is passed a span of LinearExpr rather than a std::vector<IntVar>, so the submission compiles on the first attempt and the evaluator does not report compilation_error.",
+        "Where the table is two-dimensional, it is flattened once and the position is computed with a linear constraint rather than by nesting element constraints."
+      ]
+    },
+    {
+      "id": "reified-counting",
+      "prompt": "Using this skill, write an ortools_cp_sat_cpp submission for a problem whose reference counts how many variables take a given value, such as among or csplib_019_magic_squares_and_sequences, and check it with the repository evaluator.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Each counting indicator has both directions posted, the constraint under the literal and its negation under Not(), so no indicator is free; the evaluator does not report invalid_solution.",
+        "The count is summed as a LinearExpr over the indicators rather than through a constraint the C++ API does not have."
+      ]
+    },
+    {
+      "id": "optimization-contract",
+      "prompt": "Using this skill, write an ortools_cp_sat_cpp submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        "Calls Minimize or Maximize with an integer objective and does not bound the objective with a value taken from a known answer.",
+        "Where the objective value is itself a declared output, it is exposed through an auxiliary IntVar constrained equal to the objective expression.",
+        "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference."
+      ]
+    }
+  ]
+}
