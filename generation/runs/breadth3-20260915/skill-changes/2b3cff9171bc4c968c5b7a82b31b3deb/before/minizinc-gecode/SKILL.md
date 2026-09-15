@@ -29,33 +29,3 @@ constraints and a tighter domain are the tools you have.
 Never add a constraint that removes solutions to buy speed. Symmetry breaking a
 reference keeps commented out is not part of the contract, and a model that
 narrows the problem can pass the evaluator while being wrong.
-
-## A one-sided bound can cost you the variable
-
-MiniZinc 2.9.3 can flatten a model in which an auxiliary variable is bounded
-from one side so that the variable doing the bounding **disappears from another
-constraint it belongs to**. Several references have this shape — a flag that is
-only upper-bounded by what enables it, as in `csplib_056_sonet` or
-`cell_tower`'s `covered[j] <= sum_i delta[i][j] * build_tower[i]`.
-
-Translated literally, alongside `sum_i cost[i] * build_tower[i] <= budget`,
-MiniZinc compiled that pair to
-
-```
-constraint int_lin_le([3,4],[X_6,X_9],4);   % X_6 = build_tower[1], X_9 = covered[2]
-```
-
-leaving `build_tower[2]` in no constraint at all. It then takes either value,
-and the runner reports a solution that spends more than the budget. MiniZinc's
-own output item evaluates the budget constraint to `false` on that solution, and
-Chuffed reproduces it, so this is the flattening rather than the solver.
-
-**State the relationship as an equivalence** — `covered[j] <-> exists(i)(...)` —
-whenever the reference's one-sided bound is tight at every solution you may
-report, which for an optimisation is every optimum. That flattens soundly.
-
-How it shows up: `invalid_solution` from the evaluator on a model you cannot
-fault by reading. To confirm it rather than guess, compile with
-`minizinc --solver gecode -c model.mzn` and look for a declared variable that
-appears in no constraint, or add the suspect constraint to the `output` item and
-watch it print `false` on a returned solution.

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "target": "solvers\\minizinc_gecode\\skills\\minizinc-gecode",
+  "name": "minizinc-gecode",
+  "base_hashes": {
+    "evals/evals.json": "ef2fc6ed10adc023ddf1571a0d56b50ae0763a6690327e6d9e9d743844424566",
+    "SKILL.md": "47f8c874683f3c90499efb05676f07cb6f677727abacdbf723f643655995f031",
+    "sources.md": "6a123acd6e6211283c5c1b0470eb616dfa8ed9c7c1fa2fa533edf2da2eb2878b"
+  },
+  "candidate_hashes": {
+    "evals/evals.json": "ef2fc6ed10adc023ddf1571a0d56b50ae0763a6690327e6d9e9d743844424566",
+    "SKILL.md": "30de7584381fbc697d5cc2287cc7e0820e3e69eec21eff93deddcf7341318fad",
+    "sources.md": "6a123acd6e6211283c5c1b0470eb616dfa8ed9c7c1fa2fa533edf2da2eb2878b"
+  },
+  "evidence": "cell_tower on minizinc_gecode was rejected as invalid_solution in run breadth2-20260915. The cause is MiniZinc 2.9.3 flattening: with the reference's one-sided coverage bound, the budget constraint compiled to int_lin_le([3,4],[build_tower[1],covered[2]],4) and build_tower[2] appeared in no constraint at all, so the runner reported a solution spending 7 against a budget of 4. MiniZinc's own output item calls that solution infeasible and Chuffed reproduces it. Stating the bound as an equivalence flattens soundly, which tests/minizinc_gecode_flattening_regression.py demonstrates through the evaluator.",
+  "created_at": "2026-09-15T11:39:02.934629+00:00",
+  "status": "applied",
+  "checks_hash": "2ba66946ea08a07990618ad0e45c6919fd0a7e208ad509575d22bb167e8773f2",
+  "applied_at": "2026-09-15T11:40:43.169127+00:00"
+}
