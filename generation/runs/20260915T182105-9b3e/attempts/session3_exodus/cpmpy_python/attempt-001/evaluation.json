@@ -1,0 +1,67 @@
+{
+  "accepted": false,
+  "detail": "cannot access local variable 'model' where it is not associated with a value",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:053bc624cfcb9eeeb1a8113d913e7e843a6c1e0a826d97292c35d2c10cb5e0f4",
+    "tag": "dcp-eval/cpmpy_python:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 4.00003045797348e-07,
+      "detail": "cannot access local variable 'model' where it is not associated with a value",
+      "execution_wall_seconds": 2.423242199991364,
+      "id": "example",
+      "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "is_optimization": false,
+      "optimum": null,
+      "outputs": [
+        "ages",
+        "children",
+        "countries",
+        "stories"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.1774907000362873,
+      "runner_status": {
+        "detail": "cannot access local variable 'model' where it is not associated with a value",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 269, in main\n    python_solver(kind, request)\n  File \"/opt/runner/runtime.py\", line 61, in python_solver\n    model, outputs = build(request)\n                     ^^^^^^^^^^^^^^\n  File \"/opt/runner/runtime.py\", line 53, in build\n    model, outputs = module.build(request[\"instance\"])\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 50, in build\n    relate(passover, bernice, lambda a, b: a == b + 2)\n  File \"/input/model.py\", line 47, in relate\n    model += ~((ages[i] == older) & (ages[j] == younger))\n    ^^^^^\nUnboundLocalError: cannot access local variable 'model' where it is not associated with a value\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "ecd313824e334bec424c5c4f9665a7e0728767992ff2acd6bcc10d439073ea33",
+  "problem_id": "session3_exodus",
+  "reason": "execution_error",
+  "reference_hash": "74ffeefe15735e0ee72364182160f425343e7f0cc40ca9bbc53dd5380bae1b2b",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "cpmpy_python",
+  "total_wall_seconds": 4.065160899946932,
+  "unperformed_instances": []
+}
