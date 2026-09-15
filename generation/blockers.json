@@ -33,6 +33,14 @@
       "detail": "The instance field Qualified is a ragged array: one variable-length list of qualified workers per task. MiniZinc's data interface binds a list of lists as a rectangular 2D array, so the runner fails with 'non-uniform array literal' before solving, whatever the model says. Reshaping the field inside run.py would be the problem-specific converter the integration's skill rules out, so this is an integration limit rather than a modelling one.",
       "evidence": "generation/runs/breadth-20260915/attempts/covering_opl/minizinc_gecode/attempt-001/evaluation.json",
       "recorded": "2026-09-15"
+    },
+    {
+      "problem": "session2_movie_scheduling",
+      "solver": "minizinc_gecode",
+      "reason": "unsupported_instance_shape",
+      "detail": "Each row of the instance field movies mixes a string title with an integer start and end. MiniZinc's data interface binds a list of lists as a rectangular array of one element type and refuses with \"non-uniform array literal. Expected `string' but got `int'\", whatever the model says. Same class of obstacle as the ragged Qualified field of covering_opl.",
+      "evidence": "generation/runs/breadth3-20260915/attempts/session2_movie_scheduling/minizinc_gecode/attempt-001/evaluation.json",
+      "recorded": "2026-09-15"
     }
   ]
 }

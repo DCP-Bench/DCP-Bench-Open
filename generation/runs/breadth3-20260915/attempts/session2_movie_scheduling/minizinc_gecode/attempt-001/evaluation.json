@@ -1,0 +1,64 @@
+{
+  "accepted": false,
+  "detail": "non-uniform array literal. Expected `string' but got `int'.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 2.00001522898674e-07,
+      "detail": "non-uniform array literal. Expected `string' but got `int'.",
+      "execution_wall_seconds": 1.4117189000244252,
+      "id": "example",
+      "instance_hash": "c63f2604ca46c4ef39e0bce4b08278b51fffa7aab5afe5d606c067b304a4f65a",
+      "is_optimization": true,
+      "optimum": 4,
+      "outputs": [
+        "selected_movies"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 0.9409828999778256,
+      "runner_status": {
+        "detail": "non-uniform array literal. Expected `string' but got `int'.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 265, in main\n    minizinc_solver(request)\n  File \"/opt/runner/runtime.py\", line 156, in minizinc_solver\n    result = inst.solve(time_limit=timedelta(seconds=request[\"execution_timeout\"]), intermediate_solutions=False)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 193, in solve\n    return asyncio.run(coroutine)\n           ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 248, in solve_async\n    async for result in self.solutions(\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 618, in solutions\n    async for obj in decode_async_json_stream(\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/json.py\", line 122, in decode_async_json_stream\n    raise error_from_stream_obj(obj)\nminizinc.error.TypeError: non-uniform array literal. Expected `string' but got `int'.\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "e2b36b1136f3f2e0dbfefd8170e44334e725e83b14cc2442fcfd61a5a5a37f9a",
+  "problem_id": "session2_movie_scheduling",
+  "reason": "execution_error",
+  "reference_hash": "a0d21d9f32a015aed7ac3bf25831a7cbeb42e2704d40b01501dd1f4f83769261",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 2.8044186999904923,
+  "unperformed_instances": []
+}
