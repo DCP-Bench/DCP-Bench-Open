@@ -1,0 +1,134 @@
+{
+  "attempt": {
+    "agent": "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, solution_limit 10)",
+    "attempt_id": "attempt-001",
+    "created_at": 1789551107.9834719,
+    "problem_id": "bananas",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 10,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "b48cb73f73484be4a0e2286eb42261aafc646e54adedb8dc31d2ba8692c06d0b",
+    "run_id": "20260916T091550-4d71",
+    "schema": 2,
+    "skill_bundle_hash": "058147bd9bb86df0b071dd15e24f74a6f03c06f4d7ad4c91eeb9da20e204ba31",
+    "skill_source": "solvers\\z3_python\\skills\\z3-python",
+    "skill_version": {
+      "commit": "7189cc8bcd71e5cb95be8e896615efa93eefb173",
+      "modified": false,
+      "path": "solvers/z3_python/skills/z3-python"
+    },
+    "solver_id": "z3_python"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:a5853855f4cb803591e27691cde8888c0ef3541b524e2c78e58beeb5865eff22",
+      "tag": "dcp-eval/z3_python:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.0038708000211045146,
+        "execution_wall_seconds": 2.483208099962212,
+        "first_solution": {
+          "apples": 11,
+          "bananas": 5,
+          "mangoes": 63,
+          "oranges": 21
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": true,
+        "optimum": 16,
+        "outputs": [
+          "bananas",
+          "oranges",
+          "mangoes",
+          "apples"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.364758399897255,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "70b75aed3bb112d4c731590de95afc4b8e51f1270a29380cf47a3719092cbc65",
+    "problem_id": "bananas",
+    "reason": "accepted",
+    "reference_hash": "b4f6de5471ad8d9605ce1aed241f5307d6a48179188555f5e8c5ea7414b16174",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 10,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "z3_python",
+    "total_wall_seconds": 4.370265499921516,
+    "unperformed_instances": []
+  },
+  "framework": "Z3 \u2014 Python",
+  "generality": {
+    "evidenced_on": [
+      "example"
+    ],
+    "example_only": true,
+    "instances_available": 1,
+    "skipped": []
+  },
+  "generated_by": {
+    "base_llm": "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, solution_limit 10)",
+    "coverage": "1 of 1 instances",
+    "run": "20260916T091550-4d71"
+  },
+  "instances_checked": [
+    "example"
+  ],
+  "is_optimization": true,
+  "model_file": "model.py",
+  "origin_type": "machine_generated",
+  "problem": "bananas",
+  "schema": 2,
+  "solver": "z3_python",
+  "source": {
+    "note": "Retained by the container evaluator: 1 of 1 instances, 1 solutions checked."
+  },
+  "submission": "20260916T091550-4d71-attempt-001",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

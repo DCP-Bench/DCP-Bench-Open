@@ -1,0 +1,164 @@
+{
+  "attempt": {
+    "agent": "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, solution_limit 10)",
+    "attempt_id": "attempt-001",
+    "created_at": 1789551204.2684999,
+    "problem_id": "heterosquare",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 10,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "18de9d90e17c588727659039631bc573d2daa4d187c547a310ac43ee9abb97a9",
+    "run_id": "20260916T091550-4d71",
+    "schema": 2,
+    "skill_bundle_hash": "4e72d807c899e72b205a619164948d9c7c241f977f10fc0372073f606491eac0",
+    "skill_source": "solvers\\minizinc_gecode\\skills\\minizinc-gecode",
+    "skill_version": {
+      "commit": "7189cc8bcd71e5cb95be8e896615efa93eefb173",
+      "modified": false,
+      "path": "solvers/minizinc_gecode/skills/minizinc-gecode"
+    },
+    "solver_id": "minizinc_gecode"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+      "tag": "dcp-eval/minizinc_gecode:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.047363299992866814,
+        "execution_wall_seconds": 2.7917470999527723,
+        "first_solution": {
+          "x": [
+            [
+              10,
+              25,
+              23,
+              24,
+              8
+            ],
+            [
+              22,
+              7,
+              21,
+              6,
+              20
+            ],
+            [
+              19,
+              18,
+              1,
+              17,
+              16
+            ],
+            [
+              15,
+              5,
+              14,
+              4,
+              13
+            ],
+            [
+              3,
+              12,
+              11,
+              9,
+              2
+            ]
+          ]
+        },
+        "id": "example",
+        "instance_hash": "11d0a8967009cbcdf468f09e5b09e73e7119b528c35a0e0b23f2ae052786b8fa",
+        "is_optimization": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.5402911000419408,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 10,
+        "solutions_received": 10,
+        "stderr": "Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x70c448c24180>\nTraceback (most recent call last):\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 126, in __del__\n    self.close()\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 104, in close\n    proto.pipe.close()\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 568, in close\n    self._close(None)\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 592, in _close\n    self._loop.call_soon(self._call_connection_lost, exc)\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 799, in call_soon\n    self._check_closed()\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 545, in _check_closed\n    raise RuntimeError('Event loop is closed')\nRuntimeError: Event loop is closed\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "a691a0e7061e7d0ef91f26da8e4b96161797909f5aa7395217c5ff7c067083a5",
+    "problem_id": "heterosquare",
+    "reason": "accepted",
+    "reference_hash": "dbc73e10e9b1166fb7bcc398712844e5facf49e47cec96350ced95fbd7415f68",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 10,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 10,
+    "solver_id": "minizinc_gecode",
+    "total_wall_seconds": 4.940697300015017,
+    "unperformed_instances": []
+  },
+  "framework": "MiniZinc \u2014 Gecode",
+  "generality": {
+    "evidenced_on": [
+      "example"
+    ],
+    "example_only": true,
+    "instances_available": 1,
+    "skipped": []
+  },
+  "generated_by": {
+    "base_llm": "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, solution_limit 10)",
+    "coverage": "1 of 1 instances",
+    "run": "20260916T091550-4d71"
+  },
+  "instances_checked": [
+    "example"
+  ],
+  "is_optimization": false,
+  "model_file": "model.mzn",
+  "origin_type": "machine_generated",
+  "problem": "heterosquare",
+  "schema": 2,
+  "solver": "minizinc_gecode",
+  "source": {
+    "note": "Retained by the container evaluator: 1 of 1 instances, 10 solutions checked."
+  },
+  "submission": "20260916T091550-4d71-attempt-001",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}
