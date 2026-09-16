@@ -1,0 +1,64 @@
+{
+  "accepted": false,
+  "detail": "Error: The literal '9999999999' of the type int is out of range (-2147483646..2147483646) in line no. 29\nError: syntax error, unexpected ':', expecting FZ_INT_LIT in line no. 29",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 9.00006853044033e-07,
+      "detail": "Error: The literal '9999999999' of the type int is out of range (-2147483646..2147483646) in line no. 29\nError: syntax error, unexpected ':', expecting FZ_INT_LIT in line no. 29",
+      "execution_wall_seconds": 1.730135599966161,
+      "id": "example",
+      "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "is_optimization": false,
+      "optimum": null,
+      "outputs": [
+        "number"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.3494060999946669,
+      "runner_status": {
+        "detail": "Error: The literal '9999999999' of the type int is out of range (-2147483646..2147483646) in line no. 29\nError: syntax error, unexpected ':', expecting FZ_INT_LIT in line no. 29",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 265, in main\n    minizinc_solver(request)\n  File \"/opt/runner/runtime.py\", line 203, in minizinc_solver\n    asyncio.run(enumerate_solutions())\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/opt/runner/runtime.py\", line 186, in enumerate_solutions\n    async for result in stream:\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 696, in solutions\n    raise parse_error(stderr)\nminizinc.error.SyntaxError: Error: The literal '9999999999' of the type int is out of range (-2147483646..2147483646) in line no. 29\nError: syntax error, unexpected ':', expecting FZ_INT_LIT in line no. 29\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "7d3ef28fe86c6b50249841fbf2babdc8eb1c6d94d1cfe1390091b797a2eda8ff",
+  "problem_id": "divisible_by_1_through_9",
+  "reason": "execution_error",
+  "reference_hash": "ab7db19ec6cd969de02c1edbe609c91dfc340c82b2700c3997e4c953932f3698",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 10,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 3.546189400018193,
+  "unperformed_instances": []
+}

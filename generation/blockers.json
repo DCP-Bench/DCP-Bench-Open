@@ -41,6 +41,14 @@
       "detail": "Each row of the instance field movies mixes a string title with an integer start and end. MiniZinc's data interface binds a list of lists as a rectangular array of one element type and refuses with \"non-uniform array literal. Expected `string' but got `int'\", whatever the model says. Same class of obstacle as the ragged Qualified field of covering_opl.",
       "evidence": "generation/runs/breadth3-20260915/attempts/session2_movie_scheduling/minizinc_gecode/attempt-001/evaluation.json",
       "recorded": "2026-09-15"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "minizinc_gecode",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the whole ten-digit pandigital number, which is at most 9876543210 and so exceeds the 32-bit FlatZinc integer range Gecode accepts: the parser rejects the model with \"The literal '9999999999' of the type int is out of range (-2147483646..2147483646)\" before solving. Any faithful model has to represent that value, so this is an integration limit rather than a modelling one. A solver with a wider integer type would not hit it.",
+      "evidence": "generation/runs/20260916T112106-8a52/attempts/divisible_by_1_through_9/minizinc_gecode/attempt-001/evaluation.json",
+      "recorded": "2026-09-16"
     }
   ]
 }
