@@ -1,0 +1,45 @@
+{
+  "skill_name": "choco-python",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write a choco_python submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Defines build(instance) returning a pychoco Model and a dictionary holding exactly the declared output names, and never calls get_solver, solve or print.",
+        "Every instance-dependent quantity is read from the instance dict, and the evaluator accepts all six listed instances.",
+        "Every constraint the model states is posted with .post(); the evaluator does not report invalid_solution for a constraint that is visible in the source but absent from the model."
+      ]
+    },
+    {
+      "id": "no-operator-overloading",
+      "prompt": "Using this skill, write a choco_python submission for a problem whose reference states linear constraints over several variables, such as knapsack or diet, and check it with the repository evaluator.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Linear relations are stated with model.arithm, model.sum or model.scalar rather than with Python operators, which Choco never sees.",
+        "The method names carry no trailing underscore for sum, min and max, and do carry one for and_, or_ and not_.",
+        "The evaluator does not report execution_error for an AttributeError on a method name."
+      ]
+    },
+    {
+      "id": "objective-is-a-variable",
+      "prompt": "Using this skill, write a choco_python submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        "The third returned element is (\"minimize\", variable) or (\"maximize\", variable) where the variable is an IntVar bounded widely enough to hold every attainable objective value.",
+        "The objective variable is tied to the expression with a posted scalar or sum equality rather than being passed as an expression.",
+        "No bound is placed on the objective using a value the submission expects, and the evaluator reports accepted rather than suboptimal_solution."
+      ]
+    },
+    {
+      "id": "enumeration-over-declared-outputs",
+      "prompt": "Using this skill, write a choco_python submission for a satisfaction problem and check it with the repository evaluator at a solution limit above one.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Auxiliary variables are given tight bounds and functional definitions, so that fixing the declared outputs fixes them too and the search does not spend its budget on solutions that repeat the same declared outputs.",
+        "The submission does not attempt to enumerate or to block solutions itself; the runner owns that.",
+        "The evaluator reports accepted with solutions_checked equal to the requested limit, or fewer with the search exhausted."
+      ]
+    }
+  ]
+}
