@@ -66,6 +66,20 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    which readiness tests are required, so declaring them wrongly either hides a
    gap or demands a test that makes no sense. Use literal Booleans, and never
    advertise a capability that was not tested.
+
+   **`paradigms` is required, and it is not decorative.** The catalogue website
+   groups every verified model by it, so an integration that omits the key or
+   invents a tag either vanishes from the breakdown or silently splits a column
+   in two. Use one or more IDs from `solvers/paradigms.json`, which is the whole
+   vocabulary and describes what a model in each paradigm looks like. Tag the
+   paradigm a **submission is written in**, not the technology the backend
+   solves with: a CP-SAT integration is `["cp"]` even though its core is a SAT
+   solver, because a CP model is what the modeller writes. Declare several tags
+   only when submissions genuinely differ in kind. If nothing fits, add the
+   entry to `solvers/paradigms.json` in the same commit, saying in prose what a
+   model in that paradigm looks like — `tests/test_solvers.py` fails on a tag
+   that is not in the file.
+
    The loader parses **JSON syntax despite the `.yaml` extension**; emit a JSON
    object, not general YAML. Integration IDs allow lowercase letters, digits and
    underscores; skill names instead use hyphens. Keep those separate.

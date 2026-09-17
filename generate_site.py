@@ -20,12 +20,13 @@ DATASET_JSONL = Path("dcp-bench-open.jsonl")
 WEB_SRC = Path("web")
 OUTPUT_DIR = Path("site")
 GENERATED_DIR = Path("generated_models")
+SOLVERS_DIR = Path("solvers")
 
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 RAW_URL = "https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main"
 
 TITLE = "DCP-Bench Open"
-ASSET_VERSION = "catalogue-v8"
+ASSET_VERSION = "catalogue-v9"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -152,6 +153,9 @@ def badge(label: str, key: str = None) -> str:
 
 def page(title: str, prefix: str, active: str, body: str, description: str = "") -> str:
     nav = [f'<a class="brand" href="{prefix}index.html">Homepage</a>']
+    for key, label in (("paradigms", "Paradigms"),):
+        cls = ' class="active"' if active == key else ""
+        nav.append(f'<a{cls} href="{prefix}{key}.html">{label}</a>')
     nav.append(f'<span class="spacer"></span>')
     nav.append(
         f'<a class="gh" href="{REPO_URL}" target="_blank" rel="noopener">'
@@ -436,6 +440,9 @@ def generated_model_html(entry: dict) -> str:
         rows.append(
             f"<dt>Dataset version</dt><dd>{esc(generated_by['dataset_version'])}</dd>"
         )
+    chips = paradigm_chips(metrics.get("solver"), "../")
+    if chips:
+        rows.append(f"<dt>Paradigm</dt><dd>{chips}</dd>")
     rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}"
                 f"{evaluation_details(metrics)}</dd>")
 
@@ -509,6 +516,236 @@ def select_best_generated(gen_by_fw: dict) -> dict:
         if best is not None:
             out[fw] = best
     return out
+
+
+# --------------------------------------------------------------------------
+# Paradigms (solvers/paradigms.json + solvers/*/metadata.yaml)
+# --------------------------------------------------------------------------
+
+# Filled in by main(); the per-model renderers need them and threading them
+# through every call site would say less than it costs.
+INTEGRATIONS = {}
+PARADIGM_NAMES = {}
+
+
+def load_paradigm_vocabulary() -> list:
+    """The controlled list of paradigm tags, in the order they are documented."""
+    try:
+        return json.loads((SOLVERS_DIR / "paradigms.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+
+
+def load_integrations() -> dict:
+    """Solver integrations by ID. The metadata files are JSON despite the suffix."""
+    out = {}
+    for path in sorted(SOLVERS_DIR.glob("*/metadata.yaml")):
+        try:
+            out[path.parent.name] = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+    return out
+
+
+def verified_models(generated: dict, integrations: dict):
+    """Yield (problem, integration ID, entry) for the models this repository
+    verified itself.
+
+    The imported leaderboard models are left out on purpose: they carry another
+    evaluator's verdict and name no installed integration, so there is nothing
+    to read a paradigm off. Counting them would make the breakdown a guess.
+    """
+    for problem, by_framework in generated.items():
+        for entries in by_framework.values():
+            for entry in entries:
+                metrics = entry["metrics"]
+                solver = metrics.get("solver")
+                if metrics.get("verdict_source") == "container_evaluator" and solver in integrations:
+                    yield problem, solver, entry
+
+
+def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list) -> dict:
+    """Group verified models and the problems they cover by paradigm.
+
+    An integration may declare several paradigms, and then counts towards each
+    one, so the per-paradigm totals deliberately do not sum to the overall
+    total. A tag outside the vocabulary is still reported rather than dropped —
+    `tests/test_solvers.py` is what keeps one from appearing in the first place.
+    """
+    entries = {item["id"]: dict(item) for item in vocabulary}
+    models = {tag: 0 for tag in entries}
+    problems = {tag: set() for tag in entries}
+    integration_models = {}
+    integration_problems = {}
+    per_problem = {}
+
+    for problem, solver, _entry in verified_models(generated, integrations):
+        integration_models[solver] = integration_models.get(solver, 0) + 1
+        integration_problems.setdefault(solver, set()).add(problem)
+        for tag in integrations[solver].get("paradigms") or []:
+            if tag not in entries:
+                entries[tag] = {"id": tag, "name": tag, "summary":
+                                "Not described in solvers/paradigms.json."}
+                models[tag], problems[tag] = 0, set()
+            models[tag] += 1
+            problems[tag].add(problem)
+            per_problem.setdefault(problem, set()).add(tag)
+
+    for tag, item in entries.items():
+        item["models"] = models[tag]
+        item["problems"] = problems[tag]
+        item["integrations"] = sorted(
+            solver for solver, metadata in integrations.items()
+            if tag in (metadata.get("paradigms") or [])
+        )
+    ranked = sorted(entries.values(), key=lambda item: (-len(item["problems"]), item["id"]))
+    return {
+        "paradigms": ranked,
+        "per_problem": {problem: sorted(tags) for problem, tags in per_problem.items()},
+        "integration_models": integration_models,
+        "integration_problems": {k: len(v) for k, v in integration_problems.items()},
+    }
+
+
+def paradigm_chips(solver_id: str, prefix: str) -> str:
+    """The paradigms an integration declares, linked to their description."""
+    metadata = INTEGRATIONS.get(solver_id) or {}
+    links = [
+        f'<a href="{prefix}paradigms.html#{esc(tag)}">{esc(PARADIGM_NAMES.get(tag, tag))}</a>'
+        for tag in metadata.get("paradigms") or []
+    ]
+    return " &middot; ".join(links)
+
+
+def coverage_bar(count: int, total: int) -> str:
+    share = 100.0 * count / max(1, total)
+    return (
+        f'<div class="bar-cell"><div class="bar"><span style="width:{share:.0f}%"></span></div>'
+        f"<span>{count} of {total}</span></div>"
+    )
+
+
+def paradigm_overlap_matrix(ranked: list) -> str:
+    """How many problems each pair of paradigms has in common.
+
+    The diagonal is the paradigm's own total, so a row reads as "of the N
+    problems modelled in CP, M also have a MIP model".
+    """
+    covered = [item for item in ranked if item["problems"]]
+    if len(covered) < 2:
+        return ""
+    rows = []
+    for item in covered:
+        cells = []
+        for other in covered:
+            shared = len(item["problems"] & other["problems"])
+            if item["id"] == other["id"]:
+                css = "self"
+            else:
+                css = "yes" if shared else "no"
+            cells.append(f'<td class="{css}">{shared}</td>')
+        rows.append(
+            f'<tr><th scope="row" class="row-label">{esc(item["name"])}</th>'
+            f'{"".join(cells)}</tr>'
+        )
+    header = "".join(f'<th>{esc(item["id"])}</th>' for item in covered)
+    return (
+        '<div class="matrix-wrap"><table class="matrix"><thead><tr><th>paradigm</th>'
+        f"{header}</tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
+    )
+
+
+def build_paradigms(problems: list, breakdown: dict) -> None:
+    """The paradigm breakdown: what kinds of model this benchmark actually holds."""
+    ranked = breakdown["paradigms"]
+    total_problems = len(problems)
+    covered = breakdown["per_problem"]
+    multi = sum(1 for tags in covered.values() if len(tags) > 1)
+    verified = sum(breakdown["integration_models"].values())
+    with_integration = [item for item in ranked if item["integrations"]]
+
+    stats = "".join(
+        f'<div class="stat"><div class="num">{num}</div><div class="lbl">{label}</div></div>'
+        for num, label in (
+            (len(with_integration), "paradigms with an integration"),
+            (len(breakdown["integration_models"]), "solver integrations"),
+            (f"{verified:,}", "verified models"),
+            (f"{len(covered)} <span class=\"of\">of {total_problems}</span>", "problems covered"),
+            (multi, "problems in 2+ paradigms"),
+        )
+    )
+
+    coverage_rows = "".join(
+        f'<tr><td><a href="#{esc(item["id"])}">{esc(item["name"])}</a></td>'
+        f'<td class="mono">{esc(item["id"])}</td>'
+        f'<td class="num">{len(item["integrations"])}</td>'
+        f'<td>{coverage_bar(len(item["problems"]), total_problems)}</td>'
+        f'<td class="num">{item["models"]}</td></tr>'
+        for item in ranked
+    )
+
+    details = []
+    for item in ranked:
+        if item["integrations"]:
+            integration_rows = "".join(
+                f'<tr><td>{esc(INTEGRATIONS[solver].get("name", solver))}</td>'
+                f'<td class="mono">{esc(solver)}</td>'
+                f'<td>{esc(INTEGRATIONS[solver].get("language", ""))}</td>'
+                f'<td class="num">{breakdown["integration_problems"].get(solver, 0)}</td>'
+                f'<td class="num">{breakdown["integration_models"].get(solver, 0)}</td></tr>'
+                for solver in item["integrations"]
+            )
+            table = (
+                '<div class="matrix-wrap">'
+                '<table class="plain"><thead><tr><th>Integration</th><th>ID</th><th>Language</th>'
+                '<th class="num">Problems</th><th class="num">Models</th></tr></thead>'
+                f"<tbody>{integration_rows}</tbody></table></div>"
+            )
+            browse = (
+                f'<p><a class="btn" href="index.html?paradigm={esc(item["id"])}">'
+                f'Browse the {len(item["problems"])} problems covered by '
+                f'{esc(item["name"].lower())} &rarr;</a></p>'
+            )
+        else:
+            table = ('<p class="desc">No integration in this repository targets this paradigm yet. '
+                     'Adding one is described in <code>skills/solver-setup</code>.</p>')
+            browse = ""
+        details.append(
+            f'<div class="section" id="{esc(item["id"])}"><h2>{esc(item["name"])} '
+            f'<span class="badge plain">{esc(item["id"])}</span></h2>'
+            f'<p class="desc">{esc(item["summary"])}</p>{table}{browse}</div>'
+        )
+
+    body = f"""
+    <p class="desc lede">Every solver integration declares the modelling paradigm or
+    paradigms a submission for it is written in. This page groups the benchmark by
+    those tags: which kinds of model it already holds, how much of the catalogue each
+    one reaches, and where two paradigms meet on the same problem. The vocabulary
+    lives in <code>solvers/paradigms.json</code>.</p>
+    <div class="stat-row">{stats}</div>
+    <div class="section"><h2>Coverage by paradigm</h2>
+      <p class="desc">Counted over the {verified:,} models this repository's own evaluator
+      accepted. The imported leaderboard models are excluded: they name no installed
+      integration, so there is no paradigm to attribute them to. An integration
+      declaring two paradigms counts towards both, so these rows need not add up.</p>
+      <div class="matrix-wrap">
+      <table class="plain"><thead><tr><th>Paradigm</th><th>ID</th>
+      <th class="num">Integrations</th><th>Problems covered</th>
+      <th class="num">Models</th></tr></thead><tbody>{coverage_rows}</tbody></table></div></div>
+    <div class="section"><h2>Where paradigms overlap</h2>
+      <p class="desc">{multi} of the {len(covered)} covered problems carry models in more than
+      one paradigm. Those are the ones worth reading side by side: the same combinatorial
+      structure once as propagated constraints, once as linear inequalities, once as
+      rules. Each cell counts the problems the two paradigms share; the diagonal is the
+      paradigm's own total.</p>
+      {paradigm_overlap_matrix(ranked)}</div>
+    {"".join(details)}
+    """
+    (OUTPUT_DIR / "paradigms.html").write_text(
+        page("Paradigms", "", "paradigms", body,
+             "How DCP-Bench Open's verified models break down by modelling paradigm."),
+        encoding="utf-8",
+    )
 
 
 # --------------------------------------------------------------------------
@@ -650,8 +887,13 @@ def coverage_matrix(problems: list, frameworks: list) -> str:
 # --------------------------------------------------------------------------
 
 
-def build_index(problems: list, generated: dict) -> None:
+def build_index(problems: list, generated: dict, breakdown: dict) -> None:
     """Build the problem catalogue without the old summary-stat dashboard."""
+    paradigm_options = "".join(
+        f'<label><input type="checkbox" data-filter-group="paradigm" value="{esc(item["id"])}">'
+        f'{esc(item["name"])}</label>'
+        for item in breakdown["paradigms"] if item["problems"]
+    )
     generated_frameworks = sorted(
         {
             framework
@@ -688,6 +930,12 @@ def build_index(problems: list, generated: dict) -> None:
           <label><input type="checkbox" data-filter-group="instances" value="none">No instances</label>
           <label><input type="checkbox" data-filter-group="instances" value="single">Single</label>
           <label><input type="checkbox" data-filter-group="instances" value="multiple">Multiple</label>
+        </div>
+      </div>
+      <div class="filter-menu" data-filter-menu="paradigm">
+        <button type="button" class="filter-trigger" id="filter-paradigm" aria-expanded="false">Paradigm: All</button>
+        <div class="filter-options" role="group" aria-label="Filter by modelling paradigm">
+          {paradigm_options}
         </div>
       </div>
       <div class="filter-menu" data-filter-menu="framework">
@@ -1097,7 +1345,15 @@ def main() -> None:
     problems_list = problems
 
     generated = load_generated_models()
-    build_index(problems, generated)
+
+    global INTEGRATIONS, PARADIGM_NAMES
+    INTEGRATIONS = load_integrations()
+    vocabulary = load_paradigm_vocabulary()
+    PARADIGM_NAMES = {item["id"]: item["name"] for item in vocabulary}
+    breakdown = paradigm_breakdown(generated, INTEGRATIONS, vocabulary)
+
+    build_index(problems, generated, breakdown)
+    build_paradigms(problems, breakdown)
     for idx, p in enumerate(problems):
         build_problem_page(p, p["meta"], idx, len(problems), generated)
 
@@ -1113,6 +1369,7 @@ def main() -> None:
                 "instances": len(p["instances"]),
                 "generated": sum(len(v) for v in generated.get(p["id"], {}).values()),
                 "generatedFrameworks": sorted(select_best_generated(generated.get(p["id"], {})).keys()),
+                "paradigms": breakdown["per_problem"].get(p["id"], []),
                 "evalBadge": problem_eval_status(generated.get(p["id"], {})),
             }
             for p in problems

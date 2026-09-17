@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cp",
+    "name": "Constraint programming",
+    "summary": "Variables range over finite domains and the model states relations between them, often through global constraints such as all-different, element or cumulative. The solver alternates search with propagation, using each constraint to prune the domains of the others."
+  },
+  {
+    "id": "clp",
+    "name": "Constraint logic programming",
+    "summary": "Constraint solving embedded in a logic-programming host, so a model is a predicate and its constraints are goals posted over finite-domain variables. The search is a labelling strategy the modeller writes, which makes variable and value ordering part of the model rather than a solver setting."
+  },
+  {
+    "id": "sat",
+    "name": "Boolean satisfiability",
+    "summary": "The model is a propositional formula, usually in conjunctive normal form. There are no integers and no arithmetic: any counting, ordering or numeric bound has to be encoded into Boolean variables and clauses by hand, and the choice of encoding largely decides how well it solves."
+  },
+  {
+    "id": "smt",
+    "name": "Satisfiability modulo theories",
+    "summary": "A first-order formula interpreted over built-in theories such as linear integer arithmetic. The Boolean structure of SAT is kept, but arithmetic is written directly rather than encoded, so the model reads closer to the problem statement."
+  },
+  {
+    "id": "mip",
+    "name": "Mixed integer programming",
+    "summary": "Every constraint is a linear inequality over real and integer variables, and the objective is linear too. Anything that is not linear — a disjunction, an all-different, a product of two variables — must be reformulated, typically by introducing binary variables and big-M bounds."
+  },
+  {
+    "id": "asp",
+    "name": "Answer set programming",
+    "summary": "The model is a logic program of rules that a grounder expands over the instance data before a solver searches for its stable models. Choice rules generate candidate answers and integrity constraints reject the ones that break the problem, so how much a rule grounds to is a modelling concern in its own right."
+  }
+]

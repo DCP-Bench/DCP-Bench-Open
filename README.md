@@ -58,6 +58,13 @@ python -m http.server 8000 --directory site
 
 Then open <http://localhost:8000/>. The hosted version is the [interactive catalogue](https://dcp-bench.github.io/DCP-Bench-Open/).
 
+Alongside the problem catalogue, the
+[paradigm breakdown](https://dcp-bench.github.io/DCP-Bench-Open/paradigms.html)
+groups the verified models by the kind of model they are — constraint
+programming, MIP, SMT, ASP and so on — with how much of the catalogue each
+paradigm reaches and which problems have been modelled in more than one of
+them. Those are the problems worth reading side by side.
+
 ## Repository Structure
 
 The benchmark itself:
@@ -73,7 +80,7 @@ The evaluation framework:
 | Path | What it holds |
 | --- | --- |
 | `evaluation/` | The verifier. Runs a candidate in a container and checks its answers against the reference model. See [evaluation/README.md](evaluation/README.md). |
-| `solvers/` | One directory per framework integration: image, runner, readiness checks, and the modelling skill for that framework. |
+| `solvers/` | One directory per framework integration: image, runner, readiness checks, and the modelling skill for that framework. Each one declares the modelling paradigm its submissions are written in, drawn from the vocabulary in [solvers/paradigms.json](solvers/paradigms.json). |
 | `runner/` | The protocol that runs inside those images. |
 | `tests/` | Unit tests, plus container tests behind `DCP_CONTAINER_TESTS=1`. |
 

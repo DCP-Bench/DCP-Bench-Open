@@ -67,6 +67,7 @@
       type: { id: "filter-type", name: "Type" },
       source: { id: "filter-source", name: "Source" },
       instances: { id: "filter-instances", name: "Instances" },
+      paradigm: { id: "filter-paradigm", name: "Paradigm" },
       framework: { id: "filter-framework", name: "Generated framework" }
     };
     var config = labels[group];
@@ -203,6 +204,7 @@
     var types = selectedFilterValues("type");
     var sources = selectedFilterValues("source");
     var instances = selectedFilterValues("instances");
+    var paradigms = selectedFilterValues("paradigm");
     var frameworks = selectedFilterValues("framework");
 
     var filtered = data.filter(function (problem) {
@@ -211,6 +213,13 @@
       if (instances.length) {
         var instanceType = problem.instances === 0 ? "none" : (problem.instances === 1 ? "single" : "multiple");
         if (instances.indexOf(instanceType) === -1) return false;
+      }
+      if (paradigms.length) {
+        var problemParadigms = problem.paradigms || [];
+        var matchesParadigm = paradigms.some(function (paradigm) {
+          return problemParadigms.indexOf(paradigm) !== -1;
+        });
+        if (!matchesParadigm) return false;
       }
       if (frameworks.length && frameworks.indexOf("any") === -1) {
         var problemFrameworks = problem.generatedFrameworks || [];
@@ -245,9 +254,27 @@
     }
   }
 
+  /* Let another page hand the catalogue a filter, as paradigms.html does with
+     index.html?paradigm=mip. Unknown values simply match no checkbox. */
+  function applyQueryFilters() {
+    if (!window.URLSearchParams) return;
+    var params = new URLSearchParams(window.location.search);
+    ["type", "source", "instances", "paradigm"].forEach(function (group) {
+      var values = params.getAll(group).join(",").split(",");
+      values.forEach(function (value) {
+        if (!value) return;
+        var input = document.querySelector('input[data-filter-group="' + group +
+          '"][value="' + value.replace(/"/g, "") + '"]');
+        if (input) input.checked = true;
+      });
+      updateFilterButton(group);
+    });
+  }
+
   function initIndex() {
     if (!window.DCP_DATA) return;
     initFilterMenus();
+    applyQueryFilters();
     var search = document.getElementById("filter-q");
     if (search) search.addEventListener("input", renderCards);
     var sort = document.getElementById("sort-by");
@@ -270,7 +297,7 @@
         var trigger = menu.querySelector(".filter-trigger");
         if (trigger) trigger.setAttribute("aria-expanded", "false");
       });
-      ["type", "source", "instances", "framework"].forEach(updateFilterButton);
+      ["type", "source", "instances", "paradigm", "framework"].forEach(updateFilterButton);
       sortKey = "name";
       sortDirection = 1;
       if (sort) sort.value = "name";

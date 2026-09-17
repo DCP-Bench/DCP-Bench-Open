@@ -27,6 +27,48 @@ def build(instance):
 '''
 
 
+class MetadataTests(unittest.TestCase):
+    """What every integration declares about itself, checked without Docker.
+
+    `paradigms` is how the catalogue website groups integrations, and a tag
+    outside the vocabulary would not fail anywhere: it would quietly split a
+    column into two. So the vocabulary is a file, and this is what holds the
+    integrations to it.
+    """
+
+    def setUp(self):
+        self.vocabulary = json.loads(
+            (ROOT / "solvers/paradigms.json").read_text(encoding="utf-8"))
+        self.integrations = {
+            path.parent.name: json.loads(path.read_text(encoding="utf-8"))
+            for path in sorted((ROOT / "solvers").glob("*/metadata.yaml"))
+        }
+
+    def test_paradigm_vocabulary_is_well_formed(self):
+        identifiers = [entry["id"] for entry in self.vocabulary]
+        self.assertTrue(identifiers)
+        self.assertCountEqual(identifiers, set(identifiers), "duplicate paradigm ID")
+        for entry in self.vocabulary:
+            with self.subTest(paradigm=entry.get("id")):
+                self.assertEqual(set(entry), {"id", "name", "summary"})
+                # The website prints the name and summary verbatim.
+                self.assertRegex(entry["id"], r"^[a-z][a-z0-9_]*$")
+                self.assertTrue(entry["name"].strip())
+                self.assertTrue(entry["summary"].strip().endswith("."))
+
+    def test_every_integration_declares_known_paradigms(self):
+        known = {entry["id"] for entry in self.vocabulary}
+        self.assertTrue(self.integrations, "no integrations found under solvers/")
+        for solver, metadata in self.integrations.items():
+            with self.subTest(solver=solver):
+                paradigms = metadata.get("paradigms")
+                self.assertIsInstance(paradigms, list, "declare paradigms as a list")
+                self.assertTrue(paradigms, "declare at least one paradigm")
+                self.assertCountEqual(paradigms, set(paradigms), "repeated paradigm")
+                for tag in paradigms:
+                    self.assertIn(tag, known, f"add {tag!r} to solvers/paradigms.json first")
+
+
 @unittest.skipUnless(os.environ.get("DCP_CONTAINER_TESTS") == "1", "Set DCP_CONTAINER_TESTS=1 after building images")
 class ContainerTests(unittest.TestCase):
     def test_unconstrained_outputs_and_float_rejection(self):
