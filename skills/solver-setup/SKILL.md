@@ -75,7 +75,9 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    paradigm a **submission is written in**, not the technology the backend
    solves with: a CP-SAT integration is `["cp"]` even though its core is a SAT
    solver, because a CP model is what the modeller writes. Declare several tags
-   only when submissions genuinely differ in kind. If nothing fits, add the
+   when a submission genuinely belongs to more than one — `swipl_clpfd` is
+   `["cp", "clp"]`, because a CLP(FD) model is a constraint model and someone
+   looking for a CP encoding should be shown it. If nothing fits, add the
    entry to `solvers/paradigms.json` in the same commit, saying in prose what a
    model in that paradigm looks like — `tests/test_solvers.py` fails on a tag
    that is not in the file.
