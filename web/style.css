@@ -86,22 +86,6 @@ nav .gh:hover { background: rgba(255, 255, 255, 0.15); text-decoration: none; }
 /* ---------- Layout ---------- */
 main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
 
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-  margin-bottom: 28px;
-}
-.stat {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  box-shadow: var(--shadow);
-}
-.stat .num { font-size: 1.6rem; font-weight: 700; }
-.stat .lbl { color: var(--muted); font-size: 0.85rem; }
-
 /* ---------- Filters ---------- */
 .controls {
   display: flex;
@@ -185,14 +169,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
   padding-bottom: 8px;
   border-bottom: 2px solid var(--border);
 }
-.section > .desc, p.lede {
-  color: var(--muted);
-  font-size: 0.92rem;
-  margin: 0 0 14px;
-  max-width: 76ch;
-}
-p.lede { font-size: 1rem; }
-.stat .num .of { font-size: 1rem; font-weight: 400; color: var(--muted); }
 
 /* A share of the catalogue, shown beside the count it belongs to. */
 .bar-cell { display: flex; align-items: center; gap: 10px; min-width: 170px; }
@@ -222,10 +198,8 @@ table.matrix th { background: var(--card); font-weight: 600; }
 table.matrix td.cell-id { text-align: left; font-family: var(--mono); font-size: 0.8rem; }
 table.matrix td.cell-id a { color: var(--text); }
 table.matrix td.cell-cat { text-align: left; }
-table.matrix th.row-label { text-align: left; font-weight: 600; white-space: nowrap; }
 table.matrix td.yes { background: #dcfce7; color: #166534; font-weight: 700; }
 table.matrix td.no { color: #d1d5db; }
-table.matrix td.self { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 
 /* ---------- Problem page ---------- */
 .card-box {
@@ -712,8 +686,6 @@ footer {
   padding: 24px 20px 40px;
   text-align: center;
 }
-
-.hidden { display: none !important; }
 
 @media (max-width: 640px) {
   .hero h1 { font-size: 1.5rem; }

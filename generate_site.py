@@ -523,55 +523,12 @@ def coverage_bar(count: int, total: int) -> str:
     )
 
 
-def paradigm_overlap_matrix(ranked: list) -> str:
-    """How many problems each pair of paradigms has in common.
-
-    The diagonal is the paradigm's own total, so a row reads as "of the N
-    problems modelled in CP, M also have a MIP model".
-    """
-    covered = [item for item in ranked if item["problems"]]
-    if len(covered) < 2:
-        return ""
-    rows = []
-    for item in covered:
-        cells = []
-        for other in covered:
-            shared = len(item["problems"] & other["problems"])
-            if item["id"] == other["id"]:
-                css = "self"
-            else:
-                css = "yes" if shared else "no"
-            cells.append(f'<td class="{css}">{shared}</td>')
-        rows.append(
-            f'<tr><th scope="row" class="row-label">{esc(item["name"])}</th>'
-            f'{"".join(cells)}</tr>'
-        )
-    header = "".join(f'<th>{esc(item["id"])}</th>' for item in covered)
-    return (
-        '<div class="matrix-wrap"><table class="matrix"><thead><tr><th>paradigm</th>'
-        f"{header}</tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
-    )
 
 
 def build_paradigms(problems: list, breakdown: dict) -> None:
-    """The paradigm breakdown: what kinds of model this benchmark actually holds."""
+    """The paradigm breakdown: coverage, then the integrations behind each row."""
     ranked = breakdown["paradigms"]
     total_problems = len(problems)
-    covered = breakdown["per_problem"]
-    multi = sum(1 for tags in covered.values() if len(tags) > 1)
-    verified = sum(breakdown["integration_models"].values())
-    with_integration = [item for item in ranked if item["integrations"]]
-
-    stats = "".join(
-        f'<div class="stat"><div class="num">{num}</div><div class="lbl">{label}</div></div>'
-        for num, label in (
-            (len(with_integration), "paradigms with an integration"),
-            (len(breakdown["integration_models"]), "solver integrations"),
-            (f"{verified:,}", "verified models"),
-            (f"{len(covered)} <span class=\"of\">of {total_problems}</span>", "problems covered"),
-            (multi, "problems in 2+ paradigms"),
-        )
-    )
 
     coverage_rows = "".join(
         f'<tr><td><a href="#{esc(item["id"])}">{esc(item["name"])}</a></td>'
@@ -584,59 +541,34 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
 
     details = []
     for item in ranked:
-        if item["integrations"]:
-            integration_rows = "".join(
-                f'<tr><td>{esc(INTEGRATIONS[solver].get("name", solver))}</td>'
-                f'<td class="mono">{esc(solver)}</td>'
-                f'<td>{esc(INTEGRATIONS[solver].get("language", ""))}</td>'
-                f'<td class="num">{breakdown["integration_problems"].get(solver, 0)}</td>'
-                f'<td class="num">{breakdown["integration_models"].get(solver, 0)}</td></tr>'
-                for solver in item["integrations"]
-            )
-            table = (
-                '<div class="matrix-wrap">'
-                '<table class="plain"><thead><tr><th>Integration</th><th>ID</th><th>Language</th>'
-                '<th class="num">Problems</th><th class="num">Models</th></tr></thead>'
-                f"<tbody>{integration_rows}</tbody></table></div>"
-            )
-            browse = (
-                f'<p><a class="btn" href="index.html?paradigm={esc(item["id"])}">'
-                f'Browse the {len(item["problems"])} problems covered by '
-                f'{esc(item["name"].lower())} &rarr;</a></p>'
-            )
-        else:
-            table = ('<p class="desc">No integration in this repository targets this paradigm yet. '
-                     'Adding one is described in <code>skills/solver-setup</code>.</p>')
-            browse = ""
+        # A paradigm with no integration is already a zero row in the table
+        # above; a section holding an empty table would say nothing more.
+        if not item["integrations"]:
+            continue
+        integration_rows = "".join(
+            f'<tr><td>{esc(INTEGRATIONS[solver].get("name", solver))}</td>'
+            f'<td class="mono">{esc(solver)}</td>'
+            f'<td>{esc(INTEGRATIONS[solver].get("language", ""))}</td>'
+            f'<td class="num">{breakdown["integration_problems"].get(solver, 0)}</td></tr>'
+            for solver in item["integrations"]
+        )
         details.append(
             f'<div class="section" id="{esc(item["id"])}"><h2>{esc(item["name"])} '
             f'<span class="badge plain">{esc(item["id"])}</span></h2>'
-            f'<p class="desc">{esc(item["summary"])}</p>{table}{browse}</div>'
+            '<div class="matrix-wrap">'
+            '<table class="plain"><thead><tr><th>Integration</th><th>ID</th>'
+            '<th>Language</th><th class="num">Problems</th></tr></thead>'
+            f"<tbody>{integration_rows}</tbody></table></div>"
+            f'<p><a class="btn" href="index.html?paradigm={esc(item["id"])}">'
+            f'Browse {len(item["problems"])} problems &rarr;</a></p></div>'
         )
 
     body = f"""
-    <p class="desc lede">Every solver integration declares the modelling paradigm or
-    paradigms a submission for it is written in. This page groups the benchmark by
-    those tags: which kinds of model it already holds, how much of the catalogue each
-    one reaches, and where two paradigms meet on the same problem. The vocabulary
-    lives in <code>solvers/paradigms.json</code>.</p>
-    <div class="stat-row">{stats}</div>
     <div class="section"><h2>Coverage by paradigm</h2>
-      <p class="desc">Counted over the {verified:,} models this repository's own evaluator
-      accepted. The imported leaderboard models are excluded: they name no installed
-      integration, so there is no paradigm to attribute them to. An integration
-      declaring two paradigms counts towards both, so these rows need not add up.</p>
       <div class="matrix-wrap">
       <table class="plain"><thead><tr><th>Paradigm</th><th>ID</th>
       <th class="num">Integrations</th><th>Problems covered</th>
       <th class="num">Models</th></tr></thead><tbody>{coverage_rows}</tbody></table></div></div>
-    <div class="section"><h2>Where paradigms overlap</h2>
-      <p class="desc">{multi} of the {len(covered)} covered problems carry models in more than
-      one paradigm. Those are the ones worth reading side by side: the same combinatorial
-      structure once as propagated constraints, once as linear inequalities, once as
-      rules. Each cell counts the problems the two paradigms share; the diagonal is the
-      paradigm's own total.</p>
-      {paradigm_overlap_matrix(ranked)}</div>
     {"".join(details)}
     """
     (OUTPUT_DIR / "paradigms.html").write_text(

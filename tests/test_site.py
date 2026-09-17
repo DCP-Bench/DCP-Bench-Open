@@ -61,7 +61,6 @@ class ParadigmBreakdownTests(unittest.TestCase):
         self.assertEqual(self.by_id["sat"]["integrations"], [])
         self.assertEqual(self.by_id["sat"]["models"], 0)
         self.assertEqual(self.by_id["sat"]["problems"], set())
-        self.assertNotIn("sat", generate_site.paradigm_overlap_matrix(self.breakdown["paradigms"]))
 
     def test_paradigms_are_ranked_by_how_much_of_the_catalogue_they_cover(self):
         self.assertEqual([item["id"] for item in self.breakdown["paradigms"]],
