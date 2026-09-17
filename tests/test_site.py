@@ -1,12 +1,12 @@
-"""The catalogue's paradigm breakdown. No Docker, no dataset.
+"""What the catalogue build computes, rather than how it looks. No Docker.
 
-An integration may declare more than one paradigm, and none in this repository
-does yet, so the site build never meets that case on real data. This is where it
-is exercised, along with the two decisions the page rests on: leaderboard
-imports are excluded, and a documented paradigm with no integration still gets
-a row.
+Two things are covered: the paradigm breakdown, including the decisions the page
+rests on — leaderboard imports are excluded, a documented paradigm with no
+integration still gets a row, and an integration declaring two paradigms counts
+towards both — and the link each model carries back to its source file.
 """
 import unittest
+from pathlib import Path
 
 import generate_site
 
@@ -80,6 +80,39 @@ class ParadigmBreakdownTests(unittest.TestCase):
         rows = {item["id"]: item for item in breakdown["paradigms"]}
         self.assertEqual(rows["nonesuch"]["models"], 1)
         self.assertIn("paradigms.json", rows["nonesuch"]["summary"])
+
+
+class ModelLinkTests(unittest.TestCase):
+    """The "Model file (GitHub)" link, which has to name a directory that exists.
+
+    The directory is the integration ID (`cpmpy_python`); the framework field
+    holds a display name (`CPMpy — Python`). Deriving the first from the second
+    is what once pointed 606 of these links at `cpmpy — python/`.
+    """
+
+    def test_the_link_names_the_directory_the_model_lives_in(self):
+        entry = {
+            "submission": "attempt-001", "directory": "cpmpy_python",
+            "model_file": "model.py", "code": "",
+            "metrics": {"problem": "queens", "solver": "cpmpy_python",
+                        "framework": "CPMpy — Python", "verdict": {}},
+        }
+        rendered = generate_site.generated_model_html(entry)
+        self.assertIn("generated_models/queens/cpmpy_python/attempt-001/model.py", rendered)
+        self.assertNotIn("CPMpy", rendered)
+
+    def test_every_model_in_the_repository_is_linked_to_a_real_file(self):
+        root = Path(generate_site.GENERATED_DIR)
+        checked = 0
+        for problem, by_framework in generate_site.load_generated_models().items():
+            for entries in by_framework.values():
+                for entry in entries:
+                    if not entry["model_file"]:
+                        continue
+                    path = root / problem / entry["directory"] / entry["submission"] / entry["model_file"]
+                    self.assertTrue(path.is_file(), path)
+                    checked += 1
+        self.assertGreater(checked, 1000, "the corpus should not have shrunk to nothing")
 
 
 class RealRepositoryTests(unittest.TestCase):

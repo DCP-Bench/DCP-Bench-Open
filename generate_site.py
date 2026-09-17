@@ -250,6 +250,7 @@ def load_generated_models() -> dict:
                         code = ""
                 entries.append({
                     "submission": sub_dir.name,
+                    "directory": fw_dir.name,
                     "metrics": metrics,
                     "model_file": model_file,
                     "code": code,
@@ -279,11 +280,6 @@ def normalize_badge(metrics: dict) -> str:
         return "solution_valid"
     return badge
 
-
-def framework_dir(fw: str) -> str:
-    # Legacy framework labels map onto their directory; an integration id such as
-    # z3_python is already the directory name.
-    return {"CPMpy": "cpmpy", "MiniZinc": "minizinc", "OR-Tools": "ortools"}.get(fw, fw.lower())
 
 
 def generated_model_card(entry: dict) -> str:
@@ -322,7 +318,7 @@ def generated_model_card(entry: dict) -> str:
         links.append(f'<a href="{esc(src["leaderboard"])}" target="_blank" rel="noopener">Leaderboard</a>')
     if entry["model_file"]:
         links.append(
-            f'<a href="{REPO_URL}/blob/main/generated_models/{esc(m.get("problem", ""))}/{esc(framework_dir(m.get("framework", "")))}/{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" rel="noopener">Model file (GitHub)</a>'
+            f'<a href="{REPO_URL}/blob/main/generated_models/{esc(m.get("problem", ""))}/{esc(entry["directory"])}/{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" rel="noopener">Model file (GitHub)</a>'
         )
     if src.get("submission_file"):
         links.append(f'<a href="{esc(src["submission_file"])}" target="_blank" rel="noopener">Submission file</a>')
@@ -454,7 +450,7 @@ def generated_model_html(entry: dict) -> str:
     if entry["model_file"]:
         links.append(
             f'<a href="{REPO_URL}/blob/main/generated_models/'
-            f'{esc(metrics.get("problem", ""))}/{esc(framework_dir(metrics.get("framework", "")))}/'
+            f'{esc(metrics.get("problem", ""))}/{esc(entry["directory"])}/'
             f'{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" '
             f'rel="noopener">Model file (GitHub)</a>'
         )
