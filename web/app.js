@@ -1,20 +1,13 @@
 (function () {
   "use strict";
 
-  var EVAL_STATUS = {
-    optimal: { color: "#16a34a", label: "valid · optimal" },
-    valid: { color: "#2563eb", label: "valid" },
-    no_valid: { color: "#dc2626", label: "no valid model" },
-    no_models: { color: "#6b7280", label: "no models" }
-  };
   var viewMode = "grid";
   var sortKey = "name";
   var sortDirection = 1;
 
-  function pill(label, color) {
+  function pill(label) {
     var el = document.createElement("span");
-    el.className = color ? "badge" : "badge plain";
-    if (color) el.style.background = color;
+    el.className = "badge plain";
     el.textContent = label;
     return el;
   }
@@ -23,7 +16,6 @@
     if (key === "type") return problem.type || "satisfaction";
     if (key === "source") return problem.source || "";
     if (key === "instances") return problem.instances || 0;
-    if (key === "generated") return problem.generated || 0;
     return problem.id || "";
   }
 
@@ -142,7 +134,7 @@
 
     var meta = document.createElement("div");
     meta.className = "meta";
-    meta.appendChild(pill(problem.type === "optimization" ? "Optimization" : "Satisfaction", null));
+    meta.appendChild(pill(problem.type === "optimization" ? "Optimization" : "Satisfaction"));
 
     card.appendChild(h3);
     card.appendChild(desc);

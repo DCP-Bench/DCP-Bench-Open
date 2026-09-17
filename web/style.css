@@ -92,31 +92,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
   gap: 12px;
   margin-bottom: 28px;
 }
-.stat-groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 14px;
-  margin-bottom: 28px;
-}
-.stat-group {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  box-shadow: var(--shadow);
-}
-.stat-group-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-.stat-group .stat-row {
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  margin-bottom: 0;
-}
 .stat {
   background: var(--card);
   border: 1px solid var(--border);
@@ -182,18 +157,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
   flex: 1;
 }
 .card .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.card .meta .muted { color: var(--muted); font-size: 0.82rem; }
-.card .card-foot {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-size: 0.82rem;
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
-}
-.card .card-foot .muted { color: var(--muted); }
-.card .card-foot .badge { margin-left: auto; }
 
 /* ---------- Badges ---------- */
 .badge {
@@ -265,10 +228,6 @@ table.matrix td.no { color: #d1d5db; }
 table.matrix td.self { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 
 /* ---------- Problem page ---------- */
-.breadcrumbs { font-size: 0.88rem; color: var(--muted); margin-bottom: 14px; }
-.problem-title { margin: 0 0 10px; font-size: 1.7rem; }
-.tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
-
 .card-box {
   background: var(--card);
   border: 1px solid var(--border);
@@ -390,20 +349,6 @@ table.matrix td.self { background: var(--accent-soft); color: var(--accent); fon
 .tab-pane.active { display: block; }
 
 /* ---------- Copy buttons ---------- */
-button.copy-mini {
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  border-radius: 6px;
-  padding: 2px 10px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  margin-right: 10px;
-  font-family: var(--font);
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-}
-button.copy-mini:hover { color: var(--accent); border-color: var(--accent); }
-button.copy-mini.copied { background: #dcfce7; color: #166534; border-color: #16a34a; }
 .code-head button.copied { background: #16a34a; color: #fff; }
 
 /* ---------- Code ---------- */
@@ -529,57 +474,7 @@ details.instance .tab-pane { padding: 14px 16px; }
   border-bottom: 2px solid var(--border);
 }
 
-/* ---------- Generated model cards ---------- */
-.model-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
-  padding: 14px 18px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow);
-}
-.model-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-.model-card-title {
-  font-weight: 600;
-  font-family: var(--mono);
-  font-size: 0.98rem;
-}
-.model-card .muted { color: var(--muted); font-size: 0.85rem; }
-.model-card-links { margin-top: 10px; font-size: 0.85rem; }
-details.gmodel {
-  margin-top: 10px;
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
-}
-details.gmodel summary {
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.83rem;
-  color: var(--muted);
-  user-select: none;
-}
-details.gmodel summary:hover { color: var(--accent); }
-details.gmodel pre { max-height: 420px; overflow: auto; margin-top: 10px; }
-.verdict-legend .badge { margin-right: 6px; }
 .tab-group .tab-group { margin-top: 4px; }
-
-.gen-fw-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 2px;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.92rem;
-}
-.gen-fw-item:last-child { border-bottom: none; }
-.gen-fw-item .mono { font-family: var(--mono); font-size: 0.82rem; }
-.gen-fw-item .gen-fw-badge { margin-left: auto; }
 
 .btn {
   display: inline-block;
@@ -592,16 +487,7 @@ details.gmodel pre { max-height: 420px; overflow: auto; margin-top: 10px; }
 }
 .btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
 
-/* ---------- Tables (stats) ---------- */
-.chart {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  box-shadow: var(--shadow);
-  margin-bottom: 18px;
-}
-.chart svg text { font-family: var(--font); }
+/* ---------- Tables ---------- */
 
 table.plain {
   border-collapse: collapse;
@@ -803,7 +689,6 @@ table.plain th, table.plain td {
 }
 .list-sort:hover { color: var(--accent); }
 .empty-state { padding: 18px 0; }
-.back-link { display: inline-block; margin-bottom: 18px; font-size: 0.9rem; }
 
 @media (max-width: 720px) {
   .results-toolbar { align-items: stretch; flex-direction: column; }

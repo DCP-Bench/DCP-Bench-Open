@@ -23,7 +23,6 @@ GENERATED_DIR = Path("generated_models")
 SOLVERS_DIR = Path("solvers")
 
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
-RAW_URL = "https://raw.githubusercontent.com/DCP-Bench/DCP-Bench-Open/main"
 
 TITLE = "DCP-Bench Open"
 ASSET_VERSION = "catalogue-v9"
@@ -53,25 +52,6 @@ VERDICT_STYLES = {
 LEGACY_BADGE = ('<span class="badge outline" title="Imported from the CP-Bench leaderboard '
                 '(kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, '
                 'not re-verified in this repository">legacy · CP-Bench leaderboard</span>')
-
-BADGE_COLORS = {
-    "CPMpy": "#0d9488",
-    "OR-Tools": "#ea580c",
-    "MiniZinc": "#2563eb",
-    "hand": "#64748b",
-}
-
-ORIGIN_LABELS = {"hand": "hand-written"}
-
-
-def origin_label(origin: str) -> str:
-    return ORIGIN_LABELS.get(origin, origin)
-
-FRAMEWORK_KEYWORDS = {
-    "CPMpy": ["from cpmpy import", "import cpmpy"],
-    "OR-Tools": ["from ortools import", "import ortools"],
-    "MiniZinc": ["import minizinc", "from minizinc", ".mzn"],
-}
 
 
 def esc(value: str) -> str:
@@ -116,15 +96,6 @@ def parse_metadata(metadata: list) -> dict:
     return fields
 
 
-def detect_frameworks(model_code: str) -> list:
-    """Fallback detection used only for jsonl files lacking a `framework` field."""
-    found = []
-    for fw, keywords in FRAMEWORK_KEYWORDS.items():
-        if any(k in model_code for k in keywords):
-            found.append(fw)
-    return found or ["CPMpy"]
-
-
 def reference_model_code(problem_id: str, fallback: str) -> str:
     """Load the runnable reference model body, omitting metadata and its description."""
     path = Path("dataset") / problem_id / f"{problem_id}.cpmpy.py"
@@ -144,19 +115,12 @@ def snippet(text: str, limit: int = 180) -> str:
     return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
 
 
-def badge(label: str, key: str = None) -> str:
-    color = BADGE_COLORS.get(key or label)
-    cls = "" if color else " plain"
-    style = f' style="background:{color}"' if color else ""
-    return f'<span class="badge{cls}"{style}>{esc(label)}</span>'
-
-
 def page(title: str, prefix: str, active: str, body: str, description: str = "") -> str:
     nav = [f'<a class="brand" href="{prefix}index.html">Homepage</a>']
     for key, label in (("paradigms", "Paradigms"),):
         cls = ' class="active"' if active == key else ""
         nav.append(f'<a{cls} href="{prefix}{key}.html">{label}</a>')
-    nav.append(f'<span class="spacer"></span>')
+    nav.append('<span class="spacer"></span>')
     nav.append(
         f'<a class="gh" href="{REPO_URL}" target="_blank" rel="noopener">'
         '<svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true">'
@@ -282,71 +246,6 @@ def normalize_badge(metrics: dict) -> str:
 
 
 
-def generated_model_card(entry: dict) -> str:
-    m = entry["metrics"]
-    v = m.get("verdict", {})
-    gen = m.get("generated_by", {})
-    src = m.get("source", {})
-    llm = gen.get("base_llm") or "unknown"
-    dataset_version = gen.get("dataset_version") or ""
-
-    lines = entry["code"].count("\n") if entry["code"] else 0
-    uid = f"{m.get('problem', '')}-{entry['submission']}"
-    if entry["model_file"]:
-        lang = "minizinc" if entry["model_file"].endswith(".mzn") else "python"
-        code = (
-            f'<details class="gmodel"><summary>{esc(entry["model_file"])}'
-            f" ({lines} lines)</summary>{code_block(entry['code'], lang, copy_id=f'gmod-{uid}')}</details>"
-        )
-    else:
-        code = '<p class="desc">Code file not found.</p>'
-
-    solution = ""
-    if v.get("solution"):
-        pretty = json.dumps(v["solution"], indent=2, ensure_ascii=False)
-        solution = (
-            f'<details class="gmodel"><summary>solution</summary>'
-            f'{code_block(pretty, "json", copy_id=f"gsol-{uid}")}</details>'
-        )
-
-    error = ""
-    if v.get("error"):
-        error = f'<p class="desc" style="color:#b91c1c;margin:6px 0">{esc(v["error"])}</p>'
-
-    links = []
-    if src.get("leaderboard"):
-        links.append(f'<a href="{esc(src["leaderboard"])}" target="_blank" rel="noopener">Leaderboard</a>')
-    if entry["model_file"]:
-        links.append(
-            f'<a href="{REPO_URL}/blob/main/generated_models/{esc(m.get("problem", ""))}/{esc(entry["directory"])}/{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" rel="noopener">Model file (GitHub)</a>'
-        )
-    if src.get("submission_file"):
-        links.append(f'<a href="{esc(src["submission_file"])}" target="_blank" rel="noopener">Submission file</a>')
-    if src.get("report_file"):
-        links.append(f'<a href="{esc(src["report_file"])}" target="_blank" rel="noopener">Report (PDF)</a>')
-    if src.get("result_file"):
-        links.append(f'<a href="{esc(src["result_file"])}" target="_blank" rel="noopener">Result summary</a>')
-
-    meta_bits = [f"base LLM: {esc(llm)}"]
-    if dataset_version:
-        meta_bits.append(esc(dataset_version))
-    return f"""
-    <div class="model-card">
-      <div class="model-card-head">
-        <div>
-          <div class="model-card-title">{esc(entry["submission"])}{(" " + LEGACY_BADGE) if src.get("leaderboard") else ""}</div>
-          <div class="muted">{" · ".join(meta_bits)}</div>
-        </div>
-        <div>{verdict_badge(m)}</div>
-      </div>
-      {error}
-      {code}
-      {solution}
-      <div class="model-card-links">{" · ".join(links)}</div>
-    </div>
-    """
-
-
 def instance_label(identifier) -> tuple:
     """Name an evaluator instance the way the Instances section above does.
 
@@ -439,7 +338,10 @@ def generated_model_html(entry: dict) -> str:
     chips = paradigm_chips(metrics.get("solver"), "../")
     if chips:
         rows.append(f"<dt>Paradigm</dt><dd>{chips}</dd>")
-    rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}"
+    # An imported verdict looks exactly like one this repository stands behind
+    # unless it is labelled, and the two are not comparable.
+    imported = f" {LEGACY_BADGE}" if source.get("leaderboard") else ""
+    rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}{imported}"
                 f"{evaluation_details(metrics)}</dd>")
 
     links = []
@@ -751,131 +653,14 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
 IS_OPT_RE = re.compile(r"\b(minimize|maximize)\s*\(")
 
 
-def problem_type(p: dict) -> str:
-    return "optimization" if IS_OPT_RE.search(p["model"]) else "satisfaction"
-
-
 def source_group(meta: dict) -> str:
     """Return the dataset's original source/category identifier."""
     return meta.get("category") or "unclassified"
 
 
-def problem_eval_status(gen_by_fw: dict) -> str:
-    """Best evaluation status across all generated models of a problem."""
-    best_rank = None
-    has_models = False
-    for entries in gen_by_fw.values():
-        for entry in entries:
-            has_models = True
-            badge = normalize_badge(entry["metrics"])
-            if badge in VALID_BADGE_ORDER:
-                rank = VALID_BADGE_ORDER.index(badge)
-                if best_rank is None or rank < best_rank:
-                    best_rank = rank
-    if best_rank == 0:
-        return "optimal"
-    if best_rank is not None:
-        return "valid"
-    return "no_valid" if has_models else "no_models"
-
-
-EVAL_STATUS_META = {
-    "optimal": ("#16a34a", "valid · optimal"),
-    "valid": ("#2563eb", "valid"),
-    "no_valid": ("#dc2626", "no valid model"),
-    "no_models": ("#6b7280", "no models"),
-}
-
-
 def option(value: str, label: str, current: str = "") -> str:
     sel = " selected" if value == current else ""
     return f'<option value="{esc(value)}"{sel}>{esc(label)}</option>'
-
-
-def build_index_legacy(problems: list, stats: dict, generated: dict) -> None:
-    gt_frameworks = sorted({fw for p in problems for fw in p["frameworks"]})
-    gen_frameworks = sorted({fw for by_fw in generated.values() for fw in by_fw})
-    gen_total = sum(len(v) for by_fw in generated.values() for v in by_fw.values())
-
-    source_opts = "".join(option(s, s) for s in sorted({p["source"] for p in problems}))
-
-    def stat(num: str, lbl: str) -> str:
-        return f'<div class="stat"><div class="num">{num}</div><div class="lbl">{lbl}</div></div>'
-
-    gt_fw_lbl = " · ".join(gt_frameworks)
-    gen_fw_lbl = " · ".join(gen_frameworks)
-    stats_bar = f"""
-    <div class="stat-groups">
-      <div class="stat-group">
-        <div class="stat-group-title">Benchmark</div>
-        <div class="stat-row">
-          {stat(str(stats["problems"]), "problems")}
-          {stat(str(stats["instances"]), "instances")}
-        </div>
-      </div>
-      <div class="stat-group">
-        <div class="stat-group-title">Ground truth</div>
-        <div class="stat-row">
-          {stat(str(stats["problems"]), "reference models")}
-          {stat(str(len(gt_frameworks)), f"reference framework · {gt_fw_lbl}")}
-        </div>
-      </div>
-      <div class="stat-group">
-        <div class="stat-group-title">Generated models</div>
-        <div class="stat-row">
-          {stat(f"{gen_total:,}", "models")}
-          {stat(str(len(gen_frameworks)), f"frameworks · {gen_fw_lbl}")}
-        </div>
-      </div>
-    </div>"""
-
-    body = f"""
-    {stats_bar}
-    <div class="controls">
-      <input type="search" id="filter-q" placeholder="Search problems…" autocomplete="off">
-      <select id="filter-type"><option value="">All types</option>
-        {option("optimization", "Optimization")}{option("satisfaction", "Satisfaction")}</select>
-      <select id="filter-source"><option value="">All sources</option>{source_opts}</select>
-      <select id="filter-instances"><option value="">Any instances</option>
-        {option("single", "Single instance")}{option("multiple", "Multiple instances")}{option("none", "No instance")}</select>
-      <select id="filter-gen"><option value="">Any generated models</option>
-        {option("yes", "Has generated models")}{option("no", "No generated models")}</select>
-      <select id="filter-eval"><option value="">Any evaluation status</option>
-        {option("optimal", "Valid · optimal")}{option("valid", "Valid")}
-        {option("no_valid", "No valid model")}{option("no_models", "No generated models")}</select>
-      <select id="sort-by">
-        {option("name", "Sort: name", "name")}
-        {option("instances", "Sort: instances")}
-        {option("generated", "Sort: generated models")}
-      </select>
-    </div>
-    <p class="result-count" id="result-count"></p>
-    <div class="cards" id="cards"></div>
-    """
-
-    (OUTPUT_DIR / "index.html").write_text(
-        page("Problems", "", "index", body, SUBTITLE), encoding="utf-8"
-    )
-
-
-def coverage_matrix(problems: list, frameworks: list) -> str:
-    rows = []
-    for p in problems:
-        cells = []
-        for fw in frameworks:
-            ok = fw in p["frameworks"]
-            cells.append(
-                f'<td class="{"yes" if ok else "no"}">{"✓" if ok else "·"}</td>'
-            )
-        rows.append(
-            f'<tr><td class="cell-id"><a href="problems/{p["id"]}.html">{esc(p["id"])}</a></td>'
-            f'{"".join(cells)}</tr>'
-        )
-    header = "".join(f"<th>{esc(f)}</th>" for f in frameworks)
-    return (
-        '<table class="matrix"><thead><tr><th>problem</th>'
-        f"{header}</tr></thead><tbody>{''.join(rows)}</tbody></table>"
-    )
 
 
 # --------------------------------------------------------------------------
@@ -1129,162 +914,6 @@ def metadata_html(meta: dict, p: dict) -> str:
     return "<dl>" + "".join(rows) + "</dl>"
 
 
-def svg_hist(items: list, width: int = 760, height: int = 250, color: str = "#4f46e5") -> str:
-    """Vertical bar histogram. items: list of (label, count)."""
-    max_v = max(c for _, c in items) or 1
-    pad_l, pad_b, pad_t = 42, 48, 12
-    plot_w = width - pad_l - 12
-    plot_h = height - pad_b - pad_t
-    slot = plot_w / len(items)
-    bar_w = slot * 0.5
-    parts = [f'<svg viewBox="0 0 {width} {height}" width="100%" style="max-width:{width}px" role="img" aria-label="histogram">']
-    for g in range(5):
-        gy = pad_t + plot_h - g * plot_h / 4
-        parts.append(f'<line x1="{pad_l}" y1="{gy:.1f}" x2="{width - 10}" y2="{gy:.1f}" stroke="#e5e7eb" stroke-width="1"/>')
-        parts.append(
-            f'<text x="{pad_l - 8}" y="{gy + 4:.1f}" text-anchor="end" font-size="11" fill="#6b7280">{int(round(g * max_v / 4))}</text>'
-        )
-    for i, (label, c) in enumerate(items):
-        x = pad_l + i * slot + (slot - bar_w) / 2
-        h = plot_h * c / max_v
-        parts.append(f'<rect x="{x:.1f}" y="{pad_t + plot_h - h:.1f}" width="{bar_w:.1f}" height="{max(0, h):.1f}" rx="3" fill="{color}"/>')
-        parts.append(
-            f'<text x="{x + bar_w / 2:.1f}" y="{height - 16}" text-anchor="middle" font-size="12" fill="#1f2430">{esc(label)}</text>'
-        )
-    parts.append("</svg>")
-    return "".join(parts)
-
-
-def coverage_summary(problems: list, frameworks: list, stats: dict) -> str:
-    pills = []
-    for fw in frameworks:
-        n = stats["frameworks"][fw]
-        pct = 100.0 * n / max(1, stats["problems"])
-        pills.append(
-            f'<div class="stat"><div class="num">{n}<span style="font-size:1rem;color:var(--muted)"> ({pct:.0f}%)</span></div>'
-            f'<div class="lbl">{esc(fw)} problems</div></div>'
-        )
-    multi = sum(1 for p in problems if len(p["frameworks"]) > 1)
-    pills.append(
-        f'<div class="stat"><div class="num">{multi}</div><div class="lbl">problems in multiple frameworks</div></div>'
-    )
-    return f'<div class="stat-row">{"".join(pills)}</div>'
-
-
-def build_stats(problems: list, stats: dict, generated: dict) -> None:
-    frameworks = sorted({fw for p in problems for fw in p["frameworks"]})
-    origins = sorted(stats["origins"])
-
-    buckets = [("0", 0, 1), ("1", 1, 2), ("2–5", 2, 6), ("6–20", 6, 21), ("21+", 21, None)]
-    hist_items = []
-    for label, lo, hi in buckets:
-        if hi is None:
-            count = sum(1 for p in problems if len(p["instances"]) >= lo)
-        else:
-            count = sum(1 for p in problems if lo <= len(p["instances"]) < hi)
-        hist_items.append((label, count))
-    hist_chart = svg_hist(hist_items)
-
-    fw_rows = "".join(
-        f'<tr><td>{esc(f)}</td><td class="num">{n}</td></tr>'
-        for f, n in sorted(stats["frameworks"].items())
-    )
-    origin_rows = "".join(
-        f'<tr><td>{esc(origin_label(o))}</td><td class="num">{n}</td></tr>'
-        for o, n in sorted(stats["origins"].items())
-    )
-    top = sorted(problems, key=lambda p: -len(p["instances"]))[:10]
-    top_rows = "".join(
-        f'<tr><td class="mono"><a href="problems/{p["id"]}.html">{esc(p["id"])}</a></td>'
-        f'<td class="num">{len(p["instances"])}</td></tr>'
-        for p in top
-    )
-
-    # --- generated models stats ---
-    gen_by_fw = {}
-    gen_by_badge = {}
-    gen_by_submission = {}
-    for by_fw in generated.values():
-        for fw, entries in by_fw.items():
-            gen_by_fw[fw] = gen_by_fw.get(fw, 0) + len(entries)
-            for e in entries:
-                badge_key = normalize_badge(e["metrics"])
-                gen_by_badge[badge_key] = gen_by_badge.get(badge_key, 0) + 1
-                gen_by_submission[e["submission"]] = gen_by_submission.get(e["submission"], 0) + 1
-
-    gen_fw_rows = "".join(
-        f'<tr><td>{esc(f)}</td><td class="num">{n}</td></tr>'
-        for f, n in sorted(gen_by_fw.items())
-    )
-    badge_items = []
-    for key in VERDICT_STYLES:
-        if key in gen_by_badge:
-            color, label, _ = VERDICT_STYLES[key]
-            badge_items.append((label, gen_by_badge[key], color))
-    gen_badge_chart = ""
-    if badge_items:
-        max_v = max(c for _, c, _ in badge_items) or 1
-        height = len(badge_items) * 34 + 14
-        parts = [f'<svg viewBox="0 0 760 {height}" width="100%" style="max-width:760px" role="img" aria-label="generated model verdicts">']
-        label_w = 240
-        for i, (label, count, color) in enumerate(badge_items):
-            y = 10 + i * 34
-            bar_w = max(2, 460 * count / max_v)
-            parts.append(f'<text x="{label_w - 10}" y="{y + 15}" text-anchor="end" font-size="13" fill="#1f2430">{esc(label)}</text>')
-            parts.append(f'<rect x="{label_w}" y="{y}" width="{bar_w:.1f}" height="26" rx="4" fill="{color}"/>')
-            parts.append(f'<text x="{label_w + bar_w + 8:.1f}" y="{y + 15}" font-size="12.5" fill="#6b7280">{count}</text>')
-        parts.append("</svg>")
-        gen_badge_chart = "".join(parts)
-    gen_badge_rows = "".join(
-        f'<tr><td>{esc(label)}</td><td class="num">{count}</td></tr>'
-        for label, count, _ in badge_items
-    )
-    gen_sub_rows = "".join(
-        f'<tr><td class="mono">{esc(s)}</td><td class="num">{n}</td></tr>'
-        for s, n in sorted(gen_by_submission.items(), key=lambda kv: -kv[1])
-    )
-
-    body = f"""
-    <div class="stat-row">
-      <div class="stat"><div class="num">{stats["problems"]}</div><div class="lbl">problems</div></div>
-      <div class="stat"><div class="num">{stats["instances"]}</div><div class="lbl">instances</div></div>
-      <div class="stat"><div class="num">{stats["models"]}</div><div class="lbl">models</div></div>
-      <div class="stat"><div class="num">{stats["generated_models"]}</div><div class="lbl">generated models</div></div>
-      <div class="stat"><div class="num">{sum(1 for p in problems if p["instances"])}</div><div class="lbl">problems with instances</div></div>
-    </div>
-    <div class="section"><h2>Coverage</h2>
-      {coverage_summary(problems, frameworks, stats)}
-      <details>
-        <summary>Per-problem matrix</summary>
-        <div class="matrix-wrap">{coverage_matrix(problems, frameworks)}</div>
-      </details></div>
-    <div class="section"><h2>Instances per problem</h2>
-      <p class="desc">How many problems have how many instances.</p>
-      <div class="chart">{hist_chart}</div></div>
-    <div class="section"><h2>Generated models</h2>
-      <p class="desc">Models generated by AI agents/systems, from the CP-Bench leaderboard submissions.</p>
-      <div class="chart">{gen_badge_chart}</div>
-      <table class="plain"><thead><tr><th>Framework</th><th class="num">Generated models</th></tr></thead>
-      <tbody>{gen_fw_rows}</tbody></table>
-      <table class="plain" style="margin-top:12px"><thead><tr><th>Verdict</th><th class="num">Models</th></tr></thead>
-      <tbody>{gen_badge_rows}</tbody></table>
-      <table class="plain" style="margin-top:12px"><thead><tr><th>Submission</th><th class="num">Models</th></tr></thead>
-      <tbody>{gen_sub_rows}</tbody></table></div>
-    <div class="section"><h2>By framework</h2>
-      <table class="plain"><thead><tr><th>Framework</th><th class="num">Problems</th></tr></thead>
-      <tbody>{fw_rows}</tbody></table></div>
-    <div class="section"><h2>By origin</h2>
-      <table class="plain"><thead><tr><th>Origin</th><th class="num">Problems</th></tr></thead>
-      <tbody>{origin_rows}</tbody></table></div>
-    <div class="section"><h2>Top problems by number of instances</h2>
-      <table class="plain"><thead><tr><th>Problem</th><th class="num">Instances</th></tr></thead>
-      <tbody>{top_rows}</tbody></table></div>
-    """
-    (OUTPUT_DIR / "stats.html").write_text(
-        page("Stats", "", "stats", body), encoding="utf-8"
-    )
-
-
 # --------------------------------------------------------------------------
 # Main
 # --------------------------------------------------------------------------
@@ -1312,25 +941,16 @@ def main() -> None:
                 continue
             data = json.loads(line)
             meta = parse_metadata(data.get("metadata", []))
-            if data.get("framework"):
-                frameworks = [data["framework"]]
-            else:
-                frameworks = detect_frameworks(data.get("model", ""))
-            origin = meta.get("generated_by", "hand")
             problems.append(
                 {
                     "id": data["id"],
                     "description": data.get("description", ""),
-                    "model": data.get("model", ""),
                     "display_model": reference_model_code(data["id"], data.get("model", "")),
                     "example_instance": data.get("example_instance", ""),
                     "instances": data.get("instances") or [],
                     "example_solution": data.get("example_solution", {}),
                     "decision_variables": data.get("decision_variables", []),
-                    "frameworks": frameworks,
-                    "category": meta.get("category", "other"),
                     "source": source_group(meta),
-                    "origin": origin,
                     "type": "optimization" if IS_OPT_RE.search(data.get("model", "")) else "satisfaction",
                     "meta": meta,
                     "snippet": snippet(data.get("description", "")),
@@ -1359,14 +979,11 @@ def main() -> None:
             {
                 "id": p["id"],
                 "type": p["type"],
-                "category": p["category"],
                 "source": p["source"],
                 "snippet": p["snippet"],
                 "instances": len(p["instances"]),
-                "generated": sum(len(v) for v in generated.get(p["id"], {}).values()),
                 "generatedFrameworks": sorted(select_best_generated(generated.get(p["id"], {})).keys()),
                 "paradigms": breakdown["per_problem"].get(p["id"], []),
-                "evalBadge": problem_eval_status(generated.get(p["id"], {})),
             }
             for p in problems
         ]
