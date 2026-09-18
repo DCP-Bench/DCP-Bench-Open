@@ -7,7 +7,6 @@
 - Group a batch of related work into one commit rather than committing each file or each
   generated model on its own, and say in the message what the batch carries.
 - After coding is done, the user and the agent review whether the request is done.
-- Once the request is accepted, the user handles deployment.
 
 ## Writing models for this benchmark
 
@@ -18,3 +17,4 @@ campaign end to end, and `skills/solver-setup` for adding a framework/solver. A 
 output names with their shapes, the objective direction, and every instance field with
 its shape. `python -m generation.next_work` says what is left, and withholds pairs whose
 instance shape an integration cannot bind at all.
+
