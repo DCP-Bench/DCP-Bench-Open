@@ -48,7 +48,7 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    ```json
    {
      "id": "framework_language",
-     "name": "Framework — Language",
+     "name": "CPMpy",
      "language": "python",
      "framework": "cpmpy",
      "solver": "ortools",
@@ -59,6 +59,23 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
      "protocol_version": 1
    }
    ```
+
+   **`name` is what the community reads on the website, and the `id` is never
+   shown.** Name the integration after what a model author writes, and add a
+   qualifier only when an existing integration would otherwise be
+   indistinguishable from it. The backend solver belongs in `solver`, never in
+   the name: a MiniZinc model is the same text whether Gecode or Chuffed runs
+   it, so the integration is `MiniZinc`. A qualifier earns its place when it
+   changes what gets written — `OR-Tools CP-SAT (Python)` against
+   `OR-Tools CP-SAT (C++)`, or `SWI-Prolog CLP(FD)`, whose models open with
+   `:- use_module(library(clpfd))` and constrain with `#=`. Prefer a package
+   name that already carries the language, as `CPMpy` and `PyChoco` do, over
+   spelling it out. Names must be distinct; `tests/test_solvers.py` enforces
+   that much, and nothing can enforce a name being clear.
+
+   Renaming is cheap: the catalogue resolves `name` from this file on every
+   build, so no retained model has to be touched. Do not add a display name to
+   `record.json`.
 
    `id`, `image`, `extension` and `enumeration` are what the evaluator requires.
    Add `"optimization": false` only for an integration that genuinely cannot

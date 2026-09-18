@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Any
 
 from evaluation import evaluate as evaluate_model
-from evaluation.execution import integration
 from evaluation.check import INCONCLUSIVE as INCONCLUSIVE_REASONS
 from evaluation.results import EvaluationError
 
@@ -344,14 +343,12 @@ def retained_record(record: dict[str, Any], evaluation: dict[str, Any], model_fi
     coverage = f"{checked} of {available} instances"
     if skipped:
         coverage += f", {len(skipped)} inconclusive and skipped"
-    try:
-        name = integration(record["solver_id"]).get("name", record["solver_id"])
-    except EvaluationError:
-        name = record["solver_id"]
     return {
         "schema": 2,
         "problem": record["problem_id"],
-        "framework": name,
+        # No display name here. The catalogue reads it from
+        # solvers/<id>/metadata.yaml, so renaming an integration never has to
+        # chase a copy frozen into every record it ever produced.
         "solver": record["solver_id"],
         "submission": f"{record['run_id']}-{record['attempt_id']}",
         "model_file": model_file,

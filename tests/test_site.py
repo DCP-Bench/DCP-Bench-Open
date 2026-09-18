@@ -17,8 +17,8 @@ VOCABULARY = [
     {"id": "sat", "name": "Boolean satisfiability", "summary": "Clauses."},
 ]
 INTEGRATIONS = {
-    "pure_cp": {"id": "pure_cp", "paradigms": ["cp"]},
-    "hybrid": {"id": "hybrid", "paradigms": ["cp", "mip"]},
+    "pure_cp": {"id": "pure_cp", "name": "Pure", "paradigms": ["cp"]},
+    "hybrid": {"id": "hybrid", "name": "Hybrid", "paradigms": ["cp", "mip"]},
 }
 
 
@@ -31,11 +31,12 @@ def foreign(solver):
     return {"metrics": {"solver": solver, "verdict_source": "elsewhere"}}
 
 
+# Keyed on the integration ID, as load_generated_models() keys it.
 # queens has a model from each integration; magic only from the hybrid one.
 GENERATED = {
-    "queens": {"Pure": [verified("pure_cp")], "Hybrid": [verified("hybrid")],
-               "CPMpy": [foreign("cpmpy")]},
-    "magic": {"Hybrid": [verified("hybrid")]},
+    "queens": {"pure_cp": [verified("pure_cp")], "hybrid": [verified("hybrid")],
+               "cpmpy": [foreign("cpmpy")]},
+    "magic": {"hybrid": [verified("hybrid")]},
 }
 
 
@@ -86,17 +87,16 @@ class ParadigmBreakdownTests(unittest.TestCase):
 class ModelLinkTests(unittest.TestCase):
     """The "Model file (GitHub)" link, which has to name a directory that exists.
 
-    The directory is the integration ID (`cpmpy_python`); the framework field
-    holds a display name (`CPMpy — Python`). Deriving the first from the second
-    is what once pointed 606 of these links at `cpmpy — python/`.
+    The link is built from the integration ID (`cpmpy_python`), never from the
+    display name (`CPMpy`). Deriving the first from the second is what once
+    pointed 606 of these links at `cpmpy — python/`.
     """
 
     def test_the_link_names_the_directory_the_model_lives_in(self):
         entry = {
             "submission": "attempt-001", "directory": "cpmpy_python",
             "model_file": "model.py", "code": "",
-            "metrics": {"problem": "queens", "solver": "cpmpy_python",
-                        "framework": "CPMpy — Python", "verdict": {}},
+            "metrics": {"problem": "queens", "solver": "cpmpy_python", "verdict": {}},
         }
         rendered = generate_site.generated_model_html(entry)
         self.assertIn("generated_models/queens/cpmpy_python/attempt-001/model.py", rendered)
