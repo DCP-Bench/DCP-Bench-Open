@@ -16,6 +16,14 @@ from evaluation.results import EvaluationError
 ROOT = EVALUATION_ROOT
 SCHEMA = 1
 CHECK_SCRIPT = "readiness_test.py"
+
+# Fields of metadata.yaml the catalogue reads and readiness does not. Renaming
+# an integration or re-tagging its paradigms changes nothing about how it runs,
+# so it must not invalidate evidence about how it runs. Everything else is
+# behaviour: `image` names what was tested, `enumeration` and `optimization`
+# decide which tests are required, `extension` and `instance_binding` decide
+# what a submission may be.
+DESCRIPTIVE_METADATA = ("name", "paradigms")
 CHECK_TIMEOUT = 1800
 
 
@@ -25,6 +33,18 @@ class ReadinessError(ValueError):
 
 def _hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def behavioural(metadata: dict[str, Any]) -> dict[str, Any]:
+    """The part of an integration's metadata readiness evidence is about."""
+    return {key: value for key, value in metadata.items() if key not in DESCRIPTIVE_METADATA}
+
+
+def _metadata_digest(metadata: dict[str, Any]) -> str:
+    """Hash the behavioural metadata rather than the file, so reformatting it or
+    editing a descriptive field does not read as a change to the integration."""
+    canonical = json.dumps(behavioural(metadata), sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _read(path: Path) -> Any:
@@ -53,8 +73,11 @@ def _files(solver_id: str) -> tuple[dict[str, Any], dict[str, str]]:
     if missing:
         raise ReadinessError(f"Integration is missing required files: {', '.join(missing)}")
     # Hashing the check script means editing it invalidates the record, so the
-    # evidence always belongs to the checks that are actually in the tree.
-    return metadata, {name: _hash(path) for name, path in paths.items()}
+    # evidence always belongs to the checks that are actually in the tree. The
+    # metadata is pinned by its behavioural content instead of its bytes.
+    digests = {name: _hash(path) for name, path in paths.items() if name != "metadata"}
+    digests["metadata"] = _metadata_digest(metadata)
+    return metadata, digests
 
 
 def _required(metadata: dict[str, Any]) -> set[str]:
@@ -182,7 +205,8 @@ def check(solver_id: str, report_path: str | Path, output_path: str | Path) -> d
     if report.get("image_id") != actual_image:
         raise ReadinessError("Report image_id does not match the current integration image")
     tests = _tests(report.get("tests"), metadata, report_file.parent)
-    record = {"schema": SCHEMA, "accepted": True, "solver_id": solver_id, "metadata": metadata,
+    record = {"schema": SCHEMA, "accepted": True, "solver_id": solver_id,
+              "metadata": behavioural(metadata),
               "integration_files": files, "image_id": actual_image, "tests": tests,
               "report_sha256": _hash(report_file)}
     _write_new(Path(output_path).resolve(), record)
@@ -218,7 +242,7 @@ def verify(solver_id: str, record_path: str | Path) -> dict[str, Any]:
     if record.get("solver_id") != solver_id:
         raise ReadinessError("Readiness record solver ID does not match request")
     metadata, files = _files(solver_id)
-    if record.get("metadata") != metadata or record.get("integration_files") != files:
+    if record.get("metadata") != behavioural(metadata) or record.get("integration_files") != files:
         raise ReadinessError("Integration files or metadata changed since readiness check")
     if record.get("image_id") != image_identity(metadata):
         raise ReadinessError("Integration image changed since readiness check")

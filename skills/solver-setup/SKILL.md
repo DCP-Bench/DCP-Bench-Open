@@ -191,8 +191,10 @@ python -m generation.readiness check --solver ID --output solvers/ID/readiness.j
 
 This runs your script, keeps its stdout and stderr as the evidence, and records
 the result only when the script exits zero with every required check true. The
-record binds the image identity and the hashes of `metadata.yaml`, `run.py`,
-`Dockerfile` and the check script, so editing any of them invalidates it and the
+record binds the image identity, the hashes of `run.py`, `Dockerfile` and the
+check script, and the behavioural fields of `metadata.yaml` — everything except
+`name` and `paradigms`, which the catalogue reads and the container does not.
+So editing any of them except those two invalidates the record and the
 checks must run again.
 
 `solvers/cpmpy_python/readiness_test.py`

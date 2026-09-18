@@ -1,7 +1,9 @@
 # Skill manifests and run receipts hash exact bytes across Windows/Linux checkouts.
 skills/** -text whitespace=cr-at-eol
-# A readiness record hashes exactly these files, so a checkout must reproduce
-# their bytes; core.autocrlf would otherwise invalidate every record.
+# A readiness record hashes these files, so a checkout must reproduce their
+# bytes; core.autocrlf would otherwise invalidate every record. metadata.yaml is
+# hashed by its parsed behavioural fields rather than its bytes, and is kept
+# here so a checkout still round-trips it unchanged.
 solvers/*/metadata.yaml -text whitespace=cr-at-eol
 solvers/*/run.py -text whitespace=cr-at-eol
 solvers/*/Dockerfile -text whitespace=cr-at-eol
