@@ -333,10 +333,9 @@ def evaluate(attempt_path: str, model_path: str) -> dict[str, Any]:
 def retained_record(record: dict[str, Any], evaluation: dict[str, Any], model_file: str) -> dict[str, Any]:
     """The single record kept beside a retained model, in `record.json`.
 
-    Every model under generated_models/ carries this shape, whether it came from
-    the CP-Bench leaderboard or from this evaluator. `verdict_source` says which,
-    because a leaderboard verdict was produced by different software on different
-    infrastructure and must never read as though this evaluator had accepted it.
+    Every model under generated_models/ carries this shape. `verdict_source`
+    names the software that produced the verdict, so a record imported from
+    elsewhere could never read as though this evaluator had accepted it.
     """
     instances = evaluation.get("instances") or [{}]
     optimization = bool(instances[0].get("is_optimization"))

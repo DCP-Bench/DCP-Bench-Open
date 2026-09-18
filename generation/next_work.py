@@ -7,9 +7,7 @@ still verifies.
 
 Eligibility uses this evaluator's own evidence only. A retained model counts
 when `generated_models/PROBLEM/SOLVER/*/record.json` was produced by the
-container evaluator and accepted. Models carrying a leaderboard or demo verdict
-are reported but never treated as coverage: a different evaluator's verdict is
-not this one's.
+container evaluator and accepted.
 """
 import argparse
 import json
@@ -62,12 +60,6 @@ def accepted_pairs():
             and record.get("evaluation", {}).get("accepted") is True}
 
 
-def legacy_problems():
-    """Problems whose only models carry another evaluator's verdict."""
-    return {path.parents[2].name for path, record in _records()
-            if record.get("verdict_source") != "container_evaluator"}
-
-
 def blocked_pairs():
     """Pairs recorded as not worth attempting again, from generation/blockers.json.
 
@@ -103,7 +95,7 @@ def report(limit=20, include_unready=False):
     counts = {problem: listed_instances(problem) for problem in problems}
     declared = integrations()
     usable = [item["id"] for item in declared if item["ready"] or include_unready]
-    accepted, legacy, blockers = accepted_pairs(), legacy_problems(), blocked_pairs()
+    accepted, blockers = accepted_pairs(), blocked_pairs()
 
     def blocked(problem, solver):
         return any(item["problem"] == problem and item.get("solver") in (None, solver)
@@ -139,9 +131,8 @@ def report(limit=20, include_unready=False):
             "single_instance_problems": single,
             "blocked_pairs": withheld,
             "unbindable_pairs": unbindable_pairs,
-            "legacy_only_problems": len(legacy - {p for p, _ in accepted}),
-            "note": "A model carrying another evaluator's verdict is not acceptance evidence. An integration "
-                    "without a current readiness record cannot be used; set it up first. "
+            "note": "An integration without a current readiness record cannot be used; "
+                    "set it up first. "
                     f"{single} of {len(problems)} problems have only the embedded example, "
                     "so for those the evaluator cannot detect a model that hardcoded it: "
                     "read such a model yourself before retaining it. Pairs in "

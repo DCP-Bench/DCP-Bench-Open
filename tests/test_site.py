@@ -1,9 +1,10 @@
 """What the catalogue build computes, rather than how it looks. No Docker.
 
 Two things are covered: the paradigm breakdown, including the decisions the page
-rests on — leaderboard imports are excluded, a documented paradigm with no
-integration still gets a row, and an integration declaring two paradigms counts
-towards both — and the link each model carries back to its source file.
+rests on — a model carrying no verdict of this evaluator's is excluded, a
+documented paradigm with no integration still gets a row, and an integration
+declaring two paradigms counts towards both — and the link each model carries
+back to its source file.
 """
 import unittest
 from pathlib import Path
@@ -25,14 +26,15 @@ def verified(solver):
     return {"metrics": {"solver": solver, "verdict_source": "container_evaluator"}}
 
 
-def imported(solver):
-    return {"metrics": {"solver": solver, "verdict_source": "leaderboard"}}
+def foreign(solver):
+    """A record no integration here produced — nothing to read a paradigm off."""
+    return {"metrics": {"solver": solver, "verdict_source": "elsewhere"}}
 
 
 # queens has a model from each integration; magic only from the hybrid one.
 GENERATED = {
     "queens": {"Pure": [verified("pure_cp")], "Hybrid": [verified("hybrid")],
-               "CPMpy": [imported("cpmpy")]},
+               "CPMpy": [foreign("cpmpy")]},
     "magic": {"Hybrid": [verified("hybrid")]},
 }
 
@@ -52,7 +54,7 @@ class ParadigmBreakdownTests(unittest.TestCase):
         self.assertEqual(sum(item["models"] for item in self.breakdown["paradigms"]), 5)
         self.assertEqual(sum(self.breakdown["integration_models"].values()), 3)
 
-    def test_imported_leaderboard_models_are_left_out(self):
+    def test_a_model_without_this_evaluators_verdict_is_left_out(self):
         self.assertNotIn("cpmpy", self.breakdown["integration_models"])
         self.assertEqual(self.breakdown["integration_models"], {"pure_cp": 1, "hybrid": 2})
         self.assertEqual(self.breakdown["integration_problems"], {"pure_cp": 1, "hybrid": 2})
@@ -111,7 +113,7 @@ class ModelLinkTests(unittest.TestCase):
                     path = root / problem / entry["directory"] / entry["submission"] / entry["model_file"]
                     self.assertTrue(path.is_file(), path)
                     checked += 1
-        self.assertGreater(checked, 1000, "the corpus should not have shrunk to nothing")
+        self.assertGreater(checked, 500, "the corpus should not have shrunk to nothing")
 
 
 class RealRepositoryTests(unittest.TestCase):

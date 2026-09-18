@@ -49,10 +49,6 @@ VERDICT_STYLES = {
                 "No verdict available (execution failed, model skipped, or evaluation incomplete)"),
 }
 
-LEGACY_BADGE = ('<span class="badge outline" title="Imported from the CP-Bench leaderboard '
-                '(kostis-init/CP-Bench-Leaderboard-Live) submissions — evaluation performed there, '
-                'not re-verified in this repository">legacy · CP-Bench leaderboard</span>')
-
 
 def esc(value: str) -> str:
     return html.escape(str(value), quote=True)
@@ -268,11 +264,7 @@ def instance_label(identifier) -> tuple:
 
 
 def evaluation_details(metrics: dict) -> str:
-    """The specifics behind the verdict, collapsed so the badge stays the headline.
-
-    Only models retained by the container evaluator carry this record; older
-    leaderboard entries have no per-instance detail and get nothing.
-    """
+    """The specifics behind the verdict, collapsed so the badge stays the headline."""
     record = metrics.get("evaluation") or {}
     instances = record.get("instances") or []
     if not instances:
@@ -324,7 +316,6 @@ def generated_model_html(entry: dict) -> str:
     """Render a generated model with the reference model's Metadata + Model layout."""
     metrics = entry["metrics"]
     generated_by = metrics.get("generated_by", {})
-    source = metrics.get("source", {})
     uid = f"{metrics.get('problem', '')}-{entry['submission']}"
 
     rows = [
@@ -338,17 +329,10 @@ def generated_model_html(entry: dict) -> str:
     chips = paradigm_chips(metrics.get("solver"), "../")
     if chips:
         rows.append(f"<dt>Paradigm</dt><dd>{chips}</dd>")
-    # An imported verdict looks exactly like one this repository stands behind
-    # unless it is labelled, and the two are not comparable.
-    imported = f" {LEGACY_BADGE}" if source.get("leaderboard") else ""
-    rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}{imported}"
+    rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}"
                 f"{evaluation_details(metrics)}</dd>")
 
     links = []
-    if source.get("leaderboard"):
-        links.append(
-            f'<a href="{esc(source["leaderboard"])}" target="_blank" rel="noopener">Leaderboard</a>'
-        )
     if entry["model_file"]:
         links.append(
             f'<a href="{REPO_URL}/blob/main/generated_models/'
@@ -356,19 +340,8 @@ def generated_model_html(entry: dict) -> str:
             f'{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" '
             f'rel="noopener">Model file (GitHub)</a>'
         )
-    if source.get("submission_file"):
-        links.append(
-            f'<a href="{esc(source["submission_file"])}" target="_blank" rel="noopener">Submission file</a>'
-        )
-    if source.get("report_file"):
-        links.append(
-            f'<a href="{esc(source["report_file"])}" target="_blank" rel="noopener">Report (PDF)</a>'
-        )
-    if source.get("result_file"):
-        links.append(
-            f'<a href="{esc(source["result_file"])}" target="_blank" rel="noopener">Result summary</a>'
-        )
     if links:
+
         rows.append(f'<dt>Sources</dt><dd>{" &middot; ".join(links)}</dd>')
 
     if entry["model_file"]:
@@ -394,12 +367,7 @@ VALID_BADGE_ORDER = [
 def select_best_generated(gen_by_fw: dict) -> dict:
     """Keep at most one generated model per framework: the best valid one
     (valid + optimal preferred for optimisation problems). Frameworks without
-    a valid model are dropped.
-
-    A model this repository's evaluator verified wins over one carrying another
-    evaluator's verdict, whatever the badges say. The badges are not comparable
-    across evaluators, so preferring the verdict we can stand behind is the only
-    defensible tie-break."""
+    a valid model are dropped."""
     out = {}
     for fw, entries in gen_by_fw.items():
         best, best_rank = None, None
@@ -407,8 +375,7 @@ def select_best_generated(gen_by_fw: dict) -> dict:
             metrics = entry["metrics"]
             badge = normalize_badge(metrics)
             if badge in VALID_BADGE_ORDER:
-                rank = (metrics.get("verdict_source") != "container_evaluator",
-                        VALID_BADGE_ORDER.index(badge))
+                rank = VALID_BADGE_ORDER.index(badge)
                 if best is None or rank < best_rank:
                     best, best_rank = entry, rank
         if best is not None:
@@ -449,9 +416,9 @@ def verified_models(generated: dict, integrations: dict):
     """Yield (problem, integration ID, entry) for the models this repository
     verified itself.
 
-    The imported leaderboard models are left out on purpose: they carry another
-    evaluator's verdict and name no installed integration, so there is nothing
-    to read a paradigm off. Counting them would make the breakdown a guess.
+    A model only counts once its own evaluator accepted it and it names an
+    integration still installed under `solvers/`; a paradigm read off anything
+    else would be a guess.
     """
     for problem, by_framework in generated.items():
         for entries in by_framework.values():

@@ -239,15 +239,12 @@ class GenerationTests(unittest.TestCase):
             kept.mkdir(parents=True)
             (kept / "record.json").write_text(
                 '{"verdict_source": "container_evaluator", "evaluation": {"accepted": true}}', encoding="utf-8")
-            legacy = generated / "p2" / "legacy-solver" / "origin"
-            legacy.mkdir(parents=True)
-            (legacy / "record.json").write_text('{"verdict_source": "leaderboard"}', encoding="utf-8")
             with patch.object(next_work, "verify", return_value={}):
                 ready = next_work.report()
         self.assertEqual(ready["usable_integrations"], ["s1"])
         self.assertEqual(ready["accepted_pairs"], 1)
         self.assertEqual(ready["next_pairs"], [{"problem": "p2", "solver": "s1", "instances": 1}])
-        self.assertEqual((ready["legacy_only_problems"], ready["single_instance_problems"]), (1, 2))
+        self.assertEqual(ready["single_instance_problems"], 2)
 
     def test_instance_shapes_that_no_rectangular_binder_can_take(self):
         """A ragged or mixed-type field is why a pair is impossible, not a bad model."""

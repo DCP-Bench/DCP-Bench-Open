@@ -72,8 +72,9 @@ failed.
 The run manifest and per-attempt profiles are frozen. Resume using `status` and
 preserved artifacts; changing a profile creates a new run, so choose a
 thorough profile up front — `instance_count: 99` covers every distinct instance
-a problem has, and a wrong model still fails on an early one. Historical/legacy directories are not overwritten. Retained artifacts
-live in a unique run/attempt child beneath `generated_models/PROBLEM/SOLVER/`.
+a problem has, and a wrong model still fails on an early one. Existing model
+directories are not overwritten: retained artifacts live in a unique run/attempt
+child beneath `generated_models/PROBLEM/SOLVER/`.
 
 ## Integration readiness
 
