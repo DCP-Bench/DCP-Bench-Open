@@ -394,9 +394,11 @@ class OrchestrationTests(unittest.TestCase):
     def test_legacy_metadata(self):
         result = self.run_records([{"type": "solution", "values": {"x": 0, "y": 2}}, {"type": "status", "status": "limit"}])
         result["instances"][0]["is_optimization"] = True
-        record = metrics(result, "tiny", "CPMpy", "test", {"generated_by": {"base_llm": "test"}})
+        record = metrics(result, "tiny", "cpmpy_python", {"generated_by": {"base_llm": "test"}})
         self.assertEqual(record["verdict"]["badge"], "solution_valid_and_optimal")
         self.assertEqual(record["generated_by"]["base_llm"], "test")
+        self.assertEqual(record["solver"], "cpmpy_python")
+        self.assertNotIn("framework", record)
         self.assertEqual(solver_id("z3"), "z3")
 
     def test_stop_at_failure(self):

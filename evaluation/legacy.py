@@ -7,18 +7,22 @@ def solver_id(name):
     return ALIASES.get(name.lower(), name)
 
 
-def metrics(result, problem, framework, submission, existing=None):
+def metrics(result, problem, solver, existing=None):
+    """A record for a single model checked by the one-off CLI.
+
+    Same key set as `generation.manage.retained_record`: no display name (the
+    catalogue reads that from solvers/<id>/metadata.yaml) and nothing that
+    restates the evaluation.
+    """
     metadata = dict(existing or {})
     item = result["instances"][0] if result["instances"] else {}
     optimization = item.get("is_optimization")
     accepted, reason = result["accepted"], result["reason"]
     badge = ("solution_valid_and_optimal" if optimization else "solution_valid") if accepted else (
         "solution_valid_not_optimal" if reason == "suboptimal_solution" else "solution_not_valid")
-    metadata.update(schema=2, problem=problem, framework=framework, submission=submission,
+    metadata.update(schema=2, problem=problem, solver=solver,
                     verdict_source="container_evaluator",
-                    origin_type=metadata.get("origin_type", "machine_generated"),
-                    is_optimization=optimization, instances_checked=["example"] if result["instances"] else [],
-                    evaluation=result,
+                    is_optimization=optimization, evaluation=result,
                     verdict={"evaluation": "performed", "execution": "success" if "runner_status" in item else "failed",
                              "error": None if accepted else result.get("detail", reason),
                              "solution_extracted": item.get("solutions_checked", 0) > 0,

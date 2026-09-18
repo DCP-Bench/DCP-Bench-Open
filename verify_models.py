@@ -10,7 +10,6 @@ ROOT = Path(__file__).resolve().parent
 
 def verify_model(model_path):
     model_path = Path(model_path)
-    submission = model_path.parent.name
     framework = model_path.parent.parent.name
     problem = model_path.parent.parent.parent.name
     sidecar = model_path.parent / "record.json"
@@ -19,7 +18,7 @@ def verify_model(model_path):
     except ValueError:
         existing = {}
     result = evaluate(model_path, problem, solver_id(framework), legacy=True)
-    return metrics(result, problem, existing.get("framework", framework), submission, existing)
+    return metrics(result, problem, solver_id(framework), existing)
 
 
 def main():

@@ -29,8 +29,8 @@ infrastructure limit. If the failure is the model's, the model is wrong; fix it.
 
 Most problems in this corpus have only the embedded example, so there is no
 second instance to expose a model that simply hardcoded the first one. The
-retained record says so in `generality.example_only`, and `next_work` reports
-`instances` per pair.
+retained record says so in `evaluation.instances_available`, and `next_work`
+reports `instances` per pair.
 
 So before retaining, read your model and confirm every quantity that belongs to
 the instance is taken *from* the instance argument, not typed in. A model whose
