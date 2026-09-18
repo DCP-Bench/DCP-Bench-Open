@@ -19,23 +19,18 @@ The dataset contains problems gathered from different sources.
 ## Generated models
 
 `generated_models/<problem>/<framework>/<submission>/` holds models produced by
-generative systems, not ground truth. Two kinds live there:
+generative systems, not ground truth. Every one was generated in this repository
+by the `model-generator` skill against an integration under `solvers/`, and kept
+only because the evaluator accepted it.
 
-Each model directory holds the model and one `record.json`, whose
-`verdict_source` says who judged it:
+Each model directory holds the model and one `record.json`. Its `verdict_source`
+is `container_evaluator`, and the evaluator's full result is embedded in the
+record. `generation/runs/` holds how each model was made.
 
-- `leaderboard` — imported once from the CP-Bench leaderboard
-  (`submissions/v1_verified` in the Hugging Face repo `kostis-init/my-storage`).
-  Every model was imported whether or not it was correct. The one-shot importer
-  has been removed now that the corpus is in the repository.
-- `cursor_demo` — models written for the abbots-puzzle demo across many
-  frameworks, judged by that demo rather than by any evaluator here.
-- `container_evaluator` — generated in this repository by the `model-generator`
-  skill and accepted by the evaluator, whose full result is embedded in the
-  record (`generation/runs/` records how each was made).
-
-Only the last kind counts as coverage, because only it was judged by the
-evaluator in this repository.
+Two other corpora used to live here: one imported from the CP-Bench leaderboard,
+and a set of abbots-puzzle demo models written across frameworks that have no
+integration here. Neither was judged by the evaluator in this repository, so
+neither counted as coverage, and both have been removed.
 
 ## Dataset decisions
 

@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Any
 
 from evaluation import evaluate as evaluate_model
-from evaluation.execution import integration
 from evaluation.check import INCONCLUSIVE as INCONCLUSIVE_REASONS
 from evaluation.results import EvaluationError
 
@@ -333,47 +332,28 @@ def evaluate(attempt_path: str, model_path: str) -> dict[str, Any]:
 def retained_record(record: dict[str, Any], evaluation: dict[str, Any], model_file: str) -> dict[str, Any]:
     """The single record kept beside a retained model, in `record.json`.
 
-    Every model under generated_models/ carries this shape, whether it came from
-    the CP-Bench leaderboard or from this evaluator. `verdict_source` says which,
-    because a leaderboard verdict was produced by different software on different
-    infrastructure and must never read as though this evaluator had accepted it.
+    Every model under generated_models/ carries this shape. `verdict_source`
+    names the software that produced the verdict, so a record imported from
+    elsewhere could never read as though this evaluator had accepted it.
+
+    Nothing here restates what `evaluation` and `attempt` already hold. How many
+    instances the acceptance covers, and whether the problem had only its
+    embedded example, are read from `evaluation`; a copy beside it is one more
+    thing that can fall out of date, and one did.
     """
     instances = evaluation.get("instances") or [{}]
     optimization = bool(instances[0].get("is_optimization"))
-    checked, available = evaluation.get("instances_checked"), evaluation.get("instances_available")
-    skipped = evaluation.get("skipped_instances") or []
-    coverage = f"{checked} of {available} instances"
-    if skipped:
-        coverage += f", {len(skipped)} inconclusive and skipped"
-    try:
-        name = integration(record["solver_id"]).get("name", record["solver_id"])
-    except EvaluationError:
-        name = record["solver_id"]
     return {
         "schema": 2,
         "problem": record["problem_id"],
-        "framework": name,
+        # No display name here. The catalogue reads it from
+        # solvers/<id>/metadata.yaml, so renaming an integration never has to
+        # chase a copy frozen into every record it ever produced.
         "solver": record["solver_id"],
-        "submission": f"{record['run_id']}-{record['attempt_id']}",
         "model_file": model_file,
         "verdict_source": "container_evaluator",
-        "origin_type": "machine_generated",
         "is_optimization": optimization,
-        "instances_checked": [item.get("id") for item in instances if item.get("accepted")],
-        # What the acceptance is evidence of. A problem with one instance cannot
-        # catch a model that fitted it, so say so here rather than leave a reader
-        # to work it out from the instance list.
-        "generality": {
-            "instances_available": available,
-            "evidenced_on": [item.get("id") for item in instances if item.get("accepted")],
-            "skipped": [{"id": item.get("id"), "reason": item.get("reason")}
-                        for item in instances if item.get("id") in skipped],
-            "example_only": available == 1,
-        },
-        "generated_by": {"base_llm": record.get("agent", "unknown"),
-                         "run": record["run_id"], "coverage": coverage},
-        "source": {"note": f"Retained by the container evaluator: {coverage}, "
-                           f"{evaluation.get('solutions_checked')} solutions checked."},
+        "generated_by": {"base_llm": record.get("agent", "unknown")},
         "verdict": {"badge": "solution_valid_and_optimal" if optimization else "solution_valid",
                     "evaluation": "performed", "execution": "success",
                     "objective": "passed" if optimization else "not_applicable"},

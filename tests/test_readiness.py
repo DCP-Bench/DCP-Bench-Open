@@ -89,6 +89,32 @@ class ReadinessTests(unittest.TestCase):
         (self.root / "solvers" / "demo" / "run.py").write_text("changed", encoding="utf-8")
         with self.assertRaises(readiness.ReadinessError): readiness.verify("demo", record_path)
 
+    def test_renaming_or_retagging_leaves_the_record_valid(self):
+        """A display name and a paradigm tag are read by the catalogue, not by
+        the container. Hashing metadata.yaml whole once invalidated all nine
+        records over a rename, so the record pins behaviour only."""
+        record_path = self.root / "record.json"
+        readiness.check("demo", self.write_report(self.report()), record_path)
+        for field, value in (("name", "Renamed"), ("paradigms", ["cp", "mip"])):
+            with self.subTest(field=field):
+                self.metadata[field] = value
+                self.assertTrue(readiness.verify("demo", record_path)["accepted"])
+
+    def test_a_behavioural_metadata_change_still_invalidates_the_record(self):
+        record_path = self.root / "record.json"
+        readiness.check("demo", self.write_report(self.report()), record_path)
+        for field, value in (("extension", ".zzz"), ("image", "other:image"),
+                             ("instance_binding", "rectangular_uniform")):
+            with self.subTest(field=field):
+                original = self.metadata.get(field)
+                self.metadata[field] = value
+                with self.assertRaisesRegex(readiness.ReadinessError, "changed since readiness check"):
+                    readiness.verify("demo", record_path)
+                if original is None:
+                    del self.metadata[field]
+                else:
+                    self.metadata[field] = original
+
     def test_checks_are_executed_rather_than_asserted(self):
         """The report is built from the script's real output, not from a claim."""
         report = readiness.run_checks("demo", self.root / "evidence")

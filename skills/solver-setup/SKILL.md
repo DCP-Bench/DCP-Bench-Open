@@ -48,7 +48,7 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    ```json
    {
      "id": "framework_language",
-     "name": "Framework — Language",
+     "name": "CPMpy",
      "language": "python",
      "framework": "cpmpy",
      "solver": "ortools",
@@ -60,12 +60,38 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    }
    ```
 
+   **`name` is what the community reads on the website, and the `id` is never
+   shown.** Name the integration after what a model author writes, and add a
+   qualifier only when an existing integration would otherwise be
+   indistinguishable from it. The backend solver belongs in `solver`, never in
+   the name: a MiniZinc model is the same text whether Gecode or Chuffed runs
+   it, so the integration is `MiniZinc`. A qualifier earns its place when it
+   changes what gets written — `OR-Tools CP-SAT (Python)` against
+   `OR-Tools CP-SAT (C++)`, or `SWI-Prolog CLP(FD)`, whose models open with
+   `:- use_module(library(clpfd))` and constrain with `#=`. Prefer a package
+   name that already carries the language, as `CPMpy` and `PyChoco` do, over
+   spelling it out. Names must be distinct; `tests/test_solvers.py` enforces
+   that much, and nothing can enforce a name being clear.
+
+   Renaming is cheap: the catalogue resolves `name` from this file on every
+   build, so no retained model has to be touched. Do not add a display name to
+   `record.json`.
+
    `id`, `image`, `extension` and `enumeration` are what the evaluator requires.
    Add `"optimization": false` only for an integration that genuinely cannot
    optimize, and `"compilation": true` only for one that compiles; both change
    which readiness tests are required, so declaring them wrongly either hides a
    gap or demands a test that makes no sense. Use literal Booleans, and never
    advertise a capability that was not tested.
+
+   **`language` names what a submission is written in, and the website reads
+   it.** It picks the label and the syntax highlighting above every model of
+   this integration, so `cpp` gets a block headed `C++` and `prolog` one headed
+   `Prolog`. Add a row to `LANGUAGES` in `generate_site.py` for a value that is
+   not there yet: it maps the language to a highlight.js grammar and a label.
+   highlight.js ships 36 grammars in the bundle the site loads; for a language
+   it has none for, pair the correct label with `plaintext` rather than a
+   grammar that would colour the model as something it is not.
 
    **`paradigms` is required, and it is not decorative.** The catalogue website
    groups every verified model by it, so an integration that omits the key or
@@ -165,8 +191,10 @@ python -m generation.readiness check --solver ID --output solvers/ID/readiness.j
 
 This runs your script, keeps its stdout and stderr as the evidence, and records
 the result only when the script exits zero with every required check true. The
-record binds the image identity and the hashes of `metadata.yaml`, `run.py`,
-`Dockerfile` and the check script, so editing any of them invalidates it and the
+record binds the image identity, the hashes of `run.py`, `Dockerfile` and the
+check script, and the behavioural fields of `metadata.yaml` — everything except
+`name` and `paradigms`, which the catalogue reads and the container does not.
+So editing any of them except those two invalidates the record and the
 checks must run again.
 
 `solvers/cpmpy_python/readiness_test.py`

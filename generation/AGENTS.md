@@ -72,8 +72,9 @@ failed.
 The run manifest and per-attempt profiles are frozen. Resume using `status` and
 preserved artifacts; changing a profile creates a new run, so choose a
 thorough profile up front — `instance_count: 99` covers every distinct instance
-a problem has, and a wrong model still fails on an early one. Historical/legacy directories are not overwritten. Retained artifacts
-live in a unique run/attempt child beneath `generated_models/PROBLEM/SOLVER/`.
+a problem has, and a wrong model still fails on an early one. Existing model
+directories are not overwritten: retained artifacts live in a unique run/attempt
+child beneath `generated_models/PROBLEM/SOLVER/`.
 
 ## Integration readiness
 
@@ -102,9 +103,11 @@ python -m generation.readiness verify --solver ID --record solvers/ID/readiness.
 `--report REPORT.json` skips execution and accepts a report you supply, for an
 integration whose checks genuinely cannot run from one script; prefer the script.
 
-The record binds actual image identity and the hashes of `metadata.yaml`,
-`run.py`, `Dockerfile` and `readiness_test.py`, plus the evidence hashes, so
-editing any of them invalidates it. Attempt creation, evaluation, and retention
+The record binds actual image identity, the hashes of `run.py`, `Dockerfile`
+and `readiness_test.py`, the behavioural fields of `metadata.yaml`, and the
+evidence hashes, so editing any of them invalidates it. `name` and `paradigms`
+are excluded: the catalogue reads them, the container does not, and hashing the
+whole file once invalidated every record over a rename. Attempt creation, evaluation, and retention
 verify it. Evidence paths are stored relative to the repository, so a record verifies on
 any checkout. Keep the evidence files available. A changed integration needs
 fresh tests and a new record; archive the old one before replacing its canonical

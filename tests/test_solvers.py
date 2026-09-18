@@ -56,6 +56,20 @@ class MetadataTests(unittest.TestCase):
                 self.assertTrue(entry["name"].strip())
                 self.assertTrue(entry["summary"].strip().endswith("."))
 
+    def test_every_integration_has_a_distinct_display_name(self):
+        """The catalogue groups models by integration ID and labels them with
+        `name`, so two integrations sharing a name would be two tabs a reader
+        cannot tell apart."""
+        names = {}
+        for solver, metadata in self.integrations.items():
+            with self.subTest(solver=solver):
+                name = metadata.get("name")
+                self.assertIsInstance(name, str)
+                self.assertTrue(name.strip(), "declare a display name")
+                self.assertNotIn(name, names,
+                                 f"{solver} and {names.get(name)} share the name {name!r}")
+                names[name] = solver
+
     def test_every_integration_declares_known_paradigms(self):
         known = {entry["id"] for entry in self.vocabulary}
         self.assertTrue(self.integrations, "no integrations found under solvers/")

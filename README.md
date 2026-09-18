@@ -8,7 +8,7 @@
 
 DCP-Bench Open is a collaborative benchmark of Discrete Combinatorial Problems using only integer and Boolean decision variables. Many problem formulations come from the Constraint Programming (CP) community, as well as the Integer Programming community (without continuous variables), Pseudo-Boolean and Satisfiability communities.
 
-[**Open the interactive DCP-Bench Open catalogue →**](https://dcp-bench.github.io/DCP-Bench-Open/)
+[**Open the interactive catalogue (DCP Rosetta) →**](https://dcp-bench.github.io/DCP-Bench-Open/)
 
 This benchmark has two primary goals:
 
@@ -17,10 +17,10 @@ This benchmark has two primary goals:
 
 In the repository, the ground-truth models are (currently) using the CPMpy library. The evaluation package runs registered solver integrations in containers and checks their declared outputs against the CPMpy reference. See [evaluation setup and usage](evaluation/README.md).
 
-The generated models shown on the website are a draft collection: the imported
-leaderboard submissions and the models generated in this repository are useful
-for exploring the interface and the evaluation workflow, but are not yet a
-settled generated-model benchmark. Use a tagged release when reporting results.
+The generated models shown on the website are a draft collection: every one was
+accepted by this repository's evaluator, but coverage is still growing, so the
+collection is not yet a settled generated-model benchmark. Use a tagged release
+when reporting results.
 
 This benchmark is an open source project that welcomes additional problems, data instances and evaluation tooling from interested developers. For reproducibility, always use a specific 'Release' in your research (see below). This project started as an extension of the original [CP-Bench](https://huggingface.co/datasets/kostis-init/CP-Bench) published at ECAI 2025.
 

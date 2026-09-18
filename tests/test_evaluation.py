@@ -9,7 +9,7 @@ from evaluation.execution import validate_records
 from evaluation.reference import Reference, embedded_instance, load_reference, select_instances
 from evaluation.results import canonical, EvaluationError, strict_json
 from evaluation.reference import ReferenceSession
-from evaluation.legacy import metrics, solver_id
+from evaluation.legacy import solver_id
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = '''
@@ -391,12 +391,12 @@ class OrchestrationTests(unittest.TestCase):
                 # The verified work is still reported, so a consumer can weigh it.
                 self.assertEqual(result["instances"][0]["solutions_checked"], 1)
 
-    def test_legacy_metadata(self):
-        result = self.run_records([{"type": "solution", "values": {"x": 0, "y": 2}}, {"type": "status", "status": "limit"}])
-        result["instances"][0]["is_optimization"] = True
-        record = metrics(result, "tiny", "CPMpy", "test", {"generated_by": {"base_llm": "test"}})
-        self.assertEqual(record["verdict"]["badge"], "solution_valid_and_optimal")
-        self.assertEqual(record["generated_by"]["base_llm"], "test")
+    def test_legacy_framework_names_map_onto_integrations(self):
+        """eval.py takes a framework name from a third party's JSONL. A known
+        name maps onto an integration; an unknown one is passed through to fail
+        as a missing integration, never run as arbitrary host Python."""
+        self.assertEqual(solver_id("CPMpy"), "cpmpy_python")
+        self.assertEqual(solver_id("or-tools"), "ortools_cp_sat_python")
         self.assertEqual(solver_id("z3"), "z3")
 
     def test_stop_at_failure(self):

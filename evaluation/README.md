@@ -160,12 +160,12 @@ by the reference solver. Instances must supply every data-section field; extra
 
 ## Legacy compatibility
 
-`eval.py` (JSONL CLI, JSON to `summary.txt`) and `verify_models.py`
-(single-model CLI with badge sidecars) both route through this package. Legacy
-framework names map onto integrations (CPMpy, OR-Tools, MiniZinc); anything
-else fails explicitly rather than running as arbitrary host Python. Legacy
-programs get the embedded example and one solution only. Stored results are
-not bulk migrated or reverified.
+`eval.py` (JSONL CLI, JSON to `summary.txt`) routes through this package.
+Legacy framework names map onto integrations (CPMpy, OR-Tools, MiniZinc);
+anything else fails explicitly rather than running as arbitrary host Python.
+It gets the embedded example and one solution only, so it cannot produce a
+record that belongs under `generated_models/` — `generation/manage.py` is what
+retains a model.
 
 ## Validation
 
