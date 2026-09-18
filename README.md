@@ -96,7 +96,7 @@ The source catalogue for the problems is documented in [SOURCES.md](SOURCES.md).
 
 ## Evaluation framework
 
-The container-based [evaluation package](evaluation/README.md) provides a Python API, a JSON CLI and configurable instance/solution counts. Eight integrations are certified: CPMpy, CP-SAT (Python and C++), MiniZinc/Gecode, Z3, clingo, SWI-Prolog/CLP(FD) and PuLP/CBC. Build their images explicitly with `python -m evaluation.build`.
+The container-based [evaluation package](evaluation/README.md) provides a Python API, a JSON CLI and configurable instance/solution counts. Ten integrations are certified: CPMpy, CP-SAT (Python and C++), MiniZinc/Gecode, Z3, clingo, SWI-Prolog/CLP(FD), PuLP/CBC, PyChoco and Pumpkin (Rust). Build their images explicitly with `python -m evaluation.build`.
 
 A model is accepted by falsification rather than by comparison: the evaluator enumerates the candidate's solutions and looks for one the reference rejects. Finding none within the budget is what acceptance means, so a larger solution limit is a stronger test.
 
