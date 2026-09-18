@@ -8,7 +8,7 @@
 
 DCP-Bench Open is a collaborative benchmark of Discrete Combinatorial Problems using only integer and Boolean decision variables. Many problem formulations come from the Constraint Programming (CP) community, as well as the Integer Programming community (without continuous variables), Pseudo-Boolean and Satisfiability communities.
 
-[**Open the interactive DCP-Bench Open catalogue →**](https://dcp-bench.github.io/DCP-Bench-Open/)
+[**Open the interactive catalogue (DCP Rosetta) →**](https://dcp-bench.github.io/DCP-Bench-Open/)
 
 This benchmark has two primary goals:
 
