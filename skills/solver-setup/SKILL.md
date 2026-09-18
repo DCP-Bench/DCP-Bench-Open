@@ -84,6 +84,15 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    gap or demands a test that makes no sense. Use literal Booleans, and never
    advertise a capability that was not tested.
 
+   **`language` names what a submission is written in, and the website reads
+   it.** It picks the label and the syntax highlighting above every model of
+   this integration, so `cpp` gets a block headed `C++` and `prolog` one headed
+   `Prolog`. Add a row to `LANGUAGES` in `generate_site.py` for a value that is
+   not there yet: it maps the language to a highlight.js grammar and a label.
+   highlight.js ships 36 grammars in the bundle the site loads; for a language
+   it has none for, pair the correct label with `plaintext` rather than a
+   grammar that would colour the model as something it is not.
+
    **`paradigms` is required, and it is not decorative.** The catalogue website
    groups every verified model by it, so an integration that omits the key or
    invents a tag either vanishes from the breakdown or silently splits a column
