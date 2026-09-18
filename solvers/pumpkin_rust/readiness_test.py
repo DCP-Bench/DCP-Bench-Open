@@ -77,6 +77,19 @@ SLOW = (HEAD + DECLARE + "    cp.eq(vec![t(x), t(y)], n);\n"
         "    let birds = cp.ints(40, 0, 38);\n"
         "    cp.all_different(terms(&birds));\n" + EXPORT + "    m\n" + TAIL)
 UNCOMPILABLE = "this is not Rust\n"
+# Pumpkin's AffineView::scaled multiplies the existing scale without rechecking
+# it, so a zero coefficient builds a zero-scaled view that later divides by zero
+# inside a propagator. Instance data containing a zero weight is ordinary, so the
+# driver has to absorb it: `weighted` drops those terms, the boolean helpers drop
+# those pairs, and a list emptied that way still has to post a valid constraint.
+ZERO_COEFFICIENTS = (HEAD + DECLARE
+                     + "    let padding = cp.int(0, 5);\n"
+                     + "    cp.eq(weighted(&[1, 1, 0], &[x, y, padding]), n);\n"
+                     + "    let ignored = cp.bools(3);\n"
+                     + "    cp.bool_le(&[0, 0, 0], &ignored, 0);\n"
+                     + "    let counted = cp.int(0, 0);\n"
+                     + "    cp.bool_sum_eq(&[0, 0, 0], &ignored, counted);\n"
+                     + EXPORT + "    m\n" + TAIL)
 
 # Rust can inspect its own container, so this check runs through the real
 # submission path. A failed probe panics, which run.py reports as an execution
@@ -150,6 +163,7 @@ def main():
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=2)
         check("compilation_error", UNCOMPILABLE, expected={"compilation_error"})
+        check("zero_coefficients", ZERO_COEFFICIENTS)
 
     try:
         image_identity({"id": SOLVER, "image": "dcp-eval/definitely-absent:readiness"})

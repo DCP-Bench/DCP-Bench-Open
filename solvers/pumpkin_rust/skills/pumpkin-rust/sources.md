@@ -40,6 +40,14 @@ alone.
 - `pumpkin-solver`'s build script shells out to `git` and, without
   `NO_CHECKERS=true`, compiles proof checkers from a `tests/` directory the
   published crate does not ship. Both are handled in the Dockerfile.
+- A zero coefficient in a linear constraint panics inside Pumpkin with "attempt
+  to divide by zero" at `pumpkin-core/src/math/num_ext.rs`. `AffineView::new`
+  asserts `scale != 0`, but `AffineView::scaled` multiplies the existing scale
+  without rechecking, so a zero-scaled view escapes that assert; Pumpkin's own
+  `boolean_less_than_or_equals` and `boolean_equals` scale by their weights and
+  reach the same path. Observed on the `three_sum` instance, whose `nums`
+  contains a zero; absorbed in the driver and guarded by the `zero_coefficients`
+  check in `readiness_test.py`.
 - Proc-macro dependencies build to `.so` rather than `.rlib`, so an image that
   copies only `*.rlib` out of the Cargo target directory fails at link time with
   a misleading "can't find crate" for the driver itself.

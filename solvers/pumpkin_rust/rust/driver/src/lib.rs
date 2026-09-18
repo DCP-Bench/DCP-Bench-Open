@@ -88,7 +88,17 @@ pub fn t(v: impl IntoTerm) -> Term {
 }
 
 /// `c * v` as a linear summand.
+///
+/// A zero coefficient is rejected here rather than passed on. Pumpkin's
+/// `AffineView::scaled` multiplies the existing scale without rechecking it, so
+/// a zero-scaled view is built happily and then divides by zero inside the
+/// propagator. Use [`weighted`], which drops zero-coefficient terms, when the
+/// coefficients come from instance data that may contain zeros.
 pub fn c(coefficient: i32, v: impl IntoTerm) -> Term {
+    assert_ne!(
+        coefficient, 0,
+        "c(0, ..) has no meaning as a summand; drop the term, or use weighted()"
+    );
     v.term().scaled(coefficient)
 }
 
@@ -109,9 +119,12 @@ pub fn weighted<T: IntoTerm + Copy>(coefficients: &[i32], vs: &[T]) -> Vec<Term>
         coefficients.len(),
         vs.len()
     );
+    // A zero coefficient contributes nothing and cannot be represented: see the
+    // note on `c`. Dropping it is the only meaning it could have had.
     coefficients
         .iter()
         .zip(vs)
+        .filter(|(&w, _)| w != 0)
         .map(|(&w, v)| v.term().scaled(w))
         .collect()
 }
@@ -500,6 +513,17 @@ impl Cp {
         self.solver.new_constraint_tag()
     }
 
+    /// A term list Pumpkin will accept. Filtering zero coefficients can empty a
+    /// list entirely, and an empty linear constraint has no propagator to build,
+    /// so it becomes `0 <op> rhs` over a variable fixed at zero.
+    fn nonempty(&mut self, terms: Vec<Term>) -> Vec<Term> {
+        if terms.is_empty() {
+            vec![self.constant(0).term()]
+        } else {
+            terms
+        }
+    }
+
     // --- variables ---------------------------------------------------------
 
     /// An integer variable with domain `[lo, hi]`.
@@ -559,6 +583,7 @@ impl Cp {
 
     /// `sum(terms) == rhs`.
     pub fn eq(&mut self, terms: Vec<Term>, rhs: i32) {
+        let terms = self.nonempty(terms);
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::equals(terms, rhs, tag))
@@ -567,6 +592,7 @@ impl Cp {
 
     /// `sum(terms) != rhs`.
     pub fn ne(&mut self, terms: Vec<Term>, rhs: i32) {
+        let terms = self.nonempty(terms);
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::not_equals(terms, rhs, tag))
@@ -575,6 +601,7 @@ impl Cp {
 
     /// `sum(terms) <= rhs`.
     pub fn le(&mut self, terms: Vec<Term>, rhs: i32) {
+        let terms = self.nonempty(terms);
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::less_than_or_equals(terms, rhs, tag))
@@ -772,11 +799,17 @@ impl Cp {
     /// `sum(weights[i] * literals[i]) <= rhs`.
     pub fn bool_le(&mut self, weights: &[i32], literals: &[Lit], rhs: i32) {
         assert_eq!(weights.len(), literals.len(), "bool_le(): weights/literals length mismatch");
+        // Pumpkin scales each literal by its weight, so a zero weight reaches
+        // the same divide-by-zero as `c(0, ..)`. Drop those pairs.
+        let (kept_weights, kept_literals) = keep_nonzero(weights, literals);
+        if kept_literals.is_empty() {
+            return self.le(Vec::new(), rhs);
+        }
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::boolean_less_than_or_equals(
-                weights.to_vec(),
-                literals.to_vec(),
+                kept_weights,
+                kept_literals,
                 rhs,
                 tag,
             ))
@@ -786,11 +819,15 @@ impl Cp {
     /// `sum(weights[i] * literals[i]) == target`.
     pub fn bool_sum_eq(&mut self, weights: &[i32], literals: &[Lit], target: Var) {
         assert_eq!(weights.len(), literals.len(), "bool_sum_eq(): weights/literals length mismatch");
+        let (kept_weights, kept_literals) = keep_nonzero(weights, literals);
+        if kept_literals.is_empty() {
+            return self.eq(vec![t(target)], 0);
+        }
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::boolean_equals(
-                weights.to_vec(),
-                literals.to_vec(),
+                kept_weights,
+                kept_literals,
                 target,
                 tag,
             ))
@@ -821,6 +858,7 @@ impl Cp {
 
     /// `flag <-> (sum(terms) == rhs)`.
     pub fn iff_eq(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
+        let terms = self.nonempty(terms);
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::equals(terms, rhs, tag))
@@ -829,6 +867,7 @@ impl Cp {
 
     /// `flag <-> (sum(terms) <= rhs)`.
     pub fn iff_le(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
+        let terms = self.nonempty(terms);
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::less_than_or_equals(terms, rhs, tag))
@@ -855,6 +894,7 @@ impl Cp {
 
     /// `flag -> (sum(terms) == rhs)`, leaving the converse free.
     pub fn when_eq(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
+        let terms = self.nonempty(terms);
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::equals(terms, rhs, tag))
@@ -863,6 +903,7 @@ impl Cp {
 
     /// `flag -> (sum(terms) <= rhs)`, leaving the converse free.
     pub fn when_le(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
+        let terms = self.nonempty(terms);
         let tag = self.tag();
         self.solver
             .add_constraint(pumpkin_solver::less_than_or_equals(terms, rhs, tag))
@@ -886,6 +927,16 @@ impl Cp {
     pub fn upper_bound(&self, v: impl IntoTerm) -> i32 {
         self.solver.upper_bound(&v.term())
     }
+}
+
+/// Split a weighted literal list, dropping every zero-weighted pair.
+fn keep_nonzero(weights: &[i32], literals: &[Lit]) -> (Vec<i32>, Vec<Lit>) {
+    weights
+        .iter()
+        .zip(literals)
+        .filter(|(&w, _)| w != 0)
+        .map(|(&w, &l)| (w, l))
+        .unzip()
 }
 
 // ---------------------------------------------------------------------------

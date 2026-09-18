@@ -105,6 +105,14 @@ cp.ne(vec![t(a), c(-1, b)], 3);         // a - b != 3
 
 `eq`, `ne`, `le`, `lt`, `ge`, `gt` all take `(Vec<Term>, i32)`.
 
+**A zero coefficient cannot reach Pumpkin.** `AffineView::scaled` multiplies the
+existing scale without rechecking it, so a zero-scaled view is built happily and
+then divides by zero inside a propagator — an `execution_error` reading "attempt
+to divide by zero", nowhere near the line that caused it. `weighted` and the
+`bool_*` helpers drop zero-coefficient entries for you, which is why coefficient
+arrays taken straight from instance data are safe. `c(0, x)` fails loudly
+instead, because a hand-written zero coefficient is a modelling slip.
+
 When the right-hand side is itself a variable, use the `sum_*` family, which
 moves it across for you: `cp.sum_eq(terms(&xs), total)`, `cp.sum_le`,
 `cp.sum_ge`. `cp.same(a, b)` and `cp.differ(a, b)` are the two-variable cases.
