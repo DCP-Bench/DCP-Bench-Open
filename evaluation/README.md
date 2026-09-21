@@ -38,7 +38,7 @@ target linux/amd64 and pin their solver versions. Build them explicitly —
 `evaluate()` never builds or installs anything:
 
 ```sh
-python -m evaluation.build                      # all eight, or name specific ids
+python -m evaluation.build                      # every integration, or name specific ids
 python -m evaluation.check examples/abbots.py --problem abbots_puzzle --solver cpmpy_python
 python -m evaluation.check examples/abbots.py --problem abbots_puzzle --solver cpmpy_python --solution-limit 2
 ```

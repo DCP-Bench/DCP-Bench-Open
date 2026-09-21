@@ -99,6 +99,14 @@ python -m generation.readiness check --solver ID --output solvers/ID/readiness.j
 python -m generation.readiness verify --solver ID --record solvers/ID/readiness.json
 ```
 
+**A committed record does not survive a rebuild, so a fresh checkout has to
+certify before it can generate.** The record binds the image identity, and a
+Docker image ID is not reproducible: the same Dockerfile built twice yields two
+IDs. So after `python -m evaluation.build`, run `readiness check` once per
+integration, or `next_work` reports every one of them as `ready: false` with
+`Integration image changed since readiness check`. The evaluator itself does not
+consult readiness, so evaluating models needs only the built image.
+
 `--evidence-dir` puts the captured output somewhere other than beside the record.
 `--report REPORT.json` skips execution and accepts a report you supply, for an
 integration whose checks genuinely cannot run from one script; prefer the script.
