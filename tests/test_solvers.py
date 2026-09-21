@@ -13,7 +13,8 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
           "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
-          "pysat": "model_pysat.py", "hermax": "model_hermax.py"}
+          "pysat": "model_pysat.py", "hermax": "model_hermax.py",
+          "exact": "model_exact.py"}
 
 # Integrations whose metadata says they cannot optimize. The pilot cases that
 # need an objective are not run for these, and they carry no MAXIMIZATION_SWAPS
@@ -32,7 +33,8 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "pulp_cbc": ("LpMinimize", "LpMaximize"),
                       "pumpkin_rust": ("minimise", "maximise"),
                       "choco_python": ("minimize", "maximize"),
-                      "hermax": ("minimize", "maximize")}
+                      "hermax": ("minimize", "maximize"),
+                      "exact": ("minimise", "maximise")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.
