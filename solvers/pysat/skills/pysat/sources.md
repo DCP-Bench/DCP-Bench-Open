@@ -33,5 +33,9 @@ documentation alone.
   overlap. All produced the expected assignment.
 - `pypblib` ships no wheel for Python 3.12, so the image compiles it and drops
   the compiler again in the same layer.
-- Pigeonhole is the reliable way to make this solver run long: 13 pigeons into
-  12 holes is refuted in under a second, 14 into 13 runs for well over a minute.
+- Pigeonhole is the reliable way to make this solver run long. How long depends
+  sharply on the backend, so the figures are worth attaching to one: CaDiCaL
+  refutes 13 pigeons into 12 holes in about 0.6 seconds and needs well over a
+  minute for 14 into 13, while Glucose, which this integration actually uses,
+  already exceeds two seconds on 13 into 12. That is what the
+  `timeout_cleanup` check relies on.

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "skill_name": "hermax",
+  "evals": [
+    {
+      "id": "objective-is-a-tied-variable",
+      "prompt": "Using this skill, write a hermax submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        "The objective is an IntVar tied to the optimised quantity with link_bool_sum, link_sum or link_count, rather than left free or passed as an expression.",
+        "The objective variable's upper bound is derived from the instance rather than set to a round constant, because its domain size is its cost in soft clauses.",
+        "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result, including the runner status."
+    },
+    {
+      "id": "unproven-optimum-is-not-success",
+      "prompt": "Using this skill, write a hermax submission for an optimisation problem large enough that the optimum is not proven inside the budget, and report what the evaluator says.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
+      "expected_output": "A recorded execution_timeout, with no solution reported as optimal.",
+      "assertions": [
+        "The result is execution_timeout rather than an accepted or suboptimal solution, because a solution found without a proof of optimality is not emitted.",
+        "The reasoning distinguishes the solver reaching an answer from the solver proving it best."
+      ],
+      "evidence_required": "The evaluator JSON result, including the runner status and solutions_checked."
+    },
+    {
+      "id": "satisfaction-without-an-objective",
+      "prompt": "Using this skill, write a hermax submission for a satisfaction problem and check it with the repository evaluator across every listed instance.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The submission returns two values rather than three, since there is nothing to optimise, and no soft clauses are created.",
+        "Every instance-dependent quantity comes from the instance argument, and the evaluator accepts every listed instance rather than only the example."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result for the run."
+    }
+  ]
+}
