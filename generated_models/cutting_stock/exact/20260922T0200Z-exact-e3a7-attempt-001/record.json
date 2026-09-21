@@ -1,0 +1,115 @@
+{
+  "attempt": {
+    "agent": "claude-opus-5 (Claude Code, model-generator campaign)",
+    "attempt_id": "attempt-001",
+    "created_at": 1790034573.3725157,
+    "problem_id": "cutting_stock",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "61a8bb241c5874b1864e1641e268f567d22666f8d5d75d8edc539352ee680f6a",
+    "run_id": "20260922T0200Z-exact-e3a7",
+    "schema": 2,
+    "skill_bundle_hash": "a2d73510335ee4af38ec4bea3b0386e07c209e4b5f21536c1a9383f0d51ea633",
+    "skill_source": "solvers\\exact\\skills\\exact",
+    "skill_version": {
+      "commit": "aee4fa3f133c6713dbce7a299a781b2782723b74",
+      "modified": false,
+      "path": "solvers/exact/skills/exact"
+    },
+    "solver_id": "exact"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:615af09c6bff39570f059aca39a04f7920524f9edafcef228a0f0353566ab4f0",
+      "tag": "dcp-eval/exact:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.0030257999897003174,
+        "execution_wall_seconds": 0.6209945000009611,
+        "first_solution": {
+          "min_rolls_cut": 6,
+          "patterns_used": [
+            4,
+            2
+          ]
+        },
+        "id": "example",
+        "instance_hash": "5ae3aad25a32ee7919128c2da0f956e3085a7ffb89df95d2e6540e49ed8e38a7",
+        "is_optimization": true,
+        "optimum": 6,
+        "outputs": [
+          "patterns_used",
+          "min_rolls_cut"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.7842751999851316,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.006929313000000548,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "9bcd32b371236a33056a5ecda7154f278e1d77cbb04680c95e4654d9d0cd5faf",
+    "problem_id": "cutting_stock",
+    "reason": "accepted",
+    "reference_hash": "f0e0be113e31e788237e9ecc97c27ecdcdef6850d3c2eaeb76f8effb323e7109",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "exact",
+    "total_wall_seconds": 1.8031970000010915,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-opus-5 (Claude Code, model-generator campaign)"
+  },
+  "is_optimization": true,
+  "model_file": "model.py",
+  "problem": "cutting_stock",
+  "schema": 2,
+  "solver": "exact",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
