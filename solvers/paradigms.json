@@ -28,5 +28,15 @@
     "id": "asp",
     "name": "Answer set programming",
     "summary": "The model is a logic program of rules that a grounder expands over the instance data before a solver searches for its stable models. Choice rules generate candidate answers and integrity constraints reject the ones that break the problem, so how much a rule grounds to is a modelling concern in its own right."
+  },
+  {
+    "id": "maxsat",
+    "name": "Maximum satisfiability",
+    "summary": "A propositional formula split into hard clauses that must hold and soft clauses that carry a weight, where the solver looks for an assignment satisfying every hard clause at the least total weight of violated soft ones. The objective is therefore not an expression over variables but a set of clauses the modeller is willing to give up, and expressing a numeric cost means choosing which clauses carry it."
+  },
+  {
+    "id": "pb",
+    "name": "Pseudo-Boolean",
+    "summary": "Constraints are linear inequalities over Boolean variables with integer coefficients, which keeps SAT's Boolean core while letting counting and numeric bounds be written directly instead of encoded into clauses. An objective is a linear function of the same variables, so optimisation needs no separate machinery."
   }
 ]
