@@ -12,7 +12,18 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "ortools_cp_sat_cpp": "model.cpp", "minizinc_gecode": "model.mzn",
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
-          "pumpkin_rust": "model.rs"}
+          "pumpkin_rust": "model.rs", "choco_python": "model_choco.py"}
+
+# The minimize/maximize spelling each pilot fixture uses, so `test_maximization`
+# can turn it around. Kept beside PILOTS because the two are added together.
+MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_python": ("minimize", "maximize"),
+                      "ortools_cp_sat_cpp": ("Minimize", "Maximize"), "minizinc_gecode": ("minimize", "maximize"),
+                      "z3_python": ("minimize", "maximize"),
+                      "clingo_asp": ("minimize", "maximize"),
+                      "swipl_clpfd": ("min(", "max("),
+                      "pulp_cbc": ("LpMinimize", "LpMaximize"),
+                      "pumpkin_rust": ("minimise", "maximise"),
+                      "choco_python": ("minimize", "maximize")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.
@@ -43,6 +54,12 @@ class MetadataTests(unittest.TestCase):
         self.integrations = {
             path.parent.name: json.loads(path.read_text(encoding="utf-8"))
             for path in sorted((ROOT / "solvers").glob("*/metadata.yaml"))
+        }
+        # An integration counts as certified once it carries a readiness record,
+        # which is also what next_work uses to decide it may be used at all.
+        self.certified = {
+            solver: metadata for solver, metadata in self.integrations.items()
+            if (ROOT / "solvers" / solver / "readiness.json").is_file()
         }
 
     def test_paradigm_vocabulary_is_well_formed(self):
@@ -82,6 +99,45 @@ class MetadataTests(unittest.TestCase):
                 self.assertCountEqual(paradigms, set(paradigms), "repeated paradigm")
                 for tag in paradigms:
                     self.assertIn(tag, known, f"add {tag!r} to solvers/paradigms.json first")
+
+    def test_every_language_has_a_website_row(self):
+        """`language` picks the label and the grammar above every model of an
+        integration. A value `generate_site.py` does not know is not an error
+        there: the page just renders the model unlabelled and uncoloured, which
+        nobody notices until they look at it."""
+        import generate_site
+
+        for solver, metadata in self.integrations.items():
+            with self.subTest(solver=solver):
+                language = metadata.get("language")
+                self.assertIn(language, generate_site.LANGUAGES,
+                              f"add a {language!r} row to LANGUAGES in generate_site.py")
+                self.assertIn(metadata["extension"], generate_site.EXTENSION_LANGUAGE,
+                              f"add {metadata['extension']!r} to EXTENSION_LANGUAGE in generate_site.py")
+
+    def test_every_certified_integration_is_a_pilot(self):
+        """The pilot suite is what proves an integration still round-trips after
+        a shared runner change. An integration missing from PILOTS is not tested
+        by it and nothing else says so."""
+        self.assertTrue(self.certified, "no certified integrations found under solvers/")
+        for solver in self.certified:
+            with self.subTest(solver=solver):
+                self.assertIn(solver, PILOTS, f"add {solver} to PILOTS in this file")
+                fixture = ROOT / "tests/fixtures" / PILOTS[solver]
+                self.assertTrue(fixture.is_file(), f"missing pilot fixture {fixture}")
+                self.assertIn(solver, MAXIMIZATION_SWAPS,
+                              f"add {solver} to MAXIMIZATION_SWAPS in this file")
+
+    def test_readme_names_every_certified_integration(self):
+        """The README's list drifted once already: PyChoco was certified and
+        went unlisted, because nothing checked. This checks the names, not the
+        sentence around them, so the prose stays free. It catches an omission
+        rather than a stale entry, which is the direction that actually drifts."""
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        for solver, metadata in self.certified.items():
+            with self.subTest(solver=solver):
+                self.assertIn(metadata["name"], readme,
+                              f"README.md does not name the certified integration {metadata['name']!r}")
 
 
 @unittest.skipUnless(os.environ.get("DCP_CONTAINER_TESTS") == "1", "Set DCP_CONTAINER_TESTS=1 after building images")
@@ -128,13 +184,7 @@ class ContainerTests(unittest.TestCase):
             self.assertEqual(result["solutions_checked"], 3)
 
     def test_maximization(self):
-        replacements = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_python": ("minimize", "maximize"),
-                        "ortools_cp_sat_cpp": ("Minimize", "Maximize"), "minizinc_gecode": ("minimize", "maximize"),
-                        "z3_python": ("minimize", "maximize"),
-                        "clingo_asp": ("minimize", "maximize"),
-                        "swipl_clpfd": ("min(", "max("),
-                        "pulp_cbc": ("LpMinimize", "LpMaximize"),
-                        "pumpkin_rust": ("minimise", "maximise")}
+        replacements = MAXIMIZATION_SWAPS
         for solver, filename in PILOTS.items():
             with self.subTest(solver=solver), tempfile.TemporaryDirectory() as temp:
                 original = ROOT / "tests/fixtures" / filename
