@@ -12,7 +12,15 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "ortools_cp_sat_cpp": "model.cpp", "minizinc_gecode": "model.mzn",
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
-          "pumpkin_rust": "model.rs", "choco_python": "model_choco.py"}
+          "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
+          "pysat": "model_pysat.py"}
+
+# Integrations whose metadata says they cannot optimize. The pilot cases that
+# need an objective are not run for these, and they carry no MAXIMIZATION_SWAPS
+# entry, because there is no direction in their fixture to turn around.
+def satisfaction_only(solver):
+    path = ROOT / "solvers" / solver / "metadata.yaml"
+    return json.loads(path.read_text(encoding="utf-8")).get("optimization", True) is False
 
 # The minimize/maximize spelling each pilot fixture uses, so `test_maximization`
 # can turn it around. Kept beside PILOTS because the two are added together.
@@ -125,8 +133,9 @@ class MetadataTests(unittest.TestCase):
                 self.assertIn(solver, PILOTS, f"add {solver} to PILOTS in this file")
                 fixture = ROOT / "tests/fixtures" / PILOTS[solver]
                 self.assertTrue(fixture.is_file(), f"missing pilot fixture {fixture}")
-                self.assertIn(solver, MAXIMIZATION_SWAPS,
-                              f"add {solver} to MAXIMIZATION_SWAPS in this file")
+                if not satisfaction_only(solver):
+                    self.assertIn(solver, MAXIMIZATION_SWAPS,
+                                  f"add {solver} to MAXIMIZATION_SWAPS in this file")
 
     def test_readme_names_every_certified_integration(self):
         """The README's list drifted once already: PyChoco was certified and
@@ -186,6 +195,8 @@ class ContainerTests(unittest.TestCase):
     def test_maximization(self):
         replacements = MAXIMIZATION_SWAPS
         for solver, filename in PILOTS.items():
+            if satisfaction_only(solver):
+                continue
             with self.subTest(solver=solver), tempfile.TemporaryDirectory() as temp:
                 original = ROOT / "tests/fixtures" / filename
                 model = Path(temp) / ("model" + original.suffix)
@@ -211,6 +222,8 @@ class ContainerTests(unittest.TestCase):
     def test_pilots(self):
         for solver, filename in PILOTS.items():
             for optimize in (False, True):
+                if optimize and satisfaction_only(solver):
+                    continue
                 with self.subTest(solver=solver, optimize=optimize):
                     source = SOURCE.replace("optimize = False", f"optimize = {optimize}")
                     result = evaluate(ROOT / "tests/fixtures" / filename, "tiny", solver,
