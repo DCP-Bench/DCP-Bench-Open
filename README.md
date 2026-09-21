@@ -59,11 +59,12 @@ python -m http.server 8000 --directory site
 Then open <http://localhost:8000/>. The hosted version is the [interactive catalogue](https://dcp-bench.github.io/DCP-Bench-Open/).
 
 Alongside the problem catalogue, the
-[paradigm breakdown](https://dcp-bench.github.io/DCP-Bench-Open/paradigms.html)
+[solver breakdown](https://dcp-bench.github.io/DCP-Bench-Open/paradigms.html)
 groups the verified models by the kind of model they are — constraint
-programming, MIP, SMT, ASP and so on — with how much of the catalogue each
-paradigm reaches and which problems have been modelled in more than one of
-them. Those are the problems worth reading side by side.
+programming, CLP, MIP, SMT, ASP and so on — with the solvers behind each kind,
+how much of the catalogue each one reaches, and which problems have been
+modelled in more than one of them. Those are the problems worth reading side by
+side.
 
 ## Repository Structure
 

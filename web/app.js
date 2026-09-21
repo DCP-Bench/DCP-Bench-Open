@@ -247,11 +247,14 @@
   }
 
   /* Let another page hand the catalogue a filter, as paradigms.html does with
-     index.html?paradigm=mip. Unknown values simply match no checkbox. */
+     index.html?paradigm=mip and index.html?framework=swipl_clpfd. Unknown
+     values simply match no checkbox. The framework group is a radio group whose
+     "Any" option is checked by default, so selecting one of its values clears
+     that default without any extra handling here. */
   function applyQueryFilters() {
     if (!window.URLSearchParams) return;
     var params = new URLSearchParams(window.location.search);
-    ["type", "source", "instances", "paradigm"].forEach(function (group) {
+    ["type", "source", "instances", "paradigm", "framework"].forEach(function (group) {
       var values = params.getAll(group).join(",").split(",");
       values.forEach(function (value) {
         if (!value) return;

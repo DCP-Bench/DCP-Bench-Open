@@ -25,7 +25,7 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v11"
+ASSET_VERSION = "catalogue-v12"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -137,7 +137,7 @@ def snippet(text: str, limit: int = 180) -> str:
 
 def page(title: str, prefix: str, active: str, body: str, description: str = "") -> str:
     nav = [f'<a class="brand" href="{prefix}index.html">Homepage</a>']
-    for key, label in (("paradigms", "Paradigms"),):
+    for key, label in (("paradigms", "Solvers"),):
         cls = ' class="active"' if active == key else ""
         nav.append(f'<a{cls} href="{prefix}{key}.html">{label}</a>')
     nav.append('<span class="spacer"></span>')
@@ -543,6 +543,18 @@ def coverage_bar(count: int, total: int) -> str:
 
 
 
+def solver_problem_link(solver: str, breakdown: dict) -> str:
+    """The problem count for one solver, opening the catalogue filtered to it.
+
+    The catalogue reads `framework` from the query string, and its framework
+    filter is a radio group, so selecting one clears the default "Any".
+    """
+    count = breakdown["integration_problems"].get(solver, 0)
+    if not count:
+        return "0"
+    return f'<a href="index.html?framework={esc(solver)}">{count}</a>'
+
+
 def build_paradigms(problems: list, breakdown: dict) -> None:
     """The paradigm breakdown: coverage, then the integrations behind each row."""
     ranked = breakdown["paradigms"]
@@ -567,7 +579,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             f'<tr><td>{esc(INTEGRATIONS[solver].get("name", solver))}</td>'
             f'<td class="mono">{esc(solver)}</td>'
             f'<td>{esc(INTEGRATIONS[solver].get("language", ""))}</td>'
-            f'<td class="num">{breakdown["integration_problems"].get(solver, 0)}</td></tr>'
+            f'<td class="num">{solver_problem_link(solver, breakdown)}</td></tr>'
             for solver in item["integrations"]
         )
         details.append(
@@ -584,13 +596,13 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     body = f"""
     <div class="section"><h2>Coverage by paradigm</h2>
       <div class="matrix-wrap">
-      <table class="plain"><thead><tr><th>Paradigm</th><th>ID</th>
-      <th class="num">Integrations</th><th>Problems covered</th>
+      <table class="plain"><thead><tr><th>Paradigm</th><th>Abbrev.</th>
+      <th class="num">Solvers</th><th>Problems covered</th>
       <th class="num">Models</th></tr></thead><tbody>{coverage_rows}</tbody></table></div></div>
     {"".join(details)}
     """
     (OUTPUT_DIR / "paradigms.html").write_text(
-        page("Paradigms", "", "paradigms", body,
+        page("Solvers", "", "paradigms", body,
              "How DCP Rosetta's verified models break down by modelling paradigm."),
         encoding="utf-8",
     )
