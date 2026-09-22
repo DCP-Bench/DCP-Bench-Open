@@ -24,6 +24,15 @@ taken from documentation alone.
 - Its module docstring calls it "experimental" and "intentionally lightweight",
   and says it is not full-featured. It carries `add_linear`,
   `add_alldifferent`, `add_equal` and `add_not_equal`, and nothing else global.
+- **The "experimental" label is about its user propagator, which this
+  integration does not use.** The module's own worked example ends in
+  `solver.connect_propagator(eng)`, so the propagator looks like the way in;
+  `clausify()` is the other path and compiles every linear constraint with
+  `CardEnc.atmost(seqcounter)` or `PBEnc.atmost(best)`. The runner takes a
+  `CNF` and solves it with Glucose, so no propagator is ever connected.
+  Checked by enumerating every solution the clausified CNF admits against
+  brute force over the same domains, on five constraint shapes including
+  weighted and negative coefficients: the sets matched exactly.
 - `add_alldifferent`, `add_equal` and `add_not_equal` read `.vpool` off their
   arguments, so a `LinearExpr` raises `AttributeError: 'LinearExpr' object has
   no attribute 'vpool'`. Expressions go through `add_linear`.
