@@ -7,10 +7,14 @@ output as the readiness evidence.
 
 The optimisation checks are the ones that matter here. A MaxSAT solver reaches
 an answer long before it proves that answer best, and hermax reports the
-difference through `SolveStatus`: `OPTIMUM` against `INTERRUPTED_SAT`. The
+difference through the solve status: `optimum` against `interrupted_sat`. The
 runner emits a solution only on the former, so minimization and maximization
 below are really checking that the objective the reference computes is the one
 this integration reaches, in both directions.
+
+`native_api` and `rejects_objective_tuple` guard the mistake this integration
+was rebuilt to fix: submissions have to be written against `hermax.model`, and
+the objective belongs on `model.obj` rather than in the value returned.
 """
 import json
 from pathlib import Path
@@ -46,37 +50,37 @@ print(json.dumps(solution))
 OPTIMIZING = REFERENCE.replace("optimize = False", "optimize = True")
 MAXIMIZING = OPTIMIZING.replace("model.minimize", "model.maximize")
 
-HEAD = '''from dcp_maxsat import MaxSat
+HEAD = '''from hermax.model import Model
 
 
 def build(instance):
     n = instance["n"]
-    sat = MaxSat()
-    x = sat.int(0, n)
-    y = sat.int(0, n)
+    m = Model()
+    x = m.int("x", 0, n)
+    y = m.int("y", 0, n)
 '''
-EXPORT = '    return sat, {"x": x, "y": y}\n'
+EXPORT = '    return m, {"x": x, "y": y}\n'
 
-GOOD = HEAD + "    sat.sum_eq([x, y], n)\n" + EXPORT
+GOOD = HEAD + "    m &= (x + y == n)\n" + EXPORT
 # `n` is a maximum here, so the objective has room to move in both directions.
-OPTIMAL = (HEAD + "    sat.sum_ge([x, y], n)\n"
-           "    total = sat.int(0, 2 * n)\n"
-           "    sat.link_sum([(1, x), (1, y)], total)\n"
-           '    return sat, {"x": x, "y": y}, ("DIRECTION", total)\n')
+OPTIMAL = HEAD + "    m &= (x + y >= n)\n    m.obj += OBJECTIVE\n" + EXPORT
+# The contract this integration used before it was rebuilt on hermax.model. It
+# has to fail loudly rather than be silently ignored.
+OBJECTIVE_TUPLE = (HEAD + "    m &= (x + y >= n)\n"
+                   '    return m, {"x": x, "y": y}, ("minimize", x + y)\n')
 # Solves, then corrupts the protocol stream the runner owns.
-MALFORMED = (HEAD + "    sat.sum_eq([x, y], n)\n"
-             "    import sys, os\n"
+MALFORMED = (HEAD + "    m &= (x + y == n)\n"
+             "    import os\n"
              "    os.write(1, b'this is not a protocol record\\n')\n" + EXPORT)
-UNSATISFIABLE = (HEAD + "    sat.linear_eq([(1, x)], 0)\n"
-                 "    sat.linear_eq([(1, x)], 1)\n" + EXPORT)
+UNSATISFIABLE = HEAD + "    m &= (x == 0)\n    m &= (x == 1)\n" + EXPORT
 # A pigeonhole big enough that the solver cannot refute it in two seconds.
 # EvalMaxSAT is much faster at this than the SAT integration's Glucose: it
 # refutes 13 into 12 in under a second, where 16 into 15 runs past a minute.
-SLOW = (HEAD + "    sat.sum_eq([x, y], n)\n"
-        "    birds = sat.ints(16, 1, 15)\n"
-        "    sat.all_different(birds)\n" + EXPORT)
+SLOW = (HEAD + "    m &= (x + y == n)\n"
+        '    birds = m.int_vector("birds", 16, 1, 15)\n'
+        "    m &= birds.all_different()\n" + EXPORT)
 
-ISOLATED = '''from dcp_maxsat import MaxSat
+ISOLATED = '''from hermax.model import Model
 
 
 def build(instance):
@@ -102,11 +106,39 @@ def build(instance):
         probe.close()
 
     n = instance["n"]
-    sat = MaxSat()
-    x = sat.int(0, n)
-    y = sat.int(0, n)
-    sat.sum_eq([x, y], n)
-    return sat, {"x": x, "y": y}
+    m = Model()
+    x = m.int("x", 0, n)
+    y = m.int("y", 0, n)
+    m &= (x + y == n)
+    return m, {"x": x, "y": y}
+'''
+
+# The image must carry the framework itself and nothing standing in for it.
+NATIVE = '''import hermax
+from hermax.model import BoolVector, IntVector, Model
+
+
+def build(instance):
+    assert hermax.__version__ == "1.2.5", hermax.__version__
+    # The modelling layer the submissions are written against, not a wrapper
+    # shipped alongside the runner.
+    assert Model.__module__.startswith("hermax."), Model.__module__
+    for absent in ("dcp_maxsat", "dcp_sat", "dcp_pb"):
+        try:
+            __import__(absent)
+            raise AssertionError(f"{absent} is still installed in the image")
+        except ImportError:
+            pass
+    probe = Model()
+    assert isinstance(probe.int_vector("probe", 2, 0, 1), IntVector)
+    assert isinstance(probe.bool_vector("flags", 2), BoolVector)
+
+    n = instance["n"]
+    m = Model()
+    x = m.int("x", 0, n)
+    y = m.int("y", 0, n)
+    m &= (x + y == n)
+    return m, {"x": x, "y": y}
 '''
 
 
@@ -130,10 +162,13 @@ def main():
         check("satisfaction", GOOD)
         check("changed_instances", GOOD, instances=[{"n": 3, "optimize": False}], instance_count=2)
         check("enumeration", GOOD, solution_limit=3)
-        check("minimization", OPTIMAL.replace("DIRECTION", "minimize"), reference=OPTIMIZING)
-        check("maximization", OPTIMAL.replace("DIRECTION", "maximize"),
+        check("minimization", OPTIMAL.replace("OBJECTIVE", "x + y"), reference=OPTIMIZING)
+        check("maximization", OPTIMAL.replace("OBJECTIVE", "(2 * n) - (x + y)"),
               reference=MAXIMIZING)
+        check("native_api", NATIVE)
         check("isolation", ISOLATED)
+        check("rejects_objective_tuple", OBJECTIVE_TUPLE,
+              reference=OPTIMIZING, expected={"execution_error", "invalid_output"})
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=2)

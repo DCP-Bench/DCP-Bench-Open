@@ -3,38 +3,48 @@
 Documentation this skill's instructions were written from. Add an entry whenever
 a claim here comes from a specific page or version.
 
-- <https://github.com/josalhor/hermax> — hermax 1.2.5, "a Python library of
-  incremental MaxSAT solvers", and the backends it wraps.
-- <https://pysathq.github.io/docs/html/api/card.html> and
-  <https://pysathq.github.io/docs/html/api/pb.html> — `CardEnc` and `PBEnc`,
-  used here only to build clauses, not to solve.
-- `solvers/hermax/dcp_maxsat.py`, `run.py` and `Dockerfile` in this repository —
-  the contract this skill describes.
+- <https://github.com/josalhor/hermax> — hermax 1.2.5, and `hermax.model`, the
+  modelling layer submissions are written against.
+- `solvers/hermax/run.py` and `Dockerfile` in this repository — the contract
+  this skill describes.
 
-Every claim below was checked by running it inside the integration image during
-the run recorded at `generation/runs/20260922T0100Z-hermax-c9d2`, not taken from
-documentation alone.
+Every claim below was checked by running it inside the integration image, not
+taken from documentation alone.
 
-- **No hermax backend can be time-bounded in process.** `solve(time_limit=...)`
-  raises `NotImplementedError: EvalMaxSAT2022 does not support time_limit`, and
-  `set_terminate` raises `set_terminate is not implemented by this solver`. The
-  same was true of every backend that would instantiate: EvalMaxSATLatestReentrant,
-  OLLSolver, the four OpenWBO variants, PartMSU3Solver, RC2, RC2Reentrant, the
-  UWrMaxSAT variants and WMaxCDCL. So the runner supervises the search in a
-  child process and kills it on budget, which was confirmed by a 16-into-15
-  pigeonhole stopping at 60.8 seconds against a 60 second budget.
-- `SolveStatus` is `INTERRUPTED(0)`, `INTERRUPTED_SAT(10)`, `UNSAT(20)`,
-  `OPTIMUM(30)`, `ERROR(40)`, `UNKNOWN(60)`. Only `OPTIMUM` means the answer is
-  proven best, which is what makes honest optimisation reporting possible here.
-- `SolveStatus` is an `IntEnum`, and `str()` on one yields the number rather
-  than the name under Python 3.11+, so comparisons must use `.name`.
-- `add_clause` extends the variable count on its own: a clause over variables
-  the solver was never told about took `num_vars` from 0 to 6. So the modelling
-  layer can allocate identifiers independently and hand over finished clauses.
-  `num_vars` is a property, not a method.
-- The solver is genuinely incremental across solve calls: blocking the optimal
-  assignment and re-solving returned the next-best cost rather than repeating
-  the first answer. That is what optimal-solution enumeration relies on.
+- `hermax.model.Model` is the framework's own modelling layer: Boolean, integer,
+  enum, set and interval variables, vectors, matrices and dicts of each,
+  `all_different`, the cardinality helpers, `cumulative`, `max`/`min`/`sum_var`,
+  and `solve`. The package exposes it as `hermax.model` beside `hermax.core`.
+- **`m.obj[weight] += literal` pays `weight` when the literal is false.** The
+  documented example is `m.obj[3] += a  # pay 3 if a is false`, confirmed by
+  solving it: `status optimum, cost 0, a=True b=False c=True`.
+- **`Model.solve(time_limit=...)` works**, and selects
+  `PortfolioSolver[first_optimal_or_best_until_time_limit]`. A 14-into-13
+  pigeonhole returned `interrupted` after 2.7 s against a 2.0 s limit. An
+  earlier version of this integration recorded that no hermax backend could be
+  time-bounded; that was measured against the raw backends in `hermax.core` and
+  is false at the `Model` layer, which is why the runner no longer supervises a
+  child process.
+- Solve statuses are plain strings: `sat`, `optimum`, `unsat`, `interrupted`,
+  `interrupted_sat`, `unknown`, `error`. `result.ok` covers `sat`, `optimum`
+  **and `interrupted_sat`**, so it is not a safe test for "this is an answer".
+- `result.cost` is `None` for a model with no soft clauses, which is how the
+  runner tells a satisfaction problem from an optimisation one.
+- `result[container]` returns nested Python lists of `bool` or `int`, so a
+  declared output can be handed over whole.
+- **Tying a weighted sum to an integer variable is the expensive shape.** On a
+  four-by-four assignment problem with costs up to 125,
+  `m &= (sum(cost[i][j] * x[i][j]) == total)` spent 43 s inside `build` before
+  solving began. The same problem written with `m.obj[cost[i][j]] += ~x[i][j]`
+  built and solved in 0.21 s and gave the same optimum, 265.
+- The solver is genuinely incremental across solve calls: posting a blocking
+  clause and re-solving returned the next-best cost rather than repeating the
+  first answer. That is what optimal-solution enumeration relies on.
+- `m.scale(x, factor)` raises `ValueError: Scale factor must be strictly
+  positive`, so a maximisation cannot be written as a scale by -1.
+- hermax brings its own `hermax.encoder.card` and `hermax.encoder.pb_enc`, and
+  does not call PySAT's `CardEnc` or `PBEnc`. Its only install requirement is
+  `python-sat`, so the image needs no pypblib build.
 - EvalMaxSAT is much faster at pigeonhole than the SAT integration's Glucose: it
   refutes 13 pigeons into 12 holes in about 0.7 seconds, where Glucose already
   needs more than two seconds. The `timeout_cleanup` check therefore uses 16
