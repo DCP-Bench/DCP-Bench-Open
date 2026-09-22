@@ -10,6 +10,11 @@ a claim here comes from a specific page or version.
 - <https://docs.rs/pumpkin-solver/0.5.0/pumpkin_solver/> — the crate-level
   documentation, whose worked examples are the source for `Solver::satisfy`,
   `Solver::optimise` with `LinearSatUnsat`, and `get_solution_iterator`.
+  **This is also the style reference for a submission**: variables from
+  `new_bounded_integer`, a tag from `new_constraint_tag`, and constraints
+  posted as `solver.add_constraint(<constructor>(vars, .., tag)).post()`.
+- <https://docs.rs/pumpkin-solver/0.5.0/pumpkin_solver/core/proof/struct.ConstraintTag.html>
+  — what a constraint tag is for.
 - The vendored crate sources of `pumpkin-solver`, `pumpkin-core`,
   `pumpkin-constraints` and `pumpkin-conflict-resolvers` 0.5.0, read inside the
   build container. These are authoritative over the rendered documentation, and
@@ -68,3 +73,11 @@ recorded at `generation/runs/20260922T0700Z-pumpkin-native`:
 - The driver's own modelling wrapper was removed here. It had grown to 1126
   lines wrapping `pumpkin_solver`'s constructors one for one, which meant no
   model in this repository ever named the framework it was written in.
+
+- **A `ConstraintTag` is proof bookkeeping, not solving.** Its documentation:
+  "An identifier for constraints, which is used to relate constraints from the
+  model to steps in the proof." Nothing requires one per constraint, and one
+  tag shared by three constraints compiled, solved and enumerated correctly.
+  The crate's own examples take a fresh tag per constraint, but their examples
+  post one or two constraints; a loop posting a hundred of the same shape is
+  better served by one named tag for the group.

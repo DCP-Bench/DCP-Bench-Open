@@ -43,6 +43,41 @@ A constant that belongs to the *problem* rather than the instance — a nutrient
 table the reference itself fixes, a domain bound it declares — may be mirrored,
 but say so in a comment where it appears.
 
+## The model has to be readable
+
+A model in this corpus is read by people comparing how frameworks say the same
+thing. One that is merely correct fails at that job, so **before retaining,
+confirm every constraint group carries a comment saying what it means in the
+problem's own words**, and that the file opens with a line stating what the
+problem is.
+
+Use the vocabulary of the problem statement, not of the encoding. The reference
+models do this and are the standard to match. `capital_budget`'s reference says:
+
+```python
+x = boolvar(shape=n, name="x")  # x[i] = 1 if investments i
+z = intvar(0, sum(npv), name="z")  # total NPV
+model = Model([
+    # the sum of all choosen investments must be less than the budget
+    sum(x * cash_flow) <= budget,
+    z == sum(x * npv)
+])
+```
+
+A generated model for the same problem that names `chosen` and `total` and
+posts the two constraints with no comment at all is correct and unreadable;
+a reader has to reconstruct which line is the budget and which is the payoff.
+
+Two things are worth a sentence of their own wherever they appear, because
+neither is recoverable from the code: **where a bound comes from** (the
+instance field, the problem statement, or a derivation you did), and **why an
+encoding was chosen** when a more obvious one exists. A workaround for a
+framework limitation should name the limitation.
+
+This is not something the evaluator or any test can judge — a comment count
+cannot tell the reference's wording from `# constraint 1`. It is yours to
+check, on the same reading pass that checks for hardcoded data.
+
 The evaluator also never proves a model is *right*: an overconstrained model
 leaves no trace in the outputs it examines. A model that passes every instance
 may still be narrower than the problem. That judgement is yours.

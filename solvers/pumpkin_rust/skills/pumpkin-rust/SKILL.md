@@ -52,8 +52,8 @@ fn build(inst: &Instance, solver: &mut Solver) -> Model {
 
 ## Posting a constraint
 
-Every constraint follows the same three steps: take a fresh tag, build the
-constraint, post it.
+Take a tag, build the constraint, post it. This is the shape Pumpkin's own
+crate documentation uses, and it is the style to follow.
 
 ```rust
 let tag = solver.new_constraint_tag();
@@ -62,6 +62,29 @@ solver.add_constraint(pumpkin_solver::equals(terms, rhs, tag)).post();
 
 `.reify(flag)` in place of `.post()` makes the constraint hold exactly when
 `flag` is true; `.implied_by(flag)` gives the one-way form.
+
+### The tag does not have to be fresh
+
+A `ConstraintTag` "is used to relate constraints from the model to steps in the
+proof" — it names a constraint in the unsatisfiability certificate, which is
+Pumpkin's distinguishing feature. It plays no part in solving. Verified: one
+tag shared by three constraints compiles, solves and enumerates correctly.
+
+So inside a loop posting one constraint per pair or per value, hoist a single
+tag out of the loop and give it a name that says what the group is. Two hundred
+anonymous tags for two hundred pairwise disequalities label nothing useful.
+
+```rust
+let diagonals = solver.new_constraint_tag();
+for i in 0..n {
+    for j in (i + 1)..n {
+        solver.add_constraint(pumpkin_solver::not_equals(pair, d, diagonals)).post();
+    }
+}
+```
+
+Take a fresh tag per constraint where the constraints say different things, and
+one shared tag per group where they say the same thing about different indices.
 
 ## Variables
 

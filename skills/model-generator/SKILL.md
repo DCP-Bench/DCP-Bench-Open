@@ -72,9 +72,10 @@ python -m generation.manage retain  --attempt ATTEMPT        # only when it was 
    table in [the run protocol](references/run-protocol.md). Repair the model and
    open a *new* attempt; never overwrite one, never resubmit unchanged bytes.
    After the attempt cap, mark the pair exhausted and take the next one.
-8. **Before retaining**, satisfy yourself the model is right:
+8. **Before retaining**, satisfy yourself the model is right *and readable*:
    [acceptance](references/acceptance.md) says what the record has to show and
-   what only you can check. Then `retain`.
+   what only you can check, including the comments a model has to carry. Then
+   `retain`.
 9. **Commit in batches**, not once per model: a coherent group of accepted
    models in one commit — a sweep of related problems, or one integration's
    share of the run — with a message naming what it carries and any reduced
