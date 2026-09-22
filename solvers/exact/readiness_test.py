@@ -5,13 +5,16 @@ mapping check name to Boolean on stdout, and exits nonzero if any check failed.
 `python -m generation.readiness check --solver exact` runs this and keeps its
 output as the readiness evidence.
 
-The optimisation checks carry the weight here. `toOptimum` answers `"SAT"` when
-it proved the optimum and `"TIMEOUT"` when it stopped short, and in the second
-case Exact still has a solution in hand: `hasSolution()` is true either way. So
-a runner that read the solution without reading the status would hand the
-evaluator an unproven answer to compare against the reference optimum.
-`timeout_cleanup` below is the check that a search which cannot finish is
-reported as a timeout rather than answered.
+The optimisation checks carry the weight here. Exact answers `"SAT"` when it
+proved the optimum and `"TIMEOUT"` when it did not, while `hasSolution()` stays
+true either way, so a runner that read the solution without reading the state
+would hand over an unproven answer for the evaluator to compare against the
+reference optimum. Maximisation also comes back negated. minimization and
+maximization below are what hold both of those.
+
+`native_api` guards the mistake this integration was rebuilt to fix:
+submissions call `exact.Exact` directly, not a modelling layer shipped beside
+the runner.
 """
 import json
 from pathlib import Path
@@ -47,40 +50,41 @@ print(json.dumps(solution))
 OPTIMIZING = REFERENCE.replace("optimize = False", "optimize = True")
 MAXIMIZING = OPTIMIZING.replace("model.minimize", "model.maximize")
 
-HEAD = '''from dcp_pb import Pb
+HEAD = '''from exact import Exact
 
 
 def build(instance):
     n = instance["n"]
-    pb = Pb()
-    x = pb.int(0, n)
-    y = pb.int(0, n)
+    solver = Exact()
+    solver.addVariable("x", 0, n)
+    solver.addVariable("y", 0, n)
 '''
-EXPORT = '    return pb, {"x": x, "y": y}\n'
+EXPORT = '    return solver, {"x": "x", "y": "y"}\n'
 
-GOOD = HEAD + "    pb.sum_eq([x, y], n)\n" + EXPORT
+GOOD = HEAD + '    solver.addConstraint([(1, "x"), (1, "y")], True, n, True, n)\n' + EXPORT
 # `n` is a maximum here, so the objective has room to move in both directions.
-OPTIMAL = (HEAD + "    pb.sum_ge([x, y], n)\n"
-           "    pb.DIRECTION([(1, x), (1, y)])\n" + EXPORT)
+OPTIMAL = (HEAD + '    solver.addConstraint([(1, "x"), (1, "y")], True, n)\n'
+           '    return solver, {"x": "x", "y": "y"}, ("DIRECTION", [(1, "x"), (1, "y")])\n')
 # Solves, then corrupts the protocol stream the runner owns.
-MALFORMED = (HEAD + "    pb.sum_eq([x, y], n)\n"
+MALFORMED = (HEAD + '    solver.addConstraint([(1, "x"), (1, "y")], True, n, True, n)\n'
              "    import os\n"
              "    os.write(1, b'this is not a protocol record\\n')\n" + EXPORT)
-UNSATISFIABLE = (HEAD + "    pb.eq([(1, x)], 0)\n    pb.eq([(1, x)], 1)\n" + EXPORT)
-# Exact is strong enough that pigeonhole is no obstacle to it, so the slow case
-# is a knapsack big enough that proving the optimum takes about 25 seconds.
-# The numbers are generated from a fixed seed rather than written out.
-SLOW = (HEAD + "    pb.sum_eq([x, y], n)\n"
-        "    import random\n"
-        "    random.seed(7)\n"
-        "    size = 200\n"
-        "    weights = [random.randint(10000000, 99999999) for _ in range(size)]\n"
-        "    values = [random.randint(10000000, 99999999) for _ in range(size)]\n"
-        "    picks = pb.bools(size)\n"
-        "    pb.weighted_sum_le(weights, picks, sum(weights) // 2)\n"
-        "    pb.maximise(list(zip(values, picks)))\n" + EXPORT)
+UNSATISFIABLE = (HEAD + '    solver.addConstraint([(1, "x")], True, 0, True, 0)\n'
+                 '    solver.addConstraint([(1, "x")], True, 1, True, 1)\n' + EXPORT)
+# Proving a knapsack optimum is what Exact is slow at; pigeonhole is no
+# obstacle to it at all. The weights are generated from a fixed recurrence so
+# the instance is the same on every run.
+SLOW = (HEAD + '    solver.addConstraint([(1, "x"), (1, "y")], True, n, True, n)\n'
+        "    seed, weights = 7, []\n"
+        "    for i in range(160):\n"
+        "        seed = (seed * 1103515245 + 12345) % 9999991\n"
+        "        weights.append(seed % 8999999 + 1000000)\n"
+        '        solver.addVariable(f"k{i}", 0, 1)\n'
+        '    picks = [(weights[i], f"k{i}") for i in range(160)]\n'
+        "    solver.addConstraint(picks, False, 0, True, sum(weights) // 2)\n"
+        '    return solver, {"x": "x", "y": "y"}, ("maximize", picks)\n')
 
-ISOLATED = '''from dcp_pb import Pb
+ISOLATED = '''from exact import Exact
 
 
 def build(instance):
@@ -106,11 +110,38 @@ def build(instance):
         probe.close()
 
     n = instance["n"]
-    pb = Pb()
-    x = pb.int(0, n)
-    y = pb.int(0, n)
-    pb.sum_eq([x, y], n)
-    return pb, {"x": x, "y": y}
+    solver = Exact()
+    solver.addVariable("x", 0, n)
+    solver.addVariable("y", 0, n)
+    solver.addConstraint([(1, "x"), (1, "y")], True, n, True, n)
+    return solver, {"x": "x", "y": "y"}
+'''
+
+# The image must carry Exact itself and nothing standing in for it.
+NATIVE = '''import exact
+from exact import Exact
+
+
+def build(instance):
+    assert Exact.__module__.startswith("exact"), Exact.__module__
+    for absent in ("dcp_pb", "dcp_sat", "dcp_maxsat"):
+        try:
+            __import__(absent)
+            raise AssertionError(f"{absent} is still installed in the image")
+        except ImportError:
+            pass
+    # The native calls a submission is built from.
+    for method in ("addVariable", "addConstraint", "setObjective", "toOptimum",
+                   "runFull", "getLastSolutionFor", "invalidateLastSol",
+                   "addReification", "addMultiplication"):
+        assert hasattr(Exact, method), method
+
+    n = instance["n"]
+    solver = Exact()
+    solver.addVariable("x", 0, n)
+    solver.addVariable("y", 0, n)
+    solver.addConstraint([(1, "x"), (1, "y")], True, n, True, n)
+    return solver, {"x": "x", "y": "y"}
 '''
 
 
@@ -134,8 +165,9 @@ def main():
         check("satisfaction", GOOD)
         check("changed_instances", GOOD, instances=[{"n": 3, "optimize": False}], instance_count=2)
         check("enumeration", GOOD, solution_limit=3)
-        check("minimization", OPTIMAL.replace("DIRECTION", "minimise"), reference=OPTIMIZING)
-        check("maximization", OPTIMAL.replace("DIRECTION", "maximise"), reference=MAXIMIZING)
+        check("minimization", OPTIMAL.replace("DIRECTION", "minimize"), reference=OPTIMIZING)
+        check("maximization", OPTIMAL.replace("DIRECTION", "maximize"), reference=MAXIMIZING)
+        check("native_api", NATIVE)
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})

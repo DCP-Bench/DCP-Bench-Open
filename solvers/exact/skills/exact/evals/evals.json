@@ -3,39 +3,51 @@
   "skill_name": "exact",
   "evals": [
     {
-      "id": "linear-objective-without-an-auxiliary-variable",
+      "id": "written-against-exact",
+      "prompt": "Using this skill, write an exact submission for any listed problem and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The submission imports Exact from exact and builds the model with addVariable, addConstraint, addReification or addMultiplication; it does not import any repository-local helper module.",
+        "build returns the exact.Exact instance as its first value, and outputs maps declared names to variable-name strings or nested lists of them.",
+        "Both bounds of a two-sided constraint go in one addConstraint call rather than two."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "linear-objective-in-the-return",
       "prompt": "Using this skill, write an exact submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
       "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
       "assertions": [
-        "The objective is declared with pb.minimise or pb.maximise over a linear expression, with no auxiliary objective variable and no channelling introduced just to hold it.",
-        "The submission returns two values; the objective is on the builder rather than in the return.",
+        "The objective is returned as (direction, terms) with terms a list of (coefficient, variable name) pairs; the submission does not call setObjective itself, and introduces no auxiliary variable just to hold the objective.",
         "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference."
       ],
       "evidence_required": "The submission source and the evaluator JSON result, including the runner status."
     },
     {
-      "id": "boolean-versus-integer-outputs",
-      "prompt": "Using this skill, write an exact submission for a problem whose brief declares a boolean output and one whose brief declares 0/1 integers, and check both with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
-      "expected_output": "Two accepted models, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The boolean output uses pb.bool so it renders as true/false, and the integer output uses pb.int(0, 1) so it renders as 0/1, matching what generation.brief declares in each case.",
-        "Neither run reports invalid_output."
-      ],
-      "evidence_required": "Both submission sources and both evaluator JSON results."
-    },
-    {
-      "id": "channelling-only-where-needed",
+      "id": "indicators-only-where-needed",
       "prompt": "Using this skill, write an exact submission for a problem needing all-different or counting, such as csplib_054_n_queens, and check it across every listed instance.",
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
       "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
       "assertions": [
-        "Non-linear structure goes through is_value, all_different, count or element rather than being expanded by hand.",
-        "Variable domains are kept tight where channelling is used, since it costs one 0/1 variable per value, and the reasoning says so.",
+        "Indicator variables are built only for the variables whose values have to be named, with the two channelling constraints that tie them to the integer variable.",
+        "Variables that need no indicators are left as plain bounded integers, and the reasoning says which are which and why the indicator domains are small enough to afford.",
         "Every instance-dependent quantity comes from the instance argument, and the evaluator accepts every listed instance rather than only the example."
       ],
-      "evidence_required": "The submission source and the evaluator JSON result for the run."
+      "evidence_required": "The submission source and the evaluator JSON result for every instance."
+    },
+    {
+      "id": "wide-integer-domains",
+      "prompt": "Using this skill, write an exact submission for a problem whose variables or objective run into the thousands, such as revenue_maximization or diet, and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Wide-domain quantities are declared as bounded integer variables and left unencoded, with no indicators built over them.",
+        "The reasoning says where each bound comes from in the instance.",
+        "The evaluator accepts, rather than the run being abandoned as it would be under a one-hot integration."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
     }
   ]
 }
