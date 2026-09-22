@@ -1,14 +1,13 @@
-from dcp_pb import Pb
+from exact import Exact
 
 
 def build(instance):
     n = instance["n"]
-    pb = Pb()
-    x = pb.int(0, n)
-    y = pb.int(0, n)
+    solver = Exact()
+    solver.addVariable("x", 0, n)
+    solver.addVariable("y", 0, n)
     if not instance["optimize"]:
-        pb.sum_eq([x, y], n)
-        return pb, {"x": x, "y": y}
-    pb.sum_ge([x, y], n)
-    pb.minimise([(1, x), (1, y)])
-    return pb, {"x": x, "y": y}
+        solver.addConstraint([(1, "x"), (1, "y")], True, n, True, n)
+        return solver, {"x": "x", "y": "y"}
+    solver.addConstraint([(1, "x"), (1, "y")], True, n)
+    return solver, {"x": "x", "y": "y"}, ("minimize", [(1, "x"), (1, "y")])
