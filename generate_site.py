@@ -586,7 +586,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             f'<div class="section" id="{esc(item["id"])}"><h2>{esc(item["name"])} '
             f'<span class="badge plain">{esc(item["id"])}</span></h2>'
             '<div class="matrix-wrap">'
-            '<table class="plain"><thead><tr><th>Integration</th><th>ID</th>'
+            '<table class="plain"><thead><tr><th>Solver</th><th>ID</th>'
             '<th>Language</th><th class="num">Problems</th></tr></thead>'
             f"<tbody>{integration_rows}</tbody></table></div>"
             f'<p><a class="btn" href="index.html?paradigm={esc(item["id"])}">'
