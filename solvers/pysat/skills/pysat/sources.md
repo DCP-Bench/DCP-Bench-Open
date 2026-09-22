@@ -3,39 +3,51 @@
 Documentation this skill's instructions were written from. Add an entry whenever
 a claim here comes from a specific page or version.
 
-- <https://pysathq.github.io/docs/html/api/solvers.html> — the `Solver` API,
-  including `solve_limited`, `interrupt` and `clear_interrupt`.
-- <https://pysathq.github.io/docs/html/api/card.html> — `CardEnc` and the
-  cardinality encodings behind `at_most`, `at_least` and `exactly`.
-- <https://pysathq.github.io/docs/html/api/pb.html> — `PBEnc`, the
-  pseudo-Boolean encoders behind every linear constraint here, which need
-  `pypblib`.
-- `solvers/pysat/dcp_sat.py`, `run.py` and `Dockerfile` in this repository — the
-  contract this skill describes.
+- <https://pysathq.github.io/> — PySAT 1.9.dev15, the distribution the image
+  installs.
+- <https://pysathq.github.io/docs/html/api/card.html> and
+  <https://pysathq.github.io/docs/html/api/pb.html> — `CardEnc` and `PBEnc`.
+- <https://pysathq.github.io/docs/html/api/integer.html> — `pysat.integer`,
+  the finite-domain layer submissions use for integer variables.
+- `solvers/pysat/run.py` and `Dockerfile` in this repository — the contract
+  this skill describes.
 
-Every claim below was checked by running it inside the integration image during
-the run recorded at `generation/runs/20260922T0000Z-pysat-b4e1`, not taken from
-documentation alone.
+Every claim below was checked by running it inside the integration image, not
+taken from documentation alone.
 
-- **CaDiCaL and Lingeling cannot be interrupted through PySAT.** Both raise
-  `NotImplementedError: Limited solve is currently unsupported` from
-  `interrupt()`. Glucose 4.2, Minisat 2.2, Maplesat and MergeSat 3 each stopped
-  within a tenth of a second of the interrupt. The integration therefore solves
-  with Glucose; with CaDiCaL a hard instance ran past the runner's own budget
-  until the evaluator killed the container from outside.
-- A Python `SIGALRM` handler cannot fire while the search is inside the solver's
-  C extension, so the budget has to be enforced with the solver's own interrupt.
-  The `SIGALRM` in `run.py` covers only the clause-building phase.
-- The linear helpers were verified on a mixed instance: a `[-5, 5]` domain with
-  `sum_eq(..., -3)`, coefficients `3` and `-2` in one `weighted_sum_eq`, a
-  Boolean weighted sum containing a negative and a zero weight, a sparse domain
-  through `int_from`, and `same`/`different` across domains that only partly
-  overlap. All produced the expected assignment.
-- `pypblib` ships no wheel for Python 3.12, so the image compiles it and drops
-  the compiler again in the same layer.
-- Pigeonhole is the reliable way to make this solver run long. How long depends
-  sharply on the backend, so the figures are worth attaching to one: CaDiCaL
-  refutes 13 pigeons into 12 holes in about 0.6 seconds and needs well over a
-  minute for 14 into 13, while Glucose, which this integration actually uses,
-  already exceeds two seconds on 13 into 12. That is what the
-  `timeout_cleanup` check relies on.
+- **`pysat.integer` is the framework's own integer layer.** `Integer(name, lb,
+  ub, encoding=...)` and `IntegerEngine(vars=..., vpool=...)` clausify direct,
+  order or coupled domain encodings and translate linear constraints into
+  pseudo-Boolean ones. An earlier version of this integration shipped a
+  repository-local one-hot layer instead; this one does the same job, from the
+  framework, with two more encodings.
+- Its module docstring calls it "experimental" and "intentionally lightweight",
+  and says it is not full-featured. It carries `add_linear`,
+  `add_alldifferent`, `add_equal` and `add_not_equal`, and nothing else global.
+- `add_alldifferent`, `add_equal` and `add_not_equal` read `.vpool` off their
+  arguments, so a `LinearExpr` raises `AttributeError: 'LinearExpr' object has
+  no attribute 'vpool'`. Expressions go through `add_linear`.
+- `IntegerEngine` inherits `add_constraint` from `BooleanEngine`, which accepts
+  only `('linear', ...)` and `('parity', ...)` tuples and asserts on anything
+  else. It is not the entry point for an integer constraint.
+- **`PBEnc` accepts negative weights.** `PBEnc.equals` over
+  `[3, -1, -2, 5, -5, 4]` with bound 0 gave `[3, -1, -2]`, summing to zero.
+  Shifting terms to keep weights non-negative, which the previous version did,
+  is unnecessary.
+- `Integer.equals(value)` returns the literal for "this variable takes that
+  value", which is what enumeration blocks on, and `Integer.decode(model)`
+  reads the value back out of a solver model.
+- **CaDiCaL and Lingeling cannot be interrupted.** PySAT raises
+  `NotImplementedError: Limited solve is currently unsupported` for limited
+  solve on both, so a hard instance runs until the evaluator kills the
+  container. Glucose, Minisat, Maplesat and MergeSat all stop within a tenth of
+  a second, and the runner uses Glucose 4.2.
+- **The runner's SIGALRM and its solver interrupt must not be armed for the
+  same instant.** They raced, and a SIGALRM that won surfaced as
+  `execution_error: Runner execution budget exceeded` instead of the `timeout`
+  the runner reports for itself. The interrupt is now pulled half a second
+  forward.
+- Pigeonhole refutation times with `Integer` plus `add_alldifferent` under
+  Glucose 4.2: 12 into 11 takes 4.5 s, 13 into 12 takes 11.0 s, 14 into 13
+  takes 24.6 s, 15 into 14 takes 70.9 s. The `timeout_cleanup` check uses 13
+  into 12.

@@ -5,6 +5,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends g++=4:12.2.0-3 
  && pip install --no-cache-dir "python-sat[pblib]==1.9.dev15" \
  && apt-get purge -y g++ && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 COPY runner/runtime.py /opt/runner/runtime.py
-COPY solvers/pysat/dcp_sat.py /opt/runner/dcp_sat.py
 COPY solvers/pysat/run.py /opt/runner/run.py
 ENTRYPOINT ["python", "/opt/runner/run.py"]
