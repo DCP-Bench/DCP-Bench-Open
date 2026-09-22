@@ -678,6 +678,18 @@ table.plain th.num { text-align: right; }
 table.plain td.num { text-align: right; font-variant-numeric: tabular-nums; }
 table.plain td.mono { font-family: var(--mono); font-size: 0.85rem; }
 
+/* Arriving from a model page's "Solver" link, so the row that was asked for
+   is marked rather than left to be found by eye. */
+table.plain tbody tr:target {
+  background: var(--accent-soft);
+  /* Keep the row clear of the top edge when the browser jumps to it. */
+  scroll-margin-top: 90px;
+}
+table.plain tbody tr:target td:first-child {
+  box-shadow: inset 3px 0 0 var(--accent);
+  font-weight: 600;
+}
+
 /* ---------- Footer ---------- */
 footer {
   border-top: 1px solid var(--border);

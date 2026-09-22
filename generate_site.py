@@ -25,7 +25,7 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v12"
+ASSET_VERSION = "catalogue-v15"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -377,6 +377,8 @@ def generated_model_html(entry: dict) -> str:
         rows.append(
             f"<dt>Dataset version</dt><dd>{esc(generated_by['dataset_version'])}</dd>"
         )
+    if metrics.get("solver"):
+        rows.append(f'<dt>Solver</dt><dd>{solver_link(metrics["solver"], "../")}</dd>')
     chips = paradigm_chips(metrics.get("solver"), "../")
     if chips:
         rows.append(f"<dt>Paradigm</dt><dd>{chips}</dd>")
@@ -533,6 +535,20 @@ def paradigm_chips(solver_id: str, prefix: str) -> str:
     return " &middot; ".join(links)
 
 
+def solver_link(solver_id: str, prefix: str) -> str:
+    """An integration's display name, linked to its row on the solvers page.
+
+    The anchor is emitted once per integration by `build_paradigms`, on the
+    first paradigm section that lists it.
+    """
+    metadata = INTEGRATIONS.get(solver_id)
+    if not metadata:
+        return esc(solver_id)
+    name = metadata.get("name", solver_id)
+    return (f'<a href="{prefix}paradigms.html#solver-{esc(solver_id)}">'
+            f'{esc(name)}</a>')
+
+
 def coverage_bar(count: int, total: int) -> str:
     share = 100.0 * count / max(1, total)
     return (
@@ -570,18 +586,25 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     )
 
     details = []
+    # An integration in two paradigms would otherwise get the same id twice,
+    # so the anchor goes on whichever section lists it first.
+    anchored: set = set()
     for item in ranked:
         # A paradigm with no integration is already a zero row in the table
         # above; a section holding an empty table would say nothing more.
         if not item["integrations"]:
             continue
-        integration_rows = "".join(
-            f'<tr><td>{esc(INTEGRATIONS[solver].get("name", solver))}</td>'
-            f'<td class="mono">{esc(solver)}</td>'
-            f'<td>{esc(INTEGRATIONS[solver].get("language", ""))}</td>'
-            f'<td class="num">{solver_problem_link(solver, breakdown)}</td></tr>'
-            for solver in item["integrations"]
-        )
+        integration_cells = []
+        for solver in item["integrations"]:
+            anchor = "" if solver in anchored else f' id="solver-{esc(solver)}"'
+            anchored.add(solver)
+            integration_cells.append(
+                f'<tr{anchor}><td>{esc(INTEGRATIONS[solver].get("name", solver))}</td>'
+                f'<td class="mono">{esc(solver)}</td>'
+                f'<td>{esc(INTEGRATIONS[solver].get("language", ""))}</td>'
+                f'<td class="num">{solver_problem_link(solver, breakdown)}</td></tr>'
+            )
+        integration_rows = "".join(integration_cells)
         details.append(
             f'<div class="section" id="{esc(item["id"])}"><h2>{esc(item["name"])} '
             f'<span class="badge plain">{esc(item["id"])}</span></h2>'
@@ -822,6 +845,10 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
     )
 
     instances_html = instances_section_html(p, idx)
+    # A puzzle whose numbers are all fixed carries no instances, so the footer
+    # line must not claim there are some.
+    shown_above = ("The reference model and the instances are"
+                   if instances_html else "The reference model is")
 
     gen_for_problem = generated.get(pid, {})
 
@@ -839,10 +866,9 @@ def build_problem_page(p: dict, meta: dict, idx: int, total: int, generated: dic
 
     {models_section_html(p, meta, idx, gen_for_problem)}
 
-    <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap">
-      <a class="btn" href="{REPO_URL}/blob/main/dataset/{pid}/{pid}.cpmpy.py" target="_blank" rel="noopener">View original model (GitHub)</a>
-      <a class="btn" href="{REPO_URL}/blob/main/dataset/{pid}/{pid}.json" target="_blank" rel="noopener">Instances JSON</a>
-    </div>
+    <p class="desc" style="margin-top:26px">{shown_above} shown above;
+      the files live in
+      <a href="{REPO_URL}/tree/main/dataset/{pid}" target="_blank" rel="noopener">dataset/{pid}</a>.</p>
     {prev_next}
     """
 
