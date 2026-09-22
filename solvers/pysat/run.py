@@ -1,8 +1,13 @@
 """Runner protocol for the pysat integration. Runs inside the image only.
 
-A submission defines `build(instance)` returning `(sat, outputs)`, where `sat` is
-the `Sat` builder from `dcp_sat` and `outputs` maps each declared output name to
-an `IntVar`, a literal, a plain int or bool, or nested lists of those.
+A submission defines `build(instance)` returning `(cnf, outputs)`, where `cnf`
+is a `pysat.formula.CNF` and `outputs` maps each declared output name to a
+literal, a `pysat.integer.Integer`, a plain bool, or nested lists of those.
+
+The submission builds that CNF with PySAT's own tools: `IDPool` for variable
+identifiers, `CardEnc` and `PBEnc` for cardinality and pseudo-Boolean
+constraints, and `IntegerEngine` plus `Integer` for finite-domain variables,
+whose `clausify()` returns the CNF to hand over.
 
 PySAT solves satisfaction problems and nothing else, which is why the metadata
 declares `optimization: false`. A submission that hands back an objective is
@@ -29,12 +34,17 @@ import time
 sys.path.insert(0, "/opt/runner")
 from runtime import emit, finish  # noqa: E402
 
-from dcp_sat import IntVar, Sat  # noqa: E402
+from pysat.formula import CNF  # noqa: E402
+from pysat.integer import Integer  # noqa: E402
 
 # Glucose rather than CaDiCaL: PySAT raises NotImplementedError for
 # "limited solve" on CaDiCaL and Lingeling, so those two cannot be stopped
 # mid-search and would run until the evaluator killed the container.
 SOLVER_NAME = "glucose42"
+
+# How far ahead of the hard SIGALRM deadline the solver is interrupted, so the
+# runner reports its own timeout rather than losing a race to the signal.
+INTERRUPT_MARGIN = 0.5
 
 
 def load(instance):
@@ -44,17 +54,18 @@ def load(instance):
         spec.loader.exec_module(module)
         result = module.build(instance)
     if not isinstance(result, tuple) or len(result) not in (2, 3):
-        raise ValueError("build(instance) must return (sat, outputs)")
+        raise ValueError("build(instance) must return (cnf, outputs)")
     # A third element is an objective. PySAT solves satisfaction problems only,
     # so an objective is refused here rather than quietly dropped, which would
     # let a merely feasible answer pass as an optimal one.
     objective = result[2] if len(result) == 3 else None
-    sat, outputs = result[0], result[1]
-    if not isinstance(sat, Sat):
-        raise ValueError("the first value must be the Sat builder from dcp_sat")
+    cnf, outputs = result[0], result[1]
+    if not isinstance(cnf, CNF):
+        raise ValueError("the first value must be a pysat.formula.CNF; an "
+                         "IntegerEngine gives one back from clausify()")
     if not isinstance(outputs, dict) or not outputs:
         raise ValueError("build(instance) must return a nonempty output dictionary")
-    return sat, outputs, objective
+    return cnf, outputs, objective
 
 
 def leaves(node, found):
@@ -69,30 +80,30 @@ def leaves(node, found):
     return found
 
 
-def render(node, truth):
+def render(node, model, truth):
     if isinstance(node, dict):
-        return {name: render(value, truth) for name, value in node.items()}
+        return {name: render(value, model, truth) for name, value in node.items()}
     if isinstance(node, (list, tuple)):
-        return [render(value, truth) for value in node]
-    if isinstance(node, IntVar):
-        return node.read(truth)
+        return [render(value, model, truth) for value in node]
+    if isinstance(node, Integer):
+        return node.decode(model)
     if isinstance(node, bool):
         return node
     if isinstance(node, int):
-        # A literal from the builder, rather than a constant the model fixed.
+        # A literal from the model's pool, rather than a constant it fixed.
         return node in truth
-    raise ValueError(f"an output leaf must be an IntVar, a literal, an int or a bool; got {type(node).__name__}")
+    raise ValueError("an output leaf must be an Integer, a literal, an int or a "
+                     f"bool; got {type(node).__name__}")
 
 
-def blocking_clause(outputs, truth):
+def blocking_clause(outputs, model, truth):
     """Rule out exactly this assignment to the declared outputs."""
     clause = []
     for leaf in leaves(outputs, []):
-        if isinstance(leaf, IntVar):
-            for value, lit in zip(leaf.values, leaf.lits):
-                if lit in truth:
-                    clause.append(-lit)
-                    break
+        if isinstance(leaf, Integer):
+            # `equals(v)` is the literal for "this variable takes v", so
+            # forbidding the value it took is enough to change the answer.
+            clause.append(-leaf.equals(leaf.decode(model)))
         elif isinstance(leaf, bool):
             continue
         elif isinstance(leaf, int):
@@ -112,7 +123,7 @@ def main():
     signal.setitimer(signal.ITIMER_REAL, request["execution_timeout"])
 
     started = time.monotonic()
-    sat, outputs, objective = load(request["instance"])
+    cnf, outputs, objective = load(request["instance"])
     if objective is not None:
         return finish("unsupported", "PySAT solves satisfaction problems only; this problem has an objective")
     limit = request["solution_limit"]
@@ -120,7 +131,7 @@ def main():
     from pysat.solvers import Solver
 
     emitted = 0
-    with Solver(name=SOLVER_NAME, bootstrap_with=sat.clauses) as solver:
+    with Solver(name=SOLVER_NAME, bootstrap_with=cnf) as solver:
         while emitted < limit:
             left = request["execution_timeout"] - (time.monotonic() - started)
             if left <= 0:
@@ -129,7 +140,12 @@ def main():
             # fire until it returns. PySAT's own interrupt is what actually
             # stops it, and without this the container runs until the evaluator
             # kills it from outside rather than reporting its own timeout.
-            alarm = threading.Timer(left, solver.interrupt)
+            #
+            # The interrupt is pulled forward by a margin so it always lands
+            # before the SIGALRM. Armed for the same instant, the two race, and
+            # a SIGALRM that wins surfaces as `execution_error` rather than the
+            # `timeout` the runner is supposed to report for itself.
+            alarm = threading.Timer(max(left - INTERRUPT_MARGIN, 0.01), solver.interrupt)
             alarm.start()
             try:
                 answer = solver.solve_limited(expect_interrupt=True)
@@ -141,12 +157,13 @@ def main():
             if not answer:
                 spent = time.monotonic() - started
                 return finish("complete" if emitted else "unsat", solve_seconds=spent)
-            truth = {lit for lit in solver.get_model() if lit > 0}
-            emit({"type": "solution", "values": render(outputs, truth)})
+            model = solver.get_model()
+            truth = {lit for lit in model if lit > 0}
+            emit({"type": "solution", "values": render(outputs, model, truth)})
             emitted += 1
             if emitted >= limit:
                 break
-            clause = blocking_clause(outputs, truth)
+            clause = blocking_clause(outputs, model, truth)
             if not clause:
                 # Nothing the problem declares can differ, so there is no second
                 # answer to look for.
@@ -158,8 +175,6 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except TimeoutError:
-        finish("timeout")
     except Exception as error:
         import traceback
         traceback.print_exc(file=sys.stderr)

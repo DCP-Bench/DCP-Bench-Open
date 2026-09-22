@@ -1,142 +1,132 @@
 ---
 name: exact
-description: Write a DCP-Bench submission for the exact integration - one Python file defining build(instance), using the Pb builder from dcp_pb to state a pseudo-Boolean model for the Exact solver. Use when generating or repairing a model for solver ID exact.
+description: Write a DCP-Bench submission for the exact integration - one Python file defining build(instance) that returns an exact.Exact solver built with addVariable, addConstraint, addReification and setObjective. Use when generating or repairing a model for solver ID exact.
 ---
 
 # Exact submissions
 
-A submission is one Python file defining:
+A submission is one Python file defining `build(instance)`, written against
+Exact's own Python bindings:
 
 ```python
-from dcp_pb import Pb
+from exact import Exact
 
 
 def build(instance):
     ...
-    return pb, outputs
+    return solver, outputs                                 # satisfaction
+    return solver, outputs, ("maximize", terms)            # optimisation
 ```
 
-`dcp_pb` ships inside the image.
+`terms` is the objective as `[(coefficient, variable_name), ...]`. The runner
+sets it, proves the optimum, and pins it before enumerating.
 
 ```python
-from dcp_pb import Pb
+from exact import Exact
 
 
 def build(instance):
     values = instance["values"]
     weights = instance["weights"]
     capacity = instance["capacity"]
+    n = len(values)
 
-    pb = Pb()
-    x = pb.bools(len(values))
-    pb.weighted_sum_le(weights, x, capacity)
-    pb.maximise(list(zip(values, x)))
-    return pb, {"x": x}
+    solver = Exact()
+    x = [f"x{j}" for j in range(n)]
+    for name in x:
+        solver.addVariable(name, 0, 1)
+    solver.addConstraint(list(zip(weights, x)), False, 0, True, capacity)
+    return solver, {"x": x}, ("maximize", list(zip(values, x)))
 ```
 
-## What makes this integration different
+## Variables are names
 
-Exact is pseudo-Boolean, so two things the SAT and MaxSAT integrations have to
-work around are simply available:
-
-- **Integer variables are native.** `pb.int(lo, hi)` declares bounds and costs
-  nothing per value. A wide domain is not the problem it is under a one-hot
-  encoding, so bounds can be generous where the instance warrants it.
-- **The objective is a linear expression.** `pb.minimise(terms)` takes the
-  expression itself. There is no auxiliary objective variable to build and no
-  `link` call to forget.
-
-The objective is declared on the builder, not returned:
+Exact identifies a variable by the string you gave it. There are no variable
+objects, so a submission keeps its own lists of names and hands those back as
+`outputs`.
 
 ```python
-    pb.minimise([(cost[i], choice[i]) for i in range(n)])
-    return pb, outputs               # still two values
+solver.addVariable(name, lower_bound=0, upper_bound=1, encoding="log")
 ```
 
-Optimality is reported only when Exact proves it. A search that runs out of
-budget is a timeout, never an answer, even though Exact has a solution in hand
-at that point.
+**Integer variables are native**, declared by their bounds rather than encoded
+value by value. A domain running into the thousands costs nothing here, which
+is the main thing this integration can do that the SAT and MaxSAT ones cannot.
 
-## Rules that break a submission
-
-- **Never write to stdout.** The runner owns it for the JSONL protocol. Use
-  `sys.stderr`.
-- **Never solve.** No `runFull`, no `toOptimum`. The runner owns the search and
-  the budget.
-- **Read every instance-dependent quantity from `instance`.**
-- Only one file is staged, so there are no helper modules.
-
-## Variables
-
-| Call | Meaning |
-| --- | --- |
-| `pb.int(lo, hi)` | integer variable on `[lo, hi]` |
-| `pb.ints(n, lo, hi)` / `pb.int_grid(r, c, lo, hi)` | several |
-| `pb.bool()` / `pb.bools(n)` / `pb.bool_grid(r, c)` | 0/1 variables |
-| `pb.constant(v)` | a variable fixed to `v` |
-| `pb.negate(flag)` | the complement of a 0/1 variable |
-
-**`pb.bool()` renders as true/false in the declared outputs; `pb.int(0, 1)`
-renders as 0 or 1.** The brief says which the problem declares, so pick to
-match it.
+Values come back as integers. The evaluator compares a 0/1 integer and a
+Boolean as equal, so a variable over 0..1 satisfies a Boolean output with no
+special handling.
 
 ## Constraints
 
-Linear constraints take `(coefficient, Var)` pairs:
+```python
+solver.addConstraint(terms, use_lower_bound, lower_bound,
+                     use_upper_bound, upper_bound)
+```
 
-| Call | Meaning |
+One call carries both bounds, so:
+
+| Meaning | Call |
 | --- | --- |
-| `pb.le(terms, bound)` / `ge` / `eq` | `sum(coefficient * var)` against a constant |
-| `pb.between(terms, low, high)` | both bounds in one constraint |
-| `pb.sum_eq(vars, bound)` / `sum_le` / `sum_ge` | unweighted sums |
-| `pb.weighted_sum_eq(coeffs, vars, bound)` / `_le` / `_ge` | weighted sums |
-| `pb.same(a, b)` | `a == b` |
-| `pb.at_most(flags, k)` / `at_least` / `exactly` / `any` | cardinality over 0/1 variables |
+| `sum >= k` | `addConstraint(terms, True, k)` |
+| `sum <= k` | `addConstraint(terms, False, 0, True, k)` |
+| `sum == k` | `addConstraint(terms, True, k, True, k)` |
+| `lo <= sum <= hi` | `addConstraint(terms, True, lo, True, hi)` |
 
-Everything that is not linear goes through **channelling**: 0/1 indicators tied
-to a variable by `sum(v * y_v) == x` with `sum(y_v) == 1`, built once per
-variable on first use.
+A coefficient of zero should be dropped rather than passed.
 
-| Call | Meaning |
-| --- | --- |
-| `pb.is_value(var, v)` | a 0/1 variable that is 1 exactly when `var == v` |
-| `pb.indicators(var)` | the whole `{value: flag}` map |
-| `pb.different(a, b)` / `pb.all_different(vars)` | disequality |
-| `pb.count(flags, target)` | `target` equals how many flags are 1 |
-| `pb.element(index, array, value)` | `array[index] == value`, constant array, **0-based** |
+## Reification, and what it buys
 
-Channelling costs one 0/1 variable per value, so `all_different` over wide
-domains is where a model gets expensive. That is the one place to keep domains
-tight.
+```python
+solver.addReification(head, True, terms, lower_bound)
+# head == 1  <->  sum(terms) >= lower_bound
+```
 
-There is no multiplication of two variables, no division and no modulo. Exact
-itself has `addMultiplication`, which this layer does not wrap.
+Verified in both directions. `addLeftReification` and `addRightReification`
+give the one-way forms. This is how a condition becomes a variable you can
+count, forbid or put in the objective.
 
-## Outputs
+`solver.addMultiplication(factors, True, low_name, True, high_name)` bounds a
+product by other variables: with `["a", "b"]` bounded below and above by `"z"`,
+it holds `z == a * b`.
 
-Names must be the ones `generation.brief` declares. A leaf may be a `Var`, a
-plain `int` or a plain `bool`, nested to any depth.
+## Channelling, when you need it
 
-## Enumeration
+Exact reasons about linear constraints. Anything that talks about a variable
+*taking a particular value* — all-different, counting occurrences, indexing an
+array — needs 0/1 indicators, which cost one variable per value:
 
-With an objective, the runner proves the optimum, pins the objective there, and
-then enumerates: each answer is blocked through the indicators of its declared
-outputs, so every solution returned is optimal.
+```python
+# y[v] == 1 exactly when x == v
+y = [f"x_is_{v}" for v in range(lo, hi + 1)]
+for name in y:
+    solver.addVariable(name, 0, 1)
+solver.addConstraint([(1, name) for name in y], True, 1, True, 1)
+solver.addConstraint([(v, y[v - lo]) for v in range(lo, hi + 1)] + [(-1, "x")],
+                     True, 0, True, 0)
+```
 
-## Failure routing
+With those, all-different is "at most one variable takes each value", and a
+count is a linear constraint over the indicators. **Build them only for the
+variables that need them**, and keep those variables' domains tight: this is
+the one place where a wide domain does cost, and it is worth saying in the
+reasoning why the bound you chose is the right one.
 
-| Result | Usual cause here |
-| --- | --- |
-| `suboptimal_solution` | The objective expression is not the quantity the reference optimises, or the direction is inverted. |
-| `invalid_output` | Wrote to stdout, or used `pb.int(0, 1)` where the brief declares a boolean. |
-| `invalid_solution` | A constraint is missing. |
-| `execution_timeout` | The optimum could not be proven. Wide domains under `all_different` are the usual cause, because of the channelling. |
-| `no_solution` | Overconstrained, or bounds exclude the intended values. |
+## What the runner does
 
-## Environment
+1. Imports the submission and calls `build(instance)`.
+2. With an objective, calls `setObjective` then `toOptimum` with the remaining
+   budget. **`"SAT"` there means the optimum was proven** — there is no
+   `"OPTIMAL"`. `"TIMEOUT"` means it was not, and Exact still holds a solution
+   in that case, so only `"SAT"` is treated as an answer.
+3. Pins the objective at the proven optimum. Exact minimises internally, so a
+   maximisation's optimum comes back negated and is flipped before pinning.
+4. Calls `runFull` for each further solution and blocks with
+   `invalidateLastSol(names)`, projected onto the **declared outputs**.
+5. Ends with one status: `limit`, `complete`, `unsat`, `timeout` or `error`.
 
-Python 3.12, `exact` 2.2.1. Exact bounds its own search, so the runner passes
-the remaining budget to `toOptimum` and `runFull` directly. The container is
-networkless, read-only apart from `/tmp`, single-CPU and 2 GiB.
+## Reasoning to record
 
-See [the builder's surface](references/dcp-pb-api.md) for every signature.
+Say where each variable's bounds come from in the instance. If you built
+indicators, say for which variables and why their domains are small enough to
+afford it.

@@ -3,38 +3,52 @@
   "skill_name": "pysat",
   "evals": [
     {
-      "id": "satisfaction-only-contract",
-      "prompt": "Using this skill, write a pysat submission for a problem whose reference has an objective, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
-      "expected_output": "A recorded blocker showing unsupported_capability, or a decision to pick a satisfaction problem instead.",
-      "assertions": [
-        "The submission does not pass off a merely feasible answer as optimal; either it declares the objective and the evaluator reports unsupported_capability, or the problem is set aside as out of scope for this integration.",
-        "The reasoning names the objective direction that generation.brief prints."
-      ],
-      "evidence_required": "The evaluator JSON result, including the runner status."
-    },
-    {
-      "id": "one-hot-integers",
-      "prompt": "Using this skill, write a pysat submission for csplib_054_n_queens and check it across every listed instance.",
+      "id": "written-against-pysat",
+      "prompt": "Using this skill, write a pysat submission for any listed satisfaction problem and check it with the repository evaluator.",
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
       "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
       "assertions": [
-        "Integer outputs are IntVar values rather than literals, so the declared output renders as integers and the evaluator does not report invalid_output.",
-        "Every instance-dependent quantity comes from the instance argument, and the evaluator accepts every listed instance rather than only the example.",
-        "Variable domains are derived from the instance rather than set to a wide constant range, because a one-hot encoding costs a variable per value."
+        "The submission imports from pysat and builds its clauses with IDPool, CardEnc, PBEnc or pysat.integer; it does not import any repository-local helper module.",
+        "build returns a pysat.formula.CNF as its first value.",
+        "Every encoder call is given the same IDPool, so auxiliary variables cannot collide."
       ],
-      "evidence_required": "The submission source and the evaluator JSON result for the run."
+      "evidence_required": "The submission source and the evaluator JSON result."
     },
     {
-      "id": "linear-constraints-through-pb",
-      "prompt": "Using this skill, write a pysat submission for a problem that sums weighted choices, such as a subset-sum or covering problem, and check it with the repository evaluator.",
+      "id": "refuses-an-objective",
+      "prompt": "Using this skill, look at a problem whose reference has an objective, such as knapsack, and decide what to do about it for this integration.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
+      "expected_output": "A recorded decision to leave the pair alone, not a submission.",
+      "assertions": [
+        "The pair is not attempted, and the reasoning says this integration declares optimization: false because a SAT solver answers satisfiable or not.",
+        "If a submission was written anyway, the evaluator reports unsupported_capability rather than accepting a merely feasible answer."
+      ],
+      "evidence_required": "The recorded reasoning, and the evaluator JSON result if a submission was evaluated."
+    },
+    {
+      "id": "integer-variables-through-pysat-integer",
+      "prompt": "Using this skill, write a pysat submission for a problem with finite-domain integer variables, such as csplib_054_n_queens, and check it across every listed instance.",
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
       "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
       "assertions": [
-        "Weighted sums go through the bool_sum_* or weighted_sum_* helpers rather than being expanded into clauses by hand.",
-        "Instance data containing a zero or a negative weight is passed straight to those helpers, which handle it, rather than being filtered by the submission."
+        "Integer variables come from pysat.integer.Integer with a shared vpool, and structure goes through engine.add_alldifferent or engine.add_linear rather than being expanded into clauses by hand.",
+        "Expressions are passed to add_linear, and only Integer objects to add_alldifferent, add_equal and add_not_equal.",
+        "The chosen domain encoding is stated, with the domain bounded by what the instance can reach.",
+        "Every instance-dependent quantity comes from the instance argument, and the evaluator accepts every listed instance rather than only the example."
       ],
-      "evidence_required": "The submission source and the evaluator JSON result for the run."
+      "evidence_required": "The submission source and the evaluator JSON result for every instance."
+    },
+    {
+      "id": "boolean-versus-integer-outputs",
+      "prompt": "Using this skill, write a pysat submission for a problem whose brief declares a boolean output and one whose brief declares 0/1 integers, and check both with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
+      "expected_output": "Two accepted models, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The boolean output is a literal so it renders as true/false, and the integer output is an Integer with domain 0..1 so it renders as 0/1, matching what generation.brief declares in each case.",
+        "Neither run reports invalid_output.",
+        "No declared output is a value computed in Python rather than read from the solver."
+      ],
+      "evidence_required": "Both submission sources and both evaluator JSON results."
     }
   ]
 }

@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -33,8 +34,11 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "pulp_cbc": ("LpMinimize", "LpMaximize"),
                       "pumpkin_rust": ("minimise", "maximise"),
                       "choco_python": ("minimize", "maximize"),
-                      "hermax": ("minimize", "maximize"),
-                      "exact": ("minimise", "maximise")}
+                      # hermax carries its objective on model.obj rather than
+                      # in a keyword, so the swap replaces the whole expression
+                      # with its complement against a known upper bound.
+                      "hermax": ("m.obj += (x + y)", "m.obj += ((2 * n) - (x + y))"),
+                      "exact": ("minimize", "maximize")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.
@@ -150,6 +154,31 @@ class MetadataTests(unittest.TestCase):
             with self.subTest(solver=solver):
                 self.assertIn(metadata["name"], readme,
                               f"README.md does not name the certified integration {metadata['name']!r}")
+
+    def test_every_python_model_imports_its_framework(self):
+        """A model is supposed to be written in the framework it claims. Three
+        integrations once shipped a repository-local modelling layer instead,
+        and every model for them imported that rather than the framework, which
+        no evaluator could notice: the answers were right, the models were not
+        in the language they were advertised in. `framework` in metadata.yaml
+        matches the import name for every Python integration here.
+
+        This only covers Python. The Rust, MiniZinc, Prolog and C++
+        integrations have no equivalent one-line check, so they are still
+        reviewed by reading them."""
+        for solver, metadata in self.integrations.items():
+            if metadata.get("language") != "python":
+                continue
+            module = metadata["framework"]
+            pattern = re.compile(rf"^\s*(?:import\s+{re.escape(module)}\b"
+                                 rf"|from\s+{re.escape(module)}[\s.])", re.MULTILINE)
+            for model in sorted((ROOT / "generated_models").glob(f"*/{solver}/*/model.py")):
+                with self.subTest(solver=solver, model=model.parent.name):
+                    source = model.read_text(encoding="utf-8")
+                    self.assertRegex(
+                        source, pattern,
+                        f"{model.relative_to(ROOT)} never imports {module}, the framework "
+                        f"{solver} declares; a model has to be written in its own framework")
 
 
 @unittest.skipUnless(os.environ.get("DCP_CONTAINER_TESTS") == "1", "Set DCP_CONTAINER_TESTS=1 after building images")

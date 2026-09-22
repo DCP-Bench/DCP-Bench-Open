@@ -1,18 +1,22 @@
 """Runner protocol for the exact integration. Runs inside the image only.
 
-A submission defines `build(instance)` returning `(pb, outputs)`, where `pb` is
-the `Pb` builder from `dcp_pb` and `outputs` maps each declared output name to a
-`Var`, a plain int or bool, or nested lists of those. An objective is declared
-on the builder with `pb.minimise(terms)` or `pb.maximise(terms)` rather than
-returned, because Exact takes a linear expression directly and needs no
-auxiliary variable to hold it.
+A submission defines `build(instance)` returning `(solver, outputs)` for a
+satisfaction problem, or `(solver, outputs, (direction, terms))` where `solver`
+is an `exact.Exact`, direction is "minimize" or "maximize", and `terms` is the
+objective as a list of `(coefficient, variable_name)` pairs.
 
-Exact bounds its own search: `toOptimum` and `runFull` both take a timeout, and
-`toOptimum` reports whether it reached the optimum or ran out of time. So unlike
-the MaxSAT integration here, no child process is needed.
+Exact identifies variables by name, so `outputs` maps each declared output name
+to variable names, or nested lists of them. Values come back as integers; the
+evaluator compares a 0/1 integer and a Boolean as equal, so a variable declared
+over 0..1 satisfies a Boolean output without any special handling.
 
-Optimality is reported only when Exact says it proved it. Enumeration fixes the
-objective at that optimum first, so every further answer is optimal too.
+Three things about this solver decide how the runner is written:
+
+* `toOptimum` answers **`"SAT"`** when it proved the optimum. There is no
+  `"OPTIMAL"`. `"TIMEOUT"` means the search stopped short.
+* `hasSolution()` stays true after `"TIMEOUT"` and after `"UNSAT"`, so it is
+  never the test for whether there is an answer. The returned state is.
+* Exact minimises internally, so a maximisation's optimum comes back negated.
 """
 import contextlib
 import importlib.util
@@ -22,71 +26,40 @@ import sys
 import time
 
 sys.path.insert(0, "/opt/runner")
-from runtime import emit, finish  # noqa: E402
+from runtime import emit, finish, flatten, mapped  # noqa: E402
 
-from dcp_pb import Pb, Var  # noqa: E402
+from exact import Exact  # noqa: E402
+
+DIRECTIONS = ("minimize", "maximize")
 
 
 def load(instance):
+    """Import the submission and normalise what it returned."""
     spec = importlib.util.spec_from_file_location("candidate", "/input/model.py")
     module = importlib.util.module_from_spec(spec)
     with contextlib.redirect_stdout(sys.stderr):
         spec.loader.exec_module(module)
-        result = module.build(instance)
-    if not isinstance(result, tuple) or len(result) != 2:
-        raise ValueError("build(instance) must return (pb, outputs)")
-    pb, outputs = result
-    if not isinstance(pb, Pb):
-        raise ValueError("the first value must be the Pb builder from dcp_pb")
+        returned = module.build(instance)
+    if not isinstance(returned, tuple) or len(returned) not in (2, 3):
+        raise ValueError("build(instance) must return (solver, outputs) or "
+                         "(solver, outputs, (direction, terms))")
+    solver, outputs = returned[0], returned[1]
+    objective = returned[2] if len(returned) == 3 else None
+    if not isinstance(solver, Exact):
+        raise ValueError("the first value must be an exact.Exact")
     if not isinstance(outputs, dict) or not outputs:
         raise ValueError("build(instance) must return a nonempty output dictionary")
-    return pb, outputs
-
-
-def leaves(node, found):
-    if isinstance(node, dict):
-        for value in node.values():
-            leaves(value, found)
-    elif isinstance(node, (list, tuple)):
-        for value in node:
-            leaves(value, found)
-    elif isinstance(node, Var):
-        found.append(node)
-    return found
-
-
-def render(node, values):
-    if isinstance(node, dict):
-        return {name: render(value, values) for name, value in node.items()}
-    if isinstance(node, (list, tuple)):
-        return [render(value, values) for value in node]
-    if isinstance(node, Var):
-        value = values[node.name]
-        return bool(value) if node.boolean else value
-    if isinstance(node, (bool, int)):
-        return node
-    raise ValueError(f"an output leaf must be a Var, an int or a bool; got {type(node).__name__}")
-
-
-def read(pb, outputs):
-    """The value of every declared output variable in the last solution."""
-    names = [var.name for var in leaves(outputs, [])]
-    if not names:
-        return {}
-    return dict(zip(names, pb.solver.getLastSolutionFor(names)))
-
-
-def block(pb, outputs, values):
-    """Forbid exactly this assignment of the declared outputs.
-
-    Each output is pinned to its value by an indicator, and at least one of them
-    has to come out false next time.
-    """
-    flags = [pb.is_value(var, values[var.name]) for var in leaves(outputs, [])]
-    if not flags:
-        return False
-    pb.le([(1, flag) for flag in flags], len(flags) - 1)
-    return True
+    for leaf in flatten(outputs):
+        if not isinstance(leaf, str):
+            raise ValueError("an output leaf must be a variable name; got "
+                             f"{type(leaf).__name__}")
+    if objective is not None:
+        if (not isinstance(objective, (tuple, list)) or len(objective) != 2
+                or objective[0] not in DIRECTIONS):
+            raise ValueError('the objective must be ("minimize", terms) or '
+                             '("maximize", terms), with terms a list of '
+                             "(coefficient, variable name) pairs")
+    return solver, outputs, objective
 
 
 def main():
@@ -95,49 +68,53 @@ def main():
         return finish("unsupported", "This integration has no legacy submission format")
 
     started = time.monotonic()
-    pb, outputs = load(request["instance"])
-    limit = request["solution_limit"]
-    budget = request["execution_timeout"]
+    deadline = started + request["execution_timeout"]
+    solver, outputs, objective = load(request["instance"])
+    names = flatten(outputs)
 
-    def left():
-        return budget - (time.monotonic() - started)
-
-    if pb.objective is not None:
-        terms, minimise = pb.objective
-        pb.solver.setObjective(Pb._terms(terms), minimise)
-        if left() <= 0:
-            return finish("timeout", solve_seconds=time.monotonic() - started)
-        state, optimum = pb.solver.toOptimum(left())
+    if objective is not None:
+        direction, terms = objective
+        minimise = direction == "minimize"
+        solver.setObjective(list(terms), minimize=minimise)
+        left = deadline - time.monotonic()
+        if left <= 0:
+            return finish("timeout", "the budget ran out before the search began",
+                          solve_seconds=time.monotonic() - started)
+        state, value = solver.toOptimum(left)
         spent = time.monotonic() - started
         if state == "UNSAT":
             return finish("unsat", solve_seconds=spent)
         if state != "SAT":
-            # "SAT" from toOptimum means the optimum was proven; "TIMEOUT" means
-            # the search stopped short. Exact still has a solution in hand then,
-            # so reporting anything but SAT as an answer would pass off an
-            # unproven one as optimal.
-            return finish("timeout", f"the optimum was not proven ({state})", solve_seconds=spent)
-        # Exact minimises internally, so a maximisation comes back negated.
-        # Hold the objective there, and anything found from here on is optimal.
-        pb.eq(terms, optimum if minimise else -optimum)
+            # "TIMEOUT", and anything else, means the optimum was not proven.
+            # Exact still holds a solution, which must not be reported as one.
+            return finish("timeout", f"the optimum was not proven ({state})",
+                          solve_seconds=spent)
+        optimum = value if minimise else -value
+        # Pin the objective so every further solution is an optimal one.
+        solver.addConstraint(list(terms), True, optimum, True, optimum)
 
+    limit = request["solution_limit"]
     emitted = 0
     while emitted < limit:
-        if left() <= 0:
-            return finish("timeout", solve_seconds=time.monotonic() - started)
-        state = pb.solver.runFull(False, left())
+        left = deadline - time.monotonic()
+        if left <= 0:
+            return finish("timeout", "the budget ran out before the search finished",
+                          solve_seconds=time.monotonic() - started)
+        state = solver.runFull(False, left)
         spent = time.monotonic() - started
         if state == "UNSAT":
             return finish("complete" if emitted else "unsat", solve_seconds=spent)
         if state != "SAT":
-            return finish("timeout", f"search stopped as {state}", solve_seconds=spent)
-        values = read(pb, outputs)
-        emit({"type": "solution", "values": render(outputs, values)})
+            return finish("timeout", f"the search did not finish ({state})",
+                          solve_seconds=spent)
+        values = dict(zip(names, solver.getLastSolutionFor(names)))
+        emit({"type": "solution", "values": mapped(outputs, values.__getitem__)})
         emitted += 1
         if emitted >= limit:
             break
-        if not block(pb, outputs, values):
-            return finish("complete", solve_seconds=time.monotonic() - started)
+        # Exact's own blocking, projected onto the declared outputs, so two
+        # answers that differ only in auxiliary variables count as one.
+        solver.invalidateLastSol(names)
     finish("limit", solve_seconds=time.monotonic() - started)
 
 

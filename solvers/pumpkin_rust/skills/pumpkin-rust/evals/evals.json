@@ -3,6 +3,18 @@
   "skill_name": "pumpkin-rust",
   "evals": [
     {
+      "id": "written-against-pumpkin",
+      "prompt": "Using this skill, write a pumpkin_rust submission for any listed problem and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Variables come from solver.new_bounded_integer, solver.new_sparse_integer or solver.new_literal, and every constraint is posted as solver.add_constraint(pumpkin_solver::NAME(..., tag)).post().",
+        "The submission names no helper of this repository beyond Instance, Model and the inst accessors, which exist because Pumpkin has no JSON instance reader or declared-output map.",
+        "A fresh tag comes from solver.new_constraint_tag() for each constraint."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
       "id": "instance-agnostic-model",
       "prompt": "Using this skill, write a pumpkin_rust submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
@@ -20,7 +32,7 @@
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
       "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
       "assertions": [
-        "Boolean and integer variables entering one linear constraint are widened with `t(...)`, `c(...)`, `terms(...)` or `weighted(...)`, so the submission compiles without a type error and the evaluator does not report compilation_error.",
+        "Boolean and integer variables entering one linear constraint are widened with `scaled(...)`, `c(...)`, `scaled(...)` or `scaled(...)`, so the submission compiles without a type error and the evaluator does not report compilation_error.",
         "Where the right-hand side is a variable rather than a constant, the submission uses the `sum_*` family or `bool_sum_eq` rather than passing a variable where an i32 is required."
       ],
       "evidence_required": "The submission source and the evaluator JSON result, including any first-attempt compilation diagnostics."
@@ -31,7 +43,7 @@
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
       "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
       "assertions": [
-        "Each counting indicator is pinned in both directions, through `cp.is` or an `iff_*` call rather than a `when_*` call, so no indicator is free to be false while its condition holds; the evaluator does not report invalid_solution.",
+        "Each counting indicator is pinned in both directions, through `is` or an `iff_*` call rather than a `when_*` call, so no indicator is free to be false while its condition holds; the evaluator does not report invalid_solution.",
         "The count is tied to a variable with `bool_sum_eq` or `sum_eq` rather than through a global cardinality constraint, which Pumpkin does not have."
       ],
       "evidence_required": "The submission source and the evaluator JSON result for the run."
@@ -42,7 +54,7 @@
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
       "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
       "assertions": [
-        "`minimise` or `maximise` is called with one variable, built with `cp.sum` or constrained equal to the objective expression, and the objective is never bounded by a value taken from a known answer.",
+        "`minimise` or `maximise` is called with one variable, built with `sum` or constrained equal to the objective expression, and the objective is never bounded by a value taken from a known answer.",
         "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference.",
         "Where the solver cannot prove the optimum inside the budget, the result is execution_timeout and no solution record is emitted, rather than an unproven solution being reported as optimal."
       ],
@@ -58,6 +70,18 @@
         "The quotient variable is given finite bounds derived from the instance, not an arbitrary wide range that the solver has to search."
       ],
       "evidence_required": "The submission source and the evaluator JSON result for the run."
+    },
+    {
+      "id": "zero-coefficients-from-the-instance",
+      "prompt": "Using this skill, write a pumpkin_rust submission for a problem whose instance data can contain a zero weight, such as three_sum, and check it across every listed instance.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Zero coefficients are filtered out before scaled is called, and the reasoning says why: Pumpkin's AffineView::scaled bypasses the non-zero assertion and divides by zero inside a propagator later.",
+        "If filtering can empty a term list, the model posts over a constant zero variable instead of an empty list.",
+        "The evaluator accepts every listed instance, including the one carrying the zero."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result for every instance."
     }
   ]
 }

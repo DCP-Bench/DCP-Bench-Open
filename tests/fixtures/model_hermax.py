@@ -1,15 +1,14 @@
-from dcp_maxsat import MaxSat
+from hermax.model import Model
 
 
 def build(instance):
     n = instance["n"]
-    sat = MaxSat()
-    x = sat.int(0, n)
-    y = sat.int(0, n)
+    m = Model()
+    x = m.int("x", 0, n)
+    y = m.int("y", 0, n)
     if not instance["optimize"]:
-        sat.sum_eq([x, y], n)
-        return sat, {"x": x, "y": y}
-    sat.sum_ge([x, y], n)
-    total = sat.int(0, 2 * n)
-    sat.link_sum([(1, x), (1, y)], total)
-    return sat, {"x": x, "y": y}, ("minimize", total)
+        m &= (x + y == n)
+        return m, {"x": x, "y": y}
+    m &= (x + y >= n)
+    m.obj += (x + y)
+    return m, {"x": x, "y": y}

@@ -11,6 +11,10 @@ more here than the name suggests: the evaluator does not consult the metadata
 flag, so if the runner quietly ignored an objective, a merely feasible answer
 could be reported as if it were optimal. The runner refuses instead, and this
 proves the refusal reaches the evaluator as `unsupported_capability`.
+
+`native_api` guards the mistake this integration was rebuilt to fix:
+submissions are written against PySAT itself, not a modelling layer shipped
+beside the runner.
 """
 import json
 from pathlib import Path
@@ -45,33 +49,38 @@ print(json.dumps(solution))
 '''
 OPTIMIZING = REFERENCE.replace("optimize = False", "optimize = True")
 
-HEAD = '''from dcp_sat import Sat
+HEAD = '''from pysat.formula import IDPool
+from pysat.integer import Integer, IntegerEngine
 
 
 def build(instance):
     n = instance["n"]
-    sat = Sat()
-    x = sat.int(0, n)
-    y = sat.int(0, n)
+    pool = IDPool()
+    x = Integer("x", 0, n, vpool=pool)
+    y = Integer("y", 0, n, vpool=pool)
+    engine = IntegerEngine(vars=[x, y], vpool=pool)
 '''
-EXPORT = '    return sat, {"x": x, "y": y}\n'
+EXPORT = '    return engine.clausify(), {"x": x, "y": y}\n'
 
-GOOD = HEAD + "    sat.sum_eq([x, y], n)\n" + EXPORT
+GOOD = HEAD + "    engine.add_linear(x + y == n)\n" + EXPORT
 # Declaring an objective is the one thing this integration refuses outright.
-OPTIMIZED = (HEAD + "    sat.sum_ge([x, y], n)\n"
-             '    return sat, {"x": x, "y": y}, ("minimize", x)\n')
+OPTIMIZED = (HEAD + "    engine.add_linear(x + y >= n)\n"
+             '    return engine.clausify(), {"x": x, "y": y}, ("minimize", x)\n')
 # Solves, then corrupts the protocol stream the runner owns.
-MALFORMED = (HEAD + "    sat.sum_eq([x, y], n)\n"
-             "    import sys, os\n"
+MALFORMED = (HEAD + "    engine.add_linear(x + y == n)\n"
+             "    import os\n"
              "    os.write(1, b'this is not a protocol record\\n')\n" + EXPORT)
-UNSATISFIABLE = (HEAD + "    sat.linear_eq([(1, x)], 0)\n"
-                 "    sat.linear_eq([(1, x)], 1)\n" + EXPORT)
+UNSATISFIABLE = (HEAD + "    engine.add_linear(x == 0)\n"
+                 "    engine.add_linear(x == 1)\n" + EXPORT)
 # A pigeonhole big enough that the SAT solver cannot refute it in two seconds.
-SLOW = (HEAD + "    sat.sum_eq([x, y], n)\n"
-        "    birds = sat.ints(13, 1, 12)\n"
-        "    sat.all_different(birds)\n" + EXPORT)
+SLOW = (HEAD + "    engine.add_linear(x + y == n)\n"
+        '    birds = [Integer(f"b{i}", 1, 12, vpool=pool) for i in range(13)]\n'
+        "    for bird in birds:\n"
+        "        engine.add_var(bird)\n"
+        "    engine.add_alldifferent(birds)\n" + EXPORT)
 
-ISOLATED = '''from dcp_sat import Sat
+ISOLATED = '''from pysat.formula import IDPool
+from pysat.integer import Integer, IntegerEngine
 
 
 def build(instance):
@@ -97,11 +106,42 @@ def build(instance):
         probe.close()
 
     n = instance["n"]
-    sat = Sat()
-    x = sat.int(0, n)
-    y = sat.int(0, n)
-    sat.sum_eq([x, y], n)
-    return sat, {"x": x, "y": y}
+    pool = IDPool()
+    x = Integer("x", 0, n, vpool=pool)
+    y = Integer("y", 0, n, vpool=pool)
+    engine = IntegerEngine(vars=[x, y], vpool=pool)
+    engine.add_linear(x + y == n)
+    return engine.clausify(), {"x": x, "y": y}
+'''
+
+# The image must carry PySAT itself and nothing standing in for it.
+NATIVE = '''import pysat
+from pysat.card import CardEnc
+from pysat.formula import CNF, IDPool
+from pysat.integer import Integer, IntegerEngine
+from pysat.pb import PBEnc
+
+
+def build(instance):
+    # The encoders a submission builds clauses with, all from the framework.
+    assert CardEnc.__module__.startswith("pysat."), CardEnc.__module__
+    assert PBEnc.__module__.startswith("pysat."), PBEnc.__module__
+    for absent in ("dcp_sat", "dcp_maxsat", "dcp_pb"):
+        try:
+            __import__(absent)
+            raise AssertionError(f"{absent} is still installed in the image")
+        except ImportError:
+            pass
+
+    n = instance["n"]
+    pool = IDPool()
+    x = Integer("x", 0, n, vpool=pool)
+    y = Integer("y", 0, n, vpool=pool)
+    engine = IntegerEngine(vars=[x, y], vpool=pool)
+    engine.add_linear(x + y == n)
+    formula = engine.clausify()
+    assert isinstance(formula, CNF), type(formula).__name__
+    return formula, {"x": x, "y": y}
 '''
 
 
@@ -127,6 +167,7 @@ def main():
         check("enumeration", GOOD, solution_limit=3)
         check("unsupported_optimization", OPTIMIZED, reference=OPTIMIZING,
               expected={"unsupported_capability"})
+        check("native_api", NATIVE)
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})

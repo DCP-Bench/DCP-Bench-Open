@@ -1,27 +1,27 @@
 ---
 name: hermax
-description: Write a DCP-Bench submission for the hermax integration - one Python file defining build(instance), using the MaxSat builder from dcp_maxsat to encode the problem into weighted MaxSAT. Use when generating or repairing a model for solver ID hermax.
+description: Write a DCP-Bench submission for the hermax integration - one Python file defining build(instance) against hermax.model.Model, with any objective declared as soft clauses on model.obj. Use when generating or repairing a model for solver ID hermax.
 ---
 
 # hermax (MaxSAT) submissions
 
-A submission is one Python file defining:
+A submission is one Python file defining `build(instance)`, written against
+hermax's own modelling layer:
 
 ```python
-from dcp_maxsat import MaxSat
+from hermax.model import Model
 
 
 def build(instance):
     ...
-    return sat, outputs                        # satisfaction
-    return sat, outputs, ("minimize", total)   # optimisation
+    return m, outputs
 ```
 
-`dcp_maxsat` ships inside the image and does the clause encoding, so a
-submission states the problem rather than writing CNF.
+Always two values. There is no objective in the return: hermax models carry
+their objective on `m.obj`, and the runner reads it off the solve result.
 
 ```python
-from dcp_maxsat import MaxSat
+from hermax.model import Model
 
 
 def build(instance):
@@ -29,110 +29,101 @@ def build(instance):
     weights = instance["weights"]
     capacity = instance["capacity"]
 
-    sat = MaxSat()
-    take = sat.bools(len(values))
-    sat.bool_sum_le(weights, take, capacity)
-    profit = sat.int(0, sum(values))
-    sat.link_bool_sum(values, take, profit)
-    return sat, {"x": take, "profit": profit}, ("maximize", profit)
+    m = Model()
+    take = m.bool_vector("take", len(values))
+    m &= (sum(weights[j] * take[j] for j in range(len(values))) <= capacity)
+
+    # Maximising the value carried means paying for what is left behind.
+    for j, value in enumerate(values):
+        m.obj[value] += take[j]
+    return m, {"x": take}
 ```
 
-## The objective is a variable, not an expression
+## The objective is soft clauses
 
-A MaxSAT solver minimises the weight of the soft clauses it breaks. It has no
-notion of an expression to optimise. So the contract here is:
+`m.obj[weight] += literal` adds a soft clause that **pays `weight` when the
+literal is false**. That polarity is the whole trick:
 
-**Build an integer variable, tie it to the quantity you care about, and hand
-that variable over.** The runner turns its one-hot literals into soft units, one
-per value, so the cost the solver minimises moves with the variable.
+- **minimise** a total: pay when the literal is *true*, so write `~lit`.
+  `m.obj[cost[i][j]] += ~x[i][j]` charges `cost[i][j]` for using pairing
+  `(i, j)`.
+- **maximise** a total: pay when the literal is *false*, so write the literal
+  itself. `m.obj[value] += take[j]` charges for every item left behind, and the
+  minimum total forgone is the maximum total taken.
 
-`link_bool_sum(weights, lits, var)` and `link_sum(terms, var)` are how the tie
-is made. They are the most important calls in this integration: without one, the
-objective variable is free and the answer is meaningless.
+Either way the solver minimises the broken weight, which is what MaxSAT is.
+`m.obj += expression` also works and reads well for small models, but see the
+next section before reaching for it.
 
-```python
-    cost = sat.int(0, upper_bound)
-    sat.link_bool_sum(prices, chosen, cost)      # cost == sum(prices * chosen)
-    return sat, outputs, ("minimize", cost)
-```
+## Do not route the objective through an integer variable
 
-**Give the objective variable a tight upper bound.** It is one-hot encoded, so
-its domain size is its cost in variables and in soft clauses. Derive the bound
-from the instance rather than picking a round number.
+Declaring `total = m.int(...)` and tying it with
+`m &= (sum(c[j] * x[j] for j in ...) == total)` is the single most expensive
+mistake available here. That equality has to be encoded as a pseudo-Boolean
+constraint over the full range of the sum.
 
-Optimality is reported only when the solver proves it. A solution found without
-that proof is reported as a timeout, never as an answer.
+Measured on a four-by-four assignment problem with costs up to 125: the
+soft-clause form builds and solves in **0.21 s**, the auxiliary-variable form
+spends **43 s inside `build` alone** before solving starts. Same model, same
+answer.
 
-## Rules that break a submission
+Only introduce an integer objective variable when the brief declares the
+objective value as an output. Even then, keep the soft clauses as the objective
+and let the variable be tied separately, or narrow its bounds to the values the
+sum can actually reach.
 
-- **Never write to stdout.** The runner owns it for the JSONL protocol. Use
-  `sys.stderr`.
-- **Never solve.** The runner owns the search and the budget.
-- **Read every instance-dependent quantity from `instance`.**
-- Only one file is staged, so there are no helper modules.
+## The modelling surface
 
-## Variables and constraints
+Constraints are posted with `m &= constraint`.
 
-Identical to the SAT surface, because the encoding is the same:
-
-| Call | Meaning |
+| Need | Call |
 | --- | --- |
-| `sat.bool()` / `bools(n)` / `bool_grid(r, c)` | Boolean variables as positive literals |
-| `sat.int(lo, hi)` / `int_from(values)` | one-hot integer variable |
-| `sat.ints(n, lo, hi)` / `int_grid(r, c, lo, hi)` | several |
-| `sat.constant(v)`, `sat.always()`, `sat.never()` | fixed values |
-| `sat.clause(lits)`, `implies(a, b)`, `iff(a, b)` | raw logic |
-| `sat.at_most(lits, k)` / `at_least` / `exactly` | cardinality |
-| `sat.bool_sum_le(weights, lits, bound)` / `_ge` / `_eq` | weighted sums over literals |
-| `sat.sum_eq(vars, bound)` / `sum_le` / `sum_ge` | sums of integer variables |
-| `sat.weighted_sum_eq(coeffs, vars, bound)` / `_le` / `_ge` | weighted sums of them |
-| `sat.linear_eq(terms, bound)` / `_le` / `_ge` | over `(coefficient, IntVar)` pairs |
-| `sat.link_bool_sum(weights, lits, var)` | **ties a variable to a weighted sum of literals** |
-| `sat.link_sum(terms, var)` | **ties a variable to a linear expression** |
-| `sat.link_count(lits, var)` | ties a variable to how many literals are true |
-| `sat.same(x, y)` / `different(x, y)` / `all_different(vars)` | relations |
-| `sat.is_value(x, v)` | the literal for `x == v` |
+| one Boolean | `m.bool(name)` |
+| Booleans | `m.bool_vector(name, n)`, `m.bool_matrix(name, rows, cols)` |
+| integers | `m.int(name, lb, ub)`, `m.int_vector(...)`, `m.int_matrix(...)` |
+| named choices | `m.enum(name, choices)`, `m.enum_vector(...)` |
+| cardinality | `bv.at_most_one()`, `bv.at_least_one()`, `bv.exactly_one()` |
+| all-different | `iv.all_different()` |
+| ordering | `iv.increasing()`, `iv.lexicographic_less_than(other)` |
+| aggregates | `m.sum_var(items)`, `m.max(vec)`, `m.min(vec)`, `iv.running_sum()` |
+| value tests | `x == v`, `x != v`, `x.in_range(lo, hi)`, `x.forbid_value(v)` |
+| scheduling | `m.interval(...)`, `m.cumulative(starts, durations, demands, cap)` |
 
-An `IntVar` is a direct encoding: `x.literal(v)` is the literal for `x == v`, or
-`None` when `v` is outside the domain. Keep domains small; one variable per
-value is the cost.
+A matrix gives `.row(i)`, `.col(j)` and `.flatten()`; the row and column views
+carry the cardinality helpers, so `m &= x.row(i).exactly_one()` is the direct
+way to say "exactly one per row".
 
-Negative values, negative coefficients and zero coefficients are all handled by
-the linear helpers.
-
-There is no multiplication of two variables, no division, no modulo, no element
-and no cumulative.
+Linear constraints accept ordinary Python sums over variables:
+`m &= (sum(w[j] * x[j] for j in range(n)) <= cap)`.
 
 ## Outputs
 
-Names must be the ones `generation.brief` declares. A leaf may be an `IntVar`
-(renders as an integer), a literal (renders as a boolean), a plain `int` or a
-plain `bool`. Where the brief declares the objective value as an output, hand
-back the objective variable itself.
+`outputs` maps each name the brief declares to variables of this model. A
+vector or matrix can be handed over whole — the runner reads
+`result[container]` and gets back nested lists of `bool` or `int`, matching
+whichever the brief asked for. Leaves must be `IntVar` or `Literal`; do not put
+plain Python values in the dictionary.
 
-## Enumeration
+Booleans render as `true`/`false`. If the brief declares 0/1 integers, use
+`m.int(name, 0, 1)` instead of `m.bool(name)`.
 
-After proving the optimum, the runner blocks the declared outputs and solves
-again, keeping only answers at the same cost. Once the best remaining cost rises
-above the optimum, the optimal solutions are exhausted and the status is
-`complete`.
+## What the runner does
 
-## Failure routing
+1. Imports the submission and calls `build(instance)`.
+2. Calls `model.solve(time_limit=...)` with whatever budget is left.
+3. Treats only `optimum` (with an objective) and `sat` (without one) as an
+   answer. `interrupted_sat` means a solution was found without proving it
+   best, and is reported as a timeout, never as a result.
+4. Emits the solution, then posts a blocking clause over the **declared
+   outputs** and solves again.
+5. Stops with `complete` when the cost rises above the first one, which is when
+   the optimal solutions are exhausted, or when the model goes `unsat`.
 
-| Result | Usual cause here |
-| --- | --- |
-| `suboptimal_solution` | The objective variable is not tied to the quantity the reference optimises, or the direction is inverted. Check the `link_*` call first. |
-| `invalid_output` | Wrote to stdout, or handed back a literal where the brief wants an integer. |
-| `invalid_solution` | A constraint is missing. |
-| `execution_timeout` | The encoding is too large, or the optimum could not be proven. A wide objective domain is the usual cause. |
-| `no_solution` | Overconstrained, or a domain excludes the intended values. |
+So enumeration covers optimal solutions only, and two submissions that declare
+different outputs are blocked differently even for the same problem.
 
-## Environment
+## Reasoning to record
 
-Python 3.12, `hermax` 1.2.5 solving with **EvalMaxSAT**, and `python-sat[pblib]`
-1.9.dev15 used only for its cardinality and pseudo-Boolean encoders. No hermax
-backend can be time-bounded in process, so the runner supervises the search in a
-child process and kills it on budget. The container is networkless, read-only
-apart from `/tmp`, single-CPU and 2 GiB.
-
-See [the builder's surface](references/dcp-maxsat-api.md) for every signature.
+Say which way the soft-clause polarity runs and why, in one line. If an integer
+variable appears anywhere near the objective, say what its bounds are and why
+they are narrow enough to encode.

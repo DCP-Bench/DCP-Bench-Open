@@ -4,12 +4,19 @@
 //! alongside this library. It defines
 //!
 //! ```ignore
-//! fn build(inst: &Instance, cp: &mut Cp) -> Model
+//! fn build(inst: &Instance, solver: &mut Solver) -> Model
 //! ```
 //!
 //! and nothing else is required of it. `run` reads the evaluator request from
 //! stdin, calls `build`, solves, and writes the JSONL runner protocol to stdout:
 //! zero or more `solution` records followed by exactly one `status` record.
+//!
+//! **This library wraps no part of Pumpkin's modelling API.** The `Solver` a
+//! submission is handed is `pumpkin_solver::Solver` itself, and constraints are
+//! posted with Pumpkin's own constructors. What lives here is the harness with
+//! no framework equivalent: reading instance fields out of JSON ([`Instance`]),
+//! declaring which variables are the problem's outputs ([`Model`]), and the
+//! runner protocol ([`run`]).
 //!
 //! Everything a submission needs is re-exported from [`prelude`], which the
 //! generated binary glob-imports before the submission source.
@@ -28,7 +35,6 @@ use serde_json::json;
 use pumpkin_solver::Solver;
 use pumpkin_solver::conflict_resolvers::resolvers::ResolutionResolver;
 use pumpkin_solver::core::DefaultBrancher;
-use pumpkin_solver::core::proof::ConstraintTag;
 use pumpkin_solver::core::optimisation::OptimisationDirection;
 use pumpkin_solver::core::optimisation::linear_sat_unsat::LinearSatUnsat;
 use pumpkin_solver::core::predicates::Predicate;
@@ -49,85 +55,6 @@ pub type Var = DomainId;
 pub type Lit = Literal;
 /// One `coefficient * variable` summand of a linear constraint.
 pub type Term = AffineView<DomainId>;
-
-/// Anything that can appear as a summand in a linear constraint.
-///
-/// This exists because Pumpkin's linear constraints take a homogeneous slice,
-/// so an integer variable and a Boolean have to be widened to a common type.
-pub trait IntoTerm {
-    fn term(self) -> Term;
-}
-
-impl IntoTerm for Var {
-    fn term(self) -> Term {
-        self.scaled(1)
-    }
-}
-
-impl IntoTerm for Lit {
-    fn term(self) -> Term {
-        self.get_integer_variable()
-    }
-}
-
-impl IntoTerm for Term {
-    fn term(self) -> Term {
-        self
-    }
-}
-
-impl<T: IntoTerm + Copy> IntoTerm for &T {
-    fn term(self) -> Term {
-        (*self).term()
-    }
-}
-
-/// `1 * v` as a linear summand.
-pub fn t(v: impl IntoTerm) -> Term {
-    v.term()
-}
-
-/// `c * v` as a linear summand.
-///
-/// A zero coefficient is rejected here rather than passed on. Pumpkin's
-/// `AffineView::scaled` multiplies the existing scale without rechecking it, so
-/// a zero-scaled view is built happily and then divides by zero inside the
-/// propagator. Use [`weighted`], which drops zero-coefficient terms, when the
-/// coefficients come from instance data that may contain zeros.
-pub fn c(coefficient: i32, v: impl IntoTerm) -> Term {
-    assert_ne!(
-        coefficient, 0,
-        "c(0, ..) has no meaning as a summand; drop the term, or use weighted()"
-    );
-    v.term().scaled(coefficient)
-}
-
-/// Every element as a `1 * v` summand.
-pub fn terms<T: IntoTerm + Copy>(vs: &[T]) -> Vec<Term> {
-    vs.iter().map(|v| v.term()).collect()
-}
-
-/// Element `i` as a `coefficients[i] * vs[i]` summand.
-///
-/// Panics when the two slices have different lengths, which is a modelling
-/// mistake rather than something to silently truncate.
-pub fn weighted<T: IntoTerm + Copy>(coefficients: &[i32], vs: &[T]) -> Vec<Term> {
-    assert_eq!(
-        coefficients.len(),
-        vs.len(),
-        "weighted(): {} coefficients for {} variables",
-        coefficients.len(),
-        vs.len()
-    );
-    // A zero coefficient contributes nothing and cannot be represented: see the
-    // note on `c`. Dropping it is the only meaning it could have had.
-    coefficients
-        .iter()
-        .zip(vs)
-        .filter(|(&w, _)| w != 0)
-        .map(|(&w, v)| v.term().scaled(w))
-        .collect()
-}
 
 // ---------------------------------------------------------------------------
 // Instance
@@ -484,462 +411,6 @@ impl Model {
 }
 
 // ---------------------------------------------------------------------------
-// Modelling surface
-// ---------------------------------------------------------------------------
-
-/// The solver, plus the constraint helpers a submission builds its model with.
-///
-/// Each helper allocates its own constraint tag, so a model never has to
-/// mention tags. Reach through to [`Cp::solver`] for anything not wrapped here.
-pub struct Cp {
-    pub solver: Solver,
-}
-
-impl Default for Cp {
-    fn default() -> Cp {
-        Cp::new()
-    }
-}
-
-impl Cp {
-    pub fn new() -> Cp {
-        Cp {
-            solver: Solver::default(),
-        }
-    }
-
-    /// A fresh constraint tag, for calling a Pumpkin constraint directly.
-    pub fn tag(&mut self) -> ConstraintTag {
-        self.solver.new_constraint_tag()
-    }
-
-    /// A term list Pumpkin will accept. Filtering zero coefficients can empty a
-    /// list entirely, and an empty linear constraint has no propagator to build,
-    /// so it becomes `0 <op> rhs` over a variable fixed at zero.
-    fn nonempty(&mut self, terms: Vec<Term>) -> Vec<Term> {
-        if terms.is_empty() {
-            vec![self.constant(0).term()]
-        } else {
-            terms
-        }
-    }
-
-    // --- variables ---------------------------------------------------------
-
-    /// An integer variable with domain `[lo, hi]`.
-    pub fn int(&mut self, lo: i32, hi: i32) -> Var {
-        assert!(lo <= hi, "empty domain [{lo}, {hi}]");
-        self.solver.new_bounded_integer(lo, hi)
-    }
-
-    /// `n` integer variables with domain `[lo, hi]`.
-    pub fn ints(&mut self, n: usize, lo: i32, hi: i32) -> Vec<Var> {
-        (0..n).map(|_| self.int(lo, hi)).collect()
-    }
-
-    /// A `rows * cols` grid of integer variables with domain `[lo, hi]`.
-    pub fn grid(&mut self, rows: usize, cols: usize, lo: i32, hi: i32) -> Vec<Vec<Var>> {
-        (0..rows).map(|_| self.ints(cols, lo, hi)).collect()
-    }
-
-    /// An integer variable whose domain is exactly `values` (holes allowed).
-    pub fn sparse(&mut self, values: &[i32]) -> Var {
-        assert!(!values.is_empty(), "sparse domain with no values");
-        self.solver.new_sparse_integer(values.to_vec())
-    }
-
-    /// A Boolean variable.
-    pub fn bool(&mut self) -> Lit {
-        self.solver.new_literal()
-    }
-
-    /// `n` Boolean variables.
-    pub fn bools(&mut self, n: usize) -> Vec<Lit> {
-        (0..n).map(|_| self.bool()).collect()
-    }
-
-    /// A `rows * cols` grid of Boolean variables.
-    pub fn bool_grid(&mut self, rows: usize, cols: usize) -> Vec<Vec<Lit>> {
-        (0..rows).map(|_| self.bools(cols)).collect()
-    }
-
-    /// A variable fixed to `value`, for places where a constraint wants a
-    /// variable but the model has a number.
-    pub fn constant(&mut self, value: i32) -> Var {
-        self.solver.new_bounded_integer(value, value)
-    }
-
-    /// The literal that is always true.
-    pub fn always(&mut self) -> Lit {
-        self.solver.get_true_literal()
-    }
-
-    /// The literal that is always false.
-    pub fn never(&mut self) -> Lit {
-        self.solver.get_false_literal()
-    }
-
-    // --- linear constraints ------------------------------------------------
-
-    /// `sum(terms) == rhs`.
-    pub fn eq(&mut self, terms: Vec<Term>, rhs: i32) {
-        let terms = self.nonempty(terms);
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::equals(terms, rhs, tag))
-            .post();
-    }
-
-    /// `sum(terms) != rhs`.
-    pub fn ne(&mut self, terms: Vec<Term>, rhs: i32) {
-        let terms = self.nonempty(terms);
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::not_equals(terms, rhs, tag))
-            .post();
-    }
-
-    /// `sum(terms) <= rhs`.
-    pub fn le(&mut self, terms: Vec<Term>, rhs: i32) {
-        let terms = self.nonempty(terms);
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::less_than_or_equals(terms, rhs, tag))
-            .post();
-    }
-
-    /// `sum(terms) < rhs`.
-    pub fn lt(&mut self, terms: Vec<Term>, rhs: i32) {
-        self.le(terms, rhs - 1);
-    }
-
-    /// `sum(terms) >= rhs`.
-    pub fn ge(&mut self, terms: Vec<Term>, rhs: i32) {
-        let negated: Vec<Term> = terms.into_iter().map(|term| term.scaled(-1)).collect();
-        self.le(negated, -rhs);
-    }
-
-    /// `sum(terms) > rhs`.
-    pub fn gt(&mut self, terms: Vec<Term>, rhs: i32) {
-        self.ge(terms, rhs + 1);
-    }
-
-    /// `sum(terms) == target`, where the right-hand side is itself a variable.
-    pub fn sum_eq(&mut self, terms: Vec<Term>, target: impl IntoTerm) {
-        let mut all = terms;
-        all.push(target.term().scaled(-1));
-        self.eq(all, 0);
-    }
-
-    /// `sum(terms) <= target`, where the right-hand side is itself a variable.
-    pub fn sum_le(&mut self, terms: Vec<Term>, target: impl IntoTerm) {
-        let mut all = terms;
-        all.push(target.term().scaled(-1));
-        self.le(all, 0);
-    }
-
-    /// `sum(terms) >= target`, where the right-hand side is itself a variable.
-    pub fn sum_ge(&mut self, terms: Vec<Term>, target: impl IntoTerm) {
-        let mut all = terms;
-        all.push(target.term().scaled(-1));
-        self.ge(all, 0);
-    }
-
-    /// `a == b`.
-    pub fn same(&mut self, a: impl IntoTerm, b: impl IntoTerm) {
-        self.eq(vec![a.term(), b.term().scaled(-1)], 0);
-    }
-
-    /// `a != b`.
-    pub fn differ(&mut self, a: impl IntoTerm, b: impl IntoTerm) {
-        self.ne(vec![a.term(), b.term().scaled(-1)], 0);
-    }
-
-    /// A fresh variable equal to `sum(terms)`, bounded by the terms' own bounds.
-    pub fn sum(&mut self, terms: Vec<Term>) -> Var {
-        let lo: i32 = terms.iter().map(|term| self.solver.lower_bound(term)).sum();
-        let hi: i32 = terms.iter().map(|term| self.solver.upper_bound(term)).sum();
-        let total = self.int(lo, hi);
-        self.sum_eq(terms, total);
-        total
-    }
-
-    // --- arithmetic --------------------------------------------------------
-
-    /// `a * b == product`.
-    pub fn times(&mut self, a: impl IntoTerm, b: impl IntoTerm, product: impl IntoTerm) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::times(a.term(), b.term(), product.term(), tag))
-            .post();
-    }
-
-    /// `numerator / denominator == quotient`, truncating toward zero.
-    ///
-    /// Pumpkin requires the denominator's domain to exclude zero.
-    pub fn div(&mut self, numerator: impl IntoTerm, denominator: impl IntoTerm, quotient: impl IntoTerm) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::division(
-                numerator.term(),
-                denominator.term(),
-                quotient.term(),
-                tag,
-            ))
-            .post();
-    }
-
-    /// `|signed| == magnitude`.
-    pub fn abs(&mut self, signed: impl IntoTerm, magnitude: impl IntoTerm) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::absolute(signed.term(), magnitude.term(), tag))
-            .post();
-    }
-
-    /// `max(vars) == target`.
-    pub fn max(&mut self, vars: Vec<Term>, target: impl IntoTerm) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::maximum(vars, target.term(), tag))
-            .post();
-    }
-
-    /// `min(vars) == target`.
-    pub fn min(&mut self, vars: Vec<Term>, target: impl IntoTerm) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::minimum(vars, target.term(), tag))
-            .post();
-    }
-
-    // --- global constraints ------------------------------------------------
-
-    /// Every variable takes a different value.
-    ///
-    /// Pumpkin decomposes this into pairwise disequalities, so it propagates
-    /// no more strongly than writing them out.
-    pub fn all_different(&mut self, vars: Vec<Term>) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::all_different(vars, tag))
-            .post();
-    }
-
-    /// `array[index] == value`, with `index` **0-based**.
-    pub fn element(&mut self, index: impl IntoTerm, array: Vec<Term>, value: impl IntoTerm) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::element(index.term(), array, value.term(), tag))
-            .post();
-    }
-
-    /// `array[index] == value` for a constant array, with `index` **0-based**.
-    pub fn element_of(&mut self, index: impl IntoTerm, array: &[i32], value: impl IntoTerm) {
-        let constants: Vec<Term> = array.iter().map(|&v| self.constant(v).term()).collect();
-        self.element(index, constants, value);
-    }
-
-    /// The assignment to `vars` is one of `rows`.
-    pub fn table(&mut self, vars: Vec<Term>, rows: Vec<Vec<i32>>) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::table(vars, rows, tag))
-            .post();
-    }
-
-    /// The assignment to `vars` is none of `rows`.
-    pub fn forbidden(&mut self, vars: Vec<Term>, rows: Vec<Vec<i32>>) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::negative_table(vars, rows, tag))
-            .post();
-    }
-
-    /// Cumulative resource usage never exceeds `capacity`.
-    pub fn cumulative(
-        &mut self,
-        starts: Vec<Term>,
-        durations: &[i32],
-        demands: &[i32],
-        capacity: i32,
-    ) {
-        assert_eq!(starts.len(), durations.len(), "cumulative(): starts/durations length mismatch");
-        assert_eq!(starts.len(), demands.len(), "cumulative(): starts/demands length mismatch");
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::cumulative(
-                starts,
-                durations.to_vec(),
-                demands.to_vec(),
-                capacity,
-                tag,
-            ))
-            .post();
-    }
-
-    // --- Boolean constraints ----------------------------------------------
-
-    /// At least one of `literals` is true.
-    pub fn any(&mut self, literals: Vec<Lit>) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::clause(literals, tag))
-            .post();
-    }
-
-    /// Every one of `literals` is true.
-    pub fn all(&mut self, literals: Vec<Lit>) {
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::conjunction(literals, tag))
-            .post();
-    }
-
-    /// `sum(weights[i] * literals[i]) <= rhs`.
-    pub fn bool_le(&mut self, weights: &[i32], literals: &[Lit], rhs: i32) {
-        assert_eq!(weights.len(), literals.len(), "bool_le(): weights/literals length mismatch");
-        // Pumpkin scales each literal by its weight, so a zero weight reaches
-        // the same divide-by-zero as `c(0, ..)`. Drop those pairs.
-        let (kept_weights, kept_literals) = keep_nonzero(weights, literals);
-        if kept_literals.is_empty() {
-            return self.le(Vec::new(), rhs);
-        }
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::boolean_less_than_or_equals(
-                kept_weights,
-                kept_literals,
-                rhs,
-                tag,
-            ))
-            .post();
-    }
-
-    /// `sum(weights[i] * literals[i]) == target`.
-    pub fn bool_sum_eq(&mut self, weights: &[i32], literals: &[Lit], target: Var) {
-        assert_eq!(weights.len(), literals.len(), "bool_sum_eq(): weights/literals length mismatch");
-        let (kept_weights, kept_literals) = keep_nonzero(weights, literals);
-        if kept_literals.is_empty() {
-            return self.eq(vec![t(target)], 0);
-        }
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::boolean_equals(
-                kept_weights,
-                kept_literals,
-                target,
-                tag,
-            ))
-            .post();
-    }
-
-    /// Exactly `count` of `literals` are true.
-    pub fn exactly(&mut self, literals: &[Lit], count: i32) {
-        let ones = vec![1; literals.len()];
-        let target = self.constant(count);
-        self.bool_sum_eq(&ones, literals, target);
-    }
-
-    /// At most `count` of `literals` are true.
-    pub fn at_most(&mut self, literals: &[Lit], count: i32) {
-        let ones = vec![1; literals.len()];
-        self.bool_le(&ones, literals, count);
-    }
-
-    /// At least `count` of `literals` are true.
-    pub fn at_least(&mut self, literals: &[Lit], count: i32) {
-        let negated: Vec<Lit> = literals.iter().map(|l| !*l).collect();
-        let bound = literals.len() as i32 - count;
-        self.at_most(&negated, bound);
-    }
-
-    // --- reification -------------------------------------------------------
-
-    /// `flag <-> (sum(terms) == rhs)`.
-    pub fn iff_eq(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
-        let terms = self.nonempty(terms);
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::equals(terms, rhs, tag))
-            .reify(flag);
-    }
-
-    /// `flag <-> (sum(terms) <= rhs)`.
-    pub fn iff_le(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
-        let terms = self.nonempty(terms);
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::less_than_or_equals(terms, rhs, tag))
-            .reify(flag);
-    }
-
-    /// `flag <-> (sum(terms) >= rhs)`.
-    pub fn iff_ge(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
-        let negated: Vec<Term> = terms.into_iter().map(|term| term.scaled(-1)).collect();
-        self.iff_le(flag, negated, -rhs);
-    }
-
-    /// `flag <-> (v == value)`, the common case of [`Cp::iff_eq`].
-    pub fn iff_is(&mut self, flag: Lit, v: impl IntoTerm, value: i32) {
-        self.iff_eq(flag, vec![v.term()], value);
-    }
-
-    /// A fresh literal that is true exactly when `v == value`.
-    pub fn is(&mut self, v: impl IntoTerm, value: i32) -> Lit {
-        let flag = self.bool();
-        self.iff_is(flag, v, value);
-        flag
-    }
-
-    /// `flag -> (sum(terms) == rhs)`, leaving the converse free.
-    pub fn when_eq(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
-        let terms = self.nonempty(terms);
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::equals(terms, rhs, tag))
-            .implied_by(flag);
-    }
-
-    /// `flag -> (sum(terms) <= rhs)`, leaving the converse free.
-    pub fn when_le(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
-        let terms = self.nonempty(terms);
-        let tag = self.tag();
-        self.solver
-            .add_constraint(pumpkin_solver::less_than_or_equals(terms, rhs, tag))
-            .implied_by(flag);
-    }
-
-    /// `flag -> (sum(terms) >= rhs)`, leaving the converse free.
-    pub fn when_ge(&mut self, flag: Lit, terms: Vec<Term>, rhs: i32) {
-        let negated: Vec<Term> = terms.into_iter().map(|term| term.scaled(-1)).collect();
-        self.when_le(flag, negated, -rhs);
-    }
-
-    // --- bounds ------------------------------------------------------------
-
-    /// The current lower bound of a variable, before search.
-    pub fn lower_bound(&self, v: impl IntoTerm) -> i32 {
-        self.solver.lower_bound(&v.term())
-    }
-
-    /// The current upper bound of a variable, before search.
-    pub fn upper_bound(&self, v: impl IntoTerm) -> i32 {
-        self.solver.upper_bound(&v.term())
-    }
-}
-
-/// Split a weighted literal list, dropping every zero-weighted pair.
-fn keep_nonzero(weights: &[i32], literals: &[Lit]) -> (Vec<i32>, Vec<Lit>) {
-    weights
-        .iter()
-        .zip(literals)
-        .filter(|(&w, _)| w != 0)
-        .map(|(&w, &l)| (w, l))
-        .unzip()
-}
-
-// ---------------------------------------------------------------------------
 // Runner protocol
 // ---------------------------------------------------------------------------
 
@@ -972,7 +443,7 @@ impl Budget {
 
 /// Entry point the generated binary calls. Reads the request on stdin, solves,
 /// and writes the runner protocol on stdout.
-pub fn run(build: fn(&Instance, &mut Cp) -> Model) {
+pub fn run(build: fn(&Instance, &mut Solver) -> Model) {
     let mut input = String::new();
     std::io::stdin()
         .read_to_string(&mut input)
@@ -986,8 +457,8 @@ pub fn run(build: fn(&Instance, &mut Cp) -> Model) {
     };
 
     let instance = Instance::new(request["instance"].clone());
-    let mut cp = Cp::new();
-    let model = build(&instance, &mut cp);
+    let mut solver = Solver::default();
+    let model = build(&instance, &mut solver);
 
     if model.outputs.is_empty() {
         status("error", "the model declared no outputs", budget.spent());
@@ -1001,7 +472,7 @@ pub fn run(build: fn(&Instance, &mut Cp) -> Model) {
         }
     }
 
-    let mut brancher = cp.solver.default_brancher();
+    let mut brancher = solver.default_brancher();
     let mut resolver = ResolutionResolver::default();
     let mut emitted = 0usize;
 
@@ -1019,8 +490,7 @@ pub fn run(build: fn(&Instance, &mut Cp) -> Model) {
                 std::ops::ControlFlow::<()>::Continue(())
             },
         );
-        let outcome = cp
-            .solver
+        let outcome = solver
             .optimise(&mut brancher, &mut termination, &mut resolver, procedure);
         let optimum = match outcome {
             OptimisationResult::Optimal(solution) => solution,
@@ -1052,9 +522,12 @@ pub fn run(build: fn(&Instance, &mut Cp) -> Model) {
         drop(reference);
 
         // Fix the objective, then enumerate further solutions at that value.
-        cp.eq(vec![objective.term()], best);
-        let tag = cp.tag();
-        cp.solver.add_clause(blocking, tag);
+        let tag = solver.new_constraint_tag();
+        solver
+            .add_constraint(pumpkin_solver::equals(vec![objective.scaled(1)], best, tag))
+            .post();
+        let tag = solver.new_constraint_tag();
+        solver.add_clause(blocking, tag);
     }
 
     loop {
@@ -1069,9 +542,7 @@ pub fn run(build: fn(&Instance, &mut Cp) -> Model) {
         let mut termination = budget.condition();
         let blocking;
         {
-            match cp
-                .solver
-                .satisfy(&mut brancher, &mut termination, &mut resolver)
+            match solver.satisfy(&mut brancher, &mut termination, &mut resolver)
             {
                 SatisfactionResult::Satisfiable(satisfiable) => {
                     let solution = satisfiable.solution();
@@ -1099,28 +570,27 @@ pub fn run(build: fn(&Instance, &mut Cp) -> Model) {
             status("limit", "", budget.spent());
             return;
         }
-        let tag = cp.tag();
-        cp.solver.add_clause(blocking, tag);
+        let tag = solver.new_constraint_tag();
+        solver.add_clause(blocking, tag);
     }
 }
 
 /// Everything a submission needs, glob-imported for it by the generated binary.
 pub mod prelude {
-    pub use crate::Cp;
     pub use crate::Dir;
     pub use crate::Instance;
     pub use crate::IntoNode;
-    pub use crate::IntoTerm;
     pub use crate::Lit;
     pub use crate::Model;
     pub use crate::Node;
     pub use crate::Term;
     pub use crate::Var;
-    pub use crate::c;
-    pub use crate::t;
-    pub use crate::terms;
-    pub use crate::weighted;
     pub use crate::pumpkin_solver;
+    pub use pumpkin_solver::Solver;
+    // Pumpkin's own trait for `x.scaled(k)` and `x.offset(k)`, which is how a
+    // coefficient is written. In scope here so a model does not have to import
+    // it to write a linear constraint.
+    pub use pumpkin_solver::core::variables::TransformableVariable;
     pub use serde_json::Value;
     pub use serde_json::json;
 }
