@@ -15,28 +15,32 @@ a claim here comes from a specific page or version.
   build container. These are authoritative over the rendered documentation, and
   every signature in this skill was taken from them.
 - `solvers/pumpkin_rust/rust/driver/src/lib.rs`, `run.py` and `Dockerfile` in
-  this repository — the driver contract this skill describes.
+  this repository — the harness contract this skill describes. The driver
+  wraps no part of Pumpkin's modelling API: a submission is handed
+  `pumpkin_solver::Solver` itself and posts constraints with Pumpkin's own
+  constructors. What the driver supplies is the JSON instance reader, the
+  declared-output map, and the runner protocol, none of which Pumpkin has.
 
 Every claim below was checked by compiling and running it inside the
 integration image during the run recorded at
 `generation/runs/20260918T0000Z-pumpkin-a7f3`, not taken from documentation
 alone.
 
-- `cp.element` and `cp.element_of` index **0-based**: a table `[10, 20, 30, 40]`
-  at index 1 yields 20.
-- `cp.div` truncates toward zero: `-7 / 2` is `-3`, not `-4`.
+- `pumpkin_solver::element` indexes **0-based**: a table `[10, 20, 30, 40]` at
+  index 1 yields 20.
+- `pumpkin_solver::division` truncates toward zero: `-7 / 2` is `-3`, not `-4`.
 - The modulo decomposition `a == k*q + r` with `0 <= r < k` reproduces
   `23 mod 7 == 2`. Pumpkin has no modulo constraint of its own; the constraint
   list in `pumpkin-constraints/src/constraints/` is the whole vocabulary.
-- `cp.is` pins an indicator in both directions, through
-  `NegatableConstraint::reify`; `implied_by` alone is half-reification and
-  leaves the indicator free.
+- `.reify(flag)` on a posted constraint pins an indicator in both directions,
+  through `NegatableConstraint::reify`; `.implied_by(flag)` alone is
+  half-reification and leaves the indicator free.
 - `all_different` in `pumpkin-constraints/src/constraints/all_different.rs`
   expands to pairwise `binary_not_equals`, so it carries no dedicated
   propagator. That is read off the source; the consequence for solving time is
   an expectation, not something benchmarked here.
 - `Literal` is a 0/1 `AffineView<DomainId>`, which is why a `Lit` enters a
-  linear constraint through `t(...)` and negates with `!`.
+  linear constraint through `.scaled(1)` and negates with `!`.
 - `pumpkin-solver`'s build script shells out to `git` and, without
   `NO_CHECKERS=true`, compiles proof checkers from a `tests/` directory the
   published crate does not ship. Both are handled in the Dockerfile.
@@ -51,3 +55,16 @@ alone.
 - Proc-macro dependencies build to `.so` rather than `.rlib`, so an image that
   copies only `*.rlib` out of the Cargo target directory fails at link time with
   a misleading "can't find crate" for the driver itself.
+
+Checked again when this integration was rebuilt on Pumpkin's own API, in the run
+recorded at `generation/runs/20260922T0700Z-pumpkin-native`:
+
+- **The linear constraints accept a plain `Vec<Var>`** where every coefficient
+  is 1, so `all_different(queens, tag)` compiles with no `scaled` mapping. Only
+  a mixed or weighted list has to be widened to `Vec<Term>`.
+- `TransformableVariable` has to be in scope for `x.scaled(k)`; without it the
+  compiler says `no method named 'scaled' found for struct 'DomainId'`. The
+  prelude exports it, so a submission does not import it.
+- The driver's own modelling wrapper was removed here. It had grown to 1126
+  lines wrapping `pumpkin_solver`'s constructors one for one, which meant no
+  model in this repository ever named the framework it was written in.

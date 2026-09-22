@@ -11,12 +11,15 @@ to prove that a submission which does not compile is reported as
 `compilation_error` rather than as some downstream failure. Every check below
 pays a real `rustc` invocation.
 
-Two checks deserve a word on what they actually assert. `malformed_output` uses
-a submission that writes junk on stdout: the driver owns that stream for the
-JSONL protocol, so anything a model prints there corrupts it, and the evaluator
-has to reject the run rather than parse around it. `timeout_cleanup` uses an
-unsatisfiable pigeonhole rather than a sleep, so it also exercises the path
-where Pumpkin itself is still searching when the budget runs out.
+Three checks deserve a word on what they actually assert. `malformed_output`
+uses a submission that writes junk on stdout: the driver owns that stream for
+the JSONL protocol, so anything a model prints there corrupts it, and the
+evaluator has to reject the run rather than parse around it. `timeout_cleanup`
+uses an unsatisfiable pigeonhole rather than a sleep, so it also exercises the
+path where Pumpkin itself is still searching when the budget runs out.
+`native_api` guards the mistake this integration was rebuilt to fix: the handle
+a submission is given is `pumpkin_solver::Solver` itself, and constraints are
+posted through Pumpkin's own constructors rather than a wrapper of ours.
 """
 import json
 from pathlib import Path
@@ -52,49 +55,82 @@ print(json.dumps(solution))
 OPTIMIZING = REFERENCE.replace("optimize = False", "optimize = True")
 MAXIMIZING = OPTIMIZING.replace("model.minimize", "model.maximize")
 
-HEAD = "fn build(inst: &Instance, cp: &mut Cp) -> Model {\n"
+HEAD = "fn build(inst: &Instance, solver: &mut Solver) -> Model {\n"
 TAIL = "}\n"
 DECLARE = ("    let n = inst.int(\"n\");\n"
-           "    let x = cp.int(0, n);\n"
-           "    let y = cp.int(0, n);\n")
+           "    let x = solver.new_bounded_integer(0, n);\n"
+           "    let y = solver.new_bounded_integer(0, n);\n")
 EXPORT = ("    let mut m = Model::new();\n"
           "    m.put(\"x\", x);\n"
           "    m.put(\"y\", y);\n")
+POST = ("    let tag = solver.new_constraint_tag();\n"
+        "    solver.add_constraint(pumpkin_solver::{}).post();\n")
 
-GOOD = HEAD + DECLARE + "    cp.eq(vec![t(x), t(y)], n);\n" + EXPORT + "    m\n" + TAIL
+GOOD = (HEAD + DECLARE
+        + POST.format("equals(vec![x.scaled(1), y.scaled(1)], n, tag)")
+        + EXPORT + "    m\n" + TAIL)
 # `n` is a maximum here, so the objective has room to move in both directions.
-OPTIMAL = (HEAD + DECLARE + "    cp.ge(vec![t(x), t(y)], n);\n"
-           "    let total = cp.sum(vec![t(x), t(y)]);\n" + EXPORT
-           + "    m.DIRECTION(total);\n    m\n" + TAIL)
+# A lower bound is written as an upper bound on the negated terms, which is what
+# Pumpkin offers: there is no `greater_than_or_equals`.
+OPTIMAL = (HEAD + DECLARE
+           + POST.format("less_than_or_equals(vec![x.scaled(-1), y.scaled(-1)], -n, tag)")
+           + "    let total = solver.new_bounded_integer(0, 2 * n);\n"
+           + POST.format("equals(vec![x.scaled(1), y.scaled(1), total.scaled(-1)], 0, tag)")
+           + EXPORT + "    m.DIRECTION(total);\n    m\n" + TAIL)
 # Compiles and solves, then corrupts the protocol stream the driver owns.
-MALFORMED = (HEAD + DECLARE + "    cp.eq(vec![t(x), t(y)], n);\n"
-             "    println!(\"this is not a protocol record\");\n" + EXPORT + "    m\n" + TAIL)
-UNSATISFIABLE = (HEAD + DECLARE + "    cp.eq(vec![t(x)], 0);\n    cp.eq(vec![t(x)], 1);\n"
+MALFORMED = (HEAD + DECLARE
+             + POST.format("equals(vec![x.scaled(1), y.scaled(1)], n, tag)")
+             + "    println!(\"this is not a protocol record\");\n"
+             + EXPORT + "    m\n" + TAIL)
+UNSATISFIABLE = (HEAD + DECLARE
+                 + POST.format("equals(vec![x.scaled(1)], 0, tag)")
+                 + POST.format("equals(vec![x.scaled(1)], 1, tag)")
                  + EXPORT + "    m\n" + TAIL)
 # 40 pigeons into 39 holes: satisfiable-looking, genuinely unsatisfiable, and
 # slow enough that a two-second budget expires inside Pumpkin's search.
-SLOW = (HEAD + DECLARE + "    cp.eq(vec![t(x), t(y)], n);\n"
-        "    let birds = cp.ints(40, 0, 38);\n"
-        "    cp.all_different(terms(&birds));\n" + EXPORT + "    m\n" + TAIL)
+SLOW = (HEAD + DECLARE
+        + POST.format("equals(vec![x.scaled(1), y.scaled(1)], n, tag)")
+        + "    let birds: Vec<Var> = (0..40)\n"
+        + "        .map(|_| solver.new_bounded_integer(0, 38))\n"
+        + "        .collect();\n"
+        + POST.format("all_different(birds, tag)")
+        + EXPORT + "    m\n" + TAIL)
 UNCOMPILABLE = "this is not Rust\n"
 # Pumpkin's AffineView::scaled multiplies the existing scale without rechecking
-# it, so a zero coefficient builds a zero-scaled view that later divides by zero
-# inside a propagator. Instance data containing a zero weight is ordinary, so the
-# driver has to absorb it: `weighted` drops those terms, the boolean helpers drop
-# those pairs, and a list emptied that way still has to post a valid constraint.
-ZERO_COEFFICIENTS = (HEAD + DECLARE
-                     + "    let padding = cp.int(0, 5);\n"
-                     + "    cp.eq(weighted(&[1, 1, 0], &[x, y, padding]), n);\n"
-                     + "    let ignored = cp.bools(3);\n"
-                     + "    cp.bool_le(&[0, 0, 0], &ignored, 0);\n"
-                     + "    let counted = cp.int(0, 0);\n"
-                     + "    cp.bool_sum_eq(&[0, 0, 0], &ignored, counted);\n"
-                     + EXPORT + "    m\n" + TAIL)
+# it, so `v.scaled(0)` builds a zero-scaled view that later divides by zero
+# inside a propagator. Instance data carrying a zero weight is ordinary, so a
+# model has to drop those terms itself, and a term list emptied that way still
+# has to post a valid constraint. That is what the modelling skill tells models
+# to do, and this is what keeps the advice honest.
+ZERO_COEFFICIENTS = (
+    HEAD + DECLARE
+    + "    let padding = solver.new_bounded_integer(0, 5);\n"
+    + "    let weights = [1, 1, 0];\n"
+    + "    let vars = [x, y, padding];\n"
+    + "    let kept: Vec<Term> = weights.iter().zip(vars)\n"
+    + "        .filter(|(&w, _)| w != 0)\n"
+    + "        .map(|(&w, v)| v.scaled(w))\n"
+    + "        .collect();\n"
+    + POST.format("equals(kept, n, tag)")
+    + "    // Every weight zero: the sum is the constant zero, and the\n"
+    + "    // constraint is posted over that rather than over an empty list.\n"
+    + "    let all_zero = [0, 0, 0];\n"
+    + "    let spare: Vec<Var> = (0..3)\n"
+    + "        .map(|_| solver.new_bounded_integer(0, 4))\n"
+    + "        .collect();\n"
+    + "    let survivors: Vec<Term> = all_zero.iter().zip(&spare)\n"
+    + "        .filter(|(&w, _)| w != 0)\n"
+    + "        .map(|(&w, &v)| v.scaled(w))\n"
+    + "        .collect();\n"
+    + "    let zero = solver.new_bounded_integer(0, 0);\n"
+    + "    let terms = if survivors.is_empty() { vec![zero.scaled(1)] } else { survivors };\n"
+    + POST.format("less_than_or_equals(terms, 0, tag)")
+    + EXPORT + "    m\n" + TAIL)
 
 # Rust can inspect its own container, so this check runs through the real
-# submission path. A failed probe panics, which run.py reports as an execution
-# error, so the check only passes when every probe held.
-ISOLATED = '''fn build(inst: &Instance, cp: &mut Cp) -> Model {
+# submission path. A failed probe panics, which the driver reports as an
+# execution error, so the check only passes when every probe held.
+ISOLATED = '''fn build(inst: &Instance, solver: &mut Solver) -> Model {
     use std::collections::BTreeSet;
     use std::net::TcpStream;
     use std::time::Duration;
@@ -125,9 +161,37 @@ ISOLATED = '''fn build(inst: &Instance, cp: &mut Cp) -> Model {
     assert!(!reachable, "network reachable");
 
     let n = inst.int("n");
-    let x = cp.int(0, n);
-    let y = cp.int(0, n);
-    cp.eq(vec![t(x), t(y)], n);
+    let x = solver.new_bounded_integer(0, n);
+    let y = solver.new_bounded_integer(0, n);
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![x.scaled(1), y.scaled(1)], n, tag)).post();
+    let mut m = Model::new();
+    m.put("x", x);
+    m.put("y", y);
+    m
+}
+'''
+
+# The driver must hand over Pumpkin itself and wrap none of its modelling API.
+NATIVE = '''fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    // The handle a submission is given is Pumpkin's own Solver. This binding
+    // would not typecheck against a wrapper.
+    let checked: &mut pumpkin_solver::Solver = solver;
+
+    let n = inst.int("n");
+    let x = checked.new_bounded_integer(0, n);
+    let y = checked.new_bounded_integer(0, n);
+    // Posted through Pumpkin's own constraint constructors and its own tag.
+    let tag = checked.new_constraint_tag();
+    checked
+        .add_constraint(pumpkin_solver::equals(vec![x.scaled(1), y.scaled(1)], n, tag))
+        .post();
+    let spare: Vec<Var> = (0..3).map(|_| checked.new_bounded_integer(1, 3)).collect();
+    let tag = checked.new_constraint_tag();
+    checked
+        .add_constraint(pumpkin_solver::all_different(spare, tag))
+        .post();
+
     let mut m = Model::new();
     m.put("x", x);
     m.put("y", y);
@@ -158,6 +222,7 @@ def main():
         check("enumeration", GOOD, solution_limit=3)
         check("minimization", OPTIMAL.replace("DIRECTION", "minimise"), reference=OPTIMIZING)
         check("maximization", OPTIMAL.replace("DIRECTION", "maximise"), reference=MAXIMIZING)
+        check("native_api", NATIVE)
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
