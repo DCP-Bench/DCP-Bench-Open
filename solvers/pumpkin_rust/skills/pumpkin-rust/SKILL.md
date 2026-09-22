@@ -86,6 +86,17 @@ vec![x.scaled(1), y.scaled(-1)]                                  // x - y
 (0..n).map(|j| xs[j].scaled(w[j])).collect::<Vec<Term>>()        // weighted sum
 ```
 
+**A `Lit` is not a `Var`.** `Literal::scaled` exists but yields a different
+type, so a Boolean entering a *linear* constraint goes through the 0/1 integer
+view it already is:
+
+```rust
+flag.get_integer_variable()                    // the literal as a Term
+flag.get_integer_variable().scaled(k)          // with a coefficient
+```
+
+The `boolean_*` constraints take `Vec<Lit>` directly and need none of this.
+
 **Never write `scaled(0)`.** Pumpkin multiplies the existing scale without
 rechecking it, so a zero-scaled view divides by zero inside a propagator later.
 Instance data holding a zero weight is ordinary, so filter first:
