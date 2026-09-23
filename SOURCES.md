@@ -56,6 +56,11 @@ automaton to CPMpy's `Regular` constraint. Equivalence was established by
 solving all 14 listed instances and re-checking each board against the
 row/column block rules — by testing, not by proof.
 
+**Corrected.** The bin-packing reference applied the capacity limit to one bin
+per item (`range(n)`) rather than to every bin (`range(num_bins)`), so with more
+bins than items the extra bins were unbounded. No listed instance has more bins
+than items, and on those the two versions accept exactly the same solutions.
+
 **Retained as they appear in the source.** Named duplicates of an embedded
 example (nonogram `bear`, template-design `catfood2`, perfect-square-placement
 `problem2`). The evaluator deduplicates by declared data fields and ignores

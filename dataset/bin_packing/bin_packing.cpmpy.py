@@ -26,7 +26,7 @@ bins = intvar(0, num_bins - 1, shape=n, name="bins")  # Which bin each item is a
 
 # Model
 model = Model([
-    [sum(weights[j] * (bins[j] == i) for j in range(n)) <= capacity for i in range(n)]
+    [sum(weights[j] * (bins[j] == i) for j in range(n)) <= capacity for i in range(num_bins)]
 ])
 
 # Solve the model
