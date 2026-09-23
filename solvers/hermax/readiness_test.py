@@ -15,6 +15,10 @@ this integration reaches, in both directions.
 `native_api` and `rejects_objective_tuple` guard the mistake this integration
 was rebuilt to fix: submissions have to be written against `hermax.model`, and
 the objective belongs on `model.obj` rather than in the value returned.
+
+`memory_limit` checks that a solver worker killed at the memory limit ends as
+`memory_limit`, not as a solver error blamed on the model: hermax solves in a
+subprocess and reports that subprocess's death as a bare `error` status.
 """
 import json
 from pathlib import Path
@@ -79,6 +83,15 @@ UNSATISFIABLE = HEAD + "    m &= (x == 0)\n    m &= (x == 1)\n" + EXPORT
 SLOW = (HEAD + "    m &= (x + y == n)\n"
         '    birds = m.int_vector("birds", 16, 1, 15)\n'
         "    m &= birds.all_different()\n" + EXPORT)
+
+# A thousand distinctly weighted soft units under a cardinality bound. RC2
+# stratifies on the weights and builds totalizers until its worker passes a
+# 256 MB limit, about two seconds in, while the runner itself stays well under.
+HUNGRY = (HEAD + "    m &= (x + y == n)\n"
+          '    b = m.bool_vector("b", 1000)\n'
+          "    m &= (sum(b[i] for i in range(1000)) <= 500)\n"
+          "    for i in range(1000):\n"
+          "        m.obj[i + 1] += b[i]\n" + EXPORT)
 
 ISOLATED = '''from hermax.model import Model
 
@@ -172,6 +185,9 @@ def main():
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=2)
+        # hermax reports a worker the kernel killed for memory as a plain solver
+        # error; the evaluator has to see through that to the memory limit.
+        check("memory_limit", HUNGRY, expected={"memory_limit"}, memory_mb=256)
 
     try:
         image_identity({"id": SOLVER, "image": "dcp-eval/definitely-absent:readiness"})

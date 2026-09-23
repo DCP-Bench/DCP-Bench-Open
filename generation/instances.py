@@ -19,8 +19,8 @@ the problem's JSON file, leaving the existing entries byte for byte as they were
 evaluator, under the limits that model was accepted with. A model the evaluator
 rejects there is a model that fitted the instances it had seen; `--flag` records
 it in `generation/flags.json`, which takes the pair out of the covered set in
-`generation.next_work` and marks the model on the site. Timeouts and
-infrastructure failures are reported and never flagged.
+`generation.next_work` and marks the model on the site. Timeouts, runs ended by
+the memory limit and infrastructure failures are reported and never flagged.
 """
 import argparse
 import codecs
@@ -47,8 +47,8 @@ SKIPPED_HEADING = "## Instances not added"
 NEXT_HEADING = "\n## "
 METADATA_KEYS = ("name", "note")
 # Reasons that say the model is wrong on this instance. Everything else a
-# rejection can carry is a timeout, an infrastructure fault or a bad request,
-# which say nothing about the model.
+# rejection can carry is a timeout, the memory limit, an infrastructure fault
+# or a bad request, which say nothing about the model.
 MODEL_FAILURES = ("invalid_solution", "suboptimal_solution", "no_solution", "execution_error",
                   "compilation_error", "invalid_output", "output_limit")
 

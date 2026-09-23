@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from evaluation.check import evaluate
-from evaluation.execution import validate_records
+from evaluation.execution import execute, validate_records
 from evaluation.reference import Reference, embedded_instance, load_reference, select_instances
 from evaluation.results import canonical, EvaluationError, strict_json
 from evaluation.reference import ReferenceSession
@@ -287,11 +287,11 @@ if model.solve():
 
 
 class OrchestrationTests(unittest.TestCase):
-    def run_records(self, records, **kwargs):
+    def run_records(self, records, timing=None, **kwargs):
         with tempfile.TemporaryDirectory() as temp:
             model = Path(temp) / "model.py"
             model.write_text("# deliberately not executable on host")
-            with patch("evaluation.check.image_identity", return_value="sha256:test"), patch("evaluation.check.execute", return_value=(records, {})):
+            with patch("evaluation.check.image_identity", return_value="sha256:test"), patch("evaluation.check.execute", return_value=(records, timing or {})):
                 return evaluate(model, "tiny", "cpmpy_python", reference_source=SOURCE, instances=[], **kwargs)
 
     def test_solution_count_is_bounded(self):
@@ -353,6 +353,13 @@ class OrchestrationTests(unittest.TestCase):
                     result = run(list(counterexample), tolerate_inconclusive=tolerate)
                     self.assertEqual(result["reason"], "invalid_solution", result)
 
+            # Running out of memory is skipped the same way.
+            memory = [([{"type": "status", "status": "error"}], {"oom_killed": True}),
+                      ([{"type": "solution", "values": {"x": 0, "y": 3}}, stop], {})]
+            lenient = run(list(memory), tolerate_inconclusive=True)
+            self.assertTrue(lenient["accepted"], lenient)
+            self.assertEqual(lenient["instances"][0]["reason"], "memory_limit")
+
             # Nothing verified at all cannot pass.
             nothing = [(timeout, {}), (timeout, {})]
             empty = run(list(nothing), tolerate_inconclusive=True)
@@ -390,6 +397,42 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertEqual(result["reason"], reason, result)
                 # The verified work is still reported, so a consumer can weigh it.
                 self.assertEqual(result["instances"][0]["solutions_checked"], 1)
+
+    def test_a_run_that_fails_after_an_oom_kill_is_a_memory_limit(self):
+        """A runner that outlived its killed solver reports an error; the kill decides the reason."""
+        good = {"type": "solution", "values": {"x": 0, "y": 2}}
+        error = {"type": "status", "status": "error", "detail": "the solver reported an error"}
+        for records, oom_killed, reason in (([error], True, "memory_limit"), ([error], False, "execution_error"),
+                                            ([{"type": "status", "status": "unsat"}], True, "memory_limit"),
+                                            ([good, error], True, "memory_limit"),
+                                            # Answers the runner still gave in full stand.
+                                            ([good, {"type": "status", "status": "limit"}], True, "accepted")):
+            with self.subTest(records=records, oom_killed=oom_killed):
+                result = self.run_records(records, timing={"oom_killed": oom_killed})
+                self.assertEqual(result["reason"], reason, result)
+        bad = {"type": "solution", "values": {"x": 0, "y": 0}}
+        result = self.run_records([bad, error], timing={"oom_killed": True})
+        self.assertEqual(result["reason"], "invalid_solution", result)
+
+    def test_exit_137_is_a_memory_limit_only_when_docker_saw_an_oom_kill(self):
+        """A submission can SIGKILL itself; only the kernel's kill counts as the memory limit."""
+        for flag, reason in (("true", "memory_limit"), ("false", "execution_error")):
+            commands = []
+
+            def docker(command, timeout):
+                commands.append(command[1])
+                return {"run": (137, "", "Killed"), "inspect": (0, flag + "\n", ""), "rm": (0, "", "")}[command[1]]
+
+            with self.subTest(flag=flag), tempfile.TemporaryDirectory() as temp, \
+                    patch("evaluation.execution.run_process", side_effect=docker):
+                model = Path(temp) / "model.py"
+                model.write_text("# stub")
+                with self.assertRaises(EvaluationError) as raised:
+                    execute(model, {}, {"extension": ".py"}, "sha256:test", solution_limit=1, execution_timeout=5,
+                            compilation_timeout=5, memory_mb=256, cpus=1)
+                self.assertEqual(raised.exception.reason, reason)
+                # The container outlives its exit only until it has been inspected.
+                self.assertEqual(commands, ["run", "inspect", "rm"])
 
     def test_legacy_framework_names_map_onto_integrations(self):
         """eval.py takes a framework name from a third party's JSONL. A known

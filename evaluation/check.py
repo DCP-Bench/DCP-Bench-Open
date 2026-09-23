@@ -13,7 +13,7 @@ from .results import EvaluationError, canonical, digest, strict_json
 
 
 # Reasons that say "we could not tell", as opposed to "this model is wrong".
-INCONCLUSIVE = ("reference_timeout", "execution_timeout")
+INCONCLUSIVE = ("reference_timeout", "execution_timeout", "memory_limit")
 
 
 def evaluate(model_path, problem_id, solver_id, *, instance_count=1, instance_ids=None,
@@ -124,6 +124,12 @@ def evaluate(model_path, problem_id, solver_id, *, instance_count=1, instance_id
                 item["checking_seconds"] = time.perf_counter() - checking
                 failure = {"timeout": "execution_timeout", "unsat": "no_solution", "error": "execution_error",
                            "unsupported": "unsupported_capability", "compilation_error": "compilation_error"}
+                # A runner can outlive the solver process the kernel killed for
+                # memory, and then reports whatever that looked like to it.
+                if (status["status"] in failure or not solutions) and timing.get("oom_killed"):
+                    raise EvaluationError("memory_limit", f"The kernel killed a process at the {memory_mb} MB memory "
+                                                          f"limit; the runner reported {status['status']}: "
+                                                          f"{status.get('detail', '')}")
                 if status["status"] in failure:
                     raise EvaluationError(failure[status["status"]], status.get("detail", status["status"]))
                 if not solutions:

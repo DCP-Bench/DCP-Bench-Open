@@ -79,6 +79,19 @@ def image_identity(metadata):
     return identity
 
 
+def killed_for_memory(name):
+    """Whether the kernel killed any process in the exited container at its memory limit.
+
+    Docker sets this for the runner and for a solver process the runner started
+    alike, and exit 137 alone cannot tell it apart from a SIGKILL a submission
+    sent itself.
+    """
+    code, stdout, stderr = run_process(["docker", "inspect", "--format", "{{.State.OOMKilled}}", name], 15)
+    if code or stdout.strip() not in ("true", "false"):
+        raise EvaluationError("infrastructure_error", f"Could not inspect container {name}: {stderr.strip()}")
+    return stdout.strip() == "true"
+
+
 def execute(model_path, instance, metadata, image, *, solution_limit, execution_timeout,
             compilation_timeout, memory_mb, cpus, legacy=False, model_bytes=None, outputs=None):
     name = "dcp-eval-" + uuid.uuid4().hex
@@ -100,7 +113,9 @@ def execute(model_path, instance, metadata, image, *, solution_limit, execution_
         (staging / "request.json").write_text(json.dumps(request, allow_nan=False), encoding="utf-8")
         for path in staging.iterdir():
             path.chmod(0o644)
-        command = ["docker", "run", "--rm", "--pull=never", "--name", name,
+        # No --rm: the container has to outlive its exit so killed_for_memory can
+        # inspect it. The finally clause below removes it.
+        command = ["docker", "run", "--pull=never", "--name", name,
                    "--network=none", "--read-only", "--user=65534:65534", "--cap-drop=ALL",
                    "--security-opt=no-new-privileges", "--pids-limit=128", "--log-driver=none",
                    "--memory", f"{memory_mb}m", "--memory-swap", f"{memory_mb}m", "--cpus", str(cpus),
@@ -110,13 +125,21 @@ def execute(model_path, instance, metadata, image, *, solution_limit, execution_
         budget = execution_timeout + (compilation_timeout if metadata.get("compilation", False) else 0) + 10
         try:
             code, stdout, stderr = run_process(command, budget)
+            try:
+                oom_killed = killed_for_memory(name)
+            except EvaluationError as error:
+                raise EvaluationError(error.reason, f"{error.detail}; the run exited {code}: {stderr[-4000:]}") from error
             if code:
+                if oom_killed:
+                    raise EvaluationError("memory_limit", f"The kernel killed a process at the {memory_mb} MB "
+                                                          f"memory limit and the runner exited {code}: {stderr[-4000:]}")
                 raise EvaluationError("execution_error", f"Runner exited {code}: {stderr[-4000:]}")
             try:
                 records = [strict_json(line) for line in stdout.splitlines() if line.strip()]
             except (ValueError, TypeError, RecursionError) as e:
                 raise EvaluationError("invalid_output", f"Malformed runner JSON: {e}") from e
-            return records, {"execution_wall_seconds": time.perf_counter() - started, "stderr": stderr[-4000:]}
+            return records, {"execution_wall_seconds": time.perf_counter() - started, "stderr": stderr[-4000:],
+                             "oom_killed": oom_killed}
         finally:
             # docker-client termination alone does not terminate the container.
             try:

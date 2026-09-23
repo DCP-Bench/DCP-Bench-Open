@@ -19,6 +19,9 @@ evaluation record itself, not from your own expectation.
     problem. Tolerating it is legitimate, but report it as a performance limit
     rather than implying the problem was blocked, and say which instances the
     model is actually evidenced on.
+  - `memory_limit` — your model ran and the kernel killed a process in its
+    container at the memory limit. Read it as `execution_timeout`: usually an
+    encoding too large for the instance, reported the same way.
 - `solutions_checked` is at least 1 and within the requested limit.
 - The retained `model_hash` matches the bytes you wrote.
 
