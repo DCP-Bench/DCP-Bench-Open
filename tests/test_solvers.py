@@ -280,6 +280,15 @@ class ContainerTests(unittest.TestCase):
         code, out, _ = run_process(["docker", "ps", "-a", "--filter", "name=dcp-eval-", "--format", "{{.Names}}"], 10)
         self.assertEqual(out.strip(), "")
 
+    def test_swipl_verdict_survives_a_stalled_halt(self):
+        """swipl can block in halt after the driver printed its status; the status is the verdict."""
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "model.pl"
+            path.write_text((ROOT / "tests/fixtures/model_swipl.pl").read_text() + ":- at_halt(sleep(600)).\n")
+            result = evaluate(path, "tiny", "swipl_clpfd", reference_source=SOURCE, execution_timeout=10)
+            self.assertTrue(result["accepted"], result)
+            self.assertLess(result["instances"][0]["execution_wall_seconds"], 10)
+
     def test_memory_limit(self):
         """The kernel's kill is a memory limit; a submission killing itself is not."""
         with tempfile.TemporaryDirectory() as temp:
