@@ -12,6 +12,7 @@ all. No module calls an LLM or decides what to model.
 | `next_work` | Lists what is left to model, and which integrations are usable right now. |
 | `readiness` | Certifies an integration: runs its own checks and binds the result to its image and files. |
 | `manage` | The run ledger — create an attempt, evaluate it, keep it if it passed. |
+| `instances` | Gates a new instance before it joins the dataset, and rechecks retained models on it. |
 | `skills` | Validates a skill bundle, and reviews proposed changes to one. |
 | `behaviour` | Runs a skill's behavioural evals. |
 
@@ -49,6 +50,10 @@ verdict in `record.json`.
 
 `generation/blockers.json` lists pairs not worth retrying, each with the
 evidence that justifies it, so the same dead end is not rediscovered.
+
+`generation/flags.json` lists retained models that failed an instance added
+after they were accepted, with the evaluator's evidence. A flagged model stays
+where it is and is marked on the site, but no longer covers its pair.
 
 ## For agents
 

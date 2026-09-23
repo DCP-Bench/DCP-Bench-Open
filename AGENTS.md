@@ -11,7 +11,8 @@
 ## Writing models for this benchmark
 
 Follow `skills/model-generator`, which runs a
-campaign end to end, and `skills/solver-setup` for adding a framework/solver. A generated model should be kept only when the evaluator accepts it.
+campaign end to end, and `skills/solver-setup` for adding a framework/solver.
+Follow `skills/instance-curator` to add instances to existing problems. A generated model should be kept only when the evaluator accepts it.
 
 `python -m generation.brief PROBLEM` prints what a model has to satisfy: the declared
 output names with their shapes, the objective direction, and every instance field with

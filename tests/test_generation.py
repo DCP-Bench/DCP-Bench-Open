@@ -1,10 +1,11 @@
 """Unit tests for durable generation bookkeeping (the evaluator is mocked)."""
+import json
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from generation import manage, next_work
+from generation import instances, manage, next_work
 
 
 class GenerationTests(unittest.TestCase):
@@ -284,6 +285,111 @@ class GenerationTests(unittest.TestCase):
             # A malformed or missing file must not take the queue down with it.
             blockers.write_text("not json", encoding="utf-8")
             self.assertEqual(next_work.report(include_unready=True)["eligible_pairs"], 2)
+
+    def test_flagged_models_no_longer_cover_their_pair(self):
+        """A model a later instance disproved is shown, but its pair is offered again."""
+        (self.root / "dataset" / "p1").mkdir(parents=True)
+        (self.root / "dataset" / "p1" / "p1.cpmpy.py").write_text("x", encoding="utf-8")
+        (self.root / "solvers" / "s1").mkdir(parents=True)
+        (self.root / "solvers" / "s1" / "metadata.yaml").write_text("{}", encoding="utf-8")
+        kept = self.root / "generated_models" / "p1" / "s1" / "run-attempt-001"
+        kept.mkdir(parents=True)
+        (kept / "record.json").write_text(
+            '{"verdict_source": "container_evaluator", "evaluation": {"accepted": true}}', encoding="utf-8")
+        flags = self.root / "flags.json"
+        with patch.multiple(next_work, ROOT=self.root, GENERATED=self.root / "generated_models", FLAGS=flags), \
+             patch.object(next_work, "integration", return_value={"id": "s1", "enumeration": True}):
+            self.assertEqual(next_work.report(include_unready=True)["eligible_pairs"], 0)
+            flags.write_text(manage._json({"schema": 1, "flags": [
+                {"model": "generated_models/p1/s1/run-attempt-001", "instance": "json:1"}]}), encoding="utf-8")
+            flagged = next_work.report(include_unready=True)
+            self.assertEqual(flagged["eligible_pairs"], 1)
+            self.assertEqual(flagged["flagged_models"], ["generated_models/p1/s1/run-attempt-001"])
+            flags.write_text("not json", encoding="utf-8")
+            self.assertEqual(next_work.report(include_unready=True)["eligible_pairs"], 0)
+
+    def test_instance_gate_refuses_what_the_example_would_not_accept(self):
+        example = {"n": 3, "grid": [[1, 2], [3, 4]], "names": ["a", "b"]}
+        good = {"n": 5, "grid": [[1, 2, 3]], "names": [], "note": "larger, from a generator"}
+        self.assertEqual(instances.shape_failures(example, good), [])
+        cases = {
+            "missing fields": {"n": 5, "grid": [[1]], "note": "x"},
+            "does not read": dict(good, extra=1),
+            "no note": {k: v for k, v in good.items() if k != "note"},
+            "note must be": dict(good, note=" "),
+            "where the example has [('int',)]": dict(good, n=5.0),
+            "where the example has list": dict(good, grid=7),
+            "ragged": dict(good, grid=[[1, 2], [3]]),
+            "mixed": dict(good, names=["a", 2]),
+        }
+        for expected, record in cases.items():
+            with self.subTest(expected=expected):
+                self.assertTrue(any(expected in failure for failure in instances.shape_failures(example, record)),
+                                instances.shape_failures(example, record))
+        # A field the example already has ragged may stay ragged.
+        self.assertEqual(instances.shape_failures({"rows": [[1], [2, 3]]}, {"rows": [[1, 2, 3], [4]], "note": "x"}), [])
+
+    def test_problems_recorded_as_not_extensible_are_read_from_their_section_only(self):
+        text = ("# Sources\n- `elsewhere`: not in the section\n\n## Instances not added\n\nIntro with "
+                "`` - `problem`: reason `` inline.\n\n- `sudoku_16`: the description fixes 9x9\n"
+                "- `puzzle`: one puzzle\n\n## Dataset decisions\n- `later`: not in it either\n")
+        self.assertEqual(instances.skipped_problems(text),
+                         {"sudoku_16": "the description fixes 9x9", "puzzle": "one puzzle"})
+        self.assertEqual(instances.skipped_problems("no such heading"), {})
+        # The repository's own file must parse, whatever it currently lists.
+        self.assertIsInstance(instances.skipped_problems(), dict)
+
+    def test_append_leaves_existing_entries_byte_for_byte(self):
+        path = self.root / "p.json"
+        # Hand-written spacing and CRLF line ends, as a Windows checkout has them.
+        original = '[\r\n  {"n": 1}\r\n  ,\r\n  {"n": 2}\r\n]\r\n'
+        path.write_bytes(original.encode("utf-8"))
+        ids = instances.append(path, [{"n": 3, "grid": [[1, 2], [3, 4]], "note": "x"}])
+        self.assertEqual(ids, ["json:2"])
+        text = path.read_bytes().decode("utf-8")
+        self.assertTrue(text.startswith(original[:original.rindex("}") + 1]))
+        self.assertNotIn("\n", text.replace("\r\n", ""))
+        self.assertEqual(json.loads(text)[2], {"n": 3, "grid": [[1, 2], [3, 4]], "note": "x"})
+        self.assertIn('      [1, 2],', text)
+        empty = self.root / "e.json"
+        empty.write_text("[]", encoding="utf-8")
+        self.assertEqual(instances.append(empty, [{"n": 1}]), ["json:0"])
+
+    def test_recheck_flags_model_failures_and_nothing_else(self):
+        """Only a rejection that is the model's fault becomes a flag, and only once."""
+        generated = self.root / "generated_models"
+        outcomes = {"s_ok": ("accepted", True), "s_bad": ("invalid_solution", False),
+                    "s_slow": ("execution_timeout", False), "s_infra": ("infrastructure_error", False)}
+        for solver in outcomes:
+            kept = generated / "p1" / solver / "attempt-001"
+            kept.mkdir(parents=True)
+            (kept / "model.py").write_text("model", encoding="utf-8")
+            (kept / "record.json").write_text(manage._json({
+                "verdict_source": "container_evaluator", "solver": solver, "model_file": "model.py",
+                "evaluation": {"accepted": True, "requested": {"solution_limit": 2},
+                               "limits": {"execution_timeout": 60, "reference_timeout": 60,
+                                          "compilation_timeout": 120, "memory_mb": 2048, "cpus": 1}}}),
+                encoding="utf-8")
+
+        def fake(model, problem, solver, **kwargs):
+            reason, accepted = outcomes[solver]
+            self.assertEqual((kwargs["instance_ids"], kwargs["solution_limit"], kwargs["tolerate_inconclusive"]),
+                             (["json:1"], 2, False))
+            item = {"id": "json:1", "instance_hash": "h1", "accepted": accepted, "reason": reason}
+            return {"accepted": accepted, "reason": reason, "detail": "d", "instances": [item],
+                    "skipped_instances": [], "limits": {}, "image": {"id": "sha256:x"}}
+
+        flags = self.root / "flags.json"
+        with patch.multiple(instances, ROOT=self.root, GENERATED=generated, FLAGS=flags, evaluate=fake):
+            report = instances.recheck("p1", ["json:1"], jobs=2)
+            self.assertEqual((report["models"], report["passed"], report["failed"], report["inconclusive"]),
+                             (4, 1, 1, 2))
+            self.assertFalse(report["most_failed"])
+            self.assertEqual(instances.record_flags(report["rows"]), 1)
+            self.assertEqual(instances.record_flags(report["rows"]), 0)
+        recorded = json.loads(flags.read_text(encoding="utf-8"))["flags"]
+        self.assertEqual([(x["model"], x["instance"], x["reason"]) for x in recorded],
+                         [("generated_models/p1/s_bad/attempt-001", "json:1", "invalid_solution")])
 
     def test_cli_error_is_clean(self):
         self.assertEqual(manage.main(["status", "--run", "missing"]), 2)

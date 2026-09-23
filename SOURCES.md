@@ -32,6 +32,12 @@ and a set of abbots-puzzle demo models written across frameworks that have no
 integration here. Neither was judged by the evaluator in this repository, so
 neither counted as coverage, and both have been removed.
 
+## Instances not added
+
+Problems judged unable to take another instance, one line each as
+`` - `problem`: reason ``. `python -m generation.instances status` reads this
+list and stops offering them. See `skills/instance-curator`.
+
 ## Dataset decisions
 
 Some changes made to the source problems (many more may have been made), and the reasoning behind them.

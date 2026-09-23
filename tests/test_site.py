@@ -116,6 +116,34 @@ class ModelLinkTests(unittest.TestCase):
         self.assertGreater(checked, 500, "the corpus should not have shrunk to nothing")
 
 
+
+class FlaggedModelTests(unittest.TestCase):
+    """A model a later instance disproved stays on the page, marked, and stops counting."""
+
+    FLAG = {"model": "generated_models/queens/pure_cp/attempt-001", "instance": "json:6",
+            "reason": "invalid_solution", "recorded": "2026-09-23"}
+
+    def entry(self, flags):
+        return {"submission": "attempt-001", "directory": "pure_cp", "model_file": "model.py", "code": "",
+                "flags": flags, "metrics": {"problem": "queens", "solver": "pure_cp",
+                                            "verdict_source": "container_evaluator",
+                                            "verdict": {"badge": "solution_valid"}}}
+
+    def test_a_flagged_model_is_marked_and_names_what_disproved_it(self):
+        rendered = generate_site.generated_model_html(self.entry([self.FLAG]))
+        self.assertIn("fails a later instance", rendered)
+        self.assertIn("Instance 7 (invalid_solution, rechecked 2026-09-23)", rendered)
+        self.assertNotIn("fails a later instance", generate_site.generated_model_html(self.entry([])))
+
+    def test_a_flagged_model_does_not_count_and_loses_to_an_unflagged_one(self):
+        flagged, clean = self.entry([self.FLAG]), self.entry([])
+        breakdown = generate_site.paradigm_breakdown({"queens": {"pure_cp": [flagged]}},
+                                                     INTEGRATIONS, VOCABULARY)
+        self.assertEqual(breakdown["integration_models"], {})
+        self.assertIs(generate_site.select_best_generated({"pure_cp": [flagged, clean]})["pure_cp"], clean)
+        # Shown when it is all there is: flagging marks a model, it does not hide it.
+        self.assertIs(generate_site.select_best_generated({"pure_cp": [flagged]})["pure_cp"], flagged)
+
 class RealRepositoryTests(unittest.TestCase):
     """The vocabulary and the integration metadata, as the site build reads them."""
 

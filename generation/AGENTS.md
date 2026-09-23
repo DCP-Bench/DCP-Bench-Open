@@ -30,6 +30,37 @@ in the reference), `reason`, `detail`, `evidence` and `recorded`. `next_work`
 withholds them from the queue and reports them under `blocked_pairs`; a
 malformed or missing file is ignored rather than emptying the queue.
 
+## Adding instances
+
+```sh
+python -m generation.instances status
+python -m generation.instances check PROBLEM candidates.json [--append]
+python -m generation.instances recheck PROBLEM --instances json:K ... [--flag] [--jobs N]
+```
+
+`skills/instance-curator` is the procedure. `status` lists problems with data
+fields and fewer than 5 distinct instances, leaving out those listed under
+"Instances not added" in `SOURCES.md`. `check` takes a JSON list of candidate
+records and refuses one with missing or extra fields, a changed value type or
+nesting, a new ragged or mixed-type field, inputs equal to a listed instance,
+no `note`, or a reference that does not find a solution (or prove the optimum)
+within 10 seconds in each of 3 runs. `--append` adds the passing records after
+the existing entries without reformatting them and prints their `json:K` IDs.
+It exits 0 only when every candidate passed.
+
+`recheck` evaluates every retained model of PROBLEM on the given IDs with the
+solution limit, timeouts and `tolerate_inconclusive` its record was accepted
+with. Each row is `passed`, `failed` (a model fault: `invalid_solution`,
+`suboptimal_solution`, `no_solution`, `execution_error`, `compilation_error`,
+`invalid_output`, `output_limit`) or `inconclusive` (anything else).
+`most_failed` is true when at least two models, and more than half of the
+conclusive ones, failed. `--flag` appends each failure once to
+`generation/flags.json`: `problem`, `solver`, `model` (the retained directory,
+relative to the repository), `instance`, `instance_hash`, `reason`, `detail`,
+`image`, `limits`, the failing instance's `evaluation` item and `recorded`.
+`next_work` drops a flagged model from `accepted_pairs` and reports it under
+`flagged_models`; the site marks it and leaves it out of coverage counts.
+
 ## Model attempts
 
 ```sh

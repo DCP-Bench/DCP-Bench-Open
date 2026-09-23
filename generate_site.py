@@ -20,6 +20,7 @@ DATASET_JSONL = Path("dcp-bench-open.jsonl")
 WEB_SRC = Path("web")
 OUTPUT_DIR = Path("site")
 GENERATED_DIR = Path("generated_models")
+FLAGS_PATH = Path("generation") / "flags.json"
 SOLVERS_DIR = Path("solvers")
 
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
@@ -200,6 +201,20 @@ def code_block(code: str, lang: str, copy_id: str = None, head_label: str = None
 # Generated models (from generated_models/)
 # --------------------------------------------------------------------------
 
+def load_flags() -> dict:
+    """generation/flags.json by model directory: kept models that failed an
+    instance added after they were accepted. A missing file flags nothing."""
+    try:
+        entries = json.loads(FLAGS_PATH.read_text(encoding="utf-8")).get("flags") or []
+    except (OSError, ValueError, AttributeError):
+        return {}
+    out = {}
+    for item in entries:
+        if isinstance(item, dict) and item.get("model"):
+            out.setdefault(item["model"], []).append(item)
+    return out
+
+
 def load_generated_models() -> dict:
     """Scan generated_models/<problem>/<solver>/<submission>/ -> {problem: {solver id: [entries]}}.
 
@@ -211,6 +226,7 @@ def load_generated_models() -> dict:
     out = {}
     if not GENERATED_DIR.is_dir():
         return out
+    flags = load_flags()
     for problem_dir in GENERATED_DIR.iterdir():
         if not problem_dir.is_dir():
             continue
@@ -246,6 +262,7 @@ def load_generated_models() -> dict:
                     "metrics": metrics,
                     "model_file": model_file,
                     "code": code,
+                    "flags": flags.get(sub_dir.as_posix(), []),
                 })
             if entries:
                 solver = entries[0]["metrics"].get("solver") or fw_dir.name
@@ -280,6 +297,21 @@ def verdict_badge(metrics: dict) -> str:
     return (
         f'<span class="badge" style="background:{color}" title="{esc(tooltip)}">'
         f"{esc(label)}</span>"
+    )
+
+
+def flag_badge(flags: list) -> str:
+    """Mark a model that a later instance disproved, with what disproved it."""
+    if not flags:
+        return ""
+    failures = "; ".join(
+        f'{instance_label(item.get("instance"))[0]} ({item.get("reason")}, rechecked {item.get("recorded")})'
+        for item in flags)
+    return (
+        ' <span class="badge" style="background:#9a3412" title="Accepted on the instances the '
+        'problem had when it was evaluated, then rejected on one added since">'
+        'fails a later instance</span>'
+        f'<p class="desc" style="margin:6px 0 0">Rejected on {esc(failures)}.</p>'
     )
 
 
@@ -383,7 +415,7 @@ def generated_model_html(entry: dict) -> str:
     if chips:
         rows.append(f"<dt>Paradigm</dt><dd>{chips}</dd>")
     rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}"
-                f"{evaluation_details(metrics)}</dd>")
+                f"{flag_badge(entry.get('flags'))}{evaluation_details(metrics)}</dd>")
 
     links = []
     if entry["model_file"]:
@@ -419,8 +451,9 @@ VALID_BADGE_ORDER = [
 
 def select_best_generated(gen_by_fw: dict) -> dict:
     """Keep at most one generated model per framework: the best valid one
-    (valid + optimal preferred for optimisation problems). Frameworks without
-    a valid model are dropped."""
+    (valid + optimal preferred for optimisation problems), and one no later
+    instance has disproved over one that a later instance has. Frameworks
+    without a valid model are dropped."""
     out = {}
     for fw, entries in gen_by_fw.items():
         best, best_rank = None, None
@@ -428,7 +461,7 @@ def select_best_generated(gen_by_fw: dict) -> dict:
             metrics = entry["metrics"]
             badge = normalize_badge(metrics)
             if badge in VALID_BADGE_ORDER:
-                rank = VALID_BADGE_ORDER.index(badge)
+                rank = (bool(entry.get("flags")), VALID_BADGE_ORDER.index(badge))
                 if best is None or rank < best_rank:
                     best, best_rank = entry, rank
         if best is not None:
@@ -471,14 +504,16 @@ def verified_models(generated: dict, integrations: dict):
 
     A model only counts once its own evaluator accepted it and it names an
     integration still installed under `solvers/`; a paradigm read off anything
-    else would be a guess.
+    else would be a guess. A flagged model does not count: an instance added
+    after it was accepted disproved it.
     """
     for problem, by_framework in generated.items():
         for entries in by_framework.values():
             for entry in entries:
                 metrics = entry["metrics"]
                 solver = metrics.get("solver")
-                if metrics.get("verdict_source") == "container_evaluator" and solver in integrations:
+                if (metrics.get("verdict_source") == "container_evaluator" and solver in integrations
+                        and not entry.get("flags")):
                     yield problem, solver, entry
 
 

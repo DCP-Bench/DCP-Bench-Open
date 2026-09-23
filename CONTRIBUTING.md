@@ -81,6 +81,7 @@ Please follow the structure of existing problems. We use `dataset/csplib_054_n_q
 *   Remember, the first instance in this file must match the default instance in the `.py` file.
 *   Besides those parameters, only `name` and `note` are allowed as extra keys.
 *   Every instance must be satisfiable (for now).
+*   To add instances to an existing problem, put the candidates in a separate JSON list, each with a `note` saying where it comes from, and run `python -m generation.instances check PROBLEM candidates.json --append`. It checks the fields and their shapes, that the instance is new, and that the reference solves it (or proves its optimum) within 10 seconds, then appends the ones that pass. `skills/instance-curator` has the full procedure.
 
 Example for `csplib_054_n_queens.json`:
 ```json

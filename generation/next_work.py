@@ -7,7 +7,8 @@ still verifies.
 
 Eligibility uses this evaluator's own evidence only. A retained model counts
 when `generated_models/PROBLEM/SOLVER/*/record.json` was produced by the
-container evaluator and accepted.
+container evaluator and accepted, and `generation/flags.json` does not record it
+failing an instance added since.
 """
 import argparse
 import json
@@ -21,6 +22,7 @@ from .readiness import ReadinessError, verify
 
 GENERATED = ROOT / "generated_models"
 BLOCKERS = ROOT / "generation" / "blockers.json"
+FLAGS = ROOT / "generation" / "flags.json"
 
 
 def integrations():
@@ -53,11 +55,31 @@ def _records():
             continue
 
 
+def flagged_models():
+    """Kept models that failed an instance added after they were accepted.
+
+    Paths relative to the repository, from generation/flags.json. A malformed or
+    missing file flags nothing.
+    """
+    try:
+        record = json.loads(FLAGS.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    entries = record.get("flags") if isinstance(record, dict) else None
+    return {item["model"] for item in entries or [] if isinstance(item, dict) and item.get("model")}
+
+
 def accepted_pairs():
-    """(problem, solver) pairs this evaluator has accepted a model for."""
+    """(problem, solver) pairs this evaluator has accepted a model for.
+
+    A flagged model no longer covers its pair: it was accepted on fewer
+    instances than the problem now has, and failed one of the others.
+    """
+    flagged = flagged_models()
     return {(path.parents[2].name, path.parents[1].name) for path, record in _records()
             if record.get("verdict_source") == "container_evaluator"
-            and record.get("evaluation", {}).get("accepted") is True}
+            and record.get("evaluation", {}).get("accepted") is True
+            and path.parent.relative_to(ROOT).as_posix() not in flagged}
 
 
 def blocked_pairs():
@@ -130,6 +152,7 @@ def report(limit=20, include_unready=False):
             "eligible_pairs": len(eligible), "next_pairs": eligible[:limit],
             "single_instance_problems": single,
             "blocked_pairs": withheld,
+            "flagged_models": sorted(flagged_models()),
             "unbindable_pairs": unbindable_pairs,
             "note": "An integration without a current readiness record cannot be used; "
                     "set it up first. "

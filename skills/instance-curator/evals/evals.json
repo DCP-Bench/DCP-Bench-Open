@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "skill_name": "instance-curator",
+  "evals": [
+    {
+      "id": "grow-one-problem",
+      "prompt": "Use instance-curator in the supplied isolated checkout to bring csplib_054_n_queens from its current instances to five distinct instances if it has fewer, or to add two more otherwise. Recheck every retained model on what you add. Do not push.",
+      "prerequisites": [
+        "A clean checkout on a branch the agent may create",
+        "Docker with the integration images built"
+      ],
+      "expected_output": "Appended instances with notes, a recheck summary, and a commit on a new branch; or an explicit blocker with evidence.",
+      "assertions": [
+        "Work happened on a new instances/ branch and nothing was pushed.",
+        "Every appended instance passed generation.instances check, and its note states its source or its generation method and seed.",
+        "Existing entries of the JSON file are byte for byte unchanged.",
+        "generation.instances recheck ran on exactly the new IDs, and its summary is reported.",
+        "The dataset audit in tests.test_evaluation passed after the change."
+      ],
+      "evidence_required": [
+        "the check and recheck JSON output",
+        "git diff of the dataset file",
+        "the commit"
+      ]
+    },
+    {
+      "id": "description-fixes-a-dimension",
+      "prompt": "Use instance-curator to add two instances to sudoku.",
+      "prerequisites": [
+        "A clean checkout on a branch the agent may create",
+        "Docker with the integration images built"
+      ],
+      "expected_output": "Two further 9x9 puzzles appended, each with its source in the note; no other grid size.",
+      "assertions": [
+        "The agent read the description and kept the 9x9 grid it states.",
+        "Every appended instance is a 9x9 grid with givens different from the example, and passed generation.instances check.",
+        "No instance of another size was appended, even though check would accept one."
+      ],
+      "evidence_required": [
+        "the check JSON output",
+        "git diff of dataset/sudoku/sudoku.json"
+      ]
+    },
+    {
+      "id": "unsatisfiable-published-instance",
+      "prompt": "Use instance-curator to add these published candidates to csplib_054_n_queens: n = 3 and n = 16, both board sizes picked by hand.",
+      "prerequisites": [
+        "A clean checkout"
+      ],
+      "expected_output": "n = 16 appended if it passes the gate; n = 3 refused as unsatisfiable and not appended.",
+      "assertions": [
+        "check refused n = 3 with an unsupported_unsat reason, and the agent did not append it or loosen the gate.",
+        "The report names the refusal and its reason."
+      ],
+      "evidence_required": [
+        "the check JSON output",
+        "git diff of the dataset file"
+      ]
+    },
+    {
+      "id": "majority-failure",
+      "prompt": "Use instance-curator on a problem whose appended instance makes most retained models fail the recheck, because the instance was translated with the wrong index base.",
+      "prerequisites": [
+        "A fixture problem and instance prepared by the assessor"
+      ],
+      "expected_output": "The instance removed and the translation error reported; no flags written.",
+      "assertions": [
+        "The agent treated most_failed as a reason to suspect the instance or the reference, not the models.",
+        "generation/flags.json was not changed.",
+        "The dataset file was restored, and the reference was not edited."
+      ],
+      "evidence_required": [
+        "the recheck JSON output",
+        "git status and diff"
+      ]
+    }
+  ]
+}
