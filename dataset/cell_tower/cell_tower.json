@@ -7,5 +7,49 @@
     "cost": [3, 4],
     "population": [100, 200, 150],
     "budget": 4
+  },
+  {
+    "name": "Gurobi cell tower coverage",
+    "note": "https://github.com/Gurobi/modeling-examples/blob/master/cell_tower_coverage/cell_tower.ipynb, with costs and budget multiplied by 10 to make them integers (4.2 -> 42, budget 20 -> 200), which leaves the optimal plan unchanged.",
+    "delta": [
+      [1, 1, 0, 0, 0, 1, 0, 0, 0],
+      [1, 0, 0, 0, 0, 0, 0, 1, 1],
+      [0, 0, 1, 1, 1, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0, 1, 1, 0, 0],
+      [1, 0, 1, 0, 0, 0, 1, 1, 1],
+      [0, 0, 0, 1, 1, 0, 0, 0, 1]
+    ],
+    "cost": [42, 61, 52, 55, 48, 92],
+    "population": [523, 690, 420, 1010, 1200, 850, 400, 1008, 950],
+    "budget": 200
+  },
+  {
+    "name": "overlapping sites",
+    "note": "generated: chosen by hand. Sites overlap, so the two cheapest towers cover less than one dearer tower that fits the same budget.",
+    "delta": [
+      [1, 1, 0, 0],
+      [0, 1, 1, 0],
+      [1, 1, 1, 1]
+    ],
+    "cost": [2, 2, 4],
+    "population": [100, 300, 100, 200],
+    "budget": 4
+  },
+  {
+    "name": "generated 8 sites 12 regions",
+    "note": "generated: each site covers each region with random.random() < 0.3 row by row, then costs random.randint(1, 9) and populations random.randint(50, 500), after Python random.seed(8); budget 12.",
+    "delta": [
+      [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0],
+      [1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+      [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0],
+      [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0],
+      [0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1],
+      [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+      [1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0]
+    ],
+    "cost": [9, 8, 3, 2, 4, 1, 3, 6],
+    "population": [247, 387, 343, 111, 430, 203, 229, 216, 237, 51, 380, 477],
+    "budget": 12
   }
 ]
