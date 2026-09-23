@@ -74,7 +74,7 @@ Read top-level `reason`, `detail`, per-instance details, and `runner_status`.
 | `invalid_request` | Correct coordinator paths/flags without changing the agreed coverage. A named instance ID that does not exist is a configuration blocker; a count above the available supply is not, and is honoured as a budget. |
 | `reference_error`, `unsupported_unsat` | Record a reference blocker; do not repair reference data/code in this workflow. Continue other pairs. |
 | `reference_timeout` | Inconclusive; use a recorded larger bound only if authorized by the run profile/budget, otherwise block. |
-| `execution_timeout`, `execution_error` | Inconclusive: solutions checked before the failure were all accepted, so read `solutions_checked` before deciding. Inspect for a model-performance repair or integration failure. Count repairs toward attempts; do not loop indefinitely. A large `solution_limit` shares one execution budget, so raising it makes this outcome likelier. |
+| `execution_timeout`, `memory_limit`, `execution_error` | Inconclusive: solutions checked before the failure were all accepted, so read `solutions_checked` before deciding. Inspect for a model-performance repair or integration failure. Count repairs toward attempts; do not loop indefinitely. A large `solution_limit` shares one execution budget, so raising it makes this outcome likelier. |
 | Unknown reason, missing/truncated result, coordinator crash | Preserve raw evidence, diagnose once within budget, and block if unresolved. Never infer acceptance. |
 
 Keep setup attempts separate from model attempts, but both consume wall-time and

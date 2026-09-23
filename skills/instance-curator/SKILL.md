@@ -126,8 +126,8 @@ python -W ignore::SyntaxWarning -m unittest tests.test_evaluation
      skill. If the instance and the reference both hold up and the models share
      one misreading, flag them, and say so in the commit message.
    - **Inconclusive.** An `execution_timeout` on most models means the instance
-     is too hard in practice: remove it. An `infrastructure_error` means rerun.
-     Neither is ever flagged.
+     is too hard in practice: remove it. So does `memory_limit` on most models.
+     An `infrastructure_error` means rerun. None of these is ever flagged.
 10. **Run the dataset audit** (`tests.test_evaluation`). CI runs the same
     audit.
 11. **Commit in batches.** Put several problems in one commit, and commit the

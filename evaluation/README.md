@@ -18,7 +18,8 @@ is the one exception and always fails. Some references declare only an
 objective value. Reference UNSAT is unsupported in v1.
 
 `tolerate_inconclusive` relaxes coverage without relaxing soundness: an instance
-that only times out (`reference_timeout` or `execution_timeout`) is recorded in
+that only times out (`reference_timeout` or `execution_timeout`) or runs out
+of memory (`memory_limit`) is recorded in
 `skipped_instances` and the remaining instances are still checked, and
 acceptance then needs at least one instance verified — `no_instance_verified`
 otherwise. A solution the reference rejects still fails the whole evaluation
@@ -28,7 +29,7 @@ Solutions are checked before the runner's exit status is consulted, so a
 rejected solution is a rejection even when the run later timed out or crashed.
 `reason` separates model rejection (`invalid_solution`, `suboptimal_solution`,
 `no_solution`) from inconclusive runs (`reference_timeout`,
-`execution_timeout`, `execution_error`), protocol violations (`invalid_output`, `output_limit`)
+`execution_timeout`, `memory_limit`, `execution_error`), protocol violations (`invalid_output`, `output_limit`)
 and infrastructure failure (`infrastructure_error`).
 
 ## Setup
@@ -119,6 +120,12 @@ Solution records are followed by exactly one status.
 | `timeout` | budget spent, or optimum unproven |
 | `unsat` | no solution exists |
 | `error` / `unsupported` / `compilation_error` | see `detail` |
+
+A runner need not report memory exhaustion itself. The evaluator reads
+Docker's `OOMKilled` flag on the exited container, which the kernel sets when
+it kills any process in it at the memory limit: the runner, or a solver
+process the runner started and then reported as an error. A run that fails
+after such a kill is `memory_limit`, whatever status the runner gave.
 
 Zero solutions never pass. Returning fewer than N distinct solutions requires
 `complete`, which is the runner's report that the *submitted* model has no more

@@ -280,6 +280,20 @@ class ContainerTests(unittest.TestCase):
         code, out, _ = run_process(["docker", "ps", "-a", "--filter", "name=dcp-eval-", "--format", "{{.Names}}"], 10)
         self.assertEqual(out.strip(), "")
 
+    def test_memory_limit(self):
+        """The kernel's kill is a memory limit; a submission killing itself is not."""
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "model.py"
+            path.write_text("def build(instance):\n    hoard = []\n    while True:\n"
+                            "        hoard.append(bytearray(10 ** 7))\n")
+            result = evaluate(path, "tiny", "cpmpy_python", reference_source=SOURCE, memory_mb=256)
+            self.assertEqual(result["reason"], "memory_limit", result)
+            path.write_text("import os, signal\ndef build(instance):\n    os.kill(os.getpid(), signal.SIGKILL)\n")
+            result = evaluate(path, "tiny", "cpmpy_python", reference_source=SOURCE, memory_mb=256)
+            self.assertEqual(result["reason"], "execution_error", result)
+        code, out, _ = run_process(["docker", "ps", "-a", "--filter", "name=dcp-eval-", "--format", "{{.Names}}"], 10)
+        self.assertEqual(out.strip(), "")
+
     def test_isolation(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "model.py"

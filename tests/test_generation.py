@@ -359,7 +359,8 @@ class GenerationTests(unittest.TestCase):
         """Only a rejection that is the model's fault becomes a flag, and only once."""
         generated = self.root / "generated_models"
         outcomes = {"s_ok": ("accepted", True), "s_bad": ("invalid_solution", False),
-                    "s_slow": ("execution_timeout", False), "s_infra": ("infrastructure_error", False)}
+                    "s_slow": ("execution_timeout", False), "s_infra": ("infrastructure_error", False),
+                    "s_oom": ("memory_limit", False)}
         for solver in outcomes:
             kept = generated / "p1" / solver / "attempt-001"
             kept.mkdir(parents=True)
@@ -383,7 +384,7 @@ class GenerationTests(unittest.TestCase):
         with patch.multiple(instances, ROOT=self.root, GENERATED=generated, FLAGS=flags, evaluate=fake):
             report = instances.recheck("p1", ["json:1"], jobs=2)
             self.assertEqual((report["models"], report["passed"], report["failed"], report["inconclusive"]),
-                             (4, 1, 1, 2))
+                             (5, 1, 1, 3))
             self.assertFalse(report["most_failed"])
             self.assertEqual(instances.record_flags(report["rows"]), 1)
             self.assertEqual(instances.record_flags(report["rows"]), 0)
