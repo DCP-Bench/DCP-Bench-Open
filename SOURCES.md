@@ -50,8 +50,6 @@ list and stops offering them. See `skills/instance-curator`.
 - `csplib_026_sports_tournament_scheduling`: n = 4 has no solution and n = 10 or more exceeds 10 s. Stays at 2.
 - `csplib_049_number_partitioning`: n must be a multiple of 4 and at least 8; 8 to 20 are listed and 24 exceeds 10 s. Stays at 4.
 - `calvin_puzzle`: n = 2 to 4 have no solution, n = 1 has no moves, and n = 8 or more exceeds 10 s. Stays at 3.
-- `csplib_014_solitaire_battleships`: not until the reference counts ships rather than ship pieces; it now accepts wrong fleets.
-- `csplib_057_killer_sudoku`: not until the reference constrains all nine boxes; it now constrains four.
 
 ## Dataset decisions
 
