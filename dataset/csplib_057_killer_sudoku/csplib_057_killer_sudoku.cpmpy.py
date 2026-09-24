@@ -64,8 +64,8 @@ model += [AllDifferent(row) for row in x]
 model += [AllDifferent(col) for col in x.transpose()]
 
 # cells
-for i in range(2):
-    for j in range(2):
+for i in range(3):
+    for j in range(3):
         cell = [
             x[r, c]
             for r in range(i * 3, i * 3 + 3)
