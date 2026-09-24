@@ -4,5 +4,37 @@
     "start_data": ["2024-05-01", "2024-05-02", "2024-05-03", "2024-05-04"],
     "end_data": ["2024-05-05", "2024-05-06", "2024-05-07", "2024-05-08"],
     "preassigned_room_data": [3, -1, -1, -1]
+  },
+  {
+    "name": "cpmpy_csv_38",
+    "note": "published: all 38 requests of https://github.com/CPMpy/cpmpy/blob/master/examples/assets/room_assignment.csv, the data the CPMpy notebook reads, with max_rooms 5 as in the notebook; M/D/YYYY dates rewritten as YYYY-MM-DD, empty room cells as -1",
+    "max_rooms": 5,
+    "start_data": ["2021-08-07", "2021-07-07", "2021-07-24", "2021-08-27", "2021-08-13", "2021-07-09", "2021-08-16", "2021-06-19", "2021-08-30", "2021-08-09", "2021-07-15", "2021-07-02", "2021-08-02", "2021-07-26", "2021-08-07", "2021-09-01", "2021-06-28", "2021-07-17", "2021-07-31", "2021-07-10", "2021-08-16", "2021-08-30", "2021-06-19", "2021-07-03", "2021-08-01", "2021-07-01", "2021-06-18", "2021-07-20", "2021-08-01", "2021-07-05", "2021-07-25", "2021-06-18", "2021-07-20", "2021-08-31", "2021-06-25", "2021-08-01", "2021-07-11", "2021-07-25"],
+    "end_data": ["2021-08-16", "2021-07-13", "2021-08-01", "2021-09-05", "2021-09-03", "2021-07-15", "2021-08-23", "2021-06-26", "2021-09-05", "2021-08-16", "2021-07-21", "2021-07-09", "2021-08-07", "2021-08-02", "2021-08-16", "2021-09-14", "2021-07-03", "2021-07-23", "2021-08-07", "2021-07-15", "2021-08-23", "2021-09-01", "2021-06-26", "2021-07-10", "2021-08-15", "2021-07-06", "2021-06-29", "2021-07-25", "2021-08-07", "2021-07-16", "2021-08-01", "2021-06-29", "2021-07-25", "2021-09-10", "2021-06-30", "2021-08-07", "2021-07-19", "2021-08-01"],
+    "preassigned_room_data": [2, 1, 1, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+  },
+  {
+    "name": "back_to_back_one_room",
+    "note": "chosen by hand: one room and four requests where each checks in on the day the previous one checks out; satisfiable only if the end date is exclusive, as the reference treats it",
+    "max_rooms": 1,
+    "start_data": ["2024-06-01", "2024-06-03", "2024-06-04", "2024-06-08"],
+    "end_data": ["2024-06-03", "2024-06-04", "2024-06-08", "2024-06-09"],
+    "preassigned_room_data": [-1, 0, -1, -1]
+  },
+  {
+    "name": "gen_10_tight",
+    "note": "generated: 10 requests, start = 2024-03-01 plus random.randint(0, 20) days, stay random.randint(1, 6) nights (start then stay per request), Python random seed 6; max_rooms = 3, the largest number of requests present on one day, so the busiest day uses every room; request 0 pre-assigned room 0 and request 5 room 2, chosen by hand",
+    "max_rooms": 3,
+    "start_data": ["2024-03-19", "2024-03-16", "2024-03-02", "2024-03-05", "2024-03-19", "2024-03-12", "2024-03-01", "2024-03-16", "2024-03-14", "2024-03-18"],
+    "end_data": ["2024-03-20", "2024-03-19", "2024-03-03", "2024-03-11", "2024-03-23", "2024-03-15", "2024-03-04", "2024-03-18", "2024-03-19", "2024-03-24"],
+    "preassigned_room_data": [0, -1, -1, -1, -1, 2, -1, -1, -1, -1]
+  },
+  {
+    "name": "single_request",
+    "note": "chosen by hand: a single request with no pre-assignment and 2 rooms; the reference adds no AllDifferent at all",
+    "max_rooms": 2,
+    "start_data": ["2024-12-24"],
+    "end_data": ["2024-12-27"],
+    "preassigned_room_data": [-1]
   }
 ]

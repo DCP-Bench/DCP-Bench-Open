@@ -11,5 +11,65 @@
       [4, 5, 6],
       [7, 8, 0]
     ]
+  },
+  {
+    "name": "gen_2x2",
+    "note": "generated: 3-puzzle (2x2); start = a 5-move random walk from the goal that never undoes the previous move (random.choice over neighbours, Python random seed 1); shortest solution 5 moves, N_STEPS = 6",
+    "N_STEPS": 6,
+    "puzzle_start": [
+      [3, 0],
+      [2, 1]
+    ],
+    "puzzle_end": [
+      [1, 2],
+      [3, 0]
+    ]
+  },
+  {
+    "name": "gen_3x3_blank_first",
+    "note": "generated: 8-puzzle whose goal has the blank in the top-left corner; start = a 12-move random walk from the goal that never undoes the previous move (Python random seed 4); shortest solution 12 moves, N_STEPS = 13",
+    "N_STEPS": 13,
+    "puzzle_start": [
+      [3, 5, 8],
+      [4, 2, 7],
+      [6, 1, 0]
+    ],
+    "puzzle_end": [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8]
+    ]
+  },
+  {
+    "name": "example_plus_2_moves",
+    "note": "chosen by hand: the example's start and end states with N_STEPS 15 instead of 13; the shortest solution has 12 moves, so a plan must include one 2-move detour (tests models that assume the step count equals the shortest solution)",
+    "N_STEPS": 15,
+    "puzzle_start": [
+      [0, 3, 6],
+      [2, 4, 8],
+      [1, 7, 5]
+    ],
+    "puzzle_end": [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 0]
+    ]
+  },
+  {
+    "name": "gen_4x4",
+    "note": "generated: 15-puzzle (4x4); start = a 14-move random walk from the goal that never undoes the previous move (Python random seed 1); shortest solution 14 moves, N_STEPS = 15",
+    "N_STEPS": 15,
+    "puzzle_start": [
+      [1, 2, 4, 7],
+      [10, 0, 6, 3],
+      [5, 14, 11, 8],
+      [9, 13, 15, 12]
+    ],
+    "puzzle_end": [
+      [1, 2, 3, 4],
+      [5, 6, 7, 8],
+      [9, 10, 11, 12],
+      [13, 14, 15, 0]
+    ]
   }
 ]
