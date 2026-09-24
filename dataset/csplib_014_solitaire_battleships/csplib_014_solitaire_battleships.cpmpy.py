@@ -130,18 +130,26 @@ for r in range(rows):
 # 1. Submarines (size 1)
 model += sum(grid == CIRCLE) == fleet_counts[1]
 
-# 2. Ship Ends
-num_horizontal_ships = sum(grid == LEFT)
-num_vertical_ships = sum(grid == TOP)
-model += num_horizontal_ships == sum(grid == RIGHT)
-model += num_vertical_ships == sum(grid == BOTTOM)
+# 2. Longer ships, counted by size: a ship of size n is an end piece, n-2 middle
+#    pieces and the other end piece in one line. The connectivity rules above
+#    make every run of ship pieces one such ship.
+for size, count in fleet_counts.items():
+    if size < 2:
+        continue
+    ships = []
+    for r in range(rows):
+        for c in range(cols - size + 1):
+            ships.append((grid[r, c] == LEFT) & (grid[r, c + size - 1] == RIGHT)
+                         & all([grid[r, c + k] == MIDDLE for k in range(1, size - 1)]))
+    for r in range(rows - size + 1):
+        for c in range(cols):
+            ships.append((grid[r, c] == TOP) & (grid[r + size - 1, c] == BOTTOM)
+                         & all([grid[r + k, c] == MIDDLE for k in range(1, size - 1)]))
+    model += sum(ships) == count
 
-total_long_ships = sum(count for size, count in fleet_counts.items() if size > 1)
-model += num_horizontal_ships + num_vertical_ships == total_long_ships
-
-# 3. Middle pieces: for each ship of size n (n>2), there are (n-2) middle pieces.
-expected_middles = sum((size - 2) * count for size, count in fleet_counts.items() if size > 2)
-model += sum(grid == MIDDLE) == expected_middles
+# 3. No ship of a size the fleet does not list: every left or top end starts
+#    one of the ships counted above.
+model += sum(grid == LEFT) + sum(grid == TOP) == sum(count for size, count in fleet_counts.items() if size > 1)
 
 # --- Solve and Print ---
 if model.solve():
