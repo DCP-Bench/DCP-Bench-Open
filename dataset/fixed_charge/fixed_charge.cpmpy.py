@@ -67,7 +67,7 @@ for r in resources:
     model += (sum([use[p][r] * produce[p] for p in products]) <= capacity[r])
 
 for p in products:
-    model += (produce[p] <= max_production * rent[p])
+    model += (produce[p] <= max_production * rent[product[p][1]])
 
 model.maximize(z)
 
