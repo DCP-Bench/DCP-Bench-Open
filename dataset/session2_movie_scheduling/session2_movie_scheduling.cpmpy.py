@@ -54,8 +54,8 @@ for i in range(num_movies):
     for j in range(num_movies):
         # Check if the intervals overlap for each pair of movies
         if (i != j  # Different movies
-                and movies[i][2] > movies[j][1]  # Movie i ends after movie j starts
-                and movies[j][2] > movies[i][1]  # Movie j ends after movie i starts
+                and movies[i][2] >= movies[j][1]  # Movie i ends on or after the day movie j starts
+                and movies[j][2] >= movies[i][1]  # Movie j ends on or after the day movie i starts
         ):
             # Then, the movies cannot be selected together
             model += selected_movies[i] + selected_movies[j] <= 1
