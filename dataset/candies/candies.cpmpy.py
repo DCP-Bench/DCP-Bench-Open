@@ -28,7 +28,7 @@ import json
 n = len(ratings)
 
 # variables
-x = intvar(1, n, shape=n, name="x")  # number of candies for each child
+x = intvar(1, n, shape=(n,), name="x")  # number of candies for each child
 z = intvar(1, n * n, name="z")  # total number of candies
 
 # constraints
