@@ -38,6 +38,21 @@ Problems judged unable to take another instance, one line each as
 `` - `problem`: reason ``. `python -m generation.instances status` reads this
 list and stops offering them. See `skills/instance-curator`.
 
+- `session2_color_simple`: the description names the six countries, so geography fixes the graph.
+- `who_killed_agatha`: the description fixes the whole scenario, and the reference never reads its only field.
+- `csplib_018_water_bucket`: the description fixes the buckets, the start and the goal.
+- `csplib_023_magic_hexagon`: the description fixes the numbers 1 to 19, the layout and the sum 38.
+- `csplib_011_acc_basketball_schedule`: the description fixes all the data, and the reference overrides its data fields.
+- `three_coins`: the description fixes the starting coins and the number of moves.
+- `curious_set_of_integers`: the description fixes the set, and every bound gives the same answer.
+- `flow_free_game`: the description prints the one board it uses.
+- `dudeney_numbers`: no Dudeney number has more than 6 digits, so only n below 6 changes the answer, and the reference exceeds 10 s at n = 4 and 5. Stays at 2.
+- `csplib_026_sports_tournament_scheduling`: n = 4 has no solution and n = 10 or more exceeds 10 s. Stays at 2.
+- `csplib_049_number_partitioning`: n must be a multiple of 4 and at least 8; 8 to 20 are listed and 24 exceeds 10 s. Stays at 4.
+- `calvin_puzzle`: n = 2 to 4 have no solution, n = 1 has no moves, and n = 8 or more exceeds 10 s. Stays at 3.
+- `csplib_014_solitaire_battleships`: not until the reference counts ships rather than ship pieces; it now accepts wrong fleets.
+- `csplib_057_killer_sudoku`: not until the reference constrains all nine boxes; it now constrains four.
+
 ## Dataset decisions
 
 Some changes made to the source problems (many more may have been made), and the reasoning behind them.
