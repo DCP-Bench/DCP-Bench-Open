@@ -50,26 +50,33 @@ n_jobs = len(jobs)
 n_machines = len(machines)
 max_duration = sum(sum(row) for row in process_time)
 
-# Start times of jobs on machines
+# The sequence: sequence[k] is the job processed k-th
+sequence = intvar(0, n_jobs - 1, shape=n_jobs, name="sequence")
+# Start and completion times of the k-th job of the sequence on each machine
 start_times = intvar(0, max_duration, shape=(n_jobs, n_machines), name="start_times")
-# Completion times of jobs on machines
 end_times = intvar(0, max_duration, shape=(n_jobs, n_machines), name="end_times")
 # Makespan
 makespan = intvar(0, max_duration, name="makespan")
 
+# Processing times per machine, indexable by a job variable
+time_on = [cpm_array([process_time[j][m] for j in range(n_jobs)]) for m in range(n_machines)]
+
 # Model
 model = Model()
 
-# Add constraints for each job and machine
-for j in range(n_jobs):
+# Every job appears exactly once in the sequence
+model += AllDifferent(sequence)
+
+# Add constraints for each position in the sequence and each machine
+for k in range(n_jobs):
     for m in range(n_machines):
-        model += (end_times[j, m] == start_times[j, m] + process_time[j][m])
-        # Job cannot start on machine m before it has completed on machine m-1
+        model += (end_times[k, m] == start_times[k, m] + time_on[m][sequence[k]])
+        # A job cannot start on machine m before it has completed on machine m-1
         if m > 0:
-            model += (start_times[j, m] >= end_times[j, m - 1])
-        # Job j cannot start on machine m before job j-1 has completed on machine m
-        if j > 0:
-            model += (start_times[j, m] >= end_times[j - 1, m])
+            model += (start_times[k, m] >= end_times[k, m - 1])
+        # The k-th job cannot start on machine m before the (k-1)-th has completed on it
+        if k > 0:
+            model += (start_times[k, m] >= end_times[k - 1, m])
 # Objective: Minimize makespan
 model += (makespan == max(end_times.flatten()))
 model.minimize(makespan)
