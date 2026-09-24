@@ -2,5 +2,29 @@
   {
     "targets": [16, 17, 23, 24, 39, 40],
     "target_score": 100
+  },
+  {
+    "name": "multiples of ten",
+    "note": "generated: chosen by hand. Every ring scores a multiple of 10 and the target is 95, so no exact total exists and undershoot (90) and overshoot (100) tie at deviation 5. Minimum deviation 5 by dynamic programming over totals 0..190.",
+    "targets": [10, 20, 30, 40, 50],
+    "target_score": 95
+  },
+  {
+    "name": "target below every ring",
+    "note": "generated: chosen by hand. The target is below the smallest ring, so the best total overshoots: one arrow on 30 (deviation 10) beats no arrows (deviation 20). Minimum deviation 10 by dynamic programming over totals 0..40.",
+    "targets": [30, 40, 50],
+    "target_score": 20
+  },
+  {
+    "name": "coprime rings",
+    "note": "generated: chosen by hand. Four coprime rings and a larger target (150), where an exact total exists. Minimum deviation 0 by dynamic programming over totals 0..300.",
+    "targets": [7, 11, 13, 19],
+    "target_score": 150
+  },
+  {
+    "name": "two rings, odd target",
+    "note": "generated: chosen by hand. Two rings with common factor 3 and a target of 50, which is not a multiple of 3, so the best deviation is 1 (48 or 51). Minimum deviation 1 by dynamic programming over totals 0..100.",
+    "targets": [6, 9],
+    "target_score": 50
   }
 ]

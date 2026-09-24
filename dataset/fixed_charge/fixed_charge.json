@@ -26,5 +26,125 @@
       [2, 3],
       [6, 4]
     ]
+  },
+  {
+    "name": "expensive pants machine",
+    "note": "generated: chosen by hand. The example with the pants machine renting for 400 instead of 100, so the example's all-pants plan loses to shorts only; brute force gives 62 with production [0, 53, 0].",
+    "shirtM": 0,
+    "shortM": 1,
+    "pantM": 2,
+    "machines": [0, 1, 2],
+    "num_machines": 3,
+    "renting_cost": [200, 150, 400],
+    "shirt": 0,
+    "shorts": 1,
+    "pants": 2,
+    "products": [0, 1, 2],
+    "num_products": 3,
+    "labor": 0,
+    "cloth": 1,
+    "resources": [0, 1],
+    "capacity": [150, 160],
+    "max_production": 160,
+    "product": [
+      [6, 0],
+      [4, 1],
+      [7, 2]
+    ],
+    "use": [
+      [3, 4],
+      [2, 3],
+      [6, 4]
+    ]
+  },
+  {
+    "name": "nothing pays",
+    "note": "generated: chosen by hand. The example with every machine renting for 400-500, more than any product can earn, so the optimum is 0: rent nothing, produce nothing (edge case).",
+    "shirtM": 0,
+    "shortM": 1,
+    "pantM": 2,
+    "machines": [0, 1, 2],
+    "num_machines": 3,
+    "renting_cost": [500, 400, 450],
+    "shirt": 0,
+    "shorts": 1,
+    "pants": 2,
+    "products": [0, 1, 2],
+    "num_products": 3,
+    "labor": 0,
+    "cloth": 1,
+    "resources": [0, 1],
+    "capacity": [150, 160],
+    "max_production": 160,
+    "product": [
+      [6, 0],
+      [4, 1],
+      [7, 2]
+    ],
+    "use": [
+      [3, 4],
+      [2, 3],
+      [6, 4]
+    ]
+  },
+  {
+    "name": "random seed 25",
+    "note": "generated: Python random.Random(25), drawn in this order: renting costs 20..300 (3), capacities 50..300 (labor, cloth), profits 3..12 (3), use 1..6 per product and resource (row per product); max_production = max(capacity). Brute force gives 564 with production [52, 44, 0], 2 products made.",
+    "shirtM": 0,
+    "shortM": 1,
+    "pantM": 2,
+    "machines": [0, 1, 2],
+    "num_machines": 3,
+    "renting_cost": [213, 27, 129],
+    "shirt": 0,
+    "shorts": 1,
+    "pants": 2,
+    "products": [0, 1, 2],
+    "num_products": 3,
+    "labor": 0,
+    "cloth": 1,
+    "resources": [0, 1],
+    "capacity": [288, 273],
+    "max_production": 288,
+    "product": [
+      [7, 0],
+      [10, 1],
+      [3, 2]
+    ],
+    "use": [
+      [3, 1],
+      [3, 5],
+      [4, 1]
+    ]
+  },
+  {
+    "name": "random seed 0",
+    "note": "generated: Python random.Random(0), drawn in this order: renting costs 20..300 (3), capacities 50..300 (labor, cloth), profits 3..12 (3), use 1..6 per product and resource (row per product); max_production = max(capacity). Brute force gives 482 with production [0, 0, 58], 1 product made.",
+    "shirtM": 0,
+    "shortM": 1,
+    "pantM": 2,
+    "machines": [0, 1, 2],
+    "num_machines": 3,
+    "renting_cost": [217, 235, 40],
+    "shirt": 0,
+    "shorts": 1,
+    "pants": 2,
+    "products": [0, 1, 2],
+    "num_products": 3,
+    "labor": 0,
+    "cloth": 1,
+    "resources": [0, 1],
+    "capacity": [116, 297],
+    "max_production": 297,
+    "product": [
+      [11, 0],
+      [10, 1],
+      [9, 2]
+    ],
+    "use": [
+      [3, 4],
+      [3, 5],
+      [2, 5]
+    ]
   }
 ]

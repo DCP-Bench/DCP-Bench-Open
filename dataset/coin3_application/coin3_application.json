@@ -2,5 +2,29 @@
   {
     "denominations": [1, 2, 5, 10, 20, 50],
     "max_amount_to_pay": 100
+  },
+  {
+    "name": "1-2-5-10-25-50 up to 99",
+    "note": "published: variables = [1, 2, 5, 10, 25, 50] with amounts 1..99, the go/0 instance of https://github.com/hakank/hakank/blob/master/picat/coins3.pi and the active data of https://github.com/hakank/hakank/blob/master/minizinc/coins3.mzn (a 25 coin instead of the euro 20).",
+    "denominations": [1, 2, 5, 10, 25, 50],
+    "max_amount_to_pay": 100
+  },
+  {
+    "name": "1-5-10-25-50-100 up to 99",
+    "note": "published: the alternative denominations [1, 5, 10, 25, 50, 100] commented in https://github.com/hakank/hakank/blob/master/minizinc/coins3.mzn, amounts 1..99. The 100 coin can never be used, and there is no 2 coin.",
+    "denominations": [1, 5, 10, 25, 50, 100],
+    "max_amount_to_pay": 100
+  },
+  {
+    "name": "1-2-4-8-16-32-64 up to 99",
+    "note": "published: the alternative denominations [1, 2, 4, 8, 16, 32, 64] commented in https://github.com/hakank/hakank/blob/master/minizinc/coins3.mzn, amounts 1..99; seven denominations.",
+    "denominations": [1, 2, 4, 8, 16, 32, 64],
+    "max_amount_to_pay": 100
+  },
+  {
+    "name": "1-3-4 up to 29",
+    "note": "generated: chosen by hand. Denominations 1, 3, 4 and amounts 1..29, a smaller maximum, where the greedy choice of coins is not optimal.",
+    "denominations": [1, 3, 4],
+    "max_amount_to_pay": 30
   }
 ]

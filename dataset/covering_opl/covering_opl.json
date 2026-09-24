@@ -20,5 +20,72 @@
       [9, 18, 26, 28, 31, 32]
     ],
     "Cost": [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 8, 9]
+  },
+  {
+    "name": "Lundgren alternatives",
+    "note": "https://github.com/hakank/hakank/blob/master/minizinc/set_covering4.mzn (Lundgren, Ronnqvist, Varbrand, Optimeringslara, p. 408), covering variant: alternatives as workers, objects as tasks. Source optimum 45 with alternatives 4, 8, 10.",
+    "nb_workers": 10,
+    "num_tasks": 8,
+    "Qualified": [
+      [1, 3, 10],
+      [2, 4, 5, 6, 7],
+      [4, 6, 7, 9],
+      [3, 7, 8],
+      [4, 5, 8],
+      [1, 2, 9, 10],
+      [3, 10],
+      [2, 8, 9]
+    ],
+    "Cost": [19, 16, 18, 13, 15, 19, 15, 17, 16, 15]
+  },
+  {
+    "name": "Brixius tests",
+    "note": "https://github.com/hakank/hakank/blob/master/minizinc/set_covering6.mzn (Nathan Brixius blog): tests as workers, code blocks as tasks. Source optimum 30 (T3, T4); greedy gives 35.",
+    "nb_workers": 4,
+    "num_tasks": 6,
+    "Qualified": [
+      [1, 3],
+      [1, 2, 3],
+      [1, 2, 3],
+      [1, 2, 4],
+      [1, 2, 4],
+      [1, 2, 4]
+    ],
+    "Cost": [50, 20, 15, 15]
+  },
+  {
+    "name": "Taha telephones",
+    "note": "https://github.com/hakank/hakank/blob/master/minizinc/set_covering2.mzn (Taha, Operations Research, example 9.1-2): street corners as workers at unit cost, streets as tasks. Source optimum 4.",
+    "nb_workers": 8,
+    "num_tasks": 11,
+    "Qualified": [
+      [1, 2],
+      [2, 3],
+      [4, 5],
+      [7, 8],
+      [6, 7],
+      [2, 6],
+      [1, 6],
+      [4, 7],
+      [2, 4],
+      [5, 8],
+      [3, 5]
+    ],
+    "Cost": [1, 1, 1, 1, 1, 1, 1, 1]
+  },
+  {
+    "name": "Winston fire stations",
+    "note": "https://github.com/hakank/hakank/blob/master/minizinc/set_covering.mzn (Winston, Operations Research, p. 486): a station in city i covers city j when their distance is at most 15; cities as workers at unit cost and as tasks.",
+    "nb_workers": 6,
+    "num_tasks": 6,
+    "Qualified": [
+      [1, 2],
+      [1, 2, 6],
+      [3, 4],
+      [3, 4, 5],
+      [4, 5, 6],
+      [2, 5, 6]
+    ],
+    "Cost": [1, 1, 1, 1, 1, 1]
   }
 ]

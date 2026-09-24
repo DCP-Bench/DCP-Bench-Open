@@ -6,5 +6,45 @@
       [1, 0, 0, 1],
       [1, 0, 0, 1]
     ]
+  },
+  {
+    "name": "unique matching, asymmetric",
+    "note": "generated: chosen by hand. Staircase schedule: person 0 is free only in slot 1, person 1 only in slots 1-2, and so on, so exactly one assignment exists (a 4-cycle); reading m as slot-by-person gives a different assignment.",
+    "m": [
+      [0, 1, 0, 0],
+      [0, 1, 1, 0],
+      [0, 1, 1, 1],
+      [1, 1, 1, 1]
+    ]
+  },
+  {
+    "name": "two free slots each",
+    "note": "generated: chosen by hand. Every person and every slot has exactly two free entries, so several assignments exist and a model must still respect every busy slot.",
+    "m": [
+      [1, 0, 1, 0],
+      [0, 1, 0, 1],
+      [1, 1, 0, 0],
+      [0, 0, 1, 1]
+    ]
+  },
+  {
+    "name": "one slot everyone wants",
+    "note": "generated: chosen by hand. Slot 2 is free for all four people but can take only one; slot 3 is free only for person 3, forcing the rest.",
+    "m": [
+      [0, 0, 1, 0],
+      [1, 0, 1, 0],
+      [0, 1, 1, 0],
+      [0, 1, 1, 1]
+    ]
+  },
+  {
+    "name": "one free slot each",
+    "note": "generated: chosen by hand. Each person is free in exactly one slot, so the only assignment is a 4-cycle and m itself is the answer.",
+    "m": [
+      [0, 0, 0, 1],
+      [1, 0, 0, 0],
+      [0, 1, 0, 0],
+      [0, 0, 1, 0]
+    ]
   }
 ]
