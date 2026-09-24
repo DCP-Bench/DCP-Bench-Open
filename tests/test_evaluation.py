@@ -128,6 +128,33 @@ if model.solve():
             ref.check({"marks": [0, 1, 4, 9], "length": 9})
         self.assertEqual(caught.exception.reason, "suboptimal_solution")
 
+    def test_presolve_keeps_the_optimum(self):
+        # Two landings at least one apart, in either order. With CP-SAT's default
+        # dual presolve this reports OPTIMAL 3; the optimum is 1.
+        source = '''
+# Data
+earliest = [1, 0]
+latest = [4, 4]
+target = [4, 4]
+penalty_before = [3, 1]
+penalty_after = [5, 5]
+# End of data
+import cpmpy as cp
+t = cp.intvar(0, 4, shape=2, name="t")
+early = cp.intvar(0, 4, shape=2, name="early")
+late = cp.intvar(0, 4, shape=2, name="late")
+model = cp.Model(t >= earliest, t <= latest, t - target == late - early, cp.Abs(t[1] - t[0]) >= 1)
+model.minimize(cp.sum(penalty_before * early + penalty_after * late))
+model.solve()
+solution = {"t": t.value().tolist(), "cost": int(model.objective_value())}
+'''
+        ref = Reference(source, embedded_instance(source), 5)
+        self.assertEqual(ref.optimum, 1)
+        ref.check({"t": [4, 3], "cost": 1})
+        with self.assertRaises(EvaluationError) as caught:
+            ref.check({"t": [3, 4], "cost": 3})
+        self.assertEqual(caught.exception.reason, "suboptimal_solution")
+
     def test_no_solve_or_print_executed(self):
         source = SOURCE.replace("model.solve()", "model.solve(unsupported_keyword=True)").replace("print(json.dumps(solution))", "raise RuntimeError('tail executed')")
         load_reference(source, {"n": 3, "optimize": False})

@@ -156,13 +156,19 @@ def bind_output(expression, value, label):
     return [expression == value], value
 
 
+# CP-SAT 9.11-9.15 dual presolve reductions can discard the optimum and still
+# report OPTIMAL (e.g. an Abs separation with earliness/lateness costs). The
+# reference keeps them off; the rest of presolve stays on.
+SOLVER_OPTIONS = {"num_search_workers": 1, "keep_all_feasible_solutions_in_presolve": True}
+
+
 class Reference:
     def __init__(self, source, instance, timeout):
         from cpmpy.solvers.solver_interface import ExitStatus
         self.model, self.outputs = load_reference(source, instance)
         self.timeout = timeout
         self.optimum = None
-        self.model.solve(solver="ortools", time_limit=timeout, num_search_workers=1)
+        self.model.solve(solver="ortools", time_limit=timeout, **SOLVER_OPTIONS)
         status = self.model.status().exitstatus
         if status == ExitStatus.UNSATISFIABLE:
             raise EvaluationError("unsupported_unsat", "Reference is UNSAT")
@@ -185,7 +191,7 @@ class Reference:
 
         def feasible(extra):
             test = cp.Model(self.model.constraints + constraints + extra)
-            ok = test.solve(solver="ortools", time_limit=self.timeout, num_search_workers=1)
+            ok = test.solve(solver="ortools", time_limit=self.timeout, **SOLVER_OPTIONS)
             if not ok and test.status().exitstatus != ExitStatus.UNSATISFIABLE:
                 raise EvaluationError("reference_timeout", "Reference assignment check did not finish")
             return ok
