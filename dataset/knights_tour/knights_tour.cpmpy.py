@@ -16,7 +16,7 @@ from cpmpy import *
 import json
 
 # Data
-n = 6  # Size of the chessboard (must be even)
+n = 6  # Size of the chessboard
 # End of data
 
 import cpmpy as cp
