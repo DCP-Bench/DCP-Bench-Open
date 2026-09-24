@@ -76,8 +76,10 @@ def python_solver(kind, request):
         if kind == "cpmpy":
             import cpmpy as cp
             from cpmpy.solvers.solver_interface import ExitStatus
+            # CP-SAT 9.11-9.15 dual presolve reductions can drop the optimum; keep them off.
             with contextlib.redirect_stdout(sys.stderr):
-                ok = model.solve(solver="ortools", time_limit=left, num_search_workers=1)
+                ok = model.solve(solver="ortools", time_limit=left, num_search_workers=1,
+                                 keep_all_feasible_solutions_in_presolve=True)
             status = model.status().exitstatus
             optimal = not model.has_objective() or status == ExitStatus.OPTIMAL
             unsat = status == ExitStatus.UNSATISFIABLE
@@ -95,6 +97,7 @@ def python_solver(kind, request):
             solver = cp_model.CpSolver()
             solver.parameters.max_time_in_seconds = left
             solver.parameters.num_search_workers = 1
+            solver.parameters.keep_all_feasible_solutions_in_presolve = True
             status = solver.solve(model)
             ok = status in (cp_model.OPTIMAL, cp_model.FEASIBLE)
             optimal = not model.has_objective() or status == cp_model.OPTIMAL

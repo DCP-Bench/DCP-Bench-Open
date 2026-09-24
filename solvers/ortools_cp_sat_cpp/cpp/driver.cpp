@@ -48,7 +48,9 @@ int main() {
     while (count < limit) {
       double left = request.at("execution_timeout").get<double>() - std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
       if (left <= 0) { Status("timeout", seconds); return 0; }
+      // CP-SAT 9.11-9.15 dual presolve reductions can drop the optimum; keep them off.
       SatParameters params; params.set_max_time_in_seconds(left); params.set_num_search_workers(1);
+      params.set_keep_all_feasible_solutions_in_presolve(true);
       const auto response = SolveWithParameters(model.Build(), params);
       seconds += response.wall_time();
       if (response.status() == CpSolverStatus::INFEASIBLE) { Status(count ? "complete" : "unsat", seconds); return 0; }
