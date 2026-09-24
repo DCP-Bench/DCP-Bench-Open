@@ -14,6 +14,8 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
+import threading
 import time
 
 sys.path.insert(0, "/opt/runner")
@@ -24,21 +26,54 @@ DRIVER = "/opt/runner/driver.pl"
 # The driver stops itself at the execution budget; this is the backstop for a
 # process that ignored it, and stays inside the container's own wall clock.
 GRACE_SECONDS = 4
+# swipl 9.2.9 now and then deadlocks in halt after the driver has printed its
+# status: PL_cleanup runs library(time)'s cleanup, which waits on a mutex that is
+# never released. The status record is the verdict, so a driver still running
+# this long after it is killed rather than waited on until the backstop.
+EXIT_SECONDS = 2
 STATUSES = ("complete", "limit", "timeout", "unsat", "error", "unsupported")
+
+
+def is_status(line):
+    try:
+        record = json.loads(line)
+    except ValueError:
+        return False
+    return isinstance(record, dict) and record.get("type") == "status"
 
 
 def driver_records(budget):
     """Run the driver and return the JSON records it printed, or a failure."""
     started = time.monotonic()
-    try:
-        finished = subprocess.run(
+    with tempfile.TemporaryFile("w+") as errors:
+        driver = subprocess.Popen(
             ["swipl", "--stack-limit=1g", "--no-tty", "-g", "main", "-t", "halt(1)", DRIVER],
-            capture_output=True, text=True, timeout=budget + GRACE_SECONDS)
-    except subprocess.TimeoutExpired:
+            stdout=subprocess.PIPE, stderr=errors, text=True)
+        backstop = threading.Timer(budget + GRACE_SECONDS, driver.kill)
+        backstop.daemon = True
+        backstop.start()
+        lines = []
+        for line in driver.stdout:
+            lines.append(line)
+            if is_status(line):
+                break
+        try:
+            driver.wait(timeout=EXIT_SECONDS)
+        except subprocess.TimeoutExpired:
+            driver.kill()
+            driver.wait()
+            sys.stderr.write(f"swipl was still running {EXIT_SECONDS}s after its status and was killed\n")
+        backstop.cancel()
+        # Anything printed after the status is read too, so relay can refuse it.
+        lines += driver.stdout.readlines()
+        errors.seek(0)
+        stderr = errors.read()
+    sys.stderr.write(stderr)
+    elapsed = time.monotonic() - started
+    if elapsed >= budget + GRACE_SECONDS and not any(map(is_status, lines)):
         return None, ("timeout", "The driver outlived the execution budget")
-    sys.stderr.write(finished.stderr)
     records = []
-    for line in finished.stdout.splitlines():
+    for line in lines:
         if not line.strip():
             continue
         try:
@@ -46,9 +81,8 @@ def driver_records(budget):
         except ValueError:
             return None, ("error", f"The driver printed a line that is not JSON: {line[:200]}")
     if not records:
-        elapsed = time.monotonic() - started
-        detail = f"swipl exited {finished.returncode} after {elapsed:.1f}s without a verdict"
-        return None, ("error", f"{detail}: {finished.stderr[-2000:]}")
+        detail = f"swipl exited {driver.returncode} after {elapsed:.1f}s without a verdict"
+        return None, ("error", f"{detail}: {stderr[-2000:]}")
     return records, None
 
 
