@@ -58,9 +58,6 @@ import json
 
 
 def basketball_schedule():
-    n_teams = 9
-    n_days = 18
-
     # Teams
     teams = np.arange(n_teams)
     CLEM, DUKE, FSU, GT, UMD, UNC, NCSt, UVA, WAKE = teams

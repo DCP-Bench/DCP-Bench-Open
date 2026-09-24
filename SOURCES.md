@@ -42,7 +42,7 @@ list and stops offering them. See `skills/instance-curator`.
 - `who_killed_agatha`: the description fixes the whole scenario, and the reference never reads its only field.
 - `csplib_018_water_bucket`: the description fixes the buckets, the start and the goal.
 - `csplib_023_magic_hexagon`: the description fixes the numbers 1 to 19, the layout and the sum 38.
-- `csplib_011_acc_basketball_schedule`: the description fixes all the data, and the reference overrides its data fields.
+- `csplib_011_acc_basketball_schedule`: the description fixes all the data: nine named teams, 18 dates and the fixed matches.
 - `three_coins`: the description fixes the starting coins and the number of moves.
 - `curious_set_of_integers`: the description fixes the set, and every bound gives the same answer.
 - `flow_free_game`: the description prints the one board it uses.
