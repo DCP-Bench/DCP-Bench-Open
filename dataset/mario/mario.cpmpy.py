@@ -77,7 +77,7 @@ for i in range(nHouses):
 
 # consumption, knowing that always conso[i,i]=0
 node_fuel = [arc_fuel[i, s[i]] for i in range(nHouses)]
-model += sum(node_fuel) < fuelLimit
+model += sum(node_fuel) <= fuelLimit
 
 # amount of gold earned, only for stops visited, s[i] != i
 gold = sum((s != range(nHouses)) * goldInHouse)
