@@ -43,7 +43,6 @@ model = Model()
 
 # constraints
 
-model += [AllDifferent(weights)]
 model += [sum(weights) == m]
 
 # Check that all weights from 1 to m can be made.
