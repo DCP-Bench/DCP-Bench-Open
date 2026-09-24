@@ -8,5 +8,74 @@
       [1, 2, 0],
       [0, 0, 1]
     ]
+  },
+  {
+    "name": "Winston Woodco",
+    "note": "https://github.com/hakank/hakank/blob/master/minizinc/cutting_stock_winston.mzn (Winston, 'Operations Research', p. 570): 17-ft boards cut into 3-, 5- and 9-ft pieces, demand 25, 20 and 15, with the six cutting combinations the source lists.",
+    "roll_width": 17,
+    "widths": [3, 5, 9],
+    "orders": [25, 20, 15],
+    "num_patterns": 6,
+    "num_rolls_width": [
+      [5, 0, 0],
+      [4, 1, 0],
+      [2, 2, 0],
+      [2, 0, 1],
+      [1, 1, 1],
+      [0, 3, 0]
+    ]
+  },
+  {
+    "name": "AMPL cut with all maximal patterns",
+    "note": "https://github.com/ampl/ampl.github.io/blob/master/docs/source/ampl/books/ampl/examples/EXAMPLES/EXAMPLES2/cut.dat (AMPL book cutting stock: 110-wide rolls; widths 20, 45, 50, 55, 75; orders 48, 35, 24, 10, 8). The book generates patterns by column generation, so the pattern list here is derived, not published: all 11 maximal patterns (no further piece fits), in lexicographically decreasing order of counts.",
+    "roll_width": 110,
+    "widths": [20, 45, 50, 55, 75],
+    "orders": [48, 35, 24, 10, 8],
+    "num_patterns": 11,
+    "num_rolls_width": [
+      [5, 0, 0, 0, 0],
+      [3, 1, 0, 0, 0],
+      [3, 0, 1, 0, 0],
+      [2, 0, 0, 1, 0],
+      [1, 2, 0, 0, 0],
+      [1, 0, 0, 0, 1],
+      [0, 1, 1, 0, 0],
+      [0, 1, 0, 1, 0],
+      [0, 0, 2, 0, 0],
+      [0, 0, 1, 1, 0],
+      [0, 0, 0, 2, 0]
+    ]
+  },
+  {
+    "name": "generated 4 widths 7 patterns",
+    "note": "generated: roll width 30, widths 7, 9, 12, 16; after Python random.seed(11), 7 patterns drawn with random.sample from all non-empty patterns that fit (itertools.product order), then orders random.randint(3, 15) per width. Patterns are not maximal, so some waste more than needed.",
+    "roll_width": 30,
+    "widths": [7, 9, 12, 16],
+    "orders": [15, 11, 10, 13],
+    "num_patterns": 7,
+    "num_rolls_width": [
+      [1, 1, 1, 0],
+      [2, 0, 0, 1],
+      [4, 0, 0, 0],
+      [3, 0, 0, 0],
+      [2, 0, 0, 0],
+      [0, 1, 1, 0],
+      [0, 1, 0, 1]
+    ]
+  },
+  {
+    "name": "hand-chosen overlapping patterns",
+    "note": "generated: chosen by hand. Roll width 12, widths 3, 4, 5, orders 7, 5, 3, five patterns. The single-width patterns alone need 6 rolls; the optimum of 5 needs the mixed patterns (1-1-1 and 2-1-0).",
+    "roll_width": 12,
+    "widths": [3, 4, 5],
+    "orders": [7, 5, 3],
+    "num_patterns": 5,
+    "num_rolls_width": [
+      [4, 0, 0],
+      [0, 3, 0],
+      [1, 1, 1],
+      [0, 0, 2],
+      [2, 1, 0]
+    ]
   }
 ]

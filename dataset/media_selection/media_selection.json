@@ -8,5 +8,78 @@
       [0, 1, 1]
     ],
     "media_costs": [10, 15, 20]
+  },
+  {
+    "name": "Lundgren set covering",
+    "note": "https://github.com/hakank/hakank/blob/master/cpmpy/set_covering4.py (Lundgren, Ronnqvist, Varbrand, 'Optimeringslara', p. 408), set covering variant: 10 alternatives as media with their costs, 8 objects as audiences, so incidence_matrix is the transpose of the source's alternative-by-object table. The source states a unique optimum of 45 (alternatives 4, 8 and 10).",
+    "target_audiences": [0, 1, 2, 3, 4, 5, 6, 7],
+    "advertising_media": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "incidence_matrix": [
+      [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+      [0, 1, 0, 1, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 1, 0, 1, 1, 0, 1, 0],
+      [0, 0, 1, 0, 0, 0, 1, 1, 0, 0],
+      [0, 0, 0, 1, 1, 0, 0, 1, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+      [0, 1, 0, 0, 0, 0, 0, 1, 1, 0]
+    ],
+    "media_costs": [19, 16, 18, 13, 15, 19, 15, 17, 16, 15]
+  },
+  {
+    "name": "Taha security telephones",
+    "note": "https://github.com/hakank/hakank/blob/master/cpmpy/set_covering2.py (Taha, 'Operations Research - An Introduction', Example 9.1-2): 8 street corners as media, 11 streets as audiences, each street covered by the telephones at its two corners (1-based corners in the source, 0-based here). The source minimises the number of telephones, so every media cost is 1.",
+    "target_audiences": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "advertising_media": [0, 1, 2, 3, 4, 5, 6, 7],
+    "incidence_matrix": [
+      [1, 1, 0, 0, 0, 0, 0, 0],
+      [0, 1, 1, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 1, 1],
+      [0, 0, 0, 0, 0, 1, 1, 0],
+      [0, 1, 0, 0, 0, 1, 0, 0],
+      [1, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 1, 0, 0, 1, 0],
+      [0, 1, 0, 1, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0, 1],
+      [0, 0, 1, 0, 1, 0, 0, 0]
+    ],
+    "media_costs": [1, 1, 1, 1, 1, 1, 1, 1]
+  },
+  {
+    "name": "Winston fire stations",
+    "note": "https://github.com/hakank/hakank/blob/master/cpmpy/set_covering.py (Winston, 'Operations Research', p. 486): 6 cities, a station in city j covers city i when their distance is at most 15; cities as both audiences and media, every media cost 1 because the source minimises the number of stations.",
+    "target_audiences": [0, 1, 2, 3, 4, 5],
+    "advertising_media": [0, 1, 2, 3, 4, 5],
+    "incidence_matrix": [
+      [1, 1, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 1],
+      [0, 0, 1, 1, 0, 0],
+      [0, 0, 1, 1, 1, 0],
+      [0, 0, 0, 1, 1, 1],
+      [0, 1, 0, 0, 1, 1]
+    ],
+    "media_costs": [1, 1, 1, 1, 1, 1]
+  },
+  {
+    "name": "generated 12 audiences 9 media",
+    "note": "generated: after Python random.seed(5), incidence rows drawn with random.random() < 0.3 per entry (12 audiences x 9 media), redrawn as a whole until every audience has a medium; then costs random.randint(5, 40). Unequal costs, so the fewest media is not the cheapest cover.",
+    "target_audiences": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    "advertising_media": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    "incidence_matrix": [
+      [0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 1, 0, 0, 1, 1],
+      [1, 0, 0, 1, 0, 1, 0, 1, 1],
+      [0, 1, 1, 0, 0, 1, 0, 0, 0],
+      [1, 0, 0, 0, 0, 1, 0, 1, 1],
+      [1, 0, 0, 1, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 0, 1, 0, 0, 1],
+      [0, 0, 0, 1, 1, 1, 0, 1, 0],
+      [0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 1, 0, 1, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 1, 1, 0, 0, 1],
+      [1, 0, 0, 0, 1, 0, 0, 0, 0]
+    ],
+    "media_costs": [8, 7, 36, 26, 18, 13, 13, 31, 11]
   }
 ]

@@ -7,5 +7,63 @@
       [1, 1, 0],
       [0, 1, 1]
     ]
+  },
+  {
+    "name": "generated 4 legs 5 packages",
+    "note": "generated: 4 legs, 5 packages; after Python random.seed(41), each package uses random.sample of randint(1, 3) legs, then demands randint(5, 40), then revenues randint(50, 300); each leg's seats are 3/5 of the demand of the packages using it (floored), so capacity binds. Optimum 9664; selling the highest-revenue packages first gives 9344.",
+    "available_seats": [25, 13, 17, 41],
+    "demand": [14, 25, 15, 21, 8],
+    "revenue": [80, 250, 200, 58, 160],
+    "delta": [
+      [1, 0, 1, 0],
+      [0, 0, 0, 1],
+      [0, 1, 1, 1],
+      [1, 0, 0, 1],
+      [1, 1, 0, 1]
+    ]
+  },
+  {
+    "name": "generated 3 legs 6 packages",
+    "note": "generated: 3 legs, 6 packages; after Python random.seed(32), each package uses random.sample of randint(1, 3) legs, then demands randint(5, 40), then revenues randint(50, 300); each leg's seats are 3/5 of the demand of the packages using it (floored), so capacity binds. Optimum 24211; selling the highest-revenue packages first gives 24110.",
+    "available_seats": [81, 55, 57],
+    "demand": [39, 13, 38, 5, 36, 17],
+    "revenue": [264, 123, 294, 286, 101, 164],
+    "delta": [
+      [1, 0, 0],
+      [0, 1, 0],
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 0, 1]
+    ]
+  },
+  {
+    "name": "generated 6 legs 8 packages",
+    "note": "generated: 6 legs, 8 packages; after Python random.seed(3), each package uses random.sample of randint(1, 3) legs, then demands randint(5, 40), then revenues randint(50, 300); each leg's seats are 3/5 of the demand of the packages using it (floored), so capacity binds. Optimum 17856; selling the highest-revenue packages first gives 17830.",
+    "available_seats": [17, 32, 25, 31, 37, 45],
+    "demand": [14, 38, 29, 5, 9, 15, 7, 24],
+    "revenue": [249, 57, 260, 271, 118, 171, 202, 234],
+    "delta": [
+      [0, 0, 0, 0, 1, 0],
+      [0, 1, 1, 1, 0, 0],
+      [1, 0, 0, 0, 1, 1],
+      [0, 0, 1, 0, 1, 0],
+      [0, 1, 0, 0, 0, 0],
+      [0, 0, 0, 1, 1, 1],
+      [0, 1, 0, 0, 0, 1],
+      [0, 0, 0, 0, 0, 1]
+    ]
+  },
+  {
+    "name": "hand-chosen connecting itinerary",
+    "note": "generated: chosen by hand. Two legs of 10 seats; two one-leg packages (demand 8, revenue 100 and 120) and one package using both legs (demand 6, revenue 180). The two-leg package earns the most per unit but uses two seats, so the optimum 2120 sells only 2 of it; selling it first gives 1960.",
+    "available_seats": [10, 10],
+    "demand": [8, 8, 6],
+    "revenue": [100, 120, 180],
+    "delta": [
+      [1, 0],
+      [0, 1],
+      [1, 1]
+    ]
   }
 ]

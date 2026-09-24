@@ -12,5 +12,75 @@
       [150, 250],
       [200, 300]
     ]
+  },
+  {
+    "name": "generated 4 types 3 routes",
+    "note": "generated: 4 aircraft types, 3 routes; after Python random.seed(1), availability randint(1, 4) per type, then capacities randint(40, 200) and costs randint(50, 500) row by row; demand[r] = 2 * floor(sum over types of availability * capacity on r / (2 * 3)). Optimum cost 1860; availability binds (cost 689 without the availability limits).",
+    "availability": [2, 1, 3, 1],
+    "demand": [370, 246, 280],
+    "capabilities": [
+      [166, 155, 160],
+      [137, 93, 64],
+      [164, 47, 139],
+      [150, 195, 40]
+    ],
+    "costs": [
+      [406, 278, 186],
+      [419, 460, 167],
+      [352, 102, 212],
+      [65, 61, 63]
+    ]
+  },
+  {
+    "name": "generated 3 types 4 routes",
+    "note": "generated: 3 aircraft types, 4 routes; after Python random.seed(4), availability randint(1, 4) per type, then capacities randint(40, 200) and costs randint(50, 500) row by row; demand[r] = 2 * floor(sum over types of availability * capacity on r / (2 * 4)). Optimum cost 1328; availability binds (cost 1062 without the availability limits).",
+    "availability": [2, 3, 1],
+    "demand": [140, 128, 170, 208],
+    "capabilities": [
+      [141, 162, 79, 63],
+      [57, 45, 142, 180],
+      [114, 55, 96, 173]
+    ],
+    "costs": [
+      [324, 234, 191, 449],
+      [138, 473, 104, 184],
+      [159, 63, 474, 378]
+    ]
+  },
+  {
+    "name": "generated 5 types 2 routes",
+    "note": "generated: 5 aircraft types, 2 routes; after Python random.seed(3), availability randint(1, 4) per type, then capacities randint(40, 200) and costs randint(50, 500) row by row; demand[r] = 2 * floor(sum over types of availability * capacity on r / (2 * 2)). Optimum cost 1792; availability binds (cost 1270 without the availability limits).",
+    "availability": [2, 2, 3, 4, 1],
+    "demand": [892, 706],
+    "capabilities": [
+      [195, 43],
+      [160, 106],
+      [181, 99],
+      [89, 160],
+      [178, 180]
+    ],
+    "costs": [
+      [293, 253],
+      [377, 490],
+      [127, 168],
+      [375, 127],
+      [494, 317]
+    ]
+  },
+  {
+    "name": "hand-chosen zero capacity",
+    "note": "generated: chosen by hand. Three types, two routes; type 1 has capacity 0 on route 2, so it only helps on route 1, where it is the cheapest per seat but has one aircraft. The optimum, cost 740, flies types 1 and 2 on route 1 and two type-3 aircraft on route 2.",
+    "availability": [1, 2, 3],
+    "demand": [150, 100],
+    "capabilities": [
+      [100, 0],
+      [60, 60],
+      [40, 50]
+    ],
+    "costs": [
+      [300, 100],
+      [200, 180],
+      [150, 120]
+    ]
   }
 ]
