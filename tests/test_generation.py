@@ -329,6 +329,18 @@ class GenerationTests(unittest.TestCase):
         # A field the example already has ragged may stay ragged.
         self.assertEqual(instances.shape_failures({"rows": [[1], [2, 3]]}, {"rows": [[1, 2, 3], [4]], "note": "x"}), [])
 
+    def test_an_example_written_with_tuples_accepts_json_lists(self):
+        """JSON has no tuples, so a data section's tuples must compare as lists."""
+        source = ("# Data\nhints = [(7, 1, 2)]\n# End of data\nimport cpmpy as cp\n"
+                  "x = cp.intvar(0, 9, name='x')\nmodel = cp.Model(x >= len(hints))\nmodel.solve()\n"
+                  "solution = {'x': x.value()}\n")
+        with patch.object(instances, "dataset_files", return_value=(source, self.root / "none.json")), \
+             patch.object(instances, "reference_runs", return_value=([{"seconds": 0.1, "is_optimization": False,
+                                                                        "optimum": None}], None)):
+            report, passed = instances.check("p", [{"hints": [[3, 4, 5]], "note": "x"}])
+        self.assertEqual(report["candidates"][0]["failures"], [])
+        self.assertEqual(len(passed), 1)
+
     def test_problems_recorded_as_not_extensible_are_read_from_their_section_only(self):
         text = ("# Sources\n- `elsewhere`: not in the section\n\n## Instances not added\n\nIntro with "
                 "`` - `problem`: reason `` inline.\n\n- `sudoku_16`: the description fixes 9x9\n"

@@ -126,7 +126,9 @@ def reference_runs(source, record, runs=RUNS, bar=BAR_SECONDS):
 def check(problem, candidates, runs=RUNS, bar=BAR_SECONDS):
     source, path = dataset_files(problem)
     existing = json.loads(path.read_text(encoding="utf-8-sig")) if path.is_file() else []
-    example = embedded_instance(source)
+    # Compare with the example as JSON would carry it: a candidate can only be
+    # a list where the data section wrote a tuple.
+    example = json.loads(json.dumps(embedded_instance(source)))
     if not example:
         raise EvaluationError("invalid_request", f"{problem} has no data fields, so it has one instance only")
     if not isinstance(candidates, list) or any(not isinstance(x, dict) for x in candidates):
