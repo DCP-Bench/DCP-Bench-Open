@@ -24,5 +24,47 @@
       [0, 0, 2],
       [0, 2, 0]
     ]
+  },
+  {
+    "name": "csplib_prob008_spec_example",
+    "deck_width": 16,
+    "deck_length": 16,
+    "n_containers": 10,
+    "width": [6, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    "length": [8, 6, 4, 4, 4, 6, 8, 8, 6, 6],
+    "classes": [1, 1, 1, 2, 2, 2, 3, 3, 3, 3],
+    "separation": [
+      [0, 0, 0],
+      [0, 0, 4],
+      [0, 4, 0]
+    ],
+    "note": "published: the example in the CSPLib prob008 specification (https://www.csplib.org/Problems/prob008/), 16x16 deck, classes A 6x8 4x6 4x4, B 4x4 4x4 4x6, C 4x8 4x8 4x6 4x6, B and C at least 4 apart; the same containers as the listed harder-minizinc.dzn instance but with separation 4 instead of 2"
+  },
+  {
+    "name": "tiling_rotation",
+    "deck_width": 10,
+    "deck_length": 6,
+    "n_containers": 3,
+    "width": [6, 3, 3],
+    "length": [4, 6, 6],
+    "classes": [1, 1, 1],
+    "separation": [
+      [0]
+    ],
+    "note": "chosen by hand: non-square 10x6 deck whose area the three containers fill exactly, so a model without rotation or with a loose non-overlap fails; one class, separation 0"
+  },
+  {
+    "name": "same_class_separation",
+    "deck_width": 12,
+    "deck_length": 8,
+    "n_containers": 6,
+    "width": [4, 4, 2, 3, 3, 2],
+    "length": [4, 4, 6, 2, 2, 2],
+    "classes": [1, 1, 1, 2, 2, 2],
+    "separation": [
+      [0, 2],
+      [2, 1]
+    ],
+    "note": "chosen by hand: non-square 12x8 deck, 2 classes, class 2 containers must be 1 apart from each other (non-zero diagonal) and 2 apart from class 1"
   }
 ]

@@ -6,5 +6,42 @@
       [2, 1, 0, 0],
       [3, 0, 1, 0]
     ]
+  },
+  {
+    "name": "two_tuples",
+    "allowed_tuples": [
+      [0, 0, 2, 1],
+      [2, 1, 0, 0]
+    ],
+    "note": "chosen by hand: two of the four listed tuples, which still close the cycle (V,P) = (0,0),(2,1),(0,0),(2,1); a model that hardcodes the CSPLib tuples can return a solution this table rejects"
+  },
+  {
+    "name": "four_cycle",
+    "allowed_tuples": [
+      [0, 0, 2, 1],
+      [2, 1, 1, 0],
+      [1, 0, 3, 0],
+      [3, 0, 0, 0]
+    ],
+    "note": "chosen by hand: tuples chain the states (0,0)->(2,1)->(1,0)->(3,0)->(0,0), so the only solutions are the four rotations of one 4-cycle; tests the (V_i, P_i, V_i+1, P_i+1) order and the wrap from light 4 to light 1"
+  },
+  {
+    "name": "dead_end",
+    "allowed_tuples": [
+      [0, 1, 3, 0],
+      [3, 0, 0, 1],
+      [1, 1, 2, 0],
+      [2, 0, 2, 1]
+    ],
+    "note": "chosen by hand: a 2-cycle (0,1)<->(3,0) plus two tuples (1,1)->(2,0)->(2,1) that never return, so only the 2-cycle solutions remain"
+  },
+  {
+    "name": "self_loop",
+    "allowed_tuples": [
+      [1, 1, 1, 1],
+      [0, 0, 3, 1],
+      [3, 1, 2, 0]
+    ],
+    "note": "chosen by hand: the self-loop (1,1)->(1,1) is the only closed cycle, so the unique solution sets every light to the same state; the other two tuples form a chain that does not close"
   }
 ]

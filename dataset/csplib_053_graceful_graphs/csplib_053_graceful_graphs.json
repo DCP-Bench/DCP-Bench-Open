@@ -20,5 +20,85 @@
       [2, 6],
       [3, 7]
     ]
+  },
+  {
+    "name": "K4",
+    "m": 6,
+    "n": 4,
+    "graph": [
+      [0, 1],
+      [0, 2],
+      [0, 3],
+      [1, 2],
+      [1, 3],
+      [2, 3]
+    ],
+    "note": "https://www.csplib.org/Problems/prob053/ : the specification shows a graceful labelling of K4. 4 nodes, 6 edges (complete graph), smaller than the K4xP2 example."
+  },
+  {
+    "name": "K3xP3",
+    "m": 15,
+    "n": 9,
+    "graph": [
+      [0, 1],
+      [0, 2],
+      [1, 2],
+      [3, 4],
+      [3, 5],
+      [4, 5],
+      [6, 7],
+      [6, 8],
+      [7, 8],
+      [0, 3],
+      [1, 4],
+      [2, 5],
+      [3, 6],
+      [4, 7],
+      [5, 8]
+    ],
+    "note": "https://www.csplib.org/Problems/prob053/results/ lists K3xP3 (three triangles joined along a path; 9 nodes, 15 edges, triangle edges first, then the edges between consecutive layers, node 3L+i is vertex i of layer L). That page says K3xP3 is not graceful, but the reference finds a labelling and an independent check confirms it: node labels [7,12,13,14,4,0,3,6,15] give edge differences 1..15."
+  },
+  {
+    "name": "Petersen",
+    "m": 15,
+    "n": 10,
+    "graph": [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 0],
+      [0, 5],
+      [1, 6],
+      [2, 7],
+      [3, 8],
+      [4, 9],
+      [5, 7],
+      [6, 8],
+      [7, 9],
+      [8, 5],
+      [9, 6]
+    ],
+    "note": "generated: chosen by hand, the Petersen graph (outer 5-cycle 0-4, spokes i to i+5, inner pentagram 5+i to 5+(i+2) mod 5); 10 nodes, 15 edges, 3-regular and not a product of complete graphs and paths."
+  },
+  {
+    "name": "Q3",
+    "m": 12,
+    "n": 8,
+    "graph": [
+      [0, 1],
+      [0, 2],
+      [0, 4],
+      [1, 3],
+      [1, 5],
+      [2, 3],
+      [2, 6],
+      [3, 7],
+      [4, 5],
+      [4, 6],
+      [5, 7],
+      [6, 7]
+    ],
+    "note": "generated: chosen by hand, the 3-cube Q3 (nodes 0-7, an edge between labels that differ in one bit); 8 nodes, 12 edges, bipartite, same node count as the example with fewer edges."
   }
 ]
