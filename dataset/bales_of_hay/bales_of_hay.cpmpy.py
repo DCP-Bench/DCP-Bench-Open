@@ -41,11 +41,17 @@ def increasing(args):
 # model += [increasing(bales)]
 # <SYMMETRY_BREAKING_CONSTRAINT_END>
 
-for w in weights:
-    i = intvar(0, n - 1)
-    j = intvar(0, n - 1)
-    model += [i < j]
-    model += [w == bales[i] + bales[j]]
+# The weight of every pair of bales
+pairs = [(i, j) for i in range(n) for j in range(i + 1, n)]
+pair_weight = intvar(0, 100, shape=len(pairs), name="pair_weight")
+for p, (i, j) in enumerate(pairs):
+    model += [pair_weight[p] == bales[i] + bales[j]]
+
+# Each written-down weight belongs to its own pair: the weights are exactly the pair weights
+which_pair = intvar(0, len(pairs) - 1, shape=len(weights), name="which_pair")
+model += [AllDifferent(which_pair)]
+for k, w in enumerate(weights):
+    model += [pair_weight[which_pair[k]] == w]
 
 # Solve the model
 model.solve()
