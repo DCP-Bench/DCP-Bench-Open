@@ -56,7 +56,7 @@ model += (landing_times - target_landing) == lateness - earliness
 # Separation constraints (assuming fixed order i lands before j for i < j)
 for i in range(num_aircraft):
     for j in range(i + 1, num_aircraft):
-        model += Abs(landing_times[j] - landing_times[i]) >= separation_time[i][j]
+        model += landing_times[j] - landing_times[i] >= separation_time[i][j]
 
 # Objective: minimize total penalties
 total_penalty = sum(penalty_before * earliness + penalty_after * lateness)
