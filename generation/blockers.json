@@ -49,6 +49,22 @@
       "detail": "The declared output is the whole ten-digit pandigital number, which is at most 9876543210 and so exceeds the 32-bit FlatZinc integer range Gecode accepts: the parser rejects the model with \"The literal '9999999999' of the type int is out of range (-2147483646..2147483646)\" before solving. Any faithful model has to represent that value, so this is an integration limit rather than a modelling one. A solver with a wider integer type would not hit it.",
       "evidence": "generation/runs/20260916T112106-8a52/attempts/divisible_by_1_through_9/minizinc_gecode/attempt-001/evaluation.json",
       "recorded": "2026-09-16"
+    },
+    {
+      "problem": "heterosquare",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. The order-7 instance (json:4) needs all 49 cells distinct over 1..49: a one-hot encoding is 2401 binaries, and a pairwise one is 1176 disequalities, each two constraints. The one-hot model passes the four smaller instances and is refused on json:4. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20260928T1148Z-gurobi-ffc0/attempts/heterosquare/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-28"
+    },
+    {
+      "problem": "csplib_044_steiner",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. For n = 13 and 15 the output has 26 and 35 triples; stating that two triples share at most one element takes one AND variable per triple pair and element (4225 and 8925), or one per triple and element pair (2028 and 3675). The AND-variable model passes n = 7 and 9 and is refused on n = 13 (json:2). A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20260928T1148Z-gurobi-ffc0/attempts/csplib_044_steiner/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-28"
     }
   ]
 }
