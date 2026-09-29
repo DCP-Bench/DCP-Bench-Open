@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Build dcp-bench-open.jsonl from the dataset/ directory."""
-import os
+import ast
 import re
 import json
 from pathlib import Path
-import tempfile
 import logging
-import subprocess
 import sys
+
+from cpmpy.solvers.solver_interface import ExitStatus
+
+from evaluation.reference import SOLVER_OPTIONS, parse_source
 
 
 # --- Configuration ---
@@ -164,48 +166,20 @@ def extract_cpmpy_code_no_data(content: str) -> str:
     return content_no_data
 
 
-def exec_code(code: str, timeout=60):
-    with tempfile.TemporaryDirectory() as temp_dir:
-        suffix = '.__hidden_py__'
-        temp_instance_path = os.path.join(temp_dir, f"script{suffix}")
-        with open(temp_instance_path, 'w', encoding='utf-8') as temp_file:
-            temp_file.write(code)
-
-        try:
-            command = [sys.executable, temp_instance_path]
-            result = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                encoding='utf-8',
-                cwd=temp_dir
-            )
-            successfully_executed = (result.returncode == 0)
-            output = result.stdout if successfully_executed else result.stderr
-            timeout_occurred = False
-
-        except subprocess.TimeoutExpired:
-            successfully_executed = False
-            output = f"Timeout Error: Execution time exceeded {timeout} seconds"
-            timeout_occurred = True
-        except Exception as e:
-            successfully_executed = False
-            output = f"Error: {e}"
-            timeout_occurred = False
-
-    return successfully_executed, output, timeout_occurred
-
-
-def extract_example_solution(content: str, timeout: int = 60) -> str:
-    # run the model and return the output
-    successfully_executed, output, timeout_occurred = exec_code(content, timeout=timeout)
-    if not successfully_executed:
-        detail = output.strip() if output.strip() else "no output"
-        raise AssertionError(f"Model execution failed: {detail}")
-    if timeout_occurred:
-        raise AssertionError(f"Model execution timed out after {timeout} seconds")
-    return output
+def extract_example_solution(content: str, timeout: int = 60) -> dict:
+    # Run the script up to its solve, solve the way the evaluator's reference does,
+    # then build the script's own solution dictionary. One CP-SAT worker makes the
+    # solution the same on every machine and every run.
+    tree, _, cut, output = parse_source(content)
+    namespace = {}
+    exec(compile(ast.Module(body=tree.body[:cut], type_ignores=[]), "<reference>", "exec"), namespace)
+    model = namespace["model"]
+    if not model.solve(solver="ortools", time_limit=timeout, **SOLVER_OPTIONS):
+        raise AssertionError(f"No solution within {timeout} seconds: {model.status()}")
+    if model.has_objective() and model.status().exitstatus != ExitStatus.OPTIMAL:
+        raise AssertionError(f"Optimum not proven within {timeout} seconds")
+    solution = eval(compile(ast.Expression(output), "<solution>", "eval"), namespace)
+    return json.loads(json.dumps(solution))
 
 
 def extract_all_instances(filepath):
@@ -262,17 +236,8 @@ def process_file(filepath: Path) -> dict | None:
         m = re.match(r'#\s*Timeout:\s*(\d+)', line, re.IGNORECASE)
         if m:
             exec_timeout = int(m.group(1))
-    example_solution = extract_example_solution(cp_model, timeout=exec_timeout)
+    example_solution = extract_example_solution(content, timeout=exec_timeout)
     all_instances = extract_all_instances(filepath)
-
-
-    # matching between decision variables and example solution's keys
-    # parse the example solution as json from string
-    try:
-        example_solution = json.loads(example_solution)
-    except json.JSONDecodeError as e:
-        logging.error(f"[{filepath.name}] Error decoding example solution JSON: {e}")
-        example_solution = {}
 
     # Check if the keys in example solution and decision variables match exactly
     if set(example_solution.keys()) != set(decision_variables):
@@ -314,7 +279,7 @@ def main():
         print("Please ensure the script is run from the correct location or update the DATASET_ROOT variable.")
         return
 
-    logging.info(f"Starting conversion process.")
+    logging.info("Starting conversion process.")
     logging.info(f"Dataset Root: {DATASET_ROOT.resolve()}")
     logging.info(f"Output File: {OUTPUT_FILE.resolve()}")
     logging.info(f"Log File: {LOG_FILE.resolve()}")
