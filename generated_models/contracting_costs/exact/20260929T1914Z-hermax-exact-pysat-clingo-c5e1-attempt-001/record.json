@@ -1,0 +1,121 @@
+{
+  "attempt": {
+    "agent": "claude-sonnet-5-5 (Claude Code, model-generator campaign)",
+    "attempt_id": "attempt-001",
+    "created_at": 1790713561.184815,
+    "problem_id": "contracting_costs",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "5ddc8a91f72d6e4f6d1786da659a7aee4b747cb1da227e43c207c70755abe743",
+    "run_id": "20260929T1914Z-hermax-exact-pysat-clingo-c5e1",
+    "schema": 2,
+    "skill_bundle_hash": "36b3f882f44adfa4c06a35e769791b2e43e95e72b81e0911821acdc88bc88ed1",
+    "skill_source": "solvers\\exact\\skills\\exact",
+    "skill_version": {
+      "commit": "f2327fe7157844dee393279f9fd649d0a0dacbb2",
+      "modified": false,
+      "path": "solvers/exact/skills/exact"
+    },
+    "solver_id": "exact"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:3640a8d12ebcc41cd5b0e3c08e02bb862bee6c6891a4814ff119a2355744a4ba",
+      "tag": "dcp-eval/exact:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.006210399908013642,
+        "execution_wall_seconds": 9.68062719993759,
+        "first_solution": {
+          "carpenter": 3000,
+          "electrician": 300,
+          "mason": 2300,
+          "painter": 900,
+          "paper_hanger": 200,
+          "plumber": 800
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "paper_hanger",
+          "painter",
+          "plumber",
+          "electrician",
+          "carpenter",
+          "mason"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 7.651280099991709,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.06894606300193118,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "43682e9eccb6e078a9ba154d408c8cb391179c3b28ebeb460bc7014fa2b54731",
+    "problem_id": "contracting_costs",
+    "reason": "accepted",
+    "reference_hash": "2a5125a2c5d1e2b3dd46fc3b9dfe796385fb351153e38e294342a5a957befd14",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "exact",
+    "total_wall_seconds": 19.42657600005623,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-sonnet-5-5 (Claude Code, model-generator campaign)"
+  },
+  "is_optimization": false,
+  "model_file": "model.py",
+  "problem": "contracting_costs",
+  "schema": 2,
+  "solver": "exact",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}
