@@ -73,6 +73,30 @@
       "detail": "Choco proves the makespan optimum only on the embedded example and the 3-job ragged instance (2 of 5 instances); ft06, la01 and the 6x3 instance each run past the 180 s limit. Two encodings behave the same: pairwise disjunctions on each machine and cumulative constraints of capacity 1. The model was evaluated and accepted on those two instances but not retained. A search strategy or an encoding with stronger disjunctive propagation would justify retrying.",
       "evidence": "generation/runs/20260929T0836Z-cpsat-choco-5d1c/attempts/jobshop/choco_python/attempt-002/evaluation.json",
       "recorded": "2026-09-29"
+    },
+    {
+      "problem": "facility_location",
+      "solver": "swipl_clpfd",
+      "reason": "execution_timeout",
+      "detail": "CLP(FD) does not finish the optimality proof on the example, json:2 and json:4 within 180 s: the shipment variables range over 0..100 and no labelling order tried (ff, ffc, leftmost, with down, min or max) proves the optimum in 60 s on the example. The driver reports the abandoned proof on json:4 as no_solution, so the evaluation is a rejection. A model that keeps the shipments off the search or a tighter bound would justify retrying.",
+      "evidence": "generation/runs/20260929T1400Z-z3-mzn-swipl-7a2e/attempts/facility_location/swipl_clpfd/attempt-001/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "resource_constrained_project_scheduling",
+      "solver": "swipl_clpfd",
+      "reason": "execution_timeout",
+      "detail": "After cumulative/2 is given only the jobs of positive length, the 12-job example and one 32-job instance finish, and the other 32-job instance (json:2) does not prove its makespan within 180 s under ff, ffc, leftmost, min or bisect labelling; the driver reports the abandoned proof as no_solution. A stronger encoding of the makespan bound would justify retrying.",
+      "evidence": "generation/runs/20260929T1400Z-z3-mzn-swipl-7a2e/attempts/resource_constrained_project_scheduling/swipl_clpfd/attempt-002/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "tsp",
+      "solver": "z3_python",
+      "reason": "execution_timeout",
+      "detail": "Z3 proves the tour length only on the 6-city instance; the 12-city example and the 20 and 30 city instances run past 180 s with a circuit written as arc Booleans and MTZ-style positions. The model was accepted on that one instance but not retained.",
+      "evidence": "generation/runs/20260929T1400Z-z3-mzn-swipl-7a2e/attempts/tsp/z3_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-29"
     }
   ]
 }
