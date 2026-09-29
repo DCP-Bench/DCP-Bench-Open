@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob084_hadamard_matrix.py
 # Source description: https://www.csplib.org/Problems/prob084/
 
-"""
+r"""
 For every odd positive integer \( \ell \) (and \( m = \frac{\ell - 1}{2} \)) we define the 2cc Hadamard matrix Legendre pairs CSP using the \{V, D, C\} format (Variables, Domains, Constraints) as follows:
 
 - \( V = \{a_1, \ldots, a_\ell, b_1, \ldots, b_\ell\} \), a set of \( 2 \cdot \ell \) variables

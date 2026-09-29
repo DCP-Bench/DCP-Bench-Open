@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob033_word_design.py
 # Source description: https://www.csplib.org/Problems/prob033/
 
-"""
+r"""
 Find a set \( S \) of `num_words` strings (words) of length `n` over the alphabet \( W = \{ A,C,G,T \} \) with the following properties:
 
 - Each word in \( S \) has 4 symbols from \{ C,G \};

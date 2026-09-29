@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob054_n_queens.py
 # Source description: https://www.csplib.org/Problems/prob054/
 
-"""
+r"""
 Can \( n \) queens (of the same color) be placed on a \( n \times n \) chessboard so that none of the queens can attack
 each other? In chess, a queen attacks other squares on the same row, column, or either diagonal as itself. So the
 \( n \)-queens problem is to find a set of \( n \) locations on a chessboard, no two of which are on the same row,

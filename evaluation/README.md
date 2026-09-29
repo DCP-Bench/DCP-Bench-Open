@@ -177,7 +177,7 @@ retains a model.
 ## Validation
 
 ```sh
-python -W ignore::SyntaxWarning -m unittest tests.test_evaluation -v
+python -m unittest tests.test_evaluation -v
 ```
 
 The dataset audit runs every time: all references must load, the first instance

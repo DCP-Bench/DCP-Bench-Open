@@ -2,7 +2,7 @@
 # Category: cpmpy_examples
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/npuzzle.py
 
-"""
+r"""
 The N-Puzzle is a classic sliding puzzle game where the goal is to move tiles on a grid to achieve a specific end
 configuration. The puzzle consists of a grid with \( n+1 \) tiles, one of which is empty. The objective is to trace
 the steps to the original picture by moving the tiles into their correct positions.

@@ -52,7 +52,8 @@ def extract_metadata(content: str) -> list[str]:
     metadata = []
     i = 0
     lines = content.splitlines()
-    while i < len(lines) and not lines[i].startswith('"""'):
+    # A description with backslashes (e.g. LaTeX \( n \)) is a raw docstring, r"""
+    while i < len(lines) and not re.match(r'[rR]?"""', lines[i]):
         metadata.append(lines[i].strip())
         i += 1
     # Remove any leading/trailing whitespace and empty lines

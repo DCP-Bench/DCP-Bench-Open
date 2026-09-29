@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob028_bibd.py
 # Source description: https://www.csplib.org/Problems/prob028/
 
-"""
+r"""
 Balanced Incomplete Block Design (BIBD) generation is a standard combinatorial problem from design theory, originally
 used in the design of statistical experiments but since finding other applications such as cryptography. It is a
 special case of Block Design, which also includes Latin Square problems.
