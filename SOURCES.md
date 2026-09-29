@@ -48,8 +48,8 @@ list and stops offering them. See `skills/instance-curator`.
 - `flow_free_game`: the description prints the one board it uses.
 - `dudeney_numbers`: no Dudeney number has more than 6 digits, so only n below 6 changes the answer, and the reference exceeds 10 s at n = 4 and 5. Stays at 2.
 - `csplib_026_sports_tournament_scheduling`: n = 4 has no solution and n = 10 or more exceeds 10 s. Stays at 2.
-- `csplib_049_number_partitioning`: n must be a multiple of 4 and at least 8; 8 to 20 are listed and 24 exceeds 10 s. Stays at 4.
-- `calvin_puzzle`: n = 2 to 4 have no solution, n = 1 has no moves, and n = 8 or more exceeds 10 s. Stays at 3.
+- `csplib_049_number_partitioning`: n must be a multiple of 4 and at least 8; 8 to 16 are listed, and from n = 20 the reference takes more than 30 s. Stays at 3.
+- `calvin_puzzle`: n = 2 to 4 have no solution, n = 1 has no moves, and from n = 7 the reference takes more than 60 s. Stays at 2.
 
 ## Dataset decisions
 
@@ -73,6 +73,39 @@ row/column block rules — by testing, not by proof.
 per item (`range(n)`) rather than to every bin (`range(num_bins)`), so with more
 bins than items the extra bins were unbounded. No listed instance has more bins
 than items, and on those the two versions accept exactly the same solutions.
+
+**Removed as too slow for the reference.** The reference runs on one CP-SAT
+worker with dual presolve reductions off, which on some models is several times
+slower than CP-SAT's defaults. An instance stays only if the reference finds a
+solution, or proves the optimum, within 30 s, half the evaluator's default 60 s
+reference limit. Each instance was timed once, and three times if it took more
+than 15 s; these took more than 30 s in at least one run and were removed. The
+indices are the `json:<index>` IDs they had before the removal:
+
+- `csplib_001_car_sequencing`: 53 of the 75 instances, `json:1`-`4`, `6`, `8`,
+  `13`, `15`, `16`, `18`, `23`, `26`, `28`, `29`, `31`, `36`-`56`,
+  `58`-`74`.
+- `csplib_002_template_design`: `herbs2`, `herbs3`, `magazine_inserts2`,
+  `magazine_inserts3`, `magazine_inserts4`.
+- `csplib_003_quasigroup_existence`: orders m = 12, 13, 16, 17 and 20.
+- `csplib_009_perfect_square_placement`: `problem8` (base 110, 22 squares).
+- `csplib_010_social_golfers_problem`: 7 weeks of 7 groups of 7, and 9 weeks of
+  8 groups of 8.
+- `csplib_013_progressive_party_problem`: `csplib_example` (42 boats, 6
+  periods), where the reference finds no solution within 60 s.
+- `csplib_032_max_density_still_life`: the 9x9 and 10x10 boards.
+- `csplib_044_steiner`: n = 15.
+- `csplib_049_number_partitioning`: n = 20.
+- `calvin_puzzle`: `7 by 7`.
+
+**Reformulated for speed.** Two references were changed without changing
+their solutions. The cmo_2012 reference states that p is prime with
+`InDomain(p, prime_list)` instead of a sum of 1,229 equalities; on the embedded
+example it goes from 89 s to 5 s on one CP-SAT worker, with the same optimum on
+all five instances. The template-design reference adds the implied bound
+`n_slots * sum(production) >= sum(demand)`, which holds for every solution
+because each template fills all its slots; `catfood3` goes from over 60 s to
+2 s, and the example keeps its optimum of 418.
 
 **Retained as they appear in the source.** Named duplicates of an embedded
 example (nonogram `bear`, template-design `catfood2`, perfect-square-placement

@@ -69,6 +69,9 @@ for var in range(n_var):
 #         model += sum(production * layout[:, i]) <= sum(production * layout[:, i + 1])
 # <SYMMETRY_BREAKING_CONSTRAINT_END>
 
+# implied: every template fills all its slots, so the sheets cover the total demand
+model += n_slots * sum(production) >= sum(demand)
+
 # minimize number of printed sheets
 model.minimize(sum(production))
 

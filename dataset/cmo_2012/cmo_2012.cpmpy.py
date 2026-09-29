@@ -37,9 +37,6 @@ def primes(n):
             primes_list.append(i)
     return primes_list
 
-def member_of(x, val):
-    return sum([x[i] == val for i in range(len(x))]) > 0
-
 prime_list = primes(max_val)
 
 a = intvar(min_a, max_val, name="a")
@@ -49,7 +46,7 @@ p = intvar(2, max_val, name="p")
 
 model = Model(minimize=a)
 
-model += member_of(prime_list, p)
+model += InDomain(p, prime_list)
 
 model += [a >= b]
 model += [p == a - b]
