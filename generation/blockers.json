@@ -97,6 +97,46 @@
       "detail": "Z3 proves the tour length only on the 6-city instance; the 12-city example and the 20 and 30 city instances run past 180 s with a circuit written as arc Booleans and MTZ-style positions. The model was accepted on that one instance but not retained.",
       "evidence": "generation/runs/20260929T1400Z-z3-mzn-swipl-7a2e/attempts/tsp/z3_python/attempt-001/evaluation.json",
       "recorded": "2026-09-29"
+    },
+    {
+      "problem": "facility_location",
+      "solver": "hermax",
+      "reason": "memory_limit",
+      "detail": "The kernel kills the run at the 2048 MB limit on the example: 12 shipment variables over 0..100 need a ladder each for the objective and a wide sum_var for the declared total_cost. A model without the wide ladders would justify retrying.",
+      "evidence": "generation/runs/20260929T1914Z-hermax-exact-pysat-clingo-c5e1/attempts/facility_location/hermax/attempt-001/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "facility_location",
+      "solver": "clingo_asp",
+      "reason": "execution_timeout",
+      "detail": "None of the five instances finishes within 180 s: the 12 shipment atoms range over 0..100 and the optimality proof does not close. A tighter formulation of the shipments would justify retrying.",
+      "evidence": "generation/runs/20260929T1914Z-hermax-exact-pysat-clingo-c5e1/attempts/facility_location/clingo_asp/attempt-001/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "football",
+      "solver": "hermax",
+      "reason": "execution_timeout",
+      "detail": "Attempt 1 hit the 2048 MB limit; attempt 2, with the total price tied to the price sum by one equality over a domain bounded by the budget, ran past 180 s on the example, the only instance. A different encoding of the budget sum would justify retrying.",
+      "evidence": "generation/runs/20260929T1914Z-hermax-exact-pysat-clingo-c5e1/attempts/football/hermax/attempt-002/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "football",
+      "solver": "clingo_asp",
+      "reason": "execution_timeout",
+      "detail": "Two encodings, with derived atoms and with the objective stated on the choice atoms, both ran past 180 s on the example, the only instance.",
+      "evidence": "generation/runs/20260929T1914Z-hermax-exact-pysat-clingo-c5e1/attempts/football/clingo_asp/attempt-002/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "csplib_041_n_fractions",
+      "solver": "clingo_asp",
+      "reason": "memory_limit",
+      "detail": "The cross-multiplied fraction equation grounds past the 2048 MB limit on the example, because the products of the digit atoms are instantiated in one rule body. An encoding that grounds less would justify retrying.",
+      "evidence": "generation/runs/20260929T1914Z-hermax-exact-pysat-clingo-c5e1/attempts/csplib_041_n_fractions/clingo_asp/attempt-001/evaluation.json",
+      "recorded": "2026-09-29"
     }
   ]
 }
