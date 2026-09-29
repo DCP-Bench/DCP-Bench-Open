@@ -1,0 +1,25 @@
+% Celebrities: a celebrity is known by everybody at the party and knows only
+% celebrities. At least one celebrity is present.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Graph = Data.get(graph),     % graph[i][j] = 1 when person i knows person j
+    N = len(Graph),
+    C = new_list(N),
+    C :: 0..1,
+    NumCelebrities :: 1..N,
+    NumCelebrities #= sum(C),
+    foreach (I in 1..N)
+        KnownBy = sum([Graph[J, I] : J in 1..N]),
+        Knows = sum([Graph[I, J] : J in 1..N]),
+        % i is a celebrity exactly when everybody knows i and i knows as many
+        % people as there are celebrities
+        if KnownBy == N then
+            C[I] #<=> (NumCelebrities #= Knows)
+        else
+            C[I] #= 0
+        end
+    end,
+    Vars = C,
+    Outputs = [celebrities = C],
+    Options = [].

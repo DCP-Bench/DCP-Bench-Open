@@ -1,0 +1,21 @@
+% Ternary Steiner system of order n: n(n-1)/6 triples of the elements 1..n such
+% that any two triples have at most one element in common.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    NSets = N * (N - 1) // 6,
+    % sets[i, j] = 1 when element j belongs to triple i
+    Sets = new_array(NSets, N),
+    Sets :: 0..1,
+    % every triple has three elements
+    foreach (I in 1..NSets)
+        sum([Sets[I, J] : J in 1..N]) #= 3
+    end,
+    % two triples share at most one element
+    foreach (I1 in 1..NSets-1, I2 in I1+1..NSets)
+        sum([Sets[I1, J] #/\ Sets[I2, J] : J in 1..N]) #=< 1
+    end,
+    Vars = Sets,
+    Outputs = [sets = Sets],
+    Options = [].

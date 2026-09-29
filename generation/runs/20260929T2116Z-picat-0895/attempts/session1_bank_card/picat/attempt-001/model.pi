@@ -1,0 +1,13 @@
+% Bank card: a PIN abcd with four different digits, where cd = 3 * ab and
+% da = 2 * bc, each read as a two-digit number.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    [A, B, C, D] :: 0..9,
+    all_different([A, B, C, D]),
+    10 * C + D #= 3 * (10 * A + B),
+    10 * D + A #= 2 * (10 * B + C),
+    Vars = [A, B, C, D],
+    Outputs = [a = A, b = B, c = C, d = D],
+    Options = [].

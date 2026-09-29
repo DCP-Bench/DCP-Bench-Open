@@ -1,0 +1,18 @@
+% Maximum clique: the largest set of vertices of a graph that are pairwise adjacent.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Adj = Data.get(adj),
+    % c[i] = 1 when vertex i is in the clique
+    C = new_list(N),
+    C :: 0..1,
+    % two vertices without an edge are not both in the clique
+    foreach (I in 1..N-1, J in I+1..N)
+        if Adj[I, J] == 0 then
+            C[I] + C[J] #=< 1
+        end
+    end,
+    Vars = C,
+    Outputs = [c = C],
+    Options = [$max(sum(C))].

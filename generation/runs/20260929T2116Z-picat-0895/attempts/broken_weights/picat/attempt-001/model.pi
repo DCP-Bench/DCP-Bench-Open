@@ -1,0 +1,21 @@
+% Broken weights: a weight of m pounds broke into n whole-pound pieces with which
+% every weight from 1 to m can be weighed on a balance scale, each piece going on
+% the object's pan, on the other pan, or staying off.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    M = Data.get(m),
+    N = Data.get(n),
+    Weights = new_list(N),
+    Weights :: 1..M,
+    % the pieces together weigh m
+    sum(Weights) #= M,
+    % side[t, j] = -1, 0 or 1: where piece j goes when weighing t pounds
+    Side = new_array(M, N),
+    Side :: -1..1,
+    foreach (T in 1..M)
+        sum([Weights[J] * Side[T, J] : J in 1..N]) #= T
+    end,
+    Vars = Weights ++ vars(Side),
+    Outputs = [weights = Weights],
+    Options = [].

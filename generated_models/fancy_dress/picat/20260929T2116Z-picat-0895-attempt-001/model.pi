@@ -1,0 +1,19 @@
+% Fancy dress: Mr Greenguest owns a green shirt and can buy a green tie ($10), a
+% green hat ($2) and green socks ($12). A guest who breaks a dress rule pays an
+% $11 entrance fee. Find the cheapest way in.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    % t tie, h hat, r shirt, s socks, n entrance fee; 1 when chosen
+    [T, H, R, S, N] :: 0..1,
+    % 1. a green tie needs a green shirt
+    (T #=> R) #\/ N,
+    % 2. green socks or a green shirt need a green tie or a green hat
+    ((S #\/ R) #=> (T #\/ H)) #\/ N,
+    % 3. a green shirt, a green hat or no green socks need a green tie
+    (R #\/ H #\/ #~ S) #=> (T #\/ N),
+    Cost #= 10 * T + 2 * H + 12 * S + 11 * N,
+    Vars = [T, H, R, S, N],
+    Outputs = [t = T, h = H, r = R, s = S, n = N],
+    Options = [$min(Cost)].

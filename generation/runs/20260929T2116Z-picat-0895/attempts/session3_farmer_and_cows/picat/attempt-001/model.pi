@@ -1,0 +1,21 @@
+% Farmer and cows: cow i gives i units of milk. Share the cows among the sons so
+% that every son gets his number of cows and all sons get the same milk.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    NumCows = Data.get(num_cows),
+    NumSons = Data.get(num_sons),
+    CowsPerSon = Data.get(cows_per_son),
+    MilkPerSon = (NumCows * (NumCows + 1) // 2) // NumSons,
+    % assignment[i] = the son, 0-based, who gets cow i
+    Assignment = new_list(NumCows),
+    Assignment :: 0..NumSons-1,
+    foreach (Son in 0..NumSons-1)
+        % the son gets his number of cows ...
+        sum([Assignment[I] #= Son : I in 1..NumCows]) #= CowsPerSon[Son + 1],
+        % ... and his share of the milk
+        sum([I * (Assignment[I] #= Son) : I in 1..NumCows]) #= MilkPerSon
+    end,
+    Vars = Assignment,
+    Outputs = [cow_assignments = Assignment],
+    Options = [].

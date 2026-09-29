@@ -1,0 +1,31 @@
+% ISBN-13: fill in the unknown digits (-1) so that the number starts with 978 or
+% 979 and its last digit is the check digit (10 - (s mod 10)) mod 10, where s
+% weights the first twelve digits alternately by 1 and 3.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Init = Data.get(isbn_init),
+    N = 13,
+    ISBN = new_list(N),
+    ISBN :: 0..9,
+    % the known digits stay
+    foreach (I in 1..N)
+        if Init[I] != -1 then
+            ISBN[I] #= Init[I]
+        end
+    end,
+    % the prefix is 978 or 979
+    ISBN[1] #= 9,
+    ISBN[2] #= 7,
+    ISBN[3] #= 8 #\/ ISBN[3] #= 9,
+    % the check digit
+    Weights = [cond_weight(I) : I in 1..N-1],
+    CheckSum #= sum([Weights[I] * ISBN[I] : I in 1..N-1]),
+    ISBN[N] #= (10 - CheckSum mod 10) mod 10,
+    Vars = ISBN,
+    Outputs = [isbn = ISBN],
+    Options = [].
+
+% the weight of the i-th digit (1-based): 1 for odd positions, 3 for even ones
+cond_weight(I) = W, I mod 2 == 1 => W = 1.
+cond_weight(_) = W => W = 3.

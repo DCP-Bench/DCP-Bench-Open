@@ -1,0 +1,13 @@
+% Huey, Dewey and Louie cannot lie. Huey: Dewey and Louie share the guilt equally.
+% Dewey: if Huey is guilty, so am I. Louie: Dewey and I are not both guilty.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    [Huey, Dewey, Louie] :: 0..1,
+    Dewey #= Louie,
+    Huey #=> Dewey,
+    #~ (Dewey #/\ Louie),
+    Vars = [Huey, Dewey, Louie],
+    Outputs = [huey = Huey, dewey = Dewey, louie = Louie],
+    Options = [].

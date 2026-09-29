@@ -1,0 +1,14 @@
+% Three sum: choose m of the numbers so that they add up to zero.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Nums = Data.get(nums),
+    M = Data.get(m),
+    N = len(Nums),
+    Indices = new_list(N),
+    Indices :: 0..1,
+    sum([Nums[I] * Indices[I] : I in 1..N]) #= 0,
+    sum(Indices) #= M,
+    Vars = Indices,
+    Outputs = [indices = Indices],
+    Options = [].

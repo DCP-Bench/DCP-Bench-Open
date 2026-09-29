@@ -1,0 +1,26 @@
+% Aircraft assignment: choose how many aircraft of each type fly each route so
+% that every route's passenger demand is met, no type is used beyond its fleet,
+% and the total operating cost is as small as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Availability = Data.get(availability),   % aircraft available of each type
+    Demand = Data.get(demand),               % passengers to carry on each route
+    Capabilities = Data.get(capabilities),   % passengers a type carries on a route
+    Costs = Data.get(costs),                 % cost of one aircraft of a type on a route
+    NTypes = len(Availability),
+    NRoutes = len(Demand),
+    % allocation[i, j] = aircraft of type i on route j
+    Allocation = new_array(NTypes, NRoutes),
+    Allocation :: 0..max(Availability),
+    % a type is not used beyond its fleet
+    foreach (I in 1..NTypes)
+        sum([Allocation[I, J] : J in 1..NRoutes]) #=< Availability[I]
+    end,
+    % every route carries at least its demand
+    foreach (J in 1..NRoutes)
+        sum([Capabilities[I, J] * Allocation[I, J] : I in 1..NTypes]) #>= Demand[J]
+    end,
+    Vars = Allocation,
+    Outputs = [allocation = Allocation],
+    Options = [$min(sum([Costs[I, J] * Allocation[I, J] : I in 1..NTypes, J in 1..NRoutes]))].

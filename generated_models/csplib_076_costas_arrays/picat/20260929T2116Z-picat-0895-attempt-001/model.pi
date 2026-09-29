@@ -1,0 +1,22 @@
+% Costas array: a permutation of 1..n (one mark per row and column of an n x n
+% grid) in which, for every distance d, the differences costas[j] - costas[j - d]
+% are all different.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Costas = new_list(N),
+    Costas :: 1..N,
+    all_distinct(Costas),
+    % the difference triangle: row d holds costas[j] - costas[j - d] for j > d,
+    % and its entries are all different (rows 1..n-2, as in the reference)
+    foreach (D in 1..N-2)
+        Diffs = new_list(N - D),
+        foreach (J in D+1..N)
+            Diffs[J - D] #= Costas[J] - Costas[J - D]
+        end,
+        all_distinct(Diffs)
+    end,
+    Vars = Costas,
+    Outputs = [costas = Costas],
+    Options = [ff].

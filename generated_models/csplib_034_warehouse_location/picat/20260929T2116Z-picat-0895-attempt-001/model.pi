@@ -1,0 +1,32 @@
+% Warehouse location: decide which candidate warehouses to open and which open
+% warehouse supplies each store, so that no warehouse serves more stores than its
+% capacity, at the least maintenance plus supply cost.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NSuppliers = Data.get(n_suppliers),       % candidate warehouses
+    NStores = Data.get(n_stores),
+    BuildingCost = Data.get(building_cost),   % maintenance of one open warehouse
+    Capacity = Data.get(capacity),            % most stores a warehouse can supply
+    CostMatrix = Data.get(cost_matrix),       % cost_matrix[store][warehouse]
+    % supplier[s] = the 0-based warehouse supplying store s
+    Supplier = new_list(NStores),
+    Supplier :: 0..NSuppliers-1,
+    Open = new_list(NSuppliers),
+    Open :: 0..1,
+    foreach (W in 1..NSuppliers)
+        Served #= sum([Supplier[S] #= W - 1 : S in 1..NStores]),
+        % a warehouse supplies at most its capacity ...
+        Served #=< Capacity[W],
+        % ... and is open exactly when it supplies some store
+        Open[W] #<=> Served #>= 1
+    end,
+    % supply_cost[s] = the cost of supplying store s from the warehouse it uses
+    SupplyCost = new_list(NStores),
+    foreach (S in 1..NStores)
+        element0(Supplier[S], CostMatrix[S], SupplyCost[S])
+    end,
+    TotalCost #= sum(SupplyCost) + BuildingCost * sum(Open),
+    Vars = Supplier ++ Open,
+    Outputs = [total_cost = TotalCost, open_warehouses = Open, supplier_assignment = Supplier],
+    Options = [ff, $min(TotalCost)].

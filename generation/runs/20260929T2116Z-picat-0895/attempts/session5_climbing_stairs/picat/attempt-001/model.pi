@@ -1,0 +1,23 @@
+% Climbing stairs: climb n steps taking between m1 and m2 steps at a time; each
+% move is the steps taken, or 0 once the top is reached.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    M1 = Data.get(m1),
+    M2 = Data.get(m2),
+    Steps = new_list(N),
+    Steps :: 0..M2,
+    % the moves add up to the stair
+    sum(Steps) #= N,
+    % a move is 0 or between m1 and m2 steps
+    foreach (I in 1..N)
+        Steps[I] #>= M1 #\/ Steps[I] #= 0
+    end,
+    % once a move is 0, every later move is 0 too
+    foreach (I in 1..N-1)
+        Steps[I] #= 0 #=> Steps[I + 1] #= 0
+    end,
+    Vars = Steps,
+    Outputs = [steps = Steps],
+    Options = [].

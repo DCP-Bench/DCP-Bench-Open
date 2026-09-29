@@ -1,0 +1,19 @@
+% Bus scheduling: the day is cut into time slots and a bus works two consecutive
+% slots. Choose how many buses start in each slot so that every slot's demand is
+% met with as few buses as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Demands = Data.get(demands),
+    N = len(Demands),
+    % x[i] = the number of buses that start in slot i
+    X = new_list(N),
+    X :: 0..sum(Demands),
+    % slot i + 1 is served by the buses starting in slots i and i + 1 (the day wraps)
+    foreach (I in 1..N)
+        Next = I mod N + 1,
+        X[I] + X[Next] #>= Demands[Next]
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [$min(sum(X))].

@@ -1,0 +1,25 @@
+% Cell towers: choose sites to build towers on within the budget so that the
+% population of the regions they cover is as large as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Delta = Data.get(delta),             % delta[i][j] = 1 when site i covers region j
+    Cost = Data.get(cost),
+    Population = Data.get(population),
+    Budget = Data.get(budget),
+    NS = len(Cost),
+    NR = len(Population),
+    Build = new_list(NS),
+    Build :: 0..1,
+    Covered = new_list(NR),
+    Covered :: 0..1,
+    % a region is covered only if some tower covering it is built
+    foreach (J in 1..NR)
+        Covered[J] #=< sum([Delta[I, J] * Build[I] : I in 1..NS])
+    end,
+    % the towers fit the budget
+    sum([Cost[I] * Build[I] : I in 1..NS]) #=< Budget,
+    TotalPopulation #= sum([Population[J] * Covered[J] : J in 1..NR]),
+    Vars = Build ++ Covered,
+    Outputs = [build_tower = Build, total_population_covered = TotalPopulation],
+    Options = [$max(TotalPopulation)].

@@ -1,0 +1,23 @@
+% Two subsets with equal sums: find disjoint non-empty subsets S and T of A with
+% the same sum.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    A = Data.get('A'),
+    N = len(A),
+    InS = new_list(N),
+    InS :: 0..1,
+    InT = new_list(N),
+    InT :: 0..1,
+    % the sums are equal
+    sum([A[I] * InS[I] : I in 1..N]) #= sum([A[I] * InT[I] : I in 1..N]),
+    % S and T are disjoint
+    foreach (I in 1..N)
+        InS[I] + InT[I] #=< 1
+    end,
+    % S and T are not empty
+    sum(InS) #> 0,
+    sum(InT) #> 0,
+    Vars = InS ++ InT,
+    Outputs = [in_S = InS, in_T = InT],
+    Options = [].

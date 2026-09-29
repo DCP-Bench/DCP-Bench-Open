@@ -1,0 +1,34 @@
+% Age changing: applying +2, /8, -3 and *7 to my age in some order gives my
+% husband's age, and applying them to his age in a different order gives mine.
+% Ages are 16 to 120.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    N = 4,
+    M :: 16..120,     % my age
+    H :: 16..120,     % my husband's age
+    % perm1[i], perm2[i] = the i-th operation applied: 0 is +2, 1 is /8, 2 is -3, 3 is *7
+    Perm1 = new_list(N), Perm1 :: 0..N-1, all_different(Perm1),
+    Perm2 = new_list(N), Perm2 :: 0..N-1, all_different(Perm2),
+    % the two orders differ somewhere
+    sum([Perm1[I] #!= Perm2[I] : I in 1..N]) #> 0,
+    % hlist goes from my age to his, mlist from his to mine
+    HList = new_list(N + 1), HList :: 1..1000,
+    MList = new_list(N + 1), MList :: 1..1000,
+    HList[1] #= M, HList[N + 1] #= H,
+    MList[1] #= H, MList[N + 1] #= M,
+    foreach (I in 1..N)
+        apply_operation(Perm1[I], HList[I], HList[I + 1]),
+        apply_operation(Perm2[I], MList[I], MList[I + 1])
+    end,
+    Vars = [M, H] ++ Perm1 ++ Perm2 ++ HList ++ MList,
+    Outputs = [m = M, h = H],
+    Options = [].
+
+% the operation op takes old to new
+apply_operation(Op, Old, New) =>
+    Op #= 0 #=> New #= Old + 2,
+    Op #= 1 #=> 8 * New #= Old,
+    Op #= 2 #=> New #= Old - 3,
+    Op #= 3 #=> New #= Old * 7.

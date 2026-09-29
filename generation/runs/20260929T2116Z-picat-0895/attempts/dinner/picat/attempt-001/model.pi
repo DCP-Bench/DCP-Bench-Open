@@ -1,0 +1,15 @@
+% Dinner: 1-6 grandparents at $3, 1-10 parents at $2 and 1-40 children at $0.50;
+% twenty people in all, for $20.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    Grandparents :: 1..6,
+    Parents :: 1..10,
+    Children :: 1..40,
+    % the cost, counted in half dollars
+    Grandparents * 6 + Parents * 4 + Children #= 20 * 2,
+    Grandparents + Parents + Children #= 20,
+    Vars = [Grandparents, Parents, Children],
+    Outputs = [grandparents = Grandparents, parents = Parents, children = Children],
+    Options = [].

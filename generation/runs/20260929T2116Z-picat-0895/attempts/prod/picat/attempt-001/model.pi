@@ -1,0 +1,27 @@
+% Production planning: choose quantities x[j] up to u[j] so that the sum of
+% x[j] / a[j] stays within b and the profit sum of c[j] * x[j] is as large as
+% possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    A = Data.get(a),
+    B = Data.get(b),
+    C = Data.get(c),
+    U = Data.get(u),
+    N = len(A),
+    % the least common multiple of the a[j], to clear the divisions
+    Lcm = 1,
+    foreach (V in A)
+        Lcm := Lcm * V // gcd(Lcm, V)
+    end,
+    X = new_list(N),
+    X :: 0..max(U),
+    foreach (J in 1..N)
+        X[J] #=< U[J]
+    end,
+    % sum of x[j] / a[j] <= b, multiplied through by the lcm
+    sum([(Lcm // A[J]) * X[J] : J in 1..N]) #=< B * Lcm,
+    TotalProfit #= sum([C[J] * X[J] : J in 1..N]),
+    Vars = X,
+    Outputs = [x = X, total_profit = TotalProfit],
+    Options = [$max(TotalProfit)].

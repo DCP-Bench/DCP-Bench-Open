@@ -1,0 +1,31 @@
+% Room assignment: give every booking (a room from a start date up to, but not
+% including, an end date) one room for its whole stay, so that no room hosts two
+% bookings on the same night. Some bookings have their room fixed already.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NRooms = Data.get(max_rooms),
+    % the dates are ISO strings, YYYY-MM-DD, which compare like the dates they name
+    Starts = Data.get(start_data),
+    Ends = Data.get(end_data),
+    Preassigned = Data.get(preassigned_room_data),   % -1 when the room is not fixed
+    N = len(Starts),
+    % room[i] = the room, 0-based, of booking i
+    Room = new_list(N),
+    Room :: 0..NRooms-1,
+    % bookings whose room is already fixed
+    foreach (I in 1..N)
+        if Preassigned[I] != -1 then
+            Room[I] #= Preassigned[I]
+        end
+    end,
+    % two bookings that share a night get different rooms: [s1, e1) and [s2, e2)
+    % share a night when s1 < e2 and s2 < e1
+    foreach (I in 1..N-1, J in I+1..N)
+        if (Starts[I] @< Ends[J], Starts[J] @< Ends[I]) then
+            Room[I] #!= Room[J]
+        end
+    end,
+    Vars = Room,
+    Outputs = [room_assignments = Room],
+    Options = [].

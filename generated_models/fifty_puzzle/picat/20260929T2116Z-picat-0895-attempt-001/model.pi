@@ -1,0 +1,13 @@
+% Fifty puzzle: knock over dummies whose numbers add up to exactly the target.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Target = Data.get(target_sum),
+    Values = Data.get(values),
+    N = len(Values),
+    Dummies = new_list(N),
+    Dummies :: 0..1,
+    sum([Values[I] * Dummies[I] : I in 1..N]) #= Target,
+    Vars = Dummies,
+    Outputs = [dummies = Dummies],
+    Options = [].

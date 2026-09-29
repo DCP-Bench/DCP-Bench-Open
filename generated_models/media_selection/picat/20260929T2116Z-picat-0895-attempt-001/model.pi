@@ -1,0 +1,19 @@
+% Media selection: choose advertising media so that every target audience is
+% reached by at least one of them, at the least total cost.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Incidence = Data.get(incidence_matrix),   % incidence[t][m] = 1 when medium m reaches t
+    Costs = Data.get(media_costs),
+    NA = len(Data.get(target_audiences)),
+    NM = len(Data.get(advertising_media)),
+    Selected = new_list(NM),
+    Selected :: 0..1,
+    % every audience is reached
+    foreach (T in 1..NA)
+        sum([Incidence[T, M] * Selected[M] : M in 1..NM]) #>= 1
+    end,
+    MinTotalCost #= sum([Costs[M] * Selected[M] : M in 1..NM]),
+    Vars = Selected,
+    Outputs = [is_selected = Selected, min_total_cost = MinTotalCost],
+    Options = [$min(MinTotalCost)].

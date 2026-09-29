@@ -1,0 +1,14 @@
+% Among: exactly m of the values in x lie in the set v; every value is 0..7.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    M = Data.get(m),
+    V = Data.get(v),
+    X = new_list(N),
+    X :: 0..7,
+    % the number of (position, value of v) pairs where x takes that value is m
+    sum([X[I] #= J : I in 1..N, J in V]) #= M,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [].

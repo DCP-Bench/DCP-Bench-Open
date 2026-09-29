@@ -1,0 +1,17 @@
+% Twelve pack: combine packs of the given sizes to reach at least the target
+% number of items, as close to it as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Target = Data.get(target),
+    Packs = Data.get(packs),
+    N = len(Packs),
+    MaxVal = Target * 2,
+    Counts = new_list(N),
+    Counts :: 0..MaxVal,
+    Total :: 0..MaxVal * N,
+    Total #= sum([Counts[I] * Packs[I] : I in 1..N]),
+    Total #>= Target,
+    Vars = Counts,
+    Outputs = [counts = Counts],
+    Options = [$min(Total)].

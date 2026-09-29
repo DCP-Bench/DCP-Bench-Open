@@ -1,0 +1,22 @@
+% Devil's word: put a plus or minus sign in front of every number of a list so
+% that the signed numbers add up to the given total.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Arr = Data.get(arr),
+    Total = Data.get(total),
+    N = len(Arr),
+    % plus[i] = 1 when arr[i] is added, 0 when it is subtracted
+    Plus = new_list(N),
+    Plus :: 0..1,
+    % result[i] = arr[i] with its sign
+    Result = new_list(N),
+    foreach (I in 1..N)
+        Result[I] :: [-Arr[I], Arr[I]],
+        Result[I] #= Arr[I] * (2 * Plus[I] - 1)
+    end,
+    % the signed numbers add up to the total
+    sum(Result) #= Total,
+    Vars = Plus,
+    Outputs = [result = Result],
+    Options = [].

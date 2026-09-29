@@ -1,0 +1,20 @@
+% Capital budgeting: choose investments whose cash outflow fits the budget and
+% whose total net present value is as large as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Budget = Data.get(budget),
+    Npv = Data.get(npv),
+    CashFlow = Data.get(cash_flow),
+    N = len(Npv),
+    % x[i] = 1 when investment i is chosen
+    X = new_list(N),
+    X :: 0..1,
+    % the chosen investments fit the budget
+    sum([CashFlow[I] * X[I] : I in 1..N]) #=< Budget,
+    % z = the total net present value
+    Z :: 0..sum(Npv),
+    Z #= sum([Npv[I] * X[I] : I in 1..N]),
+    Vars = X,
+    Outputs = [x = X, z = Z],
+    Options = [$max(Z)].

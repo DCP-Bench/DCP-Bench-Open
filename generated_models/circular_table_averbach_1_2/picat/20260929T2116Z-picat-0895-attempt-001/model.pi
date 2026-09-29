@@ -1,0 +1,22 @@
+% Averbach's card-passing riddle: X, Y and Z, of three nationalities (American,
+% English, French), sit round a table, each passing cards to the person on
+% their right. Y passed to the American, and X passed to the person who passed
+% to the Frenchwoman. Seats are 0, 1, 2; seat s + 1 (mod 3) is to the right of s.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The riddle fixes everything; the instance carries no data.
+    Players = [X, Y, Z],
+    Nationalities = [American, English, French],
+    Players :: 0..2,
+    Nationalities :: 0..2,
+    % each player has a seat of their own, and so has each nationality
+    all_different(Players),
+    all_different(Nationalities),
+    % Y passed to the American: the American sits to the right of Y
+    American #= (Y + 1) mod 3,
+    % X passed to the person who passed to the Frenchwoman, so X sits to her right
+    X #= (French + 1) mod 3,
+    Vars = Players ++ Nationalities,
+    Outputs = [x = X, y = Y, z = Z, american = American, english = English, french = French],
+    Options = [].

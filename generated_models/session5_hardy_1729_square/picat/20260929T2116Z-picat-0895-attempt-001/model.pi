@@ -1,0 +1,11 @@
+% Four different numbers from 1 to 100 with a^2 + b^2 = c^2 + d^2.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    [A, B, C, D] :: 1..100,
+    all_different([A, B, C, D]),
+    A * A + B * B #= C * C + D * D,
+    Vars = [A, B, C, D],
+    Outputs = [a = A, b = B, c = C, d = D],
+    Options = [ff].

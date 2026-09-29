@@ -1,0 +1,15 @@
+% Bananas: five bananas cost $3, seven oranges $5, nine mangoes $7 and three
+% apples $9. Buy 100 fruits for $100, some of every kind, with as few bananas and
+% apples as possible.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    X = [Bananas, Oranges, Mangoes, Apples],
+    X :: 1..100,
+    % the cost, multiplied by 3 * 5 * 7 * 9 = 945 to clear the fractions
+    3 * Bananas * 189 + 5 * Oranges * 135 + 7 * Mangoes * 105 + 9 * Apples * 315 #= 100 * 945,
+    sum(X) #= 100,
+    Vars = X,
+    Outputs = [bananas = Bananas, oranges = Oranges, mangoes = Mangoes, apples = Apples],
+    Options = [$min(Bananas + Apples)].
