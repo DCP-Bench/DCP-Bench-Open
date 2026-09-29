@@ -1,0 +1,283 @@
+{
+  "attempt": {
+    "agent": "claude-sonnet-5-5 (Claude Code, model-generator campaign)",
+    "attempt_id": "attempt-001",
+    "created_at": 1790693273.510453,
+    "problem_id": "aircraft_landing",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "d628d501a023e1706da115b6fbe4195e95dec302376f13d52f49f12518795a19",
+    "run_id": "20260929T1400Z-z3-mzn-swipl-7a2e",
+    "schema": 2,
+    "skill_bundle_hash": "4e72d807c899e72b205a619164948d9c7c241f977f10fc0372073f606491eac0",
+    "skill_source": "solvers\\minizinc_gecode\\skills\\minizinc-gecode",
+    "skill_version": {
+      "commit": "3f7e121301e0ea4565e20d8ee0660e799686c194",
+      "modified": false,
+      "path": "solvers/minizinc_gecode/skills/minizinc-gecode"
+    },
+    "solver_id": "minizinc_gecode"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+      "tag": "dcp-eval/minizinc_gecode:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.008002899936400354,
+        "execution_wall_seconds": 4.27338259993121,
+        "first_solution": {
+          "landing_times": [
+            1,
+            3,
+            7
+          ],
+          "total_penalty": 50
+        },
+        "id": "example",
+        "instance_hash": "0533277377cd0bec25e0a9fda64ecaa031650a8a098865525441dedc4045ae63",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 50,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.8590826999861747,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.02115729998331517,
+        "execution_wall_seconds": 4.031270100036636,
+        "first_solution": {
+          "landing_times": [
+            98,
+            106,
+            118,
+            126,
+            134,
+            142,
+            150,
+            165,
+            180,
+            258
+          ],
+          "total_penalty": 700
+        },
+        "id": "json:1",
+        "instance_hash": "3583399054d9539e08fd828b58349277369bd996e5ed71f34d8e7e6c8b8d28d3",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 700,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 2.0864507999503985,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.06899149995297194,
+        "execution_wall_seconds": 4.775120900012553,
+        "first_solution": {
+          "landing_times": [
+            90,
+            98,
+            106,
+            114,
+            122,
+            130,
+            138,
+            151,
+            171,
+            181,
+            196,
+            250,
+            313,
+            339,
+            342
+          ],
+          "total_penalty": 1480
+        },
+        "id": "json:2",
+        "instance_hash": "9376fb5d8d4213600d8cb68263a27d829b9c21a2768b3ce61ee5fd228eecd585",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 1480,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 2.284336299984716,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x72cc0d8d4180>\nTraceback (most recent call last):\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 126, in __del__\n    self.close()\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 104, in close\n    proto.pipe.close()\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 568, in close\n    self._close(None)\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 592, in _close\n    self._loop.call_soon(self._call_connection_lost, exc)\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 799, in call_soon\n    self._check_closed()\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 545, in _check_closed\n    raise RuntimeError('Event loop is closed')\nRuntimeError: Event loop is closed\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.11900399997830391,
+        "execution_wall_seconds": 4.955472800065763,
+        "first_solution": {
+          "landing_times": [
+            82,
+            100,
+            108,
+            116,
+            124,
+            132,
+            140,
+            149,
+            160,
+            169,
+            184,
+            197,
+            229,
+            258,
+            261,
+            287,
+            316,
+            335,
+            338,
+            409
+          ],
+          "total_penalty": 820
+        },
+        "id": "json:3",
+        "instance_hash": "7ac82dccd48544bab5a1b7eeec7cc42fc032e829c2433293e324ccc39e5f5cdb",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 820,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 2.505153700010851,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x76ae9b480180>\nTraceback (most recent call last):\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 126, in __del__\n    self.close()\n  File \"/usr/local/lib/python3.12/asyncio/base_subprocess.py\", line 104, in close\n    proto.pipe.close()\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 568, in close\n    self._close(None)\n  File \"/usr/local/lib/python3.12/asyncio/unix_events.py\", line 592, in _close\n    self._loop.call_soon(self._call_connection_lost, exc)\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 799, in call_soon\n    self._check_closed()\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 545, in _check_closed\n    raise RuntimeError('Event loop is closed')\nRuntimeError: Event loop is closed\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.014442400075495243,
+        "execution_wall_seconds": 2.530418200069107,
+        "first_solution": {
+          "landing_times": [
+            11,
+            15,
+            19,
+            22,
+            26,
+            33
+          ],
+          "total_penalty": 21
+        },
+        "id": "json:4",
+        "instance_hash": "547c194f945f54edff8a945c26abb4179443461cf0f717cfde625504bc32f0ec",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 21,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 2.153489899937995,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "1f9fc5c4006bba778e81830812ffd0204c0a896951c9c534173eaae500cb8457",
+    "problem_id": "aircraft_landing",
+    "reason": "accepted",
+    "reference_hash": "132d764d185fc7616ee154307a99c5c1edeae9a97d595cf5527c1e4ede973f1d",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 7,
+    "solver_id": "minizinc_gecode",
+    "total_wall_seconds": 34.17303569999058,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-sonnet-5-5 (Claude Code, model-generator campaign)"
+  },
+  "is_optimization": true,
+  "model_file": "model.mzn",
+  "problem": "aircraft_landing",
+  "schema": 2,
+  "solver": "minizinc_gecode",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
