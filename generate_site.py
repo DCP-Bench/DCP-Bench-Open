@@ -9,12 +9,15 @@ Output: site/ (build output, not committed; the deploy workflow regenerates it).
 Requires only the Python standard library.
 """
 
+import functools
 import html
 import json
 import re
 import shutil
 import subprocess
 from pathlib import Path
+
+from evaluation.results import digest
 
 DATASET_JSONL = Path("dcp-bench-open.jsonl")
 WEB_SRC = Path("web")
@@ -300,12 +303,13 @@ def verdict_badge(metrics: dict) -> str:
     )
 
 
-def flag_badge(flags: list) -> str:
+def flag_badge(flags: list, problem: str = "") -> str:
     """Mark a model that a later instance disproved, with what disproved it."""
     if not flags:
         return ""
     failures = "; ".join(
-        f'{instance_label(item.get("instance"))[0]} ({item.get("reason")}, rechecked {item.get("recorded")})'
+        f'{instance_label(item.get("instance"), problem, item.get("instance_hash"))[0]} '
+        f'({item.get("reason")}, rechecked {item.get("recorded")})'
         for item in flags)
     return (
         ' <span class="badge" style="background:#9a3412" title="Accepted on the instances the '
@@ -325,24 +329,43 @@ def normalize_badge(metrics: dict) -> str:
 
 
 
-def instance_label(identifier) -> tuple:
+@functools.cache
+def row_positions(problem: str) -> dict:
+    """The problem's current JSON rows, by the hash the evaluator records for each."""
+    path = Path("dataset") / problem / f"{problem}.json"
+    try:
+        rows = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        return {}
+    return {digest(row): i for i, row in enumerate(rows)} if isinstance(rows, list) else {}
+
+
+def instance_label(identifier, problem: str = "", instance_hash: str | None = None) -> tuple:
     """Name an evaluator instance the way the Instances section above does.
 
     That section numbers the problem's JSON rows from 1 and calls the first one
     the example; the corpus guarantees row 0 is exactly the embedded example. The
-    evaluator instead identifies rows by their original index, so json:k is
-    Instance k+1, and rows that duplicate an earlier one are skipped entirely.
-    Returns the label plus the raw identifier, which is worth a tooltip rather
-    than space on the page: it only matters when replaying an evaluation.
+    evaluator identifies rows by their index at evaluation time, so json:k is
+    Instance k+1 unless rows were removed since; the recorded hash then finds the
+    row where it is now, or shows that it is gone. Rows that duplicate an earlier
+    one are skipped entirely. Returns the label plus the raw identifier, which is
+    worth a tooltip rather than space on the page: it only matters when replaying
+    an evaluation.
     """
     text = str(identifier)
     if identifier == "example":
         return "Example (Instance 1)", text
     if text.startswith("json:"):
         try:
-            return f"Instance {int(text.split(':', 1)[1]) + 1}", text
+            index = int(text.split(':', 1)[1])
         except ValueError:
-            pass
+            return text, ""
+        if instance_hash and problem:
+            now = row_positions(problem).get(instance_hash)
+            if now is None:
+                return f"Instance {index + 1} (since removed)", text
+            index = now
+        return f"Instance {index + 1}", text
     return text, ""
 
 
@@ -355,7 +378,7 @@ def evaluation_details(metrics: dict) -> str:
     requested, limits = record.get("requested") or {}, record.get("limits") or {}
     rows = []
     for item in instances:
-        label, raw = instance_label(item.get("id"))
+        label, raw = instance_label(item.get("id"), metrics.get("problem", ""), item.get("instance_hash"))
         received, distinct = item.get("solutions_received"), item.get("solutions_checked")
         status = (item.get("runner_status") or {}).get("status") or "did not run"
         if item.get("accepted"):
@@ -415,7 +438,7 @@ def generated_model_html(entry: dict) -> str:
     if chips:
         rows.append(f"<dt>Paradigm</dt><dd>{chips}</dd>")
     rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}"
-                f"{flag_badge(entry.get('flags'))}{evaluation_details(metrics)}</dd>")
+                f"{flag_badge(entry.get('flags'), metrics.get('problem', ''))}{evaluation_details(metrics)}</dd>")
 
     links = []
     if entry["model_file"]:
