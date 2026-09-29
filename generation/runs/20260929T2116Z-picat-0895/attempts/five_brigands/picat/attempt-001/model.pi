@@ -1,0 +1,16 @@
+% Five brigands: Alfonso, Benito, Carlos, Diego and Esteban share 200 doubloons,
+% each has at least one, and the total would still be 200 if Alfonso had twelve
+% times as much, Benito three times, Carlos the same, Diego half and Esteban a third.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    Shares = [A, B, C, D, E],
+    Shares :: 1..200,
+    % together they have 200 doubloons
+    A + B + C + D + E #= 200,
+    % 12A + 3B + C + D/2 + E/3 = 200, multiplied by 6 to stay in whole numbers
+    6 * (12 * A + 3 * B + C) + 3 * D + 2 * E #= 1200,
+    Vars = Shares,
+    Outputs = ['A' = A, 'B' = B, 'C' = C, 'D' = D, 'E' = E],
+    Options = [].

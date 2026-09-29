@@ -1,0 +1,24 @@
+% Hanging weights: thirteen weights A-M, each an integer from 1 to 13 and all
+% different, hang from a system of bars that has to balance.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    W = [A, B, C, D, E, F, G, H, I, J, K, L, M],
+    W :: 1..13,
+    all_different(W),
+    % Every bar balances: the weights on either side of the pivot, each times its
+    % distance from the pivot, are equal, and a bar hanging beneath another counts
+    % as one weight equal to its total.
+    4 * A #= B,
+    5 * C #= D,
+    3 * E #= 2 * F,
+    3 * G #= 2 * (C + D),
+    3 * (A + B) + 2 * J #= K + 2 * (G + C + D),
+    3 * H #= 2 * (E + F) + 3 * I,
+    H + I + E + F #= L + 4 * M,
+    4 * (L + M + H + I + E + F) #= 3 * (J + K + G + A + B + C + D),
+    Vars = W,
+    Outputs = [a = A, b = B, c = C, d = D, e = E, f = F, g = G, h = H, i = I,
+               j = J, k = K, l = L, m = M],
+    Options = [].

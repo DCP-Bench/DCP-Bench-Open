@@ -1,0 +1,30 @@
+% Initials queue: the ten people in a queue have as initials the ten different
+% alphabetically ordered pairs of distinct letters from A-E, no one shares a
+% letter with the person in front, BE is first, CD second and BD last.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    N = 10,
+    % queue[i, k] = the k-th letter of the i-th person, with A..E coded 0..4
+    Queue = new_array(N, 2),
+    Queue :: 0..4,
+    % the two letters of a person are in alphabetical order, so they differ
+    foreach (I in 1..N)
+        Queue[I, 1] #< Queue[I, 2]
+    end,
+    % nobody has the same initials as anybody else
+    foreach (I in 1..N-1, J in I+1..N)
+        Queue[I, 1] #!= Queue[J, 1] #\/ Queue[I, 2] #!= Queue[J, 2]
+    end,
+    % nobody shares a letter with the person in front
+    foreach (I in 1..N-1, K in 1..2, L in 1..2)
+        Queue[I, K] #!= Queue[I + 1, L]
+    end,
+    % BE is at the front, CD right behind, BD at the end (A = 0, B = 1, ...)
+    Queue[1, 1] #= 1, Queue[1, 2] #= 4,
+    Queue[2, 1] #= 2, Queue[2, 2] #= 3,
+    Queue[N, 1] #= 1, Queue[N, 2] #= 3,
+    Vars = Queue,
+    Outputs = [queue = Queue],
+    Options = [].

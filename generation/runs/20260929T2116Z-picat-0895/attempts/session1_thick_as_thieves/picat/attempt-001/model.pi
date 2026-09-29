@@ -1,0 +1,28 @@
+% Thick as thieves: six suspects, at most two of them guilty. The innocent tell
+% the truth and the guilty lie in what they said.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    % Each suspect is 1 when guilty.
+    Suspects = [Artie, Bill, Crackitt, Dodgy, Edgy, Fingers],
+    Suspects :: 0..1,
+    % the getaway car held two, so at most two are guilty
+    sum(Suspects) #=< 2,
+    % A suspect is guilty exactly when what he said is false.
+    % Artie: "It wasn't me."
+    Artie #<=> #~ (#~ Artie),
+    % Bill: "Crackitt was in it up to his neck."
+    Bill #<=> #~ Crackitt,
+    % Crackitt: "No I wasn't."
+    Crackitt #<=> #~ (#~ Crackitt),
+    % Dodgy: "If Crackitt did it, Bill did it with him."
+    Dodgy #<=> #~ (Crackitt #=> Bill),
+    % Edgy: "Nobody did it alone."
+    Edgy #<=> #~ (sum(Suspects) #> 1),
+    % Fingers: "That's right: it was Artie and Dodgy together."
+    Fingers #<=> #~ (Artie #/\ Dodgy),
+    Vars = Suspects,
+    Outputs = [artie = Artie, bill = Bill, crackitt = Crackitt, dodgy = Dodgy,
+               edgy = Edgy, fingers = Fingers],
+    Options = [].

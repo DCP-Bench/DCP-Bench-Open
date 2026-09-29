@@ -1,0 +1,19 @@
+% Bowls and oranges: put oranges in bowls placed in a line, at most one per bowl,
+% so that no three oranges are at equal distances (B - A = C - B).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Bowls = Data.get(n),
+    Oranges = Data.get(m),
+    % x[i] = the bowl, 1..n, of the i-th orange, in ascending order
+    X = new_list(Oranges),
+    X :: 1..Bowls,
+    all_different(X),
+    increasing(X),
+    % no three oranges A < B < C with B - A = C - B
+    foreach (I in 1..Oranges-2, J in I+1..Oranges-1, K in J+1..Oranges)
+        2 * X[J] #!= X[I] + X[K]
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [].

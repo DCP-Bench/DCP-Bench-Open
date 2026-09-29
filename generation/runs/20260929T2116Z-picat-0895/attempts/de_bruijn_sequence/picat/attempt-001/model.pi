@@ -1,0 +1,33 @@
+% De Bruijn sequence B(base, n): a cyclic sequence of base^n symbols from
+% 0..base-1 in which every string of length n occurs exactly once. Each
+% position starts one string; row i of `binary` is the string starting at
+% position i, written in base `base`, and x[i] is its value.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    Base = Data.get(base),
+    N = Data.get(n),
+    M = Base ** N,
+    Place = [Base ** (N - J) : J in 1..N],   % place value of each digit
+    X = new_list(M),
+    X :: 0..M-1,
+    Binary = new_array(M, N),
+    Binary :: 0..Base-1,
+    % every string occurs once: the values of the M strings are all different
+    all_different(X),
+    foreach (I in 1..M)
+        X[I] #= sum([Binary[I, J] * Place[J] : J in 1..N])
+    end,
+    % the string at position i + 1 is the string at i shifted by one symbol ...
+    foreach (I in 2..M, J in 2..N)
+        Binary[I - 1, J] #= Binary[I, J - 1]
+    end,
+    % ... and the sequence wraps around
+    foreach (J in 2..N)
+        Binary[M, J] #= Binary[1, J - 1]
+    end,
+    % the sequence is the first symbol of every string
+    DeBruijn = [Binary[I, 1] : I in 1..M],
+    Vars = Binary,
+    Outputs = [de_bruijn = DeBruijn],
+    Options = [].

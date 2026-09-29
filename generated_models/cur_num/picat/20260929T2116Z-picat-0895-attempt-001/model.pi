@@ -1,0 +1,21 @@
+% Curious number: 48 has the peculiarity that adding 1 to it gives a square, and
+% adding 1 to its half gives a square too. Find another number from 1 to 10000
+% with the same peculiarity.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    Peculiar :: 1..10000,
+    Half :: 1..10000,
+    % the square roots, at most 100 since the squares are at most 10001
+    [RootOfNumber, RootOfHalf] :: 1..101,
+    % 48 is already known
+    Peculiar #!= 48,
+    % if you add 1 to it the result is a square number
+    Peculiar + 1 #= RootOfNumber * RootOfNumber,
+    % if you add 1 to its half you also get a square number
+    Peculiar #= 2 * Half,
+    Half + 1 #= RootOfHalf * RootOfHalf,
+    Vars = [Peculiar, Half, RootOfNumber, RootOfHalf],
+    Outputs = [peculiar = Peculiar],
+    Options = [].

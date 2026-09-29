@@ -1,0 +1,29 @@
+% Futoshiki: fill an n x n grid with 1..n so that every row and every column
+% holds each number once, the given numbers stay, and each listed pair of cells
+% satisfies its "less than" sign.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Values = Data.get(values),   % given numbers, 0 where a cell is empty
+    Lt = Data.get(lt),           % [i1, j1, i2, j2]: cell (i1, j1) < cell (i2, j2), 1-based
+    N = len(Values),
+    Grid = new_array(N, N),
+    Grid :: 1..N,
+    % the given numbers stay
+    foreach (I in 1..N, J in 1..N)
+        if Values[I, J] > 0 then
+            Grid[I, J] #= Values[I, J]
+        end
+    end,
+    % each row and each column holds different numbers
+    foreach (I in 1..N)
+        all_distinct([Grid[I, J] : J in 1..N]),
+        all_distinct([Grid[J, I] : J in 1..N])
+    end,
+    % every inequality sign holds
+    foreach (Sign in Lt)
+        Grid[Sign[1], Sign[2]] #< Grid[Sign[3], Sign[4]]
+    end,
+    Vars = Grid,
+    Outputs = [grid = Grid],
+    Options = [ff].

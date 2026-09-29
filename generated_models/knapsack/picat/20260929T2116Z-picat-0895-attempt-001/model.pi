@@ -1,0 +1,18 @@
+% 0/1 knapsack: choose items whose total weight fits the capacity and whose
+% total value is as large as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Values = Data.get(values),
+    Weights = Data.get(weights),
+    Capacity = Data.get(capacity),
+    N = len(Values),
+    % x[i] = 1 when item i is taken
+    X = new_list(N),
+    X :: 0..1,
+    % the taken items fit into the knapsack
+    sum([Weights[I] * X[I] : I in 1..N]) #=< Capacity,
+    Vars = X,
+    Outputs = [x = X],
+    % the value of the taken items is maximal
+    Options = [$max(sum([Values[I] * X[I] : I in 1..N]))].

@@ -1,0 +1,36 @@
+% Crypta: a cryptarithmetic addition of two 20-digit numbers. Each letter is a
+% different digit from 0 to 9, and no number starts with a zero.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    First = "BAIJJAJIIAHFCFEBBJEA",
+    Second = "DHFGABCDIDBIFFAGFEJE",
+    Total = "GJEGACDDHFAFJBFIHEEF",
+    Letters = "ABCDEFGHIJ",
+    Index = new_map([Letters[I] = I : I in 1..len(Letters)]),
+    D = new_list(len(Letters)),
+    D :: 0..9,
+    % every letter stands for a different digit
+    all_different(D),
+    % no number starts with a zero
+    foreach (Word in [First, Second, Total])
+        D[Index.get(Word[1])] #> 0
+    end,
+    % The addition column by column, units first; carry[k] comes into column k.
+    Width = len(Total),
+    Carry = new_list(Width + 1),
+    Carry :: 0..1,
+    Carry[1] #= 0,
+    Carry[Width + 1] #= 0,
+    foreach (K in 1..Width)
+        P = Width - K + 1,
+        X = D[Index.get(First[P])],
+        Y = D[Index.get(Second[P])],
+        Z = D[Index.get(Total[P])],
+        X + Y + Carry[K] #= Z + 10 * Carry[K + 1]
+    end,
+    Vars = D ++ Carry,
+    % one output per letter, named by the letter itself
+    Outputs = [Letters[I] = D[I] : I in 1..len(Letters)],
+    Options = [ff].

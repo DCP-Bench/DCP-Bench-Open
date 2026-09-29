@@ -1,0 +1,19 @@
+% Traffic lights: four vehicle lights V1..V4 and four pedestrian lights P1..P4 at
+% a junction. Each (V_i, P_i, V_i+1, P_i+1), going round the junction, must be one
+% of the allowed combinations.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    % the allowed combinations as tuples, which table_in/2 expects
+    Allowed = [to_array(T) : T in Data.get(allowed_tuples)],
+    V = new_list(4),
+    V :: 0..3,    % vehicle lights: 0 red, 1 red-yellow, 2 green, 3 yellow
+    P = new_list(4),
+    P :: 0..1,    % pedestrian lights: 0 red, 1 green
+    foreach (I in 1..4)
+        Next = I mod 4 + 1,
+        table_in({V[I], P[I], V[Next], P[Next]}, Allowed)
+    end,
+    Vars = V ++ P,
+    Outputs = [lights = V ++ P],
+    Options = [].

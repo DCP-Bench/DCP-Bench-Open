@@ -1,0 +1,27 @@
+% Five floors: Baker, Cooper, Fletcher, Miller and Smith live on different
+% floors of a five-floor house; the clues rule out some floors and neighbours.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    % Each person is the floor, 1 to 5, where they live.
+    Floors = [Baker, Cooper, Fletcher, Miller, Smith],
+    Floors :: 1..5,
+    % they all live on different floors
+    all_different(Floors),
+    % Baker does not live on the fifth floor
+    Baker #!= 5,
+    % Cooper does not live on the first floor
+    Cooper #!= 1,
+    % Fletcher lives neither on the fifth nor on the first floor
+    Fletcher #!= 5,
+    Fletcher #!= 1,
+    % Miller lives on a higher floor than Cooper
+    Miller #> Cooper,
+    % Smith does not live on a floor adjacent to Fletcher's
+    abs(Smith - Fletcher) #!= 1,
+    % Fletcher does not live on a floor adjacent to Cooper's
+    abs(Fletcher - Cooper) #!= 1,
+    Vars = Floors,
+    Outputs = ['B' = Baker, 'C' = Cooper, 'F' = Fletcher, 'M' = Miller, 'S' = Smith],
+    Options = [].

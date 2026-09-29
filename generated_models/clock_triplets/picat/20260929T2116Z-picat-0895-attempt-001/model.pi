@@ -1,0 +1,18 @@
+% Clock triplets: arrange the numbers 1 to 12 on a clock face so that no three
+% neighbouring numbers add up to more than 21.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    N = 12,
+    X = new_list(N),
+    X :: 1..N,
+    % every number appears once
+    all_distinct(X),
+    % no three neighbouring positions, going round the clock, add up to more than 21
+    foreach (I in 1..N)
+        X[I] + X[(I mod N) + 1] + X[((I + 1) mod N) + 1] #=< 21
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [ff].

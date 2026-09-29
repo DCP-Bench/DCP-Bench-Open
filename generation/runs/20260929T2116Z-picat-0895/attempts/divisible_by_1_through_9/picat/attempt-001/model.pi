@@ -1,0 +1,27 @@
+% Divisible by 1 through 9: find a 10-digit number that uses each digit 0-9 once
+% and whose first n digits form a number divisible by n, for n = 1 to 10.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    N = 10,
+    X = new_list(N),
+    X :: 0..9,
+    % every digit once
+    all_distinct(X),
+    % t[i] = the number formed by the first i digits: 10 * t[i - 1] + x[i]
+    T = new_list(N),
+    foreach (I in 1..N)
+        T[I] :: 0..10 ** I - 1
+    end,
+    T[1] #= X[1],
+    foreach (I in 2..N)
+        T[I] #= 10 * T[I - 1] + X[I]
+    end,
+    % the first i digits form a number divisible by i
+    foreach (I in 1..N)
+        T[I] mod I #= 0
+    end,
+    Vars = X,
+    Outputs = [number = T[N]],
+    Options = [ff].

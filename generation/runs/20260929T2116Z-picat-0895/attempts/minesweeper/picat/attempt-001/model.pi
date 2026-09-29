@@ -1,0 +1,25 @@
+% Minesweeper: decide which unopened cells hold mines. An opened cell holds no
+% mine, and its number counts the mines among its (up to eight) neighbours.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    Unopened = Data.get('X'),     % the value marking an unopened cell
+    Game = Data.get(game_data),
+    R = len(Game),
+    C = len(Game[1]),
+    % mines[i, j] = 1 when cell (i, j) holds a mine
+    Mines = new_array(R, C),
+    Mines :: 0..1,
+    foreach (I in 1..R, J in 1..C)
+        Value = Game[I, J],
+        if Value != Unopened then
+            % an opened cell holds no mine ...
+            Mines[I, J] #= 0,
+            % ... and its number is the count of mines around it
+            sum([Mines[I + A, J + B] : A in -1..1, B in -1..1, abs(A) + abs(B) > 0,
+                 I + A >= 1, I + A =< R, J + B >= 1, J + B =< C]) #= Value
+        end
+    end,
+    Vars = Mines,
+    Outputs = [mines = Mines],
+    Options = [].

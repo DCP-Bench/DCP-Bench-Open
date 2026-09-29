@@ -1,0 +1,24 @@
+% N-queens: place n queens on an n x n board, one in each row, so that no two
+% share a column or a diagonal. queens[i] is the column, 1..n, of the queen in row i.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Queens = new_list(N),
+    Queens :: 1..N,
+    % no two queens in the same column
+    all_distinct(Queens),
+    % no two queens on the same diagonal: the values queens[i] - i are all
+    % different, and so are queens[i] + i. They are named first, because a
+    % global constraint would compute an expression it is given directly.
+    Down = new_list(N),
+    Up = new_list(N),
+    foreach (I in 1..N)
+        Down[I] #= Queens[I] - I,
+        Up[I] #= Queens[I] + I
+    end,
+    all_distinct(Down),
+    all_distinct(Up),
+    Vars = Queens,
+    Outputs = [queens = Queens],
+    Options = [ff].

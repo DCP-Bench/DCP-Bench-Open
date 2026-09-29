@@ -1,0 +1,29 @@
+% Kakuro: put a digit 1..9 in each white cell so that every entry (a run of
+% cells across or down) adds up to its clue with no digit repeated in it.
+% Blank cells hold 0.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Entries = Data.get(problem),   % [clue, [row, col], [row, col], ...], 1-based
+    Blanks = Data.get(blanks),     % [row, col] of the blank cells
+    X = new_array(N, N),
+    X :: 0..9,
+    % blank cells are 0
+    foreach (Cell in Blanks)
+        X[Cell[1], Cell[2]] #= 0
+    end,
+    foreach (Entry in Entries)
+        Clue = Entry[1],
+        Run = [X[Entry[K, 1], Entry[K, 2]] : K in 2..len(Entry)],
+        % the cells of an entry hold digits 1..9 ...
+        foreach (V in Run)
+            V #>= 1
+        end,
+        % ... that add up to the clue and are all different
+        sum(Run) #= Clue,
+        all_distinct(Run)
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [ff].

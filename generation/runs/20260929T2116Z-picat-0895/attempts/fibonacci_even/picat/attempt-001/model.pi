@@ -1,0 +1,29 @@
+% Fibonacci even: add up the even-valued terms of the Fibonacci sequence that
+% do not exceed four million.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    N = 35,        % terms f_1 .. f_35 are considered; the last is below 10 million
+    % f[i + 1] = the i-th Fibonacci number: f_0 = 0, f_1 = f_2 = 1, then the sum of
+    % the previous two
+    F = new_list(N + 1),
+    F :: 0..10000000,
+    F[1] #= 0,
+    F[2] #= 1,
+    F[3] #= 1,
+    foreach (I in 4..N+1)
+        F[I] #= F[I - 1] + F[I - 2]
+    end,
+    % taken[i] = 1 exactly when f_i is even and below four million
+    Taken = new_list(N + 1),
+    Taken :: 0..1,
+    Taken[1] #= 0,
+    foreach (I in 2..N+1)
+        Taken[I] #<=> (F[I] mod 2 #= 0 #/\ F[I] #< 4000000)
+    end,
+    Res :: 0..100000000,
+    Res #= sum([Taken[I] * F[I] : I in 2..N+1]),
+    Vars = F ++ Taken,
+    Outputs = [res = Res],
+    Options = [].

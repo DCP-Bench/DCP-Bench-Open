@@ -1,0 +1,19 @@
+% Guards and apples: a boy passes several gates. At each gate he gives the guard
+% half of his apples plus one, and after the last gate one apple is left for the girl.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NumGates = Data.get(num_gates),
+    % apples[i] = the apples before gate i; the last entry is what is left after
+    % the last gate. Between 0 and 100 apples.
+    Apples = new_list(NumGates + 1),
+    Apples :: 0..100,
+    % after the last gate the boy keeps the one apple for the girl
+    Apples[NumGates + 1] #= 1,
+    % at each gate the guard gets half plus one, so before = 2 * (after + 1)
+    foreach (I in 1..NumGates)
+        Apples[I] #= 2 * (Apples[I + 1] + 1)
+    end,
+    Vars = Apples,
+    Outputs = [apples = Apples],
+    Options = [].

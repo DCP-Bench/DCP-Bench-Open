@@ -1,0 +1,20 @@
+% Just forgotten: Joe's account number uses each digit 0 to n-1 once. In each of
+% several tried sequences exactly a given number of digits are in their right place.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Sets = Data.get(sets),                      % the digit sequences Joe tried
+    NumCorrect = Data.get(num_correct_digits),  % digits in the right place in each
+    N = len(Sets[1]),
+    % x[i] = the digit at position i of the account number
+    X = new_list(N),
+    X :: 0..N-1,
+    % each digit is used once
+    all_distinct(X),
+    % every tried sequence has exactly num_correct digits where the number has them
+    foreach (Tried in Sets)
+        sum([X[I] #= Tried[I] : I in 1..N]) #= NumCorrect
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [ff].

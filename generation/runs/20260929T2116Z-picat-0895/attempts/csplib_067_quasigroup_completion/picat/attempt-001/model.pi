@@ -1,0 +1,23 @@
+% Quasigroup completion: complete a partly filled N x N Latin square, so that
+% each of 1..N occurs exactly once in every row and every column.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get('N'),
+    Start = Data.get(start),     % given entries, 0 where a cell is empty
+    Puzzle = new_array(N, N),
+    Puzzle :: 1..N,
+    % the given entries stay
+    foreach (I in 1..N, J in 1..N)
+        if Start[I, J] != 0 then
+            Puzzle[I, J] #= Start[I, J]
+        end
+    end,
+    % every row and every column holds each value once
+    foreach (I in 1..N)
+        all_distinct([Puzzle[I, J] : J in 1..N]),
+        all_distinct([Puzzle[J, I] : J in 1..N])
+    end,
+    Vars = Puzzle,
+    Outputs = [puzzle = Puzzle],
+    Options = [ff].
