@@ -120,8 +120,9 @@ Every row below was run in this image, with `cp` and with `sat`.
 | scheduling | `cumulative(Starts, Durations, Resources, Limit)`, `serialized(Starts, Durations)`, `diffn(Rects)` |
 | conditional value | `V #= cond(C, Then, Else)` |
 
-`sum`, `min`, `max` and `prod` take a list, which a list comprehension builds:
-`sum([Weights[I] * X[I] : I in 1..N])`, with filters after the iterators:
+`sum`, `max` and `prod` take a list, which a list comprehension written inside
+the constraint builds: `sum([Weights[I] * X[I] : I in 1..N]) #=< Capacity`
+(see trap 1 for why it has to be inside), with filters after the iterators:
 `sum([E : Row in M, E in Row, E > 2])`. `util` adds `transpose/1` for lists of
 lists.
 
@@ -136,6 +137,14 @@ where most failed submissions go wrong. These were each reproduced:
    argument of a global constraint — `X + Y` is evaluated at once and fails with
    `instantiation_error` while `X` is still a variable. Give the value a name
    with a constraint: `S #= X + Y`, then use `S`.
+   List comprehensions follow the same line. Written directly inside a
+   constraint or an objective, `sum([W[I] * X[I] : I in 1..N]) #= S` and
+   `$max(sum([W[I] * X[I] : I in 1..N]))` keep their arithmetic. Bound to a
+   variable first (`L = [W[I] * X[I] : I in 1..N]`) or passed to a global
+   constraint (`all_different([Q[I] - I : I in 1..N])`), every element is
+   computed at once and fails. For a global constraint over expressions, name
+   them first:
+   `D = new_list(N), foreach (I in 1..N) D[I] #= Q[I] - I end, all_different(D)`.
 2. **A term that shares a name with a function needs `$`.** `$min(Cost)`,
    `$max(Profit)`, and the key-count pairs of `global_cardinality`,
    `[$(1-C1), $(2-C2)]`, are written with `$`, or Picat calls `min/1` or

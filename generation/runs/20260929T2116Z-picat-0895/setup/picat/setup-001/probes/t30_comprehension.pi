@@ -1,0 +1,10 @@
+% instance: {"w": [3, 5, 2]}
+% limit: 50
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    W = Data.get(w),
+    N = len(W),
+    X = new_list(N), X :: 0..1,
+    sum([W[I] * X[I] : I in 1..N]) #= 5,
+    all_different([X[I] - I : I in 1..N]),
+    Vars = X, Outputs = [x = X], Options = [].

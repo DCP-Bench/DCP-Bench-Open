@@ -30,7 +30,10 @@ enumeration where the count was not obvious:
   `subcircuit/1`, `cumulative/4`, `serialized/2`, `diffn/1`, `cond/3`, and
   `util`'s `transpose/1`.
 - Traps: `X + Y` in an output value, and `[X2 + 5, Y2 + 7]` as a global
-  constraint's argument, raise `instantiation_error`; `L[I]` with `I` a domain
+  constraint's argument, raise `instantiation_error`; so does
+  `[W[I] * X[I] : I in 1..N]` bound to a variable or given to
+  `all_different/1`, while the same comprehension inside `sum(...) #= 5` or
+  inside `$max(sum(...))` is kept as a term and solves; `L[I]` with `I` a domain
   variable raises `type_error(integer, ...)`; `X = X + 1` makes the model fail;
   a variable introduced inside a `foreach` body takes a different value in each
   iteration; a global constraint under `#\/` raises `invalid_constraint_exp`;

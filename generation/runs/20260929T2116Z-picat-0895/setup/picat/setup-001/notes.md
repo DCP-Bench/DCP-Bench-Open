@@ -43,7 +43,7 @@ modules take the same constraint models. A submission imports one of them.
 
 ## Evidence
 
-- `probes/` holds 29 small submissions and `run_probes.py`, which runs each
+- `probes/` holds 33 small submissions and `run_probes.py`, which runs each
   through the image with `import cp.` and again with `import sat.`;
   `probes.log` is their output. They back every constraint row and trap in the
   skill; the counts that were not obvious (`t22_more`, `t26_diffn_sub`) were
