@@ -1,0 +1,11 @@
+% instance: {"n": 3}
+% limit: 100
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    X = new_list(N), X :: 1..3,
+    increasing(X),
+    all_different(X),
+    Y = new_list(N), Y :: 1..2,
+    lex_le(Y, X),
+    Vars = X ++ Y, Outputs = [x = X, y = Y], Options = [].

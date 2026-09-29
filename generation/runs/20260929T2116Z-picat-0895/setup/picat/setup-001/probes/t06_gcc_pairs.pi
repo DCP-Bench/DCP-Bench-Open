@@ -1,0 +1,10 @@
+% instance: {"n": 3}
+% limit: 30
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    X = new_list(N), X :: 1..2,
+    C1 :: 0..N, C2 :: 0..N,
+    global_cardinality(X, [$(1-C1), $(2-C2)]),
+    C1 #= 1,
+    Vars = X, Outputs = [x = X, c2 = C2], Options = [].

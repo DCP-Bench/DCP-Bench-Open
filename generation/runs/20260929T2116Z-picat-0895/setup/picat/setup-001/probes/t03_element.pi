@@ -1,0 +1,9 @@
+% instance: {"vals": [10, 20, 30]}
+% limit: 10
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    L = Data.get(vals),
+    I :: 1..len(L),
+    element(I, L, V),
+    V #>= 20,
+    Vars = [I], Outputs = [i = I, v = V], Options = [].

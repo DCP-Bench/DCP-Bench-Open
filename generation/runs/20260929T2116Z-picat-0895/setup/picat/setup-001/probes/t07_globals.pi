@@ -1,0 +1,8 @@
+% instance: {"n": 4}
+% limit: 100
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    X = new_list(N), X :: 1..N,
+    circuit(X),
+    Vars = X, Outputs = [x = X], Options = [].

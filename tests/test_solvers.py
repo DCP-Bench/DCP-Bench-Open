@@ -16,7 +16,7 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
           "pysat": "model_pysat.py", "hermax": "model_hermax.py",
           "exact": "model_exact.py", "gurobipy_python": "model_gurobipy.py",
-          "docplex_cplex": "model_docplex.py"}
+          "docplex_cplex": "model_docplex.py", "picat": "model_picat.pi"}
 
 # Integrations whose metadata says they cannot optimize. The pilot cases that
 # need an objective are not run for these, and they carry no MAXIMIZATION_SWAPS
@@ -41,7 +41,8 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "hermax": ("m.obj += (x + y)", "m.obj += ((2 * n) - (x + y))"),
                       "exact": ("minimize", "maximize"),
                       "gurobipy_python": ("MINIMIZE", "MAXIMIZE"),
-                      "docplex_cplex": ("minimize", "maximize")}
+                      "docplex_cplex": ("minimize", "maximize"),
+                      "picat": ("$min(", "$max(")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.

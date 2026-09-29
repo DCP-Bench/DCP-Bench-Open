@@ -1,0 +1,10 @@
+% instance: {"n": 3}
+% limit: 100
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    X = new_list(N), X :: 1..2,
+    % no two consecutive 2s: states 1 (last was 1 or start) and 2 (last was 2)
+    regular(X, 2, 2, {{1, 2}, {1, 0}}, 1, [1, 2]),
+    table_in({X[1], X[2]}, [{1, 1}, {1, 2}, {2, 1}]),
+    Vars = X, Outputs = [x = X], Options = [].
