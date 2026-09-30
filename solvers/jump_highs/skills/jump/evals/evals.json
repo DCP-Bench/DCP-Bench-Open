@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "skill_name": "jump",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write a jump_highs submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The submission defines build(instance), creates Model() without an optimizer, and never calls optimize!, value or println.",
+        "Every instance-dependent quantity is read from the instance Dict, and the evaluator accepts all listed instances.",
+        "Every output variable is Int or Bin with finite bounds, so enumeration is not reported unsupported."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "optimization-contract",
+      "prompt": "Using this skill, write a jump_highs submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        "The objective is set once with @objective and Min or Max over a linear expression, with no bound on it and no constant taken from a known answer.",
+        "The evaluator reports accepted rather than suboptimal_solution."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "linearised-logic",
+      "prompt": "Using this skill, write a jump_highs submission for a problem with a product or a disjunction of decision variables, such as csplib_028_bibd or a scheduling problem, and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "No product of two variables appears in a constraint or the objective; each is linearised or expressed with an indicator constraint.",
+        "Every big-M constant is derived from the variables' bounds in the instance rather than chosen as an arbitrary large number."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "matrix-outputs",
+      "prompt": "Using this skill, write a jump_highs submission for a problem whose declared output is a matrix, such as sudoku, and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The declared output is a Matrix or a vector of rows whose shape matches the reference, and the evaluator does not report invalid_output."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    }
+  ]
+}
