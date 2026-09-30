@@ -41,10 +41,3 @@ enumeration where the count was not obvious:
   `free_var_not_allowed` under sat.
 - Objectives: `$min(...)` and `$max(...)` over a variable and over an
   expression, under both modules, reach the optimum the reference reports.
-- The `sat` defect: two variables over 0..3 under `all_different/1`, each
-  equal to `2 * A + B` over its own two 0/1 variables, give 192 solutions under
-  `sat` against the correct 12 under `cp`, whether `all_different/1` is posted
-  before or after the equalities; pairwise `#!=` gives 12 under both.
-  `tests/picat_skill_regression.py` in the repository reproduces it through the
-  evaluator, where the `all_different/1` version is rejected as
-  `invalid_solution` and the pairwise one is accepted.

@@ -172,15 +172,6 @@ where most failed submissions go wrong. These were each reproduced:
    `#<=>` and the rest take constraints built from `#=`, `#<` and the like.
    A global constraint inside one (`increasing_strict(Xs) #\/ B #= 1`) raises
    `invalid_constraint_exp`; state the condition with arithmetic instead.
-10. **Under `sat`, write all-different out pairwise when its variables are
-    sums of 0/1 variables.** Picat 3.9#12's `sat` returned assignments that
-    break `Z #= 2 * A + B`, with `A` and `B` over `0..1`, when the `Z` were also
-    under `all_different/1` or `all_distinct/1`, and the evaluator rejects such
-    an answer as `invalid_solution`. The same model under `cp`, or under `sat`
-    with the pairs written out,
-    `foreach (I in 1..N-1, J in I+1..N) Z[I] #!= Z[J] end`, is correct. Other
-    `sat` models with `all_different/1` over integer variables returned valid
-    solutions; the pairwise form is the safe one when in doubt.
 
 ## Choosing `cp` or `sat`
 
