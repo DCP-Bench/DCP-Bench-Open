@@ -1,0 +1,15 @@
+% Map colouring: colour the countries 1, 2, ... so that neighbours differ, with
+% as few colours as possible (the largest colour used is as small as possible).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Graph = Data.get(graph),     % pairs of neighbouring countries, 1-based
+    N = max(flatten(Graph)),     % number of countries
+    Colors = new_list(N),
+    Colors :: 1..N,
+    foreach (Edge in Graph)
+        Colors[Edge[1]] #!= Colors[Edge[2]]
+    end,
+    Vars = Colors,
+    Outputs = [colors = Colors],
+    Options = [$min(max(Colors))].

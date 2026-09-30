@@ -1,0 +1,35 @@
+% Flow shop: every job goes through the machines in the same order. Choose the
+% order of the jobs so that all of them are finished as early as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Time = Data.get(process_time),   % time[j][m] = time of job j on machine m
+    NJ = len(Data.get(jobs)),
+    NM = len(Data.get(machines)),
+    Horizon = sum([sum(Row) : Row in Time]),
+    % sequence[k] = the job processed k-th
+    Sequence = new_list(NJ),
+    Sequence :: 1..NJ,
+    all_distinct(Sequence),
+    % start and end of the k-th job on machine m
+    Start = new_array(NJ, NM),
+    Start :: 0..Horizon,
+    End = new_array(NJ, NM),
+    End :: 0..Horizon,
+    foreach (K in 1..NJ, M in 1..NM)
+        % the time of the k-th job on machine m depends on which job it is
+        element(Sequence[K], [Time[J, M] : J in 1..NJ], Duration),
+        End[K, M] #= Start[K, M] + Duration,
+        % a job moves to the next machine only when it is done on this one
+        if M > 1 then
+            Start[K, M] #>= End[K, M - 1]
+        end,
+        % a machine takes the next job only when the previous one is done
+        if K > 1 then
+            Start[K, M] #>= End[K - 1, M]
+        end
+    end,
+    Makespan #= End[NJ, NM],
+    Vars = Sequence ++ vars(Start),
+    Outputs = [makespan = Makespan],
+    Options = [$min(Makespan)].

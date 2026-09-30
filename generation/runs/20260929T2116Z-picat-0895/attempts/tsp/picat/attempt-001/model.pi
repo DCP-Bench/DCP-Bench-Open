@@ -1,0 +1,21 @@
+% Travelling salesman: the shortest round trip through all the cities, with the
+% distance between two cities their Euclidean distance rounded to an integer.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Locations = Data.get(locations),
+    N = len(Locations),
+    Dist = [[round(sqrt((P[1] - Q[1]) ** 2 + (P[2] - Q[2]) ** 2)) : Q in Locations] : P in Locations],
+    % next[i] = the city visited after city i; the successors form one circuit
+    Next = new_list(N),
+    Next :: 1..N,
+    circuit(Next),
+    % leg[i] = the distance from city i to its successor
+    Leg = new_list(N),
+    foreach (I in 1..N)
+        element(Next[I], Dist[I], Leg[I])
+    end,
+    TravelDistance #= sum(Leg),
+    Vars = Next,
+    Outputs = [travel_distance = TravelDistance],
+    Options = [ff, $min(TravelDistance)].

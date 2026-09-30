@@ -1,0 +1,31 @@
+% Handshaking: Hilary and Jocelyn host some couples. Nobody shakes hands with
+% themselves or their spouse, and everybody except Hilary shook a different
+% number of hands. How many hands did Hilary shake?
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Couples = Data.get(num_couples),
+    N = 2 + 2 * Couples,       % Hilary is person 1 and Jocelyn person 2; spouses are 2k-1, 2k
+    % y[i, j] = 1 when i and j shook hands
+    Y = new_array(N, N),
+    Y :: 0..1,
+    % x[i] = the hands person i shook
+    X = new_list(N),
+    X :: 0..N-2,
+    foreach (I in 1..N)
+        Y[I, I] #= 0,
+        X[I] #= sum([Y[I, J] : J in 1..N])
+    end,
+    % nobody shakes hands with their spouse
+    foreach (K in 1..N div 2)
+        Y[2 * K - 1, 2 * K] #= 0
+    end,
+    % a handshake is mutual
+    foreach (I in 1..N, J in I+1..N)
+        Y[I, J] #= Y[J, I]
+    end,
+    % all answers except Hilary's differ
+    all_different([X[I] : I in 2..N]),
+    Vars = X ++ vars(Y),
+    Outputs = [hil = X[1]],
+    Options = [ff].

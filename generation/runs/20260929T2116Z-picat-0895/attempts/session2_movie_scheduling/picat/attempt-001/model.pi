@@ -1,0 +1,17 @@
+% Movie scheduling: accept as many movie offers as possible, where two accepted
+% movies never have overlapping filming periods (first to last day, inclusive).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Movies = Data.get(movies),    % [title, first day, last day]
+    N = len(Movies),
+    Selected = new_list(N),
+    Selected :: 0..1,
+    foreach (I in 1..N-1, J in I+1..N)
+        if (Movies[I, 3] >= Movies[J, 2], Movies[J, 3] >= Movies[I, 2]) then
+            Selected[I] + Selected[J] #=< 1
+        end
+    end,
+    Vars = Selected,
+    Outputs = [selected_movies = Selected],
+    Options = [$max(sum(Selected))].

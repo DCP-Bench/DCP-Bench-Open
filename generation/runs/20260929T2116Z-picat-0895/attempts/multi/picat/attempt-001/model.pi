@@ -1,0 +1,30 @@
+% Multi-commodity transportation: ship every product from the origins to the
+% destinations, within the supplies and the per-route limits and meeting the
+% demands, at the least total cost.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Supply = Data.get(supply),     % supply[i][p]
+    Demand = Data.get(demand),     % demand[j][p]
+    Limit = Data.get(limit),       % limit[i][j], over all products
+    Cost = Data.get(cost),         % cost[i][j][p] per unit
+    NO = len(Supply),
+    ND = len(Demand),
+    NPr = len(Supply[1]),
+    MaxSupply = max([max(Row) : Row in Supply]),
+    % x[i, j, p] = units of product p shipped from origin i to destination j
+    X = new_array(NO, ND, NPr),
+    X :: 0..MaxSupply,
+    foreach (I in 1..NO, P in 1..NPr)
+        sum([X[I, J, P] : J in 1..ND]) #=< Supply[I, P]
+    end,
+    foreach (J in 1..ND, P in 1..NPr)
+        sum([X[I, J, P] : I in 1..NO]) #>= Demand[J, P]
+    end,
+    foreach (I in 1..NO, J in 1..ND)
+        sum([X[I, J, P] : P in 1..NPr]) #=< Limit[I, J]
+    end,
+    TotalCost #= sum([X[I, J, P] * Cost[I, J, P] : I in 1..NO, J in 1..ND, P in 1..NPr]),
+    Vars = X,
+    Outputs = [total_cost = TotalCost],
+    Options = [$min(TotalCost)].

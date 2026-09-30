@@ -1,0 +1,25 @@
+% Graceful graph: label the n nodes of a graph with m edges with distinct numbers
+% from 0..m so that the labels of the edges, the absolute differences of the
+% labels of their ends, are distinct (they are 1..m).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    M = Data.get(m),          % number of edges
+    N = Data.get(n),          % number of nodes
+    Graph = Data.get(graph),  % the edges as pairs of 0-based node numbers
+    Nodes = new_list(N),
+    Nodes :: 0..M,
+    Edges = new_list(M),
+    Edges :: 1..M,
+    % all node labels are different, and all edge labels are different
+    all_distinct(Nodes),
+    all_distinct(Edges),
+    % an edge is labelled with the difference of the labels of its ends
+    foreach (E in 1..M)
+        U = Graph[E, 1] + 1,
+        V = Graph[E, 2] + 1,
+        Edges[E] #= abs(Nodes[U] - Nodes[V])
+    end,
+    Vars = Nodes ++ Edges,
+    Outputs = [nodes = Nodes, edges = Edges],
+    Options = [ff].

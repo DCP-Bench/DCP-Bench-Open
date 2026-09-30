@@ -1,0 +1,32 @@
+% Job shop: each job is a sequence of tasks, each on a given machine for a given
+% time; a job's tasks run in order, a machine runs one task at a time, and the
+% schedule is as short as possible.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    Jobs = Data.get(jobs_data),    % per job, its tasks as [machine, duration]
+    Horizon = sum([Task[2] : Job in Jobs, Task in Job]),
+    Machines = sort_remove_dups([Task[1] : Job in Jobs, Task in Job]),
+    % start[j][t] = the start time of task t of job j
+    Starts = [new_list(len(Job)) : Job in Jobs],
+    foreach (J in 1..len(Jobs))
+        Starts[J] :: 0..Horizon
+    end,
+    % the tasks of a job run in order
+    foreach (J in 1..len(Jobs), T in 2..len(Jobs[J]))
+        Starts[J, T] #>= Starts[J, T - 1] + Jobs[J, T - 1, 2]
+    end,
+    % a machine runs one task at a time
+    foreach (M in Machines)
+        OnMachine = [{J, T} : J in 1..len(Jobs), T in 1..len(Jobs[J]), Jobs[J, T, 1] == M],
+        serialized([Starts[P[1], P[2]] : P in OnMachine], [Jobs[P[1], P[2], 2] : P in OnMachine])
+    end,
+    % the makespan is when the last task of any job ends
+    Makespan :: 0..Horizon,
+    foreach (J in 1..len(Jobs))
+        Last = len(Jobs[J]),
+        Starts[J, Last] + Jobs[J, Last, 2] #=< Makespan
+    end,
+    Vars = vars(Starts),
+    Outputs = [makespan = Makespan],
+    Options = [$min(Makespan)].

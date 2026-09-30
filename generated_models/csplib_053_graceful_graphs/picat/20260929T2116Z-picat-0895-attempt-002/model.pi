@@ -1,0 +1,32 @@
+% Graceful graph: label the n nodes of a graph with m edges with distinct numbers
+% from 0..m so that the labels of the edges, the absolute differences of the
+% labels of their ends, are distinct (they are 1..m).
+% This version runs on sat. Distinctness is stated pair by pair: in Picat 3.9#12,
+% sat's all_different/1 has returned assignments that break linear links to the
+% same variables, and pairwise #!= has not.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    M = Data.get(m),          % number of edges
+    N = Data.get(n),          % number of nodes
+    Graph = Data.get(graph),  % the edges as pairs of 0-based node numbers
+    Nodes = new_list(N),
+    Nodes :: 0..M,
+    Edges = new_list(M),
+    Edges :: 1..M,
+    % all node labels are different, and all edge labels are different
+    foreach (I in 1..N-1, J in I+1..N)
+        Nodes[I] #!= Nodes[J]
+    end,
+    foreach (I in 1..M-1, J in I+1..M)
+        Edges[I] #!= Edges[J]
+    end,
+    % an edge is labelled with the difference of the labels of its ends
+    foreach (E in 1..M)
+        U = Graph[E, 1] + 1,
+        V = Graph[E, 2] + 1,
+        Edges[E] #= abs(Nodes[U] - Nodes[V])
+    end,
+    Vars = Nodes ++ Edges,
+    Outputs = [nodes = Nodes, edges = Edges],
+    Options = [].

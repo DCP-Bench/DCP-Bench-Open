@@ -1,0 +1,25 @@
+% Heterosquare: an n x n square of the different numbers 1..n^2 whose row sums,
+% column sums and two diagonal sums are all different.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    X = new_array(N, N),
+    X :: 1..N * N,
+    all_distinct([X[I, J] : I in 1..N, J in 1..N]),
+    RowSums = new_list(N),
+    ColSums = new_list(N),
+    RowSums :: 1..N ** 3,
+    ColSums :: 1..N ** 3,
+    [Diag1, Diag2] :: 1..N ** 3,
+    foreach (I in 1..N)
+        RowSums[I] #= sum([X[I, J] : J in 1..N]),
+        ColSums[I] #= sum([X[J, I] : J in 1..N])
+    end,
+    Diag1 #= sum([X[I, I] : I in 1..N]),
+    Diag2 #= sum([X[I, N + 1 - I] : I in 1..N]),
+    % all the sums are different
+    all_different(RowSums ++ ColSums ++ [Diag1, Diag2]),
+    Vars = X,
+    Outputs = [x = X],
+    Options = [ff].
