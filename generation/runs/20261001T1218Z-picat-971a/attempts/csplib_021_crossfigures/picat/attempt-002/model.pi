@@ -1,0 +1,149 @@
+% Crossfigures: a crossword whose answers are numbers. The 9x9 grid below has black boxes;
+% every white cell holds a digit, and each across and down entry reads as a number. The
+% clues relate the entries to each other (27 across times two, a square number, a prime,
+% ...). The grid and the clues are the problem itself, so they are written out here; this
+% problem has no instance fields. As in the statement, an entry may start with a zero digit.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = 9,
+    MaxValue = 9999,                 % entries have at most 4 digits
+    % Black[r, c] = 1 if the cell is a black box (an invalid cell, shown as 0 in the answer)
+    Black = [[0, 0, 0, 0, 1, 0, 0, 0, 0],
+             [0, 0, 1, 0, 0, 0, 1, 0, 0],
+             [0, 1, 0, 0, 1, 0, 0, 1, 0],
+             [0, 0, 0, 0, 1, 0, 0, 0, 0],
+             [1, 0, 1, 1, 1, 1, 1, 0, 1],
+             [0, 0, 0, 0, 1, 0, 0, 0, 0],
+             [0, 1, 0, 0, 1, 0, 0, 1, 0],
+             [0, 0, 1, 0, 0, 0, 1, 0, 0],
+             [0, 0, 0, 0, 1, 0, 0, 0, 0]],
+    % entries as {clue number, number of digits, row, column of the first digit}
+    AcrossEntries = [{1, 4, 1, 1}, {4, 4, 1, 6}, {7, 2, 2, 1}, {8, 3, 2, 4}, {9, 2, 2, 8},
+                     {10, 2, 3, 3}, {11, 2, 3, 6}, {13, 4, 4, 1}, {15, 4, 4, 6},
+                     {17, 4, 6, 1}, {20, 4, 6, 6}, {23, 2, 7, 3}, {24, 2, 7, 6},
+                     {25, 2, 8, 1}, {27, 3, 8, 4}, {28, 2, 8, 8}, {29, 4, 9, 1},
+                     {30, 4, 9, 6}],
+    DownEntries = [{1, 4, 1, 1}, {2, 2, 1, 2}, {3, 4, 1, 4}, {4, 4, 1, 6}, {5, 2, 1, 8},
+                   {6, 4, 1, 9}, {10, 2, 3, 3}, {12, 2, 3, 7}, {14, 3, 4, 2}, {16, 3, 4, 8},
+                   {17, 4, 6, 1}, {18, 2, 6, 3}, {19, 4, 6, 4}, {20, 4, 6, 6}, {21, 2, 6, 7},
+                   {22, 4, 6, 9}, {26, 2, 8, 2}, {28, 2, 8, 8}],
+    % the digits of the grid; a black box holds 0
+    M = new_array(N, N),
+    M :: 0..9,
+    foreach (R in 1..N, C in 1..N)
+        if Black[R, C] == 1 then
+            M[R, C] #= 0
+        end
+    end,
+    % A[k] / D[k] = the number written by the entry of clue k across / down
+    A = new_array(30),
+    D = new_array(30),
+    foreach ({K, Len, R, C} in AcrossEntries)
+        A[K] :: 0..MaxValue,
+        digits_to_number([M[R, C + I - 1] : I in 1..Len], A[K])
+    end,
+    foreach ({K, Len, R, C} in DownEntries)
+        D[K] :: 0..MaxValue,
+        digits_to_number([M[R + I - 1, C] : I in 1..Len], D[K])
+    end,
+    % the numbers a clue can ask for: squares and primes that fit in the entries
+    Squares = [I * I : I in 1..ceiling(sqrt(MaxValue))],
+    Primes = [P : P in 2..MaxValue, is_prime(P)],
+    % Across clues
+    % 1  27 across times two
+    A[1] #= 2 * A[27],
+    % 4  4 down plus seventy-one
+    A[4] #= D[4] + 71,
+    % 7  18 down plus four
+    A[7] #= D[18] + 4,
+    % 8  6 down divided by sixteen
+    16 * A[8] #= D[6],
+    % 9  2 down minus eighteen
+    A[9] #= D[2] - 18,
+    % 10 Dozen in six gross (6 * 144 / 12)
+    12 * A[10] #= 6 * 144,
+    % 11 5 down minus seventy
+    A[11] #= D[5] - 70,
+    % 13 26 down times 23 across
+    A[13] #= D[26] * A[23],
+    % 15 6 down minus 350
+    A[15] #= D[6] - 350,
+    % 17 25 across times 23 across
+    A[17] #= A[25] * A[23],
+    % 20 A square number
+    A[20] :: Squares,
+    % 23 A prime number
+    A[23] :: Primes,
+    % 24 A square number
+    A[24] :: Squares,
+    % 25 20 across divided by seventeen
+    17 * A[25] #= A[20],
+    % 27 6 down divided by four
+    4 * A[27] #= D[6],
+    % 28 Four dozen
+    A[28] #= 4 * 12,
+    % 29 Seven gross
+    A[29] #= 7 * 144,
+    % 30 22 down plus 450
+    A[30] #= D[22] + 450,
+    % Down clues
+    % 1  1 across plus twenty-seven
+    D[1] #= A[1] + 27,
+    % 2  Five dozen
+    D[2] #= 5 * 12,
+    % 3  30 across plus 888
+    D[3] #= A[30] + 888,
+    % 4  Two times 17 across
+    D[4] #= 2 * A[17],
+    % 5  29 across divided by twelve
+    12 * D[5] #= A[29],
+    % 6  28 across times 23 across
+    D[6] #= A[28] * A[23],
+    % 10 10 across plus four
+    D[10] #= A[10] + 4,
+    % 12 Three times 24 across
+    D[12] #= 3 * A[24],
+    % 14 13 across divided by sixteen
+    16 * D[14] #= A[13],
+    % 16 28 down times fifteen
+    D[16] #= 15 * D[28],
+    % 17 13 across minus 399
+    D[17] #= A[13] - 399,
+    % 18 29 across divided by eighteen
+    18 * D[18] #= A[29],
+    % 19 22 down minus ninety-four
+    D[19] #= D[22] - 94,
+    % 20 20 across minus nine
+    D[20] #= A[20] - 9,
+    % 21 25 across minus fifty-two
+    D[21] #= A[25] - 52,
+    % 22 20 down times six
+    D[22] #= 6 * D[20],
+    % 26 Five times 24 across
+    D[26] #= 5 * A[24],
+    % 28 21 down plus twenty-seven
+    D[28] #= D[21] + 27,
+    Vars = M,
+    Outputs = ['M' = M],
+    Options = [].
+
+% Value is the number whose decimal digits, most significant first, are Digits. The place
+% values are worked out first because arithmetic inside a constraint is not evaluated.
+digits_to_number(Digits, Value) =>
+    Len = len(Digits),
+    Weights = [pow10(Len - I) : I in 1..Len],
+    Value #= sum([Weights[I] * Digits[I] : I in 1..Len]).
+
+% 10 to the power E (a fixed integer power)
+pow10(E) = P =>
+    if E == 0 then
+        P = 1
+    else
+        P = 10 * pow10(E - 1)
+    end.
+
+% A number is prime when it is at least 2 and has no divisor from 2 up to its square root.
+is_prime(P) =>
+    P >= 2,
+    not (between(2, floor(sqrt(P)), K), P mod K == 0).

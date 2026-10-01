@@ -1,0 +1,15 @@
+% Eighteen-hole golf course: choose the length of each hole, 3, 4 or 5, so that the whole
+% course adds up to 72.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NumHoles = 18,                   % holes on the course (fixed by the problem statement)
+    TotalLength = 72,                % required length of the whole course (same)
+    % each hole is 3, 4 or 5 long
+    Holes = new_list(NumHoles),
+    Holes :: 3..5,
+    % the hole lengths add up to the course length
+    sum(Holes) #= TotalLength,
+    Vars = Holes,
+    Outputs = [holes = Holes],
+    Options = [].

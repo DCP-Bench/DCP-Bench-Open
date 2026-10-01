@@ -1,0 +1,23 @@
+% People in a room: 13 people, 4 of them male, enter a room one at a time. Choose the order
+% of men and women so that at every moment the ratio of women to men in the room is at
+% most 7/3.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    TotalPeople = 13,                % people entering (fixed by the problem statement)
+    NumMales = 4,                    % how many of them are male (same)
+    % Sequence[i] = 1 if the i-th person to enter is female, 0 if male
+    Sequence = new_list(TotalPeople),
+    Sequence :: 0..1,
+    % exactly NumMales of the people are male
+    sum(Sequence) #= TotalPeople - NumMales,
+    % after each of the first 12 entrances, women to men is at most 7/3, that is
+    % 3 * women <= 7 * men (written without division, so a room with no men yet only
+    % allows no women); the full room of 13 meets the ratio on its own
+    foreach (I in 1..TotalPeople - 1)
+        FemalesSoFar #= sum([Sequence[J] : J in 1..I]),
+        3 * FemalesSoFar #=< 7 * (I - FemalesSoFar)
+    end,
+    Vars = Sequence,
+    Outputs = [sequence = Sequence],
+    Options = [].

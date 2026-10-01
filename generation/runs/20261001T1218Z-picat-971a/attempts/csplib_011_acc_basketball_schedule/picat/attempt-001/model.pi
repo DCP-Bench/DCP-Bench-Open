@@ -1,0 +1,153 @@
+% ACC basketball schedule (1997/98): a double round-robin for 9 teams over 18 dates (odd dates
+% are weekdays, even dates weekends), where every team plays every other team once at home
+% and once away, subject to nine groups of extra rules (mirroring, home/away/bye patterns,
+% rivals, fixed matches, ...). The teams, rivals and the mirroring scheme belong to the ACC
+% problem itself and are mirrored below; the instance gives the number of teams and dates.
+% Encoding: Host[d, t, u] = 1 if on date d team t hosts team u. Opponent and home/away/bye
+% are derived from it, which makes "if t plays u then u plays t" hold by construction.
+% Module sat: the model is made of 0/1 sums, a form the SAT solver handles well.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    NTeams = Data.get(n_teams),
+    NDays = Data.get(n_days),
+    % the teams, numbered 1..9 (the output lists them from 0)
+    Clem = 1, Duke = 2, FSU = 3, GT = 4, UMD = 5, UNC = 6, NCSt = 7, UVA = 8, Wake = 9,
+    % Rival[t] = the traditional rival of team t (FSU has none, listed as itself)
+    Rival = [GT, UNC, FSU, Clem, UVA, Duke, Wake, UMD, NCSt],
+    % mirroring scheme of Nemhauser and Trick: dates r1 and r2 pair up
+    Mirroring = [{1, 8}, {2, 9}, {3, 12}, {4, 13}, {5, 14}, {6, 15}, {7, 16}, {10, 17}, {11, 18}],
+    % Host[d, t, u] = 1 if team t is at home against team u on date d
+    Host = new_array(NDays, NTeams, NTeams),
+    Host :: 0..1,
+    foreach (D in 1..NDays, T in 1..NTeams)
+        Host[D, T, T] #= 0
+    end,
+    % Home[d, t], Away[d, t], Bye[d, t] = 1 if team t plays at home / away / not at all on
+    % date d. Their sum is 1, so a team plays at most one game per date.
+    Home = new_array(NDays, NTeams),
+    Away = new_array(NDays, NTeams),
+    Bye = new_array(NDays, NTeams),
+    Home :: 0..1,
+    Away :: 0..1,
+    Bye :: 0..1,
+    foreach (D in 1..NDays, T in 1..NTeams)
+        Home[D, T] #= sum([Host[D, T, U] : U in 1..NTeams]),
+        Away[D, T] #= sum([Host[D, U, T] : U in 1..NTeams]),
+        Bye[D, T] #= 1 - Home[D, T] - Away[D, T]
+    end,
+    % Meet[d, t, u] = 1 if teams t and u play each other on date d (either one at home)
+    Meet = new_array(NDays, NTeams, NTeams),
+    Meet :: 0..1,
+    foreach (D in 1..NDays, T in 1..NTeams, U in 1..NTeams)
+        Meet[D, T, U] #= Host[D, T, U] + Host[D, U, T]
+    end,
+    % Double round-robin: each team hosts each other team exactly once
+    foreach (T in 1..NTeams, U in 1..NTeams, T != U)
+        sum([Host[D, T, U] : D in 1..NDays]) #= 1
+    end,
+    % 1. Mirroring: the teams that meet on one date of a pair meet again on the other date,
+    %    with home and away swapped
+    foreach ({D1, D2} in Mirroring, T in 1..NTeams, U in 1..NTeams)
+        Host[D1, T, U] #= Host[D2, U, T]
+    end,
+    % 2. No two final aways: no team plays away on both of the last two dates
+    foreach (T in 1..NTeams)
+        Away[NDays - 1, T] + Away[NDays, T] #=< 1
+    end,
+    % 3. Home/away/bye patterns
+    foreach (T in 1..NTeams)
+        % no more than two home matches in a row
+        foreach (D in 1..NDays - 2)
+            sum([Home[E, T] : E in D..D + 2]) #=< 2
+        end,
+        % no more than two away matches in a row
+        foreach (D in 1..NDays - 2)
+            sum([Away[E, T] : E in D..D + 2]) #=< 2
+        end,
+        % no more than three away matches or byes in a row
+        foreach (D in 1..NDays - 3)
+            sum([Away[E, T] + Bye[E, T] : E in D..D + 3]) #=< 3
+        end,
+        % no more than four home matches or byes in a row
+        foreach (D in 1..NDays - 4)
+            sum([Home[E, T] + Bye[E, T] : E in D..D + 4]) #=< 4
+        end
+    end,
+    % 4. Weekend pattern: of the weekend dates (the even ones), each team plays four at home,
+    %    four away and has one bye
+    Weekends = [D : D in 1..NDays, D mod 2 == 0],
+    foreach (T in 1..NTeams)
+        sum([Home[D, T] : D in Weekends]) #= 4,
+        sum([Away[D, T] : D in Weekends]) #= 4,
+        sum([Bye[D, T] : D in Weekends]) #= 1
+    end,
+    % 5. First weekends: each team has a home match or a bye on at least two of the first
+    %    five weekends
+    FirstWeekends = [Weekends[I] : I in 1..5],
+    foreach (T in 1..NTeams)
+        sum([Home[D, T] + Bye[D, T] : D in FirstWeekends]) #>= 2
+    end,
+    % 6. Rival matches: on the last date every team except FSU plays its rival, unless it
+    %    plays FSU or has a bye
+    foreach (T in 1..NTeams, T != FSU)
+        Meet[NDays, T, Rival[T]] + Meet[NDays, T, FSU] + Bye[NDays, T] #>= 1
+    end,
+    % 7. Constrained matches: Wake-UNC, Wake-Duke, GT-UNC and GT-Duke are each played at
+    %    least once on dates 11 to 18
+    foreach ({T, U} in [{Wake, UNC}, {Wake, Duke}, {GT, UNC}, {GT, Duke}])
+        sum([Meet[D, T, U] : D in 11..NDays]) #>= 1
+    end,
+    % 8. Opponent sequences
+    %    No team (other than UNC and Duke) plays away at UNC and at Duke on two consecutive
+    %    dates, in either order
+    foreach (T in 1..NTeams, T != Duke, T != UNC, D in 1..NDays - 1)
+        Host[D, UNC, T] + Host[D + 1, Duke, T] #=< 1,
+        Host[D, Duke, T] + Host[D + 1, UNC, T] #=< 1
+    end,
+    %    No team (other than UNC, Duke and Wake) plays UNC, Duke and Wake on three
+    %    consecutive dates, in any order
+    Trios = [{UNC, Duke, Wake}, {UNC, Wake, Duke}, {Duke, UNC, Wake},
+             {Duke, Wake, UNC}, {Wake, UNC, Duke}, {Wake, Duke, UNC}],
+    foreach (T in 1..NTeams, T != UNC, T != Duke, T != Wake, D in 1..NDays - 2,
+             {A, B, C} in Trios)
+        Meet[D, T, A] + Meet[D + 1, T, B] + Meet[D + 2, T, C] #=< 2
+    end,
+    % 9. Other constraints
+    %    UNC plays its rival Duke on the last date and on date 11
+    Meet[NDays, UNC, Duke] #= 1,
+    Meet[11, UNC, Duke] #= 1,
+    %    UNC plays Clem on the second date
+    Meet[2, UNC, Clem] #= 1,
+    %    Duke has a bye on date 16
+    Bye[16, Duke] #= 1,
+    %    Wake does not play home on date 17
+    Home[17, Wake] #= 0,
+    %    Wake has a bye on the first date
+    Bye[1, Wake] #= 1,
+    %    Clem, Duke, UMD and Wake do not play away on the last date
+    foreach (T in [Clem, Duke, UMD, Wake])
+        Away[NDays, T] #= 0
+    end,
+    %    Clem, FSU, GT and Wake do not play away on the first date
+    foreach (T in [Clem, FSU, GT, Wake])
+        Away[1, T] #= 0
+    end,
+    %    Neither FSU nor NCSt have a bye on the last date
+    Bye[NDays, FSU] #= 0,
+    Bye[NDays, NCSt] #= 0,
+    %    UNC does not have a bye on the first date
+    Bye[1, UNC] #= 0,
+    % Output: Config[d, t] = the team (numbered from 0) that team t plays on date d, or t
+    % itself on a bye; Where[d, t] = 0 for home, 1 for a bye, 2 for away
+    Config = new_array(NDays, NTeams),
+    Config :: 0..NTeams - 1,
+    Where = new_array(NDays, NTeams),
+    Where :: 0..2,
+    foreach (D in 1..NDays, T in 1..NTeams)
+        Config[D, T] #= sum([(U - 1) * Meet[D, T, U] : U in 1..NTeams]) + (T - 1) * Bye[D, T],
+        Where[D, T] #= 2 * Away[D, T] + Bye[D, T]
+    end,
+    Vars = [Host, Home, Away, Bye, Meet, Config, Where],
+    Outputs = [config = Config, where = Where],
+    Options = [].

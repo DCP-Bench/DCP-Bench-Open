@@ -1,0 +1,43 @@
+% Four islands: four islands joined by bridges sit at the corners of a square,
+%   A -- B      A is north-west, B north-east,
+%   |    |      C south-west, D south-east.
+%   C -- D
+% Each island has a name (Pwana, Quero, Rayou, Skern), an export (alabaster, bananas,
+% coconuts, durian fruit) and a tourist attraction (resort hotel, ice skating rink, jai alai
+% stadium, koala preserve). Every variable below is the map position of that item,
+% A = 0, B = 1, C = 2, D = 3.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    % pairs of positions, as the puzzle's map defines them
+    SouthOf = [{0, 2}, {1, 3}],               % (X, Y): Y is due south of X
+    WestOf = [{0, 1}, {2, 3}],                % (X, Y): X is due west of Y
+    NorthSouthBridge = [{0, 2}, {2, 0}, {1, 3}, {3, 1}],
+    EastWestBridge = [{0, 1}, {1, 0}, {2, 3}, {3, 2}],
+    NoBridge = [{0, 3}, {3, 0}, {1, 2}, {2, 1}],   % diagonal corners are not joined
+    Island = [Pwana, Quero, Rayou, Skern],
+    Island :: 0..3,
+    Export = [Alabaster, Bananas, Coconuts, DurianFruit],
+    Export :: 0..3,
+    Attraction = [ResortHotel, IceSkatingRink, JaiAlaiStadium, KoalaPreserve],
+    Attraction :: 0..3,
+    % each island, export and attraction sits on a different corner
+    all_different(Island),
+    all_different(Export),
+    all_different(Attraction),
+    % 1. The island noted for its koala preserve is due south of Pwana.
+    table_in({Pwana, KoalaPreserve}, SouthOf),
+    % 2. The island with the largest alabaster quarry is due west of Quero.
+    table_in({Alabaster, Quero}, WestOf),
+    % 3. The island with the resort hotel is due east of the one that exports durian fruit.
+    table_in({DurianFruit, ResortHotel}, WestOf),
+    % 4. Skern and the island with the jai alai stadium are connected by a north-south bridge.
+    table_in({Skern, JaiAlaiStadium}, NorthSouthBridge),
+    % 5. Rayou and the island that exports bananas are connected by an east-west bridge.
+    table_in({Rayou, Bananas}, EastWestBridge),
+    % 6. The islands noted for the largest ice skating rink and for the jai alai stadium are
+    %    not connected by a bridge.
+    table_in({IceSkatingRink, JaiAlaiStadium}, NoBridge),
+    Vars = Island ++ Export ++ Attraction,
+    Outputs = [island = Island, export = Export, attraction = Attraction],
+    Options = [].

@@ -1,0 +1,58 @@
+% Water bucket: three buckets with given capacities start in a given state. Pouring water
+% from one bucket into another until the source is empty or the target full is one transfer.
+% Reach the goal state in the fewest transfers. The answer lists the successive states,
+% padded after the goal with a padding state up to a fixed number of steps.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Capacities = Data.get(capacities),
+    Initial = Data.get(initial_state),
+    Goal = Data.get(goal_state),
+    MaxSteps = Data.get('MAX_STEPS'),      % length of the answer, padding included
+    Pad = Data.get('PADDING_VALUE'),       % value of every bucket in a padding state
+    Total = sum(Initial),                  % water is only moved, so the total never changes
+    PadState = [Pad, Pad, Pad],
+    % every way of spreading the water over the three buckets within their capacities
+    States = [[I, J, K] : I in 0..Capacities[1], J in 0..Capacities[2], K in 0..Capacities[3],
+                          I + J + K == Total],
+    % Moves lists every legal transfer as a 6-tuple (state before, state after): pour from
+    % bucket A into bucket B, moving as much as the source holds or the target accepts.
+    % A transfer starting at the goal is left out because the goal ends the sequence, and the
+    % goal may only be followed by padding, which may only be followed by padding.
+    Moves = [to_array(Cur ++ pour(Cur, Capacities, A, B))
+             : Cur in States, Cur != Goal, A in 1..3, B in 1..3, A != B,
+               min(Cur[A], Capacities[B] - Cur[B]) > 0]
+            ++ [to_array(Goal ++ PadState), to_array(PadState ++ PadState)],
+    % S[t, b] = amount in bucket b at step t (or the padding value after the goal)
+    S = new_array(MaxSteps, 3),
+    S :: Pad..max(Capacities),
+    % the sequence starts in the initial state
+    foreach (B in 1..3)
+        S[1, B] #= Initial[B]
+    end,
+    % each step is a legal transfer, or the goal followed by padding, or padding
+    foreach (T in 1..MaxSteps - 1)
+        table_in(to_array([S[T, B] : B in 1..3] ++ [S[T + 1, B] : B in 1..3]), Moves)
+    end,
+    % the goal is reached: the last step is the goal or padding, and padding only follows the goal
+    table_in(to_array([S[MaxSteps, B] : B in 1..3]), [to_array(Goal), to_array(PadState)]),
+    % cost = number of transfers = number of real (non-padding) states minus the initial one
+    Cost #= sum([S[T, 1] #!= Pad : T in 1..MaxSteps]) - 1,
+    Vars = [S, Cost],
+    Outputs = [cost = Cost, sequence = S],
+    Options = [$min(Cost)].
+
+% The state after pouring from bucket A into bucket B in state Cur.
+pour(Cur, Capacities, A, B) = Next =>
+    Amount = min(Cur[A], Capacities[B] - Cur[B]),
+    Next = [cond_amount(C, A, B, Cur[C], Amount) : C in 1..3].
+
+% New content of bucket C: bucket A loses Amount, bucket B gains it, the third is unchanged.
+cond_amount(C, A, B, Old, Amount) = New =>
+    if C == A then
+        New = Old - Amount
+    elseif C == B then
+        New = Old + Amount
+    else
+        New = Old
+    end.
