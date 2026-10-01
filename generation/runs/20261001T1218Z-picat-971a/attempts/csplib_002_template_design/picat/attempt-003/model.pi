@@ -1,0 +1,37 @@
+% Template design: a printing firm prints products (variations) from templates, each template
+% holding a fixed number of slots, every slot printing one variation. Decide how many sheets to
+% print from each template and how many copies of each variation to put on it, so that the
+% demand for every variation is met and as few sheets as possible are printed in total.
+% Encoded with sat: with cp the instance with 3 templates did not finish within 180 s, with sat it
+% took about 100 s.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    NSlots = Data.get(n_slots),           % slots on a template
+    NTemplates = Data.get(n_templates),   % number of templates
+    NVar = Data.get(n_var),               % number of variations
+    Demand = Data.get(demand),            % Demand[v] = sheets' worth of variation v needed
+    % the most sheets printed from one template: the largest demand (the reference's bound)
+    UB = max(Demand),
+    % Production[t] = number of sheets printed from template t
+    Production = new_list(NTemplates),
+    Production :: 1..UB,
+    % Layout[t, v] = number of slots of template t that print variation v; at most n_var,
+    % the bound the reference uses
+    Layout = new_array(NTemplates, NVar),
+    Layout :: 0..NVar,
+    % every slot of a template is used
+    foreach (T in 1..NTemplates)
+        sum([Layout[T, V] : V in 1..NVar]) #= NSlots
+    end,
+    % the demand for each variation is met: each sheet of template t carries Layout[t, v] copies
+    foreach (V in 1..NVar)
+        sum([Production[T] * Layout[T, V] : T in 1..NTemplates]) #>= Demand[V]
+    end,
+    % implied: all slots are used, so the sheets together carry at least the total demand
+    NSlots * sum(Production) #>= sum(Demand),
+    % the number of sheets printed in total
+    Total #= sum(Production),
+    Vars = Production ++ Layout,
+    Outputs = [production = Production, layout = Layout],
+    Options = [$min(Total)].

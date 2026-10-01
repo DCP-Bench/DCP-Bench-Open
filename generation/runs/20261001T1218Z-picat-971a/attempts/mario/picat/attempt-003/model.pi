@@ -1,0 +1,45 @@
+% Mario's gold route: Mario starts at his house, visits some houses and ends at Luigi's house,
+% collecting the gold of every house visited. Travelling from one house to another uses fuel,
+% and the fuel of the whole route must stay within the fuel limit. Maximise the gold collected.
+% Houses are numbered from 0 in the instance (and in the output), so house h is stored at
+% position h + 1 of the lists.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(nHouses),
+    MarioHouse = Data.get(marioHouse),
+    LuigiHouse = Data.get(luigiHouse),
+    FuelLimit = Data.get(fuelLimit),
+    ArcFuel = Data.get(arc_fuel),         % ArcFuel[i + 1][j + 1] = fuel from house i to house j
+    GoldInHouse = Data.get(goldInHouse),
+    % Succ[h + 1] = the house, numbered from 1, that follows house h on the route; house h
+    % itself if it is not on the route. Luigi's house is followed by Mario's, which closes the
+    % route into a cycle.
+    Succ = new_list(N),
+    Succ :: 1..N,
+    % the houses on the route form one cycle through Mario's and Luigi's houses, and every
+    % other house is its own successor. This stands for the reference's ranks of the houses
+    % (Mario's house first, each next house one rank later, off-route houses after Luigi's),
+    % which only keep the off-route houses from forming cycles of their own.
+    subcircuit(Succ),
+    Succ[LuigiHouse + 1] #= MarioHouse + 1,
+    % S[h + 1] = the same successor numbered from 0, as the output wants it
+    S = new_list(N),
+    S :: 0..N - 1,
+    foreach (H in 1..N)
+        S[H] #= Succ[H] - 1
+    end,
+    % Fuel[h + 1] = the fuel used going from house h to its successor (0 if h is not on the route)
+    MaxFuel = max([max(Row) : Row in ArcFuel]),
+    Fuel = new_list(N),
+    Fuel :: 0..MaxFuel,
+    foreach (H in 1..N)
+        FuelRow = ArcFuel[H],
+        element(Succ[H], FuelRow, Fuel[H])
+    end,
+    sum(Fuel) #=< FuelLimit,
+    % the gold collected: the gold of every house on the route
+    Gold #= sum([GoldInHouse[H] * (Succ[H] #!= H) : H in 1..N]),
+    Vars = Succ ++ S,
+    Outputs = [s = S],
+    Options = [$max(Gold)].

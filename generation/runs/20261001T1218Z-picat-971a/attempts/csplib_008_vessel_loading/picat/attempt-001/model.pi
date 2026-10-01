@@ -1,0 +1,40 @@
+% Vessel loading: place rectangular containers on a rectangular deck, without overlap and
+% parallel to the deck sides, so that containers of certain classes keep a minimum distance
+% between them. Containers may be rotated by a quarter turn. The output is the left, right,
+% top and bottom coordinate of every container, counted from 0.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    DeckWidth = Data.get(deck_width),
+    DeckLength = Data.get(deck_length),
+    N = Data.get(n_containers),
+    Width = Data.get(width),             % one side of each container
+    Length = Data.get(length),           % the other side of each container
+    Classes = Data.get(classes),         % class of each container (1-based)
+    Separation = Data.get(separation),   % minimum distance between two classes
+    % each container lies on the deck: x coordinates in 0..deck_width, y in 0..deck_length
+    Left = new_list(N),
+    Right = new_list(N),
+    Top = new_list(N),
+    Bottom = new_list(N),
+    Left :: 0..DeckWidth,
+    Right :: 0..DeckWidth,
+    Top :: 0..DeckLength,
+    Bottom :: 0..DeckLength,
+    % a container keeps its width and length, either as given or turned by a quarter turn
+    foreach (I in 1..N)
+        (Right[I] - Left[I] #= Width[I] #/\ Top[I] - Bottom[I] #= Length[I]) #\/
+        (Right[I] - Left[I] #= Length[I] #/\ Top[I] - Bottom[I] #= Width[I])
+    end,
+    % two containers do not overlap, and are at least the separation of their classes apart:
+    % one is to the left of, to the right of, below or above the other
+    foreach (X in 1..N - 1, Y in X + 1..N)
+        Sep = Separation[Classes[X], Classes[Y]],
+        Right[X] + Sep #=< Left[Y] #\/
+        Left[X] #>= Right[Y] + Sep #\/
+        Top[X] + Sep #=< Bottom[Y] #\/
+        Bottom[X] #>= Top[Y] + Sep
+    end,
+    Vars = Left ++ Bottom ++ Right ++ Top,
+    Outputs = [left = Left, right = Right, top = Top, bottom = Bottom],
+    Options = [].

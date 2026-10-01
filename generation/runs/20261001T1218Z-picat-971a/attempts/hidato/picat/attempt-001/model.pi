@@ -1,0 +1,45 @@
+% Hidato: fill the empty cells of a grid so that it holds each of the numbers 1..rows*cols
+% exactly once and consecutive numbers sit in cells that touch horizontally, vertically or
+% diagonally. Some numbers are given in the puzzle (0 marks an empty cell).
+% Encoded by the position of each number: the cell holding k is known by its row and column,
+% and the cell of k + 1 is at most one row and one column away, which propagates much more
+% strongly than looking for a neighbour of every cell.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Puzzle = Data.get(puzzle),
+    R = len(Puzzle),
+    C = len(Puzzle[1]),
+    N = R * C,
+    % Grid is the cells in reading order: Grid[(i - 1) * C + j] is the number in row i, column j
+    Grid = new_list(N),
+    Grid :: 1..N,
+    % each number appears once
+    all_different(Grid),
+    % the numbers given in the puzzle
+    foreach (I in 1..R, J in 1..C, Puzzle[I, J] > 0)
+        Grid[(I - 1) * C + J] #= Puzzle[I, J]
+    end,
+    % Row[k], Col[k] = the row and the column of the cell holding number k, and Pos[k] its
+    % place in reading order
+    Row = new_list(N),
+    Col = new_list(N),
+    Pos = new_list(N),
+    Row :: 1..R,
+    Col :: 1..C,
+    Pos :: 1..N,
+    foreach (K in 1..N)
+        Pos[K] #= (Row[K] - 1) * C + Col[K],
+        % the cell at that place holds number k
+        element(Pos[K], Grid, K)
+    end,
+    % number k + 1 is next to number k: at most one row and one column away (it cannot be the
+    % same cell because every number is in its own cell)
+    foreach (K in 1..N - 1)
+        abs(Row[K] - Row[K + 1]) #=< 1,
+        abs(Col[K] - Col[K + 1]) #=< 1
+    end,
+    % search along the path 1, 2, 3, ...
+    Vars = [V : K in 1..N, V in [Row[K], Col[K]]],
+    Outputs = [x = [[Grid[(I - 1) * C + J] : J in 1..C] : I in 1..R]],
+    Options = [].

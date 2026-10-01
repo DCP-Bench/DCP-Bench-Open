@@ -1,0 +1,40 @@
+% Fixed-charge production: a company makes shirts, shorts and pants. Each product needs some
+% labor and cloth, both limited, and can only be made on an appropriate machine that has to be
+% rented. Maximise the profit: the profit of the products made minus the rent of the machines.
+% Products, machines and resources are numbered from 0 in the instance, so index i is stored
+% at position i + 1 of the lists.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Machines = Data.get(machines),                 % machine numbers
+    Products = Data.get(products),                 % product numbers
+    Resources = Data.get(resources),               % resource numbers (labor, cloth)
+    RentingCost = Data.get(renting_cost),          % rent of each machine
+    Capacity = Data.get(capacity),                 % amount available of each resource
+    MaxProduction = Data.get(max_production),      % most units of one product
+    Product = Data.get(product),                   % Product[p] = [profit per unit, machine needed]
+    Use = Data.get(use),                           % Use[p][r] = resource r used per unit of product p
+    NumMachines = len(Machines),
+    NumProducts = len(Products),
+    % Rent[m] = 1 if machine m is rented
+    Rent = new_list(NumMachines),
+    Rent :: 0..1,
+    % Produce[p] = units made of product p
+    Produce = new_list(NumProducts),
+    Produce :: 0..MaxProduction,
+    % Z = the profit; 10000 is the bound the reference puts on it
+    Z :: 0..10000,
+    % the profit is the income from the products made minus the rent of the machines rented
+    Z #= sum([Product[P + 1, 1] * Produce[P + 1] : P in Products])
+         - sum([RentingCost[M + 1] * Rent[M + 1] : M in Machines]),
+    % the resources used by all the products stay within their capacity
+    foreach (R in Resources)
+        sum([Use[P + 1, R + 1] * Produce[P + 1] : P in Products]) #=< Capacity[R + 1]
+    end,
+    % a product can only be made if the machine it needs is rented
+    foreach (P in Products)
+        Produce[P + 1] #=< MaxProduction * Rent[Product[P + 1, 2] + 1]
+    end,
+    Vars = Rent ++ Produce,
+    Outputs = [z = Z],
+    Options = [$max(Z)].

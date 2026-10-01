@@ -1,0 +1,43 @@
+% N-puzzle: a square board holds the tiles 1..n and one empty square (0). Slide tiles into the
+% empty square, one move at a time, to get from the start board to the end board in exactly
+% N_STEPS boards, the start and the end board included. A board must differ from the one
+% before it. The output is the board at every step.
+% Encoded with sat: the plan is a sequence of boards whose length is fixed, which suits
+% propagation by clauses better than the depth-first search of cp.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    NSteps = Data.get('N_STEPS'),
+    Start = Data.get(puzzle_start),
+    End = Data.get(puzzle_end),
+    D = len(Start),                       % the board is D x D
+    N = D * D - 1,                        % the tiles are 1..N, 0 is the empty square
+    % X[t, i, j] = the tile on the board at step t, row i, column j (0 = empty)
+    X = new_array(NSteps, D, D),
+    X :: 0..N,
+    % the first board is the start board and the last one is the end board
+    foreach (I in 1..D, J in 1..D)
+        X[1, I, J] #= Start[I, J],
+        X[NSteps, I, J] #= End[I, J]
+    end,
+    foreach (T in 2..NSteps)
+        % every board holds each tile (and the empty square) once
+        foreach (I1 in 1..D, J1 in 1..D, I2 in 1..D, J2 in 1..D, (I1 - 1) * D + J1 < (I2 - 1) * D + J2)
+            X[T, I1, J1] #!= X[T, I2, J2]
+        end,
+        foreach (I in 1..D, J in 1..D)
+            % the empty square of the new board was, on the previous board, on the same square
+            % or on a square next to it (the empty square moves by one square)
+            Around = [[I + RR, J + CC] : Off in [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]],
+                                         RR = Off[1], CC = Off[2],
+                                         I + RR >= 1, I + RR =< D, J + CC >= 1, J + CC =< D],
+            X[T, I, J] #= 0 #=> (sum([X[T - 1, Cell[1], Cell[2]] #= 0 : Cell in Around]) #>= 1),
+            % only the empty square moves: any other square keeps its tile
+            X[T - 1, I, J] #= 0 #\/ X[T, I, J] #= 0 #\/ X[T - 1, I, J] #= X[T, I, J]
+        end,
+        % the board changes at every step
+        sum([X[T - 1, I, J] #!= X[T, I, J] : I in 1..D, J in 1..D]) #>= 1
+    end,
+    Vars = [X[T, I, J] : T in 1..NSteps, I in 1..D, J in 1..D],
+    Outputs = [steps = [[[X[T, I, J] : J in 1..D] : I in 1..D] : T in 1..NSteps]],
+    Options = [].

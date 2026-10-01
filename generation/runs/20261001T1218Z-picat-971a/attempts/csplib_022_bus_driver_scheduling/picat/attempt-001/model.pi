@@ -1,0 +1,21 @@
+% Bus driver scheduling: choose a set of shifts so that every piece of work (task) is covered by
+% exactly one chosen shift, using as few shifts as possible. Every shift costs the same.
+% Tasks are numbered from 0, as in the shift lists.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NumWork = Data.get(num_work),         % number of tasks
+    NumShifts = Data.get(num_shifts),     % number of possible shifts
+    Shifts = Data.get(shifts),            % Shifts[i] = the tasks that shift i covers
+    % X[i] = 1 if shift i is selected
+    X = new_list(NumShifts),
+    X :: 0..1,
+    % each task is covered by exactly one selected shift
+    foreach (T in 0..NumWork - 1)
+        sum([X[I] : I in 1..NumShifts, membchk(T, Shifts[I])]) #= 1
+    end,
+    % the number of shifts used
+    Total #= sum(X),
+    Vars = X,
+    Outputs = [x = X],
+    Options = [$min(Total)].

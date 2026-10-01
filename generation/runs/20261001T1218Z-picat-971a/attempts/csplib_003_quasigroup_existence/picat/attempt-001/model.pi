@@ -1,0 +1,29 @@
+% Quasigroup existence, QG3.m: an order m quasigroup is an m x m Latin square, a multiplication
+% table in which every element occurs once in every row and every column. The QG3.m problem asks
+% for one in which (a * b) * (b * a) = a for all elements a and b. Elements are 0..m-1.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    M = Data.get(m),                      % order of the quasigroup
+    % Quasigroup[a + 1, b + 1] = a * b
+    Quasigroup = new_array(M, M),
+    Quasigroup :: 0..M - 1,
+    % each element occurs once in every row
+    foreach (I in 1..M)
+        all_different([Quasigroup[I, J] : J in 1..M])
+    end,
+    % each element occurs once in every column
+    foreach (J in 1..M)
+        all_different([Quasigroup[I, J] : I in 1..M])
+    end,
+    % QG3.m property: (a * b) * (b * a) = a. The row and column of the outer product are
+    % themselves variables, so the table is read through element/3 at place
+    % (a * b) * m + (b * a) + 1 of the table written out row by row.
+    Table = to_list(Quasigroup),
+    foreach (A in 0..M - 1, B in 0..M - 1)
+        Place #= Quasigroup[A + 1, B + 1] * M + Quasigroup[B + 1, A + 1] + 1,
+        element(Place, Table, A)
+    end,
+    Vars = Table,
+    Outputs = [quasigroup = Quasigroup],
+    Options = [ff].

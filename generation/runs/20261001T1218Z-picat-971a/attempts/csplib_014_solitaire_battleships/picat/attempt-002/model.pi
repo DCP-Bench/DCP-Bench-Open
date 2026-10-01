@@ -1,0 +1,110 @@
+% Solitaire battleships: fill a grid with water and the pieces of a fleet of ships (submarines
+% of one square, longer ships made of two ends and middle squares), so that the number of
+% occupied squares in every row and column is met, no two ships touch (not even at a corner),
+% the fleet has the listed number of ships of each size, and the given shots hold.
+% Encoded with sat, which suits the many local implications between neighbouring squares.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    R = Data.get(rows),
+    C = Data.get(cols),
+    RowSum = Data.get(rowsum),            % occupied squares wanted in each row
+    ColSum = Data.get(colsum),            % occupied squares wanted in each column
+    Fleet = Data.get(fleet_counts),       % each entry: [ship size, number of ships of that size]
+    Hints = Data.get(hints),              % each entry: [row, column, content], counted from 0
+    % the codes of the square contents are part of the instance
+    Water = Data.get('WATER'),
+    Circle = Data.get('CIRCLE'),          % a submarine, a ship of one square
+    Left = Data.get('LEFT'),              % left end of a horizontal ship
+    Right = Data.get('RIGHT'),            % right end of a horizontal ship
+    Top = Data.get('TOP'),                % top end of a vertical ship
+    Bottom = Data.get('BOTTOM'),          % bottom end of a vertical ship
+    Middle = Data.get('MIDDLE'),          % a square inside a ship of three or more squares
+    % G is the grid with a frame of water around it, so that a square outside the grid counts
+    % as water for every neighbour test and as no ship piece. The square in row r, column c
+    % (counted from 1) of the puzzle is G[r + 1, c + 1]. Inside the frame every square takes a
+    % code 0..7, as in the reference.
+    G = new_array(R + 2, C + 2),
+    foreach (I in 1..R + 2, J in 1..C + 2)
+        if (I == 1 ; I == R + 2 ; J == 1 ; J == C + 2) then
+            G[I, J] = Water
+        else
+            G[I, J] :: 0..7
+        end
+    end,
+    % the given shots: square (row, column) holds the given content
+    foreach (Hint in Hints)
+        G[Hint[1] + 2, Hint[2] + 2] #= Hint[3]
+    end,
+    % the number of occupied (non-water) squares in each row and each column
+    foreach (I in 1..R)
+        sum([G[I + 1, J + 1] #> Water : J in 1..C]) #= RowSum[I]
+    end,
+    foreach (J in 1..C)
+        sum([G[I + 1, J + 1] #> Water : I in 1..R]) #= ColSum[J]
+    end,
+    foreach (I in 2..R + 1, J in 2..C + 1)
+        % no two ships touch, not even at a corner: next to an occupied square the four
+        % diagonal squares are water
+        G[I, J] #> Water #=>
+            (G[I - 1, J - 1] #= Water #/\ G[I - 1, J + 1] #= Water #/\
+             G[I + 1, J - 1] #= Water #/\ G[I + 1, J + 1] #= Water),
+        % a submarine is surrounded by water on its four sides
+        G[I, J] #= Circle #=>
+            (G[I - 1, J] #= Water #/\ G[I + 1, J] #= Water #/\
+             G[I, J - 1] #= Water #/\ G[I, J + 1] #= Water),
+        % the left end of a ship has a middle or right end to its right, water on its other sides
+        G[I, J] #= Left #=>
+            ((G[I, J + 1] #= Middle #\/ G[I, J + 1] #= Right) #/\
+             G[I, J - 1] #= Water #/\ G[I - 1, J] #= Water #/\ G[I + 1, J] #= Water),
+        % the right end of a ship has a middle or left end to its left, water on its other sides
+        G[I, J] #= Right #=>
+            ((G[I, J - 1] #= Middle #\/ G[I, J - 1] #= Left) #/\
+             G[I, J + 1] #= Water #/\ G[I - 1, J] #= Water #/\ G[I + 1, J] #= Water),
+        % the top end of a ship has a middle or bottom end below it, water on its other sides
+        G[I, J] #= Top #=>
+            ((G[I + 1, J] #= Middle #\/ G[I + 1, J] #= Bottom) #/\
+             G[I - 1, J] #= Water #/\ G[I, J - 1] #= Water #/\ G[I, J + 1] #= Water),
+        % the bottom end of a ship has a middle or top end above it, water on its other sides
+        G[I, J] #= Bottom #=>
+            ((G[I - 1, J] #= Middle #\/ G[I - 1, J] #= Top) #/\
+             G[I + 1, J] #= Water #/\ G[I, J - 1] #= Water #/\ G[I, J + 1] #= Water),
+        % a middle square is inside a horizontal ship (left or middle on its left, right or
+        % middle on its right, water above and below) or inside a vertical ship (top or middle
+        % above, bottom or middle below, water on both sides)
+        G[I, J] #= Middle #=>
+            (((G[I, J - 1] #= Left #\/ G[I, J - 1] #= Middle) #/\
+              (G[I, J + 1] #= Right #\/ G[I, J + 1] #= Middle) #/\
+              G[I - 1, J] #= Water #/\ G[I + 1, J] #= Water) #\/
+             ((G[I - 1, J] #= Top #\/ G[I - 1, J] #= Middle) #/\
+              (G[I + 1, J] #= Bottom #\/ G[I + 1, J] #= Middle) #/\
+              G[I, J - 1] #= Water #/\ G[I, J + 1] #= Water))
+    end,
+    % fleet: the listed number of ships of each size. A ship of one square is a submarine.
+    % A longer ship is a left end and a right end Size - 1 squares apart in a row, or a top end
+    % and a bottom end Size - 1 squares apart in a column. The squares between two such ends
+    % are middle squares without being stated: a left end needs a middle or right end beside
+    % it, a middle needs a middle or end beside it on each side, and a right end needs water
+    % after it, so a chain that starts with a left end can only run through middles to its
+    % right end.
+    foreach (Entry in Fleet)
+        Size = Entry[1],
+        Count = Entry[2],
+        if Size == 1 then
+            sum([G[I, J] #= Circle : I in 2..R + 1, J in 2..C + 1]) #= Count
+        else
+            sum([G[I, J] #= Left #/\ G[I, J + Size - 1] #= Right :
+                 I in 2..R + 1, J in 2..C + 2 - Size]) +
+            sum([G[I, J] #= Top #/\ G[I + Size - 1, J] #= Bottom :
+                 I in 2..R + 2 - Size, J in 2..C + 1]) #= Count
+        end
+    end,
+    % no ship of a size the fleet does not list: every left or top end starts one of the
+    % ships counted above
+    LongShips = sum([Entry[2] : Entry in Fleet, Entry[1] > 1]),
+    sum([G[I, J] #= Left : I in 2..R + 1, J in 2..C + 1]) +
+    sum([G[I, J] #= Top : I in 2..R + 1, J in 2..C + 1]) #= LongShips,
+    Grid = [[G[I, J] : J in 2..C + 1] : I in 2..R + 1],
+    Vars = [G[I, J] : I in 2..R + 1, J in 2..C + 1],
+    Outputs = [grid = Grid],
+    Options = [].
