@@ -1,0 +1,25 @@
+{
+  "skill_name": "idp-z3",
+  "evals": [
+    {
+      "id": "data-bound-model",
+      "prompt": "Using this skill, write an idp_z3 submission for assignment_costs and check it with the repository evaluator across every listed instance.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The submission is a plain FO(.) vocabulary and theory, with no procedure block relied upon and no hardcoded cost values.",
+        "Declares cost with argument types declared `<: Int` and left unsized, so the runner sizes them from the instance, and declares the output x as a predicate over the same two types.",
+        "Declares a nullary minimize: () -> Int defined with a double-brace sum{{ ... }} aggregate, and the evaluator accepts every listed instance."
+      ]
+    },
+    {
+      "id": "scalar-sized-type",
+      "prompt": "Using this skill, write an idp_z3 submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Sizes the row type with the ${n} placeholder (e.g. type Row := {1..${n}}) rather than a literal range or an expression inside the placeholder.",
+        "Uses FO(.) operators rather than other languages' spellings: ~= for disequality, comma-separated quantified variables, and a period after every sentence.",
+        "The evaluator accepts every listed instance."
+      ]
+    }
+  ]
+}

@@ -50,11 +50,14 @@ LANGUAGES = {
     "minizinc": ("minizinc", "MiniZinc"),
     # highlight.js 11.9.0 ships rust in the common bundle, so no extra grammar.
     "rust": ("rust", "Rust"),
+    # highlight.js has no FO(.) grammar; label it correctly and leave it uncoloured.
+    "idp": ("plaintext", "FO(\u00b7)"),
 }
 
 # Only for a model whose integration is no longer installed under solvers/.
 EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
-                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust"}
+                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust",
+                      ".idp": "idp"}
 
 FRAMEWORK_ORDER = ["cpmpy_python", "minizinc_gecode",
                    "ortools_cp_sat_python", "ortools_cp_sat_cpp"]

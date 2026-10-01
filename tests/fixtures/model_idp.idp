@@ -1,0 +1,13 @@
+vocabulary {
+    type V := {0..${n}}
+    n: () -> Int
+    optimize: () -> Bool
+    x: () -> V
+    y: () -> V
+    minimize: () -> Int
+}
+theory {
+    optimize() => x() + y() >= n().
+    ~optimize() => x() + y() = n().
+    minimize() = x() + y().
+}
