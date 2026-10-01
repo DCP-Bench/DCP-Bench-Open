@@ -1,0 +1,59 @@
+% Progressive party: some boats are hosts and keep their crew on board; the crews of the
+% other boats visit one host per period. Capacities must hold, a guest never visits a
+% host twice, two crews meet at most once, and the number of hosts is minimised.
+% Encoded with 0/1 variables and sat: a clause-learning solver proves the optimum far
+% faster than cp's search on this tightly packed problem.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    NBoats = Data.get(n_boats),
+    NPeriods = Data.get(n_periods),
+    Capacity = Data.get(capacity),     % number of people each boat can hold at a time
+    CrewSize = Data.get(crew_size),
+    % IsHost[b] = 1 if boat b is a host
+    IsHost = new_list(NBoats),
+    IsHost :: 0..1,
+    % At[p, c, b] = 1 if the crew of boat c is aboard boat b in period p
+    At = new_array(NPeriods, NBoats, NBoats),
+    At :: 0..1,
+    % in each period every crew is aboard exactly one boat
+    foreach (P in 1..NPeriods, C in 1..NBoats)
+        sum([At[P, C, B] : B in 1..NBoats]) #= 1
+    end,
+    % the crew of a host boat stays on board in every period
+    foreach (B in 1..NBoats, P in 1..NPeriods)
+        IsHost[B] #=> At[P, B, B]
+    end,
+    % a boat that is not a host is never visited
+    foreach (P in 1..NPeriods, C in 1..NBoats, B in 1..NBoats)
+        At[P, C, B] #=> IsHost[B]
+    end,
+    % in each period, the crews aboard a boat never exceed its capacity
+    foreach (P in 1..NPeriods, B in 1..NBoats)
+        sum([CrewSize[C] * At[P, C, B] : C in 1..NBoats]) #=< Capacity[B]
+    end,
+    % a crew does not visit the same other boat twice
+    foreach (C in 1..NBoats, B in 1..NBoats, C != B)
+        sum([At[P, C, B] : P in 1..NPeriods]) #=< 1
+    end,
+    % two crews are together (on the same boat) in at most one period
+    foreach (C1 in 1..NBoats - 1, C2 in C1 + 1..NBoats)
+        sum([At[P, C1, B] #/\ At[P, C2, B] : P in 1..NPeriods, B in 1..NBoats]) #=< 1
+    end,
+    % implied: in every period all crews are aboard hosts, so the hosts' capacities
+    % must add up to the total crew size
+    sum([Capacity[B] * IsHost[B] : B in 1..NBoats]) #>= sum(CrewSize),
+    % the number of hosts to minimise
+    NHosts #= sum(IsHost),
+    % implied: a guest visits a different host in every period, so with any guest there
+    % are at least as many hosts as periods
+    (NHosts #>= NPeriods) #\/ (NHosts #= NBoats),
+    % Visits[p, c] = the boat (numbered from 0) that the crew of boat c is on in period p
+    Visits = new_array(NPeriods, NBoats),
+    Visits :: 0..NBoats - 1,
+    foreach (P in 1..NPeriods, C in 1..NBoats)
+        Visits[P, C] #= sum([(B - 1) * At[P, C, B] : B in 1..NBoats])
+    end,
+    Vars = [IsHost, At, Visits],
+    Outputs = [is_host = IsHost, visits = Visits],
+    Options = [$min(NHosts)].

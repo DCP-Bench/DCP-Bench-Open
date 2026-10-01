@@ -1,0 +1,21 @@
+% CMO 2012: find positive integers a and b, with a - b a prime number p and a * b a perfect
+% square n * n, such that a is the smallest value that is at least min_a.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    MinA = Data.get(min_a),            % lower bound on a
+    MaxVal = Data.get(max_val),        % upper bound on every number of the model
+    % the primes below max_val, the possible values of p (trial division up to sqrt)
+    Primes = [Q : Q in 2..MaxVal - 1, [D : D in 2..floor(sqrt(Q)), Q mod D == 0] == []],
+    A :: MinA..MaxVal,
+    B :: 1..MaxVal,
+    N :: 0..MaxVal,
+    P :: Primes,
+    % a is at least b, and their difference is the prime p
+    A #>= B,
+    P #= A - B,
+    % the product a * b is the perfect square n * n
+    A * B #= N * N,
+    Vars = [A, P, B, N],
+    Outputs = [a = A, b = B, n = N, p = P],
+    Options = [$min(A)].

@@ -1,0 +1,16 @@
+% Magic sequence of length n: integers x_0..x_{n-1}, each between 0 and n-1, such that
+% the number i occurs exactly x_i times in the sequence, for every i from 0 to n-1.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                  % length of the sequence
+    % X[i + 1] = x_i; a value can occur at most n times, and 0..n-1 is the declared range
+    X = new_list(N),
+    X :: 0..N - 1,
+    % the number i occurs exactly x_i times
+    foreach (I in 0..N - 1)
+        sum([X[J] #= I : J in 1..N]) #= X[I + 1]
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [ff].

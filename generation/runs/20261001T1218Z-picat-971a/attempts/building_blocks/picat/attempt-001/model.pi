@@ -1,0 +1,26 @@
+% Building blocks: distribute the letters of the alphabet over num_blocks alphabet blocks
+% with num_sides sides each (one letter per side) so that every given word can be spelled,
+% i.e. the letters of a word all lie on different blocks.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NumBlocks = Data.get(num_blocks),
+    NumSides = Data.get(num_sides),
+    NumLetters = Data.get(num_letters),
+    Alphabet = Data.get(alphabet),       % the letter at position i (from 1) is letter i - 1
+    Words = Data.get(words_str),
+    % Dice[l] = the block (numbered from 0) holding letter l of the alphabet
+    Dice = new_list(NumLetters),
+    Dice :: 0..NumBlocks - 1,
+    % the letters of a word are on different blocks
+    foreach (Word in Words)
+        Letters = [I : C in Word, I in 1..NumLetters, Alphabet[I] == C],
+        all_different([Dice[L] : L in Letters])
+    end,
+    % each block carries exactly num_sides letters
+    foreach (B in 0..NumBlocks - 1)
+        sum([Dice[L] #= B : L in 1..NumLetters]) #= NumSides
+    end,
+    Vars = Dice,
+    Outputs = [dice = Dice],
+    Options = [].

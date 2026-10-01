@@ -1,0 +1,21 @@
+% Appointment scheduling: give each of n people one of n interview slots, one person per
+% slot, using only slots where the person is free (m[i][j] = 1 if person i is free in slot j).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    M = Data.get(m),                  % free/busy schedule of each person
+    N = len(M),
+    % X[i, j] = 1 if person i is assigned to slot j
+    X = new_array(N, N),
+    X :: 0..1,
+    foreach (I in 1..N)
+        % each person is assigned to a slot in which they are free
+        sum([M[I, J] * X[I, J] : J in 1..N]) #= 1,
+        % each person gets exactly one slot
+        sum([X[I, J] : J in 1..N]) #= 1,
+        % each slot is taken by exactly one person
+        sum([X[J, I] : J in 1..N]) #= 1
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [].

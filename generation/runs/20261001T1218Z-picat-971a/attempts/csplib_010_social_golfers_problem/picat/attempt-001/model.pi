@@ -1,0 +1,23 @@
+% Social golfers: n_groups * group_size golfers play once a week for n_weeks weeks, in
+% n_groups groups of group_size; no two golfers may be in the same group more than once.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NWeeks = Data.get(n_weeks),
+    NGroups = Data.get(n_groups),
+    GroupSize = Data.get(group_size),
+    NGolfers = NGroups * GroupSize,
+    % Assign[g, w] = the group (numbered from 0) golfer g plays in during week w
+    Assign = new_array(NGolfers, NWeeks),
+    Assign :: 0..NGroups - 1,
+    % each group has exactly group_size players in every week
+    foreach (Gr in 0..NGroups - 1, W in 1..NWeeks)
+        sum([Assign[G, W] #= Gr : G in 1..NGolfers]) #= GroupSize
+    end,
+    % each pair of golfers is in the same group in at most one week
+    foreach (G1 in 1..NGolfers - 1, G2 in G1 + 1..NGolfers)
+        sum([Assign[G1, W] #= Assign[G2, W] : W in 1..NWeeks]) #=< 1
+    end,
+    Vars = Assign,
+    Outputs = [assign = Assign],
+    Options = [ff].

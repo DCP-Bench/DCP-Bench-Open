@@ -1,0 +1,69 @@
+% Car sequencing: order the cars on an assembly line so that every option's station
+% is never overloaded, i.e. at most at_most[o] of any per_slots[o] consecutive cars
+% need option o, while each car type is produced exactly as often as demanded.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    AtMost = Data.get(at_most),        % capacity of the station of each option
+    PerSlots = Data.get(per_slots),    % length of the window the capacity refers to
+    Demand = Data.get(demand),         % number of cars wanted of each type
+    Requires = Data.get(requires),     % Requires[t, o] = 1 if type t needs option o
+    NCars = sum(Demand),               % one slot per car to produce
+    NTypes = len(Demand),
+    NOptions = len(AtMost),
+    % Totals[o] = number of cars that need option o
+    Totals = [sum([Demand[T] * Requires[T, O] : T in 1..NTypes]) : O in 1..NOptions],
+    % Search order of the types, the hardest to place first: a type scores the sum, over
+    % the options it needs, of the option's utilisation (proportional to Totals[o] * q / p; a station that
+    % must work near its capacity is the tightest). Perm[r] = the type (from 1) of rank r.
+    Sorted = sort_down([{sum([Requires[T, O] * Totals[O] * PerSlots[O] / AtMost[O] : O in 1..NOptions]), T} : T in 1..NTypes]),
+    Perm = [Pair[2] : Pair in Sorted],
+    % Seq[s] = the rank of the type of the car in slot s
+    Seq = new_list(NCars),
+    Seq :: 1..NTypes,
+    % each type appears exactly as many times as demanded
+    foreach (R in 1..NTypes)
+        count(R, Seq, #=, Demand[Perm[R]])
+    end,
+    foreach (O in 1..NOptions)
+        P = AtMost[O],
+        Q = PerSlots[O],
+        % Total = number of cars that need option o
+        Total = sum([Demand[T] * Requires[T, O] : T in 1..NTypes]),
+        % Setup[s] = 1 if the car in slot s needs option o
+        Setup = new_list(NCars),
+        Setup :: 0..1,
+        Column = [Requires[Perm[R], O] : R in 1..NTypes],
+        foreach (S in 1..NCars)
+            element(Seq[S], Column, Setup[S])
+        end,
+        % Count[s] = number of cars needing option o among the first s slots (Count[1] is for
+        % s = 0). The first t slots hold at most floor(t / q) * p + min(p, t mod q) of them
+        % (the capacity of the windows), and the last n - t slots hold the same at most, so
+        % Count[t] lies between Total - cap(n - t) and cap(t): these bounds are implied.
+        Count = new_list(NCars + 1),
+        foreach (T0 in 0..NCars)
+            Upper = min(Total, (T0 // Q) * P + min(P, T0 mod Q)),
+            Rest = NCars - T0,
+            Lower = max(0, Total - ((Rest // Q) * P + min(P, Rest mod Q))),
+            Count[T0 + 1] :: Lower..Upper
+        end,
+        Count[1] #= 0,
+        foreach (S in 1..NCars)
+            Count[S + 1] #= Count[S] + Setup[S]
+        end,
+        % in every window of q consecutive slots, at most p cars need option o
+        foreach (S in 0..NCars - Q)
+            Count[S + Q + 1] - Count[S + 1] #=< P
+        end
+    end,
+    % Sequence[s] = the type of the car in slot s, numbered from 0
+    Sequence = new_list(NCars),
+    Sequence :: 0..NTypes - 1,
+    Types0 = [T - 1 : T in Perm],
+    foreach (S in 1..NCars)
+        element(Seq[S], Types0, Sequence[S])
+    end,
+    Vars = Seq,
+    Outputs = [sequence = Sequence],
+    Options = [].

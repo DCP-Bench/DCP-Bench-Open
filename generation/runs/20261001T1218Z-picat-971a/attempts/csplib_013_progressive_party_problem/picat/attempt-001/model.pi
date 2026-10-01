@@ -1,0 +1,44 @@
+% Progressive party: some boats are hosts and keep their crew on board; the crews of the
+% other boats visit one host per period. Capacities must hold, a guest never visits a
+% host twice, two crews meet at most once, and the number of hosts is minimised.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NBoats = Data.get(n_boats),
+    NPeriods = Data.get(n_periods),
+    Capacity = Data.get(capacity),     % number of people each boat can hold at a time
+    CrewSize = Data.get(crew_size),
+    % IsHost[b] = 1 if boat b is a host
+    IsHost = new_list(NBoats),
+    IsHost :: 0..1,
+    % Visits[p, b] = the boat (numbered from 0) that the crew of boat b is on in period p
+    Visits = new_array(NPeriods, NBoats),
+    Visits :: 0..NBoats - 1,
+    % the crew of a host boat stays on board in every period
+    foreach (B in 1..NBoats, P in 1..NPeriods)
+        IsHost[B] #=> (Visits[P, B] #= B - 1)
+    end,
+    % in each period, the crews aboard a boat never exceed its capacity
+    foreach (P in 1..NPeriods, B in 1..NBoats)
+        sum([CrewSize[C] * (Visits[P, C] #= B - 1) : C in 1..NBoats]) #=< Capacity[B]
+    end,
+    % a guest crew does not visit the same boat twice
+    foreach (B in 1..NBoats, P1 in 1..NPeriods - 1, P2 in P1 + 1..NPeriods)
+        (IsHost[B] #= 0) #=> (Visits[P1, B] #!= Visits[P2, B])
+    end,
+    % a boat that is not a host is never visited
+    foreach (B in 1..NBoats, P in 1..NPeriods, C in 1..NBoats)
+        (IsHost[B] #= 0) #=> (Visits[P, C] #!= B - 1)
+    end,
+    % two crews are together (on the same boat) in at most one period
+    foreach (C1 in 1..NBoats - 1, C2 in C1 + 1..NBoats)
+        sum([Visits[P, C1] #= Visits[P, C2] : P in 1..NPeriods]) #=< 1
+    end,
+    % implied: in every period all crews are aboard hosts, so the hosts' capacities
+    % must add up to the total crew size (this prunes host sets that are too small)
+    sum([Capacity[B] * IsHost[B] : B in 1..NBoats]) #>= sum(CrewSize),
+    % the number of hosts to minimise
+    NHosts #= sum(IsHost),
+    Vars = [IsHost, Visits],
+    Outputs = [is_host = IsHost, visits = Visits],
+    Options = [$min(NHosts)].

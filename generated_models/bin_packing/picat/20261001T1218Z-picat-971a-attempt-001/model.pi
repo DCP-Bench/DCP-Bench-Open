@@ -1,0 +1,19 @@
+% Bin packing: assign every item to one of num_bins bins so that the total weight of the
+% items in each bin does not exceed the capacity.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Weights = Data.get(weights),
+    Capacity = Data.get(capacity),       % capacity of each bin
+    NumBins = Data.get(num_bins),
+    N = len(Weights),
+    % Bins[j] = the bin (numbered from 0) that item j is put in
+    Bins = new_list(N),
+    Bins :: 0..NumBins - 1,
+    % the items in a bin weigh at most the capacity
+    foreach (B in 0..NumBins - 1)
+        sum([Weights[J] * (Bins[J] #= B) : J in 1..N]) #=< Capacity
+    end,
+    Vars = Bins,
+    Outputs = [bins = Bins],
+    Options = [].
