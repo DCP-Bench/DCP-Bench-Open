@@ -1,0 +1,66 @@
+{
+  "accepted": false,
+  "detail": "syntax error, unexpected where, expecting identifier",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.0998919606208801e-06,
+      "detail": "syntax error, unexpected where, expecting identifier",
+      "execution_wall_seconds": 1.292444600025192,
+      "id": "example",
+      "instance_hash": "886395624b7a4744f1d6187e9857826b4e2fbec0509753c1c289c994bd654614",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "config",
+        "where"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 6.013355199946091,
+      "runner_status": {
+        "detail": "syntax error, unexpected where, expecting identifier",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 265, in main\n    minizinc_solver(request)\n  File \"/opt/runner/runtime.py\", line 148, in minizinc_solver\n    inst = minizinc.Instance(minizinc.Solver.lookup(\"gecode\"), problem)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 103, in __init__\n    self.analyse()\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 844, in analyse\n    output = self._driver._run(\n             ^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/driver.py\", line 245, in _run\n    for _ in decode_json_stream(output.stdout):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/json.py\", line 95, in decode_json_stream\n    raise error_from_stream_obj(obj)\nminizinc.error.SyntaxError: syntax error, unexpected where, expecting identifier\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "e5f3e75aae6b92739565aae053b9f2f868c438901485d3f024c1e8dad89fa27e",
+  "problem_id": "csplib_011_acc_basketball_schedule",
+  "reason": "execution_error",
+  "reference_hash": "b83cab83d405ef77af719b07a10e930ccdf8b24d1c6e0ae67ed91770745074b4",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 7.9018649000208825,
+  "unperformed_instances": []
+}
