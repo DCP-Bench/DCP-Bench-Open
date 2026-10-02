@@ -585,6 +585,22 @@
       "detail": "The declared output is the whole ten-digit pandigital number, which is above 2^31-1. The runner reads output atoms with symbol.number and clingo integers are 32 bits, so no atom can carry the value. A model with full ten-digit prefixes ended with no_solution at the overflowing last step; a model that stops at nine digits was rejected as invalid_solution. The 9-digit prefix being correct is inferred, the record does not show it. Same class of obstacle as divisible_by_1_through_9 / minizinc_gecode.",
       "evidence": "generation/runs/20261001T1218Z-clingo-8f73/attempts/divisible_by_1_through_9/clingo_asp/attempt-002/evaluation.json",
       "recorded": "2026-10-02"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "pysat",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the ten-digit number, up to 9876543210. The pysat runner reads an integer output only from an Integer object or a literal, and Integer in this python-sat version builds the whole value range and registers one variable id per value. A bare Integer over 0..10^10 is killed at the 2048 MB limit before any constraint is added. Only a probe attempt was written, since no model can declare the output without the Integer. An integration limit rather than a modelling one.",
+      "evidence": "generation/runs/20261001T1218Z-pysat-aad3/attempts/divisible_by_1_through_9/pysat/attempt-001/evaluation.json",
+      "recorded": "2026-10-02"
+    },
+    {
+      "problem": "fibonacci_even",
+      "solver": "pysat",
+      "reason": "unsupported_value_range",
+      "detail": "The answer is a sum of even Fibonacci numbers and needs an output domain of at least 4.6 million values. The pysat runner reads an integer output only from an Integer object, which registers one variable id per value: the coupled encoding over 0..5.3M is killed at the 2048 MB limit and the direct encoding exceeds 190 s. Only probe attempts were written. An integration limit rather than a modelling one.",
+      "evidence": "generation/runs/20261001T1218Z-pysat-aad3/attempts/fibonacci_even/pysat/attempt-001/evaluation.json",
+      "recorded": "2026-10-02"
     }
   ]
 }
