@@ -1,0 +1,78 @@
+{
+  "accepted": false,
+  "detail": "Index set mismatch. Declared index set of `on_unshaded' is [0..2], but is assigned to array `X_INTRODUCED_125_' with index set [1..3]. You may need to coerce the index sets using the array1d function.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.100124791264534e-06,
+      "detail": "Index set mismatch. Declared index set of `on_unshaded' is [0..2], but is assigned to array `X_INTRODUCED_125_' with index set [1..3]. You may need to coerce the index sets using the array1d function.",
+      "execution_wall_seconds": 1.920921599958092,
+      "id": "example",
+      "instance_hash": "2002322798a99b15651aa3cdc0d147ed788d0a40305ee6e5c8738f09a90cfcd8",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "board"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.2659591999836266,
+      "runner_status": {
+        "detail": "Index set mismatch. Declared index set of `on_unshaded' is [0..2], but is assigned to array `X_INTRODUCED_125_' with index set [1..3]. You may need to coerce the index sets using the array1d function.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 265, in main\n    minizinc_solver(request)\n  File \"/opt/runner/runtime.py\", line 203, in minizinc_solver\n    asyncio.run(enumerate_solutions())\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/opt/runner/runtime.py\", line 186, in enumerate_solutions\n    async for result in stream:\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 618, in solutions\n    async for obj in decode_async_json_stream(\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/json.py\", line 122, in decode_async_json_stream\n    raise error_from_stream_obj(obj)\nminizinc.error.EvaluationError: Index set mismatch. Declared index set of `on_unshaded' is [0..2], but is assigned to array `X_INTRODUCED_125_' with index set [1..3]. You may need to coerce the index sets using the array1d function.\n"
+    }
+  ],
+  "instances_available": 13,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "f310004474d77ef92b2efed9e16b9285379b141532033b4ddd52877b16967867",
+  "problem_id": "csplib_012_nonogram",
+  "reason": "execution_error",
+  "reference_hash": "3e2d77fd45556518b59d456db797db007b76e7c25f1ed317a7c1303d13641ad6",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 3.844986000098288,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:5",
+    "json:6",
+    "json:7",
+    "json:8",
+    "json:9",
+    "json:10",
+    "json:11",
+    "json:12",
+    "json:13"
+  ]
+}
