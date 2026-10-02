@@ -577,6 +577,14 @@
       "detail": "The reference has an objective (minimize). The pysat integration declares optimization: false and solvers/pysat/run.py refuses a returned objective ('PySAT solves satisfaction problems only; this problem has an objective'). A single CNF cannot state optimality without embedding the optimum, which is not allowed. Not attempted: the same refusal applies to every problem with an objective (evidence is the refusal for aircraft_assignment). Supporting optimisation (for example through PySAT's RC2 MaxSAT solver) is an integration change, so every objective problem is blocked for pysat until then.",
       "evidence": "generation/runs/20261001T1218Z-pysat-aad3/attempts/aircraft_assignment/pysat/attempt-001/evaluation.json",
       "recorded": "2026-10-02"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "clingo_asp",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the whole ten-digit pandigital number, which is above 2^31-1. The runner reads output atoms with symbol.number and clingo integers are 32 bits, so no atom can carry the value. A model with full ten-digit prefixes ended with no_solution at the overflowing last step; a model that stops at nine digits was rejected as invalid_solution. The 9-digit prefix being correct is inferred, the record does not show it. Same class of obstacle as divisible_by_1_through_9 / minizinc_gecode.",
+      "evidence": "generation/runs/20261001T1218Z-clingo-8f73/attempts/divisible_by_1_through_9/clingo_asp/attempt-002/evaluation.json",
+      "recorded": "2026-10-02"
     }
   ]
 }
