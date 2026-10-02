@@ -153,6 +153,14 @@
       "detail": "The instance has a field named _SHIP. solvers/clingo_asp/run.py predicate() lowers only the first character, which is '_', so the runner emits the fact _SHIP(1). Clingo reads an identifier with no lowercase letter after its underscores as a variable, so every program fails with 'parsing failed' before solving, whatever the model says. The mechanism is inferred from the identifier rules and from run.py; the failure itself was measured. Fixing it means changing run.py, which this run may not do.",
       "evidence": "generation/runs/20261001T1218Z-clingo-8f73/attempts/csplib_014_solitaire_battleships/clingo_asp/attempt-002/evaluation.json",
       "recorded": "2026-10-02"
+    },
+    {
+      "problem": "big_bang2",
+      "solver": "swipl_clpfd",
+      "reason": "execution_timeout",
+      "detail": "Ten attempts, none found a solution within the 180 s execution limit on the only instance (every one ended no_instance_verified). Encodings tried: reified pair comparisons, face counts with products, a 12376-row table of dice in two orders, and per-face element/3 counts, each with several labelling orders. clpfd has no clause learning, and stderr diagnostics show that each prefix of the first three dice takes seconds to refute. A performance limit of this solver on this problem; a materially different encoding or a faster search strategy would justify retrying.",
+      "evidence": "generation/runs/20261001T1218Z-swipl-ff16/attempts/big_bang2/swipl_clpfd/attempt-010/evaluation.json",
+      "recorded": "2026-10-02"
     }
   ]
 }
