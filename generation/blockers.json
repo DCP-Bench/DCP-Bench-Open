@@ -657,6 +657,22 @@
       "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. The example (12 words of length 8) was refused with 4860 rows: the 144 ordered word pairs times 8 positions need at least 4 linking rows each for the distance constraints, about 4600. A full Gurobi licence would not hit this.",
       "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_033_word_design/gurobipy_python/attempt-001/evaluation.json",
       "recorded": "2026-10-03"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "hermax",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the ten-digit number. The hermax runner reads an output only from an IntVar or a literal, and an IntVar over the ten-digit range is killed at the 2048 MB limit on its own, with no constraint linking it to anything (diagnostic attempt-002); the full model (attempt-001) hit the same limit after 31 s. An integration limit rather than a modelling one.",
+      "evidence": "generation/runs/20261001T1218Z-hermax-e024/attempts/divisible_by_1_through_9/hermax/attempt-002/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "fibonacci_even",
+      "solver": "hermax",
+      "reason": "unsupported_value_range",
+      "detail": "The output is about 4.6 million; a derived bound gives 0..5,333,333. The hermax runner reads an output only from an IntVar or a literal, and an IntVar over that range is killed at the 2048 MB limit on its own (diagnostic attempt-002); the full adder-based model (attempt-001) hit the same limit. An integration limit rather than a modelling one.",
+      "evidence": "generation/runs/20261001T1218Z-hermax-e024/attempts/fibonacci_even/hermax/attempt-002/evaluation.json",
+      "recorded": "2026-10-03"
     }
   ]
 }
