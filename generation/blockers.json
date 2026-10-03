@@ -681,6 +681,14 @@
       "detail": "The declared output is the ten-digit number, up to 9876543210, and Choco integer variables are 32-bit: model.intvar(0, 10**10-1, bounded_domain=True) raises OverflowError in intvar_siib at build time. An output has to be a Choco variable, so the value cannot be carried. Same class of obstacle as minizinc_gecode and clingo_asp on this problem.",
       "evidence": "generation/runs/20261001T1218Z-choco-8f0c/attempts/divisible_by_1_through_9/choco_python/attempt-001/evaluation.json",
       "recorded": "2026-10-03"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "pumpkin_rust",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the ten-digit number, above 2^31-1. Pumpkin integer variables (new_bounded_integer over i32) and the runner's output conversion are 32-bit, so no output can carry the value. A model capping the last prefix at i32::MAX ended in a panic inside pumpkin-core rather than an answer. Same class of obstacle as the other 32-bit integrations on this problem.",
+      "evidence": "generation/runs/20261001T1218Z-pumpkin-44d6/attempts/divisible_by_1_through_9/pumpkin_rust/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
     }
   ]
 }
