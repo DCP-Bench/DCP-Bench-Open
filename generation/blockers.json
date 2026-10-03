@@ -601,6 +601,30 @@
       "detail": "The answer is a sum of even Fibonacci numbers and needs an output domain of at least 4.6 million values. The pysat runner reads an integer output only from an Integer object, which registers one variable id per value: the coupled encoding over 0..5.3M is killed at the 2048 MB limit and the direct encoding exceeds 190 s. Only probe attempts were written. An integration limit rather than a modelling one.",
       "evidence": "generation/runs/20261001T1218Z-pysat-aad3/attempts/fibonacci_even/pysat/attempt-001/evaluation.json",
       "recorded": "2026-10-02"
+    },
+    {
+      "problem": "csplib_001_car_sequencing",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. The 200-car instances need one capacity row per option window, 987 rows on json:1 before any demand row, so a one-row-per-window formulation cannot fit; the model was refused on json:1 with 4800 variables and 1211 constraints. The row count is derived, the refusal measured. The full CPLEX would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-cplex-5db7/attempts/csplib_001_car_sequencing/docplex_cplex/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_012_nonogram",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. The model was refused on json:1 (20x20) with 1214 variables; json:6, json:12 and json:13 have 2100, 1575 and 3300 cells, each needing at least one variable, so no cell-based formulation fits. The full CPLEX would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-cplex-5db7/attempts/csplib_012_nonogram/docplex_cplex/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_010_social_golfers_problem",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. json:7 (32 golfers) was refused at 1024 variables even with the first week fixed, and four smaller instances timed out; at most 3 of 8 instances passed in any of three attempts. The full CPLEX would not hit the size refusal.",
+      "evidence": "generation/runs/20261001T1218Z-cplex-5db7/attempts/csplib_010_social_golfers_problem/docplex_cplex/attempt-002/evaluation.json",
+      "recorded": "2026-10-03"
     }
   ]
 }
