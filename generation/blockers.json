@@ -625,6 +625,38 @@
       "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. json:7 (32 golfers) was refused at 1024 variables even with the first week fixed, and four smaller instances timed out; at most 3 of 8 instances passed in any of three attempts. The full CPLEX would not hit the size refusal.",
       "evidence": "generation/runs/20261001T1218Z-cplex-5db7/attempts/csplib_010_social_golfers_problem/docplex_cplex/attempt-002/evaluation.json",
       "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_001_car_sequencing",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. Meeting the demand per car type on the 200-car instances needs a car-by-type assignment, 200 x 24 = 4800 variables on json:1, which was refused; the alternatives tried by hand (option bits, lookup constraints) still need that count. The counts are derived, the refusal measured. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_001_car_sequencing/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_012_nonogram",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. The model passed the example and json:1 and was refused on json:2 (25x25, 2524 block-start variables); json:6 and json:13 have 2100 and 3300 cells, so no model with one variable per cell fits. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_012_nonogram/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_010_social_golfers_problem",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. json:5 (25 golfers, 6 weeks) was refused with 4350 variables and 4080 rows; one meeting variable per golfer pair and week alone needs 2550. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_010_social_golfers_problem/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_033_word_design",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. The example (12 words of length 8) was refused with 4860 rows: the 144 ordered word pairs times 8 positions need at least 4 linking rows each for the distance constraints, about 4600. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_033_word_design/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
     }
   ]
 }
