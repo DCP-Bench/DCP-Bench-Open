@@ -1,0 +1,115 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-sonnet-5-5)",
+    "attempt_id": "attempt-001",
+    "created_at": 1791038599.7524204,
+    "problem_id": "chess_set",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "7c0e8a78d74735bc8be703e71c90621d3305e3cabf83e168b72765eccf221e4d",
+    "run_id": "20261001T1218Z-pumpkin-44d6",
+    "schema": 2,
+    "skill_bundle_hash": "b42c89a49928f428c5d14a2119038573267493dbabdbb1cd57af48c6b6f71099",
+    "skill_source": "solvers\\pumpkin_rust\\skills\\pumpkin-rust",
+    "skill_version": {
+      "commit": "39a6cd0f06defb81808a1ec3fd5c6a2ade9c99ad",
+      "modified": false,
+      "path": "solvers/pumpkin_rust/skills/pumpkin-rust"
+    },
+    "solver_id": "pumpkin_rust"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:ba76cd4075853c6d15c85bb572baf1a604b52e58673bad3d7724d982743294cf",
+      "tag": "dcp-eval/pumpkin_rust:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.005223300002398901,
+        "execution_wall_seconds": 2.2558624999946915,
+        "first_solution": {
+          "large_set": 66,
+          "max_profit": 1330,
+          "small_set": 2
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 1330,
+        "outputs": [
+          "small_set",
+          "large_set",
+          "max_profit"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.1331016999902204,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.0002873,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 1.370s\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "b6485ad8c0d8f309e83e75d10fb5a6282ea4107631224a6c98bac3f2ae1c065c",
+    "problem_id": "chess_set",
+    "reason": "accepted",
+    "reference_hash": "9b744d8e109a0b0011d358ec9ff441b5be01dc3abee95727518dd2abd5ec9e98",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "pumpkin_rust",
+    "total_wall_seconds": 3.9038771000050474,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-sonnet-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.rs",
+  "problem": "chess_set",
+  "schema": 2,
+  "solver": "pumpkin_rust",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
