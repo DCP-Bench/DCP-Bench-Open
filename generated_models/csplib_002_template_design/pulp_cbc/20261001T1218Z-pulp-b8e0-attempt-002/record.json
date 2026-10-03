@@ -1,0 +1,198 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-sonnet-5-5)",
+    "attempt_id": "attempt-002",
+    "created_at": 1791020431.395344,
+    "problem_id": "csplib_002_template_design",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "c9ceb1d75645af5a597ca8521b3c530477586c222ddd370eabbc520136f53806",
+    "run_id": "20261001T1218Z-pulp-b8e0",
+    "schema": 2,
+    "skill_bundle_hash": "4691959542f86349cdad4ef164c8c798ae089f8f2e77edc164a79b77a7d30fb2",
+    "skill_source": "solvers\\pulp_cbc\\skills\\pulp-cbc",
+    "skill_version": {
+      "commit": "90268f3791c6ae9cda1bbe26f73a82da2963e44a",
+      "modified": false,
+      "path": "solvers/pulp_cbc/skills/pulp-cbc"
+    },
+    "solver_id": "pulp_cbc"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:ca4aac137e9cea374b23272d4faaf82184ecc724a5a7e431504e2c6b88078800",
+      "tag": "dcp-eval/pulp_cbc:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.01912850000371691,
+        "execution_wall_seconds": 70.82747750000271,
+        "first_solution": {
+          "layout": [
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              7
+            ]
+          ],
+          "production": [
+            260,
+            158
+          ]
+        },
+        "id": "example",
+        "instance_hash": "8b885ec6a3a9dd29161b80284eeffaacac4c6e371911d761bad4368b3998ac05",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 418,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.4695229999997537,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": false,
+        "checking_seconds": 0.01109800000267569,
+        "detail": "",
+        "execution_wall_seconds": 180.49454909999622,
+        "first_solution": {
+          "layout": [
+            [
+              0,
+              1,
+              1,
+              0,
+              0,
+              7,
+              0
+            ],
+            [
+              0,
+              2,
+              2,
+              0,
+              0,
+              4,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              2,
+              2,
+              0,
+              4
+            ]
+          ],
+          "production": [
+            56,
+            102,
+            250
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "aa569d28922003810909e38cc5be3666c8a18c2b1e5a48a67772432c92e9c39e",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 408,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "execution_timeout",
+        "reference_setup_seconds": 2.9770138999956544,
+        "runner_status": {
+          "detail": "",
+          "status": "timeout",
+          "type": "status"
+        },
+        "skipped": true,
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 2,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "f5eecf696300b223af1d55881817f446eb6c8ee6d7d1e27b37f8231edf711d2c",
+    "problem_id": "csplib_002_template_design",
+    "reason": "accepted",
+    "reference_hash": "02b76c64495d432bead1751c07374346d049e8a2277f67bd4d62cb29f19f93f4",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [
+      "json:2"
+    ],
+    "solutions_checked": 3,
+    "solver_id": "pulp_cbc",
+    "total_wall_seconds": 256.5529505000013,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-sonnet-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.py",
+  "problem": "csplib_002_template_design",
+  "schema": 2,
+  "solver": "pulp_cbc",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
