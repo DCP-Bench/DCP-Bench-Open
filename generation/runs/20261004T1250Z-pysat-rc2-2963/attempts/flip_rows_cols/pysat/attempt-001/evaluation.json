@@ -1,0 +1,71 @@
+{
+  "accepted": false,
+  "detail": "Wrong bound: -90",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:2957a473257a188f9d4bfca1ce33bc5697befd70015c6297c6c8db0b56fd1031",
+    "tag": "dcp-eval/pysat:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 8.00006091594696e-07,
+      "detail": "Wrong bound: -90",
+      "execution_wall_seconds": 0.9723866000131238,
+      "id": "example",
+      "instance_hash": "285c1c0bd5318eb68cecba87545812ee21b19ec57ccd0a85cd099bcc64972895",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 812,
+      "outputs": [
+        "row_signs",
+        "col_signs"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 7.388791900011711,
+      "runner_status": {
+        "detail": "Wrong bound: -90",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 272, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 264, in main\n    formula, outputs = load(request[\"instance\"])\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 81, in load\n    result = module.build(instance)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 61, in build\n    within([(i, j) for j in range(cols)], 0, 300)\n  File \"/input/model.py\", line 49, in within\n    formula.extend(PBEnc.geq(lits=lits, weights=weights, bound=low + base,\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/pb.py\", line 436, in geq\n    return cls._encode(lits, weights=weights, bound=bound, top_id=top_id,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/pb.py\", line 283, in _encode\n    raise ValueError('Wrong bound: {0}'.format(bound))\nValueError: Wrong bound: -90\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "ccf99fadac58d49100d6367de1fba9d4f1c9dc505b147f3623c08aedd12f6d61",
+  "problem_id": "flip_rows_cols",
+  "reason": "execution_error",
+  "reference_hash": "86f958a3301e2da946d853fc510b207add942683c8c71d7a276b0875966588a3",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "pysat",
+  "total_wall_seconds": 8.869298100005835,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

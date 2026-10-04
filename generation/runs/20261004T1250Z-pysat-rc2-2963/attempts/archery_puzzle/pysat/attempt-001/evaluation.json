@@ -1,0 +1,80 @@
+{
+  "accepted": false,
+  "detail": "Direct encoding is disabled",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:2957a473257a188f9d4bfca1ce33bc5697befd70015c6297c6c8db0b56fd1031",
+    "tag": "dcp-eval/pysat:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 0.005405299976700917,
+      "detail": "Direct encoding is disabled",
+      "execution_wall_seconds": 1.7631056999962311,
+      "first_solution": {
+        "hits": [
+          2,
+          4,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "id": "example",
+      "instance_hash": "92731a42d8ac3d7160c3f598f1855ed2c7335bf06fb0b8c4bbf808b9dca9eea7",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 0,
+      "outputs": [
+        "hits"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.0700264999759383,
+      "runner_status": {
+        "detail": "Direct encoding is disabled",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 1,
+      "solutions_received": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 272, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 266, in main\n    return optimise(formula, outputs, request, started)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 245, in optimise\n    clause = blocking_clause(outputs, model, truth)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 150, in blocking_clause\n    clause.append(-leaf.equals(leaf.decode(model)))\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 367, in equals\n    assert self.encoding in ('direct', 'coupled'), 'Direct encoding is disabled'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Direct encoding is disabled\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "4f9b2da8cf2b9feba30a9afe59bfd7f57c3ea7b6e1cf3b9763d484964464ba99",
+  "problem_id": "archery_puzzle",
+  "reason": "execution_error",
+  "reference_hash": "d8fab01102f50bb32f4b473405f4990509909a398bb92eee8f3f0bf0e301f873",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 1,
+  "solver_id": "pysat",
+  "total_wall_seconds": 3.3963723000197206,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}
