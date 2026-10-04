@@ -15,15 +15,16 @@
       "evidence_required": "The submission source and the evaluator JSON result."
     },
     {
-      "id": "refuses-an-objective",
-      "prompt": "Using this skill, look at a problem whose reference has an objective, such as knapsack, and decide what to do about it for this integration.",
+      "id": "objective-as-soft-clauses",
+      "prompt": "Using this skill, write a pysat submission for a problem whose reference has an objective, such as knapsack, and check it with the repository evaluator.",
       "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
-      "expected_output": "A recorded decision to leave the pair alone, not a submission.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
       "assertions": [
-        "The pair is not attempted, and the reasoning says this integration declares optimization: false because a SAT solver answers satisfiable or not.",
-        "If a submission was written anyway, the evaluator reports unsupported_capability rather than accepting a merely feasible answer."
+        "build returns a pysat.formula.WCNF whose hard clauses are the constraints, added with extend or append without a weight, never through CNF.weighted().",
+        "The objective is stated only as soft clauses with positive integer weights; a maximised quantity is written as a minimised shortfall from a stated upper bound.",
+        "No objective is returned as a third value."
       ],
-      "evidence_required": "The recorded reasoning, and the evaluator JSON result if a submission was evaluated."
+      "evidence_required": "The submission source and the evaluator JSON result."
     },
     {
       "id": "integer-variables-through-pysat-integer",

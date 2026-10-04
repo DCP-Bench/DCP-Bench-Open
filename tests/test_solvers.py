@@ -40,6 +40,9 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       # in a keyword, so the swap replaces the whole expression
                       # with its complement against a known upper bound.
                       "hermax": ("m.obj += (x + y)", "m.obj += ((2 * n) - (x + y))"),
+                      # pysat states its objective as soft-clause weights, so
+                      # the swap pays the shortfall n - v instead of v.
+                      "pysat": ("(v, v)", "(v, n - v)"),
                       "exact": ("minimize", "maximize"),
                       "gurobipy_python": ("MINIMIZE", "MAXIMIZE"),
                       "docplex_cplex": ("minimize", "maximize"),
