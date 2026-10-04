@@ -1,0 +1,65 @@
+{
+  "accepted": false,
+  "detail": "Wrong bound: -28310",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:2957a473257a188f9d4bfca1ce33bc5697befd70015c6297c6c8db0b56fd1031",
+    "tag": "dcp-eval/pysat:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 3.00002284348011e-07,
+      "detail": "Wrong bound: -28310",
+      "execution_wall_seconds": 1.0474175999988802,
+      "id": "example",
+      "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 29999,
+      "outputs": [
+        "z"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.6414053000044078,
+      "runner_status": {
+        "detail": "Wrong bound: -28310",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 272, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 264, in main\n    formula, outputs = load(request[\"instance\"])\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 81, in load\n    result = module.build(instance)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 85, in build\n    formula.extend(PBEnc.equals(lits=bits + [x[p] for p in players],\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/pb.py\", line 461, in equals\n    return cls._encode(lits, weights=weights, bound=bound, top_id=top_id,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/pb.py\", line 283, in _encode\n    raise ValueError('Wrong bound: {0}'.format(bound))\nValueError: Wrong bound: -28310\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "9e275f42c458b8786a8b46972ba5903d6d94e4318587b3c0b586a2a92bd6f15d",
+  "problem_id": "football",
+  "reason": "execution_error",
+  "reference_hash": "7f2afa4da55c7bf62dd863e31bc946ddf8f9890615befab3f9c220d3bc36558d",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "pysat",
+  "total_wall_seconds": 3.2202536999830045,
+  "unperformed_instances": []
+}
