@@ -94,3 +94,11 @@ Optimisation, added with RC2. Each claim was checked inside the image
   0.13 s. It enumerates in cost order after `add_clause` blocking (on the
   `x + y` example: three answers at cost 2, then 3, then 4) and honours
   `interrupt()` within about 0.1 s.
+- **Wide outputs as `LinearExpr`.** `Integer(name, 0, 10**10)` alone was killed
+  at the 2048 MB limit (divisible_by_1_through_9 attempt-001 in run
+  20261001T1218Z-pysat-aad3), because it registers one variable per value.
+  `sum(2**k * bit[k])` over 35 0..1 Integers is a `pysat.integer.LinearExpr`
+  (`terms` maps Integer to coefficient, `const` holds the constant); the runner
+  evaluates it, and the readiness check `wide_output` returns 2**33 + 2 from it.
+  `repeated_output_once` checks that two assignments with the same total are
+  reported once.

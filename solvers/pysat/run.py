@@ -2,8 +2,8 @@
 
 A submission defines `build(instance)` returning `(formula, outputs)`, where
 `outputs` maps each declared output name to a literal, a
-`pysat.integer.Integer`, a plain bool, or nested lists of those, and `formula`
-is one of:
+`pysat.integer.Integer`, a `pysat.integer.LinearExpr` over Integers, a plain
+bool, or nested lists of those, and `formula` is one of:
 
 - a `pysat.formula.CNF` for a satisfaction problem, solved with Glucose 4.2;
 - a `pysat.formula.WCNF` for an optimisation problem, solved with RC2, the
@@ -40,6 +40,12 @@ Enumeration blocks the previous **declared outputs**, not the whole assignment:
 two models of the same formula routinely agree on everything the problem
 declares, and the evaluator counts distinct declared outputs. When optimising,
 enumeration stops as soon as the next answer costs more than the optimum.
+
+A `LinearExpr` output is how a value too wide for one `Integer` is declared:
+an `Integer` builds one variable per value, so a ten-digit number cannot be one,
+but `sum(2**k * bit[k])` over 0..1 Integers can. The runner reads its value off
+the assignment and blocks the summed Integers; a different combination that
+reaches the same total is skipped rather than reported twice.
 """
 import contextlib
 import importlib.util
@@ -54,7 +60,7 @@ sys.path.insert(0, "/opt/runner")
 from runtime import emit, finish  # noqa: E402
 
 from pysat.formula import CNF, WCNF  # noqa: E402
-from pysat.integer import Integer  # noqa: E402
+from pysat.integer import Integer, LinearExpr  # noqa: E402
 
 # Glucose rather than CaDiCaL: PySAT raises NotImplementedError for
 # "limited solve" on CaDiCaL and Lingeling, so those two cannot be stopped
@@ -112,13 +118,32 @@ def render(node, model, truth):
         return [render(value, model, truth) for value in node]
     if isinstance(node, Integer):
         return node.decode(model)
+    if isinstance(node, LinearExpr):
+        return evaluate(node, model)
     if isinstance(node, bool):
         return node
     if isinstance(node, int):
         # A literal from the model's pool, rather than a constant it fixed.
         return node in truth
-    raise ValueError("an output leaf must be an Integer, a literal, an int or a "
-                     f"bool; got {type(node).__name__}")
+    raise ValueError("an output leaf must be an Integer, a LinearExpr, a literal, an "
+                     f"int or a bool; got {type(node).__name__}")
+
+
+def evaluate(expression, model):
+    """The value of a linear expression over Integers under a model.
+
+    This is how an output too wide for one Integer is declared: as a sum such
+    as `sum(2**k * bit[k])` over 0..1 Integers, whose value the runner reads off
+    the solver's assignment. Coefficients and the constant must be integers.
+    """
+    total = expression.const
+    for term, coefficient in expression.terms.items():
+        if not isinstance(term, Integer):
+            raise ValueError("a LinearExpr output may only sum Integers")
+        total += coefficient * term.decode(model)
+    if total != int(total):
+        raise ValueError("a LinearExpr output must have integer coefficients")
+    return int(total)
 
 
 def dense(model, outputs):
@@ -132,6 +157,8 @@ def dense(model, outputs):
     for leaf in leaves(outputs, []):
         if isinstance(leaf, Integer):
             top = max(top, leaf.vpool.top)
+        elif isinstance(leaf, LinearExpr):
+            top = max([top] + [term.vpool.top for term in leaf.terms])
         elif isinstance(leaf, int) and not isinstance(leaf, bool):
             top = max(top, abs(leaf))
     values = [-var for var in range(1, top + 1)]
@@ -148,6 +175,11 @@ def blocking_clause(outputs, model, truth):
             # `equals(v)` is the literal for "this variable takes v", so
             # forbidding the value it took is enough to change the answer.
             clause.append(-leaf.equals(leaf.decode(model)))
+        elif isinstance(leaf, LinearExpr):
+            # Forbid this combination of the summed Integers. Another
+            # combination can reach the same total; the enumeration loop skips
+            # such a repeat instead of emitting it twice.
+            clause.extend(-term.equals(term.decode(model)) for term in leaf.terms)
         elif isinstance(leaf, bool):
             continue
         elif isinstance(leaf, int):
@@ -163,6 +195,8 @@ def satisfy(formula, outputs, request, started):
         formula = CNF(from_clauses=formula.hard)
     limit = request["solution_limit"]
     emitted = 0
+    # Declared outputs already reported; see blocking_clause on LinearExpr.
+    seen = set()
     with Solver(name=SOLVER_NAME, bootstrap_with=formula) as solver:
         while emitted < limit:
             left = request["execution_timeout"] - (time.monotonic() - started)
@@ -188,10 +222,14 @@ def satisfy(formula, outputs, request, started):
                 return finish("complete" if emitted else "unsat", solve_seconds=spent)
             model = dense(solver.get_model(), outputs)
             truth = {lit for lit in model if lit > 0}
-            emit({"type": "solution", "values": render(outputs, model, truth)})
-            emitted += 1
-            if emitted >= limit:
-                break
+            values = render(outputs, model, truth)
+            key = json.dumps(values, sort_keys=True)
+            if key not in seen:
+                seen.add(key)
+                emit({"type": "solution", "values": values})
+                emitted += 1
+                if emitted >= limit:
+                    break
             clause = blocking_clause(outputs, model, truth)
             if not clause:
                 # Nothing the problem declares can differ, so there is no second
@@ -208,6 +246,8 @@ def optimise(formula, outputs, request, started):
     limit = request["solution_limit"]
     best = None
     emitted = 0
+    # Declared outputs already reported; see blocking_clause on LinearExpr.
+    seen = set()
     with RC2Stratified(formula, solver=SOLVER_NAME) as rc2:
         while emitted < limit:
             left = request["execution_timeout"] - (time.monotonic() - started)
@@ -238,10 +278,14 @@ def optimise(formula, outputs, request, started):
                 return finish("complete", solve_seconds=spent)
             model = dense(found, outputs)
             truth = {lit for lit in model if lit > 0}
-            emit({"type": "solution", "values": render(outputs, model, truth)})
-            emitted += 1
-            if emitted >= limit:
-                break
+            values = render(outputs, model, truth)
+            key = json.dumps(values, sort_keys=True)
+            if key not in seen:
+                seen.add(key)
+                emit({"type": "solution", "values": values})
+                emitted += 1
+                if emitted >= limit:
+                    break
             clause = blocking_clause(outputs, model, truth)
             if not clause:
                 return finish("complete", solve_seconds=time.monotonic() - started)

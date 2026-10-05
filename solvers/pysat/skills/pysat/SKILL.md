@@ -157,7 +157,24 @@ integers, use `Integer(name, 0, 1, vpool=pool)` so the value comes out as a
 number.
 
 An `Integer` in `outputs` is decoded by the runner; a literal is reported by
-whether it is true. Do not put values you computed in Python into `outputs` —
+whether it is true.
+
+An `Integer` creates one variable per value (direct) or per threshold
+(order), so an output with millions of possible values does not fit in
+memory. Declare such an output as a `LinearExpr` over small Integers instead,
+and the runner reads its value off the assignment:
+
+```python
+bits = [Integer(f"b{k}", 0, 1, vpool=pool) for k in range(35)]
+number = sum(2 ** k * bit for k, bit in enumerate(bits))   # up to 2**35 - 1
+engine.add_linear(number == ...)                            # constrain it
+return engine.clausify(), {"number": number}
+```
+
+Digits work the same way: `sum(10 ** (9 - i) * digit[i] for i in range(10))`
+over 0..9 Integers. The runner blocks the summed Integers when enumerating, so
+a second combination with the same total is skipped rather than reported
+twice. Coefficients must be integers. Do not put values you computed in Python into `outputs` —
 every declared output has to come from the solver.
 
 ## What the runner does

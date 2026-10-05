@@ -107,6 +107,58 @@ SLOW = (HEAD + "    engine.add_linear(x + y == n)\n"
         "        engine.add_var(bird)\n"
         "    engine.add_alldifferent(birds)\n" + EXPORT)
 
+# An output wider than any one Integer could hold, declared as a LinearExpr
+# over 0..1 Integers that the runner sums. 2**33 + n is above 32 bits.
+WIDE_REFERENCE = '''
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 2 ** 34, name="x")
+model = cp.Model(x == 2 ** 33 + n)
+model.solve()
+solution = {"x": int(x.value())}
+print(json.dumps(solution))
+'''
+WIDE = '''from pysat.formula import IDPool
+from pysat.integer import Integer, IntegerEngine
+
+
+def build(instance):
+    pool = IDPool()
+    bits = [Integer(f"b{k}", 0, 1, vpool=pool) for k in range(35)]
+    engine = IntegerEngine(vars=bits, vpool=pool)
+    total = sum(2 ** k * bit for k, bit in enumerate(bits))
+    engine.add_linear(total == 2 ** 33 + instance["n"])
+    return engine.clausify(), {"x": total}
+'''
+# Two assignments with the same declared total: the runner must report it once.
+REPEAT_REFERENCE = '''
+# Data
+n = 1
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 2, name="x")
+model = cp.Model(x == n)
+model.solve()
+solution = {"x": int(x.value())}
+print(json.dumps(solution))
+'''
+REPEAT = '''from pysat.formula import IDPool
+from pysat.integer import Integer, IntegerEngine
+
+
+def build(instance):
+    pool = IDPool()
+    a = Integer("a", 0, 1, vpool=pool)
+    b = Integer("b", 0, 1, vpool=pool)
+    engine = IntegerEngine(vars=[a, b], vpool=pool)
+    engine.add_linear(a + b == instance["n"])
+    return engine.clausify(), {"x": a + b}
+'''
+
 ISOLATED = '''from pysat.formula import IDPool
 from pysat.integer import Integer, IntegerEngine
 
@@ -203,6 +255,9 @@ def main():
         check("optimization_timeout", SLOW_OPTIMAL, reference=OPTIMIZING,
               expected={"execution_timeout"}, execution_timeout=2)
         check("native_api", NATIVE)
+        check("wide_output", WIDE, reference=WIDE_REFERENCE)
+        repeat = check("repeated_output_once", REPEAT, reference=REPEAT_REFERENCE, solution_limit=2)
+        results["repeated_output_once"] = (repeat["accepted"] and repeat["solutions_checked"] == 1)
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
