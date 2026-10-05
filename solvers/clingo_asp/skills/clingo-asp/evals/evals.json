@@ -20,6 +20,16 @@
         "The evaluator reports accepted rather than execution_timeout, meaning clingo proved the optimum inside the budget.",
         "The result is not suboptimal_solution, confirming the objective expression matches the reference's."
       ]
+    },
+    {
+      "id": "string-and-underscore-fields",
+      "prompt": "Using this skill, write a clingo_asp submission for a problem whose instance has a string field, a list of strings, and a field whose name starts with an underscore and a capital (such as _SHIP), and check it with the repository evaluator across every listed instance.",
+      "expected_output": "An accepted model that reads the strings through the _char facts and the underscore field through its lowered predicate, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Reads each character through field_char(index, ..., position, \"c\") facts rather than an embedded script or hardcoded letters.",
+        "Refers to a field such as _SHIP by the predicate _sHIP, with the first character after the leading underscores lowered.",
+        "Derives string lengths with #count over the character positions instead of assuming a fixed word length, so every listed instance is accepted."
+      ]
     }
   ]
 }

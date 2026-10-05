@@ -7,9 +7,14 @@ grounds them alongside the submission. That conversion is the integration's
 contract, so it is deliberately simple and total — index positions first, value
 last — and the modelling skill documents it with the same words used here.
 
+Plain ASP has no operation that takes a string apart, so every string value, at
+any depth, also arrives one character at a time: `name_char(index, ...,
+position, "c")`, laid out as if the string were one more list level. These facts
+come in addition to `name(index, ..., "string")`, never instead of it.
+
 Declared outputs come back the same way. The request carries the reference's
 output names, and each is matched to the predicate of the same name with its
-first character lowered — the same rule the instance fields use, because an ASP
+first letter lowered — the same rule the instance fields use, because an ASP
 predicate cannot start with a capital. Index positions come first and the value
 last, and this runner rebuilds the nested shape the reference expects.
 """
@@ -31,12 +36,15 @@ def predicate(key):
     """An instance field name as an ASP predicate name.
 
     ASP reads a leading capital as a variable, and several problems use fields
-    like `N`, so the first character is lowered. A collision is refused rather
+    like `N`, so the first character is lowered. clingo also reads `_SHIP` as a
+    variable, so leading underscores are kept and the first character after them
+    is lowered instead: `_SHIP` becomes `_sHIP`. A collision is refused rather
     than silently merged.
     """
     if not key or not key.replace("_", "").isalnum():
         raise ValueError(f"Instance field {key!r} is not usable as an ASP predicate name")
-    return key[0].lower() + key[1:]
+    lead = len(key) - len(key.lstrip("_"))
+    return key[:lead] + key[lead].lower() + key[lead + 1:]
 
 
 def term(value):
@@ -49,9 +57,17 @@ def term(value):
     raise ValueError(f"Instance values must be integers, Booleans or strings; got {value!r}")
 
 
+CHARACTERS = "_char"
+
+
 def facts(instance):
-    """The instance as ground facts: name(index, ..., value)."""
-    lines, names = [], {}
+    """The instance as ground facts: name(index, ..., value).
+
+    Every string value also gives one fact per character,
+    name_char(index, ..., position, "c"), with 0-based positions. The character
+    predicate of one field must not be the predicate of another; that is refused.
+    """
+    lines, names, spelled = [], {}, {}
     for key, value in instance.items():
         name = predicate(key)
         if name in names:
@@ -66,8 +82,17 @@ def facts(instance):
                     walk(item, indices + [str(position)])
             else:
                 lines.append(f"{name}({','.join(indices + [term(current)])}).")
+                if isinstance(current, str):
+                    spelled[name + CHARACTERS] = key
+                    for position, character in enumerate(current):
+                        arguments = indices + [str(position), term(character)]
+                        lines.append(f"{name}{CHARACTERS}({','.join(arguments)}).")
 
         walk(value, [])
+    for name, key in spelled.items():
+        if name in names:
+            raise ValueError(f"The characters of instance field {key!r} would be {name!r}, "
+                             f"the predicate of instance field {names[name]!r}")
     return "\n".join(lines)
 
 
@@ -99,7 +124,8 @@ def declared_names(outputs):
     """Map each declared output key to the predicate that carries it.
 
     An ASP predicate cannot start with a capital, so a key like `A` is carried by
-    the predicate `a`, exactly as instance fields are lowered on the way in.
+    the predicate `a` and `_A` by `_a`, exactly as instance fields are lowered on
+    the way in.
     """
     wanted = {}
     for key in outputs or []:

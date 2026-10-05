@@ -18,5 +18,14 @@ Checked by running clingo 5.8.2 rather than taken from documentation alone:
   only the optimal ones with `optimality_proven`, while a program without an
   objective reports an empty `cost`. The runner uses exactly that to tell the two
   apart, so it never reports success on an unproven optimum.
+- An identifier whose first character after any leading underscores is a
+  capital (`_SHIP`) is a variable, so a fact `_SHIP(1).` fails with "parsing
+  failed", while `_sHIP(1).` parses and can be shown with `#show _sHIP/1.`
+  That is why the runner lowers the first character after the underscores.
+- The term language has no string length, character access or concatenation,
+  and `#script (lua)` raises "lua support not available" as `#script (python)`
+  does. That is why the runner adds `field_char/N` facts per character.
+- String escapes: `\"`, `\\` and `\n` parse; `\t` and `\uXXXX` (what Python's
+  `json.dumps` writes for a tab or a non-ASCII character) do not.
 - Shown symbols come back as `SymbolType.Number`, `SymbolType.String` or
   `SymbolType.Function` (which is how `true` and `false` arrive).

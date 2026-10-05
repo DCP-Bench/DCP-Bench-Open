@@ -26,7 +26,8 @@ last**:
 | `"n": 12` | `n(12).` |
 | `"demand": [250, 255]` | `demand(0,250).` `demand(1,255).` |
 | `"rules": [[3,1],[2]]` | `rules(0,0,3).` `rules(0,1,1).` `rules(1,0,2).` |
-| `"name": "castle"` | `name("castle").` |
+| `"name": "castle"` | `name("castle").` and `name_char(0,"c").` ... `name_char(5,"e").` |
+| `"words": ["AB","C"]` | `words(0,"AB").` `words(1,"C").` and `words_char(0,0,"A").` `words_char(0,1,"B").` `words_char(1,0,"C").` |
 | `"flag": true` | `flag(true).` |
 
 Indices are 0-based. Nested lists add one index position per level. An empty
@@ -34,16 +35,49 @@ list produces no facts at all, so write rules that tolerate the predicate being
 absent rather than assuming at least one fact.
 
 A field whose name starts with a capital — several problems use `N` — is lowered
-to `n`, because ASP reads a leading capital as a variable. Two fields that would
-collide after lowering are refused rather than merged.
+to `n`, because ASP reads a leading capital as a variable. Leading underscores
+are kept and the first character after them is lowered instead, so `_SHIP`
+arrives as `_sHIP(1).` and `_x` stays `_x`. Two fields that would collide after
+lowering are refused rather than merged.
+
+### Strings arrive whole and character by character
+
+Plain ASP cannot take a string apart: there is no length, character access or
+concatenation, and `#script` is unavailable. So every string value, wherever it
+occurs, also arrives one character at a time, as if the string were one more
+list level:
+
+- `field_char(index, ..., position, "c")` — the list indices of the string
+  first (none for a top-level string), then the 0-based character position, then
+  the one-character string. The predicate is the field's predicate with `_char`
+  appended.
+- These facts are added; `field(index, ..., "string")` is still there.
+- A string's length is `#count { P : field_char(..., P, _) }`; an empty string
+  gives no `_char` facts.
+- If another instance field is itself named like `field_char`, the instance is
+  refused rather than merged.
+
+Worked example. With `"alphabet": "ABEKNOXY"` and
+`"words": ["BAKE", "ONYX"]`, this turns each word into letter numbers (the
+position of the letter in `alphabet`) and finds each word's length:
+
+```prolog
+letter(L,C) :- alphabet_char(L,C).
+word_letter(W,P,L) :- words_char(W,P,C), letter(L,C).
+word_length(W,N) :- words(W,_), N = #count { P : words_char(W,P,_) }.
+last_letter(W,L) :- words_char(W,P,C), not words_char(W,P+1,_), letter(L,C).
+```
+
+`word_letter(0,0,1)` says word 0 starts with letter 1 (`B`). Compare
+characters as strings (`C = "A"`), not as numbers.
 
 ## The outputs leave as shown atoms
 
 **`#show` is the contract.** Show one predicate per output key in the
 reference's `solution = {...}` dictionary, named the same, and show nothing
 else. The runner receives the declared keys and matches each to the predicate
-with its first character lowered, so a key like `A` is carried by `a` — an ASP
-predicate cannot start with a capital. The same
+with the same lowering as instance fields, so a key like `A` is carried by `a`
+and `_A` by `_a` — an ASP predicate cannot start with a capital. The same
 index-then-value shape applies:
 
 | Declared output | What to show |
@@ -118,6 +152,13 @@ several solutions then means several distinct *optimal* answers.
   value. There is no floating point; the declared outputs must be integers.
 - **The reference's commented-out symmetry breaking is not part of the
   contract.** Adding it would exclude valid answers.
+- **Listed instances carry `name` and `note` strings**, so they arrive as
+  `name/1`, `note/1`, `name_char/2` and `note_char/2` facts. Do not use those
+  predicate names for your own rules.
+- **A string containing a tab or a non-ASCII character fails to parse**: the
+  runner escapes strings with JSON rules, and clingo accepts neither `\t` nor
+  `\uXXXX`. No listed instance is affected today; report it as a blocker if one
+  is.
 
 ## Check your own model before submitting
 

@@ -78,7 +78,48 @@ y(2).
 #show y/1.
 """
 
-ISOLATION_PROBE = """import os, socket
+# A field whose name starts with an underscore and then a capital. clingo reads
+# `_N` as a variable, so the runner carries it as `_n`.
+UNDERSCORED_REFERENCE = '''
+# Data
+_N = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, _N, name="x")
+y = cp.intvar(0, _N, name="y")
+model = cp.Model(x + y == _N)
+model.solve()
+solution = {"x": int(x.value()), "y": y.value()}
+print(json.dumps(solution))
+'''
+UNDERSCORED = GOOD.replace("val(0..N) :- n(N).", "val(0..N) :- _n(N).").replace(
+    ":- xv(X), yv(Y), n(N),", ":- xv(X), yv(Y), _n(N),")
+
+# Strings, read character by character: the length of each word and the
+# alphabet position of its last letter. Only the *_char facts carry that.
+STRINGS_REFERENCE = '''
+# Data
+alphabet = "ABEKNOXY"
+words = ["BAKE", "ONYX", "AXE"]
+# End of data
+import cpmpy as cp
+import json
+letters = cp.intvar(0, 20, shape=len(words), name="letters")
+last = cp.intvar(0, len(alphabet) - 1, shape=len(words), name="last")
+model = cp.Model([letters[w] == len(word) for w, word in enumerate(words)],
+                 [last[w] == alphabet.index(word[-1]) for w, word in enumerate(words)])
+model.solve()
+solution = {"letters": letters.value().tolist(), "last": last.value().tolist()}
+print(json.dumps(solution))
+'''
+STRINGS = """letters(W,N) :- words(W,_), N = #count { P : words_char(W,P,_) }.
+last(W,L) :- words_char(W,P,C), not words_char(W,P+1,_), alphabet_char(L,C).
+#show letters/2.
+#show last/2.
+"""
+
+ISOLATION_PROBE ="""import os, socket
 probe = socket.socket(); probe.settimeout(0.5)
 assert os.getuid() != 0, "container runs as root"
 assert sorted(os.listdir("/input")) == ["model.lp", "request.json"], "unexpected /input"
@@ -139,6 +180,10 @@ def main():
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=3)
+        check("underscore_field", UNDERSCORED, reference=UNDERSCORED_REFERENCE,
+              instances=[{"_N": 3}], instance_count=2)
+        check("string_characters", STRINGS, reference=STRINGS_REFERENCE,
+              instances=[{"alphabet": "ZYX", "words": ["XY", "Z", "YYZX"]}], instance_count=2)
         results["isolation"] = isolation(temp)
 
     try:
