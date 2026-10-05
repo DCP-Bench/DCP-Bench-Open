@@ -171,22 +171,6 @@
       "recorded": "2026-10-02"
     },
     {
-      "problem": "divisible_by_1_through_9",
-      "solver": "pysat",
-      "reason": "unsupported_value_range",
-      "detail": "The declared output is the ten-digit number, up to 9876543210. The pysat runner reads an integer output only from an Integer object or a literal, and Integer in this python-sat version builds the whole value range and registers one variable id per value. A bare Integer over 0..10^10 is killed at the 2048 MB limit before any constraint is added. Only a probe attempt was written, since no model can declare the output without the Integer. An integration limit rather than a modelling one.",
-      "evidence": "generation/runs/20261001T1218Z-pysat-aad3/attempts/divisible_by_1_through_9/pysat/attempt-001/evaluation.json",
-      "recorded": "2026-10-02"
-    },
-    {
-      "problem": "fibonacci_even",
-      "solver": "pysat",
-      "reason": "unsupported_value_range",
-      "detail": "The answer is a sum of even Fibonacci numbers and needs an output domain of at least 4.6 million values. The pysat runner reads an integer output only from an Integer object, which registers one variable id per value: the coupled encoding over 0..5.3M is killed at the 2048 MB limit and the direct encoding exceeds 190 s. Only probe attempts were written. An integration limit rather than a modelling one.",
-      "evidence": "generation/runs/20261001T1218Z-pysat-aad3/attempts/fibonacci_even/pysat/attempt-001/evaluation.json",
-      "recorded": "2026-10-02"
-    },
-    {
       "problem": "csplib_001_car_sequencing",
       "solver": "docplex_cplex",
       "reason": "licence_size_limit",
