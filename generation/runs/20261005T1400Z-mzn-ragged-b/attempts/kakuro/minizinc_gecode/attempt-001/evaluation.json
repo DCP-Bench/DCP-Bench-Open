@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "Instance field `problem` is ragged or mixes types in a way this integration cannot bind: only a ragged list of rows with one item shape and one scalar type, or equal-length rows whose columns differ in type, are reshaped",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:b62deef43f0ee70bfc9bb117147d534aa1e26b6de163ab508c2c08f5c3736758",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 7.999997251317836e-07,
+      "detail": "Instance field `problem` is ragged or mixes types in a way this integration cannot bind: only a ragged list of rows with one item shape and one scalar type, or equal-length rows whose columns differ in type, are reshaped",
+      "execution_wall_seconds": 2.829205899999579,
+      "id": "example",
+      "instance_hash": "34c0483f4dc44a39baed2dc61844a160f82423f372e54b31073b18dbe2d69fc2",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "x"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.2172992000005252,
+      "runner_status": {
+        "detail": "Instance field `problem` is ragged or mixes types in a way this integration cannot bind: only a ragged list of rows with one item shape and one scalar type, or equal-length rows whose columns differ in type, are reshaped",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 268, in main\n    minizinc_solver(request)\n  File \"/opt/runner/run.py\", line 143, in minizinc_solver\n    request = {**request, \"instance\": bind(request[\"instance\"])}\n                                      ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 124, in bind\n    for key, data, needed in field(name, value):\n                             ^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 115, in field\n    raise Unbindable(\nUnbindable: Instance field `problem` is ragged or mixes types in a way this integration cannot bind: only a ragged list of rows with one item shape and one scalar type, or equal-length rows whose columns differ in type, are reshaped\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "7e4d1d9336c741c706e46a1a728b29a6415c35ad1f1ca5e30c974b65b26d3d4c",
+  "problem_id": "kakuro",
+  "reason": "execution_error",
+  "reference_hash": "db2c6387874018ef3a49f32e60d95c37878946f02df7cc00d9530759b2246ab4",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 4.627922900000158,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}
