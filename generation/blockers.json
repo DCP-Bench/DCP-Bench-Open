@@ -3,14 +3,6 @@
   "comment": "Pairs not worth attempting again without new information. A null solver blocks the problem for every integration, which is right when the limit is in the reference itself. generation.coverage drops these from the work queue; add an entry when you block a pair, with the evidence that justifies it.",
   "blockers": [
     {
-      "problem": "csplib_006_golomb_rulers",
-      "solver": "z3_python",
-      "reason": "execution_timeout",
-      "detail": "Z3 could not prove the minimum ruler length for any of the three instances at 180s. A performance limit of this solver on this problem, not a reference or contract fault, so it is blocked for z3_python only. A materially better encoding would justify retrying.",
-      "evidence": "generation/runs/z3-20260910t125536z-166594-r3/attempts/csplib_006_golomb_rulers/z3_python/attempt-001/evaluation.json",
-      "recorded": "2026-09-10"
-    },
-    {
       "problem": "covering_opl",
       "solver": "minizinc_gecode",
       "reason": "unsupported_instance_shape",
@@ -88,14 +80,6 @@
       "reason": "execution_timeout",
       "detail": "After cumulative/2 is given only the jobs of positive length, the 12-job example and one 32-job instance finish, and the other 32-job instance (json:2) does not prove its makespan within 180 s under ff, ffc, leftmost, min or bisect labelling; the driver reports the abandoned proof as no_solution. A stronger encoding of the makespan bound would justify retrying.",
       "evidence": "generation/runs/20260929T1400Z-z3-mzn-swipl-7a2e/attempts/resource_constrained_project_scheduling/swipl_clpfd/attempt-002/evaluation.json",
-      "recorded": "2026-09-29"
-    },
-    {
-      "problem": "tsp",
-      "solver": "z3_python",
-      "reason": "execution_timeout",
-      "detail": "Z3 proves the tour length only on the 6-city instance; the 12-city example and the 20 and 30 city instances run past 180 s with a circuit written as arc Booleans and MTZ-style positions. The model was accepted on that one instance but not retained.",
-      "evidence": "generation/runs/20260929T1400Z-z3-mzn-swipl-7a2e/attempts/tsp/z3_python/attempt-001/evaluation.json",
       "recorded": "2026-09-29"
     },
     {
