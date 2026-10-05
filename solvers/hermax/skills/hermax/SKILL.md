@@ -107,6 +107,48 @@ plain Python values in the dictionary.
 Booleans render as `true`/`false`. If the brief declares 0/1 integers, use
 `m.int(name, 0, 1)` instead of `m.bool(name)`.
 
+### Outputs too wide for one IntVar
+
+hermax encodes an `IntVar` with literals per value, so an `IntVar` over a
+range in the millions is killed at the 2048 MB memory limit before any
+constraint is posted. Declare such an output as a **linear expression** of
+small variables instead, and return the expression itself:
+
+```python
+from hermax.model import Model
+
+
+def build(instance):
+    m = Model()
+    digits = m.int_vector("digit", 10, 0, 9)
+    number = sum(10 ** (9 - i) * digits[i] for i in range(10))
+    m &= digits.all_different()
+    m &= (digits[0] >= 1)
+    return m, {"number": number}       # a ten-digit int in the output
+```
+
+`sum(2 ** k * bits[k] for k in range(K))` over `m.bool_vector("bit", K)` does
+the same in binary. The ten-digit model above imports, builds and solves in
+0.25 s; a lone `m.int` over the ten-digit range does not fit in 2048 MB.
+
+Such a sum is hermax's own `PBExpr` (a single `c * literal` is a `Term`).
+`result[...]` raises `TypeError` on both, so the runner adds the decoded terms
+itself. Rules:
+
+- Sum only Booleans, `IntVar`s, and integers derived as `IntVar`s (`m.max`,
+  `m.min`, `m.sum_var`). `x // k` stays a `DivExpr` inside the sum, which the
+  runner can read but cannot block when enumerating, so the model fails with
+  `solution_limit` above 1. Tie it to an `IntVar` first.
+- Coefficients must be integers.
+- Constrain the expression with linear comparisons. hermax has no `%` on a
+  `PBExpr` or an `IntVar` (`TypeError`), so state divisibility as
+  `number == 7 * q` with `q` itself a sum of small variables.
+
+When enumerating, the runner blocks the assignment of every literal and
+variable the expression sums. A different combination can give the same total;
+the runner skips that repeat rather than reporting it twice, so no symmetry
+breaking is needed for correctness.
+
 ## What the runner does
 
 1. Imports the submission and calls `build(instance)`.
@@ -115,7 +157,8 @@ Booleans render as `true`/`false`. If the brief declares 0/1 integers, use
    answer. `interrupted_sat` means a solution was found without proving it
    best, and is reported as a timeout, never as a result.
 4. Emits the solution, then posts a blocking clause over the **declared
-   outputs** and solves again.
+   outputs** and solves again. A solution whose declared outputs equal one
+   already emitted is skipped, not emitted twice.
 5. Stops with `complete` when the cost rises above the first one, which is when
    the optimal solutions are exhausted, or when the model goes `unsat`.
 

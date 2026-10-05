@@ -49,3 +49,27 @@ taken from documentation alone.
   refutes 13 pigeons into 12 holes in about 0.7 seconds, where Glucose already
   needs more than two seconds. The `timeout_cleanup` check therefore uses 16
   into 15 here.
+- **A sum of hermax variables is a `hermax.model.PBExpr`**, and a single
+  `c * literal` is a `hermax.model.Term`. A PBExpr carries `terms` (Terms of a
+  coefficient and a `Literal`), `int_terms` (coefficient and a derived integer
+  such as a `DivExpr`) and `constant`. An `IntVar` inside a sum is lowered to
+  its threshold literals, so `sum(10**(2-i) * d[i])` over 0..9 IntVars holds 27
+  Terms and no `int_terms`; `2 * (x // 3)` keeps the `DivExpr` in `int_terms`.
+- **`result[expression]` raises `TypeError: Unsupported decode target`** for a
+  PBExpr, while `result[literal]` and `result[DivExpr]` decode. Adding
+  `constant + sum(c * result[item])` reproduced the value computed from the
+  decoded variables on every one of five enumerated solutions, with negated
+  literals, subtraction and a `DivExpr` in the sum.
+- A ten-digit all-different number as `sum(10**(9-i) * digit[i])` imported,
+  built and solved in 0.25 s, and `sum(2**k * bit[k]) == 2**39 + 4613732` over
+  40 Booleans solved in 0.013 s. A lone `IntVar` over a ten-digit range, or
+  over 0..5,333,333, was killed at the 2048 MB limit with nothing else in the
+  model (`generation/runs/20261001T1218Z-hermax-e024`, attempt-002 of
+  `divisible_by_1_through_9` and of `fibonacci_even`).
+- `x != v` on an `IntVar` is a `Literal`, and literals OR into a `Clause`;
+  `DivExpr != v` is a `PBConstraint`, which `|` rejects with `TypeError`. That
+  is why the runner cannot block a `DivExpr` inside an output sum.
+- hermax has no `%` on a `PBExpr` or an `IntVar` (`TypeError`);
+  `number == 7 * q` with `q` a sum of Booleans solved to 980672, a multiple of 7.
+- With the runner's repeated-output guard disabled, `{"x": a + b}` under
+  `a + b == 1` emitted `{"x": 1}` twice; with it, once followed by `complete`.

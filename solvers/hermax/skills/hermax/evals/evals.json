@@ -49,6 +49,19 @@
         "If the model was abandoned, the recorded blocker says which constraint's encoding was too large, with the observed time or memory."
       ],
       "evidence_required": "The submission source and the evaluator JSON result for every instance."
+    },
+    {
+      "id": "wide-output-as-sum",
+      "prompt": "Using this skill, write a hermax submission for divisible_by_1_through_9, whose declared output is a ten-digit number, and check it with the repository evaluator across every listed instance with solution_limit 2.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The ten-digit output is returned as a linear expression such as sum(10 ** (9 - i) * digit[i]) over 0..9 IntVars or sum(2 ** k * bit[k]) over Booleans, not as one IntVar over the ten-digit range.",
+        "The expression sums only Booleans and IntVars with integer coefficients; no DivExpr from // sits inside the output.",
+        "Divisibility is stated with linear equalities against multiples, not with %.",
+        "The evaluator reports accepted rather than memory_limit or execution_error."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
     }
   ]
 }
