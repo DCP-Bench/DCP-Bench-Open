@@ -99,22 +99,6 @@
       "recorded": "2026-09-29"
     },
     {
-      "problem": "building_blocks",
-      "solver": "clingo_asp",
-      "reason": "unsupported_instance_shape",
-      "detail": "The instance fields alphabet and words_str are strings, and the words are given only inside words_str (a Python-style list printed as one string). Plain ASP has no operation that splits a string into characters, so the letters cannot be recovered from the facts. The only route is an embedded script, and the integration reports 'lua support not available' (Python scripting is unavailable too, per the skill). An integration limit rather than a modelling one.",
-      "evidence": "generation/runs/20261001T1218Z-clingo-8f73/attempts/building_blocks/clingo_asp/attempt-001/evaluation.json",
-      "recorded": "2026-10-02"
-    },
-    {
-      "problem": "csplib_014_solitaire_battleships",
-      "solver": "clingo_asp",
-      "reason": "unsupported_instance_field_name",
-      "detail": "The instance has a field named _SHIP. solvers/clingo_asp/run.py predicate() lowers only the first character, which is '_', so the runner emits the fact _SHIP(1). Clingo reads an identifier with no lowercase letter after its underscores as a variable, so every program fails with 'parsing failed' before solving, whatever the model says. The mechanism is inferred from the identifier rules and from run.py; the failure itself was measured. Fixing it means changing run.py, which this run may not do.",
-      "evidence": "generation/runs/20261001T1218Z-clingo-8f73/attempts/csplib_014_solitaire_battleships/clingo_asp/attempt-002/evaluation.json",
-      "recorded": "2026-10-02"
-    },
-    {
       "problem": "big_bang2",
       "solver": "swipl_clpfd",
       "reason": "execution_timeout",
