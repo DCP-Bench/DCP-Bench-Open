@@ -161,6 +161,14 @@
       "detail": "The declared output is the ten-digit number, above 2^31-1. Pumpkin integer variables (new_bounded_integer over i32) and the runner's output conversion are 32-bit, so no output can carry the value. A model capping the last prefix at i32::MAX ended in a panic inside pumpkin-core rather than an answer. Same class of obstacle as the other 32-bit integrations on this problem.",
       "evidence": "generation/runs/20261001T1218Z-pumpkin-44d6/attempts/divisible_by_1_through_9/pumpkin_rust/attempt-001/evaluation.json",
       "recorded": "2026-10-03"
+    },
+    {
+      "problem": "kakuro",
+      "solver": "minizinc_gecode",
+      "reason": "unsupported_instance_shape",
+      "detail": "Each row of the instance field problem is [sum, [r, c], [r, c], ...]: rows differ in length and mix a scalar with pairs. The runner's binding pads ragged lists and splits rows whose columns differ in type, but not a row whose tail is a variable number of items of another shape, so it refuses the field before any model runs: 'Instance field problem is ragged or mixes types in a way this integration cannot bind'. A further binding rule for this shape would be an integration change.",
+      "evidence": "generation/runs/20261005T1400Z-mzn-ragged-b/attempts/kakuro/minizinc_gecode/attempt-001/evaluation.json",
+      "recorded": "2026-10-05"
     }
   ]
 }
