@@ -19,6 +19,16 @@
         "Anything added is implied by the constraints already present; no symmetry breaking or bound that removes solutions is introduced to buy speed.",
         "If the timeout remains, the result is reported as a performance limit naming the instances covered, not as a blocked problem."
       ]
+    },
+    {
+      "id": "reshaped-instance-fields",
+      "prompt": "Using this skill, write a minizinc_gecode submission for session3_kidney_exchange, whose field compatible is a ragged list of lists, and check it with the repository evaluator across every listed instance.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Declares compatible as a 2-D int array and compatible_len as a 1-D int array, both with int index sets, and assigns neither.",
+        "Reads row i of compatible only up to compatible_len[i], never treating a padding 0 as a person.",
+        "The evaluator accepts every listed instance, including the one with an empty compatibility row."
+      ]
     }
   ]
 }
