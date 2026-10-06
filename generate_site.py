@@ -595,7 +595,6 @@ def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list) ->
         "per_problem": {problem: sorted(tags) for problem, tags in per_problem.items()},
         "integration_models": integration_models,
         "integration_problems": {k: len(v) for k, v in integration_problems.items()},
-        "integration_problem_sets": integration_problems,
     }
 
 
@@ -646,8 +645,7 @@ BACKEND_NAMES = {
 MULTI_PARADIGM_NOTES = {
     "pysat": ("{name}'s models count under both SAT and MaxSAT. Its runner solves satisfaction "
               "problems with Glucose 4.2, a SAT solver, and optimisation problems with "
-              "RC2, a MaxSAT solver; {optimisation} of its {problems} problems are "
-              "optimisation problems."),
+              "RC2, a MaxSAT solver."),
 }
 
 
@@ -678,7 +676,6 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     then a row of details per integration."""
     ranked = breakdown["paradigms"]
     total_problems = len(problems)
-    optimisation = {p["id"] for p in problems if p["type"] == "optimization"}
     integration_models = breakdown["integration_models"]
     integration_problems = breakdown["integration_problems"]
 
@@ -693,9 +690,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
         name = metadata.get("name", solver)
         template = MULTI_PARADIGM_NOTES.get(
             solver, "{name} declares several paradigms and each of its models counts under all of them.")
-        covered = breakdown["integration_problem_sets"][solver]
-        text = template.format(name=esc(name), problems=len(covered),
-                               optimisation=len(covered & optimisation))
+        text = template.format(name=esc(name))
         notes.append(f'<p class="table-note" id="note-{esc(solver)}">{mark} {text}</p>')
         for tag in tags:
             marks.setdefault(tag, []).append(
