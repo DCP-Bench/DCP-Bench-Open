@@ -170,19 +170,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
   border-bottom: 2px solid var(--border);
 }
 
-/* A share of the catalogue, shown beside the count it belongs to. */
-.bar-cell { display: flex; align-items: center; gap: 10px; min-width: 170px; }
-.bar-cell > span { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
-.bar {
-  flex: 1;
-  min-width: 80px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--border);
-  overflow: hidden;
-}
-.bar > span { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
-
 /* ---------- Matrix ---------- */
 .matrix-wrap { overflow-x: auto; }
 table.matrix {
@@ -677,6 +664,99 @@ table.plain th { background: #f1f2f7; font-weight: 600; }
 table.plain th.num { text-align: right; }
 table.plain td.num { text-align: right; font-variant-numeric: tabular-nums; }
 table.plain td.mono { font-family: var(--mono); font-size: 0.85rem; }
+
+/* ---------- Solvers page ---------- */
+.lead { color: var(--muted); margin: 0 0 24px; max-width: 70ch; }
+
+/* `163 / 164`: the count reads first, the catalogue size stays quiet. */
+.count { font-weight: 600; }
+.of { color: var(--muted); font-size: 0.85em; }
+
+.paradigm-table td:first-child { white-space: nowrap; }
+.paradigm-row td { background: var(--card); }
+.row-toggle {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+.row-toggle::before {
+  content: "▸";
+  display: inline-block;
+  width: 1.1em;
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+.row-toggle.static { cursor: default; }
+.row-toggle.static::before { content: ""; }
+.row-toggle[aria-expanded="true"]::before { transform: rotate(90deg); }
+.row-toggle:hover { color: var(--accent); }
+.js .paradigm-row { cursor: pointer; }
+.paradigm-row:hover td { background: var(--accent-soft); }
+.js tbody.collapsed .solver-row { display: none; }
+.solver-row td { background: #fafbfd; font-size: 0.88rem; }
+.solver-row td:first-child { padding-left: calc(12px + 1.1em); }
+/* Without the script there is nothing to toggle, so no marker either. */
+html:not(.js) .row-toggle::before { content: ""; }
+
+.note-mark { margin-left: 2px; font-weight: 600; text-decoration: none; }
+.table-note { color: var(--muted); font-size: 0.85rem; margin: 10px 0 0; max-width: 90ch; }
+.table-note:target { color: var(--text); }
+
+/* The "i" beside a paradigm, holding its description from paradigms.json. */
+.info-wrap { position: relative; display: inline-block; margin-left: 6px; vertical-align: 1px; }
+.info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  color: var(--muted);
+  font: italic 600 10px/1 Georgia, serif;
+  cursor: help;
+}
+.info.static { cursor: default; vertical-align: 1px; }
+.info:hover, .info:focus { border-color: var(--accent); color: var(--accent); outline: none; }
+.tip {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  left: -8px;
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  padding: 10px 12px;
+  background: var(--text);
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.45;
+  white-space: normal;
+}
+.info:hover + .tip, .info:focus + .tip { display: block; }
+.solver-table td { vertical-align: top; }
+.paradigm-table td.num { white-space: nowrap; }
+
+/* On a phone the paradigm table has to fit without scrolling sideways, since
+   a scrolling wrapper would clip the tooltips. The solver count is what the
+   expanded row already shows, so it goes. */
+@media (max-width: 640px) {
+  .paradigm-table td:first-child { white-space: normal; }
+  .paradigm-table th, .paradigm-table td { padding: 8px; }
+  .paradigm-table th:nth-child(2), .paradigm-table td:nth-child(2) { display: none; }
+  .solver-row td:first-child { padding-left: calc(8px + 1.1em); }
+  /* The tip hangs from the cell, not the icon, so it stays on screen. */
+  .paradigm-row td:first-child { position: relative; }
+  .paradigm-row .info-wrap { position: static; }
+  .paradigm-row .tip { left: 0; width: auto; max-width: none; right: -100px; }
+}
 
 /* Arriving from a model page's "Solver" link, so the row that was asked for
    is marked rather than left to be found by eye. */

@@ -29,7 +29,7 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v15"
+ASSET_VERSION = "catalogue-v18"
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -174,6 +174,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "")
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)} · {TITLE}</title>
 {head_desc}
+<script>document.documentElement.classList.add("js");</script>
 <link rel="stylesheet" href="{prefix}style.css?v={ASSET_VERSION}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
@@ -580,12 +581,16 @@ def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list) ->
             solver for solver, metadata in integrations.items()
             if tag in (metadata.get("paradigms") or [])
         )
-    ranked = sorted(entries.values(), key=lambda item: (-len(item["problems"]), item["id"]))
+    # Ties keep the order paradigms.json documents them in.
+    order = {item["id"]: i for i, item in enumerate(vocabulary)}
+    ranked = sorted(entries.values(),
+                    key=lambda item: (-len(item["problems"]), order.get(item["id"], len(order)), item["id"]))
     return {
         "paradigms": ranked,
         "per_problem": {problem: sorted(tags) for problem, tags in per_problem.items()},
         "integration_models": integration_models,
         "integration_problems": {k: len(v) for k, v in integration_problems.items()},
+        "integration_problem_sets": integration_problems,
     }
 
 
@@ -600,11 +605,8 @@ def paradigm_chips(solver_id: str, prefix: str) -> str:
 
 
 def solver_link(solver_id: str, prefix: str) -> str:
-    """An integration's display name, linked to its row on the solvers page.
-
-    The anchor is emitted once per integration by `build_paradigms`, on the
-    first paradigm section that lists it.
-    """
+    """An integration's display name, linked to its row in the solver details
+    table that `build_paradigms` writes."""
     metadata = INTEGRATIONS.get(solver_id)
     if not metadata:
         return esc(solver_id)
@@ -613,84 +615,141 @@ def solver_link(solver_id: str, prefix: str) -> str:
             f'{esc(name)}</a>')
 
 
-def coverage_bar(count: int, total: int) -> str:
-    share = 100.0 * count / max(1, total)
+# What `solver` in metadata.yaml names, as a reader would recognise it. An
+# integration missing here shows its raw value.
+BACKEND_NAMES = {
+    "choco": "Choco",
+    "clasp": "clasp",
+    "ortools": "OR-Tools CP-SAT",
+    "cp_sat": "CP-SAT",
+    "cplex": "CPLEX",
+    "exact": "Exact",
+    "gurobi": "Gurobi",
+    "evalmaxsat": "EvalMaxSAT",
+    "highs": "HiGHS",
+    "gecode": "Gecode",
+    "cp, sat": "Picat cp or sat module",
+    "cbc": "CBC",
+    "pumpkin": "Pumpkin",
+    "glucose42, RC2": "Glucose 4.2 (SAT), RC2 (MaxSAT)",
+    "clpfd": "library(clpfd)",
+    "z3": "Z3",
+}
+
+# An integration declaring two paradigms counts each of its models under both.
+# Where the integration routes problems between them, the note says how.
+MULTI_PARADIGM_NOTES = {
+    "pysat": ("{name}'s models count under both SAT and MaxSAT. Its runner solves satisfaction "
+              "problems with Glucose 4.2, a SAT solver, and optimisation problems with "
+              "RC2, a MaxSAT solver; {optimisation} of its {problems} problems are "
+              "optimisation problems."),
+}
+
+
+def coverage_count(count: int, total: int, href: str = "") -> str:
+    """`163 / 164`, the count opening the catalogue when there is one."""
+    shown = f'<a href="{href}">{count}</a>' if href and count else str(count)
+    return f'<span class="count">{shown}</span><span class="of"> / {total}</span>'
+
+
+def info_tip(tip_id: str, label: str, text: str) -> str:
+    """A small "i" that shows `text` on hover or keyboard focus."""
     return (
-        f'<div class="bar-cell"><div class="bar"><span style="width:{share:.0f}%"></span></div>'
-        f"<span>{count} of {total}</span></div>"
+        f'<span class="info-wrap"><span class="info" tabindex="0" role="button" '
+        f'aria-label="About {esc(label)}" aria-describedby="{tip_id}">i</span>'
+        f'<span class="tip" role="tooltip" id="{tip_id}">{esc(text)}</span></span>'
     )
-
-
-
-
-def solver_problem_link(solver: str, breakdown: dict) -> str:
-    """The problem count for one solver, opening the catalogue filtered to it.
-
-    The catalogue reads `framework` from the query string, and its framework
-    filter is a radio group, so selecting one clears the default "Any".
-    """
-    count = breakdown["integration_problems"].get(solver, 0)
-    if not count:
-        return "0"
-    return f'<a href="index.html?framework={esc(solver)}">{count}</a>'
 
 
 def build_paradigms(problems: list, breakdown: dict) -> None:
-    """The paradigm breakdown: coverage, then the integrations behind each row."""
+    """One table: a row per paradigm, expanding to the integrations behind it,
+    then a row of details per integration."""
     ranked = breakdown["paradigms"]
     total_problems = len(problems)
+    optimisation = {p["id"] for p in problems if p["type"] == "optimization"}
+    integration_models = breakdown["integration_models"]
+    integration_problems = breakdown["integration_problems"]
 
-    coverage_rows = "".join(
-        f'<tr><td><a href="#{esc(item["id"])}">{esc(item["name"])}</a></td>'
-        f'<td class="mono">{esc(item["id"])}</td>'
-        f'<td class="num">{len(item["integrations"])}</td>'
-        f'<td>{coverage_bar(len(item["problems"]), total_problems)}</td>'
-        f'<td class="num">{item["models"]}</td></tr>'
-        for item in ranked
-    )
-
-    details = []
-    # An integration in two paradigms would otherwise get the same id twice,
-    # so the anchor goes on whichever section lists it first.
-    anchored: set = set()
-    for item in ranked:
-        # A paradigm with no integration is already a zero row in the table
-        # above; a section holding an empty table would say nothing more.
-        if not item["integrations"]:
+    # Footnotes for integrations counted under more than one paradigm, marked
+    # on every paradigm row they inflate.
+    notes, marks = [], {}
+    for solver, metadata in sorted(INTEGRATIONS.items()):
+        tags = metadata.get("paradigms") or []
+        if len(tags) < 2 or not integration_models.get(solver):
             continue
-        integration_cells = []
-        for solver in item["integrations"]:
-            anchor = "" if solver in anchored else f' id="solver-{esc(solver)}"'
-            anchored.add(solver)
-            integration_cells.append(
-                f'<tr{anchor}><td>{esc(INTEGRATIONS[solver].get("name", solver))}</td>'
-                f'<td class="mono">{esc(solver)}</td>'
-                f'<td>{esc(INTEGRATIONS[solver].get("language", ""))}</td>'
-                f'<td class="num">{solver_problem_link(solver, breakdown)}</td></tr>'
-            )
-        integration_rows = "".join(integration_cells)
-        details.append(
-            f'<div class="section" id="{esc(item["id"])}"><h2>{esc(item["name"])} '
-            f'<span class="badge plain">{esc(item["id"])}</span></h2>'
-            '<div class="matrix-wrap">'
-            '<table class="plain"><thead><tr><th>Solver</th><th>ID</th>'
-            '<th>Language</th><th class="num">Problems</th></tr></thead>'
-            f"<tbody>{integration_rows}</tbody></table></div>"
-            f'<p><a class="btn" href="index.html?paradigm={esc(item["id"])}">'
-            f'Browse {len(item["problems"])} problems &rarr;</a></p></div>'
+        mark = "*" * (len(notes) + 1)
+        name = metadata.get("name", solver)
+        template = MULTI_PARADIGM_NOTES.get(
+            solver, "{name} declares several paradigms and each of its models counts under all of them.")
+        covered = breakdown["integration_problem_sets"][solver]
+        text = template.format(name=esc(name), problems=len(covered),
+                               optimisation=len(covered & optimisation))
+        notes.append(f'<p class="table-note" id="note-{esc(solver)}">{mark} {text}</p>')
+        for tag in tags:
+            marks.setdefault(tag, []).append(
+                f'<a class="note-mark" href="#note-{esc(solver)}" '
+                f'aria-label="Note on {esc(name)}">{mark}</a>')
+
+    groups = []
+    for item in ranked:
+        tag = item["id"]
+        solvers = item["integrations"]
+        toggle = (
+            f'<button type="button" class="row-toggle" aria-expanded="false" '
+            f'aria-controls="solvers-{esc(tag)}">{esc(item["name"])}</button>'
+            if solvers else f'<span class="row-toggle static">{esc(item["name"])}</span>'
+        )
+        head = (
+            f'<tr class="paradigm-row"><td>{toggle}{"".join(marks.get(tag, []))}'
+            f'{info_tip("tip-" + esc(tag), item["name"], item.get("summary", ""))}</td>'
+            f'<td class="num">{len(solvers)}</td>'
+            f'<td class="num">{coverage_count(len(item["problems"]), total_problems, "index.html?paradigm=" + esc(tag))}</td>'
+            f'<td class="num">{item["models"]}</td></tr>'
+        )
+        rows = "".join(
+            f'<tr class="solver-row"><td><a href="#solver-{esc(solver)}">'
+            f'{esc(INTEGRATIONS[solver].get("name", solver))}</a></td><td></td>'
+            f'<td class="num">{coverage_count(integration_problems.get(solver, 0), total_problems, "index.html?framework=" + esc(solver))}</td>'
+            f'<td class="num">{integration_models.get(solver, 0)}</td></tr>'
+            for solver in solvers
+        )
+        groups.append(f'<tbody class="paradigm collapsed" id="{esc(tag)}">{head}{rows}</tbody>')
+
+    detail_rows = []
+    for solver, metadata in sorted(INTEGRATIONS.items(), key=lambda kv: kv[1].get("name", kv[0]).lower()):
+        backend = metadata.get("solver", "")
+        language = LANGUAGES.get(metadata.get("language"), (None, metadata.get("language", "")))[1]
+        detail_rows.append(
+            f'<tr id="solver-{esc(solver)}"><td>{esc(metadata.get("name", solver))}</td>'
+            f'<td>{paradigm_chips(solver, "")}</td>'
+            f'<td>{esc(BACKEND_NAMES.get(backend, backend))}</td>'
+            f'<td>{esc(language)}</td>'
+            f'<td class="num">{coverage_count(integration_problems.get(solver, 0), total_problems, "index.html?framework=" + esc(solver))}</td>'
+            f'<td class="num">{integration_models.get(solver, 0)}</td>'
+            f'<td><a href="{REPO_URL}/tree/main/solvers/{esc(solver)}" target="_blank" rel="noopener">'
+            f'solvers/{esc(solver)}</a></td></tr>'
         )
 
     body = f"""
+    <p class="lead">Counts include only models this repository's evaluator accepted.
+    Expand a paradigm to see its solvers; the <span class="info static">i</span> describes the paradigm.</p>
     <div class="section"><h2>Coverage by paradigm</h2>
+      <table class="plain paradigm-table"><thead><tr><th>Paradigm</th>
+      <th class="num">Solvers</th><th class="num">Problems</th>
+      <th class="num">Models</th></tr></thead>{"".join(groups)}</table>
+      {"".join(notes)}
+    </div>
+    <div class="section"><h2>Solver details</h2>
       <div class="matrix-wrap">
-      <table class="plain"><thead><tr><th>Paradigm</th><th>Abbrev.</th>
-      <th class="num">Solvers</th><th>Problems covered</th>
-      <th class="num">Models</th></tr></thead><tbody>{coverage_rows}</tbody></table></div></div>
-    {"".join(details)}
+      <table class="plain solver-table"><thead><tr><th>Solver</th><th>Paradigm</th>
+      <th>Backend</th><th>Language</th><th class="num">Problems</th>
+      <th class="num">Models</th><th>Integration</th></tr></thead>
+      <tbody>{"".join(detail_rows)}</tbody></table></div>
+    </div>
     """
     (OUTPUT_DIR / "paradigms.html").write_text(
         page("Solvers", "", "paradigms", body,
-             "How DCP Rosetta's verified models break down by modelling paradigm."),
+             "How DCP Rosetta's verified models break down by modelling paradigm and solver."),
         encoding="utf-8",
     )
 

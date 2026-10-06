@@ -340,6 +340,37 @@
     });
   }
 
+  /* Solvers page: a paradigm row expands to the solvers behind it. A link to
+     #cp, or to anything inside that group, opens the group it lands in. */
+  function initParadigms() {
+    var groups = document.querySelectorAll("tbody.paradigm");
+    if (!groups.length) return;
+
+    function setOpen(group, open) {
+      var btn = group.querySelector(".row-toggle[aria-expanded]");
+      if (!btn) return;
+      group.classList.toggle("collapsed", !open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    Array.prototype.forEach.call(groups, function (group) {
+      var row = group.querySelector(".paradigm-row");
+      row.addEventListener("click", function (event) {
+        if (event.target.closest("a, .info-wrap")) return;
+        setOpen(group, group.classList.contains("collapsed"));
+      });
+    });
+
+    function openFromHash() {
+      if (!location.hash) return;
+      var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      var group = target && target.closest("tbody.paradigm");
+      if (group) setOpen(group, true);
+    }
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+  }
+
   function initCopy() {
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
       btn.addEventListener("click", function (e) {
@@ -369,6 +400,7 @@
     initMarkdown();
     initTabs();
     initCopy();
+    initParadigms();
     if (window.hljs) hljs.highlightAll();
   }
 
