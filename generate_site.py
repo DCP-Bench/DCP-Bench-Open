@@ -29,7 +29,7 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v21"
+ASSET_VERSION = "catalogue-v35"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -549,12 +549,21 @@ def verified_models(generated: dict, integrations: dict):
                     yield problem, solver, entry
 
 
-def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list) -> dict:
+# Paradigms that can only express one kind of problem: SAT has no objective,
+# so a model of an optimisation problem does not count towards it.
+PARADIGM_SCOPE = {"sat": "satisfaction"}
+SCOPE_NOTES = {"sat": "SAT counts satisfaction problems only, as it has no objective function."}
+
+
+def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list,
+                       problem_types: dict | None = None, scopes: dict = PARADIGM_SCOPE) -> dict:
     """Group verified models and the problems they cover by paradigm.
 
     An integration may declare several paradigms, and then counts towards each
     one, so the per-paradigm totals deliberately do not sum to the overall
-    total. A tag outside the vocabulary is still reported rather than dropped —
+    total. Given each problem's type, a paradigm in `scopes` counts only the
+    problems of the kind it can express. A tag
+    outside the vocabulary is still reported rather than dropped —
     `tests/test_solvers.py` is what keeps one from appearing in the first place.
     """
     entries = {item["id"]: dict(item) for item in vocabulary}
@@ -562,6 +571,7 @@ def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list) ->
     problems = {tag: set() for tag in entries}
     integration_models = {}
     integration_problems = {}
+    by_paradigm = {}
     per_problem = {}
 
     # A problem one integration has several accepted models for counts once:
@@ -570,7 +580,11 @@ def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list) ->
     for problem, solver in sorted(pairs):
         integration_models[solver] = integration_models.get(solver, 0) + 1
         integration_problems.setdefault(solver, set()).add(problem)
+        kind = (problem_types or {}).get(problem)
         for tag in integrations[solver].get("paradigms") or []:
+            if kind and tag in scopes and scopes[tag] != kind:
+                continue
+            by_paradigm.setdefault(tag, {}).setdefault(solver, set()).add(problem)
             if tag not in entries:
                 entries[tag] = {"id": tag, "name": tag, "summary":
                                 "Not described in solvers/paradigms.json."}
@@ -595,6 +609,9 @@ def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list) ->
         "per_problem": {problem: sorted(tags) for problem, tags in per_problem.items()},
         "integration_models": integration_models,
         "integration_problems": {k: len(v) for k, v in integration_problems.items()},
+        # Problems per integration within one paradigm, after scoping.
+        "by_paradigm": {tag: {solver: len(found) for solver, found in solvers.items()}
+                        for tag, solvers in by_paradigm.items()},
     }
 
 
@@ -609,8 +626,8 @@ def paradigm_chips(solver_id: str, prefix: str) -> str:
 
 
 def solver_link(solver_id: str, prefix: str) -> str:
-    """An integration's display name, linked to its row in the solver details
-    table that `build_paradigms` writes."""
+    """An integration's display name, linked to its row in the paradigm table
+    that `build_paradigms` writes."""
     metadata = INTEGRATIONS.get(solver_id)
     if not metadata:
         return esc(solver_id)
@@ -632,34 +649,42 @@ BACKEND_NAMES = {
     "evalmaxsat": "EvalMaxSAT",
     "highs": "HiGHS",
     "gecode": "Gecode",
-    "cp, sat": "Picat cp or sat module",
+    # Picat and SWI-Prolog solve with their own libraries: nothing to add.
+    "cp, sat": "",
     "cbc": "CBC",
     "pumpkin": "Pumpkin",
     "glucose42, RC2": "Glucose 4.2 (SAT), RC2 (MaxSAT)",
-    "clpfd": "library(clpfd)",
+    "clpfd": "",
     "z3": "Z3",
 }
 
-# An integration declaring two paradigms counts each of its models under both.
-# Where the integration routes problems between them, the note says how.
-MULTI_PARADIGM_NOTES = {
-    "pysat": ("{name}'s models count under both SAT and MaxSAT. Its runner solves satisfaction "
-              "problems with Glucose 4.2, a SAT solver, and optimisation problems with "
-              "RC2, a MaxSAT solver."),
-}
+# Where one paradigm row sees only part of an integration's backends. PySAT's
+# satisfaction models, the only ones the SAT row counts, all run on Glucose.
+BACKEND_BY_PARADIGM = {("pysat", "sat"): "Glucose 4.2"}
+
+
+def backend_label(solver: str, paradigm: str = "") -> str:
+    """The solver a framework hands its model to, when the name does not
+    already say it: CPMpy runs OR-Tools CP-SAT, but PyChoco obviously runs Choco."""
+    metadata = INTEGRATIONS.get(solver) or {}
+    raw = metadata.get("solver", "")
+    backend = BACKEND_BY_PARADIGM.get((solver, paradigm)) or BACKEND_NAMES.get(raw, raw)
+    name = metadata.get("name", solver).lower()
+    if not backend or backend.split(" (")[0].lower() in name:
+        return ""
+    return f'<span class="backend">{esc(backend)}</span>'
 
 
 def browse_button(solver: str, count: int) -> str:
     """Opens the catalogue filtered to the problems one integration models."""
     if not count:
         return ""
-    return f'<a class="browse" href="index.html?framework={esc(solver)}">Browse problems &rarr;</a>'
+    return f'<a class="browse" href="index.html?framework={esc(solver)}">Browse<span class="browse-long"> problems</span> &rarr;</a>'
 
 
-def coverage_count(count: int, total: int, href: str = "") -> str:
-    """`163 / 164`, the count opening the catalogue when there is one."""
-    shown = f'<a href="{href}">{count}</a>' if href and count else str(count)
-    return f'<span class="count">{shown}</span><span class="of"> / {total}</span>'
+def coverage_count(count, total: int) -> str:
+    """`163 / 164`: the count reads first, the catalogue size stays quiet."""
+    return f'<span class="count">{count}</span><span class="of"> / {total}</span>'
 
 
 def info_tip(tip_id: str, label: str, text: str) -> str:
@@ -672,81 +697,76 @@ def info_tip(tip_id: str, label: str, text: str) -> str:
 
 
 def build_paradigms(problems: list, breakdown: dict) -> None:
-    """One table: a row per paradigm, expanding to the integrations behind it,
-    then a row of details per integration."""
+    """One table: a row per paradigm, expanding to the integrations behind it."""
     ranked = breakdown["paradigms"]
-    total_problems = len(problems)
-    integration_models = breakdown["integration_models"]
     integration_problems = breakdown["integration_problems"]
 
-    # Footnotes for integrations counted under more than one paradigm, marked
-    # on every paradigm row they inflate.
-    notes, marks = [], {}
-    for solver, metadata in sorted(INTEGRATIONS.items()):
-        tags = metadata.get("paradigms") or []
-        if len(tags) < 2 or not integration_models.get(solver):
-            continue
-        mark = "*" * (len(notes) + 1)
-        name = metadata.get("name", solver)
-        template = MULTI_PARADIGM_NOTES.get(
-            solver, "{name} declares several paradigms and each of its models counts under all of them.")
-        text = template.format(name=esc(name))
-        notes.append(f'<p class="table-note" id="note-{esc(solver)}">{mark} {text}</p>')
-        for tag in tags:
-            marks.setdefault(tag, []).append(
-                f'<a class="note-mark" href="#note-{esc(solver)}" '
-                f'aria-label="Note on {esc(name)}">{mark}</a>')
+    types = {p["id"]: p["type"] for p in problems}
+    type_counts = {kind: sum(1 for t in types.values() if t == kind) for kind in set(types.values())}
 
-    groups = []
-    for item in ranked:
+    # Most integrations first, so the paradigms with the widest choice lead;
+    # ties keep the order paradigms.json documents them in.
+    order = list(PARADIGM_NAMES)
+    by_solvers = sorted(ranked, key=lambda item: (-len(item["integrations"]),
+                                                  order.index(item["id"]) if item["id"] in order else len(order)))
+
+    groups, notes = [], []
+    anchored: set = set()
+    for item in by_solvers:
         tag = item["id"]
         solvers = item["integrations"]
-        toggle = (
+        scope = PARADIGM_SCOPE.get(tag)
+        denominator = type_counts.get(scope, 0) if scope else len(types)
+        found = breakdown["by_paradigm"].get(tag, {})
+        counts = [found.get(solver, 0) for solver in solvers]
+
+        mark = ""
+        if tag in SCOPE_NOTES:
+            mark = f'<a class="note-mark" href="#note-{esc(tag)}" aria-label="Note on {esc(item["name"])}">*</a>'
+            notes.append(f'<p class="table-note" id="note-{esc(tag)}">* {esc(SCOPE_NOTES[tag])}</p>')
+
+        entries = []
+        for solver in solvers:
+            # A solver listed under two paradigms keeps its anchor on the first.
+            anchor = "" if solver in anchored else f' id="solver-{esc(solver)}"'
+            anchored.add(solver)
+            entries.append(
+                f'<li{anchor}><span class="solver-name">{esc(INTEGRATIONS[solver].get("name", solver))}'
+                f'{backend_label(solver, tag)}</span>'
+                f'<span class="solver-count">{coverage_count(found.get(solver, 0), denominator)}</span>'
+                f'{browse_button(solver, integration_problems.get(solver, 0))}</li>'
+            )
+
+        average = sum(counts) / len(counts) if counts else 0
+        # One decimal, half up: 161.25 is 161.3, not the 161.2 binary floats give.
+        tenths = int(average * 10 + 0.5)
+        shown = str(tenths // 10) if tenths % 10 == 0 else f"{tenths // 10}.{tenths % 10}"
+        # The count, then a Show/Hide button; the CSS writes the button's
+        # word from aria-expanded, so the two cannot disagree.
+        toggle = f'<span class="count">{len(solvers)}</span>' + (
             f'<button type="button" class="row-toggle" aria-expanded="false" '
-            f'aria-controls="solvers-{esc(tag)}">{esc(item["name"])}</button>'
-            if solvers else f'<span class="row-toggle static">{esc(item["name"])}</span>'
+            f'aria-label="Show the {len(solvers)} solvers for {esc(item["name"])}"></button>'
+            if solvers else ""
         )
         head = (
-            f'<tr class="paradigm-row"><td>{toggle}{"".join(marks.get(tag, []))}'
+            f'<tr class="paradigm-row"><td class="abbrev">{esc(item.get("abbrev", tag))}</td>'
+            f'<td>{esc(item["name"])}{mark}'
             f'{info_tip("tip-" + esc(tag), item["name"], item.get("summary", ""))}</td>'
-            f'<td class="num">{len(solvers)}</td>'
-            f'<td class="num">{coverage_count(len(item["problems"]), total_problems, "index.html?paradigm=" + esc(tag))}</td>'
-            f'<td class="num">{item["models"]}</td></tr>'
+            f'<td class="num">{toggle}</td>'
+            f'<td class="num">{coverage_count(shown, denominator)}</td></tr>'
         )
-        rows = "".join(
-            f'<tr class="solver-row"><td>{esc(INTEGRATIONS[solver].get("name", solver))}'
-            f'{browse_button(solver, integration_problems.get(solver, 0))}</td><td></td>'
-            f'<td class="num">{coverage_count(integration_problems.get(solver, 0), total_problems, "index.html?framework=" + esc(solver))}</td>'
-            '<td></td></tr>'
-            for solver in solvers
-        )
-        groups.append(f'<tbody class="paradigm collapsed" id="{esc(tag)}">{head}{rows}</tbody>')
-
-    detail_rows = []
-    for solver, metadata in sorted(INTEGRATIONS.items(), key=lambda kv: kv[1].get("name", kv[0]).lower()):
-        backend = metadata.get("solver", "")
-        language = LANGUAGES.get(metadata.get("language"), (None, metadata.get("language", "")))[1]
-        detail_rows.append(
-            f'<tr id="solver-{esc(solver)}"><td>{esc(metadata.get("name", solver))}</td>'
-            f'<td>{paradigm_chips(solver, "")}</td>'
-            f'<td>{esc(BACKEND_NAMES.get(backend, backend))}</td>'
-            f'<td>{esc(language)}</td>'
-            f'<td class="num">{coverage_count(integration_problems.get(solver, 0), total_problems, "index.html?framework=" + esc(solver))}</td>'
-            f'<td>{browse_button(solver, integration_problems.get(solver, 0))}</td></tr>'
-        )
+        # The solvers sit in one full-width row of their own, so their layout
+        # does not depend on the paradigm columns above them.
+        panel = (f'<tr class="solver-panel"><td colspan="4"><ul class="solver-list">{"".join(entries)}</ul></td></tr>'
+                 if entries else "")
+        groups.append(f'<tbody class="paradigm collapsed" id="{esc(tag)}">{head}{panel}</tbody>')
 
     body = f"""
-    <div class="section"><h2>Coverage by paradigm</h2>
-      <table class="plain paradigm-table"><thead><tr><th>Paradigm</th>
-      <th class="num">Solvers</th><th class="num">Problems</th>
-      <th class="num">Total models</th></tr></thead>{"".join(groups)}</table>
+    <div class="section"><div class="section-head"><h2>Coverage by paradigm</h2>
+      <button type="button" class="btn expand-all" aria-pressed="false">Expand all</button></div>
+      <table class="plain paradigm-table"><thead><tr><th>Abbrev.</th><th>Name</th>
+      <th class="num">Solvers</th><th class="num">Avg. problems</th></tr></thead>{"".join(groups)}</table>
       {"".join(notes)}
-    </div>
-    <div class="section"><h2>Solver details</h2>
-      <div class="matrix-wrap">
-      <table class="plain solver-table"><thead><tr><th>Framework</th><th>Paradigm</th>
-      <th>Backend</th><th>Language</th><th class="num">Problems</th><th><span class="sr-only">Browse</span></th></tr></thead>
-      <tbody>{"".join(detail_rows)}</tbody></table></div>
     </div>
     """
     (OUTPUT_DIR / "paradigms.html").write_text(
@@ -1082,7 +1102,8 @@ def main() -> None:
     INTEGRATIONS = load_integrations()
     vocabulary = load_paradigm_vocabulary()
     PARADIGM_NAMES = {item["id"]: item["name"] for item in vocabulary}
-    breakdown = paradigm_breakdown(generated, INTEGRATIONS, vocabulary)
+    breakdown = paradigm_breakdown(generated, INTEGRATIONS, vocabulary,
+                                   problem_types={p["id"]: p["type"] for p in problems})
 
     # client-side index data (escaped so it can't break out of <script>)
     index_data = {

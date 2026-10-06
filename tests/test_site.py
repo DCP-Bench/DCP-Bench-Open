@@ -67,6 +67,18 @@ class ParadigmBreakdownTests(unittest.TestCase):
         self.assertEqual(breakdown["integration_models"], {"pure_cp": 1})
         self.assertEqual({item["id"]: item["models"] for item in breakdown["paradigms"]}["cp"], 1)
 
+    def test_a_scoped_paradigm_counts_only_problems_of_its_kind(self):
+        # SAT's case: it has no objective, so the hybrid's optimisation model
+        # counts under the other paradigm only.
+        breakdown = generate_site.paradigm_breakdown(
+            GENERATED, INTEGRATIONS, VOCABULARY,
+            problem_types={"queens": "satisfaction", "magic": "optimization"},
+            scopes={"mip": "satisfaction"},
+        )
+        self.assertEqual(breakdown["by_paradigm"]["cp"], {"pure_cp": 1, "hybrid": 2})
+        self.assertEqual(breakdown["by_paradigm"]["mip"], {"hybrid": 1})
+        self.assertEqual(breakdown["per_problem"], {"queens": ["cp", "mip"], "magic": ["cp"]})
+
     def test_a_paradigm_without_an_integration_keeps_an_empty_row(self):
         self.assertEqual(self.by_id["sat"]["integrations"], [])
         self.assertEqual(self.by_id["sat"]["models"], 0)

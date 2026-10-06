@@ -341,16 +341,38 @@
   }
 
   /* Solvers page: a paradigm row expands to the solvers behind it. A link to
-     #cp, or to anything inside that group, opens the group it lands in. */
+     #cp, or to anything inside that group, opens the group it lands in. One
+     button opens or closes every group at once. */
   function initParadigms() {
     var groups = document.querySelectorAll("tbody.paradigm");
     if (!groups.length) return;
+    var expandAll = document.querySelector(".expand-all");
+    var toggles = Array.prototype.filter.call(groups, function (group) {
+      return group.querySelector(".row-toggle[aria-expanded]");
+    });
+
+    function syncExpandAll() {
+      if (!expandAll) return;
+      var allOpen = toggles.every(function (group) {
+        return !group.classList.contains("collapsed");
+      });
+      expandAll.textContent = allOpen ? "Collapse all" : "Expand all";
+      expandAll.setAttribute("aria-pressed", allOpen ? "true" : "false");
+    }
 
     function setOpen(group, open) {
       var btn = group.querySelector(".row-toggle[aria-expanded]");
       if (!btn) return;
       group.classList.toggle("collapsed", !open);
       btn.setAttribute("aria-expanded", open ? "true" : "false");
+      syncExpandAll();
+    }
+
+    if (expandAll) {
+      expandAll.addEventListener("click", function () {
+        var open = expandAll.getAttribute("aria-pressed") !== "true";
+        toggles.forEach(function (group) { setOpen(group, open); });
+      });
     }
 
     Array.prototype.forEach.call(groups, function (group) {

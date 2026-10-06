@@ -667,39 +667,66 @@ table.plain td.mono { font-family: var(--mono); font-size: 0.85rem; }
 
 /* ---------- Solvers page ---------- */
 
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid var(--border);
+}
+.section-head h2 { margin: 0; padding-bottom: 8px; border-bottom: 0; }
+.expand-all { padding: 4px 12px; font-size: 0.85rem; margin-bottom: 6px; }
+html:not(.js) .expand-all { display: none; }
+
 /* `163 / 164`: the count reads first, the catalogue size stays quiet. */
 .count { font-weight: 600; }
 .of { color: var(--muted); font-size: 0.85em; }
 
-.paradigm-table td:first-child { white-space: nowrap; }
+/* Name takes the spare width; the other columns keep to their content. */
+.paradigm-table th:not(:nth-child(2)) { width: 1%; white-space: nowrap; }
+.paradigm-table td.num { white-space: nowrap; }
+.paradigm-table td.abbrev { font-weight: 600; white-space: nowrap; }
 .paradigm-row td { background: var(--card); }
+.paradigm-row td:nth-child(2) { white-space: nowrap; }
+/* A pill like the Browse buttons, so it reads as something to press. */
 .row-toggle {
-  background: none;
-  border: 0;
-  padding: 0;
+  margin-left: 10px;
+  padding: 1px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--accent);
   font: inherit;
-  font-weight: 600;
-  color: var(--text);
+  font-size: 0.8rem;
   cursor: pointer;
 }
-.row-toggle::before {
-  content: "▸";
-  display: inline-block;
-  width: 1.1em;
-  color: var(--muted);
-  transition: transform 0.15s;
-}
-.row-toggle.static { cursor: default; }
-.row-toggle.static::before { content: ""; }
-.row-toggle[aria-expanded="true"]::before { transform: rotate(90deg); }
-.row-toggle:hover { color: var(--accent); }
+.row-toggle::before { content: "Show ▾"; }
+.row-toggle[aria-expanded="true"]::before { content: "Hide ▴"; }
+.row-toggle:hover, .paradigm-row:hover .row-toggle { border-color: var(--accent); }
 .js .paradigm-row { cursor: pointer; }
 .paradigm-row:hover td { background: var(--accent-soft); }
-.js tbody.collapsed .solver-row { display: none; }
-.solver-row td { background: #fafbfd; font-size: 0.88rem; }
-.solver-row td:first-child { padding-left: calc(12px + 1.1em); }
-/* Without the script there is nothing to toggle, so no marker either. */
-html:not(.js) .row-toggle::before { content: ""; }
+/* Without the script every list is already open: nothing to press. */
+html:not(.js) .row-toggle { display: none; }
+
+/* The solvers of one paradigm: a list in a full-width row of its own. */
+.js tbody.collapsed .solver-panel { display: none; }
+.solver-panel > td { padding: 0; background: #fafbfd; }
+.solver-list { list-style: none; margin: 0; padding: 4px 12px 4px 28px; font-size: 0.88rem; }
+.solver-list li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.solver-list li:last-child { border-bottom: 0; }
+.solver-list li:target { background: var(--accent-soft); scroll-margin-top: 90px; }
+.solver-count { white-space: nowrap; text-align: right; min-width: 80px; }
+/* What the framework hands the model to, e.g. Gecode under MiniZinc. */
+.backend { color: var(--muted); margin-left: 8px; font-size: 0.82rem; }
+.backend::before { content: "· "; }
 
 .note-mark { margin-left: 2px; font-weight: 600; text-decoration: none; }
 .table-note { color: var(--muted); font-size: 0.85rem; margin: 10px 0 0; max-width: 90ch; }
@@ -739,11 +766,8 @@ html:not(.js) .row-toggle::before { content: ""; }
   white-space: normal;
 }
 .info:hover + .tip, .info:focus + .tip { display: block; }
-.solver-table td { vertical-align: top; }
 
 .browse {
-  float: right;
-  margin-left: 16px;
   padding: 1px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -753,21 +777,27 @@ html:not(.js) .row-toggle::before { content: ""; }
   white-space: nowrap;
 }
 .browse:hover { border-color: var(--accent); background: var(--accent-soft); text-decoration: none; }
-.solver-table .browse { float: none; margin-left: 0; }
-.paradigm-table td.num { white-space: nowrap; }
 
-/* On a phone the paradigm table has to fit without scrolling sideways, since
-   a scrolling wrapper would clip the tooltips. The solver count is what the
-   expanded row already shows, so it goes. */
+/* On a phone the table has to fit without scrolling sideways, since a
+   scrolling wrapper would clip the tooltips. */
 @media (max-width: 640px) {
-  .paradigm-table td:first-child { white-space: normal; }
-  .paradigm-table th, .paradigm-table td { padding: 8px; }
-  .paradigm-table th:nth-child(2), .paradigm-table td:nth-child(2) { display: none; }
-  .solver-row td:first-child { padding-left: calc(8px + 1.1em); }
+  table.paradigm-table { width: 100%; font-size: 0.8rem; }
+  .paradigm-row td:nth-child(2) { white-space: normal; }
+  .paradigm-table th, .paradigm-table td { padding: 8px 5px; }
+  .paradigm-table th, .paradigm-table th:not(:nth-child(2)) { white-space: normal; font-size: 0.82rem; }
+  /* Every count is out of the same catalogue, so the phone drops the "/ 164". */
+  .paradigm-table .of { display: none; }
+  .browse-long { display: none; }
+  .row-toggle { display: block; margin: 4px 0 0 auto; padding: 1px 8px; }
+  .solver-list { padding: 4px 8px 4px 16px; }
+  .solver-list li { gap: 10px; }
+  .solver-count { min-width: 0; }
+  .backend { display: block; margin-left: 0; }
+  .backend::before { content: ""; }
   /* The tip hangs from the cell, not the icon, so it stays on screen. */
-  .paradigm-row td:first-child { position: relative; }
+  .paradigm-row td:nth-child(2) { position: relative; }
   .paradigm-row .info-wrap { position: static; }
-  .paradigm-row .tip { left: 0; width: auto; max-width: none; right: -100px; }
+  .paradigm-row .tip { left: 0; width: auto; max-width: none; right: -120px; }
 }
 
 /* Arriving from a model page's "Solver" link, so the row that was asked for
