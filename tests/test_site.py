@@ -60,6 +60,13 @@ class ParadigmBreakdownTests(unittest.TestCase):
         self.assertEqual(self.breakdown["integration_models"], {"pure_cp": 1, "hybrid": 2})
         self.assertEqual(self.breakdown["integration_problems"], {"pure_cp": 1, "hybrid": 2})
 
+    def test_two_accepted_models_of_one_problem_count_once(self):
+        breakdown = generate_site.paradigm_breakdown(
+            {"queens": {"pure_cp": [verified("pure_cp"), verified("pure_cp")]}},
+            INTEGRATIONS, VOCABULARY)
+        self.assertEqual(breakdown["integration_models"], {"pure_cp": 1})
+        self.assertEqual({item["id"]: item["models"] for item in breakdown["paradigms"]}["cp"], 1)
+
     def test_a_paradigm_without_an_integration_keeps_an_empty_row(self):
         self.assertEqual(self.by_id["sat"]["integrations"], [])
         self.assertEqual(self.by_id["sat"]["models"], 0)
