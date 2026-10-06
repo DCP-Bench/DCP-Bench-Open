@@ -92,9 +92,10 @@ class MetadataTests(unittest.TestCase):
         self.assertCountEqual(identifiers, set(identifiers), "duplicate paradigm ID")
         for entry in self.vocabulary:
             with self.subTest(paradigm=entry.get("id")):
-                self.assertEqual(set(entry), {"id", "name", "summary"})
-                # The website prints the name and summary verbatim.
+                self.assertEqual(set(entry), {"id", "abbrev", "name", "summary"})
+                # The website prints the abbreviation, name and summary verbatim.
                 self.assertRegex(entry["id"], r"^[a-z][a-z0-9_]*$")
+                self.assertTrue(entry["abbrev"].strip())
                 self.assertTrue(entry["name"].strip())
                 self.assertTrue(entry["summary"].strip().endswith("."))
 
