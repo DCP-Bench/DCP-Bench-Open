@@ -29,7 +29,9 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v20"
+ASSET_VERSION = "catalogue-v21"
+# Set by main() from the content of data.js.
+DATA_VERSION = ""
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with hand-written "
@@ -187,7 +189,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "")
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
 <script src="{prefix}minizinc.js?v={ASSET_VERSION}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-<script src="{prefix}data.js"></script>
+<script src="{prefix}data.js?v={DATA_VERSION}"></script>
 <script src="{prefix}app.js?v={ASSET_VERSION}"></script>
 </body>
 </html>
@@ -649,6 +651,13 @@ MULTI_PARADIGM_NOTES = {
 }
 
 
+def browse_button(solver: str, count: int) -> str:
+    """Opens the catalogue filtered to the problems one integration models."""
+    if not count:
+        return ""
+    return f'<a class="browse" href="index.html?framework={esc(solver)}">Browse problems &rarr;</a>'
+
+
 def coverage_count(count: int, total: int, href: str = "") -> str:
     """`163 / 164`, the count opening the catalogue when there is one."""
     shown = f'<a href="{href}">{count}</a>' if href and count else str(count)
@@ -710,8 +719,8 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             f'<td class="num">{item["models"]}</td></tr>'
         )
         rows = "".join(
-            f'<tr class="solver-row"><td><a href="#solver-{esc(solver)}">'
-            f'{esc(INTEGRATIONS[solver].get("name", solver))}</a></td><td></td>'
+            f'<tr class="solver-row"><td>{esc(INTEGRATIONS[solver].get("name", solver))}'
+            f'{browse_button(solver, integration_problems.get(solver, 0))}</td><td></td>'
             f'<td class="num">{coverage_count(integration_problems.get(solver, 0), total_problems, "index.html?framework=" + esc(solver))}</td>'
             '<td></td></tr>'
             for solver in solvers
@@ -727,7 +736,8 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             f'<td>{paradigm_chips(solver, "")}</td>'
             f'<td>{esc(BACKEND_NAMES.get(backend, backend))}</td>'
             f'<td>{esc(language)}</td>'
-            f'<td class="num">{coverage_count(integration_problems.get(solver, 0), total_problems, "index.html?framework=" + esc(solver))}</td></tr>'
+            f'<td class="num">{coverage_count(integration_problems.get(solver, 0), total_problems, "index.html?framework=" + esc(solver))}</td>'
+            f'<td>{browse_button(solver, integration_problems.get(solver, 0))}</td></tr>'
         )
 
     body = f"""
@@ -740,7 +750,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     <div class="section"><h2>Solver details</h2>
       <div class="matrix-wrap">
       <table class="plain solver-table"><thead><tr><th>Solver</th><th>Paradigm</th>
-      <th>Backend</th><th>Language</th><th class="num">Problems</th></tr></thead>
+      <th>Backend</th><th>Language</th><th class="num">Problems</th><th><span class="sr-only">Browse</span></th></tr></thead>
       <tbody>{"".join(detail_rows)}</tbody></table></div>
     </div>
     """
@@ -1079,11 +1089,6 @@ def main() -> None:
     PARADIGM_NAMES = {item["id"]: item["name"] for item in vocabulary}
     breakdown = paradigm_breakdown(generated, INTEGRATIONS, vocabulary)
 
-    build_index(problems, generated, breakdown)
-    build_paradigms(problems, breakdown)
-    for idx, p in enumerate(problems):
-        build_problem_page(p, p["meta"], idx, len(problems), generated)
-
     # client-side index data (escaped so it can't break out of <script>)
     index_data = {
         "problems": [
@@ -1101,6 +1106,15 @@ def main() -> None:
     }
     js = "window.DCP_DATA = " + json.dumps(index_data, ensure_ascii=False).replace("<", "\\u003c") + ";\n"
     (OUTPUT_DIR / "data.js").write_text(js, encoding="utf-8")
+    # The pages ask for data.js by its content, so a rebuilt catalogue is
+    # fetched again rather than served from a browser's cache.
+    global DATA_VERSION
+    DATA_VERSION = digest(js.encode())[:12]
+
+    build_index(problems, generated, breakdown)
+    build_paradigms(problems, breakdown)
+    for idx, p in enumerate(problems):
+        build_problem_page(p, p["meta"], idx, len(problems), generated)
 
     print(f"Generated {len(problems)} problem pages in {OUTPUT_DIR}")
 
