@@ -744,7 +744,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     </div>
     <div class="section"><h2>Solver details</h2>
       <div class="matrix-wrap">
-      <table class="plain solver-table"><thead><tr><th>Solver</th><th>Paradigm</th>
+      <table class="plain solver-table"><thead><tr><th>Framework</th><th>Paradigm</th>
       <th>Backend</th><th>Language</th><th class="num">Problems</th><th><span class="sr-only">Browse</span></th></tr></thead>
       <tbody>{"".join(detail_rows)}</tbody></table></div>
     </div>
