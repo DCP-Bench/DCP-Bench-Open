@@ -118,13 +118,26 @@
     });
   }
 
+  /* With one framework picked (index.html?framework=pychoco from the Solvers
+     page), a problem link opens that framework's model rather than the
+     reference model. */
+  function problemHref(problem) {
+    var href = "problems/" + problem.id + ".html";
+    var framework = selectedFilterValues("framework")[0];
+    if (framework && framework !== "any" && framework !== "none" &&
+        (problem.generatedFrameworks || []).indexOf(framework) !== -1) {
+      href += "?model=" + encodeURIComponent(framework);
+    }
+    return href;
+  }
+
   function appendGridCard(container, problem) {
     var card = document.createElement("div");
     card.className = "card";
 
     var h3 = document.createElement("h3");
     var link = document.createElement("a");
-    link.href = "problems/" + problem.id + ".html";
+    link.href = problemHref(problem);
     link.textContent = problem.id;
     h3.appendChild(link);
 
@@ -175,7 +188,7 @@
       var nameCell = document.createElement("div");
       nameCell.className = "list-cell list-name";
       var link = document.createElement("a");
-      link.href = "problems/" + problem.id + ".html";
+      link.href = problemHref(problem);
       link.textContent = problem.id;
       nameCell.appendChild(link);
       row.appendChild(nameCell);
@@ -322,6 +335,7 @@
   }
 
   function initTabs() {
+    var model = window.URLSearchParams ? new URLSearchParams(window.location.search).get("model") : null;
     document.querySelectorAll(".tab-group").forEach(function (group) {
       var bar = group.querySelector(".tab-bar");
       if (!bar) return;
@@ -337,12 +351,18 @@
           });
         });
       });
+      /* problems/x.html?model=pychoco opens that model's tab and scrolls to it. */
+      var wanted = model && bar.querySelector('.tab-btn[data-tab="' + model.replace(/"/g, "") + '"]');
+      if (wanted) {
+        wanted.click();
+        (group.closest(".page-section") || group).scrollIntoView();
+      }
     });
   }
 
   /* Solvers page: a paradigm row expands to the solvers behind it. A link to
      #cp, or to anything inside that group, opens the group it lands in. One
-     button opens or closes every group at once. */
+     button shows or hides every group at once. */
   function initParadigms() {
     var groups = document.querySelectorAll("tbody.paradigm");
     if (!groups.length) return;
@@ -356,7 +376,7 @@
       var allOpen = toggles.every(function (group) {
         return !group.classList.contains("collapsed");
       });
-      expandAll.textContent = allOpen ? "Collapse all" : "Expand all";
+      expandAll.textContent = allOpen ? "Hide all" : "Show all";
       expandAll.setAttribute("aria-pressed", allOpen ? "true" : "false");
     }
 

@@ -676,10 +676,11 @@ def backend_label(solver: str, paradigm: str = "") -> str:
 
 
 def browse_button(solver: str, count: int) -> str:
-    """Opens the catalogue filtered to the problems one integration models."""
+    """Opens the catalogue filtered to the problems one integration models;
+    each problem there links straight to that integration's model."""
     if not count:
         return ""
-    return f'<a class="browse" href="index.html?framework={esc(solver)}">Browse<span class="browse-long"> problems</span> &rarr;</a>'
+    return f'<a class="browse" href="index.html?framework={esc(solver)}">Browse<span class="browse-long"> models</span> &rarr;</a>'
 
 
 def coverage_count(count, total: int) -> str:
@@ -714,10 +715,13 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     anchored: set = set()
     for item in by_solvers:
         tag = item["id"]
-        solvers = item["integrations"]
         scope = PARADIGM_SCOPE.get(tag)
         denominator = type_counts.get(scope, 0) if scope else len(types)
         found = breakdown["by_paradigm"].get(tag, {})
+        # The solvers that model the most problems in this paradigm lead;
+        # ties read alphabetically by display name.
+        solvers = sorted(item["integrations"], key=lambda solver: (
+            -found.get(solver, 0), INTEGRATIONS[solver].get("name", solver).lower()))
         counts = [found.get(solver, 0) for solver in solvers]
 
         mark = ""
@@ -763,7 +767,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
 
     body = f"""
     <div class="section"><div class="section-head"><h2>Coverage by paradigm</h2>
-      <button type="button" class="btn expand-all" aria-pressed="false">Expand all</button></div>
+      <button type="button" class="btn expand-all" aria-pressed="false">Show all</button></div>
       <table class="plain paradigm-table"><thead><tr><th>Abbrev.</th><th>Name</th>
       <th class="num">Solvers</th><th class="num">Avg. problems</th></tr></thead>{"".join(groups)}</table>
       {"".join(notes)}
