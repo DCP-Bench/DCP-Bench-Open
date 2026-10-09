@@ -29,7 +29,7 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v37"
+ASSET_VERSION = "catalogue-v38"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -234,12 +234,17 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
 """
 
 
-def code_block(code: str, lang: str, copy_id: str = None, head_label: str = None) -> str:
+def code_block(code: str, lang: str, copy_id: str = None, head_label: str = None,
+               link: str = None) -> str:
+    """`link` adds a "GitHub" link to the file beside the Copy button."""
     head = ""
     if copy_id:
+        github = (f'<a class="code-link" href="{esc(link)}" target="_blank" rel="noopener">GitHub</a>'
+                  if link else "")
         head = (
             f'<div class="code-head"><span>{esc(head_label or lang)}</span>'
-            f'<button type="button" data-copy="{copy_id}">Copy</button></div>'
+            f'<span class="code-actions">{github}'
+            f'<button type="button" data-copy="{copy_id}">Copy</button></span></div>'
         )
     return (
         f"{head}<pre class=\"code-block\"><code id=\"{copy_id}\" "
@@ -362,7 +367,7 @@ def flag_badge(flags: list, problem: str = "") -> str:
         ' <span class="badge" style="background:#9a3412" title="Accepted on the instances the '
         'problem had when it was evaluated, then rejected on one added since">'
         'fails a later instance</span>'
-        f'<p class="desc" style="margin:6px 0 0">Rejected on {esc(failures)}.</p>'
+        f'<p class="desc eval-note">Rejected on {esc(failures)}.</p>'
     )
 
 
@@ -416,65 +421,83 @@ def instance_label(identifier, problem: str = "", instance_hash: str | None = No
     return text, ""
 
 
-def evaluation_details(metrics: dict) -> str:
-    """The specifics behind the verdict, collapsed so the badge stays the headline."""
+def mebibytes(value) -> str:
+    """2048 reads as 2 GiB; anything else stays in MiB."""
+    if isinstance(value, int) and value >= 1024 and value % 1024 == 0:
+        return f"{value // 1024}&thinsp;GiB"
+    return f"{value}&thinsp;MiB"
+
+
+def evaluation_html(metrics: dict, flags: list) -> str:
+    """The verdict, then one pill per instance in the numbering of the
+    Instances section, then the limits; the per-instance table is folded."""
+    head = (f'<div class="eval-head"><h3>Evaluation</h3>{verdict_badge(metrics)}'
+            f'{flag_badge(flags, metrics.get("problem", ""))}</div>')
     record = metrics.get("evaluation") or {}
     instances = record.get("instances") or []
     if not instances:
-        return ""
-    requested, limits = record.get("requested") or {}, record.get("limits") or {}
-    rows = []
+        return f'<div class="card-box evaluation">{head}</div>'
+
+    pills, rows = [], []
     for item in instances:
         label, raw = instance_label(item.get("id"), metrics.get("problem", ""), item.get("instance_hash"))
-        received, distinct = item.get("solutions_received"), item.get("solutions_checked")
+        received, checked = item.get("solutions_received"), item.get("solutions_checked")
         status = (item.get("runner_status") or {}).get("status") or "did not run"
         if item.get("accepted"):
-            outcome, css = "accepted", "yes"
+            outcome, css = "accepted", "ok"
         elif item.get("skipped"):
-            outcome, css = f"skipped, {item.get('reason', '')}", "no"
+            outcome, css = f"skipped, {item.get('reason', '')}", "skip"
         else:
-            outcome, css = item.get("reason") or "failed", "no"
+            outcome, css = item.get("reason") or "failed", "fail"
         seconds = item.get("execution_wall_seconds")
+        solve = "&ndash;" if seconds is None else f"{seconds:.1f}&thinsp;s"
+        tip = f"{label}: {outcome}"
+        if checked is not None:
+            tip += f", {checked} solution{'s' if checked != 1 else ''} checked"
+        if seconds is not None:
+            tip += f", {seconds:.1f} s"
+        pills.append(f'<span class="eval-pill {css}" title="{esc(tip)}">'
+                     f'{esc(label.removeprefix("Instance "))}</span>')
+        emitted = "" if received is None else f' title="{received} emitted"'
         rows.append(
             f'<tr><td class="cell-id" title="{esc(raw)}">{esc(label)}</td>'
-            f'<td>{"&mdash;" if received is None else received}</td>'
-            f'<td>{"&mdash;" if distinct is None else distinct}</td>'
-            f'<td>{esc(status)}</td>'
             f'<td class="cell-cat {css}">{esc(outcome)}</td>'
-            f'<td>{"&mdash;" if seconds is None else f"{seconds:.1f}&thinsp;s"}</td></tr>'
+            f'<td{emitted}>{"&ndash;" if checked is None else checked}</td>'
+            f'<td>{esc(status)}</td><td>{solve}</td></tr>'
         )
+
+    accepted = sum(1 for item in instances if item.get("accepted"))
+    summary = f"Accepted on {accepted} of {len(instances)} instances"
     skipped = record.get("skipped_instances") or []
-    headline = (f'Verified {record.get("instances_checked")} of '
-                f'{record.get("instances_available")} distinct instances, accepting '
-                f'{record.get("solutions_checked")} solutions in total')
     if skipped:
-        headline += f", with {len(skipped)} instance(s) skipped as inconclusive"
-    asked = (f'Asked for up to {requested.get("solution_limit")} distinct solution(s) on up to '
-             f'{requested.get("instance_count")} instances, bounded at '
-             f'{limits.get("execution_timeout")}&thinsp;s solving, '
-             f'{limits.get("reference_timeout")}&thinsp;s reference, '
-             f'{limits.get("memory_mb")}&thinsp;MiB, {limits.get("cpus")}&thinsp;CPU.')
+        summary += f", {len(skipped)} skipped as inconclusive"
+    if record.get("solutions_checked") is not None:
+        summary += f" &middot; {record['solutions_checked']} solutions checked"
+    requested, limits = record.get("requested") or {}, record.get("limits") or {}
+    bounds = (f'Up to {requested.get("solution_limit")} solutions per instance, '
+              f'{limits.get("execution_timeout")}&thinsp;s, {mebibytes(limits.get("memory_mb"))}, '
+              f'{limits.get("cpus")}&thinsp;CPU.')
     return (
-        '<details class="instance" style="margin-top:8px">'
-        '<summary>Evaluation detail</summary>'
-        f'<div style="padding:10px 12px"><p class="desc" style="margin:0 0 8px">{headline}.</p>'
-        '<table class="matrix"><thead><tr><th>Instance</th><th>Emitted</th><th>Distinct</th>'
-        '<th>Runner</th><th>Outcome</th><th>Solve</th></tr></thead>'
-        f'<tbody>{"".join(rows)}</tbody></table>'
-        f'<p class="desc" style="margin:8px 0 0">{asked}</p></div></details>'
+        f'<div class="card-box evaluation">{head}'
+        f'<p class="eval-summary">{summary}</p>'
+        f'<div class="eval-pills">{"".join(pills)}</div>'
+        f'<p class="desc eval-note">{bounds}</p>'
+        '<details class="eval-details"><summary>Per-instance results</summary>'
+        '<div class="matrix-wrap"><table class="matrix"><thead><tr><th>Instance</th><th>Outcome</th>'
+        '<th>Solutions</th><th>Run</th><th>Solve</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div></details></div>'
     )
 
 
 def generated_model_html(entry: dict) -> str:
-    """Render a generated model with the reference model's Metadata + Model layout."""
+    """A generated model: who made it and for what, how it was judged, the code."""
     metrics = entry["metrics"]
     generated_by = metrics.get("generated_by", {})
     uid = f"{metrics.get('problem', '')}-{entry['submission']}"
 
-    rows = [
-        f"<dt>Submission</dt><dd>{esc(entry['submission'])}</dd>",
-        f"<dt>Base LLM</dt><dd>{esc(generated_by.get('base_llm') or 'Unknown')}</dd>",
-    ]
+    # `base_llm` names whatever wrote the model: a bare LLM, or an agent
+    # running one, as in "claude-code (claude-sonnet-5-5)".
+    rows = [f"<dt>Generated by</dt><dd>{esc(generated_by.get('base_llm') or 'Unknown')}</dd>"]
     if generated_by.get("dataset_version"):
         rows.append(
             f"<dt>Dataset version</dt><dd>{esc(generated_by['dataset_version'])}</dd>"
@@ -484,29 +507,18 @@ def generated_model_html(entry: dict) -> str:
     chips = paradigm_chips(metrics.get("solver"), "../")
     if chips:
         rows.append(f"<dt>Paradigm</dt><dd>{chips}</dd>")
-    rows.append(f"<dt>Evaluation</dt><dd>{verdict_badge(metrics)}"
-                f"{flag_badge(entry.get('flags'), metrics.get('problem', ''))}{evaluation_details(metrics)}</dd>")
-
-    links = []
-    if entry["model_file"]:
-        links.append(
-            f'<a href="{REPO_URL}/blob/main/generated_models/'
-            f'{esc(metrics.get("problem", ""))}/{esc(entry["directory"])}/'
-            f'{esc(entry["submission"])}/{esc(entry["model_file"])}" target="_blank" '
-            f'rel="noopener">Model file (GitHub)</a>'
-        )
-    if links:
-
-        rows.append(f'<dt>Sources</dt><dd>{" &middot; ".join(links)}</dd>')
 
     if entry["model_file"]:
         lang, label = model_language(metrics, entry["model_file"])
-        model = code_block(entry["code"], lang, copy_id=f"gmod-{uid}", head_label=label)
+        link = (f'{REPO_URL}/blob/main/generated_models/{metrics.get("problem", "")}/'
+                f'{entry["directory"]}/{entry["submission"]}/{entry["model_file"]}')
+        model = code_block(entry["code"], lang, copy_id=f"gmod-{uid}", head_label=label, link=link)
     else:
         model = '<p class="desc">Code file not found.</p>'
 
     return (
-        f'<div class="card-box provenance"><h3>Metadata</h3><dl>{"".join(rows)}</dl></div>'
+        f'<div class="model-info"><div class="card-box provenance"><h3>Metadata</h3><dl>{"".join(rows)}</dl></div>'
+        f'{evaluation_html(metrics, entry.get("flags"))}</div>'
         f'<h3>Model</h3>{model}'
     )
 
@@ -836,7 +848,7 @@ def source_group(meta: dict) -> str:
 
 
 def build_index(problems: list, generated: dict, breakdown: dict) -> None:
-    """The problem catalogue: the filters, then one table per problem type."""
+    """The problem catalogue: the filters, then a tab per problem type."""
     paradigm_options = "".join(
         f'<label><input type="checkbox" data-filter-group="paradigm" value="{esc(item["id"])}">'
         f'{esc(item["name"])}</label>'
@@ -860,13 +872,6 @@ def build_index(problems: list, generated: dict, breakdown: dict) -> None:
       <label class="search-field"><span class="sr-only">Search problems</span>
         <input type="search" id="filter-q" placeholder="Search names and descriptions" autocomplete="off">
       </label>
-      <div class="filter-menu" data-filter-menu="type">
-        <button type="button" class="filter-trigger" id="filter-type" aria-expanded="false">Type: All</button>
-        <div class="filter-options" role="group" aria-label="Filter by type">
-          <label><input type="checkbox" data-filter-group="type" value="optimization">Optimization</label>
-          <label><input type="checkbox" data-filter-group="type" value="satisfaction">Satisfaction</label>
-        </div>
-      </div>
       <div class="filter-menu" data-filter-menu="instances">
         <button type="button" class="filter-trigger" id="filter-instances" aria-expanded="false">Instances: All</button>
         <div class="filter-options" role="group" aria-label="Filter by instance count">
@@ -889,15 +894,19 @@ def build_index(problems: list, generated: dict, breakdown: dict) -> None:
       </div>
       <button type="button" id="reset-filters" class="reset-btn" disabled>Reset</button>
     </div>
-    <p class="result-count" id="result-count"></p>
-    <div class="section problem-section" data-type="optimization">
-      <h2>Optimization <span class="section-count"></span></h2>
-      <div class="problem-table"></div>
+    <div class="type-tabs">
+      <div class="type-tab-list" role="tablist" aria-label="Problem type">
+        <button type="button" class="type-tab active" role="tab" aria-selected="true" data-type="optimization"
+          id="tab-optimization" aria-controls="panel-optimization">Optimization <span class="tab-count"></span></button>
+        <button type="button" class="type-tab" role="tab" aria-selected="false" data-type="satisfaction"
+          id="tab-satisfaction" aria-controls="panel-satisfaction">Satisfaction <span class="tab-count"></span></button>
+      </div>
+      <p class="result-count" id="result-count"></p>
     </div>
-    <div class="section problem-section" data-type="satisfaction">
-      <h2>Satisfaction <span class="section-count"></span></h2>
-      <div class="problem-table"></div>
-    </div>
+    <div class="problem-section" data-type="optimization" role="tabpanel" id="panel-optimization"
+      aria-labelledby="tab-optimization"><div class="problem-table"></div></div>
+    <div class="problem-section" data-type="satisfaction" role="tabpanel" id="panel-satisfaction"
+      aria-labelledby="tab-satisfaction" hidden><div class="problem-table"></div></div>
     """
     (OUTPUT_DIR / "index.html").write_text(
         page("Problems", "", "index", body, SUBTITLE), encoding="utf-8"
@@ -967,10 +976,12 @@ def instances_section_html(p: dict, idx: int) -> str:
 
 def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
     best = select_best_generated(generated)
+    reference = code_block(p["display_model"], "python", copy_id=f"model-{idx}", head_label="Python",
+                           link=f"{REPO_URL}/blob/main/dataset/{p['id']}/{p['id']}.cpmpy.py")
     panes = [
         f'<div class="tab-pane active" data-pane="ground_truth">'
         f'<div class="card-box provenance"><h3>Metadata</h3>{metadata_html(meta, p)}</div>'
-        f'<h3>Model</h3>{code_block(p["display_model"], "python", copy_id=f"model-{idx}", head_label="Python")}'
+        f'<h3>Model</h3>{reference}'
         f'</div>'
     ]
     generated_buttons = []
@@ -990,8 +1001,8 @@ def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
     ]
     if generated_buttons:
         rows.append(
-            '<div class="picker-row"><span class="picker-label" title="Written by an LLM and accepted '
-            f'by the evaluator">Generated <span class="count-note">({len(generated_buttons)})</span></span>'
+            '<div class="picker-row"><span class="picker-label">Generated '
+            f'<span class="count-note">({len(generated_buttons)})</span></span>'
             f'<div class="picker-chips">{"".join(generated_buttons)}</div></div>'
         )
     return (

@@ -3,7 +3,10 @@
 
   var sortKey = "name";
   var sortDirection = 1;
-  var FILTER_GROUPS = ["type", "instances", "paradigm", "framework"];
+  var FILTER_GROUPS = ["instances", "paradigm", "framework"];
+  /* The catalogue shows one problem type at a time, as a tab. */
+  var TYPES = ["optimization", "satisfaction"];
+  var activeType = TYPES[0];
 
   /* Names compare by code point, the order generate_site.py gives the
      problem pages' prev/next links. */
@@ -39,7 +42,7 @@
     });
   }
 
-  var FILTER_NAMES = { type: "Type", instances: "Instances", paradigm: "Paradigm", framework: "Solver" };
+  var FILTER_NAMES = { instances: "Instances", paradigm: "Paradigm", framework: "Solver" };
 
   /* A filter in use reads its choice and is marked, so a narrowed list
      never looks like the whole catalogue. */
@@ -112,10 +115,12 @@
     return params.join("&");
   }
 
+  /* Reset clears the filters, search and sort; the tab stays where it is. */
   function syncState() {
     var query = currentQuery();
     var reset = document.getElementById("reset-filters");
     if (reset) reset.disabled = !query;
+    if (activeType !== TYPES[0]) query = "type=" + activeType + (query ? "&" + query : "");
     if (window.history && history.replaceState) {
       history.replaceState(null, "", window.location.pathname + (query ? "?" + query : ""));
     }
@@ -204,13 +209,11 @@
 
     var data = window.DCP_DATA.problems || [];
     var q = (document.getElementById("filter-q") || { value: "" }).value.trim().toLowerCase();
-    var types = selectedFilterValues("type");
     var instances = selectedFilterValues("instances");
     var paradigms = selectedFilterValues("paradigm");
     var frameworks = selectedFilterValues("framework");
 
     var filtered = data.filter(function (problem) {
-      if (types.length && types.indexOf(problem.type || "satisfaction") === -1) return false;
       if (instances.length) {
         var instanceType = problem.instances === 0 ? "none" : (problem.instances === 1 ? "single" : "multiple");
         if (instances.indexOf(instanceType) === -1) return false;
@@ -238,21 +241,51 @@
 
     filtered.sort(compareProblems);
     if (countEl) {
-      countEl.textContent = filtered.length ? filtered.length + " of " + data.length + " problems"
-        : "No problems match the current filters.";
+      countEl.textContent = filtered.length === data.length ? data.length + " problems"
+        : filtered.length + " of " + data.length + " problems match";
     }
-    Array.prototype.forEach.call(sections, function (section) {
-      var kind = section.getAttribute("data-type");
-      var rows = filtered.filter(function (problem) {
+    var byType = {};
+    TYPES.forEach(function (kind) {
+      byType[kind] = filtered.filter(function (problem) {
         return (problem.type || "satisfaction") === kind;
       });
-      section.hidden = !rows.length;
-      section.querySelector(".section-count").textContent = "(" + rows.length + ")";
+    });
+    document.querySelectorAll(".type-tab").forEach(function (tab) {
+      var kind = tab.getAttribute("data-type");
+      var active = kind === activeType;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", active ? "true" : "false");
+      tab.querySelector(".tab-count").textContent = byType[kind].length;
+    });
+    Array.prototype.forEach.call(sections, function (section) {
+      var kind = section.getAttribute("data-type");
+      section.hidden = kind !== activeType;
       var container = section.querySelector(".problem-table");
       container.innerHTML = "";
-      if (rows.length) renderTable(container, rows);
+      if (kind !== activeType) return;
+      if (byType[kind].length) {
+        renderTable(container, byType[kind]);
+        return;
+      }
+      /* Nothing here, but a search may well match in the other tab. */
+      var empty = container.appendChild(el("p", "desc empty-state"));
+      empty.textContent = "No " + kind + " problems match. ";
+      var other = TYPES.filter(function (type) { return type !== kind && byType[type].length; })[0];
+      if (other) {
+        var jump = empty.appendChild(el("button", "link-btn"));
+        jump.type = "button";
+        jump.textContent = "Show the " + byType[other].length + " matching " + other + " problem" +
+          (byType[other].length === 1 ? "" : "s") + ".";
+        jump.addEventListener("click", function () { showType(other); });
+      }
     });
     syncState();
+  }
+
+  function showType(kind) {
+    if (TYPES.indexOf(kind) === -1) return;
+    activeType = kind;
+    renderCards();
   }
 
   /* Restore the catalogue from its URL, which is also how another page hands
@@ -263,6 +296,7 @@
     var params = new URLSearchParams(window.location.search);
     var search = document.getElementById("filter-q");
     if (search && params.get("q")) search.value = params.get("q");
+    if (TYPES.indexOf(params.get("type")) !== -1) activeType = params.get("type");
     var sort = params.get("sort") || "";
     var key = sort.replace(/^-/, "");
     if (COLUMNS.some(function (column) { return column.key === key; })) {
@@ -287,6 +321,9 @@
     applyQueryFilters();
     var search = document.getElementById("filter-q");
     if (search) search.addEventListener("input", renderCards);
+    document.querySelectorAll(".type-tab").forEach(function (tab) {
+      tab.addEventListener("click", function () { showType(tab.getAttribute("data-type")); });
+    });
     var reset = document.getElementById("reset-filters");
     if (reset) reset.addEventListener("click", function () {
       var searchInput = document.getElementById("filter-q");
