@@ -33,7 +33,7 @@ SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 PAPER_URL = "https://arxiv.org/abs/2506.06052"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v41"
+ASSET_VERSION = "catalogue-v42"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (

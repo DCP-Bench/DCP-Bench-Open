@@ -528,10 +528,9 @@
 
   /* Problem pages: the left and right arrow keys step through the models in
      the order of the pills, wrapping round, while the Models section is on
-     screen. A hint says so, on a device with a keyboard, until the keys have
-     been used or the hint has shown three times. */
-  var KEYS_USED = "dcp-model-keys";
-  var HINT_SHOWN = "dcp-model-keys-hint";
+     screen. On a device with a keyboard, a hint says so whenever the section
+     is on screen, until the reader closes it. */
+  var HINT_CLOSED = "dcp-model-keys-hint-closed";
 
   function stored(key) {
     try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -558,15 +557,6 @@
       });
     });
 
-    var hint = null;
-    function hideHint() {
-      if (hint) hint.classList.remove("shown");
-    }
-    function used() {
-      store(KEYS_USED, "1");
-      hideHint();
-    }
-
     document.addEventListener("keydown", function (event) {
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
@@ -582,27 +572,27 @@
       /* A shorter model could leave the reader below it: bring the pills back. */
       if (section.getBoundingClientRect().top < 0) section.scrollIntoView();
       event.preventDefault();
-      used();
     });
 
-    var shown = Number(stored(HINT_SHOWN)) || 0;
     var keyboard = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    if (stored(KEYS_USED) || shown >= 3 || !keyboard || !window.IntersectionObserver) return;
-    hint = document.createElement("div");
+    if (stored(HINT_CLOSED) || !keyboard || !window.IntersectionObserver) return;
+    var hint = document.createElement("div");
     hint.className = "key-hint";
     hint.setAttribute("role", "status");
-    hint.innerHTML = '<kbd>\u2190</kbd><kbd>\u2192</kbd><span>switch models</span>' +
-      '<button type="button" aria-label="Dismiss">\u00d7</button>';
-    hint.querySelector("button").addEventListener("click", used);
+    hint.innerHTML = '<kbd>←</kbd><kbd>→</kbd><span>switch models</span>' +
+      '<button type="button" aria-label="Close this hint">×</button>';
     document.body.appendChild(hint);
+    /* Any part of the section on screen counts: a long model can be taller
+       than the window, so a share of it would never be visible. */
     var observer = new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting) return;
-      observer.disconnect();
-      store(HINT_SHOWN, String(shown + 1));
-      hint.classList.add("shown");
-      setTimeout(hideHint, 8000);
-    }, { threshold: 0.2 });
+      hint.classList.toggle("shown", entries[entries.length - 1].isIntersecting);
+    });
     observer.observe(group);
+    hint.querySelector("button").addEventListener("click", function () {
+      store(HINT_CLOSED, "1");
+      observer.disconnect();
+      hint.remove();
+    });
   }
 
   function init() {
