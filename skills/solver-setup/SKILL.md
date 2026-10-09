@@ -61,17 +61,15 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    ```
 
    **`name` is what the community reads on the website, and the `id` is never
-   shown.** Name the integration after what a model author writes, and add a
-   qualifier only when an existing integration would otherwise be
-   indistinguishable from it. The backend solver belongs in `solver`, never in
-   the name: a MiniZinc model is the same text whether Gecode or Chuffed runs
-   it, so the integration is `MiniZinc`. A qualifier earns its place when it
-   changes what gets written — `OR-Tools CP-SAT (Python)` against
-   `OR-Tools CP-SAT (C++)`, or `SWI-Prolog CLP(FD)`, whose models open with
-   `:- use_module(library(clpfd))` and constrain with `#=`. Prefer a package
-   name that already carries the language, as `CPMpy` and `PyChoco` do, over
-   spelling it out. Names must be distinct; `tests/test_solvers.py` enforces
-   that much, and nothing can enforce a name being clear.
+   shown.** Name the integration after what a model author writes. A library
+   used from a host language carries that language in brackets:
+   `PyChoco (Python)`, `JuMP (Julia)`, `OR-Tools CP-SAT (C++)`. A system with
+   its own modelling language stands alone: `MiniZinc`, `Picat`, `clingo`,
+   `SWI-Prolog`. Neither the backend nor the paradigm belongs in the name: the
+   backend goes in `solver` and the website prints it beside the name
+   (`MiniZinc · Gecode`, `SWI-Prolog · CLP(FD)`), and the paradigm goes in
+   `paradigms`. Names must be distinct; `tests/test_solvers.py` enforces that
+   much, and nothing can enforce a name being clear.
 
    Renaming is cheap: the catalogue resolves `name` from this file on every
    build, so no retained model has to be touched. Do not add a display name to

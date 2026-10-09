@@ -894,12 +894,13 @@ BACKEND_NAMES = {
     "evalmaxsat": "EvalMaxSAT",
     "highs": "HiGHS",
     "gecode": "Gecode",
-    # Picat and SWI-Prolog solve with their own libraries: nothing to add.
+    # Picat solves with its own cp and sat modules: nothing to add.
     "cp, sat": "",
     "cbc": "CBC",
     "pumpkin": "Pumpkin",
     "glucose42, RC2": "Glucose 4.2 (SAT), RC2 (MaxSAT)",
-    "clpfd": "",
+    # SWI-Prolog's constraint library, which its models load and use.
+    "clpfd": "CLP(FD)",
     "z3": "Z3",
 }
 
