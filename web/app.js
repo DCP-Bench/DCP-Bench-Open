@@ -1,34 +1,25 @@
 (function () {
   "use strict";
 
-  var viewMode = "grid";
   var sortKey = "name";
   var sortDirection = 1;
+  var FILTER_GROUPS = ["type", "instances", "paradigm", "framework"];
 
-  function pill(label) {
-    var el = document.createElement("span");
-    el.className = "badge plain";
-    el.textContent = label;
-    return el;
-  }
-
+  /* Names compare by code point, the order generate_site.py gives the
+     problem pages' prev/next links. */
   function valueForSort(problem, key) {
-    if (key === "type") return problem.type || "satisfaction";
-    if (key === "source") return problem.source || "";
     if (key === "instances") return problem.instances || 0;
+    if (key === "models") return (problem.generatedFrameworks || []).length;
     return problem.id || "";
   }
 
+  /* Ties on a count keep the problems in name order. */
   function compareProblems(a, b) {
     var av = valueForSort(a, sortKey);
     var bv = valueForSort(b, sortKey);
-    var result;
-    if (typeof av === "number" && typeof bv === "number") {
-      result = av - bv;
-    } else {
-      result = String(av).localeCompare(String(bv));
-    }
-    return result * sortDirection;
+    var result = av < bv ? -1 : (av > bv ? 1 : 0);
+    if (result) return result * sortDirection;
+    return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
   }
 
   function setSort(key) {
@@ -37,12 +28,6 @@
     } else {
       sortKey = key;
       sortDirection = 1;
-    }
-    var select = document.getElementById("sort-by");
-    if (select && Array.prototype.some.call(select.options, function (option) {
-      return option.value === key;
-    })) {
-      select.value = key;
     }
     renderCards();
   }
@@ -57,10 +42,9 @@
   function updateFilterButton(group) {
     var labels = {
       type: { id: "filter-type", name: "Type" },
-      source: { id: "filter-source", name: "Source" },
       instances: { id: "filter-instances", name: "Instances" },
       paradigm: { id: "filter-paradigm", name: "Paradigm" },
-      framework: { id: "filter-framework", name: "Generated framework" }
+      framework: { id: "filter-framework", name: "Solver" }
     };
     var config = labels[group];
     if (!config) return;
@@ -79,16 +63,6 @@
       label += values.length + " selected";
     }
     button.textContent = label;
-  }
-
-  function setViewMode(mode) {
-    viewMode = mode;
-    document.querySelectorAll(".view-btn").forEach(function (button) {
-      var active = button.getAttribute("data-view") === mode;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", active ? "true" : "false");
-    });
-    renderCards();
   }
 
   function initFilterMenus() {
@@ -131,90 +105,73 @@
     return href;
   }
 
-  function appendGridCard(container, problem) {
-    var card = document.createElement("div");
-    card.className = "card";
+  var COLUMNS = [
+    { label: "Name", key: "name" },
+    { label: "Description" },
+    { label: "Instances", key: "instances", num: true },
+    { label: "Models", key: "models", num: true,
+      title: "Solvers with an accepted generated model" }
+  ];
 
-    var h3 = document.createElement("h3");
-    var link = document.createElement("a");
-    link.href = problemHref(problem);
-    link.textContent = problem.id;
-    h3.appendChild(link);
-
-    var desc = document.createElement("p");
-    desc.className = "desc";
-    desc.textContent = problem.snippet;
-
-    var meta = document.createElement("div");
-    meta.className = "meta";
-    meta.appendChild(pill(problem.type === "optimization" ? "Optimization" : "Satisfaction"));
-
-    card.appendChild(h3);
-    card.appendChild(desc);
-    card.appendChild(meta);
-    container.appendChild(card);
+  function el(tag, className) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    return node;
   }
 
-  function appendListCell(row, text, className) {
-    var cell = document.createElement("div");
-    cell.className = "list-cell" + (className ? " " + className : "");
-    cell.textContent = text;
-    row.appendChild(cell);
-    return cell;
-  }
-
-  function renderList(container, data) {
-    var header = document.createElement("div");
-    header.className = "list-header";
-    header.setAttribute("role", "row");
-    [["Problem", "name"], ["Type", "type"], ["Source", "source"],
-      ["Instances", "instances"]].forEach(function (item) {
-      var cell = document.createElement("div");
-      cell.className = "list-cell";
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "list-sort";
-      button.textContent = item[0] + (sortKey === item[1] ? (sortDirection === 1 ? " ↑" : " ↓") : "");
-      button.addEventListener("click", function () { setSort(item[1]); });
-      cell.appendChild(button);
-      header.appendChild(cell);
+  function renderTable(container, data) {
+    var table = el("table", "plain problem-list");
+    var headRow = el("tr");
+    COLUMNS.forEach(function (column) {
+      var th = el("th", column.num ? "num" : "");
+      if (column.title) th.title = column.title;
+      if (!column.key) {
+        th.textContent = column.label;
+      } else {
+        var button = el("button", "list-sort");
+        button.type = "button";
+        button.textContent = column.label +
+          (sortKey === column.key ? (sortDirection === 1 ? " \u2191" : " \u2193") : "");
+        button.addEventListener("click", function () { setSort(column.key); });
+        th.setAttribute("aria-sort", sortKey !== column.key ? "none" :
+          (sortDirection === 1 ? "ascending" : "descending"));
+        th.appendChild(button);
+      }
+      headRow.appendChild(th);
     });
-    container.appendChild(header);
+    table.appendChild(el("thead")).appendChild(headRow);
 
+    var body = table.appendChild(el("tbody"));
     data.forEach(function (problem) {
-      var row = document.createElement("div");
-      row.className = "list-row";
-      row.setAttribute("role", "row");
-      var nameCell = document.createElement("div");
-      nameCell.className = "list-cell list-name";
-      var link = document.createElement("a");
+      var row = body.appendChild(el("tr"));
+      var link = el("a");
       link.href = problemHref(problem);
       link.textContent = problem.id;
-      nameCell.appendChild(link);
-      row.appendChild(nameCell);
-      appendListCell(row, problem.type === "optimization" ? "Optimization" : "Satisfaction");
-      appendListCell(row, problem.source || "Unknown");
-      appendListCell(row, String(problem.instances || 0));
-      container.appendChild(row);
+      row.appendChild(el("td", "list-name")).appendChild(link);
+      row.appendChild(el("td", "list-desc")).appendChild(el("div", "clamp")).textContent = problem.snippet;
+      /* No instances: the description fixes the data. */
+      var instances = row.appendChild(el("td", "num"));
+      instances.textContent = problem.instances ? String(problem.instances) : "\u2013";
+      if (!problem.instances) instances.title = "No separate instances: the description fixes the data";
+      row.appendChild(el("td", "num")).textContent = String((problem.generatedFrameworks || []).length);
     });
+    container.appendChild(table);
   }
 
   function renderCards() {
-    var container = document.getElementById("cards");
     var countEl = document.getElementById("result-count");
-    if (!container || !window.DCP_DATA) return;
+    var sections = document.querySelectorAll(".problem-section");
+    if (!sections.length || !window.DCP_DATA) return;
 
     var data = window.DCP_DATA.problems || [];
     var q = (document.getElementById("filter-q") || { value: "" }).value.trim().toLowerCase();
     var types = selectedFilterValues("type");
-    var sources = selectedFilterValues("source");
     var instances = selectedFilterValues("instances");
     var paradigms = selectedFilterValues("paradigm");
     var frameworks = selectedFilterValues("framework");
 
     var filtered = data.filter(function (problem) {
       if (types.length && types.indexOf(problem.type || "satisfaction") === -1) return false;
-      if (sources.length && sources.indexOf(problem.source) === -1) return false;
       if (instances.length) {
         var instanceType = problem.instances === 0 ? "none" : (problem.instances === 1 ? "single" : "multiple");
         if (instances.indexOf(instanceType) === -1) return false;
@@ -241,22 +198,21 @@
     });
 
     filtered.sort(compareProblems);
-    if (countEl) countEl.textContent = filtered.length + " of " + data.length + " problems";
-    container.innerHTML = "";
-    container.classList.toggle("list-view", viewMode === "list");
-
-    if (!filtered.length) {
-      var empty = document.createElement("p");
-      empty.className = "desc empty-state";
-      empty.textContent = "No problems match the current filters.";
-      container.appendChild(empty);
-      return;
+    if (countEl) {
+      countEl.textContent = filtered.length ? filtered.length + " of " + data.length + " problems"
+        : "No problems match the current filters.";
     }
-    if (viewMode === "list") {
-      renderList(container, filtered);
-    } else {
-      filtered.forEach(function (problem) { appendGridCard(container, problem); });
-    }
+    Array.prototype.forEach.call(sections, function (section) {
+      var kind = section.getAttribute("data-type");
+      var rows = filtered.filter(function (problem) {
+        return (problem.type || "satisfaction") === kind;
+      });
+      section.hidden = !rows.length;
+      section.querySelector(".section-count").textContent = "(" + rows.length + ")";
+      var container = section.querySelector(".problem-table");
+      container.innerHTML = "";
+      if (rows.length) renderTable(container, rows);
+    });
   }
 
   /* Let another page hand the catalogue a filter, as paradigms.html does with
@@ -267,7 +223,7 @@
   function applyQueryFilters() {
     if (!window.URLSearchParams) return;
     var params = new URLSearchParams(window.location.search);
-    ["type", "source", "instances", "paradigm", "framework"].forEach(function (group) {
+    FILTER_GROUPS.forEach(function (group) {
       var values = params.getAll(group).join(",").split(",");
       values.forEach(function (value) {
         if (!value) return;
@@ -285,12 +241,6 @@
     applyQueryFilters();
     var search = document.getElementById("filter-q");
     if (search) search.addEventListener("input", renderCards);
-    var sort = document.getElementById("sort-by");
-    if (sort) sort.addEventListener("change", function () {
-      sortKey = sort.value;
-      sortDirection = 1;
-      renderCards();
-    });
     var reset = document.getElementById("reset-filters");
     if (reset) reset.addEventListener("click", function () {
       var searchInput = document.getElementById("filter-q");
@@ -305,15 +255,10 @@
         var trigger = menu.querySelector(".filter-trigger");
         if (trigger) trigger.setAttribute("aria-expanded", "false");
       });
-      ["type", "source", "instances", "paradigm", "framework"].forEach(updateFilterButton);
+      FILTER_GROUPS.forEach(updateFilterButton);
       sortKey = "name";
       sortDirection = 1;
-      if (sort) sort.value = "name";
-      setViewMode("grid");
-    });
-    document.addEventListener("click", function (event) {
-      var button = event.target.closest ? event.target.closest(".view-btn") : null;
-      if (button) setViewMode(button.getAttribute("data-view"));
+      renderCards();
     });
     renderCards();
   }

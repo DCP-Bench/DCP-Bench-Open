@@ -75,13 +75,16 @@ nav .gh:hover { background: rgba(255, 255, 255, 0.15); text-decoration: none; }
   color: #fff;
 }
 .hero h1 { margin: 0 0 8px; font-size: 2rem; }
-.hero p { margin: 0; color: rgba(255, 255, 255, 0.85); max-width: 720px; }
+.hero p { margin: 0; color: rgba(255, 255, 255, 0.85); }
 .problem-hero {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 28px;
   padding-bottom: 20px;
 }
 .problem-hero h1 { font-size: 1.65rem; margin: 0; }
+.problem-hero .hero-note { margin-top: 6px; font-size: 0.92rem; }
+.problem-hero .hero-note a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.5); }
+.count-note { color: var(--muted); font-weight: 400; }
 
 /* ---------- Layout ---------- */
 main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
@@ -114,33 +117,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
 .controls select:focus, .controls input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
 
 .result-count { color: var(--muted); font-size: 0.9rem; margin: 0 0 12px; }
-
-/* ---------- Cards ---------- */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 14px;
-}
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.card h3 { margin: 0; font-size: 1.02rem; }
-.card h3 a { color: var(--text); }
-.card h3 a:hover { color: var(--accent); text-decoration: none; }
-.card .desc {
-  color: var(--muted);
-  font-size: 0.88rem;
-  margin: 0;
-  flex: 1;
-}
-.card .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 /* ---------- Badges ---------- */
 .badge {
@@ -490,12 +466,9 @@ table.plain th, table.plain td {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.controls .search-field { flex: 1 1 260px; }
+.controls .search-field { flex: 1 1 220px; }
 .controls .search-field input { width: 100%; min-width: 0; }
-.controls .sort-field { flex-basis: 170px; }
-.controls .view-toggle { margin-left: auto; }
-.filter-menu { position: relative; flex: 0 1 170px; }
-.filter-menu[data-filter-menu="framework"] { flex-basis: 230px; }
+.filter-menu { position: relative; flex: 1 1 140px; min-width: 0; }
 .filter-trigger {
   width: 100%;
   min-height: 39px;
@@ -509,6 +482,9 @@ table.plain th, table.plain td {
   text-align: left;
   cursor: pointer;
   position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .filter-trigger::after {
   content: "⌄";
@@ -545,25 +521,6 @@ table.plain th, table.plain td {
 }
 .filter-options label:hover { background: var(--accent-soft); }
 .filter-options input { accent-color: var(--accent); }
-.view-toggle {
-  display: inline-flex;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--bg);
-}
-.view-btn {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  padding: 9px 12px;
-  font: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-.view-btn + .view-btn { border-left: 1px solid var(--border); }
-.view-btn:hover { color: var(--text); background: var(--accent-soft); }
-.view-btn.active { color: var(--accent); background: var(--accent-soft); font-weight: 700; }
 .reset-btn {
   align-self: flex-end;
   min-height: 39px;
@@ -577,67 +534,6 @@ table.plain th, table.plain td {
   cursor: pointer;
 }
 .reset-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.results-toolbar {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 14px;
-  margin: 0 0 12px;
-}
-.results-toolbar .result-count { margin: 0; }
-.results-actions { display: flex; align-items: flex-end; gap: 10px; }
-.results-actions .sort-field { display: flex; flex-direction: column; gap: 4px; min-width: 160px; }
-.results-actions .sort-field > span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.results-actions select {
-  min-width: 160px;
-  min-height: 39px;
-  padding: 9px 30px 9px 11px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-.results-actions select:hover { border-color: #c7c9d6; }
-.results-actions select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
-.cards.list-view { display: block; }
-.list-header, .list-row {
-  display: grid;
-  grid-template-columns: minmax(220px, 2.2fr) minmax(110px, 1fr) minmax(90px, 0.65fr) 100px;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-}
-.list-header {
-  min-height: 42px;
-  background: #eef2ff;
-  border: 1px solid var(--border);
-  border-radius: 8px 8px 0 0;
-  color: var(--muted);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.list-row {
-  min-height: 52px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-top: none;
-  font-size: 0.9rem;
-}
-.list-row:last-child { border-radius: 0 0 8px 8px; }
-.list-row:hover { background: #fafaff; }
-.list-name { font-family: var(--mono); font-size: 0.84rem; }
-.list-cell:nth-child(4) { text-align: right; }
 .list-sort {
   border: none;
   padding: 0;
@@ -649,16 +545,31 @@ table.plain th, table.plain td {
   cursor: pointer;
 }
 .list-sort:hover { color: var(--accent); }
-.empty-state { padding: 18px 0; }
+.problem-section { margin: 0 0 28px; }
+.problem-section h2 .section-count { color: var(--muted); font-weight: 400; font-size: 1rem; }
+table.problem-list { table-layout: fixed; border-radius: 8px; }
+table.problem-list th { font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+table.problem-list th:nth-child(1) { width: 28%; }
+table.problem-list th:nth-child(3) { width: 104px; }
+table.problem-list th:nth-child(4) { width: 92px; }
+table.problem-list td { vertical-align: top; }
+table.problem-list tbody tr:hover { background: #fafaff; }
+.list-name { font-family: var(--mono); font-size: 0.84rem; overflow-wrap: anywhere; }
+.list-desc { color: var(--muted); font-size: 0.86rem; }
+/* One or two lines of the description; the problem page has the rest. */
+.list-desc .clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 
-@media (max-width: 720px) {
-  .results-toolbar { align-items: stretch; flex-direction: column; }
-  .results-actions { justify-content: space-between; }
-  .results-actions .sort-field { flex: 1; }
-  .list-header, .list-row {
-    grid-template-columns: minmax(150px, 2fr) minmax(100px, 1fr) 80px;
-  }
-  .list-header .list-cell:nth-child(3), .list-row .list-cell:nth-child(3) { display: none; }
+@media (max-width: 640px) {
+  table.problem-list th:nth-child(2), table.problem-list td:nth-child(2) { display: none; }
+  table.problem-list th:nth-child(1) { width: auto; }
+  table.problem-list th:nth-child(3) { width: 92px; }
+  table.problem-list th:nth-child(4) { width: 80px; }
 }
 table.plain th { background: #f1f2f7; font-weight: 600; }
 table.plain th.num { text-align: right; }
