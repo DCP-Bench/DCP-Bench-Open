@@ -7,6 +7,9 @@
   /* The catalogue shows one problem type at a time, as a tab. */
   var TYPES = ["optimization", "satisfaction"];
   var activeType = TYPES[0];
+  /* With solvers picked, the catalogue shows the problems they have a model
+     for ("yes") or the ones none of them has ("no"). */
+  var modelledMode = "yes";
 
   /* Names compare by code point, the order generate_site.py gives the
      problem pages' prev/next links. */
@@ -109,6 +112,7 @@
       var values = selectedFilterValues(group);
       if (values.length) params.push(group + "=" + values.map(encodeURIComponent).join(","));
     });
+    if (modelledMode === "no" && selectedFilterValues("framework").length) params.push("modelled=no");
     if (sortKey !== "name" || sortDirection !== 1) {
       params.push("sort=" + (sortDirection === 1 ? "" : "-") + sortKey);
     }
@@ -225,13 +229,6 @@
         });
         if (!matchesParadigm) return false;
       }
-      if (frameworks.length) {
-        var problemFrameworks = problem.generatedFrameworks || [];
-        var matchesFramework = frameworks.some(function (framework) {
-          return problemFrameworks.indexOf(framework) !== -1;
-        });
-        if (!matchesFramework) return false;
-      }
       if (q) {
         /* The whole description is searched, not just the shown snippet. */
         if (problem.haystack === undefined) {
@@ -241,6 +238,25 @@
       }
       return true;
     });
+
+    var switcher = document.querySelector(".mode-switch");
+    if (frameworks.length) {
+      var modelled = function (problem) {
+        var has = problem.generatedFrameworks || [];
+        return frameworks.some(function (framework) { return has.indexOf(framework) !== -1; });
+      };
+      var split = { yes: filtered.filter(modelled), no: filtered.filter(function (problem) { return !modelled(problem); }) };
+      filtered = split[modelledMode];
+      if (switcher) {
+        switcher.querySelectorAll(".mode-btn").forEach(function (btn) {
+          var mode = btn.getAttribute("data-mode");
+          btn.classList.toggle("active", mode === modelledMode);
+          btn.setAttribute("aria-pressed", mode === modelledMode ? "true" : "false");
+          btn.querySelector(".tab-count").textContent = split[mode].length;
+        });
+      }
+    }
+    if (switcher) switcher.hidden = !frameworks.length;
 
     filtered.sort(compareProblems);
     if (countEl) {
@@ -300,6 +316,7 @@
     var search = document.getElementById("filter-q");
     if (search && params.get("q")) search.value = params.get("q");
     if (TYPES.indexOf(params.get("type")) !== -1) activeType = params.get("type");
+    if (params.get("modelled") === "no") modelledMode = "no";
     var sort = params.get("sort") || "";
     var key = sort.replace(/^-/, "");
     if (COLUMNS.some(function (column) { return column.key === key; })) {
@@ -327,6 +344,12 @@
     document.querySelectorAll(".type-tab").forEach(function (tab) {
       tab.addEventListener("click", function () { showType(tab.getAttribute("data-type")); });
     });
+    document.querySelectorAll(".mode-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        modelledMode = btn.getAttribute("data-mode");
+        renderCards();
+      });
+    });
     var reset = document.getElementById("reset-filters");
     if (reset) reset.addEventListener("click", function () {
       var searchInput = document.getElementById("filter-q");
@@ -338,6 +361,7 @@
       FILTER_GROUPS.forEach(updateFilterButton);
       sortKey = "name";
       sortDirection = 1;
+      modelledMode = "yes";
       renderCards();
     });
     renderCards();

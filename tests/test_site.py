@@ -205,6 +205,17 @@ class RenderingHelperTests(unittest.TestCase):
                       generate_site.linkify("https://en.wikipedia.org/wiki/Set_(card_game)"))
         self.assertIn('href="http://a.org/y"', generate_site.linkify("(http://a.org/y)"))
 
+    def test_a_model_sits_under_the_paradigm_that_fits_its_problem(self):
+        saved = generate_site.INTEGRATIONS
+        generate_site.INTEGRATIONS = {"pysat": {"paradigms": ["sat", "maxsat"]}, "pure_cp": {"paradigms": ["cp"]}}
+        try:
+            self.assertEqual(generate_site.model_paradigm("pysat", "satisfaction"), "sat")
+            self.assertEqual(generate_site.model_paradigm("pysat", "optimization"), "maxsat")
+            self.assertEqual(generate_site.model_paradigm("pure_cp", "optimization"), "cp")
+            self.assertEqual(generate_site.model_paradigm("gone", "optimization"), "")
+        finally:
+            generate_site.INTEGRATIONS = saved
+
     def test_prices_are_not_math(self):
         self.assertIsNone(generate_site.MATH_RE.search("costs $20, and the small one $5."))
         self.assertIsNone(generate_site.MATH_RE.search("pay $ 1,100 to the painter, $ 300 to"))

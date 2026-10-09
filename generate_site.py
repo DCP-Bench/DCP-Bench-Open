@@ -30,10 +30,9 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 # Where the deploy workflow publishes site/: link previews need absolute URLs.
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
-PAPER_URL = "https://arxiv.org/abs/2506.06052"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v42"
+ASSET_VERSION = "catalogue-v43"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -271,9 +270,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
     if active == "index":
         hero = (
             f'<div class="hero">'
-            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p>'
-            f'<p class="hero-links"><a href="{PAPER_URL}" target="_blank" rel="noopener">Paper</a> &middot; '
-            f'<a href="{REPO_URL}/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a></p></div>'
+            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p></div>'
         )
     else:
         note = f'<p class="hero-note">{hero_note}</p>' if hero_note else ""
@@ -679,6 +676,9 @@ def select_best_generated(gen_by_fw: dict) -> dict:
 # through every call site would say less than it costs.
 INTEGRATIONS = {}
 PARADIGM_NAMES = {}
+PARADIGM_ABBREVS = {}
+# Paradigm IDs in the order the Solvers page lists them.
+PARADIGM_ORDER = []
 
 
 def load_paradigm_vocabulary() -> list:
@@ -782,7 +782,19 @@ def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list,
         # Problems per integration within one paradigm, after scoping.
         "by_paradigm": {tag: {solver: len(found) for solver, found in solvers.items()}
                         for tag, solvers in by_paradigm.items()},
+        "covered": by_paradigm,
     }
+
+
+def model_paradigm(solver_id: str, problem_type: str) -> str:
+    """The paradigm a model of a problem is written in: the first one its
+    integration declares that can express the problem's type. PySAT models a
+    satisfaction problem as SAT and an optimisation problem as MaxSAT."""
+    tags = (INTEGRATIONS.get(solver_id) or {}).get("paradigms") or []
+    for tag in tags:
+        if PARADIGM_SCOPE.get(tag, problem_type) == problem_type:
+            return tag
+    return tags[0] if tags else ""
 
 
 def paradigm_chips(solver_id: str, prefix: str) -> str:
@@ -845,6 +857,25 @@ def backend_label(solver: str, paradigm: str = "") -> str:
     return f'<span class="backend">{esc(backend)}</span>'
 
 
+def missing_link(solver: str, missing: set, types: dict) -> str:
+    """Opens the catalogue on the problems an integration has no model for.
+    When they are all of one type, the link opens that type's tab."""
+    if not missing:
+        return ""
+    kinds = {types[problem] for problem in missing}
+    tab = f"&amp;type={next(iter(kinds))}" if len(kinds) == 1 else ""
+    return (f'<a class="missing" href="index.html?framework={esc(solver)}&amp;modelled=no{tab}">'
+            f'{len(missing)} not modelled</a>')
+
+
+def paradigm_order(ranked: list) -> list:
+    """Paradigms with the most integrations first, as the Solvers page lists
+    them; ties keep the order paradigms.json documents them in."""
+    order = list(PARADIGM_NAMES)
+    return sorted(ranked, key=lambda item: (-len(item["integrations"]),
+                                            order.index(item["id"]) if item["id"] in order else len(order)))
+
+
 def browse_button(solver: str, count: int) -> str:
     """Opens the catalogue filtered to the problems one integration models;
     each problem there links straight to that integration's model."""
@@ -875,11 +906,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     types = {p["id"]: p["type"] for p in problems}
     type_counts = {kind: sum(1 for t in types.values() if t == kind) for kind in set(types.values())}
 
-    # Most integrations first, so the paradigms with the widest choice lead;
-    # ties keep the order paradigms.json documents them in.
-    order = list(PARADIGM_NAMES)
-    by_solvers = sorted(ranked, key=lambda item: (-len(item["integrations"]),
-                                                  order.index(item["id"]) if item["id"] in order else len(order)))
+    by_solvers = paradigm_order(ranked)
 
     groups, notes = [], []
     anchored: set = set()
@@ -887,6 +914,8 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
         tag = item["id"]
         scope = PARADIGM_SCOPE.get(tag)
         denominator = type_counts.get(scope, 0) if scope else len(types)
+        in_scope = {problem for problem, kind in types.items() if not scope or kind == scope}
+        covered = breakdown["covered"].get(tag, {})
         found = breakdown["by_paradigm"].get(tag, {})
         # The solvers that model the most problems in this paradigm lead;
         # ties read alphabetically by display name.
@@ -907,7 +936,8 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             entries.append(
                 f'<li{anchor}><span class="solver-name">{esc(INTEGRATIONS[solver].get("name", solver))}'
                 f'{backend_label(solver, tag)}</span>'
-                f'<span class="solver-count">{coverage_count(found.get(solver, 0), denominator)}</span>'
+                f'<span class="solver-count">{coverage_count(found.get(solver, 0), denominator)}'
+                f'{missing_link(solver, in_scope - covered.get(solver, set()), types)}</span>'
                 f'{browse_button(solver, integration_problems.get(solver, 0))}</li>'
             )
 
@@ -1022,7 +1052,13 @@ def build_index(problems: list, generated: dict, breakdown: dict) -> None:
         <button type="button" class="type-tab" role="tab" aria-selected="false" data-type="satisfaction"
           id="tab-satisfaction" aria-controls="panel-satisfaction">Satisfaction <span class="tab-count"></span></button>
       </div>
-      <p class="result-count" id="result-count"></p>
+      <div class="results-side">
+        <div class="mode-switch" role="group" aria-label="Problems the selected solvers" hidden>
+          <button type="button" class="mode-btn active" data-mode="yes" aria-pressed="true">Modelled <span class="tab-count"></span></button>
+          <button type="button" class="mode-btn" data-mode="no" aria-pressed="false">Not modelled <span class="tab-count"></span></button>
+        </div>
+        <p class="result-count" id="result-count"></p>
+      </div>
     </div>
     <noscript><p class="empty-state">The catalogue needs JavaScript. The problems are also listed in
       <a href="{REPO_URL}/tree/main/dataset">the repository</a>.</p></noscript>
@@ -1117,26 +1153,30 @@ def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
         f'<h3>Model</h3>{reference}'
         f'</div>'
     ]
-    generated_buttons = []
+    # The generated models in one row per paradigm, in the Solvers page's
+    # order, each row alphabetical.
+    by_paradigm = {}
     for fw in sorted(best, key=lambda solver: framework_name(solver).casefold()):
-        slug = fw.lower().replace(" ", "_")
-        generated_buttons.append(
-            f'<button class="tab-btn pick" type="button" data-tab="{slug}">'
-            f'{esc(framework_name(fw))}</button>'
-        )
-        panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_html(best[fw], bool(problem_instances(p)))}</div>')
-
+        by_paradigm.setdefault(model_paradigm(fw, p["type"]), []).append(fw)
+    rank = {tag: i for i, tag in enumerate(PARADIGM_ORDER)}
     rows = [
-        '<div class="picker-row"><span class="picker-label" title="Written by hand; the ground truth '
-        'every other model is checked against">Reference</span><div class="picker-chips">'
+        '<div class="picker-row reference-row"><span class="picker-label" title="Written by hand; the ground '
+        'truth every other model is checked against">Reference</span><div class="picker-chips">'
         '<button class="tab-btn pick active" type="button" data-tab="ground_truth">CPMpy (Python)</button>'
         '</div></div>'
     ]
-    if generated_buttons:
+    for tag in sorted(by_paradigm, key=lambda tag: (rank.get(tag, len(rank)), tag)):
+        buttons = []
+        for fw in by_paradigm[tag]:
+            slug = fw.lower().replace(" ", "_")
+            buttons.append(f'<button class="tab-btn pick" type="button" data-tab="{slug}">'
+                           f'{esc(framework_name(fw))}</button>')
+            panes.append(f'<div class="tab-pane" data-pane="{slug}">'
+                         f'{generated_model_html(best[fw], bool(problem_instances(p)))}</div>')
+        label = PARADIGM_ABBREVS.get(tag, tag) or "Other"
         rows.append(
-            '<div class="picker-row"><span class="picker-label">Generated '
-            f'<span class="count-note">({len(generated_buttons)})</span></span>'
-            f'<div class="picker-chips">{"".join(generated_buttons)}</div></div>'
+            f'<div class="picker-row"><span class="picker-label" title="{esc(PARADIGM_NAMES.get(tag, label))}">'
+            f'{esc(label)}</span><div class="picker-chips">{"".join(buttons)}</div></div>'
         )
     return (
         f'<div class="page-section"><h2>Models</h2>'
@@ -1293,12 +1333,14 @@ def main() -> None:
 
     generated = load_generated_models()
 
-    global INTEGRATIONS, PARADIGM_NAMES
+    global INTEGRATIONS, PARADIGM_NAMES, PARADIGM_ABBREVS, PARADIGM_ORDER
     INTEGRATIONS = load_integrations()
     vocabulary = load_paradigm_vocabulary()
     PARADIGM_NAMES = {item["id"]: item["name"] for item in vocabulary}
+    PARADIGM_ABBREVS = {item["id"]: item.get("abbrev", item["id"]) for item in vocabulary}
     breakdown = paradigm_breakdown(generated, INTEGRATIONS, vocabulary,
                                    problem_types={p["id"]: p["type"] for p in problems})
+    PARADIGM_ORDER = [item["id"] for item in paradigm_order(breakdown["paradigms"])]
 
     # client-side index data (escaped so it can't break out of <script>)
     index_data = {

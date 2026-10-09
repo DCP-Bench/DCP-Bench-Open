@@ -78,9 +78,6 @@ nav .gh:hover { background: rgba(255, 255, 255, 0.15); text-decoration: none; }
 }
 .hero h1 { margin: 0 0 8px; font-size: 2rem; }
 .hero p { margin: 0; color: rgba(255, 255, 255, 0.85); }
-.hero .hero-links { margin-top: 10px; font-size: 0.9rem; }
-.hero .hero-links a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.5); }
-.hero .hero-links a:hover { text-decoration-color: #fff; }
 .problem-hero {
   padding-top: 28px;
   padding-bottom: 20px;
@@ -262,20 +259,19 @@ table.matrix td.fail { background: #fee2e2; color: #991b1b; font-weight: 700; }
 .instances-box pre.code-block { max-height: 420px; overflow: auto; }
 .instances-box .tab-group .tab-group .tab-pane { padding: 14px 16px; }
 
-.model-picker { flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.model-picker { flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .picker-row { display: flex; align-items: flex-start; gap: 12px; }
-.picker-row + .picker-row { border-top: 1px solid var(--border); padding-top: 10px; }
+/* A rule sets the reference model apart from the generated ones below it. */
+.reference-row { border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+/* Paradigm abbreviations keep their case: MaxSAT, not MAXSAT. */
 .picker-label {
-  flex: 0 0 104px;
-  padding-top: 6px;
+  flex: 0 0 84px;
+  padding-top: 5px;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .picker-label[title] { cursor: help; }
-.picker-label .count-note { letter-spacing: 0; }
 .picker-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .model-group > .tab-pane { border-top: 1px solid var(--border); border-radius: var(--radius); }
 
@@ -627,7 +623,23 @@ table.plain th, table.plain td {
   font-variant-numeric: tabular-nums;
 }
 .type-tab.active .tab-count { background: var(--accent-soft); color: var(--accent); }
-.type-tabs .result-count { margin: 0 0 10px; }
+.type-tabs .result-count { margin: 0; }
+.results-side { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 8px; }
+/* With solvers picked: their problems, or the ones they have no model for. */
+.mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--card); }
+.mode-switch[hidden] { display: none; }
+.mode-btn { border: 0; padding: 5px 10px; background: none; color: var(--muted); font: inherit; font-size: 0.85rem; cursor: pointer; }
+.mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+.mode-btn:hover { color: var(--text); }
+.mode-btn.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.mode-btn .tab-count { margin-left: 2px; }
+/* On a phone the switch and count wrap below the tabs, so the line runs
+   under the tabs themselves rather than under everything. */
+@media (max-width: 640px) {
+  .type-tabs { border-bottom: 0; }
+  .type-tab-list { flex-basis: 100%; border-bottom: 2px solid var(--border); }
+  .results-side { margin-top: 6px; }
+}
 .empty-state { color: var(--muted); padding: 18px 0; }
 .link-btn { border: 0; padding: 0; background: none; color: var(--accent); font: inherit; cursor: pointer; }
 .link-btn:hover { text-decoration: underline; }
@@ -721,6 +733,7 @@ html:not(.js) .row-toggle { display: none; }
 .solver-list li:last-child { border-bottom: 0; }
 .solver-list li:target { background: var(--accent-soft); scroll-margin-top: 90px; }
 .solver-count { white-space: nowrap; text-align: right; min-width: 80px; }
+.solver-count .missing { display: block; font-size: 0.78rem; }
 /* What the framework hands the model to, e.g. Gecode under MiniZinc. */
 .backend { color: var(--muted); margin-left: 8px; font-size: 0.82rem; }
 .backend::before { content: "· "; }
@@ -822,6 +835,6 @@ footer {
   .hero h1 { font-size: 1.5rem; }
   .provenance dl { grid-template-columns: 1fr; gap: 2px 0; }
   .provenance dt { margin-top: 8px; }
-  .picker-row { flex-direction: column; gap: 6px; }
-  .picker-label { flex-basis: auto; padding-top: 0; }
+  .picker-row { gap: 8px; }
+  .picker-label { flex-basis: 68px; }
 }
