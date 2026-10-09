@@ -29,7 +29,7 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v36"
+ASSET_VERSION = "catalogue-v37"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -44,8 +44,14 @@ SOURCE_COLLECTIONS = {
     "complex_or": ("ComplexOR", "https://github.com/xzymustbexzy/Chain-of-Experts"),
     "cpmpy_examples": ("CPMpy examples", "https://github.com/CPMpy/cpmpy/tree/master/examples"),
     "csplib": ("CSPLib", "https://www.csplib.org/Problems/"),
-    "hakan_examples": ("Hakan Kjellerstrand's CPMpy models", "http://www.hakank.org/cpmpy/"),
+    "hakan_examples": ("Hakan Kjellerstrand's CPMpy models", "https://github.com/hakank/hakank/tree/master/cpmpy"),
 }
+
+# A tab icon: the indigo of the header with the site's initials.
+FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
+           "%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Ctext x='16' y='21' "
+           "font-family='Arial,sans-serif' font-size='12' font-weight='700' text-anchor='middle' "
+           "fill='white'%3EDCP%3C/text%3E%3C/svg%3E")
 
 # What a model is written in, per `language` in solvers/<id>/metadata.yaml:
 # the highlight.js grammar to ask for, and the label above the code block.
@@ -74,9 +80,6 @@ LANGUAGES = {
 # Only for a model whose integration is no longer installed under solvers/.
 EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
                       ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia"}
-
-FRAMEWORK_ORDER = ["cpmpy_python", "minizinc_gecode",
-                   "ortools_cp_sat_python", "ortools_cp_sat_cpp"]
 
 VERDICT_STYLES = {
     "solution_valid_and_optimal": ("#16a34a", "solution valid · optimal",
@@ -113,10 +116,29 @@ def repo_head_short() -> str:
 
 
 URL_RE = re.compile(r"https?://[^\s]+")
+HAKANK_URL = re.compile(r"https?://(?:www\.)?hakank\.org/([^\s\"'<>()]*)")
+
+
+def mirrored(text: str) -> str:
+    """Point hakank.org links at Hakan Kjellerstrand's GitHub repository.
+
+    hakank.org stopped answering in October 2026. The repository holds the
+    same files under the same paths; his blog posts have no copy there, so
+    those links are left alone.
+    """
+    def swap(match):
+        path = match.group(1).rstrip(".,;:")
+        tail = match.group(1)[len(path):]
+        if not path or path.startswith("constraint_programming_blog/"):
+            return match.group(0)
+        kind = "tree" if path.endswith("/") else "blob"
+        return f"https://github.com/hakank/hakank/{kind}/master/{path}{tail}"
+    return HAKANK_URL.sub(swap, text)
 
 
 def linkify(text: str) -> str:
     """Escape text and wrap URLs in anchors."""
+    text = mirrored(text)
     parts = URL_RE.split(esc(text))
     urls = URL_RE.findall(esc(text))
     out = [parts[0]]
@@ -160,8 +182,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
     """`hero_note` is a line of HTML shown under a problem page's title."""
     nav = []
     for key, label, href in (("index", "Problems", "index.html"), ("paradigms", "Solvers", "paradigms.html")):
-        # A problem page sits under Problems.
-        cls = ' class="active"' if active == key or (key == "index" and active == "problem") else ""
+        cls = ' class="active"' if active == key else ""
         nav.append(f'<a{cls} href="{prefix}{href}">{label}</a>')
     nav.append('<span class="spacer"></span>')
     nav.append(
@@ -178,7 +199,10 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
         )
     else:
         note = f'<p class="hero-note">{hero_note}</p>' if hero_note else ""
-        hero = f'<div class="hero problem-hero"><h1>{esc(title)}</h1>{note}</div>'
+        # app.js points this at the catalogue as it was left, filters and all.
+        crumb = (f'<a class="crumb" href="{prefix}index.html">&larr; All problems</a>'
+                 if active == "problem" else "")
+        hero = f'<div class="hero problem-hero">{crumb}<h1>{esc(title)}</h1>{note}</div>'
 
     footer_head = f" · commit <code>{esc(REPO_HEAD)}</code>" if REPO_HEAD else ""
     head_desc = f'<meta name="description" content="{esc(description)}">' if description else ""
@@ -188,6 +212,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)} · {TITLE}</title>
+<link rel="icon" href="{FAVICON}">
 {head_desc}
 <script>document.documentElement.classList.add("js");</script>
 <link rel="stylesheet" href="{prefix}style.css?v={ASSET_VERSION}">
@@ -376,7 +401,7 @@ def instance_label(identifier, problem: str = "", instance_hash: str | None = No
     """
     text = str(identifier)
     if identifier == "example":
-        return "Example (Instance 1)", text
+        return "Instance 1", text
     if text.startswith("json:"):
         try:
             index = int(text.split(':', 1)[1])
@@ -825,7 +850,7 @@ def build_index(problems: list, generated: dict, breakdown: dict) -> None:
         }
     )
     framework_options = "".join(
-        f'<label><input type="radio" name="framework-filter" data-filter-group="framework" value="{esc(framework)}">'
+        f'<label><input type="checkbox" data-filter-group="framework" value="{esc(framework)}">'
         f'{esc(framework_name(framework))}</label>'
         for framework in sorted(generated_frameworks,
                                 key=lambda s: framework_name(s).casefold())
@@ -857,14 +882,12 @@ def build_index(problems: list, generated: dict, breakdown: dict) -> None:
         </div>
       </div>
       <div class="filter-menu" data-filter-menu="framework">
-        <button type="button" class="filter-trigger" id="filter-framework" aria-expanded="false">Solver: Any</button>
+        <button type="button" class="filter-trigger" id="filter-framework" aria-expanded="false">Solver: All</button>
         <div class="filter-options" role="group" aria-label="Filter by the solver of a generated model">
-          <label><input type="radio" name="framework-filter" data-filter-group="framework" value="any" checked>Any (unfiltered)</label>
-          <label><input type="radio" name="framework-filter" data-filter-group="framework" value="none">None (no generated model)</label>
           {framework_options}
         </div>
       </div>
-      <button type="button" id="reset-filters" class="reset-btn">Reset filters</button>
+      <button type="button" id="reset-filters" class="reset-btn" disabled>Reset</button>
     </div>
     <p class="result-count" id="result-count"></p>
     <div class="section problem-section" data-type="optimization">
@@ -884,102 +907,96 @@ def var_chips_short(vars_list: list) -> str:
     return "".join(f'<span class="chip">{esc(v)}</span>' for v in vars_list) or ""
 
 
-def instance_card_html(inst, i: int, idx: int, is_example: bool, example_solution, decision_vars: list) -> str:
-    label = "Example (Instance 1)" if is_example else f"Instance {i}"
-    pretty = json.dumps(inst, indent=2, ensure_ascii=False)
-    data_pane = code_block(pretty, "json", copy_id=f"inst-{idx}-{i}", head_label="JSON")
-    open_attr = " open" if is_example else ""
-    if is_example and example_solution:
-        sol_code = json.dumps(example_solution, indent=2, ensure_ascii=False)
-        solution_pane = (
-            f'<div class="chip-row">{var_chips_short(decision_vars)}</div>'
-            f'{code_block(sol_code, "json", copy_id=f"sol-{idx}-{i}", head_label="JSON")}'
-        )
-        tabs = (
-            '<div class="tab-bar">'
-            '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
-            '<button class="tab-btn" type="button" data-tab="solution">Solution</button>'
-            '</div>'
-            f'<div class="tab-pane active" data-pane="data">{data_pane}</div>'
-            f'<div class="tab-pane" data-pane="solution">{solution_pane}</div>'
-        )
-    else:
-        tabs = (
-            '<div class="tab-bar">'
-            '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
-            '</div>'
-            f'<div class="tab-pane active" data-pane="data">{data_pane}</div>'
-        )
-    return (
-        f'<details class="instance"{open_attr}><summary>{label}</summary>'
-        f'<div class="tab-group">'
-        f'{tabs}'
-        f'</div></details>'
-    )
-
-
 def problem_instances(p: dict) -> list:
     """The instances a problem page shows. A problem without any has its data
     fixed in the description."""
     return p["instances"] or ([p["example_instance"]] if p["example_instance"] else [])
 
 
+def instance_pane_html(inst, i: int, idx: int, active: bool, example_solution, decision_vars: list) -> str:
+    """One instance's data, plus the example solution for instance 1."""
+    pretty = json.dumps(inst, indent=2, ensure_ascii=False)
+    data_pane = code_block(pretty, "json", copy_id=f"inst-{idx}-{i}", head_label=f"Instance {i} · JSON")
+    buttons = '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
+    panes = f'<div class="tab-pane active" data-pane="data">{data_pane}</div>'
+    if i == 1 and example_solution:
+        sol_code = json.dumps(example_solution, indent=2, ensure_ascii=False)
+        buttons += '<button class="tab-btn" type="button" data-tab="solution">Solution</button>'
+        panes += (
+            f'<div class="tab-pane" data-pane="solution">'
+            f'<div class="chip-row">{var_chips_short(decision_vars)}</div>'
+            f'{code_block(sol_code, "json", copy_id=f"sol-{idx}-{i}", head_label="Solution · JSON")}</div>'
+        )
+    inner = f'<div class="tab-group"><div class="tab-bar">{buttons}</div>{panes}</div>'
+    if active is None:
+        return inner
+    state = " active" if active else ""
+    return f'<div class="tab-pane{state}" data-pane="inst-{i}">{inner}</div>'
+
+
 def instances_section_html(p: dict, idx: int) -> str:
+    """A numbered picker over the instances, and the chosen one's data.
+
+    The corpus guarantees instance 1 is the data the reference model has
+    written into it, which is why only that one comes with a solution.
+    """
     insts = problem_instances(p)
     if not insts:
         return ""
-    cards = "".join(
-        instance_card_html(
-            inst, i, idx,
-            is_example=(i == 1),
-            example_solution=p["example_solution"],
-            decision_vars=p["decision_variables"],
+    solution, variables = p["example_solution"], p["decision_variables"]
+    note = ('<p class="desc picker-note">Instance 1 is the data written into the reference model'
+            + (", and the one shown with a solution." if solution else ".") + "</p>")
+    if len(insts) == 1:
+        body = note + instance_pane_html(insts[0], 1, idx, None, solution, variables)
+    else:
+        picks = "".join(
+            f'<button class="tab-btn pick{" active" if i == 1 else ""}" type="button" '
+            f'data-tab="inst-{i}" aria-label="Instance {i}">{i}</button>'
+            for i in range(1, len(insts) + 1)
         )
-        for i, inst in enumerate(insts, 1)
-    )
+        panes = "".join(instance_pane_html(inst, i, idx, i == 1, solution, variables)
+                        for i, inst in enumerate(insts, 1))
+        body = (f'<div class="tab-group picker-group"><div class="tab-bar picker" aria-label="Instances">'
+                f'{picks}</div>{note}{panes}</div>')
     return (
         f'<details class="card-box instances-box">'
         f'<summary><h3>Instances <span class="count-note">({len(insts)})</span></h3></summary>'
-        f'{cards}</details>'
+        f'{body}</details>'
     )
 
 
 def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
     best = select_best_generated(generated)
-    generated_buttons = []
     panes = [
         f'<div class="tab-pane active" data-pane="ground_truth">'
         f'<div class="card-box provenance"><h3>Metadata</h3>{metadata_html(meta, p)}</div>'
         f'<h3>Model</h3>{code_block(p["display_model"], "python", copy_id=f"model-{idx}", head_label="Python")}'
         f'</div>'
     ]
-    for fw in FRAMEWORK_ORDER + [f for f in best if f not in FRAMEWORK_ORDER]:
-        entry = best.get(fw)
-        if entry is None:
-            continue
+    generated_buttons = []
+    for fw in sorted(best, key=lambda solver: framework_name(solver).casefold()):
         slug = fw.lower().replace(" ", "_")
         generated_buttons.append(
-            f'<button class="tab-btn" type="button" data-tab="{slug}">'
+            f'<button class="tab-btn pick" type="button" data-tab="{slug}">'
             f'{esc(framework_name(fw))}</button>'
         )
-        panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_html(entry)}</div>')
+        panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_html(best[fw])}</div>')
 
-    generated_group = ""
+    rows = [
+        '<div class="picker-row"><span class="picker-label" title="Written by hand; the ground truth '
+        'every other model is checked against">Reference</span><div class="picker-chips">'
+        '<button class="tab-btn pick active" type="button" data-tab="ground_truth">CPMpy (Python)</button>'
+        '</div></div>'
+    ]
     if generated_buttons:
-        generated_group = (
-            f'<div class="generated-model-tab-group" role="group" '
-            f'aria-labelledby="generated-models-label-{idx}">'
-            f'<span class="model-tab-separator" aria-hidden="true"></span>'
-            f'<span class="generated-model-tab-label" id="generated-models-label-{idx}">Generated:</span>'
-            f'<div class="generated-model-tab-row">{"".join(generated_buttons)}</div>'
-            f'</div>'
+        rows.append(
+            '<div class="picker-row"><span class="picker-label" title="Written by an LLM and accepted '
+            f'by the evaluator">Generated <span class="count-note">({len(generated_buttons)})</span></span>'
+            f'<div class="picker-chips">{"".join(generated_buttons)}</div></div>'
         )
-
     return (
         f'<div class="page-section"><h2>Models</h2>'
-        f'<div class="tab-group"><div class="tab-bar model-tab-bar">'
-        f'<button class="tab-btn reference-model-tab active" type="button" data-tab="ground_truth">Reference Model</button>'
-        f'{generated_group}</div>'
+        f'<div class="tab-group model-group"><div class="tab-bar picker model-picker">{"".join(rows)}</div>'
         + "".join(panes)
         + "</div></div>"
     )
@@ -1014,9 +1031,11 @@ def build_problem_page(p: dict, meta: dict, idx: int, neighbours: tuple, generat
     before, after = neighbours
     prev_next = ""
     if before or after:
-        prev_next = '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:30px">'
-        prev_next += f'<a class="btn" href="{esc(before)}.html">← prev</a>' if before else "<span></span>"
-        prev_next += f'<a class="btn" href="{esc(after)}.html">next →</a>' if after else "<span></span>"
+        prev_next = '<div class="pager">'
+        prev_next += (f'<a class="btn" href="{esc(before)}.html" rel="prev">&larr; {esc(before)}</a>'
+                      if before else "<span></span>")
+        prev_next += (f'<a class="btn" href="{esc(after)}.html" rel="next">{esc(after)} &rarr;</a>'
+                      if after else "<span></span>")
         prev_next += "</div>"
 
     body = f"""
@@ -1094,7 +1113,7 @@ def main() -> None:
             problems.append(
                 {
                     "id": data["id"],
-                    "description": data.get("description", ""),
+                    "description": mirrored(data.get("description", "")),
                     "display_model": reference_model_code(data["id"], data.get("model", "")),
                     "example_instance": data.get("example_instance", ""),
                     "instances": data.get("instances") or [],
@@ -1103,7 +1122,7 @@ def main() -> None:
                     "source": source_group(meta),
                     "type": "optimization" if IS_OPT_RE.search(data.get("model", "")) else "satisfaction",
                     "meta": meta,
-                    "snippet": snippet(data.get("description", "")),
+                    "snippet": snippet(mirrored(data.get("description", ""))),
                 }
             )
 

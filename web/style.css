@@ -83,6 +83,8 @@ nav .gh:hover { background: rgba(255, 255, 255, 0.15); text-decoration: none; }
 }
 .problem-hero h1 { font-size: 1.65rem; margin: 0; }
 .problem-hero .hero-note { margin-top: 6px; font-size: 0.92rem; }
+.problem-hero .crumb { display: inline-block; margin-bottom: 6px; color: rgba(255, 255, 255, 0.8); font-size: 0.88rem; }
+.problem-hero .crumb:hover { color: #fff; }
 .problem-hero .hero-note a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.5); }
 .count-note { color: var(--muted); font-weight: 400; }
 
@@ -219,38 +221,7 @@ table.matrix td.no { color: #d1d5db; }
 
 /* ---------- Tabs ---------- */
 .tab-bar { display: flex; gap: 6px; border-bottom: 2px solid var(--border); margin-bottom: 0; flex-wrap: wrap; }
-.model-tab-bar { align-items: center; }
-.generated-model-tab-group {
-  display: flex;
-  flex: 1 1 auto;
-  min-width: 0;
-  align-items: center;
-  margin-left: 4px;
-}
-.model-tab-separator {
-  width: 1px;
-  height: 20px;
-  flex: 0 0 1px;
-  margin: 0 10px 0 2px;
-  background: var(--border);
-}
-.generated-model-tab-label {
-  flex: 0 0 auto;
-  margin-right: 2px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-.generated-model-tab-row {
-  display: flex;
-  flex: 1 1 auto;
-  min-width: 0;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.generated-model-tab-row .tab-btn { white-space: nowrap; }
+.tab-btn { white-space: nowrap; }
 .tab-btn {
   border: none;
   background: transparent;
@@ -264,16 +235,44 @@ table.matrix td.no { color: #d1d5db; }
 }
 .tab-btn:hover { color: var(--text); }
 .tab-btn.active { color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); }
-.reference-model-tab {
+/* ---------- Pickers: instances and models ---------- */
+/* One look for every "pick one of these": pills, the chosen one filled. */
+.tab-bar.picker { border-bottom: 0; gap: 6px; }
+.tab-btn.pick {
+  margin: 0;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
   color: var(--text);
-  font-weight: 600;
+  font-size: 0.86rem;
+  white-space: nowrap;
 }
-.reference-model-tab.active {
-  background: var(--accent-soft);
-  border-radius: 7px 7px 0 0;
-  color: var(--accent);
+.tab-btn.pick:hover { border-color: var(--accent); color: var(--accent); }
+.tab-btn.pick.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.picker-group > .tab-bar .tab-btn.pick { min-width: 36px; font-variant-numeric: tabular-nums; }
+.picker-note { margin: 10px 0 12px; font-size: 0.85rem; }
+/* The chosen instance sits in the box itself, not in a second card. */
+.picker-group > .tab-pane { padding: 0; border: 0; box-shadow: none; background: none; border-radius: 0; }
+.instances-box pre.code-block { max-height: 420px; overflow: auto; }
+.instances-box .tab-group .tab-group .tab-pane { padding: 14px 16px; }
+
+.model-picker { flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.picker-row { display: flex; align-items: flex-start; gap: 12px; }
+.picker-label {
+  flex: 0 0 104px;
+  padding-top: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: help;
 }
+.picker-label .count-note { letter-spacing: 0; }
+.picker-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.model-group > .tab-pane { border-top: 1px solid var(--border); border-radius: var(--radius); }
+
 .tab-pane {
   display: none;
   padding: 18px 20px;
@@ -325,39 +324,6 @@ pre.code-block code { font-family: inherit; background: none; padding: 0; }
 }
 .code-head button:hover { background: rgba(255, 255, 255, 0.22); }
 
-details.instance { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: var(--card); }
-details.instance > summary {
-  cursor: pointer;
-  padding: 10px 14px;
-  font-family: var(--mono);
-  font-size: 0.85rem;
-  user-select: none;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-details.instance > summary::-webkit-details-marker { display: none; }
-details.instance > summary::before {
-  content: "▶";
-  font-size: 0.7rem;
-  color: var(--accent);
-  transition: transform 0.15s ease;
-}
-details.instance[open] > summary::before { transform: rotate(90deg); }
-details.instance > summary:hover { background: var(--accent-soft); }
-details.instance pre {
-  max-height: 420px;
-  overflow: auto;
-  margin: 0;
-  border-top: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  background: #f8fafc;
-  padding: 12px 14px;
-}
-details.instance pre code { background: none; padding: 0; }
-
 .chip {
   display: inline-block;
   background: var(--accent-soft);
@@ -389,18 +355,10 @@ details.instances-box > summary::before {
 }
 details.instances-box[open] > summary::before { transform: rotate(90deg); }
 details.instances-box > summary h3 { margin: 0; }
-details.instances-box[open] > summary { margin-bottom: 16px; }
+details.instances-box[open] > summary { margin-bottom: 14px; }
 
-details.instance .tab-group { margin-top: 10px; }
-details.instance pre.code-block {
-  background: #0f172a;
-  color: #e2e8f0;
-  border-top: none;
-  padding: 16px;
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-details.instance .tab-pane { padding: 14px 16px; }
+.pager { display: flex; justify-content: space-between; gap: 10px; margin-top: 30px; }
+.pager .btn { max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 0.84rem; }
 
 /* ---------- Page sections ---------- */
 .page-section { margin-bottom: 22px; }
@@ -493,6 +451,7 @@ table.plain th, table.plain td {
   color: var(--muted);
 }
 .filter-menu.open .filter-trigger { border-color: var(--accent); outline: 2px solid var(--accent-soft); }
+.filter-trigger.has-value { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 .filter-options {
   display: none;
   position: absolute;
@@ -533,7 +492,8 @@ table.plain th, table.plain td {
   font-size: 0.85rem;
   cursor: pointer;
 }
-.reset-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.reset-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.reset-btn:disabled { opacity: 0.5; cursor: default; }
 .list-sort {
   border: none;
   padding: 0;
@@ -553,8 +513,10 @@ table.problem-list th:nth-child(1) { width: 28%; }
 table.problem-list th:nth-child(3) { width: 104px; }
 table.problem-list th:nth-child(4) { width: 92px; }
 table.problem-list td { vertical-align: top; }
+/* The header stays in view down a long table. */
+table.problem-list thead th { position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 0 var(--border); }
 table.problem-list tbody tr:hover { background: #fafaff; }
-.list-name { font-family: var(--mono); font-size: 0.84rem; overflow-wrap: anywhere; }
+.list-name { font-family: var(--mono); font-size: 0.84rem; }
 .list-desc { color: var(--muted); font-size: 0.86rem; }
 /* One or two lines of the description; the problem page has the rest. */
 .list-desc .clamp {
@@ -736,11 +698,6 @@ footer {
   .hero h1 { font-size: 1.5rem; }
   .provenance dl { grid-template-columns: 1fr; gap: 2px 0; }
   .provenance dt { margin-top: 8px; }
-  .model-tab-bar { align-items: center; row-gap: 0; }
-  .generated-model-tab-group {
-    flex-basis: 100%;
-    margin-left: 0;
-  }
-  .model-tab-separator { display: none; }
-  .generated-model-tab-row { gap: 2px; }
+  .picker-row { flex-direction: column; gap: 6px; }
+  .picker-label { flex-basis: auto; padding-top: 0; }
 }

@@ -10,7 +10,7 @@ The dataset contains problems gathered from different sources.
   - All included, except for the ones that require enumeration of all solutions (e.g. `solveAll`).
 - `csplib`: Problems from the csplib, https://www.csplib.org/Problems/
   - For now, only the ones modelled in the cpmpy repository are included (https://github.com/CPMpy/cpmpy/tree/master/examples/csplib), and the ones modelled by Hakan Kjellerstrand (http://www.hakank.org/cpmpy/).
-- `hakan_examples`: Models created by Hakan Kjellerstrand, http://www.hakank.org/cpmpy/
+- `hakan_examples`: Models created by Hakan Kjellerstrand, http://www.hakank.org/cpmpy/ (also on GitHub: https://github.com/hakank/hakank/tree/master/cpmpy, which the website links to since hakank.org stopped answering)
   - In progress with alphabetical order. Currently, includes all problems until `knights_tour_circuit.py`, excluding the following:
     - Those already modelled in other folders (e.g. aplai_course, cpmpy_examples, csplib)
     - Those that contain `solveAll` (counting solutions).
