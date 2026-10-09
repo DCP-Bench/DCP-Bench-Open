@@ -29,7 +29,7 @@ SOLVERS_DIR = Path("solvers")
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v38"
+ASSET_VERSION = "catalogue-v39"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -428,9 +428,17 @@ def mebibytes(value) -> str:
     return f"{value}&thinsp;MiB"
 
 
-def evaluation_html(metrics: dict, flags: list) -> str:
+def plural(count, word: str) -> str:
+    return f"{count} {word}{'' if count == 1 else 's'}"
+
+
+def evaluation_html(metrics: dict, flags: list, has_instances: bool = True) -> str:
     """The verdict, then one pill per instance in the numbering of the
-    Instances section, then the limits; the per-instance table is folded."""
+    Instances section, then the limits; the per-instance table is folded.
+
+    A problem without instances was checked once, on the data its
+    description fixes, so it gets one line and no numbering.
+    """
     head = (f'<div class="eval-head"><h3>Evaluation</h3>{verdict_badge(metrics)}'
             f'{flag_badge(flags, metrics.get("problem", ""))}</div>')
     record = metrics.get("evaluation") or {}
@@ -453,7 +461,7 @@ def evaluation_html(metrics: dict, flags: list) -> str:
         solve = "&ndash;" if seconds is None else f"{seconds:.1f}&thinsp;s"
         tip = f"{label}: {outcome}"
         if checked is not None:
-            tip += f", {checked} solution{'s' if checked != 1 else ''} checked"
+            tip += f", {plural(checked, 'solution')} checked"
         if seconds is not None:
             tip += f", {seconds:.1f} s"
         pills.append(f'<span class="eval-pill {css}" title="{esc(tip)}">'
@@ -466,17 +474,33 @@ def evaluation_html(metrics: dict, flags: list) -> str:
             f'<td>{esc(status)}</td><td>{solve}</td></tr>'
         )
 
+    requested, limits = record.get("requested") or {}, record.get("limits") or {}
+    budget = (f'{limits.get("execution_timeout")}&thinsp;s, {mebibytes(limits.get("memory_mb"))}, '
+              f'{limits.get("cpus")}&thinsp;CPU.')
+
+    if not has_instances and len(instances) == 1:
+        item = instances[0]
+        outcome = ("Accepted" if item.get("accepted")
+                   else f"Rejected ({item.get('reason') or 'failed'})")
+        summary = f"{outcome} on the data in the description"
+        if item.get("solutions_checked") is not None:
+            summary += f" &middot; {plural(item['solutions_checked'], 'solution')} checked"
+        if item.get("execution_wall_seconds") is not None:
+            summary += f" &middot; solved in {item['execution_wall_seconds']:.1f}&thinsp;s"
+        return (
+            f'<div class="card-box evaluation">{head}'
+            f'<p class="eval-summary">{summary}</p>'
+            f'<p class="desc eval-note">Up to {plural(requested.get("solution_limit"), "solution")}, {budget}</p></div>'
+        )
+
     accepted = sum(1 for item in instances if item.get("accepted"))
-    summary = f"Accepted on {accepted} of {len(instances)} instances"
+    summary = f"Accepted on {accepted} of {plural(len(instances), 'instance')}"
     skipped = record.get("skipped_instances") or []
     if skipped:
         summary += f", {len(skipped)} skipped as inconclusive"
     if record.get("solutions_checked") is not None:
-        summary += f" &middot; {record['solutions_checked']} solutions checked"
-    requested, limits = record.get("requested") or {}, record.get("limits") or {}
-    bounds = (f'Up to {requested.get("solution_limit")} solutions per instance, '
-              f'{limits.get("execution_timeout")}&thinsp;s, {mebibytes(limits.get("memory_mb"))}, '
-              f'{limits.get("cpus")}&thinsp;CPU.')
+        summary += f" &middot; {plural(record['solutions_checked'], 'solution')} checked"
+    bounds = f'Up to {plural(requested.get("solution_limit"), "solution")} per instance, {budget}'
     return (
         f'<div class="card-box evaluation">{head}'
         f'<p class="eval-summary">{summary}</p>'
@@ -489,7 +513,7 @@ def evaluation_html(metrics: dict, flags: list) -> str:
     )
 
 
-def generated_model_html(entry: dict) -> str:
+def generated_model_html(entry: dict, has_instances: bool = True) -> str:
     """A generated model: who made it and for what, how it was judged, the code."""
     metrics = entry["metrics"]
     generated_by = metrics.get("generated_by", {})
@@ -518,7 +542,7 @@ def generated_model_html(entry: dict) -> str:
 
     return (
         f'<div class="model-info"><div class="card-box provenance"><h3>Metadata</h3><dl>{"".join(rows)}</dl></div>'
-        f'{evaluation_html(metrics, entry.get("flags"))}</div>'
+        f'{evaluation_html(metrics, entry.get("flags"), has_instances)}</div>'
         f'<h3>Model</h3>{model}'
     )
 
@@ -991,7 +1015,7 @@ def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
             f'<button class="tab-btn pick" type="button" data-tab="{slug}">'
             f'{esc(framework_name(fw))}</button>'
         )
-        panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_html(best[fw])}</div>')
+        panes.append(f'<div class="tab-pane" data-pane="{slug}">{generated_model_html(best[fw], bool(problem_instances(p)))}</div>')
 
     rows = [
         '<div class="picker-row"><span class="picker-label" title="Written by hand; the ground truth '
