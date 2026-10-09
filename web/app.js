@@ -526,11 +526,91 @@
     }
   }
 
+  /* Problem pages: the left and right arrow keys step through the models in
+     the order of the pills, wrapping round, while the Models section is on
+     screen. A hint says so, on a device with a keyboard, until the keys have
+     been used or the hint has shown three times. */
+  var KEYS_USED = "dcp-model-keys";
+  var HINT_SHOWN = "dcp-model-keys-hint";
+
+  function stored(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+
+  function store(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) { /* private mode */ }
+  }
+
+  function initModelKeys() {
+    var group = document.querySelector(".model-group");
+    if (!group) return;
+    var section = group.closest(".page-section") || group;
+    var buttons = Array.prototype.slice.call(group.querySelectorAll(".model-picker .tab-btn"));
+    if (buttons.length < 2) return;
+
+    /* The address names the model on show, so a copied link opens it. */
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (!window.history || !history.replaceState) return;
+        var name = btn.getAttribute("data-tab");
+        var query = name === "ground_truth" ? "" : "?model=" + encodeURIComponent(name);
+        history.replaceState(null, "", window.location.pathname + query + window.location.hash);
+      });
+    });
+
+    var hint = null;
+    function hideHint() {
+      if (hint) hint.classList.remove("shown");
+    }
+    function used() {
+      store(KEYS_USED, "1");
+      hideHint();
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
+      if (event.target.closest && event.target.closest("input, textarea, select, [contenteditable]")) return;
+      var box = group.getBoundingClientRect();
+      if (box.top >= window.innerHeight || box.bottom <= 0) return;
+      var current = 0;
+      buttons.forEach(function (btn, i) {
+        if (btn.classList.contains("active")) current = i;
+      });
+      var step = event.key === "ArrowRight" ? 1 : -1;
+      buttons[(current + step + buttons.length) % buttons.length].click();
+      /* A shorter model could leave the reader below it: bring the pills back. */
+      if (section.getBoundingClientRect().top < 0) section.scrollIntoView();
+      event.preventDefault();
+      used();
+    });
+
+    var shown = Number(stored(HINT_SHOWN)) || 0;
+    var keyboard = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (stored(KEYS_USED) || shown >= 3 || !keyboard || !window.IntersectionObserver) return;
+    hint = document.createElement("div");
+    hint.className = "key-hint";
+    hint.setAttribute("role", "status");
+    hint.innerHTML = '<kbd>\u2190</kbd><kbd>\u2192</kbd><span>switch models</span>' +
+      '<button type="button" aria-label="Dismiss">\u00d7</button>';
+    hint.querySelector("button").addEventListener("click", used);
+    document.body.appendChild(hint);
+    var observer = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      observer.disconnect();
+      store(HINT_SHOWN, String(shown + 1));
+      hint.classList.add("shown");
+      setTimeout(hideHint, 8000);
+    }, { threshold: 0.2 });
+    observer.observe(group);
+  }
+
   function init() {
     initIndex();
     initBackLink();
     initMarkdown();
     initTabs();
+    initModelKeys();
     initCopy();
     initParadigms();
     if (window.hljs) hljs.highlightAll();

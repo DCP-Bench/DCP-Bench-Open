@@ -16,6 +16,7 @@ import re
 import shutil
 import subprocess
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from evaluation.results import digest
 
@@ -32,7 +33,7 @@ SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 PAPER_URL = "https://arxiv.org/abs/2506.06052"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v40"
+ASSET_VERSION = "catalogue-v41"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -1107,11 +1108,12 @@ def instances_section_html(p: dict, idx: int) -> str:
 
 def models_section_html(p: dict, meta: dict, idx: int, generated: dict) -> str:
     best = select_best_generated(generated)
+    sources = sources_html(meta)
     reference = code_block(p["display_model"], "python", copy_id=f"model-{idx}", head_label="Python",
                            link=f"{REPO_URL}/blob/main/dataset/{p['id']}/{p['id']}.cpmpy.py")
     panes = [
         f'<div class="tab-pane active" data-pane="ground_truth">'
-        f'<div class="card-box provenance"><h3>Metadata</h3>{metadata_html(meta, p)}</div>'
+        + (f'<div class="card-box provenance"><h3>Sources</h3>{sources}</div>' if sources else "") +
         f'<h3>Model</h3>{reference}'
         f'</div>'
     ]
@@ -1205,27 +1207,46 @@ def build_problem_page(p: dict, meta: dict, idx: int, neighbours: tuple, generat
     )
 
 
-META_LABELS = {
-    "source": "Source",
-    "source_description": "Source description",
-    "problem_instances": "Problem instances",
-    "prompt": "Master prompt",
-    "solver": "Solver",
-    "solve_time": "Solve time (s)",
-}
+# Metadata that is not a source of the problem: the collection shows in the
+# page header, `name` is the problem's title.
+NOT_SOURCES = ("generated_by", "category", "problem_instances", "timeout", "name")
 
 
-def humanize_key(key: str) -> str:
-    return META_LABELS.get(key, key.replace("_", " ").capitalize())
+def link_text(url: str) -> str:
+    """Name a link by where it goes: "GitHub · hakank/hakank · cabling.py",
+    "csplib.org · prob006"."""
+    parts = urlparse(url)
+    host = parts.netloc.removeprefix("www.")
+    segments = [unquote(segment) for segment in parts.path.split("/") if segment]
+    if host == "github.com" and len(segments) >= 2:
+        return " · ".join(["GitHub", f"{segments[0]}/{segments[1]}"] + segments[-1:][: len(segments) > 2])
+    page = segments[-1] if segments else ""
+    if host.endswith("wikipedia.org"):
+        page = page.replace("_", " ")
+    return f"{host} · {page}" if page else host
 
 
-def metadata_html(meta: dict, p: dict) -> str:
-    rows = []
+def sources_html(meta: dict) -> str:
+    """The reference model's sources as one list: each bare URL as a link
+    named by its site and page, each citation or note as written.
+
+    The metadata keys are left out. They vary from file to file
+    (source_model, model_source, source_and_problem_instances, ...) and
+    say less than the links themselves.
+    """
+    items, seen = [], set()
     for key, value in meta.items():
-        if key in ("generated_by", "category", "problem_instances", "timeout"):
+        value = mirrored(value.strip())
+        if key in NOT_SOURCES or not value:
             continue
-        rows.append(f"<dt>{esc(humanize_key(key))}</dt><dd>{linkify(value)}</dd>")
-    return "<dl>" + "".join(rows) + "</dl>"
+        if URL_RE.fullmatch(value) and url_end(value) == len(value):
+            if value not in seen:
+                seen.add(value)
+                items.append(f'<li><a href="{esc(value)}" target="_blank" rel="noopener" '
+                             f'title="{esc(value)}">{esc(link_text(value))}</a></li>')
+        else:
+            items.append(f"<li>{linkify(value)}</li>")
+    return f'<ul class="source-list">{"".join(items)}</ul>' if items else ""
 
 
 # --------------------------------------------------------------------------

@@ -279,6 +279,45 @@ table.matrix td.fail { background: #fee2e2; color: #991b1b; font-weight: 700; }
 .picker-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .model-group > .tab-pane { border-top: 1px solid var(--border); border-radius: var(--radius); }
 
+/* The reference model's sources: links named by site and page, citations as written. */
+.source-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 0.92rem; }
+.source-list li { overflow-wrap: anywhere; }
+
+/* "<- -> switch models", bottom right, for a few visits. */
+.key-hint {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 6px 7px 12px;
+  border-radius: 999px;
+  background: #1f2430;
+  color: #e5e7eb;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.25);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.key-hint.shown { opacity: 1; transform: none; pointer-events: auto; }
+.key-hint kbd {
+  padding: 0 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+.key-hint span { margin: 0 4px 0 2px; }
+.key-hint button { border: 0; padding: 0 6px; background: none; color: #9ca3af; font-size: 1.05rem; line-height: 1; cursor: pointer; }
+.key-hint button:hover { color: #fff; }
+@media (prefers-reduced-motion: reduce) { .key-hint { transition: none; } }
+
 /* A generated model's metadata and evaluation, side by side. */
 .model-info {
   display: grid;
