@@ -216,6 +216,20 @@ class RenderingHelperTests(unittest.TestCase):
         finally:
             generate_site.INTEGRATIONS = saved
 
+    def test_previews_read_formulas_and_markdown_as_plain_text(self):
+        plain = generate_site.plain_text
+        self.assertEqual(plain("a set of \\( m \\) integers \\( 0 = a_1 < a_2 < \\cdots < a_m \\)"),
+                         "a set of m integers 0 = a₁ < a₂ < … < aₘ")
+        self.assertEqual(plain("\\( \\frac{m(m-1)}{2} \\) and \\( 1 \\leq i \\)"), "(m(m-1))/2 and 1 ≤ i")
+        self.assertEqual(plain("a $m \\\\times m$ table"), "a m × m table")
+        self.assertEqual(plain("strings of length `n` with:\n- Each word\n- Each pair"),
+                         "strings of length n with: Each word Each pair")
+        # A minus in prose, an operator in code and one in a formula all stay.
+        self.assertEqual(plain("is (10 - (sum % 10)) % 10"), "is (10 - (sum % 10)) % 10")
+        self.assertEqual(plain("the sum of `c[j] * X[j]`"), "the sum of c[j] * X[j]")
+        self.assertEqual(plain("\\( (1 - M_{xj}) \\)"), "(1 - Mₓⱼ)")
+        self.assertEqual(plain("costs $20, and $5"), "costs $20, and $5")
+
     def test_prices_are_not_math(self):
         self.assertIsNone(generate_site.MATH_RE.search("costs $20, and the small one $5."))
         self.assertIsNone(generate_site.MATH_RE.search("pay $ 1,100 to the painter, $ 300 to"))

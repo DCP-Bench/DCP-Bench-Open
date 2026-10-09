@@ -32,7 +32,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v43"
+ASSET_VERSION = "catalogue-v44"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -167,6 +167,69 @@ def linkify(text: str) -> str:
 # Math in a description, as app.js finds it: $$..$$, \[..\], \(..\), and
 # $..$ only where it cannot be a price ("$20 and $5" stays text).
 MATH_RE = re.compile(r"\$\$.+?\$\$|\\\[.+?\\\]|\\\(.+?\\\)|\$(?=[^\s\d$])[^$\n]*?[^\s$\\]\$(?!\d)", re.S)
+
+
+# Plain-text stand-ins for the LaTeX the descriptions use, for places that
+# cannot render it: the catalogue's previews, search, and link previews.
+TEX_WORDS = {
+    "cdot": "·", "cdots": "…", "ldots": "…", "dots": "…", "times": "×",
+    "leq": "≤", "le": "≤", "geq": "≥", "ge": "≥", "neq": "≠", "ne": "≠",
+    "in": "∈", "notin": "∉", "setminus": "∖", "forall": "∀", "exists": "∃",
+    "land": "∧", "lor": "∨", "neg": "¬", "sum": "Σ", "prod": "Π", "infty": "∞",
+    "to": "→", "rightarrow": "→", "lambda": "λ", "ell": "ℓ", "mod": "mod",
+}
+BLACKBOARD = {"Z": "ℤ", "N": "ℕ", "R": "ℝ", "Q": "ℚ"}
+SUB_CHARS, SUB_GLYPHS = "0123456789+-=()aehijklmnoprstuvx", "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ"
+SUP_CHARS, SUP_GLYPHS = "0123456789+-=()in", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁱⁿ"
+
+
+def tex_to_text(tex: str) -> str:
+    """Read a formula as plain text: \\( a_1 \\leq a_m \\) becomes a₁ ≤ aₘ.
+    A sub- or superscript with no Unicode form keeps its mark: x^R."""
+    tex = tex.replace("\\\\*", "*")
+    tex = re.sub(r"\\\\(?=[A-Za-z])", r"\\", tex)
+    tex = re.sub(r"\\mathbb\{(\w)\}", lambda m: BLACKBOARD.get(m.group(1), m.group(1)), tex)
+    tex = re.sub(r"\\(?:text|mathrm|operatorname)\{([^{}]*)\}", r"\1", tex)
+    tex = re.sub(r"\\frac\{([^{}]*)\}\{([^{}]*)\}",
+                 lambda m: "/".join(part if re.fullmatch(r"\w+", part) else f"({part})" for part in m.groups()), tex)
+    tex = tex.replace("\\{", "\x00").replace("\\}", "\x01")
+    tex = re.sub(r"\\[,;:! ]", " ", tex)
+    tex = re.sub(r"\\([A-Za-z]+)", lambda m: TEX_WORDS.get(m.group(1), m.group(1)), tex)
+
+    def script(match):
+        mark, body = match.group(1), match.group(2) or match.group(3)
+        chars, glyphs = (SUB_CHARS, SUB_GLYPHS) if mark == "_" else (SUP_CHARS, SUP_GLYPHS)
+        if body and all(ch in chars for ch in body):
+            return body.translate(str.maketrans(chars, glyphs))
+        return mark + (body if len(body) == 1 else f"({body.strip()})")
+    tex = re.sub(r"([_^])(?:\{([^{}]*)\}|(\S))", script, tex)
+    tex = tex.replace("{", "").replace("}", "").replace("\x00", "{").replace("\x01", "}")
+    tex = re.sub(r"\s+([,)])", r"\1", re.sub(r"\(\s+", "(", tex))
+    return " ".join(tex.split())
+
+
+def plain_text(text: str) -> str:
+    """A description as one line of plain text: formulas read as text,
+    Markdown marks dropped, whitespace collapsed."""
+    def prose(part):
+        part = re.sub(r"```\w*", " ", part).replace("**", "")
+        part = re.sub(r"(?m)^\s{0,3}#{1,6}\s+", "", part)
+        # List markers, at a line start or flattened into the text, as in
+        # "the following properties: - Each word". Formulas and `code` are
+        # left alone, so "c[j] * X[j]" keeps its operator.
+        part = "".join(piece if piece.startswith("`") else
+                       re.sub(r"(?m)(^|\s)[-*]\s+(?=[A-Z$])", r"\1", piece)
+                       for piece in re.split(r"(`[^`]*`)", part))
+        return re.sub(r"\\\\?([*_{}\[\]()#+.!|-])", r"\1", part.replace("`", ""))
+
+    text, out, last = mirrored(text), [], 0
+    for match in MATH_RE.finditer(text):
+        source = match.group(0)
+        cut = 1 if source.startswith("$") and not source.startswith("$$") else 2
+        out += [prose(text[last:match.start()]), tex_to_text(source[cut:-cut])]
+        last = match.end()
+    out.append(prose(text[last:]))
+    return " ".join("".join(out).split())
 
 
 def compact_json(value, indent: int = 0, width: int = 88) -> str:
@@ -1238,7 +1301,7 @@ def build_problem_page(p: dict, meta: dict, idx: int, neighbours: tuple, generat
     (OUTPUT_DIR / "problems").mkdir(parents=True, exist_ok=True)
     kind = "Optimization" if p["type"] == "optimization" else "Satisfaction"
     hero_note = f'{kind} problem · Source: {source_html(p["source"])}'
-    rendered_page = page(pid, "../", "problem", body, snippet(p["description"], 160), hero_note,
+    rendered_page = page(pid, "../", "problem", body, snippet(plain_text(p["description"]), 160), hero_note,
                          path=f"problems/{pid}.html", math=bool(MATH_RE.search(p["description"])))
     rendered_page = "\n".join(line.rstrip() for line in rendered_page.splitlines()) + "\n"
     (OUTPUT_DIR / "problems" / f"{pid}.html").write_text(
@@ -1327,7 +1390,7 @@ def main() -> None:
                     "source": source_group(meta),
                     "type": "optimization" if IS_OPT_RE.search(data.get("model", "")) else "satisfaction",
                     "meta": meta,
-                    "snippet": snippet(mirrored(data.get("description", ""))),
+                    "snippet": snippet(plain_text(data.get("description", ""))),
                 }
             )
 
@@ -1349,7 +1412,7 @@ def main() -> None:
                 "id": p["id"],
                 "type": p["type"],
                 "snippet": p["snippet"],
-                "text": " ".join(p["description"].split()),
+                "text": plain_text(p["description"]),
                 "instances": len(problem_instances(p)),
                 "generatedFrameworks": sorted(select_best_generated(generated.get(p["id"], {})).keys()),
                 "paradigms": breakdown["per_problem"].get(p["id"], []),
