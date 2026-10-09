@@ -163,6 +163,55 @@ class FlaggedModelTests(unittest.TestCase):
         # Shown when it is all there is: flagging marks a model, it does not hide it.
         self.assertIs(generate_site.select_best_generated({"pure_cp": [flagged]})["pure_cp"], flagged)
 
+class RenderingHelperTests(unittest.TestCase):
+    """Small text transforms the pages rely on."""
+
+    def test_generated_by_names_the_model_and_only_a_recorded_agent(self):
+        cases = {
+            "claude-code (claude-sonnet-5-5)": "Claude Sonnet 5.5 (Claude Code)",
+            "claude-sonnet-5-5 (Claude Code, model-generator campaign)": "Claude Sonnet 5.5 (Claude Code)",
+            "claude-code (claude-opus-5-5)": "Claude Opus 5.5 (Claude Code)",
+            "claude-opus-5-5 (Claude Code, model-generator campaign)": "Claude Opus 5.5 (Claude Code)",
+            "claude-opus-5 (Claude Code, model-generator campaign)": "Claude Opus 5 (Claude Code)",
+            "claude-opus-5, interactive session, coordinator and modeller": "Claude Opus 5",
+            "claude-opus-5 / model-generator campaign (100-model target)": "Claude Opus 5",
+            "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, "
+            "solution_limit 10)": "Claude Opus 5",
+            "some other system": "some other system",
+            "": "Unknown",
+        }
+        for raw, label in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(generate_site.generated_by_label(raw), label)
+
+    def test_every_recorded_generator_is_recognised(self):
+        for by_framework in generate_site.load_generated_models().values():
+            for entries in by_framework.values():
+                for entry in entries:
+                    raw = (entry["metrics"].get("generated_by") or {}).get("base_llm")
+                    self.assertTrue(generate_site.generated_by_label(raw).startswith("Claude "), raw)
+
+    def test_compact_json_is_the_same_data(self):
+        for value in ({"a": [1, 2, 3], "m": [[1, 2], [3, 4]], "s": "x", "e": [], "d": {}},
+                      {"long": list(range(200))}, [], [[[]]], 3):
+            with self.subTest(value=value):
+                import json
+                self.assertEqual(json.loads(generate_site.compact_json(value)), value)
+        self.assertIn('"a": [1, 2, 3]', generate_site.compact_json({"a": [1, 2, 3]}))
+
+    def test_a_link_stops_before_trailing_punctuation(self):
+        self.assertIn('href="http://a.org/x.html"', generate_site.linkify("see http://a.org/x.html, then"))
+        self.assertIn('href="https://en.wikipedia.org/wiki/Set_(card_game)"',
+                      generate_site.linkify("https://en.wikipedia.org/wiki/Set_(card_game)"))
+        self.assertIn('href="http://a.org/y"', generate_site.linkify("(http://a.org/y)"))
+
+    def test_prices_are_not_math(self):
+        self.assertIsNone(generate_site.MATH_RE.search("costs $20, and the small one $5."))
+        self.assertIsNone(generate_site.MATH_RE.search("pay $ 1,100 to the painter, $ 300 to"))
+        self.assertIsNotNone(generate_site.MATH_RE.search("a $m \\times m$ table"))
+        self.assertIsNotNone(generate_site.MATH_RE.search("integers \\( 0 = a_1 \\)"))
+
+
 class RealRepositoryTests(unittest.TestCase):
     """The vocabulary and the integration metadata, as the site build reads them."""
 

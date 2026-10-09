@@ -2,7 +2,7 @@
 
 The dataset contains problems gathered from different sources.
 
-- `aplai_course`: Problems from the APLAI course of KU Leuven, 2023-2024. As modelled here: https://github.com/kostis-init/LLM-CP-Modeling/tree/main/data/APLAI_course
+- `aplai_course`: Problems from the APLAI course of KU Leuven, 2023-2024. As modelled here: https://github.com/kostis-init/CP-LLMs-ICL/tree/main/data/APLAI_course
   - All 18 problems are added.
 - `complex_or`: Problems from the ComplexOR repository, found here: https://github.com/xzymustbexzy/Chain-of-Experts
   - Those already modelled in other folders (e.g. knapsack) and those with heavy float parameters/objective values are excluded.

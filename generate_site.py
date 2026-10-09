@@ -27,20 +27,25 @@ FLAGS_PATH = Path("generation") / "flags.json"
 SOLVERS_DIR = Path("solvers")
 
 REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
+# Where the deploy workflow publishes site/: link previews need absolute URLs.
+SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
+PAPER_URL = "https://arxiv.org/abs/2506.06052"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v39"
+ASSET_VERSION = "catalogue-v40"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
     "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
     "<strong>P</strong>roblems, with models for a wide range of solvers and paradigms."
 )
+# The same sentence where markup cannot go: meta tags and link previews.
+SUBTITLE_TEXT = re.sub(r"<[^>]+>", "", SUBTITLE)
 
 # The collections in SOURCES.md, by the `category` each problem's metadata
 # names: what a reader calls the collection, and where it lives.
 SOURCE_COLLECTIONS = {
-    "aplai_course": ("APLAI course", "https://github.com/kostis-init/LLM-CP-Modeling/tree/main/data/APLAI_course"),
+    "aplai_course": ("APLAI course", "https://github.com/kostis-init/CP-LLMs-ICL/tree/main/data/APLAI_course"),
     "complex_or": ("ComplexOR", "https://github.com/xzymustbexzy/Chain-of-Experts"),
     "cpmpy_examples": ("CPMpy examples", "https://github.com/CPMpy/cpmpy/tree/master/examples"),
     "csplib": ("CSPLib", "https://www.csplib.org/Problems/"),
@@ -115,7 +120,7 @@ def repo_head_short() -> str:
         return ""
 
 
-URL_RE = re.compile(r"https?://[^\s]+")
+URL_RE = re.compile(r"https?://[^\s<>\"]+")
 HAKANK_URL = re.compile(r"https?://(?:www\.)?hakank\.org/([^\s\"'<>()]*)")
 
 
@@ -136,16 +141,80 @@ def mirrored(text: str) -> str:
     return HAKANK_URL.sub(swap, text)
 
 
+def url_end(url: str) -> int:
+    """Where a URL found in prose ends: before a trailing comma or full stop,
+    and before a closing parenthesis it did not open."""
+    end = len(url)
+    while end and (url[end - 1] in ".,;:!?'" or
+                   (url[end - 1] == ")" and url.count("(", 0, end) < url.count(")", 0, end))):
+        end -= 1
+    return end
+
+
 def linkify(text: str) -> str:
     """Escape text and wrap URLs in anchors."""
+    out, last = [], 0
     text = mirrored(text)
-    parts = URL_RE.split(esc(text))
-    urls = URL_RE.findall(esc(text))
-    out = [parts[0]]
-    for url in urls:
-        out.append(f'<a href="{url}" target="_blank" rel="noopener">{url}</a>')
-        out.append(parts[urls.index(url) + 1])
+    for match in URL_RE.finditer(text):
+        url = match.group(0)[:url_end(match.group(0))]
+        out.append(esc(text[last:match.start()]))
+        out.append(f'<a href="{esc(url)}" target="_blank" rel="noopener">{esc(url)}</a>')
+        last = match.start() + len(url)
+    out.append(esc(text[last:]))
     return "".join(out)
+
+
+# Math in a description, as app.js finds it: $$..$$, \[..\], \(..\), and
+# $..$ only where it cannot be a price ("$20 and $5" stays text).
+MATH_RE = re.compile(r"\$\$.+?\$\$|\\\[.+?\\\]|\\\(.+?\\\)|\$(?=[^\s\d$])[^$\n]*?[^\s$\\]\$(?!\d)", re.S)
+
+
+def compact_json(value, indent: int = 0, width: int = 88) -> str:
+    """JSON with each list of numbers or strings on one line, wrapped at
+    `width`, so a row of data reads as a row; anything nested gets a line
+    per item as json.dumps(indent=2) would give it."""
+    pad = "  " * indent
+    if isinstance(value, dict) and value:
+        items = [f"{pad}  {json.dumps(key, ensure_ascii=False)}: {compact_json(item, indent + 1, width)}"
+                 for key, item in value.items()]
+        return "{\n" + ",\n".join(items) + "\n" + pad + "}"
+    if isinstance(value, list) and value:
+        if any(isinstance(item, (dict, list)) for item in value):
+            items = [pad + "  " + compact_json(item, indent + 1, width) for item in value]
+            return "[\n" + ",\n".join(items) + "\n" + pad + "]"
+        parts = [json.dumps(item, ensure_ascii=False) for item in value]
+        line = "[" + ", ".join(parts) + "]"
+        if len(pad) + len(line) <= width:
+            return line
+        rows, row = [], []
+        for part in parts:
+            if row and len(pad) + 2 + len(", ".join(row + [part])) + 1 > width:
+                rows.append(row)
+                row = []
+            row.append(part)
+        rows.append(row)
+        return "[\n" + ",\n".join(pad + "  " + ", ".join(r) for r in rows) + "\n" + pad + "]"
+    return json.dumps(value, ensure_ascii=False)
+
+
+MODEL_ID = re.compile(r"claude-(opus|sonnet|haiku)-(\d+)(?:-(\d{1,2})(?!\d))?")
+
+
+def generated_by_label(raw: str) -> str:
+    """The model that wrote a generated model, and the agent where the record
+    names one. Records hold free-form notes beside them, such as
+    "claude-opus-5 / model-generator campaign (100-model target)", which the
+    page leaves out. A value naming no Claude model is shown as it is."""
+    if not raw:
+        return "Unknown"
+    match = MODEL_ID.search(raw)
+    if not match:
+        return raw
+    family, major, minor = match.groups()
+    label = f"Claude {family.capitalize()} {major}" + (f".{minor}" if minor else "")
+    if re.search(r"claude[- ]code", raw, re.I):
+        label += " (Claude Code)"
+    return label
 
 
 def parse_metadata(metadata: list) -> dict:
@@ -177,9 +246,15 @@ def snippet(text: str, limit: int = 180) -> str:
     return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
 
 
+HLJS = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0"
+KATEX = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9"
+
+
 def page(title: str, prefix: str, active: str, body: str, description: str = "",
-         hero_note: str = "") -> str:
-    """`hero_note` is a line of HTML shown under a problem page's title."""
+         hero_note: str = "", path: str = "", math: bool = False) -> str:
+    """`hero_note` is a line of HTML shown under a problem page's title;
+    `path` is the page's place under SITE_URL, for link previews; `math`
+    loads KaTeX for a description that has formulas."""
     nav = []
     for key, label, href in (("index", "Problems", "index.html"), ("paradigms", "Solvers", "paradigms.html")):
         cls = ' class="active"' if active == key else ""
@@ -195,7 +270,9 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
     if active == "index":
         hero = (
             f'<div class="hero">'
-            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p></div>'
+            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p>'
+            f'<p class="hero-links"><a href="{PAPER_URL}" target="_blank" rel="noopener">Paper</a> &middot; '
+            f'<a href="{REPO_URL}/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a></p></div>'
         )
     else:
         note = f'<p class="hero-note">{hero_note}</p>' if hero_note else ""
@@ -204,31 +281,51 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
                  if active == "problem" else "")
         hero = f'<div class="hero problem-hero">{crumb}<h1>{esc(title)}</h1>{note}</div>'
 
-    footer_head = f" · commit <code>{esc(REPO_HEAD)}</code>" if REPO_HEAD else ""
-    head_desc = f'<meta name="description" content="{esc(description)}">' if description else ""
+    full_title = TITLE if active == "index" else f"{title} · {TITLE}"
+    preview = description or SUBTITLE_TEXT
+    head = [
+        f'<meta name="description" content="{esc(preview)}">',
+        f'<meta property="og:title" content="{esc(full_title)}">',
+        f'<meta property="og:description" content="{esc(preview)}">',
+        '<meta property="og:type" content="website">',
+        f'<meta property="og:url" content="{SITE_URL}{path}">',
+        f'<meta property="og:image" content="{SITE_URL}og-image.png">',
+        '<meta property="og:image:width" content="1200">',
+        '<meta property="og:image:height" content="630">',
+        '<meta name="twitter:card" content="summary_large_image">',
+    ]
+    # Each page loads only what it uses: code highlighting and Markdown on a
+    # problem page, the catalogue data on the index.
+    scripts = []
+    if active == "problem":
+        head.append(f'<link rel="stylesheet" href="{HLJS}/styles/github-dark.min.css">')
+        scripts += [f"{HLJS}/highlight.min.js", f"{HLJS}/languages/prolog.min.js",
+                    f"{HLJS}/languages/julia.min.js", f"{prefix}minizinc.js?v={ASSET_VERSION}",
+                    "https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"]
+        if math:
+            head.append(f'<link rel="stylesheet" href="{KATEX}/katex.min.css">')
+            scripts.append(f"{KATEX}/katex.min.js")
+    if active == "index":
+        scripts.append(f"{prefix}data.js?v={DATA_VERSION}")
+    scripts.append(f"{prefix}app.js?v={ASSET_VERSION}")
+
+    commit = f" &middot; commit <code>{esc(REPO_HEAD)}</code>" if REPO_HEAD else ""
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)} · {TITLE}</title>
+<title>{esc(full_title)}</title>
 <link rel="icon" href="{FAVICON}">
-{head_desc}
+{chr(10).join(head)}
 <script>document.documentElement.classList.add("js");</script>
 <link rel="stylesheet" href="{prefix}style.css?v={ASSET_VERSION}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
 <header><nav>{"".join(nav)}</nav>{hero}</header>
 <main>{body}</main>
-<footer>Generated by <code>generate_site.py</code> from <code>dcp-bench-open.jsonl</code>{footer_head} · <a href="{REPO_URL}" target="_blank" rel="noopener">DCP-Bench-Open on GitHub</a></footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/prolog.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
-<script src="{prefix}minizinc.js?v={ASSET_VERSION}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-<script src="{prefix}data.js?v={DATA_VERSION}"></script>
-<script src="{prefix}app.js?v={ASSET_VERSION}"></script>
+<footer>{TITLE} is part of <a href="{REPO_URL}" target="_blank" rel="noopener">DCP-Bench Open</a> &middot; <a href="{REPO_URL}/blob/main/LICENSE" target="_blank" rel="noopener">Apache-2.0</a>{commit}</footer>
+{chr(10).join(f'<script src="{src}"></script>' for src in scripts)}
 </body>
 </html>
 """
@@ -519,9 +616,7 @@ def generated_model_html(entry: dict, has_instances: bool = True) -> str:
     generated_by = metrics.get("generated_by", {})
     uid = f"{metrics.get('problem', '')}-{entry['submission']}"
 
-    # `base_llm` names whatever wrote the model: a bare LLM, or an agent
-    # running one, as in "claude-code (claude-sonnet-5-5)".
-    rows = [f"<dt>Generated by</dt><dd>{esc(generated_by.get('base_llm') or 'Unknown')}</dd>"]
+    rows = [f"<dt>Generated by</dt><dd>{esc(generated_by_label(generated_by.get('base_llm')))}</dd>"]
     if generated_by.get("dataset_version"):
         rows.append(
             f"<dt>Dataset version</dt><dd>{esc(generated_by['dataset_version'])}</dd>"
@@ -849,7 +944,8 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
     """
     (OUTPUT_DIR / "paradigms.html").write_text(
         page("Solvers", "", "paradigms", body,
-             "How DCP Rosetta's verified models break down by modelling paradigm and solver."),
+             "How DCP Rosetta's verified models break down by modelling paradigm and solver.",
+             path="paradigms.html"),
         encoding="utf-8",
     )
 
@@ -927,14 +1023,25 @@ def build_index(problems: list, generated: dict, breakdown: dict) -> None:
       </div>
       <p class="result-count" id="result-count"></p>
     </div>
+    <noscript><p class="empty-state">The catalogue needs JavaScript. The problems are also listed in
+      <a href="{REPO_URL}/tree/main/dataset">the repository</a>.</p></noscript>
     <div class="problem-section" data-type="optimization" role="tabpanel" id="panel-optimization"
       aria-labelledby="tab-optimization"><div class="problem-table"></div></div>
     <div class="problem-section" data-type="satisfaction" role="tabpanel" id="panel-satisfaction"
       aria-labelledby="tab-satisfaction" hidden><div class="problem-table"></div></div>
     """
     (OUTPUT_DIR / "index.html").write_text(
-        page("Problems", "", "index", body, SUBTITLE), encoding="utf-8"
+        page("Problems", "", "index", body, SUBTITLE_TEXT), encoding="utf-8"
     )
+
+def build_not_found() -> None:
+    """GitHub Pages serves 404.html for any missing path, at any depth, so
+    its links are absolute."""
+    body = (f'<p>There is no page at this address. The catalogue lists every problem: '
+            f'<a href="{SITE_URL}">{SITE_URL}</a></p>')
+    (OUTPUT_DIR / "404.html").write_text(
+        page("Page not found", SITE_URL, "missing", body, path="404.html"), encoding="utf-8")
+
 
 def var_chips_short(vars_list: list) -> str:
     return "".join(f'<span class="chip">{esc(v)}</span>' for v in vars_list) or ""
@@ -948,12 +1055,12 @@ def problem_instances(p: dict) -> list:
 
 def instance_pane_html(inst, i: int, idx: int, active: bool, example_solution, decision_vars: list) -> str:
     """One instance's data, plus the example solution for instance 1."""
-    pretty = json.dumps(inst, indent=2, ensure_ascii=False)
+    pretty = compact_json(inst)
     data_pane = code_block(pretty, "json", copy_id=f"inst-{idx}-{i}", head_label=f"Instance {i} · JSON")
     buttons = '<button class="tab-btn active" type="button" data-tab="data">Data</button>'
     panes = f'<div class="tab-pane active" data-pane="data">{data_pane}</div>'
     if i == 1 and example_solution:
-        sol_code = json.dumps(example_solution, indent=2, ensure_ascii=False)
+        sol_code = compact_json(example_solution)
         buttons += '<button class="tab-btn" type="button" data-tab="solution">Solution</button>'
         panes += (
             f'<div class="tab-pane" data-pane="solution">'
@@ -1089,7 +1196,8 @@ def build_problem_page(p: dict, meta: dict, idx: int, neighbours: tuple, generat
     (OUTPUT_DIR / "problems").mkdir(parents=True, exist_ok=True)
     kind = "Optimization" if p["type"] == "optimization" else "Satisfaction"
     hero_note = f'{kind} problem · Source: {source_html(p["source"])}'
-    rendered_page = page(pid, "../", "problem", body, snippet(p["description"], 160), hero_note)
+    rendered_page = page(pid, "../", "problem", body, snippet(p["description"], 160), hero_note,
+                         path=f"problems/{pid}.html", math=bool(MATH_RE.search(p["description"])))
     rendered_page = "\n".join(line.rstrip() for line in rendered_page.splitlines()) + "\n"
     (OUTPUT_DIR / "problems" / f"{pid}.html").write_text(
         rendered_page,
@@ -1136,6 +1244,7 @@ def main() -> None:
     shutil.copy2(WEB_SRC / "style.css", OUTPUT_DIR / "style.css")
     shutil.copy2(WEB_SRC / "app.js", OUTPUT_DIR / "app.js")
     shutil.copy2(WEB_SRC / "minizinc.js", OUTPUT_DIR / "minizinc.js")
+    shutil.copy2(WEB_SRC / "og-image.png", OUTPUT_DIR / "og-image.png")
 
     problems = []
     with DATASET_JSONL.open(encoding="utf-8") as fh:
@@ -1177,6 +1286,7 @@ def main() -> None:
                 "id": p["id"],
                 "type": p["type"],
                 "snippet": p["snippet"],
+                "text": " ".join(p["description"].split()),
                 "instances": len(problem_instances(p)),
                 "generatedFrameworks": sorted(select_best_generated(generated.get(p["id"], {})).keys()),
                 "paradigms": breakdown["per_problem"].get(p["id"], []),
@@ -1192,6 +1302,7 @@ def main() -> None:
     DATA_VERSION = digest(js.encode())[:12]
 
     build_index(problems, generated, breakdown)
+    build_not_found()
     build_paradigms(problems, breakdown)
     # prev/next walk the problems alphabetically, as the catalogue lists them.
     order = sorted(p["id"] for p in problems)

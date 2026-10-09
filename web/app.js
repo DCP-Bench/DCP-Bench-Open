@@ -233,8 +233,11 @@
         if (!matchesFramework) return false;
       }
       if (q) {
-        var haystack = (problem.id + " " + problem.snippet).toLowerCase();
-        if (haystack.indexOf(q) === -1) return false;
+        /* The whole description is searched, not just the shown snippet. */
+        if (problem.haystack === undefined) {
+          problem.haystack = (problem.id + " " + (problem.text || problem.snippet)).toLowerCase();
+        }
+        if (problem.haystack.indexOf(q) === -1) return false;
       }
       return true;
     });
@@ -344,15 +347,68 @@
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  function linkify(text) {
-    return text.replace(/(https?:\/\/[^\s]+)/g,
-      '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  /* Where a URL in prose ends: before trailing punctuation, and before a
+     closing parenthesis it did not open. url_end in generate_site.py does the
+     same for the metadata links. */
+  function urlEnd(url) {
+    var end = url.length;
+    while (end) {
+      var ch = url.charAt(end - 1);
+      var head = url.slice(0, end);
+      if (".,;:!?'".indexOf(ch) !== -1 ||
+          (ch === ")" && head.split("(").length < head.split(")").length)) {
+        end -= 1;
+      } else {
+        break;
+      }
+    }
+    return end;
   }
 
+  /* Escape text and wrap its URLs in links. */
+  function linkify(text) {
+    var out = "";
+    var last = 0;
+    var pattern = /https?:\/\/[^\s<>"]+/g;
+    var match;
+    while ((match = pattern.exec(text))) {
+      var url = match[0].slice(0, urlEnd(match[0]));
+      out += escHtml(text.slice(last, match.index)) + '<a href="' + escHtml(url).replace(/"/g, "&quot;") +
+        '" target="_blank" rel="noopener">' + escHtml(url) + "</a>";
+      last = match.index + url.length;
+      pattern.lastIndex = last;
+    }
+    return out + escHtml(text.slice(last));
+  }
+
+  /* $$..$$, \[..\], \(..\), and $..$ only where it cannot be a price:
+     "$20 and $5" stays text. MATH_RE in generate_site.py matches the same,
+     to decide which pages load KaTeX. */
+  var MATH = /\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|\$(?=[^\s\d$])([^$\n]*?[^\s$\\])\$(?!\d)/g;
+
+  /* Some descriptions escape their backslashes for Markdown: \\times for
+     \times, \\* for a plain asterisk. */
+  function renderMath(source, tex, display) {
+    if (!window.katex) return escHtml(source);
+    tex = tex.replace(/\\\\\*/g, "*").replace(/\\\\(?=[A-Za-z])/g, "\\");
+    return katex.renderToString(tex, { displayMode: display, throwOnError: false });
+  }
+
+  /* Math is set aside before Markdown runs, so that a_1 and a_m are not
+     read as emphasis, and put back as KaTeX afterwards. */
   function initMarkdown() {
     if (!window.marked) return;
     document.querySelectorAll(".md-desc").forEach(function (el) {
-      el.innerHTML = marked.parse(linkify(escHtml(el.textContent)));
+      var maths = [];
+      var text = el.textContent.replace(MATH, function (all, block, bracket, paren, dollar) {
+        var display = block !== undefined || bracket !== undefined;
+        maths.push(renderMath(all, block || bracket || paren || dollar, display));
+        return "MATHTOKEN" + (maths.length - 1) + "END";
+      });
+      text = text.replace(/\\\\\*/g, "\\*");
+      el.innerHTML = marked.parse(linkify(text)).replace(/MATHTOKEN(\d+)END/g, function (token, i) {
+        return maths[Number(i)];
+      });
     });
   }
 
