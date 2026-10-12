@@ -845,7 +845,6 @@ def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list,
         # Problems per integration within one paradigm, after scoping.
         "by_paradigm": {tag: {solver: len(found) for solver, found in solvers.items()}
                         for tag, solvers in by_paradigm.items()},
-        "covered": by_paradigm,
     }
 
 
@@ -921,17 +920,6 @@ def backend_label(solver: str, paradigm: str = "") -> str:
     return f'<span class="backend">{esc(backend)}</span>'
 
 
-def missing_link(solver: str, missing: set, types: dict) -> str:
-    """Opens the catalogue on the problems an integration has no model for.
-    When they are all of one type, the link opens that type's tab."""
-    if not missing:
-        return ""
-    kinds = {types[problem] for problem in missing}
-    tab = f"&amp;type={next(iter(kinds))}" if len(kinds) == 1 else ""
-    return (f'<a class="missing" href="index.html?framework={esc(solver)}&amp;modelled=no{tab}">'
-            f'{len(missing)} not modelled</a>')
-
-
 def paradigm_order(ranked: list) -> list:
     """Paradigms with the most integrations first, as the Solvers page lists
     them; ties keep the order paradigms.json documents them in."""
@@ -978,8 +966,6 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
         tag = item["id"]
         scope = PARADIGM_SCOPE.get(tag)
         denominator = type_counts.get(scope, 0) if scope else len(types)
-        in_scope = {problem for problem, kind in types.items() if not scope or kind == scope}
-        covered = breakdown["covered"].get(tag, {})
         found = breakdown["by_paradigm"].get(tag, {})
         # The solvers that model the most problems in this paradigm lead;
         # ties read alphabetically by display name.
@@ -1000,8 +986,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             entries.append(
                 f'<li{anchor}><span class="solver-name">{esc(INTEGRATIONS[solver].get("name", solver))}'
                 f'{backend_label(solver, tag)}</span>'
-                f'<span class="solver-count">{coverage_count(found.get(solver, 0), denominator)}'
-                f'{missing_link(solver, in_scope - covered.get(solver, set()), types)}</span>'
+                f'<span class="solver-count">{coverage_count(found.get(solver, 0), denominator)}</span>'
                 f'{browse_button(solver, integration_problems.get(solver, 0))}</li>'
             )
 
