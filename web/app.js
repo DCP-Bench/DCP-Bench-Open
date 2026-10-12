@@ -564,6 +564,37 @@
     try { localStorage.setItem(key, value); } catch (e) { /* private mode */ }
   }
 
+  /* The light theme is the default. The button in the nav switches to dark
+     and back, and the choice holds on every page until it is switched again. */
+  var THEME_KEY = "dcp-theme";
+
+  function initTheme() {
+    var toggle = document.querySelector(".theme-toggle");
+    if (!toggle) return;
+    var root = document.documentElement;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    function sync() {
+      var dark = root.getAttribute("data-theme") === "dark";
+      toggle.setAttribute("aria-pressed", dark ? "true" : "false");
+      toggle.title = dark ? "Switch to the light theme" : "Switch to the dark theme";
+      if (meta) meta.setAttribute("content", getComputedStyle(root).getPropertyValue("--bg").trim());
+    }
+    sync();
+    toggle.addEventListener("click", function () {
+      var dark = root.getAttribute("data-theme") !== "dark";
+      function apply() {
+        if (dark) root.setAttribute("data-theme", "dark");
+        else root.removeAttribute("data-theme");
+        sync();
+      }
+      store(THEME_KEY, dark ? "dark" : "light");
+      /* A cross-fade between the themes, where the browser has one. */
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (document.startViewTransition && !still) document.startViewTransition(apply);
+      else apply();
+    });
+  }
+
   function initModelKeys() {
     var group = document.querySelector(".model-group");
     if (!group) return;
@@ -620,6 +651,7 @@
   }
 
   function init() {
+    initTheme();
     initIndex();
     initBackLink();
     initMarkdown();

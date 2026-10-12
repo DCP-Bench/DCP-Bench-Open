@@ -16,7 +16,7 @@ import re
 import shutil
 import subprocess
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import quote, unquote, urlparse
 
 from evaluation.results import digest
 
@@ -32,7 +32,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v44"
+ASSET_VERSION = "catalogue-v50"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -52,11 +52,17 @@ SOURCE_COLLECTIONS = {
     "hakan_examples": ("Hakan Kjellerstrand's CPMpy models", "https://github.com/hakank/hakank/tree/master/cpmpy"),
 }
 
-# A tab icon: the indigo of the header with the site's initials.
-FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
-           "%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Ctext x='16' y='21' "
-           "font-family='Arial,sans-serif' font-size='12' font-weight='700' text-anchor='middle' "
-           "fill='white'%3EDCP%3C/text%3E%3C/svg%3E")
+# A tab icon: a solved 4-queens board, one queen to each row, column and
+# diagonal, in the site's accent colour.
+FAVICON_QUEENS = ((0, 1), (1, 3), (2, 0), (3, 2))
+FAVICON = "data:image/svg+xml," + quote(
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>"
+    "<rect width='32' height='32' rx='7' fill='#0e6c78'/><g fill='#fff' opacity='.16'>"
+    + "".join(f"<rect x='{4 + 6 * c}' y='{4 + 6 * r}' width='6' height='6'/>"
+              for r in range(4) for c in range(4) if (r + c) % 2)
+    + "</g><g fill='#fff'>"
+    + "".join(f"<circle cx='{7 + 6 * c}' cy='{7 + 6 * r}' r='2.3'/>" for r, c in FAVICON_QUEENS)
+    + "</g></svg>")
 
 # What a model is written in, per `language` in solvers/<id>/metadata.yaml:
 # the highlight.js grammar to ask for, and the label above the code block.
@@ -323,6 +329,13 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
         cls = ' class="active"' if active == key else ""
         nav.append(f'<a{cls} href="{prefix}{href}">{label}</a>')
     nav.append('<span class="spacer"></span>')
+    # Light by default; app.js keeps the reader's choice from page to page.
+    nav.append(
+        '<button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme">'
+        '<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z"/></svg>'
+        '<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+        '</button>'
+    )
     nav.append(
         f'<a class="gh" href="{REPO_URL}" target="_blank" rel="noopener">'
         '<svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true">'
@@ -340,7 +353,9 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
         # app.js points this at the catalogue as it was left, filters and all.
         crumb = (f'<a class="crumb" href="{prefix}index.html">&larr; All problems</a>'
                  if active == "problem" else "")
-        hero = f'<div class="hero problem-hero">{crumb}<h1>{esc(title)}</h1>{note}</div>'
+        # A problem's title is its identifier; the solvers page's is a word.
+        title_cls = ' class="problem-id"' if active == "problem" else ""
+        hero = f'<div class="hero problem-hero">{crumb}<h1{title_cls}>{esc(title)}</h1>{note}</div>'
 
     full_title = TITLE if active == "index" else f"{title} · {TITLE}"
     preview = description or SUBTITLE_TEXT
@@ -378,8 +393,10 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(full_title)}</title>
 <link rel="icon" href="{FAVICON}">
+<meta name="theme-color" content="#fbfbfa">
 {chr(10).join(head)}
-<script>document.documentElement.classList.add("js");</script>
+<script>document.documentElement.classList.add("js");
+try {{ if (localStorage.getItem("dcp-theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); }} catch (e) {{}}</script>
 <link rel="stylesheet" href="{prefix}style.css?v={ASSET_VERSION}">
 </head>
 <body>
