@@ -32,7 +32,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v50"
+ASSET_VERSION = "catalogue-v51"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -393,7 +393,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(full_title)}</title>
 <link rel="icon" href="{FAVICON}">
-<meta name="theme-color" content="#fbfbfa">
+<meta name="theme-color" content="#ebf1f8">
 {chr(10).join(head)}
 <script>document.documentElement.classList.add("js");
 try {{ if (localStorage.getItem("dcp-theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); }} catch (e) {{}}</script>
