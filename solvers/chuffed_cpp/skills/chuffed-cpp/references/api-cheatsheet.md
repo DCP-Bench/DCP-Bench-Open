@@ -1,10 +1,9 @@
 # Chuffed 0.14.0 C++ API cheat sheet
 
 Signatures are copied from the 0.14.0 headers (tag `0.14.0`, commit
-`f698d562`). The marker **(header only)** means no official example uses the
-call; **(tested)** means a model using it was accepted by the evaluator while
-this skill was written (see [examples.md](examples.md)). Everything is in
-global scope; `#include "dcp.h"` brings in all headers.
+`f698d562`). **(header only)**: never compiled by us; **(tested)**: compiled and
+run (see [examples.md](examples.md)). Everything is in global scope; include
+the headers listed in SKILL.md. Pitfalls are in SKILL.md and not repeated here.
 
 Conventions: `x`, `y`, `z` are `IntVar*`; `b`, `r` are `BoolView`; `a`, `c`
 are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
@@ -31,7 +30,7 @@ are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
 - `x->getLit(v, LR_EQ)` (also `LR_NE`, `LR_GE`, `LR_LE`) - literal "x rel v", usable as `BoolView(...)`. Needs an eager variable (`el = true`) for `LR_EQ`/`LR_NE`. Also `*x <= t`, `*x > t` produce literals.
 - `void flatten(vec<vec<U>>& x, vec<U>& y)` and `void transpose(vec<vec<U>>& x, vec<vec<U>>& y)` - output must be empty.
 - `vec<T>`: `push(e)`, `push()` (default element), `size()`, `operator[]`, `last()`, `pop()`, `growTo(n)`, `growTo(n, pad)`, `vec<vec<int>> t(k)` sized constructor. Build rows of a `vec<vec<int>>` (e.g. table tuples) with `t.push(); t.last().push(v);` (tested).
-- Reading values (`getVal()`) is for driver code only; do not call it in `Build`.
+- Read values (`getVal()`) only inside `print` or the solution callback.
 
 ## Relation types
 
@@ -129,7 +128,7 @@ examples here. Read `globals.h` before using one.
 - `VarBranch`: `VAR_DEFAULT`, `VAR_INORDER`, `VAR_SIZE_MIN`, `VAR_SIZE_MAX`, `VAR_MIN_MIN`, `VAR_MIN_MAX`, `VAR_MAX_MIN`, `VAR_MAX_MAX`, `VAR_DEGREE_MIN`, `VAR_DEGREE_MAX`, `VAR_REGRET_MIN_MAX`, `VAR_REGRET_MAX_MIN`, `VAR_ACTIVITY`, `VAR_RANDOM`.
 - `ValBranch`: `VAL_DEFAULT`, `VAL_MIN`, `VAL_MAX`, `VAL_MIDDLE`, `VAL_MEDIAN`, `VAL_SPLIT_MIN`, `VAL_SPLIT_MAX`, `VAL_RANDOM`.
 - `void optimize(IntVar* v, int t)` - `t` is `OPT_MIN` or `OPT_MAX`; call once.
-- The driver registers outputs itself. Do not call `output_vars`.
+- `void output_vars(vec<IntVar*>& v)` / `output_var(Branching*)`: variables that distinguish solutions when enumerating; also used to print.
 
 ## Recipes
 
@@ -212,16 +211,5 @@ an empty `vec<IntVar*>`; take columns with `transpose(grid, cols)`.
 
 ## Tips
 
-- Give every variable the tightest domain you can derive from the instance. Domain size drives lazy clause generation as much as propagation.
-- Prefer one `int_linear` with a result variable to chains of `int_plus`.
 - Eager variables (`el = true`) cost memory for large domains; use them for 0/1 variables, small domains, and anything read with `getLit`.
-- Chuffed learns from conflicts, so redundant implied constraints often help less than a good `branch`.
-- Include a comment above each constraint group saying what it means in the problem's words.
-
-## Search for hard instances (from the campaign)
-
-- An optimization result is emitted only after the optimum is proven, so a weak search shows up as `execution_timeout`, or as `suboptimal_solution` when the time budget ends first.
-- Branch first on the structural decisions everything else follows from (layouts before production counts, differences before values in all-interval), then the rest.
-- Try `VAR_ACTIVITY` or `VAR_SIZE_MIN` when `VAR_INORDER` stalls.
-- Tighten domains from the data (e.g. a shipment is at most min(capacity, demand)).
-- Add implied constraints that bound the objective, e.g. cost >= demand x cheapest open unit cost via `minimum`. That took facility_location from 190 s to 36 s.
+- Prefer one `int_linear` with a result variable to chains of `int_plus`.

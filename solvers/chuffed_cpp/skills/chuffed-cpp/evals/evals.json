@@ -3,7 +3,7 @@
   "skill_name": "chuffed-cpp",
   "evals": [
     {
-      "id": "satisfaction-from-description",
+      "id": "dcp-satisfaction-from-description",
       "prompt": "Using this skill, write a chuffed_cpp submission for a satisfaction problem such as csplib_054_n_queens, starting from `python -m generation.brief`, and check it with the repository evaluator across the listed instances.",
       "prerequisites": [
         "Docker running",
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "id": "optimization-with-arrays",
+      "id": "dcp-optimization-with-arrays",
       "prompt": "Using this skill, write a chuffed_cpp submission for an optimization problem whose instance holds arrays and a scalar, such as knapsack, and confirm the evaluator accepts the optimum.",
       "prerequisites": [
         "Docker running",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "id": "repair-vec-temporary",
+      "id": "dcp-repair-vec-temporary",
       "prompt": "Using this skill, repair this chuffed_cpp submission that fails with compilation_error: it calls int_linear(coefs, {x, y}, IRT_LE, 10) and all_different(vec<IntVar*>{a, b}) and writes x + y inside a constraint. Rerun the evaluator after the repair.",
       "prerequisites": [
         "Docker running",
@@ -62,7 +62,7 @@
       ]
     },
     {
-      "id": "boolean-output",
+      "id": "dcp-boolean-output",
       "prompt": "Using this skill, write a chuffed_cpp submission for a problem whose declared outputs include a Boolean array (for example an include/exclude choice reified from a comparison) and check it with the repository evaluator.",
       "prerequisites": [
         "Docker running",
@@ -77,6 +77,28 @@
       "evidence_required": [
         "the submitted .cpp file",
         "the evaluator JSON result"
+      ]
+    },
+    {
+      "id": "standalone-program-from-description",
+      "prompt": "Using this skill and no other repository scaffolding, write a standalone Chuffed C++ program (own main, CMakeLists.txt) that solves a small problem given in words, such as 'assign 6 jobs with given durations to 2 machines to minimize the finishing time', then compile it against an installed Chuffed 0.14.0 and run it.",
+      "prerequisites": [
+        "an installed Chuffed 0.14.0 (CMAKE_PREFIX_PATH set), or the Docker image dcp-eval/chuffed_cpp:v1",
+        "CMake and a C++17 compiler"
+      ],
+      "expected_output": "A program that compiles, runs, and prints a correct optimal solution, or a recorded blocker with the compiler or runtime output.",
+      "assertions": [
+        "The program defines a Problem subclass that posts the model in its constructor, overrides print(std::ostream&), and calls engine.solve(new P(...)) from main.",
+        "CMake uses find_package(chuffed CONFIG REQUIRED) and links chuffed chuffed_fzn chuffed and Threads.",
+        "It declares branch(...) on a named flat vec<IntVar*>, and for optimization calls optimize once on a single IntVar.",
+        "Values are read with getVal() only inside print or a solution callback.",
+        "It does not use operators on IntVar pointers, std::vector or initializer lists as constraint arguments, int_mod, or parseOptions on its own arguments.",
+        "Each constraint block has a comment in the problem's words, and the file opens with a comment stating the problem.",
+        "The run output shows the optimum and the answer is checked by hand or against a second computation."
+      ],
+      "evidence_required": [
+        "the .cpp and CMakeLists.txt",
+        "the build and run output"
       ]
     }
   ]

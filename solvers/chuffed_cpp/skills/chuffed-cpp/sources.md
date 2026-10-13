@@ -46,3 +46,18 @@ The examples in `references/examples.md` and the calls marked **(tested)** in th
 cheat sheet were run through the repository evaluator against the
 `dcp-eval/chuffed_cpp:v1` image on 2026-10-13. Calls marked **(header only)** come
 from the header text and were not compiled.
+
+
+Added for the standalone (non-DCP) usage:
+
+- `chuffed/core/engine.h`, `chuffed/core/options.h` (0.14.0, installed headers in the
+  `dcp-eval/chuffed_cpp:v1` image under `/opt/chuffed/include`) - `Problem`, `so.nof_solutions`,
+  `so.time_out`, `so.print_sol`, `engine.status`, `RES_*`, `engine.solutions`, `engine.best_sol`,
+  `setSolutionCallback`
+- `chuffed/examples/template.cpp` and `queens.cpp` (0.14.0) - standalone program shape
+  (`Problem` subclass, `output_vars`, `parseOptions`, `engine.solve(new P(...))`)
+- `solvers/chuffed_cpp/Dockerfile` and `cpp/CMakeLists.txt` - verified install prefix and link line
+  (`find_package(chuffed CONFIG REQUIRED)`, `chuffed chuffed_fzn chuffed`, Threads)
+- `references/standalone_queens.cpp` and `standalone_knapsack.cpp` were compiled and run in the
+  image on 2026-10-13: `queens 8`, `queens 6 0` (4 solutions), `queens 3 5` (unsatisfiable),
+  `knapsack` (optimum 51). Without `output_vars`, enumeration stops after the first solution.
