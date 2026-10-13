@@ -66,7 +66,7 @@ n from argv), [standalone_knapsack.cpp](references/standalone_knapsack.cpp) (opt
 - `vec<IntVar*>` and `vec<BoolView>` do not convert. Use `bool_*`/`array_bool_*` for BoolViews, `bool2int(b, intVar)` to cross over. `BoolView r = x;` from an `IntVar*` does not compile.
 - `branch` takes a named flat `vec<IntVar*>`, not `vec<BoolView>` (branch on the 0/1 IntVars from `bool2int`) and not `vec<vec<>>` (`flatten` first).
 - `array_int_element(index, table, result, offset)` reads `table[index - offset]`; default offset 0, so a 1-based index needs `offset = 1`. Keep the index domain inside the table. No 2-D element: flatten row-major, `idx = cols*r + c` via `int_linear`.
-- Domains within +-500,000,000, sums within `int`. Bounds are required on `createVars`/`newIntVar`.
+- Domains within +-500,000,000, sums within `int` (32-bit). A value that can exceed this (a 10-digit number) cannot be one variable: split it into digits or blocks if the output allows, else the problem is out of reach. Bounds are required on `createVars`/`newIntVar`.
 - `newIntVar(lo, hi)` has no eager flag. Eager one: `IntVar* v; createVar(v, lo, hi, true);`. Pass `true` last to `createVars` for small domains you reify or read with `getLit`.
 - `createVars(vec, n, lo, hi)`, `flatten`, `transpose` need an empty output vec; call once per vec.
 - `int_mod` compiles and aborts at run time ("Not yet supported"). Encode `x = q*y + r`, `0 <= r < y` with `int_linear`.
