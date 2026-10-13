@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "skill_name": "chuffed-cpp",
+  "evals": [
+    {
+      "id": "satisfaction-from-description",
+      "prompt": "Using this skill, write a chuffed_cpp submission for a satisfaction problem such as csplib_054_n_queens, starting from `python -m generation.brief`, and check it with the repository evaluator across the listed instances.",
+      "prerequisites": [
+        "Docker running",
+        "image dcp-eval/chuffed_cpp built"
+      ],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The file includes dcp.h, defines Build(const json&, json&), defines no main, and writes nothing to standard output.",
+        "Every instance-dependent quantity is read from the instance argument and the evaluator accepts every checked instance.",
+        "Output leaves are the integers returned by dcp::out, so the evaluator does not report invalid_output.",
+        "The file opens with a comment stating what the problem is, and each group of constraints starts with a comment worded as in the problem statement (for example 'all rows must have different values'), not naming the Chuffed function used.",
+        "The model declares branch(...) on a named vec of its main decision variables."
+      ],
+      "evidence_required": [
+        "the submitted .cpp file",
+        "the evaluator JSON result"
+      ]
+    },
+    {
+      "id": "optimization-with-arrays",
+      "prompt": "Using this skill, write a chuffed_cpp submission for an optimization problem whose instance holds arrays and a scalar, such as knapsack, and confirm the evaluator accepts the optimum.",
+      "prerequisites": [
+        "Docker running",
+        "image dcp-eval/chuffed_cpp built"
+      ],
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        "optimize(var, OPT_MIN or OPT_MAX) is called once on a single IntVar, with the direction of the problem, and no bound is taken from a known answer.",
+        "Weighted sums are posted with int_linear over named vec<int> and vec<IntVar*> and a result IntVar, with no operators applied to IntVar pointers.",
+        "If the objective value is a declared output it is exported through the objective variable itself or an IntVar constrained equal to it.",
+        "The evaluator reports accepted and not suboptimal_solution or execution_timeout.",
+        "Each constraint group, including the objective definition, carries a comment in the problem's own words."
+      ],
+      "evidence_required": [
+        "the submitted .cpp file",
+        "the evaluator JSON result"
+      ]
+    },
+    {
+      "id": "repair-vec-temporary",
+      "prompt": "Using this skill, repair this chuffed_cpp submission that fails with compilation_error: it calls int_linear(coefs, {x, y}, IRT_LE, 10) and all_different(vec<IntVar*>{a, b}) and writes x + y inside a constraint. Rerun the evaluator after the repair.",
+      "prerequisites": [
+        "Docker running",
+        "image dcp-eval/chuffed_cpp built",
+        "a failing submission as described"
+      ],
+      "expected_output": "A compiling model with the same meaning, accepted by the evaluator.",
+      "assertions": [
+        "Every vec argument is a named non-const lvalue built with push, with no initializer lists or temporaries.",
+        "Any expression such as x + y is replaced by an auxiliary IntVar and a constraint (int_linear or int_plus), not by operators.",
+        "The repair does not drop or weaken a constraint to get the file to compile, and the evaluator reports accepted."
+      ],
+      "evidence_required": [
+        "the repaired .cpp file",
+        "the evaluator JSON result"
+      ]
+    },
+    {
+      "id": "boolean-output",
+      "prompt": "Using this skill, write a chuffed_cpp submission for a problem whose declared outputs include a Boolean array (for example an include/exclude choice reified from a comparison) and check it with the repository evaluator.",
+      "prerequisites": [
+        "Docker running",
+        "image dcp-eval/chuffed_cpp built"
+      ],
+      "expected_output": "An accepted model that exports Booleans as 0/1 integers, or a recorded blocker.",
+      "assertions": [
+        "Each exported Boolean is a 0..1 IntVar linked to its BoolView with bool2int, or created directly as a 0..1 IntVar; no BoolView is passed to dcp::out.",
+        "Any negation ~b is applied to a named BoolView lvalue.",
+        "The evaluator reports accepted and not invalid_output."
+      ],
+      "evidence_required": [
+        "the submitted .cpp file",
+        "the evaluator JSON result"
+      ]
+    }
+  ]
+}
