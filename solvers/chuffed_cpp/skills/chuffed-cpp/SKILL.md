@@ -73,6 +73,8 @@ n from argv), [standalone_knapsack.cpp](references/standalone_knapsack.cpp) (opt
 - `lex` crashed (signal 11) on rows of eager 0/1 variables; avoid there.
 - Reified and half-reified forms exist only for linear and binary relations; encode the rest with BoolViews and `array_bool_and/or`.
 - `int_rel_reif(x, rel, y, r, offset)` with variables, `(x, rel, c, r)` with a constant: the BoolView precedes the offset.
+- `and`, `or`, `not` are C++ alternative tokens and cannot be variable names.
+- `inverse(x, y)` without offsets is tested with 0-based positions and values; for 1-based values pass the offsets (see the cheat sheet).
 
 ## Hard instances
 
@@ -83,6 +85,9 @@ n from argv), [standalone_knapsack.cpp](references/standalone_knapsack.cpp) (opt
 - Optimization that finds one poor solution then stalls: branch on the objective first (`VAL_MIN` for minimize, `VAL_MAX` for maximize), then on the decisions.
 - No custom value order exists. To try values in a chosen order, branch on a rank variable `k` and map it with `array_int_element(k, order, x)`.
 - Symmetric multisets (dice faces, groups): search a sorted copy and link the output through a permutation (`all_different` on positions plus element constraints), so every output order stays reachable.
+- Optimization proof too slow on a grid of costs: add per-row and per-group cost variables with lower and upper bounds from the data (the sum of the c smallest and of the c largest costs).
+- A redundant sum constraint (the answers sum to n(2n+1)) fixed a handshaking timeout; implied sums can help where a branch alone does not.
+- Booleans as decisions: `VAR_SIZE_MIN` on home/away Booleans solved a sports schedule that `VAR_INORDER` stalled on.
 
 ## Using this skill in DCP-Bench Open
 
@@ -100,10 +105,10 @@ Submission: one `.cpp` that has `#include "dcp.h"`, defines `void Build(const js
 
 How the driver solves: forks one process per phase (`Build` runs once per phase, globals fresh).
 - Satisfaction: enumerates solutions distinct on the declared outputs, until the solution limit or exhaustion. Auxiliary variables are not compared.
-- Optimization: phase 1 proves the optimum and emits nothing before; if the proof misses the time budget the result is `timeout` with no solution. Phase 2 fixes the objective to the optimum and enumerates distinct outputs.
+- Optimization: phase 1 proves the optimum and emits nothing before; if the proof misses the time budget the result is `execution_timeout` and nothing is emitted. Phase 2 fixes the objective to the optimum and enumerates distinct outputs.
 - After your `branch(...)` calls the driver appends branching on all integer variables in creation order, then VSIDS on the Booleans. Without your own `branch` search follows creation order over auxiliaries, which is poor. Declare `branch` on the main decision variables.
 
-Output conventions: on "Declared outputs cannot extend to a reference solution" the outputs break a convention in the description (1-based vs 0-based, fixed first element for rotation-invariant arrangements, a stated order). Re-read the output sentence and pin that convention. Add no ordering the description does not ask for.
+Output conventions: on "Declared outputs cannot extend to a reference solution" the outputs break a convention in the description (1-based vs 0-based, fixed first element for rotation-invariant arrangements, a stated order). Re-read the output sentence and pin that convention. The same message can also mean a value outside 32-bit range or a semantic mismatch with the description. Add no ordering the description does not ask for.
 
 Workflow:
 1. `python -m generation.brief PROBLEM`: output names and shapes, objective direction, instance fields.
@@ -111,3 +116,5 @@ Workflow:
 3. `python -m evaluation.check MODEL.cpp --problem PROBLEM --solver chuffed_cpp` (stronger: `--instance-count 3 --solution-limit 5`). Result JSON has `accepted`, `reason`, `detail`.
 4. By `reason`: `compilation_error` fix the first error in `detail`; `invalid_output` a leaf is not a registered index, a name is missing or a value is not an integer; `invalid_solution` a constraint is missing or too weak; `suboptimal_solution`/`no_solution` wrong direction or overconstrained; `execution_timeout` weak search, add `branch`, tighter domains or a global; `execution_error` exception from `Build` or a crash.
 5. Repeat a bounded number of times; do not edit the reference or evaluator.
+
+- `evaluation.check` instance ids are 1-based: `json:1` is the first row.

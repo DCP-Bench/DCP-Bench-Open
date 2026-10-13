@@ -106,7 +106,7 @@ Indexing is `y = a[x - offset]`.
 | `all_different(vec<IntVar*>& x, ConLevel cl = CL_DEF)` | pairwise different; `CL_VAL`, `CL_BND`, `CL_DOM` choose consistency |
 | `all_different_offset(vec<int>& a, vec<IntVar*>& x, cl = CL_DEF)` | `x[i] + a[i]` all different (queens diagonals) **(tested)** |
 | `all_different_imp(const BoolView& b, x, cl)` | `b -> all_different(x)` (header only) |
-| `inverse(vec<IntVar*>& x, vec<IntVar*>& y, int o1 = 0, int o2 = 0, cl)` | `x[i] = j <-> y[j] = i` with offsets (header only) |
+| `inverse(vec<IntVar*>& x, vec<IntVar*>& y, int o1 = 0, int o2 = 0, cl)` | `x[i] = j <-> y[j] = i` with offsets (tested: inverse(cell, pos, 1, 0) for 1-based values) |
 | `table(vec<IntVar*>& x, vec<vec<int>>& t)` | tuple of `x` is one of the rows of `t` **(tested)** |
 | `regular(vec<IntVar*>& x, int q, int s, vec<vec<int>>& d, int q0, vec<int>& f)` | DFA with states `1..q`, symbols `1..s`, `d[state-1][symbol-1]` is the next state (0 rejects), start `q0`, accepting list `f` **(tested)** |
 | `circuit(vec<IntVar*>& x, int offset = 0)` | successor array forms one Hamiltonian circuit **(tested)** |
