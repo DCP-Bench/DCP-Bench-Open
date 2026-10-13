@@ -111,6 +111,9 @@ void Child(int fd, const json& request, int phase, long long best, int limit, do
 
     IntVar* objective = engine.opt_var;
     bool has_objective = objective != nullptr;
+    // Announce the objective before solving: if the parent kills this child at
+    // the deadline, it must still know that unproven solutions may not be emitted.
+    WriteLine(fd, {{"declared", has_objective}});
     if (phase == 2) {
       if (!has_objective) throw std::runtime_error("Objective disappeared between phases");
       int_rel(objective, IRT_EQ, static_cast<int>(best));
@@ -206,6 +209,8 @@ Phase RunPhase(const json& request, int phase, long long best, int limit, Clock:
     if (line.contains("values")) {
       result.values.push_back(line["values"]);
       result.objectives.push_back(line.contains("objective") ? line["objective"].get<long long>() : 0);
+    } else if (line.contains("declared")) {
+      result.has_objective = line["declared"].get<bool>();
     } else if (line.contains("end")) {
       result.end = line["end"].get<std::string>();
       result.has_objective = line["objective"].get<bool>();

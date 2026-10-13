@@ -73,6 +73,19 @@ SLOW = (HEAD + DECLARE + "  int_linear(terms, IRT_EQ, n);\n"
         "  for (int i = 0; i < 20; ++i)\n"
         "    for (int j = i + 1; j < 20; ++j) int_rel(pigeons[i], IRT_NE, pigeons[j]);\n"
         + EXPORT + TAIL)
+# Solutions come fast but the optimum needs the pigeonhole proof (20 pigeons
+# need hole 19). The driver must report a timeout and emit nothing unproven,
+# even when it kills the solving process at the deadline.
+OPTIMUM_UNPROVEN = (HEAD + DECLARE + "  int_linear(terms, IRT_EQ, n);\n"
+                    "  vec<IntVar*> pigeons;\n"
+                    "  for (int i = 0; i < 20; ++i) pigeons.push(newIntVar(0, 19));\n"
+                    "  for (int i = 0; i < 20; ++i)\n"
+                    "    for (int j = i + 1; j < 20; ++j) int_rel(pigeons[i], IRT_NE, pigeons[j]);\n"
+                    "  IntVar* top = newIntVar(0, 19);\n"
+                    "  for (int i = 0; i < 20; ++i) int_rel(pigeons[i], IRT_LE, top);\n"
+                    "  optimize(top, OPT_MIN);\n"
+                    "  branch(pigeons, VAR_INORDER, VAL_MAX);\n"
+                    + EXPORT + TAIL)
 # No branch() call and a free auxiliary variable: the driver's fallback search
 # has to fix every variable, or Chuffed would report unfixed outputs.
 UNBRANCHED = (HEAD + DECLARE + "  int_linear(terms, IRT_EQ, n);\n"
@@ -168,6 +181,7 @@ def main():
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=2)
+        check("optimum_unproven_timeout", OPTIMUM_UNPROVEN, expected={"execution_timeout"}, execution_timeout=3)
         check("compilation_error", UNCOMPILABLE, expected={"compilation_error"})
 
     try:
