@@ -22,7 +22,12 @@ are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
 - `IntVar* getConstant(int v)` - a fixed variable for `v`, cached per value.
 - `bv_true`, `bv_false` - constant BoolViews; `~b` negates a named BoolView lvalue.
 - `void bool2int(BoolView b, IntVar* y)` - `y = b` (0/1); `y` needs domain within 0..1. Use it to export Booleans.
-- An IntVar with domain inside 0..1 converts implicitly to `BoolView`.
+- An `IntVar*` does not convert to `BoolView`: `BoolView r = x;` and `BoolView r(x);` fail
+  with "conversion from 'IntVar*' to non-scalar type 'BoolView'". To get a Boolean tied to a
+  0..1 output IntVar, create the Boolean and link it (tested):
+  `BoolView r = newBoolVar(); bool2int(r, x);`. Then reify onto `r`, e.g.
+  `int_rel_reif(bins[i], IRT_EQ, b, r);`. (The header also defines `IntVar::operator BoolView()`
+  on the dereferenced object, `BoolView r = *x;`, for a 0..1 variable; header only, untested.)
 - `x->getLit(v, LR_EQ)` (also `LR_NE`, `LR_GE`, `LR_LE`) - literal "x rel v", usable as `BoolView(...)`. Needs an eager variable (`el = true`) for `LR_EQ`/`LR_NE`. Also `*x <= t`, `*x > t` produce literals.
 - `void flatten(vec<vec<U>>& x, vec<U>& y)` and `void transpose(vec<vec<U>>& x, vec<vec<U>>& y)` - output must be empty.
 - `vec<T>`: `push(e)`, `push()` (default element), `size()`, `operator[]`, `last()`, `pop()`, `growTo(n)`, `growTo(n, pad)`, `vec<vec<int>> t(k)` sized constructor.
