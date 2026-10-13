@@ -61,15 +61,20 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    ```
 
    **`name` is what the community reads on the website, and the `id` is never
-   shown.** Name the integration after what a model author writes. A library
-   used from a host language carries that language in brackets:
-   `PyChoco (Python)`, `JuMP (Julia)`, `OR-Tools CP-SAT (C++)`. A system with
-   its own modelling language stands alone: `MiniZinc`, `Picat`, `clingo`,
-   `SWI-Prolog`. Neither the backend nor the paradigm belongs in the name: the
-   backend goes in `solver` and the website prints it beside the name
-   (`MiniZinc · Gecode`, `SWI-Prolog · CLP(FD)`), and the paradigm goes in
-   `paradigms`. Names must be distinct; `tests/test_solvers.py` enforces that
-   much, and nothing can enforce a name being clear.
+   shown.** A library that exists to drive one solver is named after that
+   solver, with the host language in brackets: `CPLEX (Python)`,
+   `Choco (Python)`, `Gurobi (Python)`, `OR-Tools CP-SAT (C++)`. The model is
+   written for that solver in that language, and the package name (`docplex`,
+   `pychoco`, `gurobipy`) goes in `framework`. A modelling layer that can drive
+   several solvers is named after the layer, with its language in brackets:
+   `CPMpy (Python)`, `PuLP (Python)`, `JuMP (Julia)`. A system with its own
+   modelling language stands alone: `MiniZinc`, `Picat`, `clingo`,
+   `SWI-Prolog`. The paradigm never belongs in the name, and neither does the
+   backend of a modelling layer: the backend goes in `solver` and the website
+   prints it beside the name (`MiniZinc · Gecode`, `SWI-Prolog · CLP(FD)`),
+   and the paradigm goes in `paradigms`. Names must be distinct;
+   `tests/test_solvers.py` enforces that much, and nothing can enforce a name
+   being clear.
 
    Renaming is cheap: the catalogue resolves `name` from this file on every
    build, so no retained model has to be touched. Do not add a display name to

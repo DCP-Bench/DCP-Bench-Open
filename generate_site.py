@@ -927,7 +927,7 @@ BACKEND_BY_PARADIGM = {("pysat", "sat"): "Glucose 4.2"}
 
 def backend_label(solver: str, paradigm: str = "") -> str:
     """The solver a framework hands its model to, when the name does not
-    already say it: CPMpy runs OR-Tools CP-SAT, but PyChoco obviously runs Choco."""
+    already say it: CPMpy runs OR-Tools CP-SAT, but Choco (Python) obviously runs Choco."""
     metadata = INTEGRATIONS.get(solver) or {}
     raw = metadata.get("solver", "")
     backend = BACKEND_BY_PARADIGM.get((solver, paradigm)) or BACKEND_NAMES.get(raw, raw)
