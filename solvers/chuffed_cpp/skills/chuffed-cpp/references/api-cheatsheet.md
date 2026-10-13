@@ -13,7 +13,7 @@ are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
 
 ## Variables (`vars/modelling.h`, `vars/int-var.h`, `vars/bool-view.h`)
 
-- `IntVar* newIntVar(int min, int max)` - one integer variable.
+- `IntVar* newIntVar(int min, int max)` - one integer variable. It has no eager flag: `newIntVar(0, 8, true)` fails with "too many arguments". For one eager variable use `IntVar* v; createVar(v, lo, hi, true);` (tested).
 - `void createVar(IntVar*& x, int min, int max, bool el = false)` - one variable into a pointer.
 - `void createVars(vec<IntVar*>& x, int n, int min, int max, bool el = false)` - `n` variables appended to an empty vec.
 - `void createVars(vec<vec<IntVar*>>& x, int n, int m, int min, int max, bool el = false)` - an `n` x `m` matrix.
@@ -65,7 +65,7 @@ needs a result variable: `int_linear(coefs, vars, IRT_EQ, result)`.
 | `int_minus(x, y, z)` | `z = x - y` |
 | `int_times(x, y, z)` | `z = x * y` |
 | `int_div(x, y, z)` | `z = x / y`, rounding is not stated in the header (header only; check on a negative case) |
-| `int_mod(x, y, z)` | `z = x mod y` (header only) |
+| `int_mod(x, y, z)` | do not use: compiles but aborts at run time with "arithmetic.cpp:691: Not yet supported" (tested). Encode `x = q*y + r`, `0 <= r < y` with `int_linear` instead; for parity `x = 2*h + r`, `r` in 0..1 |
 | `int_abs(x, y)` | `y = abs(x)` |
 | `int_pow(x, y, z)` | `z = x^y` (header only) |
 | `int_min(x, y, z)` / `int_max(x, y, z)` | `z = min/max(x, y)` |
@@ -112,7 +112,7 @@ Indexing is `y = a[x - offset]`.
 | `regular(vec<IntVar*>& x, int q, int s, vec<vec<int>>& d, int q0, vec<int>& f)` | DFA with states `1..q`, symbols `1..s`, `d[state-1][symbol-1]` is the next state (0 rejects), start `q0`, accepting list `f` **(tested)** |
 | `circuit(vec<IntVar*>& x, int offset = 0)` | successor array forms one Hamiltonian circuit **(tested)** |
 | `subcircuit(vec<IntVar*>& x, int offset = 0)` | circuit on a subset, others point to themselves (header only) |
-| `lex(vec<IntVar*>& x, vec<IntVar*>& y, bool strict)` | `x <=lex y` (or `<lex` with `strict`) **(tested)** |
+| `lex(vec<IntVar*>& x, vec<IntVar*>& y, bool strict)` | `x <=lex y` (or `<lex` with `strict`). Tested on ordinary integer rows; it crashed (signal 11) on rows of eager 0/1 variables, so avoid it there and only add it when the description allows the ordering |
 | `value_precede_int(int s, int t, vec<IntVar*>& x)` | `s` occurs before `t` in `x` (header only) |
 | `disjunctive(vec<IntVar*>& s, vec<int>& d)` | tasks with starts `s` and constant durations `d` do not overlap **(tested)** |
 | `cumulative(vec<IntVar*>& s, vec<int>& d, vec<int>& r, int limit)` | constant durations, demands and capacity **(tested)** |
@@ -125,7 +125,7 @@ examples here. Read `globals.h` before using one.
 
 ## Branching and objective (`branching/branching.h`, `core/engine.h`)
 
-- `void branch(vec<Branching*> x, VarBranch var, ValBranch val)` - search these variables first. Pass a named `vec<IntVar*>` (or `vec<BoolView>`); it converts element-wise.
+- `void branch(vec<Branching*> x, VarBranch var, ValBranch val)` - search these variables first. Pass a named, flat `vec<IntVar*>`; it converts element-wise. Flatten a `vec<vec<IntVar*>>` grid first with `flatten(grid, flat)`. A `vec<BoolView>` does not compile ("cannot convert 'BoolView' to 'Branching*'"): branch on the 0/1 IntVars linked with `bool2int` instead (tested).
 - `VarBranch`: `VAR_DEFAULT`, `VAR_INORDER`, `VAR_SIZE_MIN`, `VAR_SIZE_MAX`, `VAR_MIN_MIN`, `VAR_MIN_MAX`, `VAR_MAX_MIN`, `VAR_MAX_MAX`, `VAR_DEGREE_MIN`, `VAR_DEGREE_MAX`, `VAR_REGRET_MIN_MAX`, `VAR_REGRET_MAX_MIN`, `VAR_ACTIVITY`, `VAR_RANDOM`.
 - `ValBranch`: `VAL_DEFAULT`, `VAL_MIN`, `VAL_MAX`, `VAL_MIDDLE`, `VAL_MEDIAN`, `VAL_SPLIT_MIN`, `VAL_SPLIT_MAX`, `VAL_RANDOM`.
 - `void optimize(IntVar* v, int t)` - `t` is `OPT_MIN` or `OPT_MAX`; call once.
@@ -217,3 +217,11 @@ an empty `vec<IntVar*>`; take columns with `transpose(grid, cols)`.
 - Eager variables (`el = true`) cost memory for large domains; use them for 0/1 variables, small domains, and anything read with `getLit`.
 - Chuffed learns from conflicts, so redundant implied constraints often help less than a good `branch`.
 - Include a comment above each constraint group saying what it means in the problem's words.
+
+## Search for hard instances (from the campaign)
+
+- An optimization result is emitted only after the optimum is proven, so a weak search shows up as `execution_timeout`, or as `suboptimal_solution` when the time budget ends first.
+- Branch first on the structural decisions everything else follows from (layouts before production counts, differences before values in all-interval), then the rest.
+- Try `VAR_ACTIVITY` or `VAR_SIZE_MIN` when `VAR_INORDER` stalls.
+- Tighten domains from the data (e.g. a shipment is at most min(capacity, demand)).
+- Add implied constraints that bound the objective, e.g. cost >= demand x cheapest open unit cost via `minimum`. That took facility_location from 190 s to 36 s.

@@ -91,6 +91,15 @@ and `Build` runs once per phase.
   in your model but fixed in the reference only passes when every value it
   takes is acceptable. Constrain output variables fully.
 
+## Output conventions
+
+If the evaluator says "Declared outputs cannot extend to a reference solution",
+the outputs break a convention the description fixes: 1-based numbering
+instead of 0-based, a fixed starting element for arrangements counted up to
+rotation, or an order the description states. Re-read the description's
+output sentence and pin that convention. Do not add ordering the description
+does not ask for.
+
 ## Workflow
 
 1. `python -m generation.brief PROBLEM` prints declared output names and
@@ -115,6 +124,11 @@ and `Build` runs once per phase.
 Chuffed's API is raw C++ with no expression objects. Most compile errors come
 from these.
 
+- `vec` copies are shallow. Pushing a local `vec` into a `vec<vec<...>>`, or
+  writing `vec<IntVar*> a = b;`, crashes at run time with "double free or
+  corruption" (signal 6, no compiler message). Build nested rows in place:
+  `m.push(); m.last().push(x);` or `createVars(m.last(), ...)`. Keep each
+  constraint's argument vec as a fresh local that is never copied.
 - Every constraint takes `vec<...>&`, a non-const lvalue reference. There is no
   `std::vector` overload, no initializer list, and a temporary does not bind.
   Declare `vec<IntVar*> t; t.push(a); t.push(b);` first, then call.
