@@ -80,6 +80,9 @@ n from argv), [standalone_knapsack.cpp](references/standalone_knapsack.cpp) (opt
 - Tighten domains from the data (a shipment is at most min(capacity, demand)).
 - Add implied constraints that bound the objective (cost >= demand x cheapest unit cost via `minimum` cut one facility-location proof from 190 s to 36 s).
 - Redundant implied constraints help less than a good `branch`.
+- Optimization that finds one poor solution then stalls: branch on the objective first (`VAL_MIN` for minimize, `VAL_MAX` for maximize), then on the decisions.
+- No custom value order exists. To try values in a chosen order, branch on a rank variable `k` and map it with `array_int_element(k, order, x)`.
+- Symmetric multisets (dice faces, groups): search a sorted copy and link the output through a permutation (`all_different` on positions plus element constraints), so every output order stays reachable.
 
 ## Using this skill in DCP-Bench Open
 

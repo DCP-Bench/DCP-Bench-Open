@@ -126,7 +126,7 @@ examples here. Read `globals.h` before using one.
 
 - `void branch(vec<Branching*> x, VarBranch var, ValBranch val)` - search these variables first. Pass a named, flat `vec<IntVar*>`; it converts element-wise. Flatten a `vec<vec<IntVar*>>` grid first with `flatten(grid, flat)`. A `vec<BoolView>` does not compile ("cannot convert 'BoolView' to 'Branching*'"): branch on the 0/1 IntVars linked with `bool2int` instead (tested).
 - `VarBranch`: `VAR_DEFAULT`, `VAR_INORDER`, `VAR_SIZE_MIN`, `VAR_SIZE_MAX`, `VAR_MIN_MIN`, `VAR_MIN_MAX`, `VAR_MAX_MIN`, `VAR_MAX_MAX`, `VAR_DEGREE_MIN`, `VAR_DEGREE_MAX`, `VAR_REGRET_MIN_MAX`, `VAR_REGRET_MAX_MIN`, `VAR_ACTIVITY`, `VAR_RANDOM`.
-- `ValBranch`: `VAL_DEFAULT`, `VAL_MIN`, `VAL_MAX`, `VAL_MIDDLE`, `VAL_MEDIAN`, `VAL_SPLIT_MIN`, `VAL_SPLIT_MAX`, `VAL_RANDOM`.
+- `ValBranch`: `VAL_DEFAULT`, `VAL_MIN`, `VAL_MAX`, `VAL_MIDDLE`, `VAL_MEDIAN`, `VAL_SPLIT_MIN`, `VAL_SPLIT_MAX`. `VAL_RANDOM` aborts at run time ("value selection branching is not yet supported").
 - `void optimize(IntVar* v, int t)` - `t` is `OPT_MIN` or `OPT_MAX`; call once.
 - `void output_vars(vec<IntVar*>& v)` / `output_var(Branching*)`: variables that distinguish solutions when enumerating; also used to print.
 
