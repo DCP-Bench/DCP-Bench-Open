@@ -82,7 +82,9 @@ n from argv), [standalone_knapsack.cpp](references/standalone_knapsack.cpp) (opt
 - Tighten domains from the data (a shipment is at most min(capacity, demand)).
 - Add implied constraints that bound the objective (cost >= demand x cheapest unit cost via `minimum` cut one facility-location proof from 190 s to 36 s).
 - Redundant implied constraints help less than a good `branch`.
-- Optimization that finds one poor solution then stalls: branch on the objective first (`VAL_MIN` for minimize, `VAL_MAX` for maximize), then on the decisions.
+- Optimization that finds one poor solution then stalls: branch on the objective first (`VAL_MIN` for minimize, `VAL_MAX` for maximize), then on the decisions. This can fail to find any first solution on wide cost ranges; then branch on the decision or cost variables with `VAR_MIN_MIN`.
+- Library defaults have no restarts (`restart_scale` is effectively infinite). For hard satisfaction or heavy-tailed search, set in Build: `so.restart_type = LUBY; so.restart_scale = 1000; so.toggle_vsids = true; so.sat_polarity = 2;` (`so.branch_random` also exists). Scales 100 to 600 left instances unsolved; 1000 with anti-polarity solved all. See the cheat sheet.
+- Weak optimization bounds: compute stronger bounds in Build from the instance (Lagrangian or reduced-cost preprocessing, then add the penalties to the costs). Count indicator literals directly in the objective instead of summing derived Booleans; the summed form left the solver searching for the bound.
 - No custom value order exists. To try values in a chosen order, branch on a rank variable `k` and map it with `array_int_element(k, order, x)`.
 - Symmetric multisets (dice faces, groups): search a sorted copy and link the output through a permutation (`all_different` on positions plus element constraints), so every output order stays reachable.
 - Optimization proof too slow on a grid of costs: add per-row and per-group cost variables with lower and upper bounds from the data (the sum of the c smallest and of the c largest costs).
@@ -106,6 +108,7 @@ Submission: one `.cpp` that has `#include "dcp.h"`, defines `void Build(const js
 How the driver solves: forks one process per phase (`Build` runs once per phase, globals fresh).
 - Satisfaction: enumerates solutions distinct on the declared outputs, until the solution limit or exhaustion. Auxiliary variables are not compared.
 - Optimization: phase 1 proves the optimum and emits nothing before; if the proof misses the time budget the result is `execution_timeout` and nothing is emitted. Phase 2 fixes the objective to the optimum and enumerates distinct outputs.
+- `evaluate` can return accepted overall while one instance has reason `execution_timeout`. Before retaining a model, check the per-instance reasons in the evaluation, not only the top-level `accepted`.
 - After your `branch(...)` calls the driver appends branching on all integer variables in creation order, then VSIDS on the Booleans. Without your own `branch` search follows creation order over auxiliaries, which is poor. Declare `branch` on the main decision variables.
 
 Output conventions: on "Declared outputs cannot extend to a reference solution" the outputs break a convention in the description (1-based vs 0-based, fixed first element for rotation-invariant arrangements, a stated order). Re-read the output sentence and pin that convention. The same message can also mean a value outside 32-bit range or a semantic mismatch with the description. Add no ordering the description does not ask for.

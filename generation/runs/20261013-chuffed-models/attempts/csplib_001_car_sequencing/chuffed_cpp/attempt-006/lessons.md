@@ -1,0 +1,3 @@
+- Chuffed's library defaults have no restarts (restart_scale 1e9). In Build, so.restart_type = LUBY, so.restart_scale = 1000, so.toggle_vsids = true and so.sat_polarity = 2 took car sequencing (200 cars) from 10 timeouts to all 22 instances solved. The driver only overrides so.vsids afterwards.
+- Results are heavy-tailed: restart scale 100, 250, 400, 600 each left one instance unsolved; 1000 plus anti polarity solved all.
+- Prefix and suffix capacity bounds per option, and a rank variable mapped to the car type with array_int_element (most loaded options first), gave the value order.

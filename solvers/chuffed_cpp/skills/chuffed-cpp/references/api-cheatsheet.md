@@ -130,6 +130,14 @@ examples here. Read `globals.h` before using one.
 - `void optimize(IntVar* v, int t)` - `t` is `OPT_MIN` or `OPT_MAX`; call once.
 - `void output_vars(vec<IntVar*>& v)` / `output_var(Branching*)`: variables that distinguish solutions when enumerating; also used to print.
 
+## Search options (global `so`)
+
+Set them before `engine.solve` (in DCP Build, before posting or branching).
+
+- Restarts: library defaults have no restarts (`restart_scale` is effectively infinite). For hard or heavy-tailed search: `so.restart_type = LUBY; so.restart_scale = 1000;`. Scales of 100 to 600 left single instances unsolved on one car-sequencing set; 1000 solved all.
+- Phase and activity: `so.toggle_vsids = true; so.sat_polarity = 2;` (anti-polarity). `so.branch_random` exists for randomised restarts. The DCP driver only overrides `so.vsids` after your Build.
+- Driver note: in DCP, set these in Build; the driver forks per phase and keeps them.
+
 ## Recipes
 
 Each recipe uses a named variable per intermediate. `n`, `x`, etc. are your own.
