@@ -30,7 +30,7 @@ are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
   on the dereferenced object, `BoolView r = *x;`, for a 0..1 variable; header only, untested.)
 - `x->getLit(v, LR_EQ)` (also `LR_NE`, `LR_GE`, `LR_LE`) - literal "x rel v", usable as `BoolView(...)`. Needs an eager variable (`el = true`) for `LR_EQ`/`LR_NE`. Also `*x <= t`, `*x > t` produce literals.
 - `void flatten(vec<vec<U>>& x, vec<U>& y)` and `void transpose(vec<vec<U>>& x, vec<vec<U>>& y)` - output must be empty.
-- `vec<T>`: `push(e)`, `push()` (default element), `size()`, `operator[]`, `last()`, `pop()`, `growTo(n)`, `growTo(n, pad)`, `vec<vec<int>> t(k)` sized constructor.
+- `vec<T>`: `push(e)`, `push()` (default element), `size()`, `operator[]`, `last()`, `pop()`, `growTo(n)`, `growTo(n, pad)`, `vec<vec<int>> t(k)` sized constructor. Build rows of a `vec<vec<int>>` (e.g. table tuples) with `t.push(); t.last().push(v);` (tested).
 - Reading values (`getVal()`) is for driver code only; do not call it in `Build`.
 
 ## Relation types
@@ -51,7 +51,7 @@ are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
 | `int_linear(vec<IntVar*>& x, rel, IntVar* y, r = bv_true)` | `sum x[i] rel y` |
 | `int_linear_imp(vec<int>& a, vec<IntVar*>& x, rel, int c, r = bv_true)` | `r -> sum a[i]*x[i] rel c` (header only) |
 | `int_linear_dom(vec<int>& a, vec<IntVar*>& x, int c)` | `sum a[i]*x[i] = c`, domain consistent (header only) |
-| `bool_linear(vec<BoolView>& x, rel, IntVar* y)` | `sum x[i] rel y`, count of true Booleans |
+| `bool_linear(vec<BoolView>& x, rel, IntVar* y)` | `sum x[i] rel y`, count of true Booleans; for a constant bound pass `getConstant(k)` (tested) |
 | `bool_linear_decomp(vec<BoolView>& x, rel, int k)` or `(..., IntVar* kv)` | same, decomposed (header only) |
 
 Put constants of a linear sum into `c`. A weighted sum with a variable result
