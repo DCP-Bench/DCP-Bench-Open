@@ -129,6 +129,14 @@
       "detail": "Each row of the instance field problem is [sum, [r, c], [r, c], ...]: rows differ in length and mix a scalar with pairs. The runner's binding pads ragged lists and splits rows whose columns differ in type, but not a row whose tail is a variable number of items of another shape, so it refuses the field before any model runs: 'Instance field problem is ragged or mixes types in a way this integration cannot bind'. A further binding rule for this shape would be an integration change.",
       "evidence": "generation/runs/20261005T1400Z-mzn-ragged-b/attempts/kakuro/minizinc_gecode/attempt-001/evaluation.json",
       "recorded": "2026-10-05"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "chuffed_cpp",
+      "reason": "integer_range",
+      "detail": "The declared output is one integer whose only value, 3816547290, exceeds Chuffed's 32-bit int (and its +-500,000,000 domain bound), so no IntVar can hold it. A probe check returned invalid_solution: 'Declared outputs cannot extend to a reference solution'. Splitting into digits would change the declared output.",
+      "evidence": "generation/runs/20261013-chuffed-models/attempts/divisible_by_1_through_9/chuffed_cpp",
+      "recorded": "2026-10-13"
     }
   ]
 }
