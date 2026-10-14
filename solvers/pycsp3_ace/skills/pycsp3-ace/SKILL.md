@@ -1,105 +1,93 @@
 ---
 name: pycsp3-ace
-description: Write a constraint model in PyCSP3 (Python) for the DCP-Bench pycsp3_ace integration, which compiles it to XCSP3 and solves it with the ACE solver. Use when a problem must be modelled with PyCSP3 and checked by the repository evaluator.
+description: Write constraint models in PyCSP3 (Python) and solve them with the ACE solver bundled in pycsp3 2.6.1. Covers PyCSP3 modelling in general (variables, globals, objectives, errors) and the DCP-Bench pycsp3_ace submission (one model.py, instance fields through data, declared outputs as module-level names, evaluation with evaluation.check). Use when a problem must be modelled with PyCSP3 or submitted to the pycsp3_ace integration.
 ---
 
-# PyCSP3 models for `pycsp3_ace`
+# PyCSP3 with ACE
 
-A submission is one plain PyCSP3 script, `model.py`. The runner in the image
-reads the instance, compiles the script, solves it with ACE 2.6 (bundled in
-pycsp3), and reports the declared outputs. The model never calls `solve()`.
+PyCSP3 2.6.1 compiles a Python constraint model to XCSP3. ACE 2.6 ships inside the
+wheel and solves it. Details: [references/language.md](references/language.md) (syntax,
+globals, what fails), [references/examples.md](references/examples.md) (models run in the
+image), [references/dcp-contract.md](references/dcp-contract.md) (the DCP-Bench contract
+and verdicts), [sources.md](sources.md).
 
-Versions in the image: Python 3.12.11, pycsp3 2.6.1 (ACE-2.6.jar inside the
-wheel), lxml 6.1.3, OpenJDK 17 (Debian bookworm package). Sources are listed in
-`sources.md`.
+## Model shape
 
-## The contract
-
-- `from pycsp3 import *` gives the instance as `data`. Every instance field is
-  present. Read a field as an attribute, `data.n`, or as an item, `data["n"]`.
-  Use the item form for names with a leading underscore, such as `data._SHIP`.
-  Lists are plain Python lists and may be ragged (`data.rows[i]` of different
-  lengths). Metadata such as `name` or `note` is present and may be ignored.
-- Each declared output is a module-level name equal to the output name. It is a
-  `Var`, a `VarArray`, or a nested list of them (matrices). Integer and Boolean
-  values are reported as integers, so use 0/1 for Booleans.
-- Every declared output variable must occur in at least one constraint. ACE
-  reports only the variables that a constraint mentions. An output that no
-  constraint mentions is an error, not a free value. Add a constraint on it, for
-  example `satisfy(z >= 0)`.
-- Post constraints with `satisfy(...)`. Optionally post one `minimize(term)` or
-  `maximize(term)`. Do not call `solve()`; the model raises an error if it does.
-- Write one declaration per line. PyCSP3 takes a variable's name from the source
-  line, so `x = Var(...)` and `y = Var(...)` on separate lines.
-- No floats. Coefficients and bounds are integers.
-
-Only `model.py` is copied into the container. Keep all helper code in that one
-file.
-
-## Example
+Outputs: `x`.
 
 ```python
 from pycsp3 import *
 
-n = data.n
-queens = VarArray(size=n, dom=range(n))
-satisfy(
-    AllDifferent(queens),
-    AllDifferent([queens[i] + i for i in range(n)]),
-    AllDifferent([queens[i] - i for i in range(n)]),
-)
+x = VarArray(size=4, dom=range(4))
+satisfy(AllDifferent(x))
+minimize(Sum(x))   # optional: one minimize or maximize
 ```
 
-The declared output is `queens`, a list of `n` integers. The Python name must be the
-output name, so the variable is named `queens` here, not `q`. Declared outputs that
-are matrices use `VarArray(size=[rows, cols], dom=...)`, which gives a nested
-list such as `grid[i][j]`.
+- `satisfy(...)` posts constraints. A list or generator inside it is flattened.
+- One declaration per line. `a, b = Var(...), Var(...)` fails.
+- Domains: `range(lo, hi)` (upper bound excluded), a set `{0, 1}` for Booleans, or a list.
+- Integers only. A float in an expression fails with `bad form of predicate`.
 
-## Objectives and enumeration
+## Constraints
 
-- Use at most one of `minimize(term)` and `maximize(term)`. A term is a
-  variable or an expression, such as `Sum(...)` or `x + y`.
-- For an optimisation the runner first finds the optimum with ACE's full search.
-  It reports solutions only when ACE proved the optimum. An unproven optimum
-  gives `timeout` with no solution. Do not rely on an incumbent.
-- With an objective, enumeration returns the solutions at the optimum. Without
-  one, it returns the first distinct assignments of the declared outputs, up to
-  `solution_limit`.
-- Auxiliary variables can repeat one output assignment with different values.
-  The runner excludes each assignment already reported and runs another round.
-  Declared outputs are what count, so do not try to deduplicate in the model.
-- A satisfaction model that finds fewer solutions than the limit and has been
-  fully searched reports `complete`. A model that is unsatisfiable reports
-  `unsat`.
+- Relations and arithmetic: `x[0] + 2 * x[1] < x[2]`, `x[0] != x[1]`, `Sum(w[i] * x[i] for i in range(n))`.
+- Globals are functions: `AllDifferent`, `Increasing(x, strict=True)`, `Count`, `NValues`,
+  `Exist`, `Cardinality`, `Minimum`, `Maximum`, `Table`, `Circuit`, `Channel`, `Cumulative`,
+  `NoOverlap`, `LexIncreasing`, `Regular`, `BinPacking`, `Knapsack`, `Hamming`.
+  Each one is run in [references/language.md](references/language.md).
+- `v == t[idx]` with a variable index is an element constraint.
+- Conditions: `imply(a, b)`, `If(c, Then=..., Else=...)`, `(b == 1) == (Sum(x) > 4)`,
+  `Or`, `Xor`, `And`, `Iff`. `Not(c)` fails in 2.6.1 (`unary ~: 'list'`): write the negated
+  relation instead.
+- Matrices: `VarArray(size=[r, c], dom=...)` gives nested lists; `grid[i][j]`, `grid[:, j]`.
 
-## Modelling notes
+## Comments
 
-- `Var(range(lo, hi + 1))` declares an integer domain. A Boolean is
-  `Var(range(2))`, reported as 0/1.
-- Global constraints are functions of the same name: `AllDifferent`,
-  `AllEqual`, `Increasing`, `Table`, `Cumulative`, `NoOverlap`, `Count`,
-  `Element` through indexing, and so on.
-- `Sum(terms)` computes a sum. Keep the coefficients as integers.
-- Boolean connectives: `Or(...)`, `And(...)`, `Not(...)`, `Xor(...)`, `Iff(...)`
-  take conditions, not Python `and` / `or`.
-- Module-level Python code runs once in the child process. Keep instance-derived
-  sizes in `data`, not in files.
+Each conceptual block of constraints starts with a `#` line taken from the problem
+statement, in its words: `# all rows must have different values`. Do not name the global.
 
-## Checking a model
+## Every output must be constrained
 
-```sh
-python -m evaluation.check examples/abbots.py --problem PROBLEM --solver pycsp3_ace
-```
+ACE reports only variables that a constraint mentions. A whole output with no constraint
+fails with `declared output 'z' has a variable that no constraint mentions`. One element of
+an array fails with `a declared output has no determined value`. Constrain every element.
 
-Read the `reason` and `detail` fields. `execution_error` with a Python traceback
-in `detail` is a modelling error; the traceback is in the stderr of the result.
-`no_solution` means the model has no solution on an instance. `invalid_output`
-usually means a declared output name or shape is wrong.
+## Objectives and search
+
+- At most one `minimize(term)` or `maximize(term)`.
+- For an optimisation the runner first runs ACE's full search and reports a solution only
+  when ACE proved the optimum. An unproven optimum is a `timeout`, not an incumbent.
+- Enumeration after the first round runs more solve rounds, each with nogoods that exclude
+  the assignments already found. Each round is one compile. A round that returns fewer
+  solutions than asked, without saying the search is exhausted, ends as `timeout`.
+- Symmetry: `LexIncreasing([x, y])` orders two vectors (verified). Keep domains tight.
+
+## Common errors
+
+| message (verified) | cause |
+|---|---|
+| `Every simple declaration must be on its own line` | two Vars on one line |
+| `the model must not call solve()` | remove `solve()` |
+| `declared output 'z' has a variable that no constraint mentions` | output not in any constraint |
+| `unary ~: 'list'` | `Not(...)` of a constraint |
+| `SyntaxError` on `notin` | `(x, y) notin {...}` is not valid; use `Table(conflicts=...)` |
+| `bad form of predicate 0.5` | float coefficient |
+| `Wrong type for first` | `MaximumArg(..., rank='first')`; use `rank=TypeRank.FIRST` |
+
+## DCP-Bench submissions (pycsp3_ace)
+
+Read [references/dcp-contract.md](references/dcp-contract.md) before writing a submission.
+
+- One file, `model.py`. Instance fields come from `data`: `data.n` or `data["n"]`.
+- Each declared output is a module-level name equal to the output name, bound to a `Var`,
+  `VarArray` or nested list. Booleans are 0/1. Shapes: `python -m generation.brief PROBLEM`.
+- Values follow the problem description (queens: columns 1 to n).
+- Satisfaction: no objective. Optimisation: one objective in the direction `brief` gives.
+- Check: `python -m evaluation.check model.py --problem PROBLEM --solver pycsp3_ace --instance-count N`.
+  Read `reason` and `detail` per instance, in `instances[]`.
 
 ## Known limits
 
-- Non-identifier fields of the instance are reached only with `data["name"]`.
-- Each solve starts a new Python and Java process. Runs take about one second
-  of fixed overhead.
-- The Java heap is 1200 MiB inside the 2048 MiB container limit. A model that
-  needs more memory fails with `memory_limit`.
+- Each round starts a Python and a Java process. A small run took about 2 s wall in total.
+- The Java heap is 1200 MiB inside the 2048 MiB container limit. Memory failures are
+  `memory_limit`, which the checker treats as inconclusive.
