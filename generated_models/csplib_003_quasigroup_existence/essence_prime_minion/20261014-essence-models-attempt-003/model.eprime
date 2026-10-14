@@ -1,0 +1,12 @@
+language ESSENCE' 1.0
+$ Find an order m quasigroup (a Latin square on the values 0 to m-1) such that (a*b)*(b*a) = a for all a and b.
+given m : int(1..)
+find quasigroup : matrix indexed by [int(1..m), int(1..m)] of int(0..m-1)
+
+such that
+$ every element occurs once in every row
+forAll i : int(1..m) . allDiff(quasigroup[i, ..]),
+$ every element occurs once in every column
+forAll j : int(1..m) . allDiff(quasigroup[.., j]),
+$ the QG3 property: (a*b)*(b*a) = a for all a and b, where the values are 0-based and the matrix is 1-based
+forAll a : int(0..m-1) . forAll b : int(0..m-1) . quasigroup[quasigroup[a+1, b+1] + 1, quasigroup[b+1, a+1] + 1] = a

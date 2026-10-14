@@ -1,0 +1,129 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-sonnet-5-5 modelling subagents, claude-opus-5-5 coordinator); blind: description + brief + skill only",
+    "attempt_id": "attempt-002",
+    "created_at": 1791918160.93691,
+    "problem_id": "general_store",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "a63c9c4bec05562c7b235021b14fd87b4313388c324e71f12b30bf0e8c7d4461",
+    "run_id": "20261013-chuffed-models",
+    "schema": 2,
+    "skill_bundle_hash": "3e6b7f2b8ae8066b695a87cb207efa0c3d43503a87d1c2bf7cac2ae30c4ace17",
+    "skill_source": "solvers/chuffed_cpp/skills/chuffed-cpp",
+    "skill_version": {
+      "commit": "3d61f2d09b2fd742cd2853952bf71144fb569700",
+      "modified": false,
+      "path": "solvers/chuffed_cpp/skills/chuffed-cpp"
+    },
+    "solver_id": "chuffed_cpp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:c9ab4df4442483a848ae6ef04e521d4353cde5d1352f55c5d27b8b0121e2ad94",
+      "tag": "dcp-eval/chuffed_cpp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.004211186023894697,
+        "execution_wall_seconds": 12.9585982550052,
+        "first_solution": {
+          "A": 3,
+          "B": 6,
+          "C": 4,
+          "E": 2,
+          "H": 5,
+          "L": 7,
+          "O": 8,
+          "P": 1,
+          "S": 0,
+          "W": 9
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "C",
+          "H",
+          "E",
+          "S",
+          "A",
+          "B",
+          "O",
+          "W",
+          "P",
+          "L"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.8260379260173067,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.074541242,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 12.227s\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "8adc361e57e1d19cbeeadeffcf5c1a3605a0ce2b6bc781c97577c5f3e5b6730e",
+    "problem_id": "general_store",
+    "reason": "accepted",
+    "reference_hash": "88b0f79022762b0eccf51a1bce0db7474096dd5e2ac148db692768fd57b8802b",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.13.2"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "chuffed_cpp",
+    "total_wall_seconds": 13.970044932037126,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-sonnet-5-5 modelling subagents, claude-opus-5-5 coordinator); blind: description + brief + skill only"
+  },
+  "is_optimization": false,
+  "model_file": "model.cpp",
+  "problem": "general_store",
+  "schema": 2,
+  "solver": "chuffed_cpp",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}

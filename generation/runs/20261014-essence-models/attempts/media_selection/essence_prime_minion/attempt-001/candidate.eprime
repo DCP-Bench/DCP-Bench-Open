@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+$ Media selection: choose which advertising media to buy so that every target audience is reached by at least one selected medium, at the lowest total campaign cost.
+given incidence_matrix_dim1, incidence_matrix_dim2 : int
+letting n_audiences = incidence_matrix_dim1
+letting n_media = incidence_matrix_dim2
+$ incidence_matrix[a, m] is 1 when medium m reaches audience a
+given incidence_matrix : matrix indexed by [int(1..n_audiences), int(1..n_media)] of int
+given media_costs : matrix indexed by [int(1..n_media)] of int
+find is_selected : matrix indexed by [int(1..n_media)] of bool
+find min_total_cost : int(0..sum(media_costs))
+
+branching on [is_selected]
+minimising min_total_cost
+such that
+$ every target audience must be covered by at least one selected medium, so covering it more than once is allowed
+forAll a : int(1..n_audiences) . (sum m : int(1..n_media) . incidence_matrix[a, m] * is_selected[m]) >= 1,
+$ the total cost of the selected media is the campaign cost
+min_total_cost = (sum m : int(1..n_media) . media_costs[m] * is_selected[m])

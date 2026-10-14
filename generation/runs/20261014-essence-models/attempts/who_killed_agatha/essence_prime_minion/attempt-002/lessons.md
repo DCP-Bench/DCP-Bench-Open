@@ -1,0 +1,1 @@
+- Output indices in the reference are 0-based (killer 0 = Agatha). An `int(1..3)` find named killer fails with invalid_solution even though the model is correct. Keep the find in the output's 0-based domain and add 1 where the model uses person numbers.

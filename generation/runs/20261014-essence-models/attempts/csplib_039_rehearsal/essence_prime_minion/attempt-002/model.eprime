@@ -1,0 +1,26 @@
+language ESSENCE' 1.0
+$ Rehearsal order: arrange the pieces in slots so that the total time players wait (present but not playing) is minimal.
+given num_pieces, num_players : int(1..)
+given duration : matrix indexed by [int(1..num_pieces)] of int(1..)
+given rehearsal : matrix indexed by [int(1..num_players), int(1..num_pieces)] of int(0..1)
+$ rehearsal_order[s] is the piece (numbered from 0) rehearsed in slot s
+find rehearsal_order : matrix indexed by [int(1..num_pieces)] of int(0..num_pieces-1)
+$ duration of the piece in each slot
+find slot_duration : matrix indexed by [int(1..num_pieces)] of int(0..sum(duration))
+$ first and last slot in which each player plays
+find first_slot, last_slot : matrix indexed by [int(1..num_players)] of int(1..num_pieces)
+$ a player is present in the slots from first to last
+find present : matrix indexed by [int(1..num_players), int(1..num_pieces)] of bool
+branching on [rehearsal_order]
+minimising (sum p : int(1..num_players) . (sum s : int(1..num_pieces) . (slot_duration[s] * (toInt(present[p,s]) - rehearsal[p, rehearsal_order[s]+1]))))
+such that
+$ every piece is rehearsed in exactly one slot
+allDiff(rehearsal_order),
+$ the duration of each slot is the duration of the piece rehearsed in it
+forAll s : int(1..num_pieces) . slot_duration[s] = duration[rehearsal_order[s]+1],
+$ a player who plays a piece is present in that slot
+forAll p : int(1..num_players) . forAll s : int(1..num_pieces) . (rehearsal[p, rehearsal_order[s]+1] = 1 -> (first_slot[p] <= s /\ s <= last_slot[p])),
+$ the first and last slots of each player are slots in which that player plays
+forAll p : int(1..num_players) . ((rehearsal[p, rehearsal_order[first_slot[p]]+1] = 1) /\ (rehearsal[p, rehearsal_order[last_slot[p]]+1] = 1)),
+$ a player is present from the first slot to the last slot in which the player plays
+forAll p : int(1..num_players) . forAll s : int(1..num_pieces) . (present[p,s] <-> (first_slot[p] <= s /\ s <= last_slot[p]))

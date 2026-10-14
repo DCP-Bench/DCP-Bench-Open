@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ From the set A of ten integers, find two disjoint non-empty subsets S and T whose elements have equal sums.
+given A : matrix indexed by [int(1..10)] of int
+find in_S : matrix indexed by [int(1..10)] of bool
+find in_T : matrix indexed by [int(1..10)] of bool
+
+branching on [in_S, in_T]
+
+such that
+$ S is non-empty and T is non-empty
+((exists i : int(1..10) . in_S[i]) /\ (exists i : int(1..10) . in_T[i])),
+$ S and T are disjoint: no element of A is in both
+forAll i : int(1..10) . !(in_S[i] /\ in_T[i]),
+$ the elements of S and T have the same sum
+(sum i : int(1..10) . toInt(in_S[i]) * A[i]) = (sum i : int(1..10) . toInt(in_T[i]) * A[i])

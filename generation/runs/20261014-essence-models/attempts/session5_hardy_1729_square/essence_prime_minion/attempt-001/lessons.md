@@ -1,0 +1,1 @@
+Hardy 1729 square: the four numbers are plain find variables with allDiff and a product-based equality. The description's chain a != b != c != d is read as all four different. Accepted on the first full evaluation.

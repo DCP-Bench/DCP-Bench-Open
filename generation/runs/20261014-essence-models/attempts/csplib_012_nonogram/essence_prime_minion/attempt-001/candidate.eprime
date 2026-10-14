@@ -1,0 +1,28 @@
+language ESSENCE' 1.0
+$ Shade squares of a rows x cols grid so that the runs of shaded squares in each row and column match the given clues.
+given rows, cols : int
+given row_rule_len, col_rule_len : int
+given row_rules : matrix indexed by [int(1..rows), int(1..row_rule_len)] of int(0..)
+given col_rules : matrix indexed by [int(1..cols), int(1..col_rule_len)] of int(0..)
+find board : matrix indexed by [int(1..rows), int(1..cols)] of int(0..1)
+find row_start : matrix indexed by [int(1..rows), int(1..row_rule_len)] of int(1..cols)
+find col_start : matrix indexed by [int(1..cols), int(1..col_rule_len)] of int(1..rows)
+
+branching on [row_start, col_start]
+
+such that
+$ a clue of 0 is padding and has no block: its block start is fixed to 1
+forAll r : int(1..rows) . forAll k : int(1..row_rule_len) . ((row_rules[r,k] = 0) -> (row_start[r,k] = 1)),
+forAll c : int(1..cols) . forAll k : int(1..col_rule_len) . ((col_rules[c,k] = 0) -> (col_start[c,k] = 1)),
+$ the blocks of a row are in clue order and separated by at least one unshaded square
+forAll r : int(1..rows) . forAll k : int(1..row_rule_len-1) . ((row_rules[r,k] = 0 \/ row_rules[r,k+1] = 0 \/ (row_start[r,k] + row_rules[r,k] + 1 <= row_start[r,k+1]))),
+$ the blocks of a column are in clue order and separated by at least one unshaded square
+forAll c : int(1..cols) . forAll k : int(1..col_rule_len-1) . ((col_rules[c,k] = 0 \/ col_rules[c,k+1] = 0 \/ (col_start[c,k] + col_rules[c,k] + 1 <= col_start[c,k+1]))),
+$ a block must fit inside its row
+forAll r : int(1..rows) . forAll k : int(1..row_rule_len) . (row_start[r,k] + row_rules[r,k] - 1 <= cols),
+$ a block must fit inside its column
+forAll c : int(1..cols) . forAll k : int(1..col_rule_len) . (col_start[c,k] + col_rules[c,k] - 1 <= rows),
+$ a square is shaded exactly when some row block covers it
+forAll r : int(1..rows) . forAll c : int(1..cols) . (board[r,c] = 1 <-> (exists k : int(1..row_rule_len) . ((row_start[r,k] <= c) /\ (c < row_start[r,k] + row_rules[r,k])))),
+$ a square is shaded exactly when some column block covers it
+forAll c : int(1..cols) . forAll r : int(1..rows) . (board[r,c] = 1 <-> (exists k : int(1..col_rule_len) . ((col_start[c,k] <= r) /\ (r < col_start[c,k] + col_rules[c,k]))))

@@ -1,0 +1,1 @@
+- Reified equality per (entry, value) pair, array_bool_or for membership, bool2int, then int_linear equal to m; accepted on all 5 instances.

@@ -86,13 +86,15 @@ LANGUAGES = {
     "picat": ("plaintext", "Picat"),
     # julia is not in the common bundle either and is loaded like prolog.
     "julia": ("julia", "Julia"),
+    # No highlight.js grammar exists for Essence'.
+    "essence_prime": ("plaintext", "Essence'"),
     # highlight.js has no FO(.) grammar; label it correctly and leave it uncoloured.
     "idp": ("plaintext", "FO(\u00b7)"),
 }
 
 # Only for a model whose integration is no longer installed under solvers/.
 EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
-                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia",
+                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia", ".eprime": "essence_prime",
                       ".idp": "idp"}
 
 VERDICT_STYLES = {

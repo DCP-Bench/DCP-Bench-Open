@@ -1,0 +1,1 @@
+Min-cost transportation proof was slow (190 s on 4x5, VAR_INORDER/VAL_MIN). Fixes: VAR_ACTIVITY branching, tight domains min(max_shipping, demand), and an implied bound region_cost >= demand * cheapest open unit cost (via minimum over cost + big*closed). Went to 36 s.

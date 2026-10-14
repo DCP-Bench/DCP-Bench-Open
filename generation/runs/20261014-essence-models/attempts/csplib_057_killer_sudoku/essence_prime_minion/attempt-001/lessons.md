@@ -1,0 +1,2 @@
+- Mixed rows `[int, [[r,c], ...]]` bind as `problem_1` (the int column, rule 1) and `problem_2` (the ragged cell lists, rule 2, padded 3-D). Declare `problem_2_dim1..3` and `problem_2_len` and index cells by `problem_2[c, k, 1]` with `k` bounded by `problem_2_len[c]`.
+- `allDiff([x[...] | k : int(1..len[c])])` and `sum([...])` over a data-dependent comprehension domain both parse and run.

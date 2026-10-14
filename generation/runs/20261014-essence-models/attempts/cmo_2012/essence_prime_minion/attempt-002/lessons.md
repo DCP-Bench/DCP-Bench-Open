@@ -1,0 +1,2 @@
+- `find p : int(2..10000) in int(...)` is not valid domain syntax; the domain is written as a list `int(2,3,5,...)`.
+- Prime domain plus `a * b = n * n` solved the example to a = 2025 (b = 1936, p = 89).

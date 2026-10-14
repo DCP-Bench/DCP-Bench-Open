@@ -1,0 +1,11 @@
+language ESSENCE' 1.0
+$ Put n balls labelled 1 to n into 3 boxes so that for any triple of balls x, y, z with x + y = z, not all three are in the same box.
+given n : int
+given c : int
+find balls : matrix indexed by [int(1..n)] of int(1..c)
+
+branching on [balls]
+
+such that
+$ for every pair x, y with x + y = z <= n, the balls x, y and z are not all in the same box
+forAll x : int(1..n) . forAll y : int(1..n) . (x + y <= n) -> !(balls[x] = balls[y] /\ balls[y] = balls[x+y])

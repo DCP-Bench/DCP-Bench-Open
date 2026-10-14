@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Requires exactly m values in x to take one of the values in v. All other values may be anything from 0 to 7. Print the array x.
+given n : int(1..)
+given m : int(0..)
+given v_dim1 : int(1..)
+given v : matrix indexed by [int(1..v_dim1)] of int
+find x : matrix indexed by [int(1..n)] of int(0..7)
+
+branching on [x]
+
+such that
+$ exactly m entries of x take a value listed in v (v is the instance field, the set of allowed values)
+(sum i : int(1..n) . (x[i] in toSet(v))) = m

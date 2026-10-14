@@ -1,0 +1,21 @@
+language ESSENCE' 1.0
+$ Crew assignment: assign flight attendants to flights so that each flight gets its required number of crew who together speak the required languages, and no attendant flies a flight within two flights after an attended one.
+given attributes_dim1, attributes_dim2 : int
+letting np = attributes_dim1
+letting nl = attributes_dim2
+given attributes : matrix indexed by [int(1..np), int(1..nl)] of int
+given required_crew_dim1, required_crew_dim2 : int
+letting nf = required_crew_dim1
+given required_crew : matrix indexed by [int(1..nf), int(1..required_crew_dim2)] of int
+find crew : matrix indexed by [int(1..nf), int(1..np)] of bool
+
+branching on [crew]
+such that
+$ each flight is attended by exactly the number of crew it needs (first column of required crew)
+forAll f : int(1..nf) . (sum p : int(1..np) . crew[f, p]) = required_crew[f, 1],
+$ each language spoken on a flight must be covered by at least the required number of crew speaking it
+forAll f : int(1..nf) . forAll k : int(1..nl) . (sum p : int(1..np) . crew[f, p] * attributes[p, k]) >= required_crew[f, k + 1],
+$ after an attended flight, the attendant has the next flight off
+forAll f : int(1..nf-1) . forAll p : int(1..np) . (crew[f, p] -> !crew[f + 1, p]),
+$ after an attended flight, the attendant has the flight after the next one off too
+forAll f : int(1..nf-2) . forAll p : int(1..np) . (crew[f, p] -> !crew[f + 2, p])

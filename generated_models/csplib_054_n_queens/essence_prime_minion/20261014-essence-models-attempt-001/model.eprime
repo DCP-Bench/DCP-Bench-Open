@@ -1,0 +1,14 @@
+language ESSENCE' 1.0
+$ Place n queens on an n x n chessboard so that no two queens share a row, column or diagonal.
+given n : int(1..)
+find queens : matrix indexed by [int(1..n)] of int(1..n)
+
+branching on [queens]
+
+such that
+$ no two queens share a column
+allDiff(queens),
+$ no two queens share an ascending diagonal
+allDiff([queens[i] + i | i : int(1..n)]),
+$ no two queens share a descending diagonal
+allDiff([queens[i] - i | i : int(1..n)])

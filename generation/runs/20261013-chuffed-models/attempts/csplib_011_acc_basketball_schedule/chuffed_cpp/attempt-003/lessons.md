@@ -1,0 +1,2 @@
+- Branching on the home/away codes with VAR_SIZE_MIN before the opponents reached a solution in 8 s; VAR_INORDER on opponents timed out at 120 s.
+- A bye is encoded as opp[d][t] = t (own number); the reference accepts that convention.

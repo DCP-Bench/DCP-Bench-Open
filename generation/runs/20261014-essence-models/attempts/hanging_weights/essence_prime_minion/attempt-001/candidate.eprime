@@ -1,0 +1,23 @@
+language ESSENCE' 1.0
+$ Hanging weights puzzle: thirteen weights A to M, each an integer from 1 to 13, hang from a system of bars and must balance as drawn.
+find a, b, c, d, e, f, g, h, i, j, k, l, m : int(1..13)
+
+branching on [a, b, c, d, e, f, g, h, i, j, k, l, m]
+
+such that
+$ top bar: the bar on its left (4 units from the pivot) against the bar on its right (3 units), each counted at its total weight
+4 * ((l + m) + (h + i + e + f)) = 3 * ((a + b) + (j + k) + (g + c + d)),
+$ bar carrying L and M: the bar on the left (1 unit) against L (1 unit) and M (4 units) on the right
+(h + i + e + f) = l + 4 * m,
+$ bar carrying H and I: H (3 units) on the left against I (3 units) and the bar carrying E and F (2 units) on the right
+3 * h = 3 * i + 2 * (e + f),
+$ bar carrying E and F: E (3 units) balances F (2 units)
+3 * e = 2 * f,
+$ bar carrying A and B and J and K and the bar carrying G and C and D: A and B (3 units) and J (2 units) on the left against K (1 unit) and the G, C, D bar (2 units) on the right
+3 * (a + b) + 2 * j = k + 2 * (g + c + d),
+$ bar carrying G and the bar carrying C and D: 3*G=2*(C+D)
+3 * g = 2 * (c + d),
+$ the bar on the bottom right must have 5*C=D
+5 * c = d,
+$ the bar on the bottom left carries A and B: 4*A=B
+4 * a = b

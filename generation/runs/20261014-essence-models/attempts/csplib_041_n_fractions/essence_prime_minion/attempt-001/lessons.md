@@ -1,0 +1,1 @@
+- Clearing denominators in a single equality over the nine digits, with allDiff on the digits, was accepted on the first evaluation.

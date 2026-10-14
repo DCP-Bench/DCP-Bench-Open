@@ -1,0 +1,23 @@
+language ESSENCE' 1.0
+$ Pack squares with the given integer sides into a bigger square of side base so that no two squares overlap, all square borders are parallel to the border of the big square, and the squares fill it with no spare capacity.
+given sides_dim1 : int(1..)
+given base : int(1..)
+given sides : matrix indexed by [int(1..sides_dim1)] of int(1..)
+$ x_coords[i], y_coords[i] are the coordinates of the lower left corner of square i, counted from 0
+find x_coords : matrix indexed by [int(1..sides_dim1)] of int(0..base)
+find y_coords : matrix indexed by [int(1..sides_dim1)] of int(0..base)
+
+branching on [x_coords, y_coords]
+heuristic sdf
+
+such that
+$ every square lies inside the big square
+forAll i : int(1..sides_dim1) . (x_coords[i] + sides[i] <= base) /\ (y_coords[i] + sides[i] <= base),
+$ no two squares overlap: for every pair of squares, one lies to the left of, to the right of, below or above the other
+forAll i : int(1..sides_dim1) . forAll j : int(i+1..sides_dim1) . ((x_coords[i] + sides[i] <= x_coords[j]) \/ (x_coords[j] + sides[j] <= x_coords[i]) \/ (y_coords[i] + sides[i] <= y_coords[j]) \/ (y_coords[j] + sides[j] <= y_coords[i])),
+$ the squares cover the big square exactly: the sum of their areas equals the area of the big square
+(sum i : int(1..sides_dim1) . sides[i] * sides[i]) = base * base,
+$ redundant: along the horizontal axis every unit column of the big square is crossed by squares whose heights add up to at most base
+cumulative(x_coords, sides, sides, base),
+$ redundant: along the vertical axis every unit row of the big square is crossed by squares whose widths add up to at most base
+cumulative(y_coords, sides, sides, base)

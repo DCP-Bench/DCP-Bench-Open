@@ -125,16 +125,14 @@ def report(limit=20, include_unready=False):
 
     # An integration whose data interface takes only rectangular, single-type
     # arrays cannot be given a ragged or mixed-type instance field, whatever the
-    # model says. An integration that reshapes such fields is asked its own
-    # refusals instead. Those pairs are withheld here rather than discovered by a
+    # model says. Those pairs are withheld here rather than discovered by a
     # failed attempt.
     binding = {item["id"]: item.get("instance_binding", "any") for item in declared}
-    awkward = {problem: unbindable(problem) for problem in problems}
 
     def unbindable_for(problem, solver):
         mode = binding.get(solver)
         if mode == RECTANGULAR_UNIFORM:
-            return awkward[problem]
+            return unbindable(problem)
         if mode == RESHAPED:
             return runner_refusals(problem, solver)
         return []
@@ -167,9 +165,9 @@ def report(limit=20, include_unready=False):
                     "read such a model yourself before retaining it. Pairs in "
                     "generation/blockers.json are withheld from the queue; do not retry one "
                     "without new information, and add an entry when you block a pair. Pairs under "
-                    "unbindable_pairs are withheld because the instance field named is ragged or "
-                    "mixes types within a row and that integration binds only rectangular "
-                    "single-type arrays; run generation.brief PROBLEM to see the shapes."}
+                    "unbindable_pairs are withheld because the instance field named cannot be bound "
+                    "by that integration's own binding rules (ragged or mixed fields it refuses); "
+                    "run generation.brief PROBLEM to see the shapes."}
 
 
 def main(argv=None):

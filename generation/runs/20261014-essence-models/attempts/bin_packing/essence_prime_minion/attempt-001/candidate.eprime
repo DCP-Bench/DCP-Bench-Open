@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Bin packing: assign each item to one bin so that the total weight of the items in each bin does not exceed the bin capacity.
+given weights_dim1 : int
+letting n = weights_dim1
+given weights : matrix indexed by [int(1..n)] of int
+given capacity : int
+given num_bins : int
+find bins : matrix indexed by [int(1..n)] of int(0..num_bins-1)
+
+branching on [bins]
+such that
+$ the total weight of the items assigned to each bin must not exceed the bin capacity
+forAll b : int(0..num_bins-1) . (sum i : int(1..n) . (bins[i] = b) * weights[i]) <= capacity

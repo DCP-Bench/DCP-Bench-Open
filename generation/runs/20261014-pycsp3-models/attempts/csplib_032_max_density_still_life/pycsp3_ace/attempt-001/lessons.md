@@ -1,0 +1,2 @@
+- A Sum-based rule per cell (imply + Sum >= 2, Sum <= 3, Sum != 3) on 8x8 did not prove the optimum within 120 s (execution_timeout, "Candidate optimum was not proven").
+- One Table per cell over its neighbourhood, plus LexIncreasing between the flat grid and each flipped or turned copy (lex-leader), proved it in about 100 s.

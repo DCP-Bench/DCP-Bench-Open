@@ -1,0 +1,14 @@
+language ESSENCE' 1.0
+$ Schedule 4 people into 4 interview slots based on their free-busy schedules.
+given m : matrix indexed by [int(1..4), int(1..4)] of int(0..1)
+find x : matrix indexed by [int(1..4), int(1..4)] of bool
+
+branching on [x]
+
+such that
+$ each person is assigned to exactly one interview slot
+forAll i : int(1..4) . (sum j : int(1..4) . x[i,j]) = 1,
+$ each interview slot is assigned to exactly one person
+forAll j : int(1..4) . (sum i : int(1..4) . x[i,j]) = 1,
+$ a person can only be assigned to a slot in which they are free
+forAll i : int(1..4) . forAll j : int(1..4) . (x[i,j] -> m[i,j] = 1)

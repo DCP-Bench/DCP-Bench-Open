@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+$ Fill the n x n grid with digits 1 to n so that each row and each column holds each digit once, and each cage yields its target under one of the four operations.
+given n : int(1..)
+given problem_1 : matrix indexed by [int(1..problem_1_dim1)] of int(0..)
+given problem_2 : matrix indexed by [int(1..problem_2_dim1), int(1..problem_2_dim2), int(1..problem_2_dim3)] of int(0..)
+given problem_2_len : matrix indexed by [int(1..problem_2_dim1)] of int(1..)
+find x : matrix indexed by [int(1..n), int(1..n)] of int(1..n)
+
+branching on [x]
+heuristic sdf
+
+such that
+$ each row contains each digit exactly once
+forAll r : int(1..n) . allDiff([x[r, c] | c : int(1..n)]),
+$ each column contains each digit exactly once
+forAll c : int(1..n) . allDiff([x[r, c] | r : int(1..n)]),
+$ each cage's cells, combined by addition or multiplication, give the cage target (a single cell must equal it)
+forAll c : int(1..problem_2_dim1) . ((sum([x[problem_2[c, k, 1], problem_2[c, k, 2]] | k : int(1..problem_2_len[c])]) = problem_1[c]) \/ (product([x[problem_2[c, k, 1], problem_2[c, k, 2]] | k : int(1..problem_2_len[c])]) = problem_1[c]) \/ ((problem_2_len[c] = 2) /\ ((|x[problem_2[c, 1, 1], problem_2[c, 1, 2]] - x[problem_2[c, 2, 1], problem_2[c, 2, 2]]| = problem_1[c]) \/ (x[problem_2[c, 1, 1], problem_2[c, 1, 2]] = problem_1[c] * x[problem_2[c, 2, 1], problem_2[c, 2, 2]]) \/ (x[problem_2[c, 2, 1], problem_2[c, 2, 2]] = problem_1[c] * x[problem_2[c, 1, 1], problem_2[c, 1, 2]]))))

@@ -1,0 +1,17 @@
+language ESSENCE' 1.0
+$ Choose a set of investments that stays within the budget and maximises the total net present value.
+given budget : int(0..)
+given cash_flow : matrix indexed by [int(1..4)] of int(0..)
+given npv : matrix indexed by [int(1..4)] of int(0..)
+find x : matrix indexed by [int(1..4)] of bool
+find z : int(0..sum(npv))
+
+maximising z
+
+branching on [x]
+
+such that
+$ the sum of all chosen investments must not exceed the budget
+(sum i : int(1..4) . toInt(x[i]) * cash_flow[i]) <= budget,
+$ z is the total net present value of the chosen investments
+z = (sum i : int(1..4) . toInt(x[i]) * npv[i])

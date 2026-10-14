@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Sum the even-valued Fibonacci terms (starting 1, 2) that do not exceed four million.
+find fib : matrix indexed by [int(1..33)] of int(1..10000000)
+find res : int(0..10000000)
+
+branching on [fib]
+
+such that
+$ the sequence starts with 1 and 2
+fib[1] = 1,
+fib[2] = 2,
+$ each new term is the sum of the previous two terms
+forAll i : int(3..33) . fib[i] = fib[i-1] + fib[i-2],
+$ res is the sum of the even terms that do not exceed four million
+res = (sum i : int(1..33) . toInt(fib[i] % 2 = 0 /\ fib[i] <= 4000000) * fib[i])

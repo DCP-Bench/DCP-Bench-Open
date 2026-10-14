@@ -1,0 +1,17 @@
+language ESSENCE' 1.0
+$ A merchant's weight broke into n pieces of whole-pound weights; the pieces together weigh m pounds and can weigh every whole weight from 1 to m on a balance.
+given m : int(1..100)
+given n : int(1..10)
+find weights : matrix indexed by [int(1..n)] of int(1..m)
+find c : matrix indexed by [int(1..m), int(1..n)] of int(-1..1)
+
+branching on [weights]
+
+such that
+$ the pieces are listed in increasing order and no two pieces have the same weight
+allDiff(weights),
+forAll i : int(1..n-1) . weights[i] < weights[i+1],
+$ the pieces together weigh the whole weight
+(sum i : int(1..n) . weights[i]) = m,
+$ every whole weight k from 1 to m can be weighed: each piece is on the object's pan (-1), on the other pan (+1) or not used (0), so the signed sum of pieces is k
+forAll k : int(1..m) . (sum i : int(1..n) . c[k,i] * weights[i]) = k

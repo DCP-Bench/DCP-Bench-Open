@@ -1,0 +1,2 @@
+- A Circuit over the places fails with no_solution for every n: card n jumps n places, back to its own place, so no cycle is possible. The frog visits each card once and then stops on card n, so the model is a Hamiltonian path.
+- Working form: a dummy place n after the last card, `If(x[p] == n, Then=succ[p] == n, Else=succ[p] == (p + x[p]) % n)`, `succ[n] == 0`, and `Circuit(succ)`. `x[0] == 1` fixes the start. Accepted on all five instances.

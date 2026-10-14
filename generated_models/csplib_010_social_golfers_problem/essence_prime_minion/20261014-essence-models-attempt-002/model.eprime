@@ -1,0 +1,16 @@
+language ESSENCE' 1.0
+$ Social golfers: golfers play once a week in groups of a fixed size, and no two golfers share a group on more than one occasion.
+given group_size : int
+given n_groups : int
+given n_weeks : int
+letting n_golfers = n_groups * group_size
+find assign : matrix indexed by [int(1..n_golfers), int(1..n_weeks)] of int(0..n_groups-1)
+
+branching on [assign]
+such that
+$ each group in each week has exactly group_size golfers
+forAll w : int(1..n_weeks) . forAll grp : int(0..n_groups-1) . (sum g : int(1..n_golfers) . (assign[g, w] = grp)) = group_size,
+$ no two golfers play in the same group in more than one week
+forAll g, h : int(1..n_golfers) . (g < h) -> ((sum w : int(1..n_weeks) . (assign[g, w] = assign[h, w])) <= 1),
+$ symmetry breaking: the groups are interchangeable, so in the first week golfer g is put in group number (g - 1) div group_size
+forAll g : int(1..n_golfers) . assign[g, 1] = (g - 1) / group_size

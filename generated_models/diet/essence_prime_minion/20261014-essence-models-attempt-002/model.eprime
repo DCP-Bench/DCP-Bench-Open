@@ -1,0 +1,16 @@
+language ESSENCE' 1.0
+$ Choose how many units of each of four foods to buy so that every nutrition requirement is met at minimum cost.
+given n : int
+given price : matrix indexed by [int(1..n)] of int(0..1000000)
+given limits : matrix indexed by [int(1..n)] of int(0..1000000)
+$ the problem's table of nutrient content per unit (rows: calories, chocolate ounces, sugar ounces, fat ounces; columns: chocolate cake, ice cream, cola, cheesecake)
+letting nutrient = [[400, 200, 150, 500], [3, 2, 0, 0], [2, 2, 4, 4], [2, 4, 1, 5]]
+find units : matrix indexed by [int(1..n)] of int(0..max(limits))
+find cost : int(0..10000000)
+
+minimising cost
+such that
+$ the cost is the sum of the price of each food times the units bought
+cost = (sum i : int(1..n) . price[i] * units[i]),
+$ each nutrition type must reach at least its required limit
+forAll j : int(1..n) . ((sum i : int(1..n) . nutrient[j,i] * units[i]) >= limits[j])

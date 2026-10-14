@@ -1,0 +1,27 @@
+language ESSENCE' 1.0
+$ Travelling salesman: find the shortest closed tour that visits every city once and returns to the start, with distances rounded Euclidean distances between the cities.
+given locations_dim1 : int(1..)
+given locations : matrix indexed by [int(1..locations_dim1), int(1..2)] of int(0..)
+$ successor[i] is the city visited right after city i on the tour
+find successor : matrix indexed by [int(1..locations_dim1)] of int(1..locations_dim1)
+$ order[i] is the position of city i on the tour, city 1 is first
+find order : matrix indexed by [int(1..locations_dim1)] of int(1..locations_dim1)
+$ dist[i,j] is the Euclidean distance between cities i and j rounded to an integer
+find dist : matrix indexed by [int(1..locations_dim1), int(1..locations_dim1)] of int(0..3000)
+find travel_distance : int(0..100000)
+
+branching on [successor]
+minimising travel_distance
+such that
+$ a city is never its own successor
+forAll i : int(1..locations_dim1) . (successor[i] != i),
+$ each city is the successor of exactly one city, so the tour visits every city once
+allDiff([successor[i] | i : int(1..locations_dim1)]),
+$ the tour starts at city 1, which has position 1
+order[1] = 1,
+$ the tour has no shorter cycles: the next city after i in the tour comes one position later (except back to city 1)
+forAll i : int(1..locations_dim1) . forAll j : int(2..locations_dim1) . ((successor[i] = j) -> (order[j] = order[i] + 1)),
+$ the distance between two cities is the Euclidean distance between their locations, rounded to the nearest integer (no ties occur with integer coordinates)
+forAll i : int(1..locations_dim1) . forAll j : int(1..locations_dim1) . ((i != j) -> ((dist[i,j] = 0 \/ (2*dist[i,j]-1)*(2*dist[i,j]-1) <= 4*((locations[i,1] - locations[j,1]) * (locations[i,1] - locations[j,1]) + (locations[i,2] - locations[j,2]) * (locations[i,2] - locations[j,2]))) /\ 4*((locations[i,1] - locations[j,1]) * (locations[i,1] - locations[j,1]) + (locations[i,2] - locations[j,2]) * (locations[i,2] - locations[j,2])) < (2*dist[i,j]+1)*(2*dist[i,j]+1))),
+$ the travel distance is the sum of the distances from each city to its successor
+travel_distance = (sum i : int(1..locations_dim1) . dist[i, successor[i]])

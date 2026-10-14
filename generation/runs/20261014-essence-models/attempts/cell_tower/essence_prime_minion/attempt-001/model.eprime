@@ -1,0 +1,19 @@
+language ESSENCE' 1.0
+$ Choose which cell tower sites to build, within the budget, to cover as much population as possible.
+given delta_dim1, delta_dim2 : int
+given delta : matrix indexed by [int(1..delta_dim1), int(1..delta_dim2)] of int(0..1)
+given cost : matrix indexed by [int(1..delta_dim1)] of int(0..1000000)
+given population : matrix indexed by [int(1..delta_dim2)] of int(0..1000000)
+given budget : int(0..1000000000)
+find build_tower : matrix indexed by [int(1..delta_dim1)] of bool
+find covered : matrix indexed by [int(1..delta_dim2)] of bool
+find total_population_covered : int(0..sum(population))
+
+maximising total_population_covered
+such that
+$ a region is covered when at least one built tower reaches it
+forAll r : int(1..delta_dim2) . (covered[r] <-> (exists s : int(1..delta_dim1) . (build_tower[s] /\ (delta[s,r] = 1)))),
+$ the total cost of the built towers must not exceed the budget
+(sum s : int(1..delta_dim1) . build_tower[s] * cost[s]) <= budget,
+$ the total population covered is the summed population of the covered regions
+total_population_covered = (sum r : int(1..delta_dim2) . covered[r] * population[r])

@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Assign participants to cars, each participant to at most one car and each car to at most one participant, only along the interests given in the instance, maximising the number of assignments.
+given possible_assignments_dim1, possible_assignments_dim2 : int(1..)
+given possible_assignments : matrix indexed by [int(1..possible_assignments_dim1), int(1..possible_assignments_dim2)] of int(0..1)
+find assignments : matrix indexed by [int(1..possible_assignments_dim1), int(1..possible_assignments_dim2)] of bool
+
+maximising (sum i : int(1..possible_assignments_dim1) . sum j : int(1..possible_assignments_dim2) . assignments[i,j])
+
+such that
+$ each participant is assigned to at most one car
+forAll i : int(1..possible_assignments_dim1) . (sum j : int(1..possible_assignments_dim2) . assignments[i,j]) <= 1,
+$ each car is assigned to at most one participant
+forAll j : int(1..possible_assignments_dim2) . (sum i : int(1..possible_assignments_dim1) . assignments[i,j]) <= 1,
+$ a participant can only be assigned to a car they are interested in (possible_assignments[i,j] = 1)
+forAll i : int(1..possible_assignments_dim1) . forAll j : int(1..possible_assignments_dim2) . (assignments[i,j] -> (possible_assignments[i,j] = 1))

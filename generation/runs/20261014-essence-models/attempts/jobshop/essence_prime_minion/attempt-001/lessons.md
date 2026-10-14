@@ -1,0 +1,3 @@
+- A ragged 3-level list (jobs of tasks of [machine, duration]) binds with `jobs_data_dim1..3` and `jobs_data_len` (task count per job) when declared; padded task entries are zero, so every constraint on a task is gated by `k <= jobs_data_len[j]`.
+- The pairwise machine no-overlap constraint is quantified over all task pairs and filtered by given machine ids; the example and the ft06 instance both checked fine in one pass.
+- la01 (json:2, 10 jobs x 5 tasks, horizon 2849) finds the optimum 666 but does not prove it in 150 s with pairwise disjunctions, even with a horizon bound from `letting durations` and `sum(flatten(durations))`; the proof needs a stronger encoding (for example `cumulative` per machine), which was not tried.

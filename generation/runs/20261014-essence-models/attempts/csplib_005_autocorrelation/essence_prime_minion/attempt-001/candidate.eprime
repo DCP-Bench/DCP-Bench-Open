@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Binary sequence of length n with entries +1 or -1 that minimises the sum of squares of the periodic autocorrelations.
+given n : int
+$ the sequence S, one bit per position, each +1 or -1
+find sequence : matrix indexed by [int(1..n)] of int(-1, 1)
+$ the periodic autocorrelation C_k for shift k, bounded by the number of terms n
+find C : matrix indexed by [int(1..n-1)] of int(-n..n)
+$ E is the sum of the squared autocorrelations C_k for k from 1 to n-1
+find E : int(0..n*n*n)
+minimising E
+such that
+$ the k-th periodic autocorrelation is the sum over positions i of S_i times S_((i+k) mod n), with positions counted from 1
+forAll k : int(1..n-1) . C[k] = (sum i : int(1..n) . sequence[i] * sequence[((i + k - 1) % n) + 1]),
+$ the energy E is the sum of the squares of the autocorrelations
+E = (sum k : int(1..n-1) . C[k] * C[k])

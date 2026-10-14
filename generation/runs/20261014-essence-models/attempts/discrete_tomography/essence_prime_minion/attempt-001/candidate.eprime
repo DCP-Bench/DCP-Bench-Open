@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Discrete tomography: reconstruct a 0/1 matrix from the number of ones in each row and in each column.
+given row_sums_dim1 : int(1..)
+given col_sums_dim1 : int(1..)
+given row_sums : matrix indexed by [int(1..row_sums_dim1)] of int(0..)
+given col_sums : matrix indexed by [int(1..col_sums_dim1)] of int(0..)
+$ the 0/1 matrix to reconstruct (matrix_ is the output named matrix)
+find matrix_ : matrix indexed by [int(1..row_sums_dim1), int(1..col_sums_dim1)] of int(0..1)
+
+branching on [matrix_]
+such that
+$ each row contains as many ones as its row sum
+forAll r : int(1..row_sums_dim1) . ((sum c : int(1..col_sums_dim1) . matrix_[r,c]) = row_sums[r]),
+$ each column contains as many ones as its column sum
+forAll c : int(1..col_sums_dim1) . ((sum r : int(1..row_sums_dim1) . matrix_[r,c]) = col_sums[c])
