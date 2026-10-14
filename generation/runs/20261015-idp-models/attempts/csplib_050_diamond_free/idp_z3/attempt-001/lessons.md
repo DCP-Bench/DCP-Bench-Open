@@ -1,0 +1,3 @@
+- Diamond-free as a sum of `if` terms per 4-set made z3 time out on N=11; the same constraint written as seven clauses per 4-set (all six edges, and each five-edge pattern) solved all six instances in under 20 s each.
+- Count terms (`#{ j: E(i,j) }`) and sum-of-ifs both worked for degrees, but a degree symbol typed as `{0..${N}}` rather than `Int` keeps the search finite.
+- `%` by a constant with a decision symbol on the left (`deg(i) % 3 = 0`) and `sum{{ deg(i) | i in Vtx }} % 12 = 0` both parsed and solved without a guard.

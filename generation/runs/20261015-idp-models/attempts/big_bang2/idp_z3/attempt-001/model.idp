@@ -1,0 +1,37 @@
+// Five nontransitive dice, one per choice of Rock-Paper-Scissors-Lizard-Spock.
+// Each die has six faces with values from 1 to 12. Die A beats die B when
+// A's face value is strictly larger than B's in more than half of the 36 face pairs.
+vocabulary {
+    type Die := {0..4}      // 0 Rock, 1 Paper, 2 Scissors, 3 Lizard, 4 Spock
+    type Face := {0..5}     // the six faces of a die
+    type Val := {1..12}     // face values, 1 to 12 inclusive
+    dice: Die * Face -> Val // declared output: dice(d, f) is face f of die d
+    cnt: Die * Die * Face -> Int         // for one face a of die i, the faces of die j it beats
+    beat_pairs: Die * Die -> Int         // number of face pairs (a, b) with a of die i above b of die j
+}
+theory {
+    // beat_pairs(i, j) counts the face pairs (a, b) where die i's face a is larger than die j's face b
+    ! i, j in Die, a in Face: cnt(i, j, a) = #{ b in Face: dice(i, a) > dice(j, b) }.
+    ! i, j in Die: beat_pairs(i, j) = sum{{ cnt(i, j, a) | a in Face }}.
+
+    // Rock(0) crushes Scissors(2)
+    beat_pairs(0, 2) >= 19.
+    // Rock(0) crushes Lizard(3)
+    beat_pairs(0, 3) >= 19.
+    // Paper(1) covers Rock(0)
+    beat_pairs(1, 0) >= 19.
+    // Paper(1) disproves Spock(4)
+    beat_pairs(1, 4) >= 19.
+    // Scissors(2) cuts Paper(1)
+    beat_pairs(2, 1) >= 19.
+    // Scissors(2) decapitates Lizard(3)
+    beat_pairs(2, 3) >= 19.
+    // Lizard(3) eats Paper(1)
+    beat_pairs(3, 1) >= 19.
+    // Lizard(3) poisons Spock(4)
+    beat_pairs(3, 4) >= 19.
+    // Spock(4) vaporizes Rock(0)
+    beat_pairs(4, 0) >= 19.
+    // Spock(4) smashes Scissors(2)
+    beat_pairs(4, 2) >= 19.
+}

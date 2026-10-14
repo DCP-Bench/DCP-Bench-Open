@@ -1,0 +1,2 @@
+- Squares of decision sums are cheap when written as a sum over the finite value range: `sum{{ (if corr(k) = c then c * c else 0) | c in Corr }}`.
+- Fixing the first bit (flipping all bits keeps the periodic energy) halved the search and let the 16-long instance finish within the timeout.

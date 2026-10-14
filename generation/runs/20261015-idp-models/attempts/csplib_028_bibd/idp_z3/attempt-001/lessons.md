@@ -1,0 +1,2 @@
+- A two-argument output such as `matrix: Obj * Blk -> Bool` gets its shape from two `type ... := {1..${...}}` ranges, one per instance field, so both dimensions track the data.
+- Nullary `v: () -> Int` etc. declarations bind the scalar instance fields, and `r()`, `k()`, `l()` read them in counting constraints.

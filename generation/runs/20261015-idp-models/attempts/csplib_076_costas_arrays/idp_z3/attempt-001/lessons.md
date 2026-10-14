@@ -1,0 +1,3 @@
+- Guarded applications of a total function at an arithmetic index (costas(i + l) under i + l =< n) passed evaluation without a domain error on all 5 instances; no if-then-else was needed.
+- `${n}` in a guard and in a type range works in the same sentence.
+- Single attempt, accepted on first try: the 2-instance check (about 5 s) was a reliable predictor of the full run.

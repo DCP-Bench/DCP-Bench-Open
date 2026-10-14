@@ -1,0 +1,36 @@
+// SONET problem: place nodes on rings with ADMs so that every demand pair shares a ring,
+// respecting each ring's node capacity, minimizing the total number of ADMs.
+vocabulary {
+    // a ring index; the number of rings comes from the length of capacity_nodes
+    type Ring <: Int
+    // a node index; the number of nodes comes from the size of demand
+    type Node <: Int
+
+    // the maximum number of nodes each ring can host
+    capacity_nodes: Ring -> Int
+    // traffic demand between two nodes (nonzero means they must communicate)
+    demand: Node * Node -> Int
+
+    // ring_config[k, i] is true if node i is on ring k
+    ring_config: Ring * Node -> Bool
+    // total number of ADMs used
+    total_adms: () -> Int
+    // number of ADMs installed on a ring
+    ring_size: Ring -> Int
+
+    minimize: () -> Int
+}
+theory {
+    // a node is installed on a ring using an ADM, so the ADMs on a ring are the nodes on it
+    ! k in Ring: ring_size(k) = #{ i in Node: ring_config(k, i) }.
+
+    // each ring has a capacity, limiting the number of nodes it can host
+    ! k in Ring: ring_size(k) =< capacity_nodes(k).
+
+    // for two nodes to communicate, they must be on at least one common ring
+    ! i, j in Node: demand(i, j) ~= 0 => ? k in Ring: ring_config(k, i) & ring_config(k, j).
+
+    // the objective is the total number of ADMs used
+    total_adms() = sum{{ ring_size(k) | k in Ring }}.
+    minimize() = total_adms().
+}

@@ -1,0 +1,26 @@
+// Weekly production of boxwood chess sets: how many small and large sets to make to maximize profit.
+vocabulary {
+    small_set: () -> Int
+    large_set: () -> Int
+    max_profit: () -> Int
+    maximize: () -> Int
+}
+theory {
+    // the number of small sets and of large sets made each week is not negative
+    small_set() >= 0.
+    large_set() >= 0.
+
+    // a small set requires 3 hours of lathe machining and a large set requires 2 hours
+    // four lathes with skilled operators who each work a 40 hour week, so 160 lathe-hours per week
+    3 * small_set() + 2 * large_set() =< 160.
+
+    // a small set requires 1 kg of boxwood and a large set requires 3 kg
+    // only 200 kg of boxwood per week can be obtained
+    small_set() + 3 * large_set() =< 200.
+
+    // a small set yields a profit of $5 and a large set yields a profit of $20
+    max_profit() = 5 * small_set() + 20 * large_set().
+
+    // the objective is the weekly profit
+    maximize() = max_profit().
+}

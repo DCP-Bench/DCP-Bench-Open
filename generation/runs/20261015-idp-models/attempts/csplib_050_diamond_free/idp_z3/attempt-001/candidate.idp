@@ -1,0 +1,34 @@
+// csplib 050: find a simple undirected graph on N vertices whose adjacency matrix is output
+vocabulary {
+    type Vtx := {1..${N}}
+    type Deg := {0..${N}}             // a degree is at most N - 1
+    matrix: Vtx * Vtx -> Bool         // adjacency matrix: matrix(i, j) is the edge {i, j}
+    deg: Vtx -> Deg                   // degree of a vertex
+}
+theory {
+    // the graph is simple: there are no loop edges
+    ! i in Vtx: ~matrix(i, i).
+    // the graph is undirected: the edge {u, v} is in E if and only if the edge {v, u} is
+    ! i, j in Vtx: matrix(i, j) <=> matrix(j, i).
+    // the degree of a vertex is the number of edges incident on it
+    ! i in Vtx: deg(i) = #{ j in Vtx: matrix(i, j) }.
+    // isolated vertices are disallowed: each degree is greater than zero
+    ! i in Vtx: deg(i) > 0.
+    // each degree is modulo 3
+    ! i in Vtx: deg(i) % 3 = 0.
+    // the degree sequence is ordered: d_i >= d_(i+1)
+    ! i, j in Vtx: i < j => deg(i) >= deg(j).
+    // the sum of the degrees is modulo 12
+    sum{{ deg(i) | i in Vtx }} % 12 = 0.
+    // a diamond is four vertices with at least five edges between them; a graph is diamond-free
+    // when no four vertices have five or more of the six possible edges among them.
+    // Written as clauses: all six edges present is forbidden,
+    ! a, b, c, d in Vtx: (a < b & b < c & c < d) => ~(matrix(a, b) & matrix(a, c) & matrix(a, d) & matrix(b, c) & matrix(b, d) & matrix(c, d)).
+    // and so is any five of them present (the sixth absent), for each choice of the absent edge.
+    ! a, b, c, d in Vtx: (a < b & b < c & c < d) => ~(matrix(a, c) & matrix(a, d) & matrix(b, c) & matrix(b, d) & matrix(c, d)).
+    ! a, b, c, d in Vtx: (a < b & b < c & c < d) => ~(matrix(a, b) & matrix(a, d) & matrix(b, c) & matrix(b, d) & matrix(c, d)).
+    ! a, b, c, d in Vtx: (a < b & b < c & c < d) => ~(matrix(a, b) & matrix(a, c) & matrix(b, c) & matrix(b, d) & matrix(c, d)).
+    ! a, b, c, d in Vtx: (a < b & b < c & c < d) => ~(matrix(a, b) & matrix(a, c) & matrix(a, d) & matrix(b, d) & matrix(c, d)).
+    ! a, b, c, d in Vtx: (a < b & b < c & c < d) => ~(matrix(a, b) & matrix(a, c) & matrix(a, d) & matrix(b, c) & matrix(c, d)).
+    ! a, b, c, d in Vtx: (a < b & b < c & c < d) => ~(matrix(a, b) & matrix(a, c) & matrix(a, d) & matrix(b, c) & matrix(b, d)).
+}
