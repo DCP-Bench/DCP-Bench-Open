@@ -1,0 +1,118 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-sonnet-5-5 modelling subagents, claude-opus-5-5 coordinator); blind: description + brief + skill only",
+    "attempt_id": "attempt-001",
+    "created_at": 1791911394.922942,
+    "problem_id": "session2_color_simple",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "a63c9c4bec05562c7b235021b14fd87b4313388c324e71f12b30bf0e8c7d4461",
+    "run_id": "20261013-chuffed-models",
+    "schema": 2,
+    "skill_bundle_hash": "8b4793e5f41ebd39c69618122683384dd25047bb1a53d8ab5fa4f790a10196ec",
+    "skill_source": "solvers/chuffed_cpp/skills/chuffed-cpp",
+    "skill_version": {
+      "commit": "ab0ce111e3c778b28abcc6190df68f8565606701",
+      "modified": false,
+      "path": "solvers/chuffed_cpp/skills/chuffed-cpp"
+    },
+    "solver_id": "chuffed_cpp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:c9ab4df4442483a848ae6ef04e521d4353cde5d1352f55c5d27b8b0121e2ad94",
+      "tag": "dcp-eval/chuffed_cpp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.008801020041573793,
+        "execution_wall_seconds": 9.560907954990398,
+        "first_solution": {
+          "colors": [
+            1,
+            1,
+            2,
+            3,
+            2,
+            4
+          ]
+        },
+        "id": "example",
+        "instance_hash": "67adbf78e65cc10f8e0a060676703e24daf74803b438c0426f171e0f7d3b3362",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 4,
+        "outputs": [
+          "colors"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.5657688389765099,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.001904825,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 9.016s\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "4a4fb97fb622dd7cbc8259334c68b0cdd0e9596ec151232bc760c4672d555d6d",
+    "problem_id": "session2_color_simple",
+    "reason": "accepted",
+    "reference_hash": "09ab88a3972e7b0ecfd8fc439d089bef7639e3b4db92975c52d6eaef8926f387",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.13.2"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 2,
+    "solver_id": "chuffed_cpp",
+    "total_wall_seconds": 10.266673773003276,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-sonnet-5-5 modelling subagents, claude-opus-5-5 coordinator); blind: description + brief + skill only"
+  },
+  "is_optimization": true,
+  "model_file": "model.cpp",
+  "problem": "session2_color_simple",
+  "schema": 2,
+  "solver": "chuffed_cpp",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

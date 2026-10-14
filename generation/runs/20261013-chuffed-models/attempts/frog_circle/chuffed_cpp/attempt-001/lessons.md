@@ -1,0 +1,2 @@
+- The reference counts arrangements with card 1 fixed at position 0 (counts 1, 4, 43 for n = 4, 8, 10 equal the rotation-free counts divided by n). Without that pin the evaluator rejects an enumerated solution with "Declared outputs cannot extend to a reference solution".
+- Frog path: positions of the n jumps must all differ (no return to start is needed); the last card's self-jump is harmless. A full cycle has no solutions.

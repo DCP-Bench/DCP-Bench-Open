@@ -1,0 +1,1 @@
+- Interval/neighbour constraints are static (decided from the ratings), so Build posts strict int_rel per adjacent pair and skips equal ratings.

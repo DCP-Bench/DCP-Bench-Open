@@ -1,4 +1,4 @@
-"""The contract of one problem: declared outputs, objective, instance fields.
+"""The contract of one problem: description, declared outputs, objective, instance fields.
 
 Every model starts by extracting the same facts from the reference, and getting
 any of them wrong costs an attempt: the declared output *names* come from the
@@ -8,11 +8,15 @@ it depends on. This prints those facts so they are read rather than inferred.
 
     python -m generation.brief csplib_056_sonet
 
+The description is the reference's docstring, so a modeller can work from
+the problem statement without reading the reference's code.
+
 It also reports the shape of each instance field, because a ragged or
 mixed-type field is what an integration's data interface may be unable to bind
 at all; `generation.next_work` uses the same analysis to withhold those pairs.
 """
 import argparse
+import ast
 import json
 import sys
 
@@ -126,6 +130,7 @@ def brief(problem):
         objective = "minimize" if getattr(model, "objective_is_min", True) else "maximize"
     return {
         "problem": problem,
+        "description": ast.get_docstring(ast.parse(source)) or "",
         "instances_listed": max(1, len(rows)),
         "objective": objective,
         "declared_outputs": {name: shape_of(value) for name, value in outputs.items()},

@@ -1,0 +1,130 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-sonnet-5-5 modelling subagents, claude-opus-5-5 coordinator); blind: description + brief + skill only",
+    "attempt_id": "attempt-001",
+    "created_at": 1791910108.263398,
+    "problem_id": "eighteen_hole_golf",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "a63c9c4bec05562c7b235021b14fd87b4313388c324e71f12b30bf0e8c7d4461",
+    "run_id": "20261013-chuffed-models",
+    "schema": 2,
+    "skill_bundle_hash": "896468f151e143b4d22b655094c642b1042521ef98270a2301222ed73647dc9b",
+    "skill_source": "solvers/chuffed_cpp/skills/chuffed-cpp",
+    "skill_version": {
+      "commit": "588c4336a76e574d3266153f12c39d3b5993abf3",
+      "modified": false,
+      "path": "solvers/chuffed_cpp/skills/chuffed-cpp"
+    },
+    "solver_id": "chuffed_cpp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:c9ab4df4442483a848ae6ef04e521d4353cde5d1352f55c5d27b8b0121e2ad94",
+      "tag": "dcp-eval/chuffed_cpp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.004932349955197424,
+        "execution_wall_seconds": 9.071278417948633,
+        "first_solution": {
+          "holes": [
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5
+          ]
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "holes"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.5609358460060321,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.001386872,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 8.555s\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "99f348e298870888d9a12a040d5586f2c2592d26981419c502fcd79d70aec58b",
+    "problem_id": "eighteen_hole_golf",
+    "reason": "accepted",
+    "reference_hash": "f313a90b09b4e5cc15a5645386e22434689674a4d4fa7f9ddfad85ea91fab029",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.13.2"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 2,
+    "solver_id": "chuffed_cpp",
+    "total_wall_seconds": 9.767850248026662,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-sonnet-5-5 modelling subagents, claude-opus-5-5 coordinator); blind: description + brief + skill only"
+  },
+  "is_optimization": false,
+  "model_file": "model.cpp",
+  "problem": "eighteen_hole_golf",
+  "schema": 2,
+  "solver": "chuffed_cpp",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}

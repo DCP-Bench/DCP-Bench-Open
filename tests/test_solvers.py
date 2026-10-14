@@ -10,7 +10,7 @@ from evaluation.results import EvaluationError
 from tests.test_evaluation import SOURCE, ROOT
 
 PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_sat.py",
-          "ortools_cp_sat_cpp": "model.cpp", "minizinc_gecode": "model.mzn",
+          "ortools_cp_sat_cpp": "model.cpp", "chuffed_cpp": "model_chuffed.cpp", "minizinc_gecode": "model.mzn",
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
           "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
@@ -29,7 +29,7 @@ def satisfaction_only(solver):
 # The minimize/maximize spelling each pilot fixture uses, so `test_maximization`
 # can turn it around. Kept beside PILOTS because the two are added together.
 MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_python": ("minimize", "maximize"),
-                      "ortools_cp_sat_cpp": ("Minimize", "Maximize"), "minizinc_gecode": ("minimize", "maximize"),
+                      "ortools_cp_sat_cpp": ("Minimize", "Maximize"), "chuffed_cpp": ("OPT_MIN", "OPT_MAX"), "minizinc_gecode": ("minimize", "maximize"),
                       "z3_python": ("minimize", "maximize"),
                       "clingo_asp": ("minimize", "maximize"),
                       "swipl_clpfd": ("min(", "max("),

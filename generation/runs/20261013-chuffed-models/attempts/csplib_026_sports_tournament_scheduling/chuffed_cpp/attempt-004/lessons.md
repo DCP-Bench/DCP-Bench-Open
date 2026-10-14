@@ -1,0 +1,1 @@
+- Week 0 fixed by team relabeling (teams 2i,2i+1 meet in period i, even team home) and an involution/inverse opponent model made the search instant; the direct per-period pair model timed out at n=8.
