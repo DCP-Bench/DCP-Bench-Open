@@ -150,8 +150,10 @@ theory {
   runner from binding it** — the instance value is then ignored, which is
   exactly the hardcoding the evaluator rejects on the next instance.
 - **Nonlinear integer arithmetic** (a product of two decision symbols) can make
-  z3 run until the budget is spent; it is reported as a timeout, never as "no
-  solution". Prefer a finite type for every decision.
+  z3 run until the budget is spent, or fail to prove an optimum. Rewrite a
+  product linearly: for ±1 values count equal pairs instead of multiplying; for
+  `p * x` with `x` in a small type write `sum{{ (if x = k then k * p else 0) | k in K }}`
+  or a table of ground implications (`x() = k => y() = k * k`).
 - **An unbounded `-> Int` decision makes hard cases time out.** Ten pairwise
   different values in 1..9 declared `-> Int` with bound constraints ran into the
   60 s limit as `unknown`; the same with `type Val := {1..9}` proved
@@ -159,9 +161,28 @@ theory {
 - **Parenthesise a product inside a sum**: `sum{{ a(x) * b(x) | x in T }}` fails
   with "Expected 'is\s+enumerated' or 'in|∈' or ',' or '}}' or '|'"; write
   `sum{{ (a(x) * b(x)) | x in T }}`, or define `c(x) = a(x) * b(x)` and sum `c`.
-- **Shift the lower bound to change a type's size**, since `${...}` takes no
-  expression: `{1..${n}}` has n elements and `{2..${n}}` has n-1 (e.g. the n-1
-  gaps between n positions).
+- **Mind the element count of a range**: `{0..${n}}` has n+1 elements and
+  `{1..${n}}` has n; a 0-based output of n elements is `{0..${n-1}}`.
+- **Outputs need finite types too.** An output declared `-> Int` admits values
+  the description rules out (negative ages, entries above n), and the evaluator
+  rejects them with "Declared outputs cannot extend to a reference solution".
+  Give each output a range type. Derived helper values fixed by equations (a
+  number assembled from digits) can stay `-> Int`; a wide range type such as
+  `{0..9999}` on them is slower.
+- **An output the brief shows as `int` must not be `-> Bool`**: the evaluator
+  says "Expected integer at x[0][0]". Use `type Bit := {0..1}`.
+- **Ground facts in a theory do not close a predicate**: `knows(0,3).` leaves
+  every unlisted pair free. State facts inside a definition, `{ knows(0,3). ... }`,
+  so everything else is false.
+- **Write a two-argument symbol as `A * B -> Bool`**; `A -> B -> Bool` does not parse.
+- **`?=<k` takes one variable**; for pairs write `#{ i, j in T: i < j & p(i, j) } =< k`.
+- **Counts and sums over several variables parse** (`#{ i, j in T: ... }`), but an
+  `if ... then ... else` directly inside a two-variable `sum{{ }}` does not; define
+  it as a helper symbol and sum that.
+- **`min{ }`/`max{ }` over a set that depends on decisions** makes optimum proofs
+  slow; use Boolean presence predicates (`started(p, s) <=> ? t in T: t =< s & plays(p, t)`).
+- **A symbol name must be unique**: "Duplicate declaration of D" when an output
+  and a helper share a name.
 - **Instance coordinates may be 1-based** while arrays bind 0-based; shift in
   the constraint (`r + 1 = lt(k, 0)`) rather than in the data.
 
