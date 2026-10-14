@@ -31,12 +31,23 @@ SCIP already supports.
 - **Indicators instead of big-M**: `addConsIndicator(lin_ineq, binvar=b)` enforces the
   inequality when `b == 1` (`activeone=False`: when `b == 0`). Only `<=`/`>=`; an equality
   needs two indicators on the same binary. **Always pass `binvar`**: without it SCIP
-  segfaults at solve time.
+  segfaults at solve time. Indicators solved models where the big-M version timed out.
 - **Counting and sparsity**: `addConsCardinality(xs, k)` (at most k nonzero),
   `addConsSOS1(xs)`, `addConsSOS2(xs)`.
+- **Scheduling**: `addConsCumulative(starts, durations, demands, capacity)` with integer
+  start variables and constant durations and demands.
 - **Nonlinear**: `x * y`, `x ** 2`, `abs(e)`, `sqrt`, `exp`, `log`, `e / y` are accepted in
   constraints. Products of binaries and bounded integers are often better linearised
-  (`z <= x`, `z <= y`, `z >= x + y - 1`) or written with indicators.
+  (`z <= x`, `z <= y`, `z >= x + y - 1`) or written with indicators. An equality between
+  products of integers (`a * b == n ** 2`) can be slow to prove; when the structure allows,
+  search over the parameter that determines the factors instead.
+- **`abs` is slow in constraints.** `d == abs(x - y)` timed out from about 13 variables
+  where a sign binary `s` with indicators (`d == x - y` when `s == 1`, `d == y - x` when
+  `s == 0`, two indicators each) was fast. `abs(e) <= k` is two linear inequalities.
+- **Search help**: break symmetry by fixing interchangeable objects (the first round of
+  an assignment, `x[0] < x[n-1]` for a sequence whose reversal is also a solution), and
+  add redundant constraints derived from the data (counts per value or per period,
+  cumulative constraints on the axes of a packing). Both turned timeouts into solves.
 - **Not available**: Python `min`/`max` over variables (`NotImplementedError`), `//`, `%`.
   Encode `t <= x_i` (or `>=`) with the objective or a selector binary, and
   `x == d * q + r` with `0 <= r <= d - 1`.
@@ -51,18 +62,24 @@ SCIP already supports.
 - `m.count()` is unreliable with indicators (returned 0 where solutions exist); enumerate
   with no-good constraints instead.
 - `m.hideOutput()` silences the solver log.
+- Python reads a comment containing `coding:` or `coding=` in the first two lines of a
+  file as its encoding declaration (`# Encoding: ...` fails with "unknown encoding").
 
 ## DCP-Bench (`scip_python`)
 
 - **Contract**: one file with `build(instance)` returning `(model, outputs)`. `instance` is
   the instance dict; read only the fields you use and take every size from the data (the
   brief's shapes come from the example instance). `outputs` maps each declared output name
-  to a variable, an expression, or a (nested) list of them, with integer values. Do not
-  call `optimize()`, set limits, threads, gap or presolve: the runner does.
+  to a variable, an expression, an int, or a (nested) list of them, with integer values.
+  Do not call `optimize()`, set limits, threads, gap or presolve: the runner does.
 - **Runner**: solves in a worker process with one thread and the request's time limit,
   sets the gap to 0, emits solutions only for a proven optimum (`timeout` otherwise), then
   enumerates further optima by fixing the objective and adding no-goods on the outputs.
-  A crash, `sys.exit` or abort is reported as `error` with its signal or status.
+  A crash, `sys.exit` or abort is reported as `error` with its signal or status. Status
+  `limit` means the solution limit was reached, not a failure.
+- **Objective**: hold it in a bounded integer variable (`z == expr`, bounds from the data,
+  `setObjective(z)`). With a bare expression, one model proved its optimum in 2 s and then
+  timed out searching for the second optimal solution.
 - **Readability**: open the file with a `#` line stating the problem, and start each
   block of constraints with a `#` comment taken from the problem description.
 - **Check**: `python -m evaluation.check MODEL.py --problem P --solver scip_python
