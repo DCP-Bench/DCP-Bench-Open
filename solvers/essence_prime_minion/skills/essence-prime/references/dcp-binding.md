@@ -31,6 +31,10 @@ The list is in `run.py` (`RESERVED`).
 
 - Output variables: every `find`; the declared outputs are read by name and compared with the reference's
   solution set. Other `find`s are not compared: solutions are projected onto the declared outputs.
+- Auxiliary `find`s (not fixed by the outputs): pin each to a function of the outputs, or leave it out. A free
+  auxiliary multiplies the solutions the enumeration must rule out.
+- Shapes: `generation.brief` takes output shapes from the reference example's values. Size each output matrix
+  from an instance `given` (see the sizes example in item 4 above), not from the example's numbers.
 - Satisfaction: each round asks Savile Row for the solutions still missing, then adds a nogood per output
   assignment found (`!(x = 1 /\ M[1,2] = 3 ...)`, matrices flattened), so each round gives new output
   assignments or shows that none remain. Stops at the limit, at exhaustion, or at timeout.
