@@ -2,7 +2,8 @@
 
 // Twelve-pack problem: given a target number of items, choose how many packs of
 // each size to buy so that the total number of items meets or exceeds the target
-// as closely as possible.
+// as closely as possible. The pack sizes are read from the instance, so any
+// number of pack sizes is handled.
 class TwelvePack : public dcp::Space {
  protected:
   IntVarArray counts;  // counts[i]: number of packs of size packs[i] used
@@ -19,8 +20,11 @@ class TwelvePack : public dcp::Space {
     for (int size : packs) c << IntVar(*this, 0, target / size + 1);
     counts = IntVarArray(*this, c);
 
-    // total items bought is the sum of pack size times pack count
-    total = expr(*this, packs[0] * counts[0] + packs[1] * counts[1]);
+    // total items bought is the sum of pack size times pack count, over every
+    // pack size in the instance
+    IntVarArgs pack_counts;
+    for (int i = 0; i < counts.size(); ++i) pack_counts << counts[i];
+    total = expr(*this, sum(IntArgs(packs), pack_counts));
 
     // the combination must meet or exceed the target
     rel(*this, total, IRT_GQ, target);
