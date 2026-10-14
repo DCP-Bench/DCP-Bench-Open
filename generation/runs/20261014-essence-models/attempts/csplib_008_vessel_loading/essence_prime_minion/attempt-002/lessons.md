@@ -1,0 +1,2 @@
+- Evaluator convention that matched: exclusive ends, `right = left + dx`, `top = bottom + dy`, non-overlap `right[i] + sep <= left[j]` or `top[i] + sep <= bottom[j]` (the wrong vertical sign gives "Declared outputs cannot extend to a reference solution" even for a looser model).
+- Any model solution must extend to a reference solution, so an under-constrained model fails with the same message. Accepted on 3 of 5 instances; json:1 and json:2 (16x16, exact tiling, separation 2 and 4) hit execution_timeout under dx/dy redundant `cumulative`, `heuristic sdf` and `conflict`.

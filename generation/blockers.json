@@ -137,6 +137,70 @@
       "detail": "The declared output is one integer whose only value, 3816547290, exceeds Chuffed's 32-bit int (and its +-500,000,000 domain bound), so no IntVar can hold it. A probe check returned invalid_solution: 'Declared outputs cannot extend to a reference solution'. Splitting into digits would change the declared output.",
       "evidence": "generation/runs/20261013-chuffed-models/attempts/divisible_by_1_through_9/chuffed_cpp",
       "recorded": "2026-10-13"
+    },
+    {
+      "problem": "building_blocks",
+      "solver": "essence_prime_minion",
+      "reason": "unsupported_value_type",
+      "detail": "Essence' parameters are int/bool only. The instances carry string data (words_str, alphabet) that no Essence' parameter can declare, so the instance cannot be bound. No attempt was made.",
+      "evidence": "dataset/building_blocks/building_blocks.json",
+      "recorded": "2026-10-14"
+    },
+    {
+      "problem": "cabling",
+      "solver": "essence_prime_minion",
+      "reason": "unsupported_value_type",
+      "detail": "Essence' parameters are int/bool only. The instances carry string data (devices, cable_struct endpoint columns) that no Essence' parameter can declare, so the instance cannot be bound. No attempt was made.",
+      "evidence": "dataset/cabling/cabling.json",
+      "recorded": "2026-10-14"
+    },
+    {
+      "problem": "room_assignment",
+      "solver": "essence_prime_minion",
+      "reason": "unsupported_value_type",
+      "detail": "Essence' parameters are int/bool only. The instances carry string data (start_data, end_data dates) that no Essence' parameter can declare, so the instance cannot be bound. No attempt was made.",
+      "evidence": "dataset/room_assignment/room_assignment.json",
+      "recorded": "2026-10-14"
+    },
+    {
+      "problem": "csplib_008_vessel_loading",
+      "solver": "essence_prime_minion",
+      "reason": "execution_timeout",
+      "detail": "execution_timeout on json:1 and json:2 (16x16 exact tilings). attempt-002 accepted 3 of 5 instances, which is over the one-skip policy.",
+      "evidence": "generation/runs/20261014-essence-models/attempts/csplib_008_vessel_loading/essence_prime_minion/attempt-002/evaluation.json",
+      "recorded": "2026-10-14"
+    },
+    {
+      "problem": "coins_grid",
+      "solver": "essence_prime_minion",
+      "reason": "execution_timeout",
+      "detail": "execution_timeout on the example and json:4 (optimum unproven on 10x10 and 12x12). attempt-004 accepted 3 of 5 instances, which is over the one-skip policy.",
+      "evidence": "generation/runs/20261014-essence-models/attempts/coins_grid/essence_prime_minion/attempt-004/evaluation.json",
+      "recorded": "2026-10-14"
+    },
+    {
+      "problem": "tsp",
+      "solver": "essence_prime_minion",
+      "reason": "execution_timeout",
+      "detail": "execution_timeout on json:2 and json:3. attempt-003 accepted 3 of 5 instances, which is over the one-skip policy.",
+      "evidence": "generation/runs/20261014-essence-models/attempts/tsp/essence_prime_minion/attempt-003/evaluation.json",
+      "recorded": "2026-10-14"
+    },
+    {
+      "problem": "csplib_001_car_sequencing",
+      "solver": "essence_prime_minion",
+      "reason": "execution_timeout",
+      "detail": "json:1 (200 cars) times out in all about 10 variants of the model. Check-only evidence: no accepted evaluation exists for this attempt.",
+      "evidence": "generation/runs/20261014-essence-models/attempts/csplib_001_car_sequencing/essence_prime_minion/attempt-001",
+      "recorded": "2026-10-14"
+    },
+    {
+      "problem": "csplib_011_acc_basketball_schedule",
+      "solver": "essence_prime_minion",
+      "reason": "execution_timeout",
+      "detail": "The embedded example times out at 150 s. Check-only evidence: no accepted evaluation exists for this attempt.",
+      "evidence": "generation/runs/20261014-essence-models/attempts/csplib_011_acc_basketball_schedule/essence_prime_minion/attempt-001",
+      "recorded": "2026-10-14"
     }
   ]
 }

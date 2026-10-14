@@ -1,0 +1,2 @@
+- Unknown-operation cages: `sum(...) = t \/ product(...) = t \/ (len = 2 /\ (|a - b| = t \/ a = t*b \/ b = t*a))`. A padded cell index (0) is out of range, which makes that disjunct false, so the 2-cell branch needs no separate guard beyond `len = 2`.
+- Mixed rows bind as `problem_1` (int column) and `problem_2` (padded 3-D cell lists) with `problem_2_len`, as in the killer sudoku attempt.

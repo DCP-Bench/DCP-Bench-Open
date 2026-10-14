@@ -25,7 +25,7 @@ forAll i : int(1..n) . q[i] != c
 ```
 
 - Header `language ESSENCE' 1.0` (ASCII apostrophe). Comments start with `$`.
-- Order: header, `given`, `letting`, `find`, `where`, `branching on`, objective, `such that`. Verified: `branching on` after `minimising` is a parse error. Constraints are separated by commas; no trailing comma.
+- Order: header, `given`, `letting`, `find`, `where`, `branching on`, `heuristic`, objective, `such that`. Verified: `branching on` after `minimising` is a parse error, and so is `heuristic` after `minimising`. Constraints are separated by commas; no trailing comma.
 - Parameter file: the header plus `letting n = 6` lines (ints, bools, matrix literals `[[1,2],[3,4]]`). A matrix literal is rectangular and has exactly as many entries as the declared index domain.
 - Every `find` variable needs a finite domain: `int(lo..hi)`, `bool`, or `matrix indexed by [D1, D2] of Base`. Matrices are 1-based by default.
 
@@ -59,6 +59,7 @@ Add `-timelimit S` (Savile Row only) and `-solver-options "-cpulimit S"` (caps M
 - Tight domains from the data. Add `where` on parameters only to validate input.
 - Put matrices of the same shape in one `find`, not many scalars.
 - Symmetric designs (round-robin, periodic schedules): fix the first period to canonical values. A set of rows as output: `M[r,..] <=lex M[r+1,..]` orders them.
+- No square root: the nearest integer to sqrt(s) is `letting R = sum([d | d : int(0..DMAX), (2*d-1)**2 <= 4*s, 4*s < (2*d+1)**2])` (verified for s = 0, 2, 10, 13, 24). `^` does not parse; use `**`.
 
 ## Pitfalls
 
@@ -78,7 +79,7 @@ Add `-timelimit S` (Savile Row only) and `-solver-options "-cpulimit S"` (caps M
 ## Search
 
 - `branching on [x, M, [M[i,i] | i : int(1..n)]]` fixes variable order (flatten order for matrices). A comprehension is one entry of the list, so wrap it: `[[e | i : D]]`. Branch first on the structural decisions the rest follows from, then the rest. Branch on few-valued variables that fix the objective.
-- `heuristic static|sdf|conflict|srf` (Minion only) goes before `such that`. Try `sdf` (smallest domain first) when the default stalls, and `conflict` too: it solved one scheduling model where `sdf` and `srf` did not. On others neither helped; value-symmetry breaking did.
+- `heuristic static|sdf|conflict|srf` (Minion only) goes after `branching on`, before the objective. Try `sdf` (smallest domain first) when the default stalls, and `conflict` too: it solved one scheduling model where `sdf` and `srf` did not. On others neither helped; value-symmetry breaking did.
 - Restrict decisions to a precomputed admissible set: `letting S = [i | i : int(1..N), cond]` and `x in toSet(S)`. Grid paths: branch on a Boolean cell matrix, not on position arrays. Long sequences: try a position model (variable = value at each position) early.
 - Boolean incidence matrices (`x[i,s]` bool) propagate much better than weighted sums such as `sum i : D . toInt(x[i] = s) * i`. Products of decision variables in an objective prove poorly; keep the objective linear where you can.
 - Symmetric models (partitions, interchangeable items, large symmetric Boolean matrices): order the entries within each set, and add implied totals (sums, sum of squares halved).
@@ -90,11 +91,11 @@ Add `-timelimit S` (Savile Row only) and `-solver-options "-cpulimit S"` (caps M
 Applies only to the `essence_prime_minion` integration; all above still holds. Full rules: [references/dcp-binding.md](references/dcp-binding.md).
 
 - Submission: one `.eprime` file, no parameter file. Never read files. Do not hardcode instance data.
-- Output types follow the brief: an `int` output is `int(0..1)`, not `bool`, when the reference value is an integer. When the evaluator reports that the declared outputs cannot be extended to a reference solution, check the output convention first (0- or 1-based indices, orientation).
+- Output types follow the brief: an `int` output is `int(0..1)`, not `bool`, when the reference value is an integer, even if the statement says booleans. When the evaluator reports that the declared outputs cannot be extended to a reference solution, check the output convention first (0- or 1-based indices, orientation, exclusive ends, start edge). The same message also fires for a model that is too loose.
 - A declared size that is not an instance field but equals a list's length: `given F_dim1 : int` and `letting n = F_dim1` (run). A given's domain must hold every instance value (0 is not in `int(1..)`).
 - String-valued instance fields are ignored unless the model declares them as a `given`; a declared one is refused. A model that does not need them runs as usual.
 - The runner restates the objective in parentheses itself, so write `minimising sum ...` alone on its line as usual.
-- Each instance field is a `given` of the same name; the file runs on several instances. `given n : int(1..)` and `given w : matrix indexed by [int(1..n)] of int(0..)` bind from the instance. A `given` that is not an instance field is refused (`execution_error`, named); an instance field no `given` names is ignored, whatever its type (`name`, `note`). A size that varies per instance: `given F_dim1, F_dim2 : int` beside a matrix `given F` indexed by them (see dcp-binding.md).
+- Each instance field is a `given` of the same name; the file runs on several instances. `given n : int(1..)` and `given w : matrix indexed by [int(1..n)] of int(0..)` bind from the instance. A `given` that is not an instance field is refused (`execution_error`, named); an instance field no `given` names is ignored, whatever its type (`name`, `note`). A size that varies per instance: `given F_dim1, F_dim2 : int` beside a matrix `given F` indexed by them. Every instance list whose length can vary needs its `F_dim1` given, not only matrices (`given F_dim1 : int` and `given F : matrix indexed by [int(1..F_dim1)] of int`). See dcp-binding.md.
 - Outputs: `find` variables named exactly as the declared outputs, with the declared shape. Ints, bools and (nested) matrices only. Matrices are 1-based: the reference's index 0 is `M[1]`. Output values are matched to the reference's, so an output must be constrained to exactly the reference value (an expression result needs its own `find` with an equality). `brief` shapes come from the reference example's values: size matrices from instance givens, not from the example's numbers. Pin each auxiliary `find` (one the outputs do not fix) to a function of the outputs, or leave it out.
 - Field binding: only declared givens bind. int, bool or rectangular list bind unchanged. A ragged list of rows (one item shape, one scalar type) binds padded with 0/false. Equal-length rows with different column types bind as `<field>_1`, `<field>_2`, ... Derived `<field>_len`, `<field>_dim1`, `<field>_dim2` bind when declared. Declared floats, strings, empty lists and other shapes are refused with an `error` naming the field. Essence' words as names take a trailing `_` (`matrix_`).
 - Objective: `minimising EXPR` or `maximising EXPR` alone on its line, in the direction of the problem, never bounded by a known answer. `such that` appears once, after the objective: the runner appends `, <constraint>` to it.

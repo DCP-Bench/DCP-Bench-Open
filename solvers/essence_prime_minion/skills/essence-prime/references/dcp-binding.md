@@ -9,7 +9,8 @@ whatever its type, so `name` and `note` need no declaration. Names in `given` li
 2. Ragged list of rows whose items have one shape and whose scalars have one type: binds as `<field>` padded with
    0 (false for bools) to the longest row, plus `<field>_len`.
 3. Equal-length rows with columns of different types: `<field>_1`, `<field>_2`, ...; `<field>` is not bound. Each
-   column then follows rule 1 or 2 (not split again).
+   column then follows rule 1 or 2 (not split again). Example: rows `[target, cells]` with `cells` ragged give `F_1` (the
+   int column) and `F_2` (padded, 3-D, with `F_2_dim1` to `F_2_dim3` and `F_2_len`). Index a padded cell by `k <= F_2_len[c]`.
 4. Derived sizes, bound only when declared: `<field>_len` (length of each row, for a list of lists) and
    `<field>_dim1`, `<field>_dim2`, ... (length along each axis of every bound list, after padding). Use them for
    sizes that vary per instance:
@@ -17,7 +18,8 @@ whatever its type, so `name` and `note` need no declaration. Names in `given` li
    given grid_dim1, grid_dim2 : int
    given grid : matrix indexed by [int(1..grid_dim1), int(1..grid_dim2)] of int
    ```
-   Essence' needs finite index domains, so a size that varies must come from a given like this. Lists nested three deep bind padded the same way, with `<field>_dim1` to `<field>_dim3` and `<field>_len` when declared. A size that is not a field but equals a list's length is declared as `given grid_dim1 : int` and `letting n = grid_dim1` (run).
+   Essence' needs finite index domains, so a size that varies must come from a given like this. This holds for a plain
+   list too: `given F_dim1 : int` and `given F : matrix indexed by [int(1..F_dim1)] of int`. Lists nested three deep bind padded the same way, with `<field>_dim1` to `<field>_dim3` and `<field>_len` when declared. A size that is not a field but equals a list's length is declared as `given grid_dim1 : int` and `letting n = grid_dim1` (run).
 5. Refused with `execution_error` naming the field: a declared field that is a float, string or empty list, a name that
    is not an identifier, other ragged or mixed shapes, and generated names that collide with an instance field.
 
@@ -27,6 +29,9 @@ in some instance, that is, when no model could bind it (rule 5 shapes). A string
 model that does not declare it runs, and a model that declares it is refused for that run.
 
 Parameter order does not matter: Savile Row resolves lettings in any order, so dims may come after the matrix.
+
+Instance ids: `json:N` is the 0-based position of the record in the instance file. A record identical to the example, or to an
+earlier record, is dropped and its number is not reused, so the ids can skip.
 
 Essence' reserved words cannot be names. A field or output named `matrix`, `int`, `where` and the like is written
 `matrix_` in the model (`given where_ : int`, `find matrix_ : int`); the solution value is reported as `matrix`.
