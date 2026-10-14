@@ -250,6 +250,21 @@ class RealRepositoryTests(unittest.TestCase):
             with self.subTest(solver=solver):
                 self.assertTrue(set(metadata.get("paradigms") or []) <= documented)
 
+    def test_names_and_backend_labels_follow_the_naming_rule(self):
+        """Brackets in a name hold only the host language, never a solver or
+        system; and every backend either has a display label or is already
+        in the name, so the site never prints a raw lowercase solver value."""
+        languages = {label for _, label in generate_site.LANGUAGES.values()}
+        for solver, metadata in generate_site.load_integrations().items():
+            with self.subTest(solver=solver):
+                name = metadata["name"]
+                if "(" in name and name.endswith(")"):
+                    self.assertIn(name[name.rindex("(") + 1:-1], languages)
+                raw = metadata.get("solver", "")
+                self.assertTrue(raw in generate_site.BACKEND_NAMES
+                                or raw.lower() in name.lower(),
+                                f"add {raw!r} to BACKEND_NAMES in generate_site.py")
+
 
 if __name__ == "__main__":
     unittest.main()

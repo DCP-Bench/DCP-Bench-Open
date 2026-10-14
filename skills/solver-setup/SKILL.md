@@ -72,8 +72,13 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    `SWI-Prolog`. The paradigm never belongs in the name, and neither does the
    backend of a modelling layer: the backend goes in `solver` and the website
    prints it beside the name (`MiniZinc · Gecode`, `SWI-Prolog · CLP(FD)`),
-   and the paradigm goes in `paradigms`. Names must be distinct;
-   `tests/test_solvers.py` enforces that much, and nothing can enforce a name
+   and the paradigm goes in `paradigms`. Brackets hold only the host
+   language, never a solver or system. When a modelling language and the
+   system that runs it have different names, the language is the name and the
+   system goes in `solver`. Every `solver` value needs a display label in
+   `BACKEND_NAMES` in `generate_site.py`, unless the name already contains it.
+   Names must be distinct; `tests/test_solvers.py` and
+   `tests/test_site.py` enforce these rules, and nothing can enforce a name
    being clear.
 
    Renaming is cheap: the catalogue resolves `name` from this file on every
