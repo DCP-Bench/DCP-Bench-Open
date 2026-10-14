@@ -68,6 +68,45 @@ theory {
 }
 """
 MALFORMED = "this is not FO(.) {{{\n"
+# A placeholder takes an integer expression over the instance; here 2*k sizes a
+# type, and the reference below computes the same solutions for k=2 and k=3.
+REFERENCE_SIZE = '''
+# Data
+k = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 2 * k, name="x")
+y = cp.intvar(0, 2 * k, name="y")
+model = cp.Model(x + y == 2 * k)
+model.solve()
+solution = {"x": int(x.value()), "y": int(y.value())}
+print(json.dumps(solution))
+'''
+SIZE_EXPRESSION = """vocabulary {
+    k: () -> Int
+    type V := {0..${2*k}}
+    x: () -> V
+    y: () -> V
+}
+theory {
+    x() + y() = 2 * k().
+}
+"""
+SIZE_IMPORT = SIZE_EXPRESSION.replace("${2*k}", "${__import__}")
+SIZE_ATTRIBUTE = SIZE_EXPRESSION.replace("${2*k}", "${k.real}")
+# A quantifier with ?=1 under an implication makes idp-engine 0.12.1 raise an
+# internal TypeError while annotating; the runner must report it as an error.
+ENGINE_ERROR = """vocabulary {
+    type Bkt := {1..3}
+    A: () -> Bool
+    link: Int * Bkt -> Bool
+    s: () -> Int
+}
+theory {
+    A() => (?=1 b in Bkt: link(s(), b)).
+}
+"""
 UNSATISFIABLE = """vocabulary {
     type V := {0..${n}}
     n: () -> Int
@@ -109,18 +148,33 @@ def main():
             path.write_text(source, encoding="utf-8")
             return path
 
-        def check(name, source, reference=REFERENCE, expected=None, **kwargs):
+        def check(name, source, reference=REFERENCE, expected=None, detail=None, **kwargs):
             result = evaluate(candidate(f"{name}.idp", source), "readiness", SOLVER,
                               reference_source=reference, **kwargs)
             results[name] = result["accepted"] if expected is None else (
                 not result["accepted"] and result["reason"] in expected)
+            if detail is not None:
+                results[name] = results[name] and detail in result.get("detail", "")
             return result
+
+        def refused(name, source, text):
+            result = evaluate(candidate(f"{name}.idp", source), "readiness", SOLVER,
+                              reference_source=REFERENCE_SIZE)
+            return (not result["accepted"] and result["reason"] in {"execution_error", "invalid_output"}
+                    and text in result.get("detail", ""))
 
         check("satisfaction", GOOD)
         check("changed_instances", GOOD, instances=[{"n": 3, "optimize": False}], instance_count=2)
         check("enumeration", GOOD, solution_limit=3)
         check("minimization", OPTIMAL.replace("DIRECTION", "minimize"), reference=OPTIMIZING)
         check("maximization", OPTIMAL.replace("DIRECTION", "maximize"), reference=MAXIMIZING)
+        check("size_expression", SIZE_EXPRESSION, reference=REFERENCE_SIZE, instances=[{"k": 3}],
+              instance_count=2)
+        results["size_expression_refused"] = (
+            refused("size_import", SIZE_IMPORT, "__import__ is not an instance field")
+            and refused("size_attribute", SIZE_ATTRIBUTE, "Attribute is not allowed here"))
+        check("engine_error_reported", ENGINE_ERROR, expected={"execution_error"},
+              detail="NoneType")
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})

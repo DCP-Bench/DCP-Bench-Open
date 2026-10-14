@@ -1,6 +1,6 @@
 ---
 name: idp-z3
-description: Write instance-agnostic FO(.) knowledge bases for the DCP-Bench idp_z3 integration (IDP-Z3 0.12.1), covering how instance data is bound into the vocabulary, the ${name} placeholder for type ranges, the minimize/maximize objective convention, FO(.) syntax that differs from every other modelling language, and the arithmetic and parsing traps that make a submission fail.
+description: Write instance-agnostic FO(.) knowledge bases for the DCP-Bench idp_z3 integration (IDP-Z3 0.12.1), covering how instance data is bound into the vocabulary, the ${...} placeholder for type ranges, the minimize/maximize objective convention, FO(.) syntax that differs from every other modelling language, and the arithmetic and parsing traps that make a submission fail.
 ---
 
 # FO(.) knowledge bases for `idp_z3`
@@ -137,9 +137,15 @@ theory {
 - **`abs` is a built-in symbol** and cannot be redeclared (it fails with an
   unhelpful `IndexError`). Other names are permissive: `a`, `S`, `T`, `V`,
   `min`, `sum`, uppercase names all work as symbols.
-- **`${...}` only takes a field name**, not an expression: `${n}` works,
-  `${n-1}` is rejected with "a placeholder takes one integer field name". Write
-  `{0..${n}}` and adjust the theory, or size the type from an array instead.
+- **`${...}` takes an integer expression over the instance**: an integer scalar
+  field, literals, `+ - * //`, `/` (exact, refused unless it divides evenly),
+  parentheses, and `sum`, `len`, `max`, `min` of a one-dimensional integer array
+  field. `type Slot := {1..${2*k}}` sizes by a product, and
+  `type Job := {1..${sum(demand)}}` by a total. Anything else (calls, attributes,
+  names that are not fields) is refused with "a placeholder takes ...".
+- **`?=n x in T:` under an implication or parentheses crashes idp-engine 0.12.1**
+  (an internal `TypeError` in annotation, reported as an `error` status). Write
+  the quantifier at the top of a sentence, or use `#{x in T: ...}` counts.
 - **Interpreting a data symbol yourself (in your own `structure`) stops the
   runner from binding it** — the instance value is then ignored, which is
   exactly the hardcoding the evaluator rejects on the next instance.
