@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob005_auto_correlation.py
 # Source description: https://www.csplib.org/Problems/prob005/
 
-"""
+r"""
 These problems have many practical applications in communications and electrical engineering. The objective is to
 construct a binary sequence of length n that minimizes the autocorrelations between bits. Each bit in the sequence
 takes the value +1 or -1. With non-periodic (or open) boundary conditions, the k-th autocorrelation, Ck is defined to

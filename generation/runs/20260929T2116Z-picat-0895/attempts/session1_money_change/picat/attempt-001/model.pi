@@ -1,0 +1,18 @@
+% Money change: pay the amount with the available coins using as few coins as
+% possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Amount = Data.get(amount),
+    Types = Data.get(types_of_coins),        % value of each type of coin
+    Available = Data.get(available_coins),   % coins of each type available
+    N = len(Types),
+    Counts = new_list(N),
+    Counts :: 0..max(Available),
+    sum([Counts[I] * Types[I] : I in 1..N]) #= Amount,
+    foreach (I in 1..N)
+        Counts[I] #=< Available[I]
+    end,
+    Vars = Counts,
+    Outputs = [coin_counts = Counts],
+    Options = [$min(sum(Counts))].

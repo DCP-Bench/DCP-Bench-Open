@@ -1,0 +1,26 @@
+% Ages of the sons: three sons whose ages multiply to 36. Knowing their sum is not
+% enough, so another triple with product 36 has the same sum; and there is an
+% oldest son (the "blue eyes" clue), so the oldest age is not shared.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    % a1..a3 are the ages, oldest first; b1..b3 the other triple with the same sum
+    Ages = [A1, A2, A3],
+    Other = [B1, B2, B3],
+    Ages :: 0..36,
+    Other :: 0..36,
+    % the actual triple has a strictly oldest son
+    A1 #> A2,
+    A2 #>= A3,
+    A1 * A2 * A3 #= 36,
+    % the other triple may have twins first, and a different oldest age
+    B1 #>= B2,
+    B2 #>= B3,
+    B1 #!= A1,
+    B1 * B2 * B3 #= 36,
+    % both triples add up to the same number of windows
+    A1 + A2 + A3 #= B1 + B2 + B3,
+    Vars = Ages ++ Other,
+    Outputs = ['A1' = A1, 'A2' = A2, 'A3' = A3],
+    Options = [].

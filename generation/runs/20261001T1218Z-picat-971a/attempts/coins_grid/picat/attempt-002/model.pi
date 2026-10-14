@@ -1,0 +1,38 @@
+% Coins grid: place coins on an n x n grid, at most one per cell, with exactly c coins in
+% every row and every column, so that the sum over the coins of the squared horizontal
+% distance to the main diagonal, (row - column)^2, is as small as possible.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                 % size of the grid
+    C = Data.get(c),                 % coins per row and per column
+    % X[i, j] = 1 if a coin is placed in cell (i, j); at most one coin per cell
+    X = new_array(N, N),
+    X :: 0..1,
+    % every row holds exactly c coins
+    foreach (I in 1..N)
+        sum([X[I, J] : J in 1..N]) #= C
+    end,
+    % every column holds exactly c coins
+    foreach (J in 1..N)
+        sum([X[I, J] : I in 1..N]) #= C
+    end,
+    % Z = sum of the squared distances of the coins to the main diagonal, which is also the
+    % sum of the costs of the rows and the sum of the costs of the columns. A line with c
+    % coins costs at least the sum of the c smallest squared distances available in it.
+    Z #= sum([X[I, J] * ((I - J) * (I - J)) : I in 1..N, J in 1..N]),
+    RowCost = new_list(N),
+    ColCost = new_list(N),
+    foreach (I in 1..N)
+        Dists = sort([(I - J) * (I - J) : J in 1..N]),
+        Best = sum([Dists[K] : K in 1..C]),
+        RowCost[I] :: Best..N * N * C,
+        RowCost[I] #= sum([X[I, J] * ((I - J) * (I - J)) : J in 1..N]),
+        ColCost[I] :: Best..N * N * C,
+        ColCost[I] #= sum([X[J, I] * ((I - J) * (I - J)) : J in 1..N])
+    end,
+    Z #= sum(RowCost),
+    Z #= sum(ColCost),
+    Vars = X,
+    Outputs = [x = X, z = Z],
+    Options = [$min(Z)].

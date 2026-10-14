@@ -1,0 +1,26 @@
+% Set: among the cards on the table choose three (0-based indices) that form a
+% set, that is, for each of the four features (number, fill, colour, shape) the
+% three cards show either the same value or three different values.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Cards = Data.get(cards_data),   % each card is [number, fill, colour, shape]
+    NCards = len(Cards),
+    Chosen = new_list(3),
+    Chosen :: 0..NCards-1,
+    % three different cards
+    all_different(Chosen),
+    foreach (F in 1..4)
+        % the value of feature f on every card, and on each chosen card
+        Column = [Card[F] : Card in Cards],
+        Values = new_list(3),
+        foreach (K in 1..3)
+            element0(Chosen[K], Column, Values[K])
+        end,
+        % all the same, or all different
+        (Values[1] #= Values[2] #/\ Values[2] #= Values[3]) #\/
+        (Values[1] #!= Values[2] #/\ Values[1] #!= Values[3] #/\ Values[2] #!= Values[3])
+    end,
+    Vars = Chosen,
+    Outputs = [winning_cards = Chosen],
+    Options = [].

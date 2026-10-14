@@ -1,0 +1,20 @@
+% Cabling: put the devices one above another in a rack, one device per slot, so
+% that the total cable length is as small as possible. The cables between two
+% devices cost their count times the distance between the two slots.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Devices = Data.get(devices),       % device names
+    Cables = Data.get(cable_struct),   % [device a, device b, number of cables]
+    Index = new_map([Devices[I] = I : I in 1..N]),
+    % slot[d] = the slot, 1..n, of device d; every device gets its own slot
+    Slot = new_list(N),
+    Slot :: 1..N,
+    all_distinct(Slot),
+    % the total cable length
+    Links = [{Index.get(Cable[1]), Index.get(Cable[2]), Cable[3]} : Cable in Cables],
+    FinalSum #= sum([Link[3] * abs(Slot[Link[1]] - Slot[Link[2]]) : Link in Links]),
+    Vars = Slot,
+    Outputs = [final_sum = FinalSum],
+    Options = [ff, $min(FinalSum)].

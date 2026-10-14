@@ -1,0 +1,9 @@
+% instance: {"target": 999983}
+% limit: 2
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    T = Data.get(target),
+    [A, B] :: 1..1000000,
+    A * B #= T,
+    A #=< B,
+    Vars = [A, B], Outputs = [a = A, b = B], Options = [].

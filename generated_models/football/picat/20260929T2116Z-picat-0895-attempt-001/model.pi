@@ -1,0 +1,30 @@
+% Football squad: buy players for as close to GBP 30 million as possible without
+% going over, taking the required number from each position and at least eleven
+% players in all. The answer is the total price in GBP thousands.
+import sat.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The players on offer are fixed by the problem: their prices in GBP
+    % thousands per position, with the fewest and most to buy at that position.
+    Budget = 30000,
+    Goalkeepers = [730, 1280, 3880],                                        % exactly 1
+    Defenders = [920, 1310, 1620, 2410, 2790, 3280, 3910, 4570],            % 2 or more
+    Midfielders = [1800, 2630, 3170, 3769, 4140, 4750, 5380, 5930, 6780, 7130],  % 3 or more
+    Strikers = [4460, 6470, 7780, 8390, 9500],                              % 2 or more
+    Prices = Goalkeepers ++ Defenders ++ Midfielders ++ Strikers,
+    N = len(Prices),
+    % buy[p] = 1 when player p is bought
+    Buy = new_list(N),
+    Buy :: 0..1,
+    G = len(Goalkeepers), D = len(Defenders), M = len(Midfielders),
+    sum([Buy[P] : P in 1..G]) #= 1,
+    sum([Buy[P] : P in G+1..G+D]) #>= 2,
+    sum([Buy[P] : P in G+D+1..G+D+M]) #>= 3,
+    sum([Buy[P] : P in G+D+M+1..N]) #>= 2,
+    sum(Buy) #>= 11,
+    % z = the total price, within the budget and as large as possible
+    Z #= sum([Prices[P] * Buy[P] : P in 1..N]),
+    Z #=< Budget,
+    Vars = Buy,
+    Outputs = [z = Z],
+    Options = [$max(Z)].

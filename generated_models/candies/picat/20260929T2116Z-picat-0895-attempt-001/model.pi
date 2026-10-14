@@ -1,0 +1,23 @@
+% Candies: give every child at least one candy, a child with a higher rating
+% than a neighbour more candies than that neighbour, and as few candies as
+% possible in total.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Ratings = Data.get(ratings),
+    N = len(Ratings),
+    X = new_list(N),
+    X :: 1..N,
+    Z :: 1..N * N,
+    Z #= sum(X),
+    Z #>= N,
+    foreach (I in 2..N)
+        if Ratings[I - 1] > Ratings[I] then
+            X[I - 1] #> X[I]
+        elseif Ratings[I - 1] < Ratings[I] then
+            X[I - 1] #< X[I]
+        end
+    end,
+    Vars = X,
+    Outputs = [z = Z, x = X],
+    Options = [$min(Z)].

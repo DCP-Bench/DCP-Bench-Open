@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "cannot access local variable 'problem' where it is not associated with a value",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ca4aac137e9cea374b23272d4faaf82184ecc724a5a7e431504e2c6b88078800",
+    "tag": "dcp-eval/pulp_cbc:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.1000010999850929e-06,
+      "detail": "cannot access local variable 'problem' where it is not associated with a value",
+      "execution_wall_seconds": 1.7752543999995396,
+      "id": "example",
+      "instance_hash": "54d28a8c393eed99ea0f26a8f4ab9a89d10e8e283908ba3c3daf1948cc4e3a1e",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "grid"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 2.458026600001176,
+      "runner_status": {
+        "detail": "cannot access local variable 'problem' where it is not associated with a value",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 241, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 186, in solve\n    problem, outputs = load(request[\"instance\"])\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 73, in load\n    returned = module.build(instance)\n               ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 88, in build\n    need_water(cell[\"C\"], r, c, [up, down, west, east])\n  File \"/input/model.py\", line 73, in need_water\n    problem += cell_state + ship(r + dr, c + dc) <= 1\n    ^^^^^^^\nUnboundLocalError: cannot access local variable 'problem' where it is not associated with a value\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "643b4564891fcf37bc7217b7809de9e28a5efd6a44934277f5296839cfc2cf46",
+  "problem_id": "csplib_014_solitaire_battleships",
+  "reason": "execution_error",
+  "reference_hash": "2cd21cce2b2cf73b19dc518c4e7846c0f19a6d8c94fd78001c3610b1ca9a80f7",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "pulp_cbc",
+  "total_wall_seconds": 4.810002499998518,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

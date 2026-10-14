@@ -1,0 +1,42 @@
+% Facility location: decide which of four candidate warehouses to open and how
+% many units each ships to each region, meeting every region's demand at the
+% least fixed plus shipping cost, under three rules about which warehouses may be
+% open together.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Names = Data.get(warehouse_s),               % warehouse cities
+    FixedCosts = Data.get(fixed_costs),          % weekly fixed cost of each warehouse
+    MaxShipping = Data.get(max_shipping),        % most units a warehouse sends per week
+    Demands = Data.get(demands),                 % weekly demand of each region
+    ShippingCosts = Data.get(shipping_costs),    % cost per unit from warehouse i to region j
+    NW = len(Names),
+    NR = len(Demands),
+    NY = [I : I in 1..NW, Names[I] == "New York"],
+    LA = [I : I in 1..NW, Names[I] == "Los Angeles"],
+    AT = [I : I in 1..NW, Names[I] == "Atlanta"],
+    NewYork = NY[1], LosAngeles = LA[1], Atlanta = AT[1],
+    Open = new_list(NW),
+    Open :: 0..1,
+    % ships[i, j] = units from warehouse i to region j
+    Ships = new_array(NW, NR),
+    Ships :: 0..MaxShipping,
+    % a warehouse sends at most max_shipping units, and nothing when closed
+    foreach (I in 1..NW)
+        sum([Ships[I, J] : J in 1..NR]) #=< MaxShipping * Open[I]
+    end,
+    % every region receives at least its demand
+    foreach (J in 1..NR)
+        sum([Ships[I, J] : I in 1..NW]) #>= Demands[J]
+    end,
+    % 1. if the New York warehouse is open, the Los Angeles one is open too
+    Open[NewYork] #=> Open[LosAngeles],
+    % 2. at most three warehouses are open
+    sum(Open) #=< 3,
+    % 3. the Atlanta or the Los Angeles warehouse (or both) is open
+    Open[Atlanta] #\/ Open[LosAngeles],
+    TotalCost #= sum([FixedCosts[I] * Open[I] : I in 1..NW]) +
+                 sum([ShippingCosts[I, J] * Ships[I, J] : I in 1..NW, J in 1..NR]),
+    Vars = Open ++ vars(Ships),
+    Outputs = [total_cost = TotalCost, open_warehouse = Open, ships = Ships],
+    Options = [$min(TotalCost)].

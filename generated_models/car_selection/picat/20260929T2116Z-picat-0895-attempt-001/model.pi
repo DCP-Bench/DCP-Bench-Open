@@ -1,0 +1,25 @@
+% Car selection: assign participants to cars they are interested in, each
+% participant to at most one car and each car to at most one participant, with
+% as many assignments as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Possible = Data.get(possible_assignments),   % 1 when participant i likes car j
+    NP = len(Possible),
+    NC = len(Possible[1]),
+    A = new_array(NP, NC),
+    A :: 0..1,
+    % only cars the participant is interested in
+    foreach (I in 1..NP, J in 1..NC)
+        A[I, J] #=< Possible[I, J]
+    end,
+    % each participant gets at most one car, and each car at most one participant
+    foreach (I in 1..NP)
+        sum([A[I, J] : J in 1..NC]) #=< 1
+    end,
+    foreach (J in 1..NC)
+        sum([A[I, J] : I in 1..NP]) #=< 1
+    end,
+    Vars = A,
+    Outputs = [assignments = A],
+    Options = [$max(sum([A[I, J] : I in 1..NP, J in 1..NC]))].

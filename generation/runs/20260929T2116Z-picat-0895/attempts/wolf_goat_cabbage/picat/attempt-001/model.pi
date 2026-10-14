@@ -1,0 +1,35 @@
+% Wolf, goat and cabbage: a farmer ferries a wolf, a goat and a cabbage across a
+% river in a boat that carries him and at most one item. The wolf is never left
+% alone with the goat, nor the goat with the cabbage. For each stage the answer
+% gives the shore (0 = start, 1 = far side) of each item and of the boat.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Stage = Data.get(stage),
+    Wolf = new_list(Stage),
+    Goat = new_list(Stage),
+    Cabbage = new_list(Stage),
+    Boat = new_list(Stage),
+    Wolf :: 0..1, Goat :: 0..1, Cabbage :: 0..1, Boat :: 0..1,
+    % everything starts on the first shore and ends on the far one
+    foreach (P in [Wolf, Goat, Cabbage, Boat])
+        P[1] #= 0,
+        P[Stage] #= 1
+    end,
+    % the boat crosses at every stage
+    foreach (I in 2..Stage)
+        Boat[I] #!= Boat[I - 1]
+    end,
+    foreach (I in 1..Stage)
+        % the wolf and the goat are not alone: if they share a shore, the boat is there
+        Wolf[I] #= Goat[I] #=> Boat[I] #= Goat[I],
+        % the goat and the cabbage are not alone either
+        Goat[I] #= Cabbage[I] #=> Boat[I] #= Goat[I]
+    end,
+    % at most one of the three items changes shore between two stages
+    foreach (I in 1..Stage-1)
+        (Wolf[I] #!= Wolf[I + 1]) + (Goat[I] #!= Goat[I + 1]) + (Cabbage[I] #!= Cabbage[I + 1]) #=< 1
+    end,
+    Vars = Wolf ++ Goat ++ Cabbage ++ Boat,
+    Outputs = [wolf_pos = Wolf, goat_pos = Goat, cabbage_pos = Cabbage, boat_pos = Boat],
+    Options = [].

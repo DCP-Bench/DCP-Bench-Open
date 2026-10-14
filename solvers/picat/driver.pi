@@ -1,0 +1,265 @@
+% Solving side of the picat integration. Runs inside the image only.
+%
+% `run.py` writes the request as one Picat term and starts this driver:
+%
+%     picat driver.pi REQUEST_FILE RECORD_FILE
+%
+% The driver compiles the submission, calls its model/4, owns the search,
+% optimisation and enumeration, and writes the runner protocol as JSON lines to
+% RECORD_FILE, flushing after each one. Standard output is left to the
+% submission and to Picat's own messages; run.py relays it to stderr, so a
+% stray println in a model cannot corrupt the protocol.
+%
+% A submission imports exactly one solver module, cp or sat, and defines
+%
+%     model(Data, Vars, Outputs, Options)
+%
+% Data is the instance as a map, Vars the decision variables to label, Outputs
+% the declared outputs as a list of Name = Value pairs (or a map), and Options
+% the solve options, which may hold one $min(Obj) or $max(Obj).
+%
+% This file imports no solver module. solve/2, #=/2 and solve_suspended/0 are
+% reached through call/N, which Picat resolves at run time against the loaded
+% modules, so they bind to whichever of cp and sat the submission imported.
+%
+% In Picat a compound term in an argument position is a function call unless
+% it is written $f(...), and a $-term is not evaluated inside. So messages are
+% built before they are thrown, and rule heads, which are patterns, carry no $.
+
+% util supplies join/2 for writing JSON; it holds no solver.
+import util.
+
+main([RequestFile, RecordFile]) =>
+    Out = open(RecordFile, write),
+    get_global_map().put(dcp_records, Out),
+    (   catch(dcp_run(RequestFile), Error, dcp_report(Error))
+    ->  true
+    ;   dcp_status(error, "The picat driver failed without reaching a verdict")
+    ),
+    close(Out).
+
+dcp_run(RequestFile) =>
+    In = open(RequestFile),
+    Request = read_term(In),
+    close(In),
+    Request = $dcp_request(Instance, Limit, ModelFile),
+    Data = dcp_value(Instance),
+    cl(ModelFile),
+    Backend = dcp_backend(),
+    dcp_solve(Data, Limit, Backend, Status),
+    dcp_status(Status, "").
+
+% The submission's import decides the solver. Only cp and sat run in this
+% image: mip needs an external MIP solver and smt an external SMT solver, and
+% neither is installed.
+dcp_backend() = Backend =>
+    Solvers = [M : M in loaded_modules(), membchk(M, [cp, sat, mip, smt])],
+    if Solvers == [cp] then
+        Backend = cp
+    elseif Solvers == [sat] then
+        Backend = sat
+    elseif Solvers == [] then
+        dcp_fail("The submission must import cp or sat")
+    elseif (membchk(mip, Solvers) ; membchk(smt, Solvers)) then
+        dcp_fail("This image has no MIP or SMT solver; import cp or sat")
+    else
+        dcp_fail("The submission must import exactly one of cp and sat")
+    end.
+
+% The instance arrives as plain terms: a JSON object is json_object(Keys, Values)
+% with quoted-atom keys, and everything else is already the Picat value it
+% stands for.
+dcp_value(json_object(Keys, Values)) = Map =>
+    Map = new_map(),
+    foreach (I in 1..len(Keys))
+        Map.put(Keys[I], dcp_value(Values[I]))
+    end.
+dcp_value(List) = Result, list(List) => Result = [dcp_value(E) : E in List].
+dcp_value(Other) = Result => Result = Other.
+
+% ---------------------------------------------------------------------------
+% Solving: prove the optimum first when there is one, then rebuild the model
+% with the objective fixed at that value and enumerate distinct declared
+% outputs.
+
+dcp_solve(Data, Limit, Backend, Status) =>
+    Optimum = dcp_optimum(Data),
+    G = get_global_map(),
+    G.put(dcp_count, 0),
+    G.put(dcp_seen, []),
+    (   dcp_build(Data, LabelVars, Outputs, Options, Objective),
+        dcp_fix(Objective, Optimum),
+        call(solve, Options, LabelVars),
+        dcp_complete(Backend),
+        dcp_emit(Outputs),
+        G.get(dcp_count) >= Limit
+    ->  Status = limit
+    ;   Count = G.get(dcp_count),
+        if Count > 0 then
+            Status = complete
+        elseif Optimum == none then
+            Status = unsat
+        else
+            dcp_fail("The optimum was proven, but no solution reaching it was found again")
+        end
+    ).
+
+% Both solver modules return the first solution of a $min or $max search only
+% once it is proven optimal, so anything short of it is a timeout (run.py kills
+% the process) or an unsatisfiable model.
+dcp_optimum(Data) = Optimum =>
+    Found = findall(Value, once(dcp_optimum_value(Data, Value))),
+    if Found == [] then
+        throw($dcp_verdict(unsat))
+    end,
+    [Optimum] = Found.
+
+dcp_optimum_value(Data, Value) =>
+    dcp_build(Data, LabelVars, _, Options, Objective),
+    if Objective == none then
+        Value = none
+    else
+        dcp_objective_var(Objective, ObjVar),
+        call(solve, [Objective|Options], LabelVars),
+        Value = ObjVar
+    end.
+
+dcp_objective_var(min(V), ObjVar) => ObjVar = V.
+dcp_objective_var(max(V), ObjVar) => ObjVar = V.
+
+dcp_fix(none, _) => true.
+dcp_fix(Objective, Optimum) =>
+    dcp_objective_var(Objective, ObjVar),
+    call('#=', ObjVar, Optimum).
+
+% cp labels incrementally: a variable that is in no constraint with the
+% labelled ones can stay free with its constraints suspended. solve_suspended
+% labels those too, so a solution is only reported once it is complete. sat
+% solves every constraint it was given, so it needs no such step. It is called
+% with an option list because a call/1 on a known atom is bound when this file
+% is compiled, before cp is loaded, whereas call/2 is resolved at run time.
+dcp_complete(cp) => once(call(solve_suspended, [])).
+dcp_complete(_) => true.
+
+% Call the submission, check what it returned, and put every variable that has
+% to receive a value on the labelling list: the declared variables first, in the
+% submission's order, then any left free in the outputs or the objective.
+dcp_build(Data, LabelVars, Outputs, Options, Objective) =>
+    call(model, Data, Vars, Given, AllOptions),
+    Outputs = dcp_outputs(Given),
+    if not list(AllOptions) then
+        dcp_fail("Options must be a list of solve options")
+    end,
+    Objectives = [O : O in AllOptions, dcp_objective(O)],
+    Options = [O : O in AllOptions, not dcp_objective(O)],
+    if Objectives == [] then
+        Objective = none,
+        ObjVars = []
+    elseif Objectives = [Single] then
+        Objective = dcp_objective_on_var(Single),
+        dcp_objective_var(Objective, ObjVar),
+        ObjVars = [ObjVar]
+    else
+        dcp_fail("Options may hold at most one $min(...) or $max(...)")
+    end,
+    LabelVars = vars([Vars, [dcp_pair_value(P) : P in Outputs], ObjVars]).
+
+dcp_objective(min(_)) => true.
+dcp_objective(max(_)) => true.
+
+% An objective over an expression is minimised through a variable equal to it,
+% so the driver can read its value and fix it afterwards.
+dcp_objective_on_var(min(E)) = Objective =>
+    V = dcp_expression_var(E),
+    Objective = $min(V).
+dcp_objective_on_var(max(E)) = Objective =>
+    V = dcp_expression_var(E),
+    Objective = $max(V).
+
+dcp_expression_var(E) = V, (var(E) ; int(E)) => V = E.
+dcp_expression_var(E) = V => call('#=', V, E).
+
+dcp_outputs(Given) = Pairs, map(Given) => Pairs = dcp_outputs(Given.to_list()).
+dcp_outputs(Given) = Pairs, list(Given), Given != [] =>
+    foreach (Pair in Given)
+        if not dcp_output_pair(Pair) then
+            dcp_fail("Each output must be Name = Value with an atom or string name, not " ++ to_string(Pair))
+        end
+    end,
+    Pairs = Given.
+dcp_outputs(Given) = _ =>
+    dcp_fail("Outputs must be a nonempty list of Name = Value pairs or a map, not " ++ to_string(Given)).
+
+dcp_output_pair((Name = _)), atom(Name) => true.
+dcp_output_pair((Name = _)), string(Name), Name != [] => true.
+
+dcp_pair_name((Name = _)) = Name.
+dcp_pair_value((_ = Value)) = Value.
+
+% ---------------------------------------------------------------------------
+% Output
+
+dcp_emit(Outputs) =>
+    Fields = [dcp_field(dcp_pair_name(P), dcp_pair_name(P), dcp_pair_value(P)) : P in sort(Outputs)],
+    Text = "{" ++ join(Fields, ",") ++ "}",
+    G = get_global_map(),
+    Seen = G.get(dcp_seen),
+    % Distinctness is measured over the declared outputs only.
+    if not membchk(Text, Seen) then
+        G.put(dcp_seen, [Text|Seen]),
+        dcp_record("{\"type\":\"solution\",\"values\":" ++ Text ++ "}"),
+        G.put(dcp_count, G.get(dcp_count) + 1)
+    end.
+
+% Output is the declared output a value belongs to, for error messages.
+dcp_field(Output, Key, Value) = dcp_quote(dcp_name(Key)) ++ ":" ++ dcp_json(Output, Value).
+
+dcp_name(Name) = String, atom(Name) => String = to_string(Name).
+dcp_name(Name) = String => String = Name.
+
+% A string is a list of one-character atoms, so it is tested before lists in
+% general; the empty list is an empty array.
+dcp_json(Output, Value) = _, var(Value) =>
+    dcp_fail("Declared output " ++ dcp_name(Output) ++ " was left unbound").
+dcp_json(_, Value) = Text, int(Value) => Text = to_string(Value).
+dcp_json(_, Value) = Text, float(Value) => Text = to_string(Value).
+dcp_json(_, []) = Text => Text = "[]".
+dcp_json(_, Value) = Text, atom(Value) => Text = dcp_quote(to_string(Value)).
+dcp_json(_, Value) = Text, string(Value) => Text = dcp_quote(Value).
+dcp_json(Output, Value) = Text, list(Value) =>
+    Text = "[" ++ join([dcp_json(Output, E) : E in Value], ",") ++ "]".
+dcp_json(Output, Value) = Text, array(Value) => Text = dcp_json(Output, to_list(Value)).
+dcp_json(Output, Value) = Text, map(Value) =>
+    Fields = [dcp_field(Output, dcp_pair_name(P), dcp_pair_value(P)) : P in sort(Value.to_list())],
+    Text = "{" ++ join(Fields, ",") ++ "}".
+dcp_json(Output, Value) = _ =>
+    dcp_fail("Declared output " ++ dcp_name(Output) ++ " holds " ++ to_string(Value) ++
+             ", which is not an integer, a string or a list of them").
+
+dcp_quote(String) = "\"" ++ dcp_escape(String) ++ "\"".
+
+dcp_escape([]) = [].
+dcp_escape(['"'|T]) = ['\\', '"'|dcp_escape(T)].
+dcp_escape(['\\'|T]) = ['\\', '\\'|dcp_escape(T)].
+dcp_escape([C|T]) = R, ord(C) < 32 => R = to_fstring("%s%04x", "\\u", ord(C)) ++ dcp_escape(T).
+dcp_escape([C|T]) = R => R = [C|dcp_escape(T)].
+
+dcp_status(Status, Detail) =>
+    dcp_record("{\"type\":\"status\",\"status\":" ++ dcp_quote(to_string(Status)) ++
+               ",\"detail\":" ++ dcp_quote(Detail) ++ "}").
+
+dcp_record(Line) =>
+    Out = get_global_map().get(dcp_records),
+    println(Out, Line),
+    flush(Out).
+
+% ---------------------------------------------------------------------------
+% Every outcome leaves exactly one status record.
+
+dcp_fail(Message) => throw($dcp_error(Message)).
+
+dcp_report(dcp_verdict(unsat)) => dcp_status(unsat, "").
+dcp_report(dcp_error(Message)) => dcp_status(error, Message).
+dcp_report(Error) =>
+    println(stderr, Error),
+    dcp_status(error, to_string(Error)).

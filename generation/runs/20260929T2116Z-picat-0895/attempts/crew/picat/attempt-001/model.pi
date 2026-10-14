@@ -1,0 +1,33 @@
+% Crew assignment: staff each flight with flight attendants. A flight needs a
+% given number of crew, of whom at least given numbers are stewards, hostesses
+% and speakers of French, Spanish and German, and a person who works a flight
+% has the next two flights off.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    Attributes = Data.get(attributes),   % per person: steward, hostess, French, Spanish, German (0/1)
+    Required = Data.get(required_crew),  % per flight: crew size, then the minimum per attribute
+    NPersons = len(Attributes),
+    NFlights = len(Required),
+    NAttributes = len(Attributes[1]),
+    % crew[f, p] = 1 when person p works on flight f
+    Crew = new_array(NFlights, NPersons),
+    Crew :: 0..1,
+    foreach (F in 1..NFlights)
+        % the flight has exactly the crew size it needs
+        sum([Crew[F, P] : P in 1..NPersons]) #= Required[F, 1],
+        % and at least the required number of people with each attribute
+        foreach (A in 1..NAttributes)
+            sum([Crew[F, P] : P in 1..NPersons, Attributes[P, A] == 1]) #>= Required[F, A + 1]
+        end
+    end,
+    % after a flight a person has the next two flights off
+    foreach (F in 1..NFlights-1, P in 1..NPersons)
+        Crew[F, P] + Crew[F + 1, P] #=< 1,
+        if F + 2 =< NFlights then
+            Crew[F, P] + Crew[F + 2, P] #=< 1
+        end
+    end,
+    Vars = Crew,
+    Outputs = [crew = Crew],
+    Options = [].

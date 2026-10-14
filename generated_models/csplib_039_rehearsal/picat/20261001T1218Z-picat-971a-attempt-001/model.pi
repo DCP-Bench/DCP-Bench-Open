@@ -1,0 +1,49 @@
+% Rehearsal problem: order the pieces of a concert for rehearsal so that the total time players
+% spend waiting is as small as possible. A player arrives just before the first piece they play
+% in and leaves just after the last one; the time a player waits is the total duration of the
+% pieces rehearsed in between in which they do not play. Pieces and slots are counted from 0.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NumPieces = Data.get(num_pieces),
+    NumPlayers = Data.get(num_players),
+    Duration = Data.get(duration),        % Duration[i + 1] = duration of piece i
+    Rehearsal = Data.get(rehearsal),      % Rehearsal[p + 1][i + 1] = 1 if player p plays in piece i
+    % Order[s] = the piece rehearsed in slot s (slots counted from 0, stored from index 1)
+    Order = new_list(NumPieces),
+    Order :: 0..NumPieces - 1,
+    % arrival[p], departure[p] = the first and the last slot at which player p is present
+    Arrival = new_list(NumPlayers),
+    Departure = new_list(NumPlayers),
+    Arrival :: 0..NumPieces - 1,
+    Departure :: 0..NumPieces - 1,
+    % every piece is rehearsed exactly once
+    all_different(Order),
+    % SlotDuration[s] = the duration of the piece rehearsed in slot s
+    SlotDuration = new_list(NumPieces),
+    SlotDuration :: 0..max(Duration),
+    foreach (S in 1..NumPieces)
+        element0(Order[S], Duration, SlotDuration[S])
+    end,
+    % Plays[p, s] = 1 if player p plays in the piece rehearsed in slot s
+    Plays = new_array(NumPlayers, NumPieces),
+    Plays :: 0..1,
+    foreach (P in 1..NumPlayers, S in 1..NumPieces)
+        RowOfPlayer = Rehearsal[P],
+        element0(Order[S], RowOfPlayer, Plays[P, S])
+    end,
+    % a player is present in every slot in which they play: between arrival and departure
+    foreach (P in 1..NumPlayers, S in 1..NumPieces)
+        Plays[P, S] #= 1 #=> (Arrival[P] #=< S - 1 #/\ S - 1 #=< Departure[P])
+    end,
+    % Waits[p, s] = 1 if player p is present in slot s without playing
+    Waits = new_array(NumPlayers, NumPieces),
+    Waits :: 0..1,
+    foreach (P in 1..NumPlayers, S in 1..NumPieces)
+        Waits[P, S] #<=> (Plays[P, S] #= 0 #/\ Arrival[P] #=< S - 1 #/\ S - 1 #=< Departure[P])
+    end,
+    % total waiting time: the duration of each slot's piece for every player waiting in it
+    TotalWaiting #= sum([SlotDuration[S] * Waits[P, S] : P in 1..NumPlayers, S in 1..NumPieces]),
+    Vars = Order ++ Arrival ++ Departure,
+    Outputs = [rehearsal_order = Order],
+    Options = [$min(TotalWaiting)].

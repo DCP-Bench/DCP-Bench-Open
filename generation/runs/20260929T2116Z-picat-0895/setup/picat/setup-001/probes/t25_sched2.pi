@@ -1,0 +1,16 @@
+% instance: {"durations": [2, 3, 1]}
+% limit: 3
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    Durations = Data.get(durations),
+    N = len(Durations),
+    Starts = new_list(N),
+    Starts :: 0..sum(Durations),
+    serialized(Starts, Durations),
+    Makespan :: 0..sum(Durations),
+    foreach (I in 1..N)
+        Starts[I] + Durations[I] #=< Makespan
+    end,
+    Vars = Starts,
+    Outputs = [starts = Starts, makespan = Makespan],
+    Options = [$min(Makespan)].

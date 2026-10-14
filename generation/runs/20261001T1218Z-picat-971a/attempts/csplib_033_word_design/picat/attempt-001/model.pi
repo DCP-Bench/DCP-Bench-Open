@@ -1,0 +1,31 @@
+% Word design: find num_words words of length n over {A,C,G,T} (coded 1..4) such that each
+% word has exactly 4 letters from {C,G}, any two distinct words differ in at least 4
+% positions, and for any two words x, y (possibly the same) the reverse of x and the
+% Watson-Crick complement of y differ in at least 4 positions.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                 % length of each word
+    NumWords = Data.get(num_words),
+    % the constants 4 and 4 below come from the problem statement, not from the instance
+    GCCount = 4,                     % letters of each word that are C or G
+    MinDist = 4,                     % minimum number of differing positions
+    % Words[i, j] = the j-th letter of word i: 1 = A, 2 = C, 3 = G, 4 = T
+    Words = new_array(NumWords, N),
+    Words :: 1..4,
+    % each word has exactly 4 letters in {C, G}
+    foreach (I in 1..NumWords)
+        sum([(Words[I, J] #= 2) #\/ (Words[I, J] #= 3) : J in 1..N]) #= GCCount
+    end,
+    % two distinct words differ in at least 4 positions
+    foreach (I1 in 1..NumWords - 1, I2 in I1 + 1..NumWords)
+        sum([Words[I1, J] #!= Words[I2, J] : J in 1..N]) #>= MinDist
+    end,
+    % the reverse of any word x differs from the complement of any word y (the complement
+    % of letter v is 5 - v: A<->T, C<->G) in at least 4 positions; x and y may be the same
+    foreach (X in 1..NumWords, Y in 1..NumWords)
+        sum([Words[X, N + 1 - J] #!= 5 - Words[Y, J] : J in 1..N]) #>= MinDist
+    end,
+    Vars = Words,
+    Outputs = [words = Words],
+    Options = [ff].

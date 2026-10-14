@@ -1,0 +1,166 @@
+{
+  "accepted": false,
+  "detail": "min() iterable argument is empty",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:187e80095a300ad8140bbc02a2d2fc4dca64fa7a7e9ff64068a839492333df95",
+    "tag": "dcp-eval/pysat:v1"
+  },
+  "instances": [
+    {
+      "accepted": true,
+      "checking_seconds": 0.008570700068958104,
+      "execution_wall_seconds": 4.245568600017577,
+      "first_solution": {
+        "room_assignments": [
+          3,
+          2,
+          1,
+          4
+        ]
+      },
+      "id": "example",
+      "instance_hash": "d2036c74d8d99fd83c891681544237fb1febdc7e3f94e52e31fc3f591b3264e0",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "room_assignments"
+      ],
+      "reason": "accepted",
+      "reference_setup_seconds": 2.7929578999755904,
+      "runner_status": {
+        "detail": "",
+        "solve_seconds": 0.05839367600128753,
+        "status": "limit",
+        "type": "status"
+      },
+      "solutions_checked": 2,
+      "solutions_received": 2,
+      "stderr": ""
+    },
+    {
+      "accepted": true,
+      "checking_seconds": 0.019335299963131547,
+      "execution_wall_seconds": 4.6247273000190035,
+      "first_solution": {
+        "room_assignments": [
+          2,
+          1,
+          1,
+          0,
+          1,
+          4,
+          3,
+          4,
+          2,
+          0,
+          1,
+          4,
+          3,
+          3,
+          3,
+          3,
+          2,
+          2,
+          2,
+          3,
+          4,
+          3,
+          2,
+          0,
+          4,
+          3,
+          0,
+          0,
+          1,
+          2,
+          0,
+          3,
+          4,
+          4,
+          1,
+          0,
+          0,
+          4
+        ]
+      },
+      "id": "json:1",
+      "instance_hash": "eeb054ba893ab17b1626b6e0bd0be3a9cb8a9c0bd7e4dcd2672fbfff69a12fbe",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "room_assignments"
+      ],
+      "reason": "accepted",
+      "reference_setup_seconds": 2.94390429998748,
+      "runner_status": {
+        "detail": "",
+        "solve_seconds": 0.06287240800156724,
+        "status": "limit",
+        "type": "status"
+      },
+      "solutions_checked": 2,
+      "solutions_received": 2,
+      "stderr": ""
+    },
+    {
+      "accepted": false,
+      "checking_seconds": 9.00006853044033e-07,
+      "detail": "min() iterable argument is empty",
+      "execution_wall_seconds": 4.542476400034502,
+      "id": "json:2",
+      "instance_hash": "84cf8a975d59f7847318cfb8e897c3038d7c697055dd84b34d964fa144976c38",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "room_assignments"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 2.5197541000088677,
+      "runner_status": {
+        "detail": "min() iterable argument is empty",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 177, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 126, in main\n    cnf, outputs, objective = load(request[\"instance\"])\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 55, in load\n    result = module.build(instance)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 26, in build\n    engine.add_linear(room_assignments[i] == preassigned[i])\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 1675, in add_linear\n    return self._add_lin_list(constr[1], ('lin_eq', lkeys), reified)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 1631, in _add_lin_list\n    self._add_constraint_internal(c)\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 2272, in _add_constraint_internal\n    cs = self._add_constraint(constr)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/engines.py\", line 906, in _add_constraint\n    cs = LinearConstraint(lits=cs[1][0],\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/engines.py\", line 175, in __init__\n    if min(self.wght.values()) == max(self.wght.values()):\n       ^^^^^^^^^^^^^^^^^^^^^^^\nValueError: min() iterable argument is empty\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 2,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "c89ee592d0aadffa47343eef8580fdcf9f04ecb9c9e6926420faf3beec9dfcc1",
+  "problem_id": "room_assignment",
+  "reason": "execution_error",
+  "reference_hash": "c0896c77431aa08a1da5bbf8952943a02cd06d56b1c4dcacfdb5fd730841d4bc",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 4,
+  "solver_id": "pysat",
+  "total_wall_seconds": 25.096227000001818,
+  "unperformed_instances": [
+    "json:3",
+    "json:4"
+  ]
+}

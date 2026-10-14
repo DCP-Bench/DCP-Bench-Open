@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "skill_name": "docplex",
+  "evals": [
+    {
+      "id": "linear-optimization",
+      "prompt": "Using this skill, write a docplex_cplex submission for a linear optimization problem in the dataset, such as knapsack or diet, and check it with the repository evaluator across every listed instance.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Defines build(instance) returning a docplex.mp.model.Model and a dict of exactly the declared output names, and never calls model.solve() or reads solution_value.",
+        "The objective is set once with minimize or maximize, matching the reference's direction, and the evaluator reports accepted rather than suboptimal_solution.",
+        "Every instance-dependent quantity is read from the instance argument, and every listed instance is accepted."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result for every instance."
+    },
+    {
+      "id": "non-linear-pattern-encoded",
+      "prompt": "Using this skill, write a docplex_cplex submission for a problem whose reference uses a constraint MIP cannot state directly, such as an all-different or a disjunction, and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The constraint is encoded with indicators, docplex's logical constraints or an assignment matrix, and the submission never multiplies two variables.",
+        "Any big-M constant is derived from the instance's own bounds, and the evaluator does not report invalid_solution."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "size-limit-planned",
+      "prompt": "Using this skill, write a docplex_cplex submission for a problem whose largest instance is large, such as a 9-by-9 or larger grid puzzle, and check it across every listed instance.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or a blocker citing the Community Edition's size limits with the variable and constraint counts of the largest instance.",
+      "assertions": [
+        "Before writing the model, the reasoning counts the variables and constraints the formulation needs on the largest listed instance and compares them with 1000 each.",
+        "If the evaluator reports unsupported_capability for the Community Edition, the pair is recorded as blocked with that evidence rather than retried with a formulation that drops constraints."
+      ],
+      "evidence_required": "The reasoning with the counts, the submission source, and the evaluator JSON result."
+    },
+    {
+      "id": "enumerable-outputs",
+      "prompt": "Using this skill, write a docplex_cplex submission for a satisfaction problem and confirm the evaluator accepts two distinct solutions.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model checked with solution_limit above one, or a recorded blocker.",
+      "assertions": [
+        "Declared output variables are integer_var or binary_var, so no output is rejected as fractional or refused for enumeration.",
+        "Outputs are returned as nested lists matching the reference's shapes, not as the dicts *_var_matrix returns."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result with solution_limit 2."
+    }
+  ]
+}

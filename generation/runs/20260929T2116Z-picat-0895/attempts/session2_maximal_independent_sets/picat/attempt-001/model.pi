@@ -1,0 +1,20 @@
+% Maximal independent set: choose nodes no two of which are adjacent, such that
+% every node left out has a chosen neighbour.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Adjacency = Data.get(adjacency_list),   % neighbours of each node, 1-based
+    Nodes = new_list(N),
+    Nodes :: 0..1,
+    foreach (I in 1..N)
+        % no edge has both ends chosen
+        foreach (J in Adjacency[I], I < J)
+            Nodes[I] + Nodes[J] #=< 1
+        end,
+        % maximality: a node is chosen or has a chosen neighbour
+        Nodes[I] + sum([Nodes[J] : J in Adjacency[I]]) #>= 1
+    end,
+    Vars = Nodes,
+    Outputs = [nodes = Nodes],
+    Options = [].

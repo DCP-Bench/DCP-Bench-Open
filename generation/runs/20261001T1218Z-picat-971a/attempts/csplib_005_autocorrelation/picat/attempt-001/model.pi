@@ -1,0 +1,22 @@
+% Low autocorrelation binary sequences: choose a sequence of n values, each -1 or +1, that
+% minimises the sum over the shifts k = 1..n-1 of the squared periodic autocorrelation
+% C_k = sum_i s_i * s_{(i + k) mod n}.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                  % length of the sequence
+    % Sequence[i] is the i-th bit of the sequence: -1 or +1 (0 is excluded)
+    Sequence = new_list(N),
+    Sequence :: [-1, 1],
+    % C[k] = periodic autocorrelation for shift k; the index (i + k - 1) mod n + 1 wraps around
+    C = new_list(N - 1),
+    C :: -N..N,
+    foreach (K in 1..N - 1)
+        C[K] #= sum([Sequence[I] * Sequence[(I + K - 1) mod N + 1] : I in 1..N])
+    end,
+    % E = energy: the sum of the squared autocorrelations, to be minimised
+    E :: 0..(N - 1) * N * N,
+    E #= sum([C[K] * C[K] : K in 1..N - 1]),
+    Vars = Sequence,
+    Outputs = [sequence = Sequence],
+    Options = [$min(E)].

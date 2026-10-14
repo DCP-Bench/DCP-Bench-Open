@@ -1,0 +1,40 @@
+% Equal-sized groups: split a sorted list into k groups at k - 1 break points,
+% never separating equal values, so that the group sizes are as close as possible
+% to round(n / k).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    A = Data.get(a),
+    K = Data.get(k),
+    N = len(A),
+    % the ideal size, round(n / k) with halves rounded to the even number as in
+    % the reference
+    Q = N div K,
+    R = N mod K,
+    if 2 * R > K then
+        GSize = Q + 1
+    elseif 2 * R < K then
+        GSize = Q
+    elseif Q mod 2 == 0 then
+        GSize = Q
+    else
+        GSize = Q + 1
+    end,
+    % x[p] = the break point p: the number of elements before it, 1..n
+    X = new_list(K - 1),
+    X :: 1..N,
+    % a break after element j would separate equal values when a[j] = a[j + 1]
+    X notin [J : J in 1..N-1, A[J] == A[J + 1]],
+    % s[i] = the size of group i, at least 1, which also orders the break points
+    S = new_list(K),
+    S :: 1..N,
+    S[1] #= X[1],
+    foreach (I in 2..K-1)
+        S[I] #= X[I] - X[I - 1]
+    end,
+    S[K] #= N - X[K - 1],
+    % the total distance from the ideal size, as small as possible
+    Z #= sum([abs(S[I] - GSize) : I in 1..K]),
+    Vars = X,
+    Outputs = [x = X],
+    Options = [$min(Z)].

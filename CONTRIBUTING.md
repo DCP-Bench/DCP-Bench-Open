@@ -15,7 +15,7 @@ The process for adding a new problem is straightforward. Please follow these ste
 5.  **Run the dataset audit**, which is what CI enforces:
 
     ```bash
-    python -W ignore::SyntaxWarning -m unittest tests.test_evaluation
+    python -m unittest tests.test_evaluation
     ```
 
     It checks that every reference loads, that the first entry of the `.json` matches the embedded example exactly, that every listed instance builds the model, and that instances carry no extra keys beyond `name` and `note`.
@@ -35,10 +35,11 @@ Please follow the structure of existing problems. We use `dataset/csplib_054_n_q
 
 2.  **Problem Description:** Provide a clear, human-readable problem description within a docstring (`"""..."""`).
     *   The description should be easy to understand and avoid overly technical terms.
+    *   If the description contains backslashes, such as LaTeX `\( n \)`, make it a raw docstring (`r"""..."""`) so Python does not read them as escape sequences.
     *   It must end with a `Print` statement that specifies the decision variable(s) to be included in the solution output. This statement is crucial for evaluation. The variable names should be enclosed in parentheses, e.g., `(queens)`.
 
     ```python
-    """
+    r"""
     Can \( n \) queens (of the same color) be placed on a \( n \times n \) chessboard so that none of the queens can attack
     each other? In chess, a queen attacks other squares on the same row, column or either diagonal as itself. So the
     \( n \-queens problem is to find a set of \( n \) locations on a chessboard, no two of which are on the same row,

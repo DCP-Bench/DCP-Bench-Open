@@ -1,0 +1,16 @@
+% Birthday coins: Tommy was given 15 coins (half-crowns, shillings and sixpences)
+% worth 1 pound 5 shillings 6 pence. How many half-crowns did he get?
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    Values = [30, 12, 6],               % pence in a half-crown, a shilling, a sixpence
+    TotalValue = 240 + 5 * 12 + 6,      % 1 pound 5 shillings 6 pence, in pence
+    % coins[t] = how many coins of type t he was given
+    Coins = new_list(3),
+    Coins :: 0..15,
+    sum([Values[T] * Coins[T] : T in 1..3]) #= TotalValue,
+    sum(Coins) #= 15,
+    Vars = Coins,
+    Outputs = [half_crowns = Coins[1]],
+    Options = [].

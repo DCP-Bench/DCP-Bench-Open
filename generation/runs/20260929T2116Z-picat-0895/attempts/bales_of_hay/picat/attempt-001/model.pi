@@ -1,0 +1,28 @@
+% Bales of hay: the bales were weighed in all combinations of two, and those
+% weights, in numerical order, are given. Find the weight of each bale.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Weights = Data.get(weights),
+    Pairs = [{I, J} : I in 1..N-1, J in I+1..N],
+    % bales[i] = the weight of bale i
+    Bales = new_list(N),
+    Bales :: 0..50,
+    % pair_weight[p] = the weight of the p-th pair of bales
+    PairWeight = new_list(len(Pairs)),
+    PairWeight :: 0..100,
+    foreach (P in 1..len(Pairs))
+        Pair = Pairs[P],
+        PairWeight[P] #= Bales[Pair[1]] + Bales[Pair[2]]
+    end,
+    % each written-down weight belongs to its own pair
+    WhichPair = new_list(len(Weights)),
+    WhichPair :: 1..len(Pairs),
+    all_different(WhichPair),
+    foreach (K in 1..len(Weights))
+        element(WhichPair[K], PairWeight, Weights[K])
+    end,
+    Vars = Bales ++ WhichPair,
+    Outputs = [bales = Bales],
+    Options = [ff].

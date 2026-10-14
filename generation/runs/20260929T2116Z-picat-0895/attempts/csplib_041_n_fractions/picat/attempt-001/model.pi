@@ -1,0 +1,19 @@
+% Fractions puzzle: find nine different non-zero digits A..I such that
+% A/BC + D/EF + G/HI = 1, where BC, EF and HI are two-digit numbers.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    Digits = [A, B, C, D, E, F, G, H, I],
+    Digits :: 1..9,
+    all_different(Digits),
+    % the denominators as two-digit numbers
+    [BC, EF, HI] :: 11..99,
+    BC #= 10 * B + C,
+    EF #= 10 * E + F,
+    HI #= 10 * H + I,
+    % A/BC + D/EF + G/HI = 1, multiplied through by BC * EF * HI
+    A * EF * HI + D * BC * HI + G * BC * EF #= BC * EF * HI,
+    Vars = Digits,
+    Outputs = ['A' = A, 'B' = B, 'C' = C, 'D' = D, 'E' = E, 'F' = F, 'G' = G, 'H' = H, 'I' = I],
+    Options = [].

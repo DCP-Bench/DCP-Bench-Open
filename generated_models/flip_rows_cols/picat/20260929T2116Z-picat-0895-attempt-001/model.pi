@@ -1,0 +1,37 @@
+% Flip rows and columns: choose a sign for every row and every column so that
+% every row sum and every column sum of the signed matrix is non-negative, with
+% the smallest possible total.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    Matrix = Data.get(input_matrix),
+    R = len(Matrix),
+    C = len(Matrix[1]),
+    RowSigns = new_list(R),
+    RowSigns :: [-1, 1],
+    ColSigns = new_list(C),
+    ColSigns :: [-1, 1],
+    % x[i, j] = the entry with the signs of its row and its column applied
+    X = new_array(R, C),
+    X :: -100..100,
+    foreach (I in 1..R, J in 1..C)
+        X[I, J] #= Matrix[I, J] * RowSigns[I] * ColSigns[J]
+    end,
+    % every row sum and every column sum lies in 0..300
+    foreach (I in 1..R)
+        RowSum #= sum([X[I, J] : J in 1..C]),
+        RowSum #>= 0,
+        RowSum #=< 300
+    end,
+    foreach (J in 1..C)
+        ColSum #= sum([X[I, J] : I in 1..R]),
+        ColSum #>= 0,
+        ColSum #=< 300
+    end,
+    % the total, 0..1000, is as small as possible
+    Total #= sum([X[I, J] : I in 1..R, J in 1..C]),
+    Total #>= 0,
+    Total #=< 1000,
+    Vars = RowSigns ++ ColSigns,
+    Outputs = [row_signs = RowSigns, col_signs = ColSigns],
+    Options = [$min(Total)].

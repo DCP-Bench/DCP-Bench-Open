@@ -1,0 +1,36 @@
+% Sports tournament scheduling: n teams play over n-1 weeks, each week has n/2 periods and
+% each period holds one match (a home team and an away team). Every team plays once a week,
+% every pair of teams meets, and no team plays more than twice in the same period.
+% Module cp: the constraints are all-different, reified counting and plain disequalities,
+% which cp propagates directly.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NTeams = Data.get(n_teams),
+    NWeeks = NTeams - 1,             % one week per opponent
+    NPeriods = NTeams // 2,          % matches per week
+    % Home[w, p] / Away[w, p] = the team playing at home / away in week w, period p
+    Home = new_array(NWeeks, NPeriods),
+    Away = new_array(NWeeks, NPeriods),
+    Home :: 1..NTeams,
+    Away :: 1..NTeams,
+    % a team cannot play itself
+    foreach (W in 1..NWeeks, P in 1..NPeriods)
+        Home[W, P] #!= Away[W, P]
+    end,
+    % every team plays exactly once a week: the 2 * NPeriods slots of a week hold distinct teams
+    foreach (W in 1..NWeeks)
+        all_different([Home[W, P] : P in 1..NPeriods] ++ [Away[W, P] : P in 1..NPeriods])
+    end,
+    % every pair of teams meets at least once, whichever of the two is at home
+    foreach (T1 in 1..NTeams - 1, T2 in T1 + 1..NTeams)
+        sum([(Home[W, P] #= T1 #/\ Away[W, P] #= T2) #\/ (Home[W, P] #= T2 #/\ Away[W, P] #= T1)
+             : W in 1..NWeeks, P in 1..NPeriods]) #>= 1
+    end,
+    % every team plays at most twice in the same period, at home or away
+    foreach (T in 1..NTeams, P in 1..NPeriods)
+        sum([(Home[W, P] #= T) #\/ (Away[W, P] #= T) : W in 1..NWeeks]) #=< 2
+    end,
+    Vars = [Home, Away],
+    Outputs = [home = Home, away = Away],
+    Options = [].

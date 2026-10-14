@@ -1,0 +1,26 @@
+% Three coins: some coins lie on a table, each heads (0) or tails (1). In exactly the given
+% number of moves, each flipping one coin, make them all heads or all tails. The model
+% finds the state of the coins after every move.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NumMoves = Data.get(num_moves),
+    Init = Data.get(init),            % starting position of the coins, 1 = tails
+    N = len(Init),
+    % Steps[m, j] = state of coin j after m - 1 moves (row 1 is the start), 1 = tails
+    Steps = new_array(NumMoves + 1, N),
+    Steps :: 0..1,
+    % the first row is the starting position
+    foreach (J in 1..N)
+        Steps[1, J] #= Init[J]
+    end,
+    % each move flips exactly one coin
+    foreach (M in 2..NumMoves + 1)
+        sum([Steps[M, J] #!= Steps[M - 1, J] : J in 1..N]) #= 1
+    end,
+    % in the last row the coins are all heads (no tails) or all tails
+    LastTails #= sum([Steps[NumMoves + 1, J] : J in 1..N]),
+    (LastTails #= 0) #\/ (LastTails #= N),
+    Vars = Steps,
+    Outputs = [steps = Steps],
+    Options = [].

@@ -75,6 +75,8 @@ result.cost        # int, or None when the model declares no soft clauses
 result.ok          # True for sat, optimum AND interrupted_sat
 result.backend     # which solver actually ran
 result[var]        # value; a container yields nested lists
+                   # a PBExpr (any sum) raises TypeError here; the runner
+                   # evaluates a declared PBExpr output itself
 ```
 
 **`result.ok` is broader than "this is an answer."** It includes

@@ -1,0 +1,279 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-sonnet-5-5)",
+    "attempt_id": "attempt-002",
+    "created_at": 1791021782.5399444,
+    "problem_id": "csplib_032_max_density_still_life",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "7c0e8a78d74735bc8be703e71c90621d3305e3cabf83e168b72765eccf221e4d",
+    "run_id": "20261001T1218Z-pumpkin-44d6",
+    "schema": 2,
+    "skill_bundle_hash": "b42c89a49928f428c5d14a2119038573267493dbabdbb1cd57af48c6b6f71099",
+    "skill_source": "solvers\\pumpkin_rust\\skills\\pumpkin-rust",
+    "skill_version": {
+      "commit": "d212a4b0393f057be146abefdd8072f56c1d551a",
+      "modified": false,
+      "path": "solvers/pumpkin_rust/skills/pumpkin-rust"
+    },
+    "solver_id": "pumpkin_rust"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:ba76cd4075853c6d15c85bb572baf1a604b52e58673bad3d7724d982743294cf",
+      "tag": "dcp-eval/pumpkin_rust:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.02952460000233259,
+        "execution_wall_seconds": 4.300392699995427,
+        "first_solution": {
+          "grid": [
+            [
+              false,
+              false,
+              false,
+              false,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              false,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false,
+              false,
+              true
+            ],
+            [
+              true,
+              false,
+              false,
+              false,
+              true,
+              true
+            ]
+          ]
+        },
+        "id": "example",
+        "instance_hash": "6ea2976b565844a6e67fad8155e54578906a24b64bf9b5a5f2338057b46f83af",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 18,
+        "outputs": [
+          "grid"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.9283884999895236,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.724986997,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 2.775s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.038935999997192994,
+        "execution_wall_seconds": 14.170208199997433,
+        "first_solution": {
+          "grid": [
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true
+            ],
+            [
+              false,
+              true,
+              false,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              true,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false,
+              true,
+              true,
+              true
+            ],
+            [
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              false,
+              true,
+              false
+            ],
+            [
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ]
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "39cc44bdce2147ea10497376b5813d7409a4fcbef110658f9724b0c2e9b48e55",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 28,
+        "outputs": [
+          "grid"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 4.406577500005369,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 10.614538874,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 2.674s\n"
+      },
+      {
+        "accepted": false,
+        "checking_seconds": 6.00004568696022e-07,
+        "detail": "the optimum was not proven",
+        "execution_wall_seconds": 183.7078710999922,
+        "id": "json:2",
+        "instance_hash": "006dc4849781097c110e2bdbc2ed7606338303ac6f0e9e950cf1cf948cd29bba",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 36,
+        "outputs": [
+          "grid"
+        ],
+        "reason": "execution_timeout",
+        "reference_setup_seconds": 6.895930300001055,
+        "runner_status": {
+          "detail": "the optimum was not proven",
+          "solve_seconds": 180.000611779,
+          "status": "timeout",
+          "type": "status"
+        },
+        "skipped": true,
+        "solutions_checked": 0,
+        "solutions_received": 0,
+        "stderr": "Compilation: 2.374s\n"
+      }
+    ],
+    "instances_available": 3,
+    "instances_checked": 2,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "99dfd52fb5375397350b6b3571c125cae97d1023bb7034e33cc7d545d4340245",
+    "problem_id": "csplib_032_max_density_still_life",
+    "reason": "accepted",
+    "reference_hash": "6d54a6899008b3471854afbd4297abdb2221a8109d978a7c05b9f45d92c2dbc7",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [
+      "json:2"
+    ],
+    "solutions_checked": 4,
+    "solver_id": "pumpkin_rust",
+    "total_wall_seconds": 216.36477050000394,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-sonnet-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.rs",
+  "problem": "csplib_032_max_density_still_life",
+  "schema": 2,
+  "solver": "pumpkin_rust",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

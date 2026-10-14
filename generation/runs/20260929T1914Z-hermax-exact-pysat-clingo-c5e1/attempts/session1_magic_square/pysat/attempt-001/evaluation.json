@@ -1,0 +1,121 @@
+{
+  "accepted": false,
+  "detail": "min() iterable argument is empty",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:187e80095a300ad8140bbc02a2d2fc4dca64fa7a7e9ff64068a839492333df95",
+    "tag": "dcp-eval/pysat:v1"
+  },
+  "instances": [
+    {
+      "accepted": true,
+      "checking_seconds": 0.006924899993464351,
+      "execution_wall_seconds": 1.8501430000178516,
+      "first_solution": {
+        "square": [
+          [
+            13,
+            8,
+            3,
+            10
+          ],
+          [
+            12,
+            1,
+            6,
+            15
+          ],
+          [
+            2,
+            11,
+            16,
+            5
+          ],
+          [
+            7,
+            14,
+            9,
+            4
+          ]
+        ]
+      },
+      "id": "example",
+      "instance_hash": "f3e0792e105e2bfe88e7b3bab5097b93a59a8c5b239fe3c6f87a8d0f72ab9032",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "square"
+      ],
+      "reason": "accepted",
+      "reference_setup_seconds": 1.2913581000175327,
+      "runner_status": {
+        "detail": "",
+        "solve_seconds": 0.3516207979992032,
+        "status": "limit",
+        "type": "status"
+      },
+      "solutions_checked": 2,
+      "solutions_received": 2,
+      "stderr": ""
+    },
+    {
+      "accepted": false,
+      "checking_seconds": 6.00004568696022e-07,
+      "detail": "min() iterable argument is empty",
+      "execution_wall_seconds": 1.5631906999042258,
+      "id": "json:1",
+      "instance_hash": "71eea0d9c089fb938d3c49f9efe50a15605c47422855c9277c3ee6e98007518f",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "square"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.3667074999539182,
+      "runner_status": {
+        "detail": "min() iterable argument is empty",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 177, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 126, in main\n    cnf, outputs, objective = load(request[\"instance\"])\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 55, in load\n    result = module.build(instance)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 22, in build\n    engine.add_linear(sum(square[i][j] for j in range(n)) == magic_sum)\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 1675, in add_linear\n    return self._add_lin_list(constr[1], ('lin_eq', lkeys), reified)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 1631, in _add_lin_list\n    self._add_constraint_internal(c)\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 2272, in _add_constraint_internal\n    cs = self._add_constraint(constr)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/engines.py\", line 906, in _add_constraint\n    cs = LinearConstraint(lits=cs[1][0],\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/engines.py\", line 175, in __init__\n    if min(self.wght.values()) == max(self.wght.values()):\n       ^^^^^^^^^^^^^^^^^^^^^^^\nValueError: min() iterable argument is empty\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 1,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "73afdec15bd0db0c8dd067ca404dbc010557a510bc06ffe7c28dc3e7f37a56a7",
+  "problem_id": "session1_magic_square",
+  "reason": "execution_error",
+  "reference_hash": "a4769e60edf7f17c6482b9f471f0943f7b04690d071607f968f85be02ffa856c",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 2,
+  "solver_id": "pysat",
+  "total_wall_seconds": 6.94575990003068,
+  "unperformed_instances": [
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

@@ -20,6 +20,17 @@ Optimality is reported only on the `optimum` status. `interrupted_sat` means a
 solution was found without proving it best, which is a timeout here rather than
 an answer, because the evaluator would otherwise compare it against the
 reference optimum as if it were one.
+
+An output may also be a linear expression of the model's variables, which is
+how a value too wide for one `IntVar` is declared: hermax encodes an IntVar
+with one literal per value, so an IntVar over a ten-digit range exhausts memory
+by itself, while `sum(10**(9-i) * digit[i])` over 0..9 IntVars or
+`sum(2**k * bit[k])` over Booleans does not. Such a sum is hermax's own
+`PBExpr` (a single weighted literal is a `Term`); `result[...]` cannot decode
+either, so the runner adds up the decoded terms itself, and when enumerating it
+blocks the literals and variables the expression sums. Another combination of
+those can reach the same total, so a declared output equal to one already
+reported is skipped rather than emitted twice.
 """
 import contextlib
 import functools
@@ -33,7 +44,8 @@ import time
 sys.path.insert(0, "/opt/runner")
 from runtime import emit, finish, mapped  # noqa: E402
 
-from hermax.model import BoolMatrix, IntMatrix, IntVar, Literal, Model  # noqa: E402
+from hermax.model import (BoolMatrix, IntMatrix, IntVar, Literal, Model,  # noqa: E402
+                          PBExpr, Term)
 
 # `ok` on a SolveResult also covers interrupted_sat, which is not an answer here.
 ANSWERED = ("sat", "optimum")
@@ -73,18 +85,59 @@ def atoms(node, found):
     return found
 
 
+def summed(expression):
+    """The weighted literals and derived integers a PBExpr or Term adds up."""
+    if isinstance(expression, Term):
+        return [(expression.coefficient, expression.literal)], 0
+    return ([(term.coefficient, term.literal) for term in expression.terms]
+            + list(expression.int_terms), expression.constant)
+
+
+def read(leaf, result):
+    """The value of one declared output under a solve result.
+
+    hermax decodes variables and containers itself; a PBExpr or Term is summed
+    here from its decoded terms, since `result[expression]` raises TypeError.
+    """
+    if not isinstance(leaf, (PBExpr, Term)):
+        return result[leaf]
+    pairs, total = summed(leaf)
+    for coefficient, item in pairs:
+        if isinstance(coefficient, bool) or not isinstance(coefficient, int):
+            raise ValueError("an output expression must have integer coefficients; got "
+                             f"{coefficient!r}")
+        total += coefficient * int(result[item])
+    return total
+
+
 def blocking_clause(outputs, result):
-    """Rule out exactly this assignment to the declared outputs."""
+    """Rule out exactly this assignment to the declared outputs.
+
+    For an expression output, that means this assignment to every literal and
+    variable it sums, not this total: a total cannot be forbidden by a clause.
+    """
     disjuncts = []
     for leaf in atoms(outputs, []):
-        value = result[leaf]
-        if isinstance(leaf, IntVar):
-            disjuncts.append(leaf != value)
-        elif isinstance(leaf, Literal):
-            disjuncts.append(~leaf if value else leaf)
+        if isinstance(leaf, (PBExpr, Term)):
+            items = [item for _, item in summed(leaf)[0]]
+        elif isinstance(leaf, (IntVar, Literal)):
+            items = [leaf]
         else:
-            raise ValueError("an output leaf must be an IntVar or a Literal; got "
-                             f"{type(leaf).__name__}")
+            raise ValueError("an output leaf must be an IntVar, a Literal, or a linear "
+                             f"expression of them; got {type(leaf).__name__}")
+        for item in items:
+            value = result[item]
+            if isinstance(item, Literal):
+                disjuncts.append(~item if value else item)
+                continue
+            different = item != value
+            if not isinstance(different, Literal):
+                # A derived integer such as x // 3 compares to a PB constraint,
+                # which hermax cannot put in a clause.
+                raise ValueError("an output expression can only be enumerated over "
+                                 "literals and integer variables; got "
+                                 f"{type(item).__name__}")
+            disjuncts.append(different)
     if not disjuncts:
         return None
     return functools.reduce(operator.or_, disjuncts)
@@ -102,6 +155,8 @@ def main():
     limit = request["solution_limit"]
     best = None
     emitted = 0
+    # Declared outputs already reported; see blocking_clause on expressions.
+    seen = set()
     while emitted < limit:
         left = deadline - time.monotonic()
         if left <= 0:
@@ -128,10 +183,14 @@ def main():
                 # Every remaining answer is worse, so the optimal ones are done.
                 return finish("complete", solve_seconds=spent)
 
-        emit({"type": "solution", "values": mapped(outputs, lambda v: result[v])})
-        emitted += 1
-        if emitted >= limit:
-            break
+        values = mapped(outputs, lambda leaf: read(leaf, result))
+        key = json.dumps(values, sort_keys=True)
+        if key not in seen:
+            seen.add(key)
+            emit({"type": "solution", "values": values})
+            emitted += 1
+            if emitted >= limit:
+                break
         clause = blocking_clause(outputs, result)
         if clause is None:
             return finish("complete", solve_seconds=time.monotonic() - started)

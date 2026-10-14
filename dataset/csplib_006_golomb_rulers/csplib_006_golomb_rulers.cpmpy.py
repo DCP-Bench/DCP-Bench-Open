@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob006_golomb.py
 # Source description: https://www.csplib.org/Problems/prob006/
 
-"""
+r"""
 These problems are said to have many practical applications including sensor placements for x-ray crystallography
 and radio astronomy. A Golomb ruler may be defined as a set of \( m \) integers \( 0 = a_1 < a_2 < \cdots < a_m \)
 such that the \( \frac{m(m-1)}{2} \) differences \( a_j - a_i, \, 1 \leq i < j \leq m \) are distinct. Such a ruler

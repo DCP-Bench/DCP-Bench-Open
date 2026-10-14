@@ -1,0 +1,39 @@
+% KenKen: fill an n x n grid with the digits 1..n so that every row and every column holds each
+% digit once, and every cage (a group of cells with a target number) achieves its target.
+% A cage of two cells reaches its target by sum, product, difference or exact quotient; any other
+% cage (one cell, or three and more) by the sum or the product of its cells. Digits may repeat
+% inside a cage.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Cages = Data.get(problem),           % each cage: [target, [[row, column], ...]], counted from 1
+    % X[i, j] = the digit in row i, column j
+    X = new_array(N, N),
+    X :: 1..N,
+    % each row holds every digit once
+    foreach (I in 1..N)
+        all_different([X[I, J] : J in 1..N])
+    end,
+    % each column holds every digit once
+    foreach (J in 1..N)
+        all_different([X[I, J] : I in 1..N])
+    end,
+    foreach (Cage in Cages)
+        Target = Cage[1],
+        Cells = Cage[2],
+        Digits = [X[Cell[1], Cell[2]] : Cell in Cells],
+        if len(Cells) == 2 then
+            % two cells A and B: sum, product, A - B or B - A, or one is the target times the other
+            A = Digits[1],
+            B = Digits[2],
+            A + B #= Target #\/ A * B #= Target #\/ A * Target #= B #\/
+            B * Target #= A #\/ A - B #= Target #\/ B - A #= Target
+        else
+            % any other cage: the digits add up to the target or multiply to it
+            sum(Digits) #= Target #\/ prod(Digits) #= Target
+        end
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [ff].

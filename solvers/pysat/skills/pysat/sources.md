@@ -60,3 +60,45 @@ taken from documentation alone.
   Glucose 4.2: 12 into 11 takes 4.5 s, 13 into 12 takes 11.0 s, 14 into 13
   takes 24.6 s, 15 into 14 takes 70.9 s. The `timeout_cleanup` check uses 13
   into 12.
+
+Optimisation, added with RC2. Each claim was checked inside the image
+(python-sat 1.9.dev15).
+
+- <https://pysathq.github.io/docs/html/api/examples/rc2.html> — RC2, the
+  core-guided MaxSAT solver PySAT ships in `pysat.examples.rc2`; and
+  <https://pysathq.github.io/docs/html/api/formula.html> — `WCNF`.
+- **`CNF.weighted()` makes every clause soft.** It returns a `WCNF` with no hard
+  clauses and each clause at weight 1, so `x + y >= 2` under it gave RC2 cost 1
+  with the constraint broken. `WCNF().extend(cnf.clauses)` adds them as hard
+  clauses and gave the right cost, 2.
+- `RC2(formula, solver="glucose42")` takes Glucose 4.2 as its oracle.
+  `compute(expect_interrupt=True)` with `interrupt()` from a timer returns
+  `None` and leaves `interrupted` set, so an interrupted search never yields a
+  model; a returned model is optimal and `cost` holds its weight.
+  `clear_interrupt()` resets only the oracle, not `interrupted`; `compute()`
+  resets that itself.
+- `add_clause(clause)` after `compute()` adds a hard clause, and the next
+  `compute()` returns the best model that respects it, which is how the runner
+  enumerates: on `x + y >= 2` minimising `x + y`, blocking `(1, 1)` gave
+  `(0, 2)` at the same cost 2.
+- RC2 returns only the variables that occur in the formula, while
+  `Integer.decode` indexes the model by variable number, so the runner pads the
+  model to the pool's top variable before decoding.
+- `Integer.ge(v)` exists only for the `order` and `coupled` encodings; on
+  `direct` it raises `AssertionError: Order encoding is disabled`. Soft clauses
+  `[-x.ge(v)]` of weight 1 over `x` and `y` in 0..5 under `x + y >= 4` and
+  `x - y >= 1` gave cost 4 at `(3, 1)`, the optimum, on both encodings.
+- **The runner uses `RC2Stratified`, not plain `RC2`.** On Burkardt's P07
+  knapsack (15 items, capacity 750, soft clause per item weighted by its value)
+  plain RC2 did not prove the optimum in 178 s; `RC2Stratified` proved 1298 in
+  0.13 s. It enumerates in cost order after `add_clause` blocking (on the
+  `x + y` example: three answers at cost 2, then 3, then 4) and honours
+  `interrupt()` within about 0.1 s.
+- **Wide outputs as `LinearExpr`.** `Integer(name, 0, 10**10)` alone was killed
+  at the 2048 MB limit (divisible_by_1_through_9 attempt-001 in run
+  20261001T1218Z-pysat-aad3), because it registers one variable per value.
+  `sum(2**k * bit[k])` over 35 0..1 Integers is a `pysat.integer.LinearExpr`
+  (`terms` maps Integer to coefficient, `const` holds the constant); the runner
+  evaluates it, and the readiness check `wide_output` returns 2**33 + 2 from it.
+  `repeated_output_once` checks that two assignments with the same total are
+  reported once.

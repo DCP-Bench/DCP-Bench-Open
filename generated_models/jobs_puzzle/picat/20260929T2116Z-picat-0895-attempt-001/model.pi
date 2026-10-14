@@ -1,0 +1,34 @@
+% Jobs puzzle: four people hold eight different jobs, two each, subject to
+% clues about who is not what.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    % Each job is the person, 0-3, who holds it.
+    Jobs = [Chef, Guard, Nurse, Clerk, PoliceOfficer, Teacher, Actor, Boxer],
+    Jobs :: 0..3,
+    % every person holds exactly two jobs
+    foreach (Person in 0..3)
+        count(Person, Jobs) #= 2
+    end,
+    % 1. the nurse is not the teacher, the police officer or the clerk
+    Nurse #!= Teacher,
+    Nurse #!= PoliceOfficer,
+    Nurse #!= Clerk,
+    % 2. the clerk is not the chef
+    Clerk #!= Chef,
+    % 3. person 0 is not the boxer
+    Boxer #!= 0,
+    % 4. person 3 is not the teacher, the police officer or the nurse
+    Teacher #!= 3,
+    PoliceOfficer #!= 3,
+    Nurse #!= 3,
+    % 5. person 0, the chef and the police officer went golfing together, so
+    % they are three different people
+    Chef #!= 0,
+    PoliceOfficer #!= 0,
+    Chef #!= PoliceOfficer,
+    Vars = Jobs,
+    Outputs = [chef = Chef, guard = Guard, nurse = Nurse, clerk = Clerk,
+               police_officer = PoliceOfficer, teacher = Teacher, actor = Actor, boxer = Boxer],
+    Options = [].

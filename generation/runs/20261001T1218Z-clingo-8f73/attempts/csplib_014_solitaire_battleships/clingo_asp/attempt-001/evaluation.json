@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "parsing failed",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:b81127693c3a8e8d037c13152ad15ad80bfa9b3ecd8764026511f354874d3805",
+    "tag": "dcp-eval/clingo_asp:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 5.00120222568512e-07,
+      "detail": "parsing failed",
+      "execution_wall_seconds": 1.214438800001517,
+      "id": "example",
+      "instance_hash": "54d28a8c393eed99ea0f26a8f4ab9a89d10e8e283908ba3c3daf1948cc4e3a1e",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "grid"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 3.1977242999710143,
+      "runner_status": {
+        "detail": "parsing failed",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "<block>:32:6-7: error: syntax error, unexpected (\n\nTraceback (most recent call last):\n  File \"/opt/runner/run.py\", line 180, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 136, in solve\n    control.add(\"base\", [], facts(request[\"instance\"]) + \"\\n\" +\n  File \"/usr/local/lib/python3.12/site-packages/clingo/control.py\", line 321, in add\n    self._add2(*args, **kwargs)\n  File \"/usr/local/lib/python3.12/site-packages/clingo/control.py\", line 332, in _add2\n    _handle_error(\n  File \"/usr/local/lib/python3.12/site-packages/clingo/_internal.py\", line 81, in _handle_error\n    raise RuntimeError(msg)\nRuntimeError: parsing failed\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "7406c3ec00ebf5e04a0363fa47e8cfd8c4d860c86afb7c400908deb20827fa09",
+  "problem_id": "csplib_014_solitaire_battleships",
+  "reason": "execution_error",
+  "reference_hash": "2cd21cce2b2cf73b19dc518c4e7846c0f19a6d8c94fd78001c3610b1ca9a80f7",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "clingo_asp",
+  "total_wall_seconds": 5.221425700001419,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

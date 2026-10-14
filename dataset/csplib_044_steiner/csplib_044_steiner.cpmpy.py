@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob044_steiner.py
 # Source description: https://www.csplib.org/Problems/prob044/
 
-"""
+r"""
 The ternary Steiner problem of order \( n \) consists of finding a set of \( n \cdot (n-1)/6 \) triples of distinct
 integer elements in \(\{1, \ldots, n\}\) such that any two triples have at most one common element. It is a hypergraph
 problem coming from combinatorial mathematics where \( n \) modulo 6 has to be equal to 1 or 3.

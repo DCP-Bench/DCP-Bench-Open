@@ -1,0 +1,18 @@
+% Chess set: a joinery makes small and large boxwood chess sets. Decide how many
+% of each to make in a week so that the boxwood and the lathe hours suffice and
+% the profit is as large as possible.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The problem statement fixes all the numbers; the instance carries no data.
+    [SmallSet, LargeSet] :: 0..100,
+    MaxProfit :: 0..10000,
+    % boxwood: 1 kg per small set, 3 kg per large set, 200 kg available
+    SmallSet + 3 * LargeSet #=< 200,
+    % lathe hours: 3 per small set, 2 per large set, 160 available
+    3 * SmallSet + 2 * LargeSet #=< 160,
+    % profit: $5 per small set and $20 per large set
+    MaxProfit #= 5 * SmallSet + 20 * LargeSet,
+    Vars = [SmallSet, LargeSet],
+    Outputs = [small_set = SmallSet, large_set = LargeSet, max_profit = MaxProfit],
+    Options = [$max(MaxProfit)].

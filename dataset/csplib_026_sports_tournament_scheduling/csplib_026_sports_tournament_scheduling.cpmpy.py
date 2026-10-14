@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob026_sport_scheduling.py
 # Source description: https://www.csplib.org/Problems/prob026/
 
-"""
+r"""
 The problem is to schedule a tournament of \( n \) teams over \( n-1 \) weeks, with each week divided into \( n/2 \)
 periods, and each period divided into two slots. The first team in each slot plays at home, whilst the second plays
 the first team away. A tournament must satisfy the following three constraints: every team plays once a week; every

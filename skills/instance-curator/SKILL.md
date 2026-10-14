@@ -28,7 +28,7 @@ python -m generation.instances check PROBLEM candidates.json
 python -m generation.instances check PROBLEM candidates.json --append
 python -m generation.instances recheck PROBLEM --instances json:K ... --jobs 4
 python -m generation.instances recheck PROBLEM --instances json:K ... --flag   # once you have decided
-python -W ignore::SyntaxWarning -m unittest tests.test_evaluation
+python -m unittest tests.test_evaluation
 #   commit the batch, then take the next problem
 ```
 

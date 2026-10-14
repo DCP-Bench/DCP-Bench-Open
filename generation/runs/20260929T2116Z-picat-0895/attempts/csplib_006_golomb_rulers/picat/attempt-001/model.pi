@@ -1,0 +1,28 @@
+% Golomb ruler: place `size` marks on a ruler, the first at 0, so that all
+% distances between pairs of marks are different, and the ruler is as short
+% as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Size = Data.get(size),
+    Marks = new_list(Size),
+    Marks :: 0..Size * Size,
+    % the first mark is at 0 and the marks increase
+    Marks[1] #= 0,
+    foreach (I in 1..Size-1)
+        Marks[I] #< Marks[I + 1]
+    end,
+    % every distance between two marks is different
+    Pairs = [{I, J} : I in 1..Size-1, J in I+1..Size],
+    Diffs = new_list(len(Pairs)),
+    Diffs :: 1..Size * Size,
+    foreach (P in 1..len(Pairs))
+        Pair = Pairs[P],
+        Diffs[P] #= Marks[Pair[2]] - Marks[Pair[1]]
+    end,
+    all_distinct(Diffs),
+    % the length of the ruler is its last mark
+    Length = Marks[Size],
+    Vars = Marks,
+    Outputs = [marks = Marks, length = Length],
+    Options = [ff, $min(Length)].

@@ -1,0 +1,22 @@
+% Magic square: fill an n x n grid with the different integers 1..n^2 so that
+% every row, every column and both diagonals add up to n(n^2 + 1)/2.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Sum = N * (N * N + 1) // 2,
+    Square = new_array(N, N),
+    Square :: 1..N * N,
+    % all numbers are different
+    all_different([Square[I, J] : I in 1..N, J in 1..N]),
+    % every row and every column adds up to the magic sum
+    foreach (I in 1..N)
+        sum([Square[I, J] : J in 1..N]) #= Sum,
+        sum([Square[J, I] : J in 1..N]) #= Sum
+    end,
+    % both diagonals add up to the magic sum
+    sum([Square[I, I] : I in 1..N]) #= Sum,
+    sum([Square[I, N + 1 - I] : I in 1..N]) #= Sum,
+    Vars = Square,
+    Outputs = [square = Square],
+    Options = [].

@@ -1,0 +1,36 @@
+% The zebra puzzle: five houses in a row, each with a colour, a nationality, a
+% pet, a drink and a job, all different, and fourteen clues. Each variable is the
+% house, 0 to 4, of that colour, nationality, job, pet or drink.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    Colors = [Yellow, Green, Red, White, Blue],
+    Nations = [Italy, Spain, Japan, England, Norway],
+    Jobs = [Painter, Sculptor, Diplomat, _Pianist, Doctor],
+    Pets = [_Cat, Zebra, _Bear, Snails, Horse],
+    Drinks = [Milk, _Water, _Tea, Coffee, _Juice],
+    Groups = [Colors, Nations, Jobs, Pets, Drinks],
+    foreach (Group in Groups)
+        Group :: 0..4,
+        all_different(Group)
+    end,
+    Painter #= Horse,             % the painter owns the horse
+    Diplomat #= Coffee,           % the diplomat drinks coffee
+    White #= Milk,                % the one who drinks milk lives in the white house
+    Spain #= Painter,             % the Spaniard is a painter
+    England #= Red,               % the Englishman lives in the red house
+    Snails #= Sculptor,           % the snails are owned by the sculptor
+    Green + 1 #= Red,             % the green house is just left of the red one
+    Blue + 1 #= Norway,           % the Norwegian lives just right of the blue house
+    Doctor #= Milk,               % the doctor drinks milk
+    Japan #= Diplomat,            % the diplomat is Japanese
+    Norway #= Zebra,              % the Norwegian owns the zebra
+    abs(Green - White) #= 1,      % the green house is next to the white one
+    % the horse is owned by a neighbour of the diplomat
+    Horse #= Diplomat - 1 #\/ Horse #= Diplomat + 1,
+    % the Italian lives in the red, the white or the green house
+    Italy #= Red #\/ Italy #= White #\/ Italy #= Green,
+    Vars = Colors ++ Nations ++ Jobs ++ Pets ++ Drinks,
+    Outputs = [colors = Colors, nations = Nations, jobs = Jobs, pets = Pets, drinks = Drinks],
+    Options = [].

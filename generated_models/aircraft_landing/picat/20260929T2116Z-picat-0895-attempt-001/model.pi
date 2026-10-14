@@ -1,0 +1,33 @@
+% Aircraft landing with a fixed landing order: give every aircraft a landing time
+% in its window so that later aircraft keep the required separation after
+% earlier ones, at the least total penalty for landing early or late.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Earliest = Data.get(earliest_landing),
+    Latest = Data.get(latest_landing),
+    Target = Data.get(target_landing),
+    PenaltyAfter = Data.get(penalty_after),     % per time unit after the target
+    PenaltyBefore = Data.get(penalty_before),   % per time unit before the target
+    Separation = Data.get(separation_time),     % separation[i][j]: least gap from i to j
+    N = len(Earliest),
+    Horizon = max(Latest),
+    LandingTimes = new_list(N),
+    Earliness = new_list(N),
+    Lateness = new_list(N),
+    Earliness :: 0..Horizon,
+    Lateness :: 0..Horizon,
+    foreach (I in 1..N)
+        % each aircraft lands inside its window
+        LandingTimes[I] :: Earliest[I]..Latest[I],
+        % the deviation from the target, split into earliness and lateness
+        LandingTimes[I] - Target[I] #= Lateness[I] - Earliness[I]
+    end,
+    % aircraft j lands after aircraft i, at least separation[i][j] later
+    foreach (I in 1..N-1, J in I+1..N)
+        LandingTimes[J] - LandingTimes[I] #>= Separation[I, J]
+    end,
+    TotalPenalty #= sum([PenaltyBefore[I] * Earliness[I] + PenaltyAfter[I] * Lateness[I] : I in 1..N]),
+    Vars = LandingTimes ++ Earliness ++ Lateness,
+    Outputs = [landing_times = LandingTimes, total_penalty = TotalPenalty],
+    Options = [$min(TotalPenalty)].

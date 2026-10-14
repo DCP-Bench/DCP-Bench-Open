@@ -1,0 +1,30 @@
+% Frog circle: arrange the cards 1..n round a circle so that a frog starting on
+% card 1, and jumping from a card showing k to the card k places clockwise,
+% lands on every card.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    % x[p + 1] = the card at position p, 0..n-1
+    X = new_list(N),
+    X :: 1..N,
+    all_distinct(X),
+    X[1] #= 1,
+    % pos[i] = the position of the i-th card the frog lands on; visited[i] = that card
+    Pos = new_list(N),
+    Pos :: 0..N-1,
+    all_distinct(Pos),
+    Visited = new_list(N),
+    Visited :: 1..N,
+    all_distinct(Visited),
+    Pos[1] #= 0,
+    Visited[1] #= 1,
+    foreach (I in 2..N)
+        % the frog jumps as many places as the card it is on shows
+        element0(Pos[I - 1], X, Jump),
+        Pos[I] #= (Pos[I - 1] + Jump) mod N,
+        element0(Pos[I], X, Visited[I])
+    end,
+    Vars = X ++ Pos,
+    Outputs = [x = X],
+    Options = [ff].

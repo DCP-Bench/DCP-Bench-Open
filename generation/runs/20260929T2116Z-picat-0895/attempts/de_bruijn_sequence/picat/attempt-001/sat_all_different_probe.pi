@@ -1,0 +1,49 @@
+import sat.
+
+% all_different posted before the linear links
+count_f = N =>
+    Z = new_list(2), Z :: 0..3,
+    all_different(Z),
+    D = new_array(2, 2), D :: 0..1,
+    foreach (I in 1..2) Z[I] #= 2 * D[I, 1] + D[I, 2] end,
+    N = len(solve_all(vars(D) ++ Z)).
+
+% the same, links first
+count_g = N =>
+    Z = new_list(2), Z :: 0..3,
+    D = new_array(2, 2), D :: 0..1,
+    foreach (I in 1..2) Z[I] #= 2 * D[I, 1] + D[I, 2] end,
+    all_different(Z),
+    N = len(solve_all(vars(D) ++ Z)).
+
+% all_different first, plain variables
+count_h = N =>
+    [Z1, Z2] :: 0..3,
+    all_different([Z1, Z2]),
+    [A, B, C, D] :: 0..1,
+    Z1 #= 2 * A + B,
+    Z2 #= 2 * C + D,
+    N = len(solve_all([A, B, C, D, Z1, Z2])).
+
+% all_distinct instead of all_different
+count_i = N =>
+    Z = new_list(2), Z :: 0..3,
+    all_distinct(Z),
+    D = new_array(2, 2), D :: 0..1,
+    foreach (I in 1..2) Z[I] #= 2 * D[I, 1] + D[I, 2] end,
+    N = len(solve_all(vars(D) ++ Z)).
+
+% pairwise disequality instead
+count_j = N =>
+    Z = new_list(2), Z :: 0..3,
+    Z[1] #!= Z[2],
+    D = new_array(2, 2), D :: 0..1,
+    foreach (I in 1..2) Z[I] #= 2 * D[I, 1] + D[I, 2] end,
+    N = len(solve_all(vars(D) ++ Z)).
+
+main =>
+    F = count_f(), println(f = F),
+    G = count_g(), println(g = G),
+    H = count_h(), println(h = H),
+    I = count_i(), println(i = I),
+    J = count_j(), println(j = J).

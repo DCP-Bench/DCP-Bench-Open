@@ -60,6 +60,25 @@ class ParadigmBreakdownTests(unittest.TestCase):
         self.assertEqual(self.breakdown["integration_models"], {"pure_cp": 1, "hybrid": 2})
         self.assertEqual(self.breakdown["integration_problems"], {"pure_cp": 1, "hybrid": 2})
 
+    def test_two_accepted_models_of_one_problem_count_once(self):
+        breakdown = generate_site.paradigm_breakdown(
+            {"queens": {"pure_cp": [verified("pure_cp"), verified("pure_cp")]}},
+            INTEGRATIONS, VOCABULARY)
+        self.assertEqual(breakdown["integration_models"], {"pure_cp": 1})
+        self.assertEqual({item["id"]: item["models"] for item in breakdown["paradigms"]}["cp"], 1)
+
+    def test_a_scoped_paradigm_counts_only_problems_of_its_kind(self):
+        # SAT's case: it has no objective, so the hybrid's optimisation model
+        # counts under the other paradigm only.
+        breakdown = generate_site.paradigm_breakdown(
+            GENERATED, INTEGRATIONS, VOCABULARY,
+            problem_types={"queens": "satisfaction", "magic": "optimization"},
+            scopes={"mip": "satisfaction"},
+        )
+        self.assertEqual(breakdown["by_paradigm"]["cp"], {"pure_cp": 1, "hybrid": 2})
+        self.assertEqual(breakdown["by_paradigm"]["mip"], {"hybrid": 1})
+        self.assertEqual(breakdown["per_problem"], {"queens": ["cp", "mip"], "magic": ["cp"]})
+
     def test_a_paradigm_without_an_integration_keeps_an_empty_row(self):
         self.assertEqual(self.by_id["sat"]["integrations"], [])
         self.assertEqual(self.by_id["sat"]["models"], 0)
@@ -143,6 +162,80 @@ class FlaggedModelTests(unittest.TestCase):
         self.assertIs(generate_site.select_best_generated({"pure_cp": [flagged, clean]})["pure_cp"], clean)
         # Shown when it is all there is: flagging marks a model, it does not hide it.
         self.assertIs(generate_site.select_best_generated({"pure_cp": [flagged]})["pure_cp"], flagged)
+
+class RenderingHelperTests(unittest.TestCase):
+    """Small text transforms the pages rely on."""
+
+    def test_generated_by_names_the_model_and_only_a_recorded_agent(self):
+        cases = {
+            "claude-code (claude-sonnet-5-5)": "Claude Sonnet 5.5 (Claude Code)",
+            "claude-sonnet-5-5 (Claude Code, model-generator campaign)": "Claude Sonnet 5.5 (Claude Code)",
+            "claude-code (claude-opus-5-5)": "Claude Opus 5.5 (Claude Code)",
+            "claude-opus-5-5 (Claude Code, model-generator campaign)": "Claude Opus 5.5 (Claude Code)",
+            "claude-opus-5 (Claude Code, model-generator campaign)": "Claude Opus 5 (Claude Code)",
+            "claude-opus-5, interactive session, coordinator and modeller": "Claude Opus 5",
+            "claude-opus-5 / model-generator campaign (100-model target)": "Claude Opus 5",
+            "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, "
+            "solution_limit 10)": "Claude Opus 5",
+            "some other system": "some other system",
+            "": "Unknown",
+        }
+        for raw, label in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(generate_site.generated_by_label(raw), label)
+
+    def test_every_recorded_generator_is_recognised(self):
+        for by_framework in generate_site.load_generated_models().values():
+            for entries in by_framework.values():
+                for entry in entries:
+                    raw = (entry["metrics"].get("generated_by") or {}).get("base_llm")
+                    self.assertTrue(generate_site.generated_by_label(raw).startswith("Claude "), raw)
+
+    def test_compact_json_is_the_same_data(self):
+        for value in ({"a": [1, 2, 3], "m": [[1, 2], [3, 4]], "s": "x", "e": [], "d": {}},
+                      {"long": list(range(200))}, [], [[[]]], 3):
+            with self.subTest(value=value):
+                import json
+                self.assertEqual(json.loads(generate_site.compact_json(value)), value)
+        self.assertIn('"a": [1, 2, 3]', generate_site.compact_json({"a": [1, 2, 3]}))
+
+    def test_a_link_stops_before_trailing_punctuation(self):
+        self.assertIn('href="http://a.org/x.html"', generate_site.linkify("see http://a.org/x.html, then"))
+        self.assertIn('href="https://en.wikipedia.org/wiki/Set_(card_game)"',
+                      generate_site.linkify("https://en.wikipedia.org/wiki/Set_(card_game)"))
+        self.assertIn('href="http://a.org/y"', generate_site.linkify("(http://a.org/y)"))
+
+    def test_a_model_sits_under_the_paradigm_that_fits_its_problem(self):
+        saved = generate_site.INTEGRATIONS
+        generate_site.INTEGRATIONS = {"pysat": {"paradigms": ["sat", "maxsat"]}, "pure_cp": {"paradigms": ["cp"]}}
+        try:
+            self.assertEqual(generate_site.model_paradigm("pysat", "satisfaction"), "sat")
+            self.assertEqual(generate_site.model_paradigm("pysat", "optimization"), "maxsat")
+            self.assertEqual(generate_site.model_paradigm("pure_cp", "optimization"), "cp")
+            self.assertEqual(generate_site.model_paradigm("gone", "optimization"), "")
+        finally:
+            generate_site.INTEGRATIONS = saved
+
+    def test_previews_read_formulas_and_markdown_as_plain_text(self):
+        plain = generate_site.plain_text
+        self.assertEqual(plain("a set of \\( m \\) integers \\( 0 = a_1 < a_2 < \\cdots < a_m \\)"),
+                         "a set of m integers 0 = a₁ < a₂ < … < aₘ")
+        self.assertEqual(plain("\\( \\frac{m(m-1)}{2} \\) and \\( 1 \\leq i \\)"), "(m(m-1))/2 and 1 ≤ i")
+        self.assertEqual(plain("a $m \\\\times m$ table"), "a m × m table")
+        self.assertEqual(plain("strings of length `n` with:\n- Each word\n- Each pair"),
+                         "strings of length n with: Each word Each pair")
+        # A minus in prose, an operator in code and one in a formula all stay.
+        self.assertEqual(plain("is (10 - (sum % 10)) % 10"), "is (10 - (sum % 10)) % 10")
+        self.assertEqual(plain("the sum of `c[j] * X[j]`"), "the sum of c[j] * X[j]")
+        self.assertEqual(plain("\\( (1 - M_{xj}) \\)"), "(1 - Mₓⱼ)")
+        self.assertEqual(plain("costs $20, and $5"), "costs $20, and $5")
+
+    def test_prices_are_not_math(self):
+        self.assertIsNone(generate_site.MATH_RE.search("costs $20, and the small one $5."))
+        self.assertIsNone(generate_site.MATH_RE.search("pay $ 1,100 to the painter, $ 300 to"))
+        self.assertIsNotNone(generate_site.MATH_RE.search("a $m \\times m$ table"))
+        self.assertIsNotNone(generate_site.MATH_RE.search("integers \\( 0 = a_1 \\)"))
+
 
 class RealRepositoryTests(unittest.TestCase):
     """The vocabulary and the integration metadata, as the site build reads them."""

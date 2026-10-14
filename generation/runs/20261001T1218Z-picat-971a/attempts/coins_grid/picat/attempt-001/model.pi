@@ -1,0 +1,24 @@
+% Coins grid: place coins on an n x n grid, at most one per cell, with exactly c coins in
+% every row and every column, so that the sum over the coins of the squared horizontal
+% distance to the main diagonal, (row - column)^2, is as small as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                 % size of the grid
+    C = Data.get(c),                 % coins per row and per column
+    % X[i, j] = 1 if a coin is placed in cell (i, j); at most one coin per cell
+    X = new_array(N, N),
+    X :: 0..1,
+    % every row holds exactly c coins
+    foreach (I in 1..N)
+        sum([X[I, J] : J in 1..N]) #= C
+    end,
+    % every column holds exactly c coins
+    foreach (J in 1..N)
+        sum([X[I, J] : I in 1..N]) #= C
+    end,
+    % Z = sum of the squared distances of the coins to the main diagonal
+    Z #= sum([X[I, J] * ((I - J) * (I - J)) : I in 1..N, J in 1..N]),
+    Vars = X,
+    Outputs = [x = X, z = Z],
+    Options = [$min(Z)].

@@ -1,0 +1,32 @@
+% General store: each letter of the sign stands for a different digit, and the
+% sixteen words above the line add up to ALL WOOL.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    Words = ["CHESS", "CASH", "BOWWOW", "CHOPS", "ALSOPS", "PALEALE", "COOL", "BASS",
+             "HOPS", "ALES", "HOES", "APPLES", "COWS", "CHEESE", "CHSOAP", "SHEEP"],
+    Total = "ALLWOOL",
+    Letters = sort_remove_dups(flatten(Words ++ [Total])),
+    Index = new_map([Letters[I] = I : I in 1..len(Letters)]),
+    % d[i] = the digit of the i-th letter; every letter stands for a different digit
+    D = new_list(len(Letters)),
+    D :: 0..9,
+    all_different(D),
+    % The addition is done column by column, from the units up. carry[k] is what
+    % comes into column k; at most 15, as a column adds sixteen digits.
+    Width = len(Total),
+    Carry = new_list(Width + 1),
+    Carry :: 0..15,
+    Carry[1] #= 0,
+    Carry[Width + 1] #= 0,
+    foreach (K in 1..Width)
+        Column = [D[Index.get(Word[len(Word) - K + 1])] : Word in Words, len(Word) >= K],
+        Sum = D[Index.get(Total[Width - K + 1])],
+        % the digits of column k plus the carry in = the digit of the total plus 10 * the carry out
+        sum(Column) + Carry[K] #= Sum + 10 * Carry[K + 1]
+    end,
+    Vars = D ++ Carry,
+    % one output per letter, named by the letter itself
+    Outputs = [Letters[I] = D[I] : I in 1..len(Letters)],
+    Options = [ff].

@@ -1,0 +1,12 @@
+% Pythagorean triplet: natural numbers a, b, c with a^2 + b^2 = c^2 and
+% a + b + c = 1000.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    [A, B, C] :: 1..500,
+    A + B + C #= 1000,
+    A * A + B * B #= C * C,
+    Vars = [A, B, C],
+    Outputs = [a = A, b = B, c = C],
+    Options = [].

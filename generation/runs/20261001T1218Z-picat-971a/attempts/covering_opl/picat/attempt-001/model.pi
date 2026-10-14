@@ -1,0 +1,20 @@
+% Covering (OPL): hire a set of workers so that every task is done by at least one hired
+% worker who is qualified for it, at the smallest total hiring cost.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NbWorkers = Data.get(nb_workers),
+    Qualified = Data.get('Qualified'),    % Qualified[t] = the workers (numbered from 1) who can do task t
+    Cost = Data.get('Cost'),              % hiring cost of each worker
+    % Workers[w] = 1 if worker w is hired
+    Workers = new_list(NbWorkers),
+    Workers :: 0..1,
+    % every task has at least one hired worker among those qualified for it
+    foreach (Task in Qualified)
+        sum([Workers[W] : W in Task]) #>= 1
+    end,
+    % the total cost of the hired workers
+    TotalCost #= sum([Cost[W] * Workers[W] : W in 1..NbWorkers]),
+    Vars = Workers,
+    Outputs = [total_cost = TotalCost, workers = Workers],
+    Options = [$min(TotalCost)].

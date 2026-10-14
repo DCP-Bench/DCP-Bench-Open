@@ -1,0 +1,30 @@
+% Knight's tour: move a knight over an n x n board so that it visits every
+% square once (the tour need not return to its start). x[r, c] is the move, 0 to
+% n*n - 1, on which the knight is on square (r, c).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Cells = N * N,
+    % pos[k] = the square, numbered (r - 1) * n + c, of move k - 1
+    Pos = new_list(Cells),
+    Pos :: 1..Cells,
+    all_distinct(Pos),
+    % consecutive moves are a knight's move apart: the allowed pairs of squares
+    Jumps = [{(R - 1) * N + C, (R2 - 1) * N + C2} :
+             R in 1..N, C in 1..N, (DR, DC) in [(1, 2), (2, 1), (-1, 2), (-2, 1),
+                                                (1, -2), (2, -1), (-1, -2), (-2, -1)],
+             R2 = R + DR, C2 = C + DC, R2 >= 1, R2 =< N, C2 >= 1, C2 =< N],
+    foreach (K in 1..Cells-1)
+        table_in({Pos[K], Pos[K + 1]}, Jumps)
+    end,
+    % x is the other way round: the move made on each square
+    X = new_array(N, N),
+    X :: 0..Cells-1,
+    Flat = [X[R, C] : R in 1..N, C in 1..N],
+    foreach (K in 1..Cells)
+        element(Pos[K], Flat, K - 1)
+    end,
+    Vars = Pos,
+    Outputs = [x = X],
+    Options = [ff].

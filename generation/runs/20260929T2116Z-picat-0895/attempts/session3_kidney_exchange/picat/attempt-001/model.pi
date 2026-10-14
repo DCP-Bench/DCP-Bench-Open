@@ -1,0 +1,29 @@
+% Kidney exchange: people donate to compatible recipients; whoever gives a
+% kidney receives one, nobody gives or receives more than one, and as many
+% transplants as possible take place.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(num_people),
+    Compatible = Data.get(compatible),   % compatible[i] = the people i can donate to, 1-based
+    % t[i, j] = 1 when i donates to j
+    T = new_array(N, N),
+    T :: 0..1,
+    foreach (I in 1..N)
+        Gives #= sum([T[I, J] : J in 1..N]),
+        Receives #= sum([T[J, I] : J in 1..N]),
+        % whoever gives receives
+        Gives #>= 1 #=> Receives #>= 1,
+        % at most one kidney given and one received
+        Gives #=< 1,
+        Receives #=< 1,
+        % only to compatible recipients
+        foreach (J in 1..N)
+            if not membchk(J, Compatible[I]) then
+                T[I, J] #= 0
+            end
+        end
+    end,
+    Vars = T,
+    Outputs = [transplants = T],
+    Options = [$max(sum([T[I, J] : I in 1..N, J in 1..N]))].

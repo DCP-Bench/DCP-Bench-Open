@@ -1,0 +1,19 @@
+% Archery puzzle: how close can the archer come to the target score, hitting
+% each target as often as she likes?
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Targets = Data.get(targets),
+    TargetScore = Data.get(target_score),
+    N = len(Targets),
+    % hits[i] = the arrows that hit target i
+    Hits = new_list(N),
+    Hits :: 0..TargetScore,
+    Score :: 0..2 * TargetScore,
+    Score #= sum([Hits[I] * Targets[I] : I in 1..N]),
+    % the distance from the target score, as small as possible
+    Deviation :: 0..2 * TargetScore,
+    Deviation #= abs(TargetScore - Score),
+    Vars = Hits,
+    Outputs = [hits = Hits],
+    Options = [$min(Deviation)].

@@ -1,0 +1,24 @@
+% Circling the squares: place a different number from 1 to 99 in each of ten
+% squares round a circle so that the squares of any two adjacent numbers add up
+% to the squares of the two opposite them. A, B, F and G are given.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle is fixed by the problem; the instance carries no data.
+    X = [A, B, C, D, E, F, G, H, I, K],
+    X :: 1..99,
+    all_different(X),
+    A #= 16,
+    B #= 2,
+    F #= 8,
+    G #= 14,
+    % adjacent pair squares = opposite pair squares
+    A * A + B * B #= F * F + G * G,
+    B * B + C * C #= G * G + H * H,
+    C * C + D * D #= H * H + I * I,
+    D * D + E * E #= I * I + K * K,
+    E * E + F * F #= K * K + A * A,
+    Vars = X,
+    Outputs = ['A' = A, 'B' = B, 'C' = C, 'D' = D, 'E' = E, 'F' = F, 'G' = G,
+               'H' = H, 'I' = I, 'K' = K],
+    Options = [ff].

@@ -1,0 +1,12 @@
+% Vessel loading diagnostic: report the instance data.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Key = 'length',
+    A = Data.get('length'),
+    B = Data.get(Key),
+    Pairs = Data.to_list(),
+    C = [V : (K = V) in Pairs, K == 'length'],
+    Vars = [],
+    Outputs = [left = $diag(A, B, C, Pairs)],
+    Options = [].

@@ -1,0 +1,29 @@
+% Sudoku: fill the grid with the digits 1..9 so that every row, every column and
+% every 3 x 3 box holds each digit once, keeping the given digits (0 marks an
+% empty cell).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Given = Data.get(input_grid),
+    N = len(Given),          % side of the grid
+    B = to_int(sqrt(N)),     % side of a box
+    Grid = new_array(N, N),
+    Grid :: 1..N,
+    % the given digits stay where they are
+    foreach (I in 1..N, J in 1..N)
+        if Given[I, J] != 0 then
+            Grid[I, J] #= Given[I, J]
+        end
+    end,
+    % each row and each column holds different digits
+    foreach (I in 1..N)
+        all_distinct([Grid[I, J] : J in 1..N]),
+        all_distinct([Grid[J, I] : J in 1..N])
+    end,
+    % each box holds different digits
+    foreach (R in 0..B-1, C in 0..B-1)
+        all_distinct([Grid[R * B + I, C * B + J] : I in 1..B, J in 1..B])
+    end,
+    Vars = Grid,
+    Outputs = [grid = Grid],
+    Options = [ff].

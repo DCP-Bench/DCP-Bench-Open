@@ -1,0 +1,10 @@
+% instance: {"m": [[1, 2], [3, 4]], "v": [5, 6, 7]}
+% limit: 20
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    M = to_array([to_array(Row) : Row in Data.get(m)]),
+    V = Data.get(v),
+    [I, J] :: 1..2, K :: 0..2,
+    matrix_element(M, I, J, E), E #>= 3,
+    element0(K, V, W), W #>= 6,
+    Vars = [I, J, K], Outputs = [i = I, j = J, k = K, e = E, w = W], Options = [].

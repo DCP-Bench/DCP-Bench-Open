@@ -1,0 +1,37 @@
+% Packing rectangles: place rectangles of given widths and heights, without overlap, inside a
+% larger rectangle, so that the area of the larger rectangle is as small as possible. The output
+% is the lower-left corner of every rectangle, counted from 0, and the size of the larger
+% rectangle.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    Widths = Data.get(widths),            % width of each rectangle
+    Heights = Data.get(heights),          % height of each rectangle
+    N = len(Widths),
+    % the larger rectangle is at least as wide as the widest item and at most as wide as all
+    % items side by side; likewise for its height
+    MinX = max(Widths),
+    MaxX = sum(Widths),
+    MinY = max(Heights),
+    MaxY = sum(Heights),
+    % PosX[i], PosY[i] = lower-left corner of rectangle i
+    PosX = new_list(N),
+    PosY = new_list(N),
+    PosX :: 0..MaxX,
+    PosY :: 0..MaxY,
+    % TotalX, TotalY = width and height of the larger rectangle
+    TotalX :: MinX..MaxX,
+    TotalY :: MinY..MaxY,
+    % every rectangle lies inside the larger rectangle
+    foreach (I in 1..N)
+        PosX[I] + Widths[I] #=< TotalX,
+        PosY[I] + Heights[I] #=< TotalY
+    end,
+    % no two rectangles overlap: each one is to the left of, to the right of, below or above
+    % every other one
+    diffn([[PosX[I], PosY[I], Widths[I], Heights[I]] : I in 1..N]),
+    % the area of the larger rectangle, to be minimised
+    Area #= TotalX * TotalY,
+    Vars = [TotalX, TotalY] ++ PosX ++ PosY,
+    Outputs = [pos_x = PosX, pos_y = PosY, total_x = TotalX, total_y = TotalY],
+    Options = [$min(Area)].

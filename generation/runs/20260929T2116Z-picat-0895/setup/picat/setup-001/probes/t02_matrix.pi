@@ -1,0 +1,11 @@
+% instance: {"r": 2, "c": 3}
+% limit: 20
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    R = Data.get(r), C = Data.get(c),
+    X = new_array(R, C),
+    X :: 0..1,
+    foreach (I in 1..R)
+        sum([X[I, J] : J in 1..C]) #= 1
+    end,
+    Vars = X, Outputs = ['M' = X], Options = [ff].

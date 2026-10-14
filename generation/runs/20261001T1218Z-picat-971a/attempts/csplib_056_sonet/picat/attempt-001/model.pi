@@ -1,0 +1,28 @@
+% SONET ring design: nodes communicate over rings, a node being put on a ring with an add-drop
+% multiplexer (ADM). Two nodes with traffic between them must share at least one ring, a ring
+% holds at most its capacity of nodes, and the total number of ADMs (node-on-ring pairs) is
+% to be as small as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NumRings = Data.get(r),               % number of rings available
+    N = Data.get(n),                      % number of nodes
+    Demand = Data.get(demand),            % Demand[i][j] > 0 if nodes i and j have traffic
+    Capacity = Data.get(capacity_nodes),  % the most nodes ring k can host
+    % RingConfig[k, i] = 1 if node i is on ring k
+    RingConfig = new_array(NumRings, N),
+    RingConfig :: 0..1,
+    % nodes with traffic between them (each pair once, as in the upper triangle of the demand
+    % matrix) are both on at least one common ring
+    foreach (I in 1..N - 1, J in I + 1..N, Demand[I, J] > 0)
+        sum([RingConfig[K, I] #/\ RingConfig[K, J] : K in 1..NumRings]) #>= 1
+    end,
+    % a ring hosts at most as many nodes as its capacity
+    foreach (K in 1..NumRings)
+        sum([RingConfig[K, I] : I in 1..N]) #=< Capacity[K]
+    end,
+    % one ADM for every node placed on a ring
+    TotalAdms #= sum([RingConfig[K, I] : K in 1..NumRings, I in 1..N]),
+    Vars = RingConfig,
+    Outputs = [ring_config = RingConfig, total_adms = TotalAdms],
+    Options = [$min(TotalAdms)].

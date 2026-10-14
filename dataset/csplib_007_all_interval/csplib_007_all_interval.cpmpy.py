@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob007_all_interval.py
 # Source description: https://www.csplib.org/Problems/prob007/
 
-"""
+r"""
 Given the twelve standard pitch-classes (c, c#, d, …), represented by numbers \(0, 1, \ldots, 11\), find a series
 in which each pitch-class occurs exactly once and in which the musical intervals between neighbouring notes cover
 the full set of intervals from the minor second (1 semitone) to the major seventh (11 semitones). That is, for each

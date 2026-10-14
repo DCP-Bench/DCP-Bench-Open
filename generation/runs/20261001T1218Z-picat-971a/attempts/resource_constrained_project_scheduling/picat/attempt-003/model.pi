@@ -1,0 +1,41 @@
+% Resource-constrained project scheduling: schedule jobs of given durations so that the
+% precedence constraints hold and, at every moment, the jobs running together do not use more
+% of any resource than its capacity. Minimise the makespan, the latest start time (the last job
+% is a dummy of duration 0). Jobs are numbered from 0 in the instance, so job j is stored at
+% position j + 1 of the lists.
+% Encoded with sat: with cp the three instances of 32 jobs did not finish within 180 s, with sat
+% they took 2 to 7 s.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    Durations = Data.get(durations_data),                 % duration of each job
+    ResourceNeeds = Data.get(resource_needs_data),        % ResourceNeeds[j + 1][r] = demand of job j for resource r
+    Capacities = Data.get(resource_capacities_data),      % capacity of each resource
+    Links = Data.get(successors_link_data),               % each link [i, j]: job j starts after job i ends
+    NumJobs = len(Durations),
+    NumResources = len(Capacities),
+    % the horizon: all jobs one after another (the reference's own loose bound)
+    Horizon = sum(Durations),
+    % StartTime[j + 1] = the start time of job j
+    StartTime = new_list(NumJobs),
+    StartTime :: 0..Horizon,
+    % precedence: a job starts when the job before it has ended
+    foreach (Link in Links)
+        StartTime[Link[2] + 1] #>= StartTime[Link[1] + 1] + Durations[Link[1] + 1]
+    end,
+    % resources: the demand of the jobs running at the same time stays within the capacity.
+    % Jobs with no duration or no demand for a resource take no part in it.
+    foreach (R in 1..NumResources)
+        Running = [J : J in 1..NumJobs, Durations[J] > 0, ResourceNeeds[J, R] > 0],
+        if Running != [] then
+            cumulative([StartTime[J] : J in Running],
+                       [Durations[J] : J in Running],
+                       [ResourceNeeds[J, R] : J in Running],
+                       Capacities[R])
+        end
+    end,
+    % the makespan is the latest start time
+    Makespan #= max(StartTime),
+    Vars = StartTime,
+    Outputs = [start_time = StartTime],
+    Options = [$min(Makespan)].

@@ -1,0 +1,60 @@
+% Nonogram: shade cells of a rows x cols grid so that, in every row and every column,
+% the blocks of consecutive shaded cells have exactly the lengths given by the rule of
+% that line, in order, with at least one unshaded cell between two blocks.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NRows = Data.get(rows),
+    NCols = Data.get(cols),
+    RowRules = Data.get(row_rules),   % a rule is a list of block lengths; 0 entries are padding
+    ColRules = Data.get(col_rules),
+    % Cell[r, c] is 1 if the cell is unshaded and 2 if it is shaded: regular/6 reads
+    % symbols 1..2, so the 0/1 board is the cell value minus one.
+    Cell = new_array(NRows, NCols),
+    Cell :: 1..2,
+    Board = new_array(NRows, NCols),
+    Board :: 0..1,
+    foreach (R in 1..NRows, C in 1..NCols)
+        Board[R, C] #= Cell[R, C] - 1
+    end,
+    % the shaded blocks of each row follow the row's rule
+    foreach (R in 1..NRows)
+        line_rule([Cell[R, C] : C in 1..NCols], RowRules[R])
+    end,
+    % the shaded blocks of each column follow the column's rule
+    foreach (C in 1..NCols)
+        line_rule([Cell[R, C] : R in 1..NRows], ColRules[C])
+    end,
+    Vars = Cell,
+    Outputs = [board = Board],
+    Options = [].
+
+% A line (cells valued 1 = unshaded, 2 = shaded) obeys a rule when it is accepted by the
+% automaton that counts the blocks: state s loops on an unshaded cell while waiting for
+% the next block, steps on a shaded cell through the block's length, and then needs one
+% unshaded cell as separator. After the last block only unshaded cells may follow.
+line_rule(Line, Rule) =>
+    Blocks = [B : B in Rule, B > 0],
+    NStates = sum(Blocks) + len(Blocks) + 1,
+    Next = new_array(NStates, 2),         % Next[s, symbol] = following state, 0 if none
+    foreach (S in 1..NStates, K in 1..2)
+        Next[S, K] = 0
+    end,
+    State := 1,
+    foreach (B in Blocks)
+        Next[State, 1] := State,
+        foreach (_ in 1..B)
+            Next[State, 2] := State + 1,
+            State := State + 1
+        end,
+        Next[State, 1] := State + 1,
+        State := State + 1
+    end,
+    Next[State, 1] := State,
+    % the line may end right after the last block or after trailing unshaded cells
+    if Blocks == [] then
+        Accepting = [State]
+    else
+        Accepting = [State - 1, State]
+    end,
+    regular(Line, NStates, 2, Next, 1, Accepting).

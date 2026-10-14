@@ -1,0 +1,22 @@
+% Assignment: give each task to one person, no person more than one task, at the
+% least total cost. Not every person needs a task.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Cost = Data.get(cost),     % cost[task][person]
+    Rows = len(Cost),
+    Cols = len(Cost[1]),
+    % x[i, j] = 1 when task i goes to person j
+    X = new_array(Rows, Cols),
+    X :: 0..1,
+    % every task is assigned exactly once
+    foreach (I in 1..Rows)
+        sum([X[I, J] : J in 1..Cols]) #= 1
+    end,
+    % a person takes at most one task
+    foreach (J in 1..Cols)
+        sum([X[I, J] : I in 1..Rows]) #=< 1
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [$min(sum([Cost[I, J] * X[I, J] : I in 1..Rows, J in 1..Cols]))].

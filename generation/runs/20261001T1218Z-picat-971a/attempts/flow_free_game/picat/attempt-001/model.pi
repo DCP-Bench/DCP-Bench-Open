@@ -1,0 +1,31 @@
+% Flow Free: a board has pairs of cells of the same colour (the endpoints, numbered 1..K) and
+% empty cells (0). Connect each pair with a pipe of its colour so that every cell of the
+% board is covered. The answer gives the colour of every cell. A pipe is a path, so an
+% endpoint touches exactly one cell of its colour and every other cell on the pipe touches
+% exactly two.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Board = Data.get(board),         % Board[i, j] = colour of the endpoint at (i, j), 0 if empty
+    NRows = len(Board),
+    NCols = len(Board[1]),
+    NColors = max([E : Row in Board, E in Row]),   % colours are 1..K, K the largest on the board
+    % B[i, j] = colour of the pipe through cell (i, j)
+    B = new_array(NRows, NCols),
+    B :: 1..NColors,
+    foreach (I in 1..NRows, J in 1..NCols)
+        % the cells next to (I, J) that lie on the board
+        Neighbours = [{K, L} : {K, L} in [{I - 1, J}, {I + 1, J}, {I, J - 1}, {I, J + 1}],
+                               K >= 1, K =< NRows, L >= 1, L =< NCols],
+        if Board[I, J] != 0 then
+            % an endpoint keeps its colour and continues into exactly one neighbour of that colour
+            B[I, J] #= Board[I, J],
+            sum([B[I, J] #= B[K, L] : {K, L} in Neighbours]) #= 1
+        else
+            % an empty cell lies on a pipe: exactly two neighbours share its colour
+            sum([B[I, J] #= B[K, L] : {K, L} in Neighbours]) #= 2
+        end
+    end,
+    Vars = B,
+    Outputs = ['B' = B],
+    Options = [].

@@ -8,6 +8,11 @@ keeps its output as the readiness evidence.
 Every instance field is bound as a model parameter, so each candidate below
 declares `n` and `optimize` even where it only uses one of them.
 
+`ragged_field`, `mixed_type_rows` and `unbindable_field_refused` cover the
+reshaping run.py applies to fields MiniZinc's data interface cannot take as
+they are: padded ragged rows with `<field>_len`, one array per column of
+mixed-type rows, and a clear refusal for a shape neither rule covers.
+
 The isolation check differs from the Python integrations by necessity. MiniZinc
 is declarative and cannot inspect its own container, so that check drives the
 image directly under the evaluator's own container flags instead of through a
@@ -64,6 +69,77 @@ UNSATISFIABLE = HEAD + "constraint x+y = n;\nconstraint x = n;\nconstraint y = n
 SLOW = (HEAD + "array[1..16] of var 1..15: p;\n"
         "constraint forall(i, j in 1..16 where i < j)(p[i] != p[j]);\n"
         "constraint x+y = n;\nsolve satisfy;\n" + OUTPUT)
+
+# The binding run.py adds for fields MiniZinc's data interface cannot take as
+# they are. A ragged list of rows binds padded, with `<field>_len` beside it;
+# the last instance is rectangular, where `<field>_len` is bound all the same.
+RAGGED_REFERENCE = """
+# Data
+rows = [[1, 2], [3]]
+# End of data
+import cpmpy as cp
+import json
+total = cp.intvar(0, 100, shape=len(rows), name="total")
+last = cp.intvar(0, 100, shape=len(rows), name="last")
+model = cp.Model([total[i] == sum(row) for i, row in enumerate(rows)],
+                 [last[i] == row[-1] for i, row in enumerate(rows)])
+model.solve()
+solution = {"total": total.value(), "last": last.value()}
+print(json.dumps(solution))
+"""
+RAGGED = ("array[int,int] of int: rows;\narray[int] of int: rows_len;\n"
+          "set of int: R = index_set(rows_len);\n"
+          "array[R] of var 0..100: total;\narray[R] of var 0..100: last;\n"
+          "constraint forall(i in R)(total[i] = sum(j in 1..rows_len[i])(rows[i,j]));\n"
+          "constraint forall(i in R)(last[i] = rows[i, rows_len[i]]);\n"
+          "solve satisfy;\n"
+          r'output ["{\"total\":", show(total), ",\"last\":", show(last), "}"];' + "\n")
+RAGGED_INSTANCES = [{"rows": [[4], [5, 6, 7], [8]]}, {"rows": [[1, 2], [3, 4]]}]
+
+# Rows of one length whose columns differ in type bind as one array per
+# column; here the third column is itself ragged, so it binds padded too.
+MIXED_REFERENCE = """
+# Data
+items = [["a", 3, [[1, 2]]], ["b", 5, [[2, 2], [3, 1]]]]
+# End of data
+import cpmpy as cp
+import json
+score = cp.intvar(0, 1000, shape=len(items), name="score")
+named = cp.boolvar(shape=len(items), name="named")
+model = cp.Model([score[i] == value + sum(r * c for r, c in cells)
+                  for i, (title, value, cells) in enumerate(items)],
+                 [named[i] == (title == "b") for i, (title, value, cells) in enumerate(items)])
+model.solve()
+solution = {"score": score.value(), "named": named.value()}
+print(json.dumps(solution))
+"""
+MIXED = ("array[int] of string: items_1;\narray[int] of int: items_2;\n"
+         "array[int,int,int] of int: items_3;\narray[int] of int: items_3_len;\n"
+         "set of int: I = index_set(items_2);\n"
+         "array[I] of var 0..1000: score;\narray[I] of var bool: named;\n"
+         "constraint forall(i in I)(score[i] = items_2[i]"
+         " + sum(k in 1..items_3_len[i])(items_3[i,k,1] * items_3[i,k,2]));\n"
+         "constraint forall(i in I)(named[i] <-> items_1[i] = \"b\");\n"
+         "solve satisfy;\n"
+         r'output ["{\"score\":", show(score), ",\"named\":", show(named), "}"];' + "\n")
+MIXED_INSTANCES = [{"items": [["b", 1, [[3, 3]]], ["c", 0, [[1, 1], [2, 1], [1, 4]]], ["a", 2, []]]}]
+
+# A row that is ragged and mixes types at once fits neither rule; the runner
+# refuses it rather than guessing a layout.
+REFUSED_REFERENCE = """
+# Data
+rows = [[1, 2], [3, [4]]]
+# End of data
+import cpmpy as cp
+import json
+total = cp.intvar(0, 100, shape=len(rows), name="total")
+last = cp.intvar(0, 100, shape=len(rows), name="last")
+model = cp.Model([total[i] == len(row) for i, row in enumerate(rows)],
+                 [last[i] == len(row) for i, row in enumerate(rows)])
+model.solve()
+solution = {"total": total.value(), "last": last.value()}
+print(json.dumps(solution))
+"""
 
 ISOLATION_PROBE = """import os, socket
 probe = socket.socket(); probe.settimeout(0.5)
@@ -126,6 +202,22 @@ def main():
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=3)
+        # Each instance must have been checked, not merely the first.
+        ragged = check("ragged_field", RAGGED, reference=RAGGED_REFERENCE,
+                       instances=RAGGED_INSTANCES, instance_count=3)
+        results["ragged_field"] &= ragged["instances_checked"] == 3
+        mixed = check("mixed_type_rows", MIXED, reference=MIXED_REFERENCE,
+                      instances=MIXED_INSTANCES, instance_count=2)
+        results["mixed_type_rows"] &= mixed["instances_checked"] == 2
+        # The refusal names the field, so a model author can tell why it failed.
+        refused = check("unbindable_field_refused", RAGGED, reference=REFUSED_REFERENCE,
+                        expected={"execution_error"})
+        results["unbindable_field_refused"] &= "Instance field `rows`" in refused.get("detail", "")
+        for name, result in (("ragged_field", ragged), ("mixed_type_rows", mixed),
+                             ("unbindable_field_refused", refused)):
+            print(name, json.dumps({key: result.get(key) for key in
+                                    ("accepted", "reason", "detail", "instances_checked")}),
+                  file=sys.stderr)
         results["isolation"] = isolation(temp)
 
     try:

@@ -103,7 +103,8 @@ The image entrypoint receives `/input/model.<ext>` and `/input/request.json`
 `legacy`, `outputs`) and writes JSONL to stdout, logs to stderr. `outputs` lists
 the reference's declared output names, for a runner whose language cannot use
 them verbatim — an ASP predicate cannot start with a capital, so `clingo_asp`
-maps each key to the predicate with its first character lowered. The names are
+maps each key to the predicate with its first letter after any leading underscores
+lowered. The names are
 already in the brief a modeller works from, and no solution is ever included:
 
 ```json
@@ -177,7 +178,7 @@ retains a model.
 ## Validation
 
 ```sh
-python -W ignore::SyntaxWarning -m unittest tests.test_evaluation -v
+python -m unittest tests.test_evaluation -v
 ```
 
 The dataset audit runs every time: all references must load, the first instance

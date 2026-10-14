@@ -1,0 +1,34 @@
+% Allergy: four friends (Debra, Janet, Hugh, Rick) each have a different surname (Baxter,
+% Lemon, Malone, Fleet) and a different allergy (eggs, mold, nuts, ragweed). Match them up
+% from the clues. Friends are numbered Debra = 0, Janet = 1, Hugh = 2, Rick = 3; every
+% variable below holds the number of the friend it names.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Debra = 0, Janet = 1, Hugh = 2, Rick = 3,    % the friends, as numbered by the puzzle
+    % the friend allergic to each food
+    Foods = [Eggs, Mold, Nuts, Ragweed],
+    Foods :: 0..3,
+    % the friend with each surname
+    Surnames = [Baxter, Lemon, Malone, Fleet],
+    Surnames :: 0..3,
+    % each food is someone's allergy and each surname is someone's, with no repeats
+    all_different(Foods),
+    all_different(Surnames),
+    % Rick is not allergic to mold
+    Mold #!= Rick,
+    % Baxter is allergic to eggs
+    Eggs #= Baxter,
+    % Hugh is neither surnamed Lemon nor Fleet
+    Lemon #!= Hugh,
+    Fleet #!= Hugh,
+    % Debra is allergic to ragweed
+    Ragweed #= Debra,
+    % Janet (who isn't Lemon) is neither allergic to eggs nor to mold
+    Lemon #!= Janet,
+    Eggs #!= Janet,
+    Mold #!= Janet,
+    Vars = Foods ++ Surnames,
+    Outputs = [eggs = Eggs, mold = Mold, nuts = Nuts, ragweed = Ragweed,
+               baxter = Baxter, lemon = Lemon, malone = Malone, fleet = Fleet],
+    Options = [].

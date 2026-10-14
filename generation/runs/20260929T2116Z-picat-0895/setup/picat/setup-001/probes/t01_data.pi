@@ -1,0 +1,11 @@
+% instance: {"n": 4, "NUM_CELLS": 7, "grid": [[1,2],[3,4]], "names": ["ab","c"], "flag": true, "obj": {"a": 1}, "_SHIP": -2}
+% limit: 3
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    Grid = Data.get(grid),
+    Names = Data.get(names),
+    Obj = Data.get(obj),
+    Outputs = [n1 = Data.get(n), cells = Data.get('NUM_CELLS'), g21 = Grid[2,1], name = Names[1],
+               flag = Data.get(flag), a = Obj.get(a), rows = len(Grid), ship = Data.get('_SHIP'),
+               names = Names],
+    Vars = [], Options = [].

@@ -1,0 +1,43 @@
+% Calvin puzzle: fill an n x n grid with the numbers 1..n*n, each once, so that every number
+% k + 1 is placed exactly three squares away from k horizontally or vertically (a gap of two
+% squares between them), or exactly two squares away diagonally (a gap of one square).
+% Encoded by the position of each number: the square holding k is known by its row and
+% column, and the square of k + 1 is one of the allowed moves away.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Cells = N * N,
+    % Grid is the squares in reading order: Grid[(i - 1) * n + j] is the number in row i, column j
+    Grid = new_list(Cells),
+    Grid :: 1..Cells,
+    % every number is used once
+    all_different(Grid),
+    % Row[k], Col[k] = the row and the column of the square holding number k, and Pos[k] its
+    % place in reading order
+    Row = new_list(Cells),
+    Col = new_list(Cells),
+    Pos = new_list(Cells),
+    Row :: 1..N,
+    Col :: 1..N,
+    Pos :: 1..Cells,
+    foreach (K in 1..Cells)
+        Pos[K] #= (Row[K] - 1) * N + Col[K],
+        % the square at that place holds number k
+        element(Pos[K], Grid, K)
+    end,
+    % the moves from number k to number k + 1: three squares along a row or a column, or two
+    % squares along both a row and a column
+    Moves = [[3, 0], [-3, 0], [0, 3], [0, -3], [2, 2], [2, -2], [-2, 2], [-2, -2]],
+    % Allowed lists every (row, column, row of the next number, column of the next number)
+    % that stays inside the grid
+    Allowed = [{R, C, R + Move[1], C + Move[2]} :
+               R in 1..N, C in 1..N, Move in Moves,
+               R + Move[1] >= 1, R + Move[1] =< N, C + Move[2] >= 1, C + Move[2] =< N],
+    foreach (K in 1..Cells - 1)
+        table_in({Row[K], Col[K], Row[K + 1], Col[K + 1]}, Allowed)
+    end,
+    % search along the sequence 1, 2, 3, ...
+    Vars = [V : K in 1..Cells, V in [Row[K], Col[K]]],
+    Outputs = [x = [[Grid[(I - 1) * N + J] : J in 1..N] : I in 1..N]],
+    Options = [].

@@ -1,0 +1,8 @@
+% instance: {"words": ["cat", "dog"]}
+% limit: 5
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    Words = Data.get(words),
+    I :: 1..len(Words),
+    I #= 2,
+    Vars = [I], Outputs = [i = I, word = Words[2], letters = [ord(C) - ord(a) : C in Words[1]], label = "x\"y"], Options = [].

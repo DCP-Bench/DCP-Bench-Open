@@ -1,0 +1,25 @@
+% Diet: how many of each food to buy so that the calories, chocolate, sugar and
+% fat reach their minimum requirements at the least cost.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    Price = Data.get(price),     % cost of each food, in cents
+    Limits = Data.get(limits),   % least calories, chocolate, sugar and fat
+    % The nutrition of the four foods is fixed by the problem (chocolate cake,
+    % chocolate ice cream, cola, pineapple cheesecake); the rows are calories,
+    % chocolate, sugar and fat.
+    Nutrition = [[400, 200, 150, 500],
+                 [3, 2, 0, 0],
+                 [2, 2, 4, 4],
+                 [2, 4, 1, 5]],
+    X = new_list(N),
+    X :: 0..10000,
+    foreach (K in 1..4)
+        sum([Nutrition[K, I] * X[I] : I in 1..N]) #>= Limits[K]
+    end,
+    Cost :: 0..1000,
+    Cost #= sum([Price[I] * X[I] : I in 1..N]),
+    Vars = X,
+    Outputs = [cost = Cost],
+    Options = [$min(Cost)].

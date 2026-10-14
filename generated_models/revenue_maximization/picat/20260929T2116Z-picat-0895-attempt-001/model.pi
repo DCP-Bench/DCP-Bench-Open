@@ -1,0 +1,25 @@
+% Revenue maximisation: how many units of each flight package to sell, within
+% the seats of the legs it uses and its demand, for the largest revenue.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Seats = Data.get(available_seats),   % seats on each flight leg
+    Demand = Data.get(demand),           % estimated demand for each package
+    Revenue = Data.get(revenue),
+    Delta = Data.get(delta),             % delta[i][j] = 1 when package i uses leg j
+    NP = len(Demand),
+    NL = len(Seats),
+    Sell = new_list(NP),
+    Sell :: 0..max(Demand),
+    % the packages sold fit the seats of every leg
+    foreach (J in 1..NL)
+        sum([Delta[I, J] * Sell[I] : I in 1..NP]) #=< Seats[J]
+    end,
+    % no more than the demand of a package is sold
+    foreach (I in 1..NP)
+        Sell[I] #=< Demand[I]
+    end,
+    MaxRevenue #= sum([Revenue[I] * Sell[I] : I in 1..NP]),
+    Vars = Sell,
+    Outputs = [packages_to_sell = Sell, max_revenue = MaxRevenue],
+    Options = [$max(MaxRevenue)].

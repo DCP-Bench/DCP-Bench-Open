@@ -1,0 +1,28 @@
+% Big Bang nontransitive dice: five dice (Rock, Paper, Scissors, Lizard, Spock) with six
+% faces each, face values 1 to 12, repeats allowed. Die A beats die B when A shows a larger
+% face than B in more than half of all pairs of faces. The ten Rock-Paper-Scissors-Lizard-
+% Spock "beats" relations have to hold between the dice.
+% Module sat: with cp the counted comparisons propagate too weakly and the search ran out of
+% time; the SAT solver learns from conflicts across the ten counting constraints.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    NumDice = 5,                     % Rock, Paper, Scissors, Lizard, Spock (rows 1..5)
+    NumFaces = 6,                    % faces of each die
+    MaxFace = 12,                    % largest face value (all three fixed by the problem)
+    Rock = 1, Paper = 2, Scissors = 3, Lizard = 4, Spock = 5,
+    % {winner, loser}: the ten relations of the game
+    Edges = [{Rock, Scissors}, {Rock, Lizard}, {Paper, Rock}, {Paper, Spock},
+             {Scissors, Paper}, {Scissors, Lizard}, {Lizard, Paper}, {Lizard, Spock},
+             {Spock, Rock}, {Spock, Scissors}],
+    % Dice[i, j] = value of face j of die i
+    Dice = new_array(NumDice, NumFaces),
+    Dice :: 1..MaxFace,
+    % the winner shows the larger value in more than half of the NumFaces * NumFaces pairs of faces
+    foreach ({Winner, Loser} in Edges)
+        sum([Dice[Winner, X] #> Dice[Loser, Y] : X in 1..NumFaces, Y in 1..NumFaces])
+            #> (NumFaces * NumFaces) // 2
+    end,
+    Vars = Dice,
+    Outputs = [dice = Dice],
+    Options = [].

@@ -15,7 +15,9 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
           "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
           "pysat": "model_pysat.py", "hermax": "model_hermax.py",
-          "exact": "model_exact.py", "idp_z3": "model_idp.idp"}
+          "exact": "model_exact.py", "gurobipy_python": "model_gurobipy.py",
+          "docplex_cplex": "model_docplex.py", "picat": "model_picat.pi",
+          "jump_highs": "model_jump.jl", "idp_z3": "model_idp.idp"}
 
 # Integrations whose metadata says they cannot optimize. The pilot cases that
 # need an objective are not run for these, and they carry no MAXIMIZATION_SWAPS
@@ -38,7 +40,14 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       # in a keyword, so the swap replaces the whole expression
                       # with its complement against a known upper bound.
                       "hermax": ("m.obj += (x + y)", "m.obj += ((2 * n) - (x + y))"),
+                      # pysat states its objective as soft-clause weights, so
+                      # the swap pays the shortfall n - v instead of v.
+                      "pysat": ("(v, v)", "(v, n - v)"),
                       "exact": ("minimize", "maximize"),
+                      "gurobipy_python": ("MINIMIZE", "MAXIMIZE"),
+                      "docplex_cplex": ("minimize", "maximize"),
+                      "picat": ("$min(", "$max("),
+                      "jump_highs": ("Min,", "Max,"),
                       "idp_z3": ("minimize", "maximize")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
@@ -84,9 +93,10 @@ class MetadataTests(unittest.TestCase):
         self.assertCountEqual(identifiers, set(identifiers), "duplicate paradigm ID")
         for entry in self.vocabulary:
             with self.subTest(paradigm=entry.get("id")):
-                self.assertEqual(set(entry), {"id", "name", "summary"})
-                # The website prints the name and summary verbatim.
+                self.assertEqual(set(entry), {"id", "abbrev", "name", "summary"})
+                # The website prints the abbreviation, name and summary verbatim.
                 self.assertRegex(entry["id"], r"^[a-z][a-z0-9_]*$")
+                self.assertTrue(entry["abbrev"].strip())
                 self.assertTrue(entry["name"].strip())
                 self.assertTrue(entry["summary"].strip().endswith("."))
 

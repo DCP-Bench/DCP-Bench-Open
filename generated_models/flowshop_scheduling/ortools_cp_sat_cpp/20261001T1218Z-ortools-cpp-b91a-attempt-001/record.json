@@ -1,0 +1,219 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-sonnet-5-5)",
+    "attempt_id": "attempt-001",
+    "created_at": 1790985628.5399861,
+    "problem_id": "flowshop_scheduling",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "a9f3b3482d416256d563098093b8a463ede48474ef6d0ff6c8c77e0ff9da5328",
+    "run_id": "20261001T1218Z-ortools-cpp-b91a",
+    "schema": 2,
+    "skill_bundle_hash": "78beec0ba3afc2ff30edeeca7ec537445fb9a71aa1ff0e86538a50f763afea9f",
+    "skill_source": "solvers\\ortools_cp_sat_cpp\\skills\\ortools-cp-sat-cpp",
+    "skill_version": {
+      "commit": "97e26a2d87f5168dfa894970d7cf9cd1e7e04c1e",
+      "modified": false,
+      "path": "solvers/ortools_cp_sat_cpp/skills/ortools-cp-sat-cpp"
+    },
+    "solver_id": "ortools_cp_sat_cpp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:bd7088d1dfb87134b2c29e54516aa64e700e91ab6620c6378c4bb414a374c2aa",
+      "tag": "dcp-eval/ortools_cp_sat_cpp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.034614100000908365,
+        "execution_wall_seconds": 33.38281959999949,
+        "first_solution": {
+          "makespan": 24
+        },
+        "id": "example",
+        "instance_hash": "fefdcfe4ce9320a9f8c5d833344244acd8af3c1c1c0fdc8ef54d5bf602a6d585",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 24,
+        "outputs": [
+          "makespan"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 2.3794969000009587,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.01087103,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found ZLIB: /opt/ortools/lib/libz.so (found version \"1.3.1\") \n-- Found BZip2: /opt/ortools/lib/libbz2.so (found version \"1.1.0\") \n-- Looking for BZ2_bzCompressInit\n-- Looking for BZ2_bzCompressInit - found\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Found re2: /opt/ortools/lib/cmake/re2/re2Config.cmake (found version \"11.0.0\") \n-- Found Clp: /opt/ortools/lib/cmake/Clp/ClpConfig.cmake (found version \"1.17.10\") \n-- Found Cbc: /opt/ortools/lib/cmake/Cbc/CbcConfig.cmake (found version \"2.10.12\") \n-- Found Eigen3: /opt/ortools/share/eigen3/cmake/Eigen3Config.cmake (found version \"3.4.0\") \n-- Found SCIP: /opt/ortools/lib/cmake/scip/scip-config.cmake (found version \"10.0.0\") \n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 31.869s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 6.230604799999128,
+        "execution_wall_seconds": 48.41859349999868,
+        "first_solution": {
+          "makespan": 233
+        },
+        "id": "json:1",
+        "instance_hash": "7b27cee5025aa62d8f2c91c0d4450ece7a1d09c1cbc6978387c2926120a99574",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 233,
+        "outputs": [
+          "makespan"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 20.727607299999363,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 14.937315014000001,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found ZLIB: /opt/ortools/lib/libz.so (found version \"1.3.1\") \n-- Found BZip2: /opt/ortools/lib/libbz2.so (found version \"1.1.0\") \n-- Looking for BZ2_bzCompressInit\n-- Looking for BZ2_bzCompressInit - found\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Found re2: /opt/ortools/lib/cmake/re2/re2Config.cmake (found version \"11.0.0\") \n-- Found Clp: /opt/ortools/lib/cmake/Clp/ClpConfig.cmake (found version \"1.17.10\") \n-- Found Cbc: /opt/ortools/lib/cmake/Cbc/CbcConfig.cmake (found version \"2.10.12\") \n-- Found Eigen3: /opt/ortools/share/eigen3/cmake/Eigen3Config.cmake (found version \"3.4.0\") \n-- Found SCIP: /opt/ortools/lib/cmake/scip/scip-config.cmake (found version \"10.0.0\") \n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 31.385s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.041625699999713106,
+        "execution_wall_seconds": 27.72946310000043,
+        "first_solution": {
+          "makespan": 28
+        },
+        "id": "json:2",
+        "instance_hash": "c055a36001aa8018d446acdfb30ea997ad49d59060ccd2924dece115603d294b",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 28,
+        "outputs": [
+          "makespan"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.5892086999992898,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.027627038000000003,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found ZLIB: /opt/ortools/lib/libz.so (found version \"1.3.1\") \n-- Found BZip2: /opt/ortools/lib/libbz2.so (found version \"1.1.0\") \n-- Looking for BZ2_bzCompressInit\n-- Looking for BZ2_bzCompressInit - found\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Found re2: /opt/ortools/lib/cmake/re2/re2Config.cmake (found version \"11.0.0\") \n-- Found Clp: /opt/ortools/lib/cmake/Clp/ClpConfig.cmake (found version \"1.17.10\") \n-- Found Cbc: /opt/ortools/lib/cmake/Cbc/CbcConfig.cmake (found version \"2.10.12\") \n-- Found Eigen3: /opt/ortools/share/eigen3/cmake/Eigen3Config.cmake (found version \"3.4.0\") \n-- Found SCIP: /opt/ortools/lib/cmake/scip/scip-config.cmake (found version \"10.0.0\") \n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 26.487s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.07946839999931399,
+        "execution_wall_seconds": 31.431947699999,
+        "first_solution": {
+          "makespan": 38
+        },
+        "id": "json:3",
+        "instance_hash": "22b4ccb131ff3e36e2e14e99ba4c69d74384340782193aa9a1d2cc797418d22a",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 38,
+        "outputs": [
+          "makespan"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.7776450000019395,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.091966269,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found ZLIB: /opt/ortools/lib/libz.so (found version \"1.3.1\") \n-- Found BZip2: /opt/ortools/lib/libbz2.so (found version \"1.1.0\") \n-- Looking for BZ2_bzCompressInit\n-- Looking for BZ2_bzCompressInit - found\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Found re2: /opt/ortools/lib/cmake/re2/re2Config.cmake (found version \"11.0.0\") \n-- Found Clp: /opt/ortools/lib/cmake/Clp/ClpConfig.cmake (found version \"1.17.10\") \n-- Found Cbc: /opt/ortools/lib/cmake/Cbc/CbcConfig.cmake (found version \"2.10.12\") \n-- Found Eigen3: /opt/ortools/share/eigen3/cmake/Eigen3Config.cmake (found version \"3.4.0\") \n-- Found SCIP: /opt/ortools/lib/cmake/scip/scip-config.cmake (found version \"10.0.0\") \n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 29.858s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.09732499999881838,
+        "execution_wall_seconds": 26.839522000002034,
+        "first_solution": {
+          "makespan": 39
+        },
+        "id": "json:4",
+        "instance_hash": "23c54d322022f2960898cd5686a292e1d46d147735b83fe0bfe68aede58cd1ce",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 39,
+        "outputs": [
+          "makespan"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.7839927000022726,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.040184283,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found ZLIB: /opt/ortools/lib/libz.so (found version \"1.3.1\") \n-- Found BZip2: /opt/ortools/lib/libbz2.so (found version \"1.1.0\") \n-- Looking for BZ2_bzCompressInit\n-- Looking for BZ2_bzCompressInit - found\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Found re2: /opt/ortools/lib/cmake/re2/re2Config.cmake (found version \"11.0.0\") \n-- Found Clp: /opt/ortools/lib/cmake/Clp/ClpConfig.cmake (found version \"1.17.10\") \n-- Found Cbc: /opt/ortools/lib/cmake/Cbc/CbcConfig.cmake (found version \"2.10.12\") \n-- Found Eigen3: /opt/ortools/share/eigen3/cmake/Eigen3Config.cmake (found version \"3.4.0\") \n-- Found SCIP: /opt/ortools/lib/cmake/scip/scip-config.cmake (found version \"10.0.0\") \n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 25.335s\n"
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "5e4a322079c8ec1ecd0d191fdd87d7e97b9bf037ec8831e08cd7209a32727995",
+    "problem_id": "flowshop_scheduling",
+    "reason": "accepted",
+    "reference_hash": "44d79770ed9b1e29b93697cd6931ef79f44b9dd4d9084f082cc79ab92b4012e1",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.12.10"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 5,
+    "solver_id": "ortools_cp_sat_cpp",
+    "total_wall_seconds": 204.2945104999999,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-sonnet-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.cpp",
+  "problem": "flowshop_scheduling",
+  "schema": 2,
+  "solver": "ortools_cp_sat_cpp",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

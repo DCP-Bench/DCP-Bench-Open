@@ -1,0 +1,21 @@
+% Number partitioning: split the numbers 1..n into two sets A and B of the same size, with the
+% same sum and the same sum of squares. The output lists the members of A and of B.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                      % the numbers are 1..n (n is even)
+    Half = N // 2,                        % size of each set
+    % A[i], B[i] = the i-th member of the first and of the second set
+    A = new_list(Half),
+    B = new_list(Half),
+    A :: 1..N,
+    B :: 1..N,
+    % every number is used once, in one of the two sets
+    all_different(A ++ B),
+    % both sets have the same sum
+    sum(A) #= sum(B),
+    % both sets have the same sum of squares
+    sum([A[I] * A[I] : I in 1..Half]) #= sum([B[I] * B[I] : I in 1..Half]),
+    Vars = A ++ B,
+    Outputs = ['A' = A, 'B' = B],
+    Options = [ff].

@@ -1,0 +1,23 @@
+% Added corners: put the digits 1 to 8 into the eight cells of a 3x3 frame (the centre is
+% empty) so that each edge-middle cell (a square) holds the sum of the two corner cells
+% (circles) beside it. Cells are numbered like reading a book:
+%   a b c
+%   d   e
+%   f g h
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = 8,                           % the digits 1..8 fill the 8 cells (fixed by the puzzle)
+    Positions = new_list(N),
+    Positions :: 1..N,
+    [A, B, C, D, E, F, G, H] = Positions,
+    % each digit is used once
+    all_different(Positions),
+    % each square is the sum of the circles that adjoin it
+    B #= A + C,
+    D #= A + F,
+    E #= C + H,
+    G #= F + H,
+    Vars = Positions,
+    Outputs = [positions = Positions],
+    Options = [].

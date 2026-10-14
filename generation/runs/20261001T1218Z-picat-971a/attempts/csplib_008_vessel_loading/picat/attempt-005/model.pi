@@ -1,0 +1,22 @@
+% Vessel loading diagnostic: domains only.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    DeckWidth = Data.get(deck_width),
+    DeckLength = Data.get(deck_length),
+    N = Data.get(n_containers),
+    Widths = Data.get(width),
+    Lengths = Data.get(length),
+    Classes = Data.get(classes),
+    Separation = Data.get(separation),
+    Left = new_list(N),
+    Right = new_list(N),
+    Top = new_list(N),
+    Bottom = new_list(N),
+    Left :: 0..DeckWidth,
+    Right :: 0..DeckWidth,
+    Top :: 0..DeckLength,
+    Bottom :: 0..DeckLength,
+    Vars = Left ++ Bottom ++ Right ++ Top,
+    Outputs = [left = Left, right = Right, top = Top, bottom = Bottom],
+    Options = [].

@@ -1,0 +1,28 @@
+% Magic hexagon: place the numbers 1..19 in the 19 cells of a hexagon (rows of
+% 3, 4, 5, 4 and 3 cells) so that each of the 15 lines adds up to the magic sum.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    NCells = Data.get('NUM_CELLS'),
+    MagicSum = Data.get('MAGIC_SUM'),
+    % Cells are numbered row by row from 1:
+    %        1  2  3
+    %      4  5  6  7
+    %    8  9 10 11 12
+    %     13 14 15 16
+    %       17 18 19
+    % The lines are the five rows and the five lines in each diagonal direction.
+    Lines = [[1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11, 12], [13, 14, 15, 16], [17, 18, 19],
+             [1, 4, 8], [2, 5, 9, 13], [3, 6, 10, 14, 17], [7, 11, 15, 18], [12, 16, 19],
+             [3, 7, 12], [2, 6, 11, 16], [1, 5, 10, 15, 19], [4, 9, 14, 18], [8, 13, 17]],
+    LD = new_list(NCells),
+    LD :: 1..NCells,
+    % every number is used once
+    all_distinct(LD),
+    % every line adds up to the magic sum
+    foreach (Line in Lines)
+        sum([LD[C] : C in Line]) #= MagicSum
+    end,
+    Vars = LD,
+    Outputs = ['LD' = LD],
+    Options = [ff].

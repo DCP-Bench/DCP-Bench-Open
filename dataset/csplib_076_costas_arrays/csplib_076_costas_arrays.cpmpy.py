@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob076_costas_arrays.py
 # Source description: https://www.csplib.org/Problems/prob076/
 
-"""
+r"""
 A Costas array is a pattern of \( n \) marks on an \( n \times n \) grid, one mark per row and one per column, in which the
 \( n \cdot (n-1)/2 \) vectors between the marks are all different.
 Such patterns are important as they provide a template for generating radar and sonar signals with ideal ambiguity

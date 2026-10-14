@@ -1,0 +1,14 @@
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    [X, Y] :: 0..N,
+    if Data.get(optimize) == 1 then
+        X + Y #>= N,
+        Options = [$min(X + Y)]
+    else
+        X + Y #= N,
+        Options = []
+    end,
+    Vars = [X, Y],
+    Outputs = [x = X, y = Y].

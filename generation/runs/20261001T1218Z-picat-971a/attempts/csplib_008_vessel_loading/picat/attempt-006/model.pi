@@ -1,0 +1,46 @@
+% Vessel loading: place rectangular containers on a rectangular deck, without overlap and
+% parallel to the deck sides, so that containers of certain classes keep a minimum distance
+% between them. Containers may be rotated by a quarter turn. The output is the left, right,
+% top and bottom coordinate of every container, counted from 0.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    DeckWidth = Data.get(deck_width),
+    DeckLength = Data.get(deck_length),
+    N = Data.get(n_containers),
+    Widths = Data.get(width),            % one side of each container
+    Lengths = Data.get(length),          % the other side of each container
+    Classes = Data.get(classes),         % class of each container (1-based)
+    Separation = Data.get(separation),   % minimum distance between two classes
+    % each container lies on the deck: x coordinates in 0..deck_width, y in 0..deck_length
+    Left = new_list(N),
+    Right = new_list(N),
+    Top = new_list(N),
+    Bottom = new_list(N),
+    Left :: 0..DeckWidth,
+    Right :: 0..DeckWidth,
+    Top :: 0..DeckLength,
+    Bottom :: 0..DeckLength,
+    % a container keeps its width and length, either as given or turned by a quarter turn:
+    % (extent along the deck width, extent along the deck length) is (width, length) or
+    % (length, width)
+    Extent = new_list(N),
+    Height = new_list(N),
+    Extent :: 0..DeckWidth,
+    Height :: 0..DeckLength,
+    foreach (I in 1..N)
+        Extent[I] #= Right[I] - Left[I],
+        Height[I] #= Top[I] - Bottom[I],
+        table_in({Extent[I], Height[I]}, [{Widths[I], Lengths[I]}, {Lengths[I], Widths[I]}])
+    end,
+    % two containers do not overlap, and are at least the separation of their classes apart:
+    % one is to the left of, to the right of, below or above the other
+    foreach (A in 1..N - 1, B in A + 1..N)
+        SepRow = Separation[Classes[A]],
+        Sep = SepRow[Classes[B]],
+        (Right[A] + Sep #=< Left[B]) #\/ (Left[A] #>= Right[B] + Sep) #\/
+        (Top[A] + Sep #=< Bottom[B]) #\/ (Bottom[A] #>= Top[B] + Sep)
+    end,
+    Vars = Left ++ Bottom ++ Right ++ Top,
+    Outputs = [left = Left, right = Right, top = Top, bottom = Bottom],
+    Options = [].

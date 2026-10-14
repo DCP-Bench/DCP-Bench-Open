@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob050_diamond_free.py
 # Source description: https://www.csplib.org/Problems/prob050/
 
-"""
+r"""
 Given a simple undirected graph \( G = (V, E) \), where \( V \) is the set of vertices and \( E \) the set of undirected edges,
 the edge \(\{u, v\}\) is in \( E \) if and only if vertex \( u \) is adjacent to vertex \( v \in G \). The graph is simple in
 that there are no loop edges, i.e., we have no edges of the form \(\{v, v\}\). Each vertex \( v \in V \) has a degree \( d_v \)

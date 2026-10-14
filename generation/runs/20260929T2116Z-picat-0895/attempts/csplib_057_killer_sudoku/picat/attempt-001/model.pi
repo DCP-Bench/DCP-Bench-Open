@@ -1,0 +1,29 @@
+% Killer sudoku: a sudoku whose cages (groups of cells) add up to given totals,
+% with no digit repeated inside a cage.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                  % side of the grid
+    Cages = Data.get(problem),        % [total, [[row, col], ...]], 1-based
+    B = to_int(sqrt(N)),              % side of a box
+    X = new_array(N, N),
+    X :: 1..N,
+    % each row and each column holds different digits
+    foreach (I in 1..N)
+        all_distinct([X[I, J] : J in 1..N]),
+        all_distinct([X[J, I] : J in 1..N])
+    end,
+    % each box holds different digits
+    foreach (R in 0..B-1, C in 0..B-1)
+        all_distinct([X[R * B + I, C * B + J] : I in 1..B, J in 1..B])
+    end,
+    % each cage adds up to its total with different digits
+    foreach (Cage in Cages)
+        Total = Cage[1],
+        Cells = [X[Cell[1], Cell[2]] : Cell in Cage[2]],
+        sum(Cells) #= Total,
+        all_distinct(Cells)
+    end,
+    Vars = X,
+    Outputs = [x = X],
+    Options = [ff].

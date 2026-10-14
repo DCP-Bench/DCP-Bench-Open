@@ -3,52 +3,132 @@
   "comment": "Pairs not worth attempting again without new information. A null solver blocks the problem for every integration, which is right when the limit is in the reference itself. generation.coverage drops these from the work queue; add an entry when you block a pair, with the evidence that justifies it.",
   "blockers": [
     {
-      "problem": "csplib_001_car_sequencing",
-      "solver": null,
-      "reason": "reference_timeout",
-      "detail": "The reference's own model is unsolved at both 60s and 180s on json:1, with the candidate never running. Solver-independent, so no integration can get past the second instance. Recorded second-hand from an earlier cpmpy_python run whose artifacts were not retained; the pair_deferred event in the cited ledger is the surviving record. Re-prove it before lifting this blocker.",
-      "evidence": "generation/runs/z3-20260910t125536z-166594/events.jsonl",
-      "recorded": "2026-09-10"
-    },
-    {
-      "problem": "csplib_002_template_design",
-      "solver": null,
-      "reason": "reference_timeout",
-      "detail": "Only the embedded example of 7 distinct instances is reachable; the reference exceeds 60s on json:2 with the candidate never running. One instance is too little to retain.",
-      "evidence": "generation/runs/z3-20260910t125536z-166594/attempts/csplib_002_template_design/z3_python/attempt-001/evaluation.json",
-      "recorded": "2026-09-10"
-    },
-    {
-      "problem": "csplib_006_golomb_rulers",
-      "solver": "z3_python",
-      "reason": "execution_timeout",
-      "detail": "Z3 could not prove the minimum ruler length for any of the three instances at 180s. A performance limit of this solver on this problem, not a reference or contract fault, so it is blocked for z3_python only. A materially better encoding would justify retrying.",
-      "evidence": "generation/runs/z3-20260910t125536z-166594-r3/attempts/csplib_006_golomb_rulers/z3_python/attempt-001/evaluation.json",
-      "recorded": "2026-09-10"
-    },
-    {
-      "problem": "covering_opl",
-      "solver": "minizinc_gecode",
-      "reason": "unsupported_instance_shape",
-      "detail": "The instance field Qualified is a ragged array: one variable-length list of qualified workers per task. MiniZinc's data interface binds a list of lists as a rectangular 2D array, so the runner fails with 'non-uniform array literal' before solving, whatever the model says. Reshaping the field inside run.py would be the problem-specific converter the integration's skill rules out, so this is an integration limit rather than a modelling one.",
-      "evidence": "generation/runs/breadth-20260915/attempts/covering_opl/minizinc_gecode/attempt-001/evaluation.json",
-      "recorded": "2026-09-15"
-    },
-    {
-      "problem": "session2_movie_scheduling",
-      "solver": "minizinc_gecode",
-      "reason": "unsupported_instance_shape",
-      "detail": "Each row of the instance field movies mixes a string title with an integer start and end. MiniZinc's data interface binds a list of lists as a rectangular array of one element type and refuses with \"non-uniform array literal. Expected `string' but got `int'\", whatever the model says. Same class of obstacle as the ragged Qualified field of covering_opl.",
-      "evidence": "generation/runs/breadth3-20260915/attempts/session2_movie_scheduling/minizinc_gecode/attempt-001/evaluation.json",
-      "recorded": "2026-09-15"
-    },
-    {
       "problem": "divisible_by_1_through_9",
       "solver": "minizinc_gecode",
       "reason": "unsupported_value_range",
       "detail": "The declared output is the whole ten-digit pandigital number, which is at most 9876543210 and so exceeds the 32-bit FlatZinc integer range Gecode accepts: the parser rejects the model with \"The literal '9999999999' of the type int is out of range (-2147483646..2147483646)\" before solving. Any faithful model has to represent that value, so this is an integration limit rather than a modelling one. A solver with a wider integer type would not hit it.",
       "evidence": "generation/runs/20260916T112106-8a52/attempts/divisible_by_1_through_9/minizinc_gecode/attempt-001/evaluation.json",
       "recorded": "2026-09-16"
+    },
+    {
+      "problem": "heterosquare",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. The order-7 instance (json:4) needs all 49 cells distinct over 1..49: a one-hot encoding is 2401 binaries, and a pairwise one is 1176 disequalities, each two constraints. The one-hot model passes the four smaller instances and is refused on json:4. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20260928T1148Z-gurobi-ffc0/attempts/heterosquare/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-28"
+    },
+    {
+      "problem": "csplib_044_steiner",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. For n = 13 and 15 the output has 26 and 35 triples; stating that two triples share at most one element takes one AND variable per triple pair and element (4225 and 8925), or one per triple and element pair (2028 and 3675). The AND-variable model passes n = 7 and 9 and is refused on n = 13 (json:2). A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20260928T1148Z-gurobi-ffc0/attempts/csplib_044_steiner/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-28"
+    },
+    {
+      "problem": "heterosquare",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. The order-7 instance (json:4) needs all 49 cells distinct over 1..49: 2401 one-hot binaries, or 1176 pairwise disequalities, each one variable and two constraints in docplex. The one-hot model was refused on json:4 at the gurobipy integration's larger limit of 2000; the full CPLEX would not hit this.",
+      "evidence": "generation/runs/20260928T1148Z-gurobi-ffc0/attempts/heterosquare/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "csplib_044_steiner",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. For n = 13 and 15, stating that two of the 26 or 35 triples share at most one element takes 4225 and 8925 AND variables pairwise, or 2028 and 3675 per triple and element pair. The AND-variable model was refused on n = 13 at the gurobipy integration's larger limit of 2000; the full CPLEX would not hit this.",
+      "evidence": "generation/runs/20260928T1148Z-gurobi-ffc0/attempts/csplib_044_steiner/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-09-29"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "clingo_asp",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the whole ten-digit pandigital number, which is above 2^31-1. The runner reads output atoms with symbol.number and clingo integers are 32 bits, so no atom can carry the value. A model with full ten-digit prefixes ended with no_solution at the overflowing last step; a model that stops at nine digits was rejected as invalid_solution. The 9-digit prefix being correct is inferred, the record does not show it. Same class of obstacle as divisible_by_1_through_9 / minizinc_gecode.",
+      "evidence": "generation/runs/20261001T1218Z-clingo-8f73/attempts/divisible_by_1_through_9/clingo_asp/attempt-002/evaluation.json",
+      "recorded": "2026-10-02"
+    },
+    {
+      "problem": "csplib_001_car_sequencing",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. The 200-car instances need one capacity row per option window, 987 rows on json:1 before any demand row, so a one-row-per-window formulation cannot fit; the model was refused on json:1 with 4800 variables and 1211 constraints. The row count is derived, the refusal measured. The full CPLEX would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-cplex-5db7/attempts/csplib_001_car_sequencing/docplex_cplex/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_012_nonogram",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. The model was refused on json:1 (20x20) with 1214 variables; json:6, json:12 and json:13 have 2100, 1575 and 3300 cells, each needing at least one variable, so no cell-based formulation fits. The full CPLEX would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-cplex-5db7/attempts/csplib_012_nonogram/docplex_cplex/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_010_social_golfers_problem",
+      "solver": "docplex_cplex",
+      "reason": "licence_size_limit",
+      "detail": "The CPLEX Community Edition in the cplex wheel allows 1000 variables and 1000 constraints. json:7 (32 golfers) was refused at 1024 variables even with the first week fixed, and four smaller instances timed out; at most 3 of 8 instances passed in any of three attempts. The full CPLEX would not hit the size refusal.",
+      "evidence": "generation/runs/20261001T1218Z-cplex-5db7/attempts/csplib_010_social_golfers_problem/docplex_cplex/attempt-002/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_001_car_sequencing",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. Meeting the demand per car type on the 200-car instances needs a car-by-type assignment, 200 x 24 = 4800 variables on json:1, which was refused; the alternatives tried by hand (option bits, lookup constraints) still need that count. The counts are derived, the refusal measured. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_001_car_sequencing/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_012_nonogram",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. The model passed the example and json:1 and was refused on json:2 (25x25, 2524 block-start variables); json:6 and json:13 have 2100 and 3300 cells, so no model with one variable per cell fits. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_012_nonogram/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_010_social_golfers_problem",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. json:5 (25 golfers, 6 weeks) was refused with 4350 variables and 4080 rows; one meeting variable per golfer pair and week alone needs 2550. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_010_social_golfers_problem/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "csplib_033_word_design",
+      "solver": "gurobipy_python",
+      "reason": "licence_size_limit",
+      "detail": "The licence bundled with the gurobipy wheel allows 2000 variables and 2000 constraints. The example (12 words of length 8) was refused with 4860 rows: the 144 ordered word pairs times 8 positions need at least 4 linking rows each for the distance constraints, about 4600. A full Gurobi licence would not hit this.",
+      "evidence": "generation/runs/20261001T1218Z-gurobi-a90c/attempts/csplib_033_word_design/gurobipy_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "choco_python",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the ten-digit number, up to 9876543210, and Choco integer variables are 32-bit: model.intvar(0, 10**10-1, bounded_domain=True) raises OverflowError in intvar_siib at build time. An output has to be a Choco variable, so the value cannot be carried. Same class of obstacle as minizinc_gecode and clingo_asp on this problem.",
+      "evidence": "generation/runs/20261001T1218Z-choco-8f0c/attempts/divisible_by_1_through_9/choco_python/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "divisible_by_1_through_9",
+      "solver": "pumpkin_rust",
+      "reason": "unsupported_value_range",
+      "detail": "The declared output is the ten-digit number, above 2^31-1. Pumpkin integer variables (new_bounded_integer over i32) and the runner's output conversion are 32-bit, so no output can carry the value. A model capping the last prefix at i32::MAX ended in a panic inside pumpkin-core rather than an answer. Same class of obstacle as the other 32-bit integrations on this problem.",
+      "evidence": "generation/runs/20261001T1218Z-pumpkin-44d6/attempts/divisible_by_1_through_9/pumpkin_rust/attempt-001/evaluation.json",
+      "recorded": "2026-10-03"
+    },
+    {
+      "problem": "kakuro",
+      "solver": "minizinc_gecode",
+      "reason": "unsupported_instance_shape",
+      "detail": "Each row of the instance field problem is [sum, [r, c], [r, c], ...]: rows differ in length and mix a scalar with pairs. The runner's binding pads ragged lists and splits rows whose columns differ in type, but not a row whose tail is a variable number of items of another shape, so it refuses the field before any model runs: 'Instance field problem is ragged or mixes types in a way this integration cannot bind'. A further binding rule for this shape would be an integration change.",
+      "evidence": "generation/runs/20261005T1400Z-mzn-ragged-b/attempts/kakuro/minizinc_gecode/attempt-001/evaluation.json",
+      "recorded": "2026-10-05"
     }
   ]
 }

@@ -1,0 +1,18 @@
+% Grocery: the prices of the items, in cents, add up to the total, and their
+% product equals the total with the prices read in dollars, that is the total
+% times 100^(items - 1).
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Total = Data.get(total_price),
+    N = Data.get(num_items),
+    Product = Total * 100 ** (N - 1),
+    % every price divides the product, which is implied by it and keeps the
+    % domains small
+    Prices = new_list(N),
+    Prices :: [D : D in 1..Total, Product mod D == 0],
+    sum(Prices) #= Total,
+    prod(Prices) #= Product,
+    Vars = Prices,
+    Outputs = [prices = Prices],
+    Options = [ff].

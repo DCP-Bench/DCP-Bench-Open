@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "cannot access local variable 'm' where it is not associated with a value",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:e54bc99f391cfd94bee0e72fe748f1e80c23e1d5ad6e18c4f66865515cc82384",
+    "tag": "dcp-eval/hermax:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.2999989849049598e-06,
+      "detail": "cannot access local variable 'm' where it is not associated with a value",
+      "execution_wall_seconds": 1.195308300000761,
+      "id": "example",
+      "instance_hash": "54ab4627ffc989947071268a0a1f2bc239153e7f324bb8bbdd7a215a92c22907",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 75,
+      "outputs": [
+        "z"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.603565700002946,
+      "runner_status": {
+        "detail": "cannot access local variable 'm' where it is not associated with a value",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 144, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 100, in main\n    model, outputs = load(request[\"instance\"])\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 49, in load\n    returned = module.build(instance)\n               ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 117, in build\n    total, total_hi = add_term(m, total, total_hi, literal, weight, f\"partial_{i}\")\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 44, in add_term\n    post(~lit, neg(prev_ge(t - weight)), at_least)  # lit and prev >= t - weight make s >= t\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 39, in post\n    m &= functools.reduce(operator.or_, kept)\n    ^\nUnboundLocalError: cannot access local variable 'm' where it is not associated with a value\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "bcd421d18a4fb548c0e6dc46fa961d4fb62305222e1f65268cddd672f4420a89",
+  "problem_id": "fixed_charge",
+  "reason": "execution_error",
+  "reference_hash": "c5e2542105307d56060121c573d13caeb8df6f6811ca6ba492034a4e666a77b4",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "hermax",
+  "total_wall_seconds": 3.3934642000021995,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

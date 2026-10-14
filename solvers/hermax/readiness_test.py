@@ -19,6 +19,11 @@ the objective belongs on `model.obj` rather than in the value returned.
 `memory_limit` checks that a solver worker killed at the memory limit ends as
 `memory_limit`, not as a solver error blamed on the model: hermax solves in a
 subprocess and reports that subprocess's death as a bare `error` status.
+
+`wide_output` declares a value above 2**32 as a sum of weighted Booleans, the
+way a number too wide for one IntVar has to be written, and
+`repeated_output_once` checks that two assignments reaching the same declared
+total are reported as one solution.
 """
 import json
 from pathlib import Path
@@ -92,6 +97,54 @@ HUNGRY = (HEAD + "    m &= (x + y == n)\n"
           "    m &= (sum(b[i] for i in range(1000)) <= 500)\n"
           "    for i in range(1000):\n"
           "        m.obj[i + 1] += b[i]\n" + EXPORT)
+
+# An output wider than any one IntVar could hold, declared as a sum of
+# Booleans that the runner evaluates. 2**33 + n is above 32 bits.
+WIDE_REFERENCE = '''
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 2 ** 34, name="x")
+model = cp.Model(x == 2 ** 33 + n)
+model.solve()
+solution = {"x": int(x.value())}
+print(json.dumps(solution))
+'''
+WIDE = '''from hermax.model import Model
+
+
+def build(instance):
+    m = Model()
+    bits = m.bool_vector("b", 35)
+    total = sum(2 ** k * bits[k] for k in range(35))
+    m &= (total == 2 ** 33 + instance["n"])
+    return m, {"x": total}
+'''
+# Two assignments with the same declared total: the runner must report it once.
+REPEAT_REFERENCE = '''
+# Data
+n = 1
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 2, name="x")
+model = cp.Model(x == n)
+model.solve()
+solution = {"x": int(x.value())}
+print(json.dumps(solution))
+'''
+REPEAT = '''from hermax.model import Model
+
+
+def build(instance):
+    m = Model()
+    a = m.int("a", 0, 1)
+    b = m.int("b", 0, 1)
+    m &= (a + b == instance["n"])
+    return m, {"x": a + b}
+'''
 
 ISOLATED = '''from hermax.model import Model
 
@@ -179,6 +232,11 @@ def main():
         check("maximization", OPTIMAL.replace("OBJECTIVE", "(2 * n) - (x + y)"),
               reference=MAXIMIZING)
         check("native_api", NATIVE)
+        check("wide_output", WIDE, reference=WIDE_REFERENCE)
+        repeat = check("repeated_output_once", REPEAT, reference=REPEAT_REFERENCE,
+                       solution_limit=2)
+        results["repeated_output_once"] = (repeat["accepted"]
+                                           and repeat["solutions_checked"] == 1)
         check("isolation", ISOLATED)
         check("rejects_objective_tuple", OBJECTIVE_TUPLE,
               reference=OPTIMIZING, expected={"execution_error", "invalid_output"})

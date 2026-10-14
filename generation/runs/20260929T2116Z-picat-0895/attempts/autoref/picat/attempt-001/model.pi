@@ -1,0 +1,21 @@
+% Autoref: a series s[0..n+1] in which every value i from 0 to n occurs exactly
+% s[i] times, and whose last element s[n+1] is m.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    M = Data.get(m),
+    % s[k + 1] = the k-th element of the series, 0..n
+    S = new_list(N + 2),
+    S :: 0..N,
+    % the last element is m
+    S[N + 2] #= M,
+    % the value i occurs exactly s[i] times
+    foreach (I in 0..N)
+        count(I, S) #= S[I + 1]
+    end,
+    % implied by the counts: every one of the n + 2 elements is counted once
+    sum([S[I] : I in 1..N+1]) #= N + 2,
+    Vars = S,
+    Outputs = [s = S],
+    Options = [ff].

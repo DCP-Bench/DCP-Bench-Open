@@ -1,0 +1,28 @@
+% Balanced incomplete block design (v, b, r, k, l): a v x b 0/1 matrix in which
+% every row has r ones, every column has k ones, and every two rows have ones in
+% exactly l common columns.
+import sat.
+
+model(Data, Vars, Outputs, Options) =>
+    V = Data.get(v),
+    B = Data.get(b),
+    R = Data.get(r),
+    K = Data.get(k),
+    L = Data.get(l),
+    Matrix = new_array(V, B),
+    Matrix :: 0..1,
+    % every object occurs in r blocks
+    foreach (I in 1..V)
+        sum([Matrix[I, J] : J in 1..B]) #= R
+    end,
+    % every block holds k objects
+    foreach (J in 1..B)
+        sum([Matrix[I, J] : I in 1..V]) #= K
+    end,
+    % every two objects occur together in exactly l blocks
+    foreach (I1 in 1..V-1, I2 in I1+1..V)
+        sum([Matrix[I1, J] #/\ Matrix[I2, J] : J in 1..B]) #= L
+    end,
+    Vars = Matrix,
+    Outputs = [matrix = Matrix],
+    Options = [].

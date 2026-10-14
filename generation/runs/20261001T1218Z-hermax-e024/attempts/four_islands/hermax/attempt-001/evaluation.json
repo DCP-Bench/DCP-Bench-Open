@@ -1,0 +1,67 @@
+{
+  "accepted": false,
+  "detail": "cannot access local variable 'm' where it is not associated with a value",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:e54bc99f391cfd94bee0e72fe748f1e80c23e1d5ad6e18c4f66865515cc82384",
+    "tag": "dcp-eval/hermax:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 2.9999500839039683e-07,
+      "detail": "cannot access local variable 'm' where it is not associated with a value",
+      "execution_wall_seconds": 1.444843999997829,
+      "id": "example",
+      "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "island",
+        "export",
+        "attraction"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.5404466000036336,
+      "runner_status": {
+        "detail": "cannot access local variable 'm' where it is not associated with a value",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 144, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 100, in main\n    model, outputs = load(request[\"instance\"])\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 49, in load\n    returned = module.build(instance)\n               ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 45, in build\n    one_of(pwana, koala_preserve, [(A, C), (B, D)])\n  File \"/input/model.py\", line 38, in one_of\n    option = m.bool()\n             ^\nUnboundLocalError: cannot access local variable 'm' where it is not associated with a value\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "b2321c80c89356ded998c767a56c1a42f1681d8230f956c597740f362b9273e8",
+  "problem_id": "four_islands",
+  "reason": "execution_error",
+  "reference_hash": "bbb2d83add92d381e3376bc4ac34f95615450c924099a72693a0efa3b055c14b",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "hermax",
+  "total_wall_seconds": 3.536079700003029,
+  "unperformed_instances": []
+}

@@ -1,0 +1,24 @@
+% Discrete tomography: a matrix of zeroes and ones is "x-rayed" along its rows and columns,
+% giving the number of ones in each row and in each column. Reconstruct a matrix that fits
+% those counts.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    RowSums = Data.get(row_sums),         % number of ones wanted in each row
+    ColSums = Data.get(col_sums),         % number of ones wanted in each column
+    R = len(RowSums),
+    C = len(ColSums),
+    % Matrix[i, j] = the entry in row i, column j: 0 or 1
+    Matrix = new_array(R, C),
+    Matrix :: 0..1,
+    % each row has the stated number of ones
+    foreach (I in 1..R)
+        sum([Matrix[I, J] : J in 1..C]) #= RowSums[I]
+    end,
+    % each column has the stated number of ones
+    foreach (J in 1..C)
+        sum([Matrix[I, J] : I in 1..R]) #= ColSums[J]
+    end,
+    Vars = Matrix,
+    Outputs = [matrix = Matrix],
+    Options = [].

@@ -1,0 +1,12 @@
+% instance: {"dur": [2, 1, 2], "res": [1, 1, 2], "cap": 2}
+% limit: 3
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    D = Data.get(dur), R = Data.get(res),
+    N = len(D),
+    S = new_list(N), S :: 0..6,
+    E = new_list(N),
+    foreach (I in 1..N) E[I] #= S[I] + D[I] end,
+    cumulative(S, D, R, Data.get(cap)),
+    Makespan #= max(E),
+    Vars = S, Outputs = [s = S, makespan = Makespan], Options = [$min(Makespan)].

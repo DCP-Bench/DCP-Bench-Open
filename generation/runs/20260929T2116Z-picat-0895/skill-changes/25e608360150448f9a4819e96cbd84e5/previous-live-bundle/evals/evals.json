@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "skill_name": "picat",
+  "evals": [
+    {
+      "id": "instance-agnostic-model",
+      "prompt": "Using this skill, write a picat submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/picat:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The submission imports exactly one of cp and sat, defines model/4, and never calls solve/1, solve/2, println/1 or printf/2.",
+        "Every instance-dependent quantity is read with Data.get(...), and the evaluator accepts all listed instances.",
+        "Outputs is a list of Name = Value pairs whose names are exactly the declared output names."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "optimization-contract",
+      "prompt": "Using this skill, write a picat submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/picat:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "assertions": [
+        "The objective is stated once in Options as $min(...) or $max(...), written with the $, and the model does not bound or fix the objective itself.",
+        "The objective is built from the model's own variables, with no constant taken from a known answer.",
+        "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "lookup-by-decision-variable",
+      "prompt": "Using this skill, write a picat submission for a problem where a value is selected by a decision variable, such as an assignment with a cost matrix, and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/picat:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "A value selected by a decision variable is read with element/3, element0/3 or matrix_element/4, never with L[I] on a domain variable.",
+        "No arithmetic expression over decision variables appears as a list element, an output value or a global constraint argument; such values are named with a constraint first."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    },
+    {
+      "id": "capitalised-fields-and-outputs",
+      "prompt": "Using this skill, write a picat submission for a problem whose instance fields or declared outputs start with a capital letter, such as csplib_023_magic_hexagon, and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/picat:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Capitalised instance fields are read with a quoted atom, as in Data.get('NUM_CELLS'), and capitalised output names are written as quoted atoms such as 'LD' = Cells.",
+        "The evaluator does not report invalid_output for a missing or misnamed declared output."
+      ],
+      "evidence_required": "The submission source and the evaluator JSON result."
+    }
+  ]
+}

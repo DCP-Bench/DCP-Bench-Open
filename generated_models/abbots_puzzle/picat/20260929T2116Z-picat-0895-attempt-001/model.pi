@@ -1,0 +1,15 @@
+% The abbot's puzzle: 100 bushels of corn shared among 100 people, a man getting
+% three bushels, a woman two and a child half a bushel, with five times as many
+% women as men.
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    [Men, Women, Children] :: 0..100,
+    Men + Women + Children #= 100,
+    % the corn, counted in half bushels
+    Men * 6 + Women * 4 + Children #= 200,
+    Men * 5 #= Women,
+    Vars = [Men, Women, Children],
+    Outputs = [men = Men, women = Women, children = Children],
+    Options = [].

@@ -1,0 +1,7 @@
+% instance: {"n": 3}
+% limit: 20
+import cp.
+model(Data, Vars, Outputs, Options) =>
+    X :: -3..3, Y :: -3..3,
+    X * Y #= -2,
+    Vars = [X, Y], Outputs = [x = X, y = Y], Options = [$max(X - Y)].

@@ -1,0 +1,14 @@
+% Subset sum: how many bags of each kind were stolen, given the coins per bag of
+% each kind and the total number of coins lost.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Total = Data.get(total_coins_lost),
+    Coins = Data.get(coin_numbers),
+    N = len(Coins),
+    Bags = new_list(N),
+    Bags :: 0..Total,
+    sum([Bags[I] * Coins[I] : I in 1..N]) #= Total,
+    Vars = Bags,
+    Outputs = [bags = Bags],
+    Options = [].

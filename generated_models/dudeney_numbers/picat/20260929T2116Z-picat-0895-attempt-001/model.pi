@@ -1,0 +1,20 @@
+% Dudeney numbers: a positive integer, larger than 1 and with at most n digits,
+% that is a perfect cube whose digits add up to its cube root.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),
+    % digits[i] = the i-th digit from the left, with leading zeros
+    Digits = new_list(N),
+    Digits :: 0..9,
+    Number :: 0..10 ** N - 1,
+    CubeRoot :: 1..9 * N,
+    Number #= CubeRoot * CubeRoot * CubeRoot,
+    % the digits add up to the cube root, and spell the number
+    sum(Digits) #= CubeRoot,
+    Place = [10 ** (N - I) : I in 1..N],
+    Number #= sum([Digits[I] * Place[I] : I in 1..N]),
+    Number #> 1,
+    Vars = [CubeRoot] ++ Digits,
+    Outputs = [number = Number],
+    Options = [].

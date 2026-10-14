@@ -1,0 +1,71 @@
+{
+  "accepted": false,
+  "detail": "sum_var() expects IntVar items.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:e54bc99f391cfd94bee0e72fe748f1e80c23e1d5ad6e18c4f66865515cc82384",
+    "tag": "dcp-eval/hermax:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 9.00003215065226e-07,
+      "detail": "sum_var() expects IntVar items.",
+      "execution_wall_seconds": 1.2053820000000997,
+      "id": "example",
+      "instance_hash": "1dc618b1592a89580771944dd3f1b2dbd364bf4a190d278fead8715a1857e957",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 14,
+      "outputs": [
+        "ring_config",
+        "total_adms"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 3.04402310000296,
+      "runner_status": {
+        "detail": "sum_var() expects IntVar items.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 144, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 100, in main\n    model, outputs = load(request[\"instance\"])\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 49, in load\n    returned = module.build(instance)\n               ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/input/model.py\", line 44, in build\n    total_adms = m.sum_var([ring_config[k][i] for k in range(r) for i in range(n)])\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/hermax/model/core.py\", line 1876, in sum_var\n    raise TypeError(\"sum_var() expects IntVar items.\")\nTypeError: sum_var() expects IntVar items.\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "1d638070c5ad8d3912a0eae4a1318275541cab0d8dd00c57f8a92e8b265d4501",
+  "problem_id": "csplib_056_sonet",
+  "reason": "execution_error",
+  "reference_hash": "69346fb9abd091e290f5139e5b63f976eb3d677dd9ffb8b4d0adfee5c63c256c",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "hermax",
+  "total_wall_seconds": 4.811693499999819,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

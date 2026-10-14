@@ -1,0 +1,15 @@
+% Five statements: statement i says "exactly i of these statements are false".
+% Which are true?
+import cp.
+
+model(_Data, Vars, Outputs, Options) =>
+    % The puzzle has no data.
+    Statements = new_list(5),
+    Statements :: 0..1,
+    False #= sum([S #= 0 : S in Statements]),
+    foreach (I in 1..5)
+        Statements[I] #<=> (False #= I)
+    end,
+    Vars = Statements,
+    Outputs = [statements = Statements],
+    Options = [].

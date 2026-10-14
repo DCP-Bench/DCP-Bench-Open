@@ -1,0 +1,31 @@
+% Arch friends: Harriet bought four pairs of shoes (ecru espadrilles, fuchsia flats, purple
+% pumps, suede sandals) at four different stores (Foot Farm, Heels in a Handcart, The Shoe
+% Palace, Tootsies), one pair per stop. Find the stop (1 to 4) at which she bought each pair
+% and the stop at which she visited each store.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = 4,                           % four shoe pairs and four stores, as in the statement
+    % the stop number at which each pair of shoes was bought
+    Shoes = [EcruEspadrilles, FuchsiaFlats, PurplePumps, SuedeSandals],
+    Shoes :: 1..N,
+    % the stop number at which each store was visited
+    Stores = [FootFarm, HeelsInAHandcart, TheShoePalace, Tootsies],
+    Stores :: 1..N,
+    % one pair of shoes per stop, one store per stop
+    all_different(Shoes),
+    all_different(Stores),
+    % 1. Harriet bought fuchsia flats at Heels in a Handcart.
+    FuchsiaFlats #= HeelsInAHandcart,
+    % 2. The store she visited just after buying her purple pumps was not Tootsies.
+    PurplePumps + 1 #!= Tootsies,
+    % 3. The Foot Farm was Harriet's second stop.
+    FootFarm #= 2,
+    % 4. Two stops after leaving The Shoe Palace, Harriet bought her suede sandals.
+    TheShoePalace + 2 #= SuedeSandals,
+    Vars = Shoes ++ Stores,
+    Outputs = [ecruespadrilles = EcruEspadrilles, fuchsiaflats = FuchsiaFlats,
+               purplepumps = PurplePumps, suedesandals = SuedeSandals,
+               footfarm = FootFarm, heelsinahandcart = HeelsInAHandcart,
+               theshoepalace = TheShoePalace, tootsies = Tootsies],
+    Options = [].

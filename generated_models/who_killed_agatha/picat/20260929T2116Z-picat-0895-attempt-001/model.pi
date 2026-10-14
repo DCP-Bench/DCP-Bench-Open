@@ -1,0 +1,44 @@
+% Who killed Agatha: Agatha, the butler and Charles live in Dreadsbury Mansion.
+% A killer always hates, and is no richer than, his victim. Charles hates no one
+% Agatha hates. Agatha hates everybody except the butler. The butler hates
+% everyone not richer than Agatha, and everyone Agatha hates. No one hates
+% everyone. The killer is given as a 0-based index into the names.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = len(Data.get(names)),     % Agatha, the butler and Charles
+    Agatha = 1, Butler = 2, Charles = 3,
+    % hates[i, j] = 1 when i hates j; richer[i, j] = 1 when i is richer than j
+    Hates = new_array(N, N),
+    Hates :: 0..1,
+    Richer = new_array(N, N),
+    Richer :: 0..1,
+    % the killer, 0-based, and the victim is Agatha
+    Killer :: 0..N-1,
+    % a killer hates his victim and is no richer than her
+    element0(Killer, [Hates[I, Agatha] : I in 1..N], 1),
+    element0(Killer, [Richer[I, Agatha] : I in 1..N], 0),
+    % no one is richer than himself, and of two people exactly one is the richer
+    foreach (I in 1..N)
+        Richer[I, I] #= 0
+    end,
+    foreach (I in 1..N-1, J in I+1..N)
+        Richer[I, J] #<=> #~ Richer[J, I]
+    end,
+    foreach (I in 1..N)
+        % Charles hates no one that Agatha hates
+        Hates[Agatha, I] #=> #~ Hates[Charles, I],
+        % the butler hates everyone not richer than Agatha
+        #~ Richer[I, Agatha] #=> Hates[Butler, I],
+        % the butler hates everyone whom Agatha hates
+        Hates[Agatha, I] #=> Hates[Butler, I],
+        % no one hates everyone
+        sum([Hates[I, J] : J in 1..N]) #=< N - 1
+    end,
+    % Agatha hates everybody except the butler
+    Hates[Agatha, Agatha] #= 1,
+    Hates[Agatha, Charles] #= 1,
+    Hates[Agatha, Butler] #= 0,
+    Vars = [Killer] ++ vars(Hates) ++ vars(Richer),
+    Outputs = [killer = Killer],
+    Options = [].

@@ -1,0 +1,24 @@
+% Cutting stock: raw rolls are cut into smaller pieces following a given set of cutting
+% patterns. Choose how many raw rolls to cut with each pattern so that every width gets at
+% least the number of pieces ordered, using as few raw rolls as possible.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Widths = Data.get(widths),                   % the widths of the pieces to be cut
+    Orders = Data.get(orders),                   % Orders[w] = pieces of width w ordered
+    NumPatterns = Data.get(num_patterns),
+    PatternPieces = Data.get(num_rolls_width),   % PatternPieces[p][w] = pieces of width w in pattern p
+    NumWidths = len(Widths),
+    % PatternsUsed[p] = how many raw rolls are cut with pattern p; at most 100 each, the bound
+    % the reference puts on it (the roll_width field is not needed: the patterns already fit)
+    PatternsUsed = new_list(NumPatterns),
+    PatternsUsed :: 0..100,
+    % for each width, the pieces cut by all patterns cover the orders
+    foreach (W in 1..NumWidths)
+        sum([PatternPieces[P, W] * PatternsUsed[P] : P in 1..NumPatterns]) #>= Orders[W]
+    end,
+    % the total number of raw rolls cut
+    MinRollsCut #= sum(PatternsUsed),
+    Vars = PatternsUsed,
+    Outputs = [patterns_used = PatternsUsed, min_rolls_cut = MinRollsCut],
+    Options = [$min(MinRollsCut)].

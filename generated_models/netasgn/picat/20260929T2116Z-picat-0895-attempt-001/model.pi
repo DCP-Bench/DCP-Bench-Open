@@ -1,0 +1,28 @@
+% Network assignment: hours from people to projects, every person working all
+% their hours and every project getting all its hours, within the per-pair
+% limits, at the least total cost.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    Supply = Data.get(supply),
+    Demand = Data.get(demand),
+    Cost = Data.get(cost),
+    Limit = Data.get(limit),
+    NP = len(Supply),
+    NJ = len(Demand),
+    % assign[i, j] = the hours person i works on project j (0..10, as the reference bounds it)
+    Assign = new_array(NP, NJ),
+    Assign :: 0..10,
+    foreach (I in 1..NP)
+        sum([Assign[I, J] : J in 1..NJ]) #= Supply[I]
+    end,
+    foreach (J in 1..NJ)
+        sum([Assign[I, J] : I in 1..NP]) #= Demand[J]
+    end,
+    foreach (I in 1..NP, J in 1..NJ)
+        Assign[I, J] #=< Limit[I, J]
+    end,
+    TotalCost #= sum([Assign[I, J] * Cost[I, J] : I in 1..NP, J in 1..NJ]),
+    Vars = Assign,
+    Outputs = [assign = Assign, total_cost = TotalCost],
+    Options = [$min(TotalCost)].

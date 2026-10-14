@@ -1,0 +1,56 @@
+% Mario's gold route: Mario starts at his house, visits some houses and ends at Luigi's house,
+% collecting the gold of every house visited. Travelling from one house to another uses fuel,
+% and the fuel of the whole route must stay within the fuel limit. Maximise the gold collected.
+% Houses are numbered from 0 in the instance (and in the output), so house h is stored at
+% position h + 1 of the lists.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(nHouses),
+    MarioHouse = Data.get(marioHouse),
+    LuigiHouse = Data.get(luigiHouse),
+    FuelLimit = Data.get(fuelLimit),
+    ArcFuel = Data.get(arc_fuel),         % ArcFuel[i + 1][j + 1] = fuel from house i to house j
+    GoldInHouse = Data.get(goldInHouse),
+    % Next[h + 1] = the house that follows house h on the route; house h itself if it is not
+    % on the route. Luigi's house is followed by Mario's, which closes the route into a cycle.
+    Next = new_list(N),
+    Next :: 0..N - 1,
+    % Rank[h + 1] = the position of house h on the route, Mario's house being first
+    Rank = new_list(N),
+    Rank :: 1..N,
+    % every house has its own successor, and its own rank
+    all_different(Next),
+    all_different(Rank),
+    % the route starts at Mario's house
+    Rank[MarioHouse + 1] #= 1,
+    % the route ends at Luigi's house, which is followed by Mario's house
+    Next[LuigiHouse + 1] #= MarioHouse,
+    % NextRank[h + 1] = the rank of the house that follows house h
+    NextRank = new_list(N),
+    NextRank :: 1..N,
+    foreach (H in 1..N)
+        element0(Next[H], Rank, NextRank[H])
+    end,
+    foreach (H in 1..N)
+        % a house on the route, other than the last one, is followed by the house of the next
+        % rank (the step from Luigi's house back to Mario's is not a step of the route)
+        (Next[H] #!= H - 1 #/\ Next[H] #!= MarioHouse) #=> (NextRank[H] #= Rank[H] + 1),
+        % a house is on the route, or it ranks after Luigi's house, so that houses off the
+        % route cannot form a cycle of their own
+        Next[H] #!= H - 1 #\/ Rank[LuigiHouse + 1] #< Rank[H]
+    end,
+    % Fuel[h + 1] = the fuel used going from house h to its successor (0 if h is not on the route)
+    MaxFuel = max([max(Row) : Row in ArcFuel]),
+    Fuel = new_list(N),
+    Fuel :: 0..MaxFuel,
+    foreach (H in 1..N)
+        FuelRow = ArcFuel[H],
+        element0(Next[H], FuelRow, Fuel[H])
+    end,
+    sum(Fuel) #=< FuelLimit,
+    % the gold collected: the gold of every house on the route
+    Gold #= sum([GoldInHouse[H] * (Next[H] #!= H - 1) : H in 1..N]),
+    Vars = Next ++ Rank,
+    Outputs = [s = Next],
+    Options = [$max(Gold)].

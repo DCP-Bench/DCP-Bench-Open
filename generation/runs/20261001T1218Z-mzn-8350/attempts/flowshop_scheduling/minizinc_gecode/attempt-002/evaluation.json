@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "syntax error, unexpected where, expecting identifier or _",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:6e91486ac7d4a1dae5bcbab8e332a0669d37cea9d30a516598735e5bd0eb410b",
+    "tag": "dcp-eval/minizinc_gecode:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 8.00006091594696e-07,
+      "detail": "syntax error, unexpected where, expecting identifier or _",
+      "execution_wall_seconds": 1.9051262999419123,
+      "id": "example",
+      "instance_hash": "fefdcfe4ce9320a9f8c5d833344244acd8af3c1c1c0fdc8ef54d5bf602a6d585",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 24,
+      "outputs": [
+        "makespan"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 2.458100700052455,
+      "runner_status": {
+        "detail": "syntax error, unexpected where, expecting identifier or _",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 265, in main\n    minizinc_solver(request)\n  File \"/opt/runner/runtime.py\", line 148, in minizinc_solver\n    inst = minizinc.Instance(minizinc.Solver.lookup(\"gecode\"), problem)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 103, in __init__\n    self.analyse()\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/instance.py\", line 844, in analyse\n    output = self._driver._run(\n             ^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/driver.py\", line 245, in _run\n    for _ in decode_json_stream(output.stdout):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/minizinc/json.py\", line 95, in decode_json_stream\n    raise error_from_stream_obj(obj)\nminizinc.error.SyntaxError: syntax error, unexpected where, expecting identifier or _\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "ce68bfa48286b36c3933d0929fce0524e2c77600239c1694271f785c978fa945",
+  "problem_id": "flowshop_scheduling",
+  "reason": "execution_error",
+  "reference_hash": "44d79770ed9b1e29b93697cd6931ef79f44b9dd4d9084f082cc79ab92b4012e1",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "minizinc_gecode",
+  "total_wall_seconds": 5.03919170005247,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

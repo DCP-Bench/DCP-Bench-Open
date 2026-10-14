@@ -1,0 +1,85 @@
+{
+  "accepted": false,
+  "detail": "Direct encoding is disabled",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:2957a473257a188f9d4bfca1ce33bc5697befd70015c6297c6c8db0b56fd1031",
+    "tag": "dcp-eval/pysat:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 0.003109999990556389,
+      "detail": "Direct encoding is disabled",
+      "execution_wall_seconds": 0.9610538000124507,
+      "first_solution": {
+        "x": [
+          1,
+          2,
+          3,
+          1,
+          3,
+          2,
+          1,
+          2,
+          3
+        ],
+        "z": 18
+      },
+      "id": "example",
+      "instance_hash": "024308fb4cdaadc043e02bee833fe47705db6a1013f3e7c66f516198e739301e",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 18,
+      "outputs": [
+        "z",
+        "x"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.093207900004927,
+      "runner_status": {
+        "detail": "Direct encoding is disabled",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 1,
+      "solutions_received": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 272, in <module>\n    main()\n  File \"/opt/runner/run.py\", line 266, in main\n    return optimise(formula, outputs, request, started)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 245, in optimise\n    clause = blocking_clause(outputs, model, truth)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 150, in blocking_clause\n    clause.append(-leaf.equals(leaf.decode(model)))\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pysat/integer.py\", line 367, in equals\n    assert self.encoding in ('direct', 'coupled'), 'Direct encoding is disabled'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Direct encoding is disabled\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "041e1a75afdd5133574b9dadf44f480c0bc057d9356b34bf084c248c2d1f2410",
+  "problem_id": "candies",
+  "reason": "execution_error",
+  "reference_hash": "37310c38db6bdced36fa95c868a840fbf805798ed48efab4aa9c65bdafda52b4",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 1,
+  "solver_id": "pysat",
+  "total_wall_seconds": 2.516943499998888,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

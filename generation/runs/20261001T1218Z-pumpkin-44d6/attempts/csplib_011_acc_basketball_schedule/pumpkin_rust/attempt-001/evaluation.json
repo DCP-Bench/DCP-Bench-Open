@@ -1,0 +1,66 @@
+{
+  "accepted": false,
+  "detail": "Rust compilation failed; see stderr",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ba76cd4075853c6d15c85bb572baf1a604b52e58673bad3d7724d982743294cf",
+    "tag": "dcp-eval/pumpkin_rust:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 4.00003045797348e-07,
+      "detail": "Rust compilation failed; see stderr",
+      "execution_wall_seconds": 1.2300879999966128,
+      "id": "example",
+      "instance_hash": "886395624b7a4744f1d6187e9857826b4e2fbec0509753c1c289c994bd654614",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "config",
+        "where"
+      ],
+      "reason": "compilation_error",
+      "reference_setup_seconds": 6.328700700003537,
+      "runner_status": {
+        "detail": "Rust compilation failed; see stderr",
+        "status": "compilation_error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "error[E0283]: type annotations needed\n   --> /input/model.rs:223:86\n    |\n223 |             .add_constraint(pumpkin_solver::clause((10..n_days).map(|d| vs[d][a][b]).collect(), tag))\n    |                             ----------------------                                   ^^^^^^^ cannot infer type of the type parameter `B` declared on the method `collect`\n    |                             |\n    |                             required by a bound introduced by this call\n    |\n    = note: the type must implement `Into<Vec<Literal>>`\nnote: required by a bound in `clause`\n   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pumpkin-constraints-0.5.0/src/constraints/clause.rs:10:0\nhelp: consider specifying the generic argument\n    |\n223 |             .add_constraint(pumpkin_solver::clause((10..n_days).map(|d| vs[d][a][b]).collect::<Vec<_>>(), tag))\n    |                                                                                             ++++++++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0283`.\n"
+    }
+  ],
+  "instances_available": 1,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "63e27827b5e716bfe38de307b20441717504f7748555b5d06f82c8f41abfd578",
+  "problem_id": "csplib_011_acc_basketball_schedule",
+  "reason": "compilation_error",
+  "reference_hash": "b83cab83d405ef77af719b07a10e930ccdf8b24d1c6e0ae67ed91770745074b4",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.12.10"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "pumpkin_rust",
+  "total_wall_seconds": 8.137064499998814,
+  "unperformed_instances": []
+}

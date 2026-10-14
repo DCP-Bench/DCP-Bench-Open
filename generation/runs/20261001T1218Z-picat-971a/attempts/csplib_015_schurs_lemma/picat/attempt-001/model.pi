@@ -1,0 +1,19 @@
+% Schur's lemma: put the balls labelled 1..n into c boxes so that for any triple of balls
+% (x, y, z) with x + y = z, not all three are in the same box. The output is the box of each ball.
+import cp.
+
+model(Data, Vars, Outputs, Options) =>
+    N = Data.get(n),                      % number of balls
+    Boxes = Data.get(c),                  % number of boxes
+    % Balls[i] = the box (1..c) that ball i is in
+    Balls = new_list(N),
+    Balls :: 1..Boxes,
+    % for every x + y = z up to n, the balls x, y and z are not all in one box, that is,
+    % two of them are in different boxes (x = y is allowed: then x and 2x differ)
+    foreach (X in 1..N - 1, Y in 1..N - X)
+        Z = X + Y,
+        Balls[X] #!= Balls[Y] #\/ Balls[X] #!= Balls[Z] #\/ Balls[Y] #!= Balls[Z]
+    end,
+    Vars = Balls,
+    Outputs = [balls = Balls],
+    Options = [].

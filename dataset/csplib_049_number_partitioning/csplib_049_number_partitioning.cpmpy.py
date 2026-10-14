@@ -3,7 +3,7 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob049_number_partitioning.py
 # Source description: https://www.csplib.org/Problems/prob049/
 
-"""
+r"""
 This problem consists of finding a partition of numbers 1..N into two sets A and B such that:
 
 - A and B have the same cardinality
