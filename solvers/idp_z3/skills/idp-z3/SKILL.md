@@ -147,6 +147,10 @@ theory {
   the row count and the others run over every entry, so `{1..${max(edges)}}` sizes
   by the largest node in a list of pairs. Anything else (calls, attributes,
   names that are not fields) is refused with "a placeholder takes ...".
+  **Wrap the whole expression**: `{0..${2*n+1}}`, not `{0..2*${n}+1}` (that
+  becomes `2**8+1` and fails to parse). `${...}` works in the theory too, e.g.
+  `sum{{ ... }} = ${n*(n*n+1)//2}.`; outside `${...}`, `//` starts a comment and
+  integer division in a theory is `/`.
 - **`?=n x in T:` under an implication or parentheses crashes idp-engine 0.12.1**
   (an internal `TypeError` in annotation, reported as an `error` status). Write
   the quantifier at the top of a sentence, or use `#{x in T: ...}` counts.
@@ -162,17 +166,19 @@ theory {
   different values in 1..9 declared `-> Int` with bound constraints ran into the
   60 s limit as `unknown`; the same with `type Val := {1..9}` proved
   unsatisfiable in 3.5 s. Give each decision a finite type.
-- **Parenthesise a product inside a sum**: `sum{{ a(x) * b(x) | x in T }}` fails
+- **Parenthesise a compound term inside an aggregate** (a product, or a sum such as
+  `(start(j) + dur(j))` in `max{ }`): `sum{{ a(x) * b(x) | x in T }}` fails
   with "Expected 'is\s+enumerated' or 'in|∈' or ',' or '}}' or '|'"; write
   `sum{{ (a(x) * b(x)) | x in T }}`, or define `c(x) = a(x) * b(x)` and sum `c`.
 - **Mind the element count of a range**: `{0..${n}}` has n+1 elements and
   `{1..${n}}` has n; a 0-based output of n elements is `{0..${n-1}}`.
-- **Outputs need finite types too.** An output declared `-> Int` admits values
-  the description rules out (negative ages, entries above n), and the evaluator
+- **Bound every output, cheaply.** An unbounded `-> Int` output admits values the
+  description rules out (negative ages, entries above n), and the evaluator
   rejects them with "Declared outputs cannot extend to a reference solution".
-  Give each output a range type. Derived helper values fixed by equations (a
-  number assembled from digits) can stay `-> Int`; a wide range type such as
-  `{0..9999}` on them is slower.
+  Use a small range type (up to a few hundred values) or explicit bounds in the
+  theory on a `-> Int` output (`0 =< x() & x() =< ${max_val}.`). Large range
+  types (thousands of values) and range types on the objective or on values
+  fixed by equations make z3 slow or run out of memory; keep those `-> Int`.
 - **An output the brief shows as `int` must not be `-> Bool`**: the evaluator
   says "Expected integer at x[0][0]". Use `type Bit := {0..1}`.
 - **Ground facts in a theory do not close a predicate**: `knows(0,3).` leaves
@@ -187,6 +193,23 @@ theory {
   slow; use Boolean presence predicates (`started(p, s) <=> ? t in T: t =< s & plays(p, t)`).
 - **A symbol name must be unique**: "Duplicate declaration of D" when an output
   and a helper share a name.
+- **Ragged or mixed instance fields are not bound** (`next_work` withholds such
+  pairs), nor are string fields the model declares ("instance values of type str
+  cannot be bound"). A string field the model does not declare is ignored.
+- **A data field holding 0/1 integers binds as `-> Int`**; compare it with `= 1`.
+  Declared `-> Bool` it fails with "Declared outputs cannot extend ..." without
+  naming the field.
+- **Large quantifier spans ground to huge theories.** Pairwise sentences over 1000
+  elements ran out of memory; quantify over adjacent pairs (`! p in Adj: ... p + 1`)
+  over a type one shorter, which also avoids "Domain error ... is not a tautology"
+  on `p - 1`. A successor rule as an existential (`x(c) ~= last => ? c2: x(c2) =
+  x(c) + 1 & adjacent(c, c2)`) or an inverse map from values to cells is much
+  faster than a four-variable universal implication.
+- **`%` or comparisons between two decision sums are slow**: compare each sum
+  with a constant computed in `${...}`, and fold `%` over data into counts.
+- **Two-variable existentials under an implication** fail with "set expected at
+  most 1 argument"; nest them (`? r in R: ? c in C: ...`). Definitions need a
+  head quantifier: `{ ! x, y in T: rel(x, y) <- ... }`.
 - **Instance coordinates may be 1-based** while arrays bind 0-based; shift in
   the constraint (`r + 1 = lt(k, 0)`) rather than in the data.
 
