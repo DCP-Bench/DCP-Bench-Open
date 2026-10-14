@@ -1,0 +1,32 @@
+{
+  "skill_name": "jacop-java",
+  "evals": [
+    {"id": 1, "prompt": "Using JaCoP from Java, place n queens on an n x n board so that none attack each other. Read n from a JSON file and report when there is no solution.", "expected_skill": "jacop-java",
+     "expected_output": "A JaCoP program with all-different constraints that prints a placement, or reports infeasibility from labeling's return value",
+     "assertions": ["Uses Alldifferent or Alldistinct", "Calls setPrintInfo(false)", "Reports infeasibility when labeling returns false and timeOutOccured is false"]},
+    {"id": 2, "prompt": "With JaCoP in Java, list every solution of the n-queens problem for n read from a JSON file, each exactly once.", "expected_skill": "jacop-java",
+     "expected_output": "All solutions enumerated with searchAll, without duplicates",
+     "assertions": ["Uses getSolutionListener().searchAll(true)", "Labels only the output variables or de-duplicates on them"]},
+    {"id": 3, "prompt": "Solve a 0/1 knapsack read from JSON with the JaCoP Java solver and print the optimal selection.", "expected_skill": "jacop-java",
+     "expected_output": "A proven-optimal selection",
+     "assertions": ["Maximises by labelling with a negated cost variable", "Treats a result with timeOutOccured as not proven optimal"]},
+    {"id": 4, "prompt": "Using JaCoP (Java), print every optimal solution of a knapsack instance read from JSON.", "expected_skill": "jacop-java",
+     "expected_output": "Every optimal selection, each once",
+     "assertions": ["Optimises first, then fixes the objective to the optimum", "Enumerates on a freshly built Store", "Each optimal selection is printed once"]},
+    {"id": 5, "prompt": "Find the chromatic number of a graph given as an edge list in JSON, using JaCoP in Java.", "expected_skill": "jacop-java",
+     "expected_output": "The minimum number of colours with a valid colouring",
+     "assertions": ["Minimises a variable equal to the maximum colour", "Checks that the optimum was proven"]},
+    {"id": 6, "prompt": "Solve a SEND+MORE=MONEY style cryptarithm whose words come from a JSON file, with JaCoP from Java.", "expected_skill": "jacop-java",
+     "expected_output": "Digit assignment built from the data, or infeasibility",
+     "assertions": ["Builds the column or weighted-sum constraint from the words in the data", "Uses LinearInt or SumWeight for the weighted sum"]},
+    {"id": 7, "prompt": "Minimise the makespan of a job-shop instance from JSON using JaCoP in Java.", "expected_skill": "jacop-java",
+     "expected_output": "Proven-optimal makespan and start times",
+     "assertions": ["Uses CumulativeUnary or Cumulative per machine rather than pairwise big-M disjunctions", "Uses a scheduling heuristic such as SmallestMin on start times"]},
+    {"id": 8, "prompt": "Write a MiniZinc model for n-queens and run it with Gecode.", "expected_skill": null,
+     "expected_output": "The skill is not used", "assertions": ["jacop-java is not loaded"]},
+    {"id": 9, "prompt": "Solve n-queens with Choco in Java.", "expected_skill": null,
+     "expected_output": "The skill is not used", "assertions": ["jacop-java is not loaded"]},
+    {"id": 10, "prompt": "How do I contribute a pull request to the JaCoP GitHub repository?", "expected_skill": null,
+     "expected_output": "The skill is not used for a non-modelling question", "assertions": ["jacop-java is not loaded"]}
+  ]
+}

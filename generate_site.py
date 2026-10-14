@@ -86,11 +86,14 @@ LANGUAGES = {
     "picat": ("plaintext", "Picat"),
     # julia is not in the common bundle either and is loaded like prolog.
     "julia": ("julia", "Julia"),
+    # java is in highlight.js's common bundle, so no extra grammar.
+    "java": ("java", "Java"),
 }
 
 # Only for a model whose integration is no longer installed under solvers/.
 EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
-                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia"}
+                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia",
+                      ".java": "java"}
 
 VERDICT_STYLES = {
     "solution_valid_and_optimal": ("#16a34a", "solution valid · optimal",

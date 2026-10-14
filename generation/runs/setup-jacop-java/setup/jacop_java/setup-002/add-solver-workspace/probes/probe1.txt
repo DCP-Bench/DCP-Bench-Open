@@ -1,0 +1,16 @@
+satisfy true x=0 y=2 level=0
+all true count=3
+opt dir=1 ok=true cost=1 x=0 y=1 t=t = 1 timeout=false
+opt dir=-1 ok=true cost=-4 x=2 y=2 t=t = -4 timeout=false
+consistency false
+infeasible false
+resolve 0 ok=true x=0 y=2 level=1
+  after restore x=x::{0..2} y=y::{0..2}
+resolve 1 ok=true x=1 y=1 level=1
+  after restore x=x::{0..2} y=y::{0..2}
+resolve 2 ok=true x=2 y=0 level=1
+  after restore x=x::{0..2} y=y::{0..2}
+resolve 3 ok=false x=-1 y=-1 level=1
+  after restore x=x::{0..2} y=y::{0..2}
+pigeon ok=false timeout=true secs=1.501291334
+store vars size=40 vars.length=100
