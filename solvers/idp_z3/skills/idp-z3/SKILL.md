@@ -141,7 +141,11 @@ theory {
   field, literals, `+ - * //`, `/` (exact, refused unless it divides evenly),
   parentheses, and `sum`, `len`, `max`, `min` of a one-dimensional integer array
   field. `type Slot := {1..${2*k}}` sizes by a product, and
-  `type Job := {1..${sum(demand)}}` by a total. Anything else (calls, attributes,
+  `type Job := {1..${sum(demand)}}` by a total.
+- **`${...}` also takes `**` with a non-negative integer exponent (result at most
+  10^7), and `sum`, `len`, `max`, `min` of a 2-D or ragged integer field**: `len` is
+  the row count and the others run over every entry, so `{1..${max(edges)}}` sizes
+  by the largest node in a list of pairs. Anything else (calls, attributes,
   names that are not fields) is refused with "a placeholder takes ...".
 - **`?=n x in T:` under an implication or parentheses crashes idp-engine 0.12.1**
   (an internal `TypeError` in annotation, reported as an `error` status). Write

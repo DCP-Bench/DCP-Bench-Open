@@ -95,6 +95,58 @@ theory {
 """
 SIZE_IMPORT = SIZE_EXPRESSION.replace("${2*k}", "${__import__}")
 SIZE_ATTRIBUTE = SIZE_EXPRESSION.replace("${2*k}", "${k.real}")
+# k**2 in a placeholder, with the reference's 2 * k written as k * k.
+SIZE_POWER = (SIZE_EXPRESSION.replace("${2*k}", "${k**2}")
+              .replace("x() + y() = 2 * k().", "x() + y() = k() * k()."))
+REFERENCE_POWER = REFERENCE_SIZE.replace("2 * k", "k * k")
+# max over a list of pairs, sized from the flattened entries of a 2-D field.
+SIZE_EDGES = """vocabulary {
+    k: () -> Int
+    type V := {0..${max(edges)}}
+    x: () -> V
+    y: () -> V
+}
+theory {
+    x() + y() = k().
+}
+"""
+REFERENCE_EDGES = '''
+# Data
+k = 2
+edges = [[0, 1], [1, 2]]
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, k, name="x")
+y = cp.intvar(0, k, name="y")
+model = cp.Model(x + y == k)
+model.solve()
+solution = {"x": int(x.value()), "y": int(y.value())}
+print(json.dumps(solution))
+'''
+# A ground sentence whose argument is a data-defined function application.
+GROUND_OUTPUT = """vocabulary {
+    type Idx := {0..3}
+    type Val := {0..3}
+    pos: Idx -> Idx
+    x: Idx -> Val
+}
+theory {
+    x(pos(0)) = 1.
+}
+"""
+REFERENCE_GROUND = '''
+# Data
+pos = [1, 2, 3, 0]
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 3, shape=4, name="x")
+model = cp.Model(x[pos[0]] == 1)
+model.solve()
+solution = {"x": [int(value) for value in x.value()]}
+print(json.dumps(solution))
+'''
 # A quantifier with ?=1 under an implication makes idp-engine 0.12.1 raise an
 # internal TypeError while annotating; the runner must report it as an error.
 ENGINE_ERROR = """vocabulary {
@@ -173,6 +225,12 @@ def main():
         results["size_expression_refused"] = (
             refused("size_import", SIZE_IMPORT, "__import__ is not an instance field")
             and refused("size_attribute", SIZE_ATTRIBUTE, "Attribute is not allowed here"))
+        check("size_expression_power", SIZE_POWER, reference=REFERENCE_POWER, instances=[{"k": 3}],
+              instance_count=2)
+        check("size_expression_2d", SIZE_EDGES, reference=REFERENCE_EDGES,
+              instances=[{"k": 3, "edges": [[0, 2], [2, 3], [1, 3]]}], instance_count=2)
+        check("ground_output_sentence", GROUND_OUTPUT, reference=REFERENCE_GROUND,
+              instances=[{"pos": [2, 0, 1, 3]}], instance_count=2)
         check("engine_error_reported", ENGINE_ERROR, expected={"execution_error"},
               detail="NoneType")
         check("isolation", ISOLATED)

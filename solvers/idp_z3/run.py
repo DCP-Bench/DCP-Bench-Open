@@ -5,9 +5,11 @@ its own `structure`), not a program. The runner binds the instance into it:
 
 - Every `${...}` in the source is replaced by the integer value of an expression
   over the instance: an integer scalar field `n`, integer literals, `+ - * //`
-  and `/` (exact division, refused unless it divides evenly), parentheses, and
-  `sum(F)`, `len(F)`, `max(F)`, `min(F)` for a one-dimensional integer array
-  field `F`. FO(.) type ranges must be integer literals, so this is the only way
+  and `/` (exact division, refused unless it divides evenly), `**` with a
+  non-negative integer exponent (results above 10^7 are refused), parentheses,
+  and `sum(F)`, `len(F)`, `max(F)`, `min(F)` for an integer array field `F` of
+  any depth: `len` is the number of top-level rows, and `sum`, `max`, `min` run
+  over every integer entry, so `max(edges)` over a list of [u, v] pairs works. FO(.) type ranges must be integer literals, so this is the only way
   to write `type Row := {1..${n}}` or `type Slot := {1..${2*k}}`. The expression
   is parsed with `ast` and evaluated by a whitelist, never by `eval`. `$` is
   otherwise only legal in FO(.) directly before `(`, so the marker cannot collide
@@ -56,11 +58,12 @@ def finish(status, detail="", **metadata):
 
 INPUT = Path("/input")
 TEMPLATE = re.compile(r"\$\{([^{}]*)\}")
-SIZE_FORM = ("an integer expression over instance fields: integer literals, + - * // / and "
-             "parentheses, and sum, len, max or min of a one-dimensional integer array field")
+SIZE_FORM = ("an integer expression over instance fields: integer literals, + - * // / ** and "
+             "parentheses, and sum, len, max or min of an integer array field")
 SIZE_FUNCTIONS = {"sum": sum, "len": len, "max": max, "min": min}
 SIZE_OPERATORS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
                   ast.FloorDiv: operator.floordiv}
+POWER_LIMIT = 10 ** 7
 DIRECTIONS = ("minimize", "maximize")
 INT_SET = "ℤ"
 BOOL_SET = "𝔹"
@@ -68,6 +71,15 @@ BOOL_SET = "𝔹"
 
 class Unsupported(Exception):
     pass
+
+
+def flatten(value):
+    """Every leaf of a possibly nested, possibly ragged list."""
+    if isinstance(value, list):
+        for item in value:
+            yield from flatten(item)
+    else:
+        yield value
 
 
 def size_expression(body, instance):
@@ -89,10 +101,12 @@ def size_expression(body, instance):
         if name not in instance:
             raise refuse(f"{name} is not an instance field")
         value = instance[name]
-        if not isinstance(value, list) or any(isinstance(item, bool) or not isinstance(item, int)
-                                              for item in value):
-            raise refuse(f"{name} is not a one-dimensional integer array field")
-        return value
+        if not isinstance(value, list):
+            raise refuse(f"{name} is not an integer array field")
+        leaves = list(flatten(value))
+        if any(isinstance(item, bool) or not isinstance(item, int) for item in leaves):
+            raise refuse(f"{name} is not an integer array field")
+        return value, leaves
 
     def evaluate(node):
         if isinstance(node, ast.Constant) and type(node.value) is int:
@@ -102,6 +116,16 @@ def size_expression(body, instance):
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
             value = evaluate(node.operand)
             return value if isinstance(node.op, ast.UAdd) else -value
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Pow):
+            base, exponent = evaluate(node.left), evaluate(node.right)
+            if exponent < 0:
+                raise refuse(f"{exponent} is a negative exponent")
+            if abs(base) >= 2 and exponent >= POWER_LIMIT.bit_length():
+                raise refuse(f"{base}**{exponent} exceeds {POWER_LIMIT}")
+            result = base ** exponent
+            if abs(result) > POWER_LIMIT:
+                raise refuse(f"{base}**{exponent} exceeds {POWER_LIMIT}")
+            return result
         if isinstance(node, ast.BinOp) and (type(node.op) in SIZE_OPERATORS or isinstance(node.op, ast.Div)):
             left, right = evaluate(node.left), evaluate(node.right)
             if right == 0:
@@ -115,10 +139,12 @@ def size_expression(body, instance):
             if not (isinstance(node.func, ast.Name) and node.func.id in SIZE_FUNCTIONS
                     and len(node.args) == 1 and not node.keywords and isinstance(node.args[0], ast.Name)):
                 raise refuse("calls are limited to sum, len, max and min of one array field")
-            values = array(node.args[0].id)
-            if not values and node.func.id in ("max", "min"):
+            rows, leaves = array(node.args[0].id)
+            if node.func.id == "len":
+                return len(rows)
+            if not leaves and node.func.id in ("max", "min"):
                 raise refuse(f"{node.func.id} of an empty array is undefined")
-            return SIZE_FUNCTIONS[node.func.id](values)
+            return SIZE_FUNCTIONS[node.func.id](leaves)
         raise refuse(f"{type(node).__name__} is not allowed here")
 
     try:
@@ -232,14 +258,37 @@ def objective(vocab):
     return name
 
 
+def literal_argument(name, argument, theory):
+    """The Python value of a ground sentence's argument, reduced through the model's
+    interpretation when the engine has not already simplified it to a literal."""
+    value = getattr(argument, "py_value", None)
+    if value is not None:
+        return value
+    try:
+        reduced = z3.simplify(argument.translate(theory))
+    except Exception as error:
+        raise ValueError(f"Declared output {name} has an argument {argument} that cannot be "
+                         f"read from the model: {error}")
+    if z3.is_int_value(reduced):
+        return reduced.as_long()
+    if z3.is_true(reduced) or z3.is_false(reduced):
+        return z3.is_true(reduced)
+    raise ValueError(f"Declared output {name} has a ground sentence whose argument {argument} "
+                     "does not reduce to a value in the model")
+
+
 def output_terms(theory, name):
     """The ground terms of declared output `name`, keyed by argument tuple."""
     terms = {}
     for assignment in theory.assignments.values():
         sentence = assignment.sentence
         if type(sentence).__name__ == "AppliedSymbol" and sentence.decl.name == name:
-            arguments = tuple(argument.py_value for argument in sentence.sub_exprs)
-            terms[arguments] = sentence.translate(theory)
+            arguments = tuple(literal_argument(name, argument, theory) for argument in sentence.sub_exprs)
+            try:
+                terms[arguments] = sentence.translate(theory)
+            except Exception as error:
+                raise ValueError(f"Declared output {name} has a ground sentence that cannot be "
+                                 f"translated: {error}")
     if not terms:
         raise ValueError(f"Declared output {name} is not a symbol of the vocabulary")
     return terms
