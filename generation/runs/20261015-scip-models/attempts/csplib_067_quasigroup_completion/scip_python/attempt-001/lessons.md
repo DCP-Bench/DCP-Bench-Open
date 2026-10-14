@@ -1,0 +1,1 @@
+Model is a 0/1 one-hot encoding x[i,j,v] with exactly-one per cell, row and column; given cells fixed by bounds-style equality. Accepted on all 5 instances in one attempt, no repair needed. SCIP general constraints were not needed here because the problem is pure all-different over one-hot binaries, which the skill already recommends.

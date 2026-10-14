@@ -1,0 +1,3 @@
+- Problem has no instance fields; build() ignores its argument, which is correct here since the sizes come from the statement.
+- One-hot digit binaries with prefix sums and integer quotients (prefix == n*q) gave the 10-digit answer in about 10 s.
+- No skill gaps hit; the skill's one-hot and Python-expression guidance applied directly.

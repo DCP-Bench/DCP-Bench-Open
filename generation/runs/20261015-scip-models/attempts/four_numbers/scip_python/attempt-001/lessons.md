@@ -1,0 +1,2 @@
+- equality on a subset sum is two addConsIndicator calls (>= and <=) on the same binary, as the skill states.
+- sizes are taken from len(numbers): the instances mix 3- and 4-number inputs under a [4]int shape.

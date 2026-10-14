@@ -1,0 +1,2 @@
+- Clue 5 of jobs_puzzle ("Person 0, the chef, and the police officer went golfing together") was read as three distinct people. The reading that the chef and police officer are person 0 gave invalid_solution: "Declared outputs cannot extend to a reference solution" on the quick check.
+- With the distinct-people reading the model is accepted on the example (1 of 1 instances, 2 solutions checked).

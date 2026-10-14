@@ -1,0 +1,2 @@
+- Pipe connectivity: degree constraints (endpoint 1, other cells of the colour 2, via indicators) allow cycles, so a single-commodity flow from the first endpoint of each colour, with one unit absorbed per cell and arcs capped by x[p,c], rules them out.
+- The flow arcs need only x[p,c] upper bounds; no extra no-good or lazy cut is needed for a 5x5 board.

@@ -1,0 +1,2 @@
+- Boolean outputs (knapsack x: [n]bool) accept binary variables directly; the evaluator reads them as 0/1.
+- Open Hamiltonian path: successor binaries with in/out degree (1 - first/last), plus move numbers that strictly increase along each used edge via addConsIndicator. Strict increase rules out cycles, so the path needs no separate subtour elimination and the first square's move number 0 follows from the bounds.

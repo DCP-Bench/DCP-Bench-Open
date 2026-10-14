@@ -1,0 +1,2 @@
+- The cube-root bound is computed from the instance's n (digit count), so the model reads its instance argument.
+- One-hot cube root with v**3 weights gave the cube link with no nonlinear terms; both instances accepted in about 1 s each.

@@ -1,0 +1,2 @@
+- Letter-on-block one-hot binaries with `quicksum(x[l, b]) == 1` and `quicksum(x[l, b] for b) == num_sides` gave an accepted model on the first evaluation.
+- Word spelling as "letters of a word on distinct blocks" is `quicksum(x[l, b] for l in word) <= 1` per block, taking letters by position so a repeated letter is also caught.

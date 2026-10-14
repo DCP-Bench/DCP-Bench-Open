@@ -1,0 +1,2 @@
+- one-hot permutation per category: a clue between two items is encoded by forbidding each pair of positions that breaks it (b[x,p] + b[y,q] <= 1); it needed no indicators.
+- four_islands has no instance fields (the instance is empty), so the model takes all data from the description.

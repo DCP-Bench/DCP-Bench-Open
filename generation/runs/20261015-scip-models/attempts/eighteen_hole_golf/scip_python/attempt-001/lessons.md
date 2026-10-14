@@ -1,0 +1,2 @@
+- Problem has no instance fields and only the embedded example, so 18 and 72 come from the description and are commented as such.
+- One-hot binaries plus an integer link var work for a fixed value set; the check passed on the first attempt.
