@@ -109,6 +109,9 @@ theory {
 | constant | `n()` — always applied | bare `n` |
 
 - **Every sentence ends with `.`** — a missing period is a parse error.
+- **Comment each block of sentences** with a `//` line taken from the problem
+  description (e.g. `// every row holds different values`), so the theory can be
+  read against the statement.
 - Declarations are `name: Arg1 * Arg2 -> Result`; there is no `pred`/`var`
   keyword. Integer decisions are functions (`val: Letter -> Digit`), yes/no
   facts are predicates (`queen: Row * Col -> Bool`).
@@ -143,6 +146,18 @@ theory {
 - **Nonlinear integer arithmetic** (a product of two decision symbols) can make
   z3 run until the budget is spent; it is reported as a timeout, never as "no
   solution". Prefer a finite type for every decision.
+- **An unbounded `-> Int` decision makes hard cases time out.** Ten pairwise
+  different values in 1..9 declared `-> Int` with bound constraints ran into the
+  60 s limit as `unknown`; the same with `type Val := {1..9}` proved
+  unsatisfiable in 3.5 s. Give each decision a finite type.
+- **Parenthesise a product inside a sum**: `sum{{ a(x) * b(x) | x in T }}` fails
+  with "Expected 'is\s+enumerated' or 'in|∈' or ',' or '}}' or '|'"; write
+  `sum{{ (a(x) * b(x)) | x in T }}`, or define `c(x) = a(x) * b(x)` and sum `c`.
+- **Shift the lower bound to change a type's size**, since `${...}` takes no
+  expression: `{1..${n}}` has n elements and `{2..${n}}` has n-1 (e.g. the n-1
+  gaps between n positions).
+- **Instance coordinates may be 1-based** while arrays bind 0-based; shift in
+  the constraint (`r + 1 = lt(k, 0)`) rather than in the data.
 
 ## Check your own model before submitting
 
