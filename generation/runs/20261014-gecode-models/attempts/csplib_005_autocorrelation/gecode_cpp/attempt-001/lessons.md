@@ -1,0 +1,1 @@
+Pairwise XOR of bits with linear sums per shift is a clean encoding; the cast from BoolVar to IntVar does not exist in Gecode 6.2, so use IntVar bits with rel(x, IRT_NQ, y, b) for the reified difference.

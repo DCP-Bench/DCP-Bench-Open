@@ -1,0 +1,2 @@
+- AFC variable choice on Booleans is BOOL_VAR_AFC_MAX(decay); BOOL_VAR_AFC_SIZE_MAX does not exist in Gecode 6.2 (compilation_error: SIZE_MAX not declared).
+- Global sum-of-costs with a single objective var was too weak for optimality on 10x10 (60 s timeout). Splitting the cost per row and per column with per-line bounds (c cheapest / c dearest cells) plus AFC branching and restarts(100) made all five instances finish (largest 116 s).

@@ -1,0 +1,3 @@
+- A minimisation over an absolute deviation needs no extra case split: post `abs(total - T)` with `expr` and minimise the result.
+- Zero arrows is always feasible with deviation T, so the optimum total is at most 2T; that bound gives each hit count a finite domain without a constraint.
+- Unbounded counts with positive weights: `dom(*this, x, 0, 2T / w)` per variable is enough, no extra propagator.

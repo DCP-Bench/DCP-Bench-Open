@@ -1,0 +1,3 @@
+- Set covering with costs is a direct fit: one linear(IRT_GQ, 1) per task over Boolean workers plus one linear(IntArgs(cost), IRT_EQ, total); no decomposition needed.
+- The Qualified field is ragged, but the C++ model reads it straight from the JSON (instance.at("Qualified")), so the "unbindable" note did not block a model.
+- Workers in the data are 1-based; convert when indexing the Boolean array.

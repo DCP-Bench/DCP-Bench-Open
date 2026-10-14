@@ -1,0 +1,3 @@
+- Coin-change "pay every amount" is a per-amount payment vector with `linear(IRT_EQ)` and `rel(p <= x)`; no global in the skill map fits, and it solved in under 0.2 s on all five instances.
+- Domain bounds from the data (x_i <= (max-1)/d_i, p_i <= a/d_i) kept the search small; no restarts or search tuning were needed.
+- `IntArgs` builds directly from a `std::vector<int>` read with `get<std::vector<int>>()`.

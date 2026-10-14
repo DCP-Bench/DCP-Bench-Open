@@ -33,7 +33,7 @@ verified in `catalogue.cpp`.
 | number of distinct values | `nvalues(*this, x, IRT_EQ, k)` |
 | every window of q has l..u items in S | `sequence(*this, x, IntSet(S), q, l, u)` |
 | two of them share a group at most once (pairs meet) | per pair: `BoolVarArgs m; m << expr(*this, g[p][r] == g[q][r])` over rounds r, then `linear(*this, m, IRT_LQ, 1)` |
-| how many are true / weighted count | `linear(*this, bools, IRT_EQ, k)`, `linear(*this, IntArgs(w), x, IRT_LQ, cap)` |
+| how many are true / weighted count | `linear(*this, bools, IRT_EQ, k)`, `linear(*this, IntArgs(w), x, IRT_LQ, cap)` [Σ w_i·x_i ≤ cap; w = 5m is `IntArgs({1, -5})` over `{w, m}`] |
 | the i-th value of a table / array | `element(*this, IntArgs(table), i, y)` [table[i] = y], `element(*this, xs, i, y)` for variables |
 | a cell of a matrix indexed by variables | `element(*this, IntArgs(a), col, w, row, h, z)` [a[col + w*row] = z] |
 | allowed combinations / compatibility table | `TupleSet t(arity); t.add(IntArgs(..))...; t.finalize(); extensional(*this, x, t)`; forbidden: `extensional(*this, x, t, false)` |
@@ -46,13 +46,15 @@ verified in `catalogue.cpp`.
 | items into bins with capacities | `binpacking(*this, load, bin, IntArgs(size))` [load_j = Σ size_i over bin_i = j]; bound `load` by the capacity |
 | rectangles do not overlap | `nooverlap(*this, x, IntArgs(w), y, IntArgs(h))` |
 | a sorted copy / order statistics | `sorted(*this, x, y)` |
-| a permutation and its inverse (position ↔ item) | `channel(*this, x, y)` [x_i = j ⇔ y_j = i]; one-hot: `channel(*this, bools, v, offset)` |
+| a permutation and its inverse (position ↔ item) | `channel(*this, x, y)` [x_i = j ⇔ y_j = i, both 0-based]; 1-based: `channel(*this, x, 1, y, 1)`; one-hot: `channel(*this, bools, v, offset)` |
 | interchangeable values (colours, groups, labels) | `precede(*this, x, IntArgs({0,1,..,k}))` [value v+1 appears only after v]; LDSB below |
 | interchangeable rows or columns | `rel(*this, rowA, IRT_LQ, rowB)` (lexicographic) |
+| an unordered collection (faces of a die, a multiset, a group's members) | `rel(*this, block, IRT_LQ)` (sorted), when the output does not fix the order |
 | increasing sequence | `rel(*this, x, IRT_LE)` |
 | y is one of x | `member(*this, x, y)` |
 | minimum / maximum / position of the maximum | `min(*this, x, y)`, `max(*this, x, y)`, `argmax(*this, x, i)` [first index on ties] |
 | a set (team, group, subset) | `SetVar s(*this, IntSet::empty, lo, hi, cmin, cmax)`, `cardinality`, `rel(*this, s1, SRT_DISJ, s2)`, `channel(*this, bools, s)`; outputs go through the bools |
+| x differs from / equals y plus a constant | `rel(*this, x != y + c)`, `rel(*this, x == y + c)` (no `rel(x, IRT_NQ, y, c)` form) |
 | arithmetic | `rel(*this, x * y == z)`, `abs`, `/`, `%`, `sqr`, `pow(e, n)`, `divmod(*this, x, d, q, r)` |
 | logic between conditions | `rel(*this, (x == 1) >> (y != 1))`, `&&`, `\|\|`, `!`, `^`; `clause(*this, BOT_OR, pos, neg, 1)` |
 | if-then-else value | `ite(*this, b, x, y, z)` or `rel(*this, z == ite(b_expr, x, y))` |
@@ -100,11 +102,17 @@ class Queens : public Space {
 
 - `IntVarArray x(*this, n, lo, hi)` (member), `IntVar v(*this, lo, hi)`, domains from a
   set: `IntVar v(*this, IntSet({1, 3, 7}))`. `BoolVarArray`, `BoolVar` likewise (0/1).
+- A `BoolVar` is not an `IntVar`: it does not go into `IntVarArgs`, `mult`, or the
+  count argument of `count`. In MiniModel it mixes freely (`expr(*this, x * b)`,
+  `sum(bools)`). For a post function that needs an `IntVar`, link one with
+  `channel(*this, b, x)` (x in 0..1), or declare the 0/1 variables as `IntVar`.
 - `IntVarArgs` is a temporary list for posting (`IntVarArgs a; a << x[0] << y;`). It is
   not updated on copy: never keep one as a member to read later.
 - `Matrix<IntVarArray> m(x, cols, rows)`: `m(c, r)` (column first), `m.row(r)`,
   `m.col(c)`, `m.slice(c0, c1, r0, r1)`. `x.slice(start, step, n)` for strides.
-- Constants: `IntArgs({..})`, `IntArgs(n)` then fill, `IntArgs::create(n, start, inc)`;
+- Constants: `IntArgs({..})`, `IntArgs(std::vector<int>)`, `IntArgs(n)` then fill,
+  `IntArgs::create(n, start, inc)` (n copies of v: `IntArgs::create(n, v, 0)`; `IntArgs(n, v)`
+  does not compile);
   `IntSharedArray` for tables used by many `element`s.
 - Tight domains from the data. An auxiliary defined by an expression: `IntVar t =
   expr(*this, sum(x))` takes its bounds from the expression.
@@ -128,6 +136,8 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
 - `distinct`: `IPL_DOM` for permutations, puzzles, Latin squares and anything with
   tight domains; the default (value) misses most pruning.
 - `linear`: the default is bounds; `IPL_DOM` only for few variables with small domains.
+- Arithmetic (`*`, `sqr`, `abs`, `/`): keep the default. `IPL_DOM` on a product of two
+  domains of 10^4 values exhausts memory.
 - `element`, `extensional`, `channel` with Booleans, `count` with fixed values are
   already domain consistent.
 
@@ -138,7 +148,9 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
   (learn from failures; best with restarts), `INT_VAR_NONE()` (in order),
   `tiebreak(a, b)`. Values: `INT_VAL_MIN()`, `INT_VAL_MAX()`, `INT_VAL_SPLIT_MIN()`
   (halve the domain: good on large domains and objectives), `INT_VAL_RND(Rnd(1))`.
-  Booleans: `BOOL_VAR_*`, `BOOL_VAL_MIN/MAX`.
+  Booleans: `BOOL_VAR_NONE()`, `BOOL_VAR_RND(r)`, `BOOL_VAR_DEGREE_MAX()`,
+  `BOOL_VAR_AFC_MAX(0.99)`, `BOOL_VAR_ACTION_MAX()`, `BOOL_VAR_CHB_MAX()` (no `_SIZE_` forms),
+  `BOOL_VAL_MIN()`, `BOOL_VAL_MAX()`.
 - Branch on the decisions that determine everything else; several `branch` calls run
   in order. Then branch on the remaining auxiliaries so no variable is left open.
 - Scheduling: branch on start times with `INT_VAR_MIN_MIN()`, `INT_VAL_MIN()`.
@@ -157,6 +169,13 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
 - Symmetry: `Symmetries syms; syms << VariableSymmetry(x) << ValueSymmetry(IntArgs(..));
   branch(*this, x, VAR, VAL, syms);` (LDSB; also `VariableSequenceSymmetry(x, len)` for
   interchangeable rows). Or post `precede`/lex. Never both on the same symmetry.
+- Weighted objective over a Boolean grid: one sum over all cells propagates weakly. Add
+  partial sums per row and per column, each bounded by its cheapest and dearest
+  feasible choices, and link them to the objective.
+- Products of decision variables (`p_t * k_tv`) propagate weakly. Add the identities
+  and bounds the rules imply: Σ_v p_t·k_tv = p_t·Σ_v k_tv, a lower bound on the objective
+  (total demand / capacity, rounded up), per-item upper bounds. Implied constraints
+  usually beat a change of heuristic.
 - Heavy-tailed satisfaction search: AFC or CHB variable choice plus Luby restarts.
 
 ## Pitfalls
@@ -171,6 +190,10 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
 - `TupleSet` needs `finalize()` before posting. `DFA(reg)` compiles the regular
   expression once; reuse it for rows with the same clue.
 - `path`: `succ[e] = n`, not a node. `circuit` over n nodes needs domain 0..n−1.
+- One-hot `channel(*this, bools, v, o)` makes exactly one Boolean true and keeps `v`
+  in o..o+n−1. For "none" give it its own Boolean (index 0, offset 0).
+- Combine relations with MiniModel: `rel(*this, b == ((x < y) && (u < v)))`,
+  `expr(*this, a && b)`; `rel(home, b, BOT_AND, ...)` takes Booleans only.
 - `count(x, cards, vals)` forces every `x_i` to take a value in `vals`; list every value
   `x` may take, with cardinality `IntSet(0, n)` for unconstrained ones.
 - `sequence` and a few other globals stay alive at solutions; that is harmless.
@@ -232,15 +255,17 @@ class Seating : public dcp::Space {
 DCP_MODEL(Seating)
 ```
 
-- **Constructor** `explicit M(const json& instance)`. Sizes come from the data, so
-  create member arrays in the body: `x = IntVarArray(*this, n, lo, hi)`. Read data with
-  `instance.at("n").get<int>()`, `std::vector<int> w = instance.at("w")`,
-  `instance.at("m")[i][j].get<int>()`. The brief's shapes are those of the example
-  instance; take every size from the instance itself.
+- **Constructor** `explicit M(const json& instance)`, also when the instance has no
+  fields (then `(void)instance;` and constants from the description, commented). Sizes
+  come from the data, so create member arrays in the body: `x = IntVarArray(*this, n,
+  lo, hi)`. Read data with `instance.at("n").get<int>()`, `std::vector<int> w =
+  instance.at("w")`, `instance.at("m")[i][j].get<int>()`. The brief's shapes are those
+  of the example instance; take every size from the instance itself.
 - **Copy constructor** `M(M& s) : dcp::Space(s)` updates every member variable;
   `Gecode::Space* copy() override` returns `new M(*this)`. `dcp::Space` copies the
   outputs and the objective itself.
-- **Outputs** (in the constructor, once per declared name): `output("name", v)` with
+- **Outputs** (in the constructor, once per name the brief declares, no others: an
+  extra name such as the objective is `invalid_output`): `output("name", v)` with
   an `IntVar`, `BoolVar`, `IntVarArray`/`IntVarArgs`, `BoolVarArray`/`BoolVarArgs`,
   `std::vector<IntVarArgs>` (one list per element), `Matrix<IntVarArray>` (one list per
   row: `m.row(r)` becomes the r-th inner list), an `int`, or a `std::vector<int>`. A
@@ -253,13 +278,17 @@ DCP_MODEL(Seating)
   block with a `//` comment taken from the description's words, not the Gecode call.
 
 **What the driver does.** It builds the model, posts a fallback branching over every
-output and the objective after yours, and searches on one thread within the time
-limit. Satisfaction: up to the solution limit, distinct on the outputs. Optimisation:
-branch and bound (with restarts if requested) until the optimum is proven, emitting
-nothing before; a stop before the proof is `timeout`. Then it fixes the objective and
-enumerates further optimal outputs. Branch on all your decision variables yourself:
-an auxiliary that no branching and no propagation fixes can give a wrong solution,
-which the evaluator rejects.
+output and the objective after yours, and searches on one thread within the time limit.
+Satisfaction: up to the solution limit, distinct on the outputs. Optimisation: branch
+and bound (with restarts if requested) until the optimum is proven, emitting nothing
+before; a stop before the proof is `timeout`. Then it fixes the objective and enumerates
+further optimal outputs. The evaluator asks for two solutions: after the first, the
+driver searches again from the root with that solution forbidden, so the second must
+also come quickly. Branch first on the few variables that decide the structure (a
+pattern, an assignment), then the rest. Variables that must be equal can be one
+variable: `x[j] = x[i]` in an array shares it. Branch on all your decision variables
+yourself: an auxiliary that no branching and no propagation fixes can give a wrong
+solution, which the evaluator rejects.
 
 **Check.**
 1. `python -m generation.brief PROBLEM`: description, output names and shapes,
