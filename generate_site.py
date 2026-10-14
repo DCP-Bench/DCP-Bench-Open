@@ -920,6 +920,8 @@ BACKEND_NAMES = {
     # SWI-Prolog's constraint library, which its models load and use.
     "clpfd": "CLP(FD)",
     "z3": "Z3",
+    "ace": "ACE",
+    "minion": "Minion",
 }
 
 # Where one paradigm row sees only part of an integration's backends. PySAT's
