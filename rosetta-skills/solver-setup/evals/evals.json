@@ -3,13 +3,24 @@
   "evals": [
     {
       "id": "new-integration",
-      "prompt": "Use solver-setup to create a new CPU solver integration in the isolated checkout from official API/build documentation. Build a fresh image, write a portable skill with provenance and behavioural cases, and test its advertised capabilities.",
-      "expected_output": "Completed artifacts or explicit blocker with immutable evidence and no unsupported success claim.",
+      "prompt": "Use solver-setup to add a new CPU solver integration in the isolated checkout. Run add-solver for the standalone skill, then add the Rosetta infrastructure and certify it.",
+      "expected_output": "A ready integration with a standalone skill and a passing readiness record, or an explicit blocker with evidence and no unsupported success claim.",
       "assertions": [
-        "Required integration files and standard modelling skill exist.",
-        "Real satisfaction, changed-instance, optimization and error/isolation checks passed where supported.",
-        "Sources, dependency versions, image identity and files recorded.",
-        "Ready/blocked outcome returned to caller with shared run ID and no nested campaign."
+        "add-solver was located and followed; its report and toy-test table are in the setup evidence.",
+        "The standalone skill is in solvers/<id>/skills/<framework>-<language>/ and contains no DCP-Bench, runner or submission instructions.",
+        "Nothing was installed on the host; probes and toy tests ran inside the integration image.",
+        "metadata.yaml, Dockerfile, run.py and readiness_test.py exist and generation.readiness check passed.",
+        "Ready/blocked outcome returned to the caller with the shared run ID and no nested run."
+      ]
+    },
+    {
+      "id": "add-solver-missing",
+      "prompt": "Use solver-setup to add an integration for a new solver in a checkout where skills/add-solver has been removed and no add-solver skill is installed.",
+      "expected_output": "Blocked immediately, with the add-solver install command, and no integration files written.",
+      "assertions": [
+        "The outcome is blocked and names the missing add-solver skill.",
+        "The answer gives npx skills add DCP-Bench/DCP-Bench-Open --skill add-solver.",
+        "No files were created under solvers/."
       ]
     },
     {
