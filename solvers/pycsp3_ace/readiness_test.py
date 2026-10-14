@@ -12,6 +12,9 @@ solution, not the incumbent ACE found. `optimum_enumeration` checks that the
 solutions reported for an optimisation all have the proven optimum.
 `metadata_fields_ignored` and `one_key_instance` cover the instance binding, and
 `ragged_data` a list of rows whose lengths differ.
+`ace_error_reported` uses a reserved identifier (ACE stops with "is a keyword"),
+`compile_error_surfaced` a pycsp3 declaration error, and `invalid_tuple_guard` a
+Product over four variables that ACE 2.6 solves with invalid tuples.
 
 The isolation check drives the image directly under the evaluator's own
 container flags instead of through a submission.
@@ -116,6 +119,50 @@ RAGGED = ("from pycsp3 import *\n"
           "        [last[i] == row[-1] for i, row in enumerate(rows)])\n")
 RAGGED_INSTANCES = [{"rows": [[4, 5], [6, 7, 8]]}, {"rows": [[9], [1, 2, 3]]}]
 
+# A reserved identifier: ACE stops with "The id E is a keyword". The runner must say so.
+VECTOR_REFERENCE = """
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, n, shape=2, name="x")
+model = cp.Model(x[0] + x[1] == n)
+model.solve()
+solution = {"x": [int(v) for v in x.value()]}
+print(json.dumps(solution))
+"""
+RESERVED_ID = ("from pycsp3 import *\n"
+               "n = data.n\n"
+               "x = VarArray(size=2, dom=range(n + 1), id='E')\n"
+               "satisfy(x[0] + x[1] == n)\n")
+# A declaration error: pycsp3 prints "The identifier z is used twice" and exits.
+DECLARATION_ERROR = ("from pycsp3 import *\n"
+                     "n = data.n\n"
+                     "x = Var(range(n + 1))\n"
+                     "y = Var(range(n + 1))\n"
+                     "for i in range(2):\n"
+                     "    z = Var(range(2))\n"
+                     "satisfy(x + y == n)\n")
+# ACE 2.6 accepts invalid tuples for Product over four variables: 100*50*1*1 = 5000, not 5040.
+# The guard must reject those and emit only tuples that multiply to 5040.
+PRODUCT_REFERENCE = """
+# Data
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(1, 100, shape=4, name="x")
+model = cp.Model(x[0] * x[1] * x[2] * x[3] == 5040)
+model.solve()
+solution = {"x": [int(v) for v in x.value()]}
+print(json.dumps(solution))
+"""
+PRODUCT = ("from pycsp3 import *\n"
+           "x = VarArray(size=4, dom=range(1, 101), id='x')\n"
+           "satisfy(Product(x) == 5040)\n")
+SMALL_PRODUCT_REFERENCE = PRODUCT_REFERENCE.replace("intvar(1, 100", "intvar(1, 10").replace("5040", "24")
+SMALL_PRODUCT = PRODUCT.replace("range(1, 101)", "range(1, 11)").replace("5040", "24")
+
 ISOLATION_PROBE = """import os, socket
 probe = socket.socket(); probe.settimeout(0.5)
 assert os.getuid() != 0, "container runs as root"
@@ -190,6 +237,17 @@ def main():
         ragged = check("ragged_data", RAGGED, reference=RAGGED_REFERENCE,
                        instances=RAGGED_INSTANCES, instance_count=3)
         results["ragged_data"] &= ragged["instances_checked"] == 3
+        def detail_of(name, source, reference, expected_text, **kwargs):
+            result = evaluate(candidate(name, source), "readiness", SOLVER,
+                              reference_source=reference, **kwargs)
+            results[name] = result["reason"] == "execution_error" and expected_text in result.get("detail", "")
+            return result
+
+        detail_of("ace_error_reported", RESERVED_ID, VECTOR_REFERENCE, "keyword")
+        detail_of("compile_error_surfaced", DECLARATION_ERROR, REFERENCE, "identifier z is used twice")
+        check("invalid_tuple_guard", PRODUCT, reference=PRODUCT_REFERENCE, solution_limit=3,
+              execution_timeout=60)
+        check("invalid_tuple_guard_small", SMALL_PRODUCT, reference=SMALL_PRODUCT_REFERENCE, solution_limit=3)
         results["isolation"] = isolation(temp)
 
     try:

@@ -19,10 +19,21 @@ A round is one compile and one ACE run. The first round finds the solutions (up 
 `solution_limit`). For an optimisation the first round uses ACE's full search, and
 its last solution is reported only when ACE printed `s OPTIMUM`. Further rounds fix
 the objective to its optimum (`satisfy(term == optimum)`), and exclude every
-declared-output assignment found so far with a nogood. Auxiliary variables can repeat
+declared-output assignment seen so far with a nogood. Auxiliary variables can repeat
 an assignment of the declared outputs, so a round can add fewer new assignments than
 it returned. A round that reports `d COMPLETE EXPLORATION` ends the enumeration.
+
+Verification: ACE 2.6 accepts some invalid tuples (Product over four or more variables),
+and re-solving with the outputs fixed does not catch them. Each solution is therefore
+checked by the XCSP3 SolutionChecker from the same jar, on the round's own XML and the
+full instantiation ACE printed for it. The checker evaluates each constraint itself, and
+it also reports the objective cost, which must equal ACE's optimum. A rejected
+assignment becomes a nogood and the search continues.
+
+Errors: ACE and pycsp3 failures are reported as `error` with their message. ACE prints
+the cause only with `-ev`, and pycsp3 prints its message before `SystemExit`.
 """
+import importlib.util
 import json
 import os
 import re
@@ -33,6 +44,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from itertools import count
 from pathlib import Path
 
 sys.path.insert(0, "/opt/runner")
@@ -41,10 +53,44 @@ import runtime
 MODEL = "/input/model.py"
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 COMPLETE = re.compile(r"(?m)^\s*d COMPLETE EXPLORATION\s*$")
+# ACE writes these when it stops on a failure (e.g. "Fatal Error: The id E is a keyword",
+# "java.lang.OutOfMemoryError"). Without -ev it prints only "! ERROR", so -ev is passed.
+FAILURE = re.compile(r"ERROR|Exception|OutOfMemoryError|Fatal Error")
+ACE_OPTIONS = "-ev"
+ACE_WRAPPER = "/opt/runner/ace"  # java -jar ACE-2.6.jar "$@" 2>&1, written by the Dockerfile
+ACE_JAR = Path(importlib.util.find_spec("pycsp3").origin).parent / "solvers" / "ace" / "ACE-2.6.jar"
+CHECKER = "org.xcsp.parser.callbacks.SolutionChecker"
+INSTANTIATION = re.compile(r"<instantiation\b[^>]*>.*?</instantiation>", re.S)
 
 
 class Timeout(Exception):
     pass
+
+
+class Tee:
+    """Passes writes through and keeps a copy, so pycsp3's printed error can be reported."""
+
+    def __init__(self, stream):
+        self.stream, self.kept = stream, []
+
+    def write(self, text):
+        self.kept.append(text)
+        return self.stream.write(text)
+
+    def flush(self):
+        self.stream.flush()
+
+    def text(self):
+        return ANSI.sub("", "".join(self.kept))
+
+
+def describe(error, printed):
+    """The message of a failure. pycsp3 reports a modelling error as `ERROR: message`, then SystemExit."""
+    if isinstance(error, SystemExit):
+        lines = [line.split("ERROR:", 1)[1].strip() for line in printed.splitlines() if "ERROR:" in line]
+        if lines:
+            return "pycsp3: " + lines[-1]
+    return f"{type(error).__name__}: {error}"
 
 
 class Instance:
@@ -89,7 +135,9 @@ def read(obj, k, variable):
 def child(spec_path):
     spec = json.loads(Path(spec_path).read_text(encoding="utf-8"))
     result = {"status": "ERROR", "detail": "", "complete": False, "recorded": [], "bound": None,
-              "solutions": []}
+              "solutions": [], "instantiations": []}
+    out, err = Tee(sys.stdout), Tee(sys.stderr)
+    sys.stdout, sys.stderr = out, err
     try:
         # pycsp3 reads its options from argv when it is imported. The -data file is a
         # placeholder: pycsp3 would convert the real instance itself, and cannot take
@@ -101,7 +149,7 @@ def child(spec_path):
         import traceback
         traceback.print_exc()
         result["status"] = "ERROR"
-        result["detail"] = f"{type(error).__name__}: {error}"
+        result["detail"] = describe(error, out.text() + err.text())
     Path(spec["result"]).write_text(json.dumps(result, allow_nan=False), encoding="utf-8")
     sys.stdout.flush()
     sys.stderr.flush()
@@ -139,6 +187,17 @@ def _child(spec, result):
 
     # Replace pycsp3's own conversion (named tuples, which cannot hold names such as
     # `_SHIP`) before the model's `from pycsp3 import *` binds `data`.
+    # pycsp3 leaves the JVM's stderr unread, so a Java exception such as OutOfMemoryError
+    # never reaches the log. The image's wrapper merges stderr into stdout.
+    from pycsp3.solvers.ace import ace as ace_module
+    original_init = ace_module.Ace.__init__
+
+    def wrapped_init(self):
+        original_init(self)
+        self.command = ACE_WRAPPER
+
+    ace_module.Ace.__init__ = wrapped_init
+
     pycsp3.data = Instance(json.loads(Path(spec["instance"]).read_text(encoding="utf-8")))
     namespace = runpy.run_path(spec["model"], run_name="__main__")
     outputs = spec["outputs"]
@@ -157,13 +216,20 @@ def _child(spec, result):
     optimising = bool(recorded) and fixed is None
     allowed[0] = True
     status = real_solve(solver=pycsp3.ACE, sols=ALL if optimising else spec["sols"],
-                        options=f"-t={spec['time_limit']}s")
+                        options=f"-t={spec['time_limit']}s {ACE_OPTIONS}")
+    log = pycsp3.solver().get_logger()
+    text = ANSI.sub("", Path(log).read_text(encoding="utf-8", errors="replace")) if log and os.path.exists(log) else ""
+    failures = [line.strip() for line in text.splitlines()
+                if FAILURE.search(line) and "use -ev" not in line]
+    if failures:
+        result["status"] = "ERROR"
+        result["detail"] = " | ".join(failures[:3])[:1000]
+        return
     if status is None:
         raise RuntimeError("pycsp3 did not compile or solve the model")
     result["status"] = status.name
-    log = pycsp3.solver().get_logger()
-    text = ANSI.sub("", Path(log).read_text(encoding="utf-8", errors="replace")) if log and os.path.exists(log) else ""
     result["complete"] = COMPLETE.search(text) is not None
+    result["instantiations"] = INSTANTIATION.findall(text)
     if recorded and fixed is None:
         result["bound"] = pycsp3.bound()
     if status.name in ("OPTIMUM", "SAT"):
@@ -216,44 +282,96 @@ def run_round(job, index, deadline, *, sols, objective, nogoods, outputs):
     if not os.path.isfile(spec["result"]):
         tail = log_path.read_text(encoding="utf-8", errors="replace")[-2000:]
         raise RuntimeError(f"pycsp3 process exited {process.returncode} without a result: {tail}")
-    return json.loads(Path(spec["result"]).read_text(encoding="utf-8"))
+    result = json.loads(Path(spec["result"]).read_text(encoding="utf-8"))
+    result["xml"] = str(outdir / "model-placeholder.xml")
+    return result
 
 
 class Found:
+    """Checked solutions, and assignments the checker rejected. Both are excluded from later rounds."""
+
     def __init__(self, outputs, limit):
         self.outputs, self.limit = outputs, limit
-        self.values, self.seen = [], set()
+        self.values, self.rejected, self.keys = [], [], set()
 
     @property
     def full(self):
         return len(self.values) >= self.limit
 
-    def take(self, solutions):
-        added = 0
-        for solution in solutions:
-            if self.full:
-                break
-            projected = {name: solution[name] for name in self.outputs}
-            key = json.dumps(projected, sort_keys=True)
-            if key not in self.seen:
-                self.seen.add(key)
-                self.values.append(projected)
-                added += 1
-        return added
+    @staticmethod
+    def key(projected):
+        return json.dumps(projected, sort_keys=True)
+
+    def known(self, projected):
+        return self.key(projected) in self.keys
+
+    def remember(self, projected, valid):
+        self.keys.add(self.key(projected))
+        (self.values if valid else self.rejected).append(projected)
+
+    def nogoods(self):
+        return self.values + self.rejected
 
 
-def absorb(found, result, want):
+def verdict(xml, instantiation, bound, deadline):
+    """True when the XCSP3 checker accepts the instantiation, and its cost is `bound` if both are known."""
+    left = deadline - time.monotonic()
+    if left < 3:
+        raise Timeout()
+    try:
+        done = subprocess.run(["java", "-cp", str(ACE_JAR), CHECKER, xml, instantiation],
+                              capture_output=True, text=True, timeout=left)
+    except subprocess.TimeoutExpired as error:
+        raise Timeout() from error
+    text = done.stdout + done.stderr
+    if "INVALID" in text:
+        return False
+    line = re.search(r"^OK(?:\t(-?\d+))?\s*$", text, re.M)
+    if line is None:
+        raise RuntimeError("the solution checker did not verify a solution: " + text.strip()[-300:])
+    if bound is not None and line.group(1) is not None:
+        return int(line.group(1)) == bound
+    return True
+
+
+def vet(found, result, indices, bound, deadline):
+    """Verify the solutions at `indices`, in order. Returns how many new output assignments were seen."""
+    new = 0
+    if len(result["instantiations"]) != len(result["solutions"]):
+        raise RuntimeError("ACE's solutions could not be paired with their instantiations")
+    for index in indices:
+        if found.full:
+            break
+        solution = result["solutions"][index]
+        projected = {name: solution[name] for name in found.outputs}
+        if found.known(projected):
+            continue
+        new += 1
+        valid = verdict(result["xml"], result["instantiations"][index], bound, deadline)
+        found.remember(projected, valid)
+    return new
+
+
+def decided(found):
+    if found.values:
+        return ("complete", "")
+    if found.rejected:
+        return ("error", "ACE reported only solutions that fail verification")
+    return ("unsat", "")
+
+
+def absorb(found, result, want, deadline):
     """(status, detail) when the enumeration is decided, else None."""
     if result["status"] == "UNSAT":
-        return ("complete", "") if found.values else ("unsat", "")
-    added = found.take(result["solutions"])
+        return decided(found)
+    new = vet(found, result, range(len(result["solutions"])), None, deadline)
     if found.full:
         return ("limit", "")
     if result["complete"]:
-        return ("complete", "") if found.values else ("unsat", "")
+        return decided(found)
     if len(result["solutions"]) < want:
         return ("timeout", "The search stopped before it was exhausted")
-    if added == 0:
+    if new == 0:
         return ("error", "A solution round returned no new output assignment")
     return None
 
@@ -267,6 +385,7 @@ def pycsp3_solver(request):
         return runtime.finish("error", "The request declares no outputs")
     found = Found(outputs, limit)
     job = Path(tempfile.mkdtemp(prefix="pycsp3_", dir="/tmp"))
+    rounds = count(1)  # round 0 is the first solve; later rounds take the rest
 
     def flush(status, detail=""):
         for values in found.values[:limit]:
@@ -286,23 +405,21 @@ def pycsp3_solver(request):
             objective = first["bound"]
             if objective is None:
                 return runtime.finish("error", "ACE proved an optimum without reporting its cost")
-            found.take(first["solutions"][-1:])
+            vet(found, first, range(len(first["solutions"]))[-1:], objective, deadline)
             if found.full:
                 return flush("limit")
         else:
             objective = None
-            decision = absorb(found, first, limit)
+            decision = absorb(found, first, limit, deadline)
             if decision:
                 return flush(*decision)
-        index = 1
         while True:
             want = limit - len(found.values)
-            result = run_round(job, index, deadline, sols=want, objective=objective,
-                               nogoods=found.values, outputs=outputs)
-            index += 1
+            result = run_round(job, next(rounds), deadline, sols=want, objective=objective,
+                               nogoods=found.nogoods(), outputs=outputs)
             if result["status"] == "ERROR":
                 return flush("error", result["detail"])
-            decision = absorb(found, result, want)
+            decision = absorb(found, result, want, deadline)
             if decision:
                 return flush(*decision)
     except Timeout:

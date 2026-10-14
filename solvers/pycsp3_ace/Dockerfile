@@ -10,4 +10,8 @@ RUN pip install --no-cache-dir --require-hashes --only-binary=:all: -r /opt/requ
 ENV JAVA_TOOL_OPTIONS="-Xmx1200m -XX:-UsePerfData -Djava.io.tmpdir=/tmp"
 COPY --chmod=0755 runner/runtime.py /opt/runner/runtime.py
 COPY --chmod=0755 solvers/pycsp3_ace/run.py /opt/runner/run.py
+# ACE wrapper: the Java stderr (exceptions such as OutOfMemoryError) goes into the log.
+RUN printf '#!/bin/sh\nexec java -jar /usr/local/lib/python3.12/site-packages/pycsp3/solvers/ace/ACE-2.6.jar "$@" 2>&1\n' > /opt/runner/ace \
+ && chmod 0755 /opt/runner/ace \
+ && test -f /usr/local/lib/python3.12/site-packages/pycsp3/solvers/ace/ACE-2.6.jar
 ENTRYPOINT ["python", "/opt/runner/run.py"]
