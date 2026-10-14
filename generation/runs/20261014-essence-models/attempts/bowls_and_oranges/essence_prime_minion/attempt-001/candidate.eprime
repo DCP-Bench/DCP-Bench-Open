@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Place m oranges in n bowls on a line, at most one orange per bowl, with no three oranges in arithmetic progression. Print the bowls used in ascending order.
+given n : int(1..)
+given m : int(1..)
+find x : matrix indexed by [int(1..m)] of int(1..n)
+
+branching on [x]
+
+such that
+$ the oranges are listed in ascending bowl order, which also makes every bowl hold at most one orange
+forAll i : int(1..m-1) . x[i] < x[i+1],
+$ no three oranges A, B, C (in bowl order) have the distance A-B equal to the distance B-C, i.e. no A+C = 2B
+forAll i : int(1..m) . forAll j : int(i+1..m) . forAll k : int(j+1..m) . x[i] + x[k] != 2 * x[j]

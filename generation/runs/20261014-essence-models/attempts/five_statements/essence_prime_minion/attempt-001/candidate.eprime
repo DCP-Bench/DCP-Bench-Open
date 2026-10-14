@@ -1,0 +1,9 @@
+language ESSENCE' 1.0
+$ Five statements: statement k says that exactly k of the five statements are false. Find which statements are true.
+find statements : matrix indexed by [int(1..5)] of bool
+
+branching on [statements]
+
+such that
+$ statement k is true exactly when exactly k of the five statements are false
+forAll k : int(1..5) . (statements[k] <-> ((sum i : int(1..5) . toInt(!statements[i])) = k))

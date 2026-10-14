@@ -1,0 +1,136 @@
+{
+  "accepted": false,
+  "detail": "Instance field `name` holds a string value; Essence' parameters are integers, Booleans and matrices of them",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:542193a0d056ec579dbf0bb37980a8cb47aa53605699e5947f61d74a3a7c2cc5",
+    "tag": "dcp-eval/essence_prime_minion:v1"
+  },
+  "instances": [
+    {
+      "accepted": true,
+      "checking_seconds": 0.30995565198827535,
+      "execution_wall_seconds": 14.466860614018515,
+      "first_solution": {
+        "rehearsal_order": [
+          2,
+          7,
+          1,
+          6,
+          0,
+          4,
+          5,
+          3,
+          8
+        ]
+      },
+      "id": "example",
+      "instance_hash": "b55d26a708b56c8602a29e9d6d66de149772a5e7caa78852f2d8952ad8058216",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 17,
+      "outputs": [
+        "rehearsal_order"
+      ],
+      "reason": "accepted",
+      "reference_setup_seconds": 1.22869347903179,
+      "runner_status": {
+        "detail": "",
+        "status": "limit",
+        "type": "status"
+      },
+      "solutions_checked": 2,
+      "solutions_received": 2,
+      "stderr": "WARNING: Number of givens in model file does not match number of lettings in parameter file.\nCreated output file for domain filtering out.minion\nCreated output file out.minion\nCreated solution file out.solution\nCreated information file out.info\nWARNING: Number of givens in model file does not match number of lettings in parameter file.\nCreated output file for domain filtering out.minion\nCreated output file out.minion\nCreated solution file out.solution\nCreated information file out.info\nWARNING: Command-line arguments indicate more than one solution (e.g. -all-solutions).\nWARNING: However, non-default SAT encodings or other options may change the number of solutions. Try -S0 and removing non-default SAT encodings if necessary.\nWARNING: Number of givens in model file does not match number of lettings in parameter file.\nCreated output file for domain filtering out.minion\nCreated output file out.minion\nCreated solution file out.solution.000001\nCreated solution file out.solution.000002\nCreated information file out.info\n"
+    },
+    {
+      "accepted": true,
+      "checking_seconds": 0.08851539599709213,
+      "execution_wall_seconds": 2.9124337320099585,
+      "first_solution": {
+        "rehearsal_order": [
+          0,
+          3,
+          1,
+          4,
+          2
+        ]
+      },
+      "id": "json:1",
+      "instance_hash": "1c99f551529297729c60d305e9b26edd1156d605bf244efe5318255cc941e5b9",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 0,
+      "outputs": [
+        "rehearsal_order"
+      ],
+      "reason": "accepted",
+      "reference_setup_seconds": 0.6672342899837531,
+      "runner_status": {
+        "detail": "",
+        "status": "limit",
+        "type": "status"
+      },
+      "solutions_checked": 2,
+      "solutions_received": 2,
+      "stderr": "WARNING: Number of givens in model file does not match number of lettings in parameter file.\nCreated output file for domain filtering out.minion\nCreated output file out.minion\nCreated solution file out.solution\nCreated information file out.info\nWARNING: Number of givens in model file does not match number of lettings in parameter file.\nCreated output file for domain filtering out.minion\nCreated output file out.minion\nCreated solution file out.solution\nCreated information file out.info\nWARNING: Command-line arguments indicate more than one solution (e.g. -all-solutions).\nWARNING: However, non-default SAT encodings or other options may change the number of solutions. Try -S0 and removing non-default SAT encodings if necessary.\nWARNING: Number of givens in model file does not match number of lettings in parameter file.\nCreated output file for domain filtering out.minion\nCreated output file out.minion\nCreated solution file out.solution.000001\nCreated solution file out.solution.000002\nCreated information file out.info\n"
+    },
+    {
+      "accepted": false,
+      "checking_seconds": 5.629844963550568e-07,
+      "detail": "Instance field `name` holds a string value; Essence' parameters are integers, Booleans and matrices of them",
+      "execution_wall_seconds": 0.2997067079995759,
+      "id": "json:2",
+      "instance_hash": "418a5d11289f6c4da8c2ddf448d26fd312833db34797500f4272e93c57cc61e6",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 5,
+      "outputs": [
+        "rehearsal_order"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 0.6490793079719879,
+      "runner_status": {
+        "detail": "Instance field `name` holds a string value; Essence' parameters are integers, Booleans and matrices of them",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/runtime.py\", line 272, in main\n    python_solver(kind, request)\n  File \"/opt/runner/run.py\", line 385, in <lambda>\n    runtime.python_solver = lambda kind, request: essence_solver(request)\n  File \"/opt/runner/run.py\", line 301, in essence_solver\n    param = param_file({} if request[\"legacy\"] else request[\"instance\"])\n  File \"/opt/runner/run.py\", line 161, in param_file\n    lines.append(f\"letting {name} = {literal(name, value)}\")\n  File \"/opt/runner/run.py\", line 152, in literal\n    raise Unbindable(f\"Instance field `{name}` holds a {kind(value)} value; Essence' parameters \"\nUnbindable: Instance field `name` holds a string value; Essence' parameters are integers, Booleans and matrices of them\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 2,
+  "limits": {
+    "compilation_timeout": 300,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "b4679104c32af67f42b4c24869be2180c5b219425f26073a1b2ecf10a6d93a2f",
+  "problem_id": "csplib_039_rehearsal",
+  "reason": "execution_error",
+  "reference_hash": "6786341df2caae8f1180c2fbf2d77f729cec3a64991d81e0e1758cafa1a67147",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.13.2"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 4,
+  "solver_id": "essence_prime_minion",
+  "total_wall_seconds": 20.831342505989596,
+  "unperformed_instances": [
+    "json:3",
+    "json:4"
+  ]
+}

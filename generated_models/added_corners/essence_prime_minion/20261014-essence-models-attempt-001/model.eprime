@@ -1,0 +1,14 @@
+language ESSENCE' 1.0
+$ Added corners: enter the digits 1 to 8 in the circles (corners) and squares (edge midpoints) of the frame, so that each square equals the sum of its adjoining circles.
+find positions : matrix indexed by [int(1..8)] of int(1..8)
+such that
+$ the digits 1 through 8 are each used once
+allDiff(positions),
+$ the top square is the sum of the two top circles
+positions[2] = positions[1] + positions[3],
+$ the left square is the sum of the top-left and bottom-left circles
+positions[4] = positions[1] + positions[6],
+$ the right square is the sum of the top-right and bottom-right circles
+positions[5] = positions[3] + positions[8],
+$ the bottom square is the sum of the two bottom circles
+positions[7] = positions[6] + positions[8]

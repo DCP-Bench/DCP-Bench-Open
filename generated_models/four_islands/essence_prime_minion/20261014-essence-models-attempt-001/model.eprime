@@ -1,0 +1,30 @@
+language ESSENCE' 1.0
+$ Four islands on a 2x2 map (A=0 north-west, B=1 north-east, C=2 south-west, D=3 south-east) each have a name, an export and a tourist attraction; find the assignment that satisfies the six clues.
+find island : matrix indexed by [int(1..4)] of int(0..3)
+find export : matrix indexed by [int(1..4)] of int(0..3)
+find attraction : matrix indexed by [int(1..4)] of int(0..3)
+
+branching on [island, export, attraction]
+
+such that
+$ each island has a different map position
+allDiff(island),
+$ each export is on a different island
+allDiff(export),
+$ each tourist attraction is on a different island
+allDiff(attraction),
+$ clue 1: the island with the koala preserve is due south of Pwana (same column, next row: position plus 2)
+attraction[4] = island[1] + 2,
+$ clue 2: the island with the largest alabaster quarry is due west of Quero (Quero is in the east column, so position minus 1)
+(island[2] = 1 \/ island[2] = 3),
+export[1] = island[2] - 1,
+$ clue 3: the island with the resort hotel is due east of the island that exports durian fruit (durian is in the west column, so position plus 1)
+(export[4] = 0 \/ export[4] = 2),
+attraction[1] = export[4] + 1,
+$ clue 4: Skern and the island with the jai alai stadium are connected by a north-south bridge (positions two apart)
+(island[4] - attraction[3] = 2 \/ attraction[3] - island[4] = 2),
+$ clue 5: Rayou and the island that exports bananas are connected by an east-west bridge (positions one apart in the same row)
+(island[3] - export[2] = 1 \/ export[2] - island[3] = 1),
+(island[3] / 2 = export[2] / 2),
+$ clue 6: the ice skating rink and the jai alai stadium are not connected by a bridge (diagonal, distance 3)
+|attraction[2] - attraction[3]| = 3

@@ -1,0 +1,24 @@
+language ESSENCE' 1.0
+$ Order the pieces of a concert for rehearsal so that the total time players spend waiting (present but not playing) is as small as possible.
+given num_pieces : int(1..)
+given num_players : int(1..)
+$ duration of each piece
+given duration : matrix indexed by [int(1..num_pieces)] of int(0..)
+$ rehearsal[p, j] = 1 if player p plays in piece j (pieces numbered from 0 in the output, from 1 here)
+given rehearsal : matrix indexed by [int(1..num_players), int(1..num_pieces)] of int(0..1)
+$ rehearsal_order[s] is the piece rehearsed in slot s, pieces numbered 0 to num_pieces - 1
+find rehearsal_order : matrix indexed by [int(1..num_pieces)] of int(0..num_pieces - 1)
+$ inside[p, s] is true when player p is present in slot s
+find inside : matrix indexed by [int(1..num_players), int(1..num_pieces)] of bool
+$ first and last slot in which each player is present
+find first : matrix indexed by [int(1..num_players)] of int(1..num_pieces)
+find last : matrix indexed by [int(1..num_players)] of int(1..num_pieces)
+branching on [rehearsal_order]
+minimising (sum p : int(1..num_players) . ((sum s : int(1..num_pieces) . duration[rehearsal_order[s] + 1] * inside[p, s]) - (sum j : int(1..num_pieces) . rehearsal[p, j] * duration[j])))
+such that
+$ each piece is rehearsed exactly once
+allDiff(rehearsal_order),
+$ a player is present from the first to the last slot in which they play, and not otherwise
+forAll p : int(1..num_players) . forAll s : int(1..num_pieces) . (inside[p, s] <-> (first[p] <= s /\ s <= last[p])),
+$ a player is present in every slot in which they play
+forAll p : int(1..num_players) . forAll s : int(1..num_pieces) . (rehearsal[p, rehearsal_order[s] + 1] = 1 -> inside[p, s])

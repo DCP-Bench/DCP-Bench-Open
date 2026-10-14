@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Find num_words words of length n over {A,C,G,T} (coded 1..4) with the word design conditions: each word has 4 symbols from {C,G}, distinct words differ in at least 4 positions, and reverse(x) and complement(y) differ in at least 4 positions for all x, y in the set.
+given n : int(1..)
+given num_words : int(1..)
+find words : matrix indexed by [int(1..num_words), int(1..n)] of int(1..4)
+
+branching on [words]
+
+such that
+$ each word has exactly 4 symbols from {C,G} (C=2, G=3)
+forAll i : int(1..num_words) . (sum j : int(1..n) . toInt((words[i,j] = 2) \/ (words[i,j] = 3))) = 4,
+$ distinct words differ in at least 4 positions
+forAll i : int(1..num_words) . forAll j : int(i+1..num_words) . (sum k : int(1..n) . toInt(words[i,k] != words[j,k])) >= 4,
+$ the reverse of x and the Watson-Crick complement of y (A=1<->T=4, C=2<->G=3, i.e. 5-v) differ in at least 4 positions, for all x and y, including x = y
+forAll i : int(1..num_words) . forAll j : int(1..num_words) . (sum k : int(1..n) . toInt(words[i,n+1-k] != 5 - words[j,k])) >= 4

@@ -1,0 +1,1 @@
+- Rational unit prices: multiply every price by the lcm of the denominators (315 for 5, 7, 9) to keep the cost constraint integer.
