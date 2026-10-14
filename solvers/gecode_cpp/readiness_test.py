@@ -51,6 +51,12 @@ CLONE_REFERENCE = REFERENCE.replace(
     'solution = {"x": int(x.value()), "y": int(y.value())}',
     'solution = {"x": int(x.value()), "y": int(y.value()), '
     '"m": [[int(x.value()), int(y.value())], [int(y.value()), int(x.value())]]}')
+NESTED_REFERENCE = REFERENCE.replace(
+    'solution = {"x": int(x.value()), "y": int(y.value())}',
+    'solution = {"x": int(x.value()), "y": int(y.value()), '
+    '"cube": [[[int(x.value()), int(y.value())], [int(y.value()), int(x.value())]]], '
+    '"flags": [[bool(x.value() == 0), bool(y.value() == 0)]], '
+    '"big": 30000000000 + 10 * int(x.value()) + int(y.value())}')
 
 # Shared model text. Every model declares x and y as outputs, so each one
 # matches the reference's output names.
@@ -226,6 +232,25 @@ class Model : public dcp::Space {
 DCP_MODEL(Model)
 '''
 
+# Outputs three levels deep, a Boolean matrix, and a number above the IntVar
+# range given by its digits.
+NESTED = (HEAD + SUM + "    linear(*this, xy, IRT_EQ, n);\n"
+          "    BoolVarArray f(*this, 2, 0, 1);\n"
+          "    rel(*this, v[0], IRT_EQ, 0, f[0]);\n"
+          "    rel(*this, v[1], IRT_EQ, 0, f[1]);\n"
+          "    IntVarArgs digits;\n"
+          "    digits << IntVar(*this, 3, 3);\n"
+          "    for (int i = 0; i < 8; ++i) digits << IntVar(*this, 0, 0);\n"
+          "    digits << v[0] << v[1];\n"
+          "    IntVarArgs r0, r1;\n"
+          "    r0 << v[0] << v[1];\n    r1 << v[1] << v[0];\n"
+          "    std::vector<std::vector<IntVarArgs>> cube(1);\n"
+          "    cube[0].push_back(r0);\n    cube[0].push_back(r1);\n"
+          "    output(\"cube\", cube);\n"
+          "    output(\"flags\", Matrix<BoolVarArray>(f, 2, 1));\n"
+          "    output_digits(\"big\", digits);\n"
+          + BRANCH + OUTPUTS + CLOSE)
+
 
 def main():
     results = {}
@@ -256,6 +281,7 @@ def main():
         check("restarts", RESTARTS, reference=OPTIMIZING, solution_limit=3)
         check("bool_output", BOOL_OUTPUT, reference=FLAG_REFERENCE, solution_limit=2)
         check("constant_output", CONSTANT_OUTPUT, reference=CONSTANT_REFERENCE)
+        check("nested_outputs", NESTED, reference=NESTED_REFERENCE, solution_limit=3)
         check("cloning", CLONING, reference=CLONE_REFERENCE, solution_limit=3)
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})

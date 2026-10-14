@@ -25,7 +25,8 @@ namespace dcp {
 //
 // Output layout: each registered name maps to a nested JSON structure whose
 // leaves are either {"i": k} (integer variable ints_[k]), {"b": k} (Boolean
-// variable bools_[k]) or a plain JSON number (a constant).
+// variable bools_[k]), {"digits": [...], "base": b} (a 64-bit number read
+// from its digit variables) or a plain JSON number (a constant).
 class Space : public Gecode::Space {
  public:
   Space() {}
@@ -129,8 +130,34 @@ class Space : public Gecode::Space {
     for (const auto& row : x) rows.push_back(bool_array(row));
     add(name, rows);
   }
+  void output(const std::string& name, const std::vector<std::vector<IntVarArgs>>& x) {
+    json outer = json::array();
+    for (const auto& block : x) {
+      json rows = json::array();
+      for (const auto& row : block) rows.push_back(int_array(row));
+      outer.push_back(rows);
+    }
+    add(name, outer);
+  }
+  void output(const std::string& name, const std::vector<std::vector<BoolVarArgs>>& x) {
+    json outer = json::array();
+    for (const auto& block : x) {
+      json rows = json::array();
+      for (const auto& row : block) rows.push_back(bool_array(row));
+      outer.push_back(rows);
+    }
+    add(name, outer);
+  }
   void output(const std::string& name, const Matrix<IntVarArgs>& x) { add(name, int_matrix(x)); }
   void output(const std::string& name, const Matrix<IntVarArray>& x) { add(name, int_matrix(x)); }
+  void output(const std::string& name, const Matrix<BoolVarArgs>& x) { add(name, bool_matrix(x)); }
+  void output(const std::string& name, const Matrix<BoolVarArray>& x) { add(name, bool_matrix(x)); }
+  // A number too large for an IntVar, given by its digits, most significant
+  // first: the output is sum digits[i] * base^(n-1-i), as a 64-bit integer.
+  void output_digits(const std::string& name, const IntVarArgs& digits, int base = 10) {
+    json leaf = json{{"digits", int_array(digits)}, {"base", base}};
+    add(name, leaf);
+  }
   void output(const std::string& name, int c) { add(name, c); }
   void output(const std::string& name, const std::vector<int>& c) { add(name, json(c)); }
 
@@ -190,7 +217,24 @@ class Space : public Gecode::Space {
     return rows;
   }
 
+  template <class Mat>
+  json bool_matrix(const Mat& m) {
+    json rows = json::array();
+    for (int r = 0; r < m.height(); ++r) {
+      json row = json::array();
+      for (int c = 0; c < m.width(); ++c) row.push_back(leaf_bool(m(c, r)));
+      rows.push_back(row);
+    }
+    return rows;
+  }
+
   json read(const json& layout, const std::string& name) const {
+    if (layout.is_object() && layout.contains("digits")) {
+      long long value = 0;
+      long long base = layout["base"].get<long long>();
+      for (const auto& digit : layout["digits"]) value = value * base + read(digit, name).get<long long>();
+      return value;
+    }
     if (layout.is_object()) {
       if (layout.contains("i")) {
         const IntVar& x = ints_.at(layout["i"].get<std::size_t>());
