@@ -407,6 +407,128 @@ i = Var(dom=range(3))
 satisfy(MaximumArg(x, rank=TypeRank.FIRST) == i, x[2] == 3, x[0] < 3, x[1] < 3)
 ```
 
+## Grid symmetry with LexIncreasing (transpose)
+
+Outputs: `x`. Breaks the transpose symmetry of a square grid: the row-major reading is not
+after the column-major reading. Verified in the image.
+
+```python
+from pycsp3 import *
+
+x = VarArray(size=[2, 2], dom=range(3), id="x")
+flat = [x[i][j] for i in range(2) for j in range(2)]
+trans = [x[j][i] for i in range(2) for j in range(2)]
+satisfy(
+    # the row-major reading is not after the column-major reading
+    LexIncreasing([flat, trans]),
+    # four cells sum to 4
+    Sum(flat) == 4,
+)
+```
+
+## A Regular automaton for a line of cells
+
+Outputs: `x`. Five binary cells holding one block of two ones (a nonogram line with a single
+run). The automaton reads one cell per step; the final states accept a line that ends after the
+block.
+
+```python
+from pycsp3 import *
+
+x = VarArray(size=5, dom={0, 1}, id="x")
+auto = Automaton(
+    start="s",
+    transitions=[("s", 0, "s"), ("s", 1, "b1"), ("b1", 1, "b2"), ("b2", 0, "e"), ("e", 0, "e")],
+    final=["b2", "e"],
+)
+satisfy(
+    # the cells read as one run of two ones
+    Regular(scope=x, automaton=auto),
+    # the line holds two ones
+    Sum(x) == 2,
+)
+```
+
+## Channel with a Table on consecutive pairs
+
+Outputs: `x`. `y` is the inverse of the permutation `x`; each consecutive pair of `y` must not be
+equal (a Table of conflicts per pair).
+
+```python
+from pycsp3 import *
+
+x = VarArray(size=4, dom=range(4), id="x")
+y = VarArray(size=4, dom=range(4), id="y")
+satisfy(
+    # y is the inverse of x
+    Channel(x, y),
+    # x is a permutation
+    AllDifferent(x),
+    # neighbouring entries of y differ
+    [Table(scope=(y[i], y[(i + 1) % 4]), conflicts=[(v, v) for v in range(4)]) for i in range(4)],
+)
+```
+
+## Product of four variables split into binary products
+
+Outputs: `x`. Two auxiliary products, then one product of them. Use this instead of
+`Product(x) == K` over four variables, where ACE 2.6 can accept invalid tuples. Verified in the
+image: the three solutions reported all multiply to 5040.
+
+```python
+from pycsp3 import *
+
+x = VarArray(size=4, dom=range(1, 101), id="x")
+p = VarArray(size=2, dom=range(1, 10001), id="p")
+satisfy(
+    # the product of the first two
+    p[0] == x[0] * x[1],
+    # the product of the last two
+    p[1] == x[2] * x[3],
+    # the two partial products multiply to 5040
+    p[0] * p[1] == 5040,
+)
+```
+
+## Element through a VarArray index
+
+Outputs: `x`. `y` is a VarArray, so `y[x[0]]` is an element constraint.
+
+```python
+from pycsp3 import *
+
+x = VarArray(size=2, dom=range(3), id="x")
+y = VarArray(size=3, dom=range(10), id="y")
+satisfy(
+    # the second value is the entry of y at the first value
+    x[1] == y[x[0]],
+    # the first entry of y is 1
+    y[0] == 1,
+)
+```
+
+## Boolean indicators instead of NValues
+
+Outputs: `x`. One Boolean per (node, colour) pair. The indicators are linked to `x` by
+reification, and the counting constraints are plain sums. In campaign runs this beat
+`NValues` over integer colours on Schur-type constraints; that timing is not re-measured here.
+Verified in the image (two solutions reported).
+
+```python
+from pycsp3 import *
+
+x = VarArray(size=3, dom=range(3), id="x")
+ind = VarArray(size=[3, 3], dom={0, 1}, id="ind")
+satisfy(
+    # each indicator is 1 exactly when the node has that colour
+    [(ind[i][c] == 1) == (x[i] == c) for i in range(3) for c in range(3)],
+    # every colour is used by at least one node
+    [Sum(ind[i][c] for i in range(3)) >= 1 for c in range(3)],
+    # at most two nodes take colour 0
+    Sum(ind[i][0] for i in range(3)) <= 2,
+)
+```
+
 ## DCP-Bench models
 
 The complete `model.py` for `csplib_054_n_queens` and `knapsack` is in

@@ -89,7 +89,12 @@ python -m evaluation.check model.py --problem knapsack --solver pycsp3_ace --ins
 The result is JSON: `accepted`, `reason`, `detail`, and per instance `instances[]` with `id`,
 `accepted`, `reason`, `detail`, `solutions_checked` and `optimum`. Read `reason` and `detail`
 first. `detail` for `execution_error` holds the Python exception, e.g.
-`NameError: the model does not define the declared output 'x'`.
+`NameError: the model does not define the declared output 'x'`, or pycsp3's own message, e.g.
+`pycsp3: The identifier z is used twice. This is not possible`.
+
+Check with few solutions first: `--solution-limit 2` (the default is 1). Campaign runs found that a
+second solution exposes readings that only hold for the first one, such as a loose bound in the
+declared output (`invalid_solution`: "Declared outputs cannot extend to a reference solution").
 
 Campaign runs use the same checker:
 
@@ -100,13 +105,15 @@ python -m generation.manage evaluate --attempt ATTEMPT_DIR --model model.py
 This is code only, not run here. It copies the candidate into the attempt folder and writes
 `evaluation.json`, and it refuses an attempt that was already evaluated. Use it only for an
 attempt the campaign created.
+A background run may lose its stdout. Read the attempt's `evaluation.json` before running
+`evaluate` again, since a second run on the same attempt is refused.
 
 ## Reasons seen in the verification runs
 
 | reason | cause (verified unless marked code) |
 |---|---|
 | `accepted` | all checked instances agree with the reference |
-| `execution_error` | exception in the model; `detail` has the message. Misnamed output: `NameError`. Missing field: `AttributeError: 'Instance' object has no attribute ...` |
+| `execution_error` | exception in the model; `detail` has the message. Misnamed output: `NameError`. Missing field: `AttributeError: 'Instance' object has no attribute ...`. A reserved identifier: `Fatal Error: The id E is a keyword`. ACE out of heap: `java.lang.OutOfMemoryError`. Each is shown by the runner, not as a timeout |
 | `no_solution` | the model is unsatisfiable on the instance (runner status `unsat`) |
 | `invalid_solution` | a reported solution breaks the reference's constraints. Over-relaxed capacity in knapsack gave it. Wrong value range gives it too |
 | `suboptimal_solution` | "Declared outputs cannot achieve the reference optimum". Wrong objective direction |

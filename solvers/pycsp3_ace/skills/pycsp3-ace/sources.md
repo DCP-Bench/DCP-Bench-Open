@@ -28,3 +28,10 @@ was run with one solve round on a three-variable instance; the two DCP models in
 `references/dcp-contract.md` were run through `evaluation.check` (queens: 6 instances,
 knapsack: 5 instances, all accepted). The failures listed as "Dropped" in `language.md` were
 reproduced with the messages shown there. The harness is not committed.
+
+Probed in `dcp-eval/pycsp3_ace:fixtest` (same runner as v1, plus the fixes in this skill's
+revision): each XCSP keyword in `org/xcsp/common/Constants.class` (`KEYWORDS`), the reserved
+identifiers, the 32-bit value limit and the domain-size limit in `references/language.md`. The
+XCSP3 `SolutionChecker` class in `ACE-2.6.jar` (`org.xcsp.parser.callbacks`) checks each solution
+against the instance; the runner uses it. ACE prints the cause of a Java failure only on its
+stderr, which pycsp3 does not read; the image wraps ACE so that stderr reaches the log.

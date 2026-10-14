@@ -28,6 +28,26 @@ satisfy(AllDifferent(x))
   or a set `{0, 1}` also works. Booleans: `dom={0, 1}`, reported as 0/1.
 - `VarArray(size=n, dom=...)` gives a list of n variables.
 - `VarArray(size=[r, c], dom=...)` gives a nested list: `grid[i][j]`. `grid[:, j]` is column j.
+- Declare variables at module level, as one `VarArray` where possible. A `Var` without `id=`
+  made in a loop, a comprehension, a helper function or a dict fails in pycsp3 (verified):
+  `The identifier z is used twice`, `The variable identifier None is not valid` (helper),
+  `The variable identifier [ is not valid` (comprehension), `The variable identifier d[0] is
+  not valid` (dict). With `id=` each form works: a loop (`id=f"z{i}"`), a comprehension
+  (`[Var(range(3), id=f"z{i}") for i in range(2)]`), a dict entry (`id="d0"`) and a helper
+  (`id=name`).
+- Identifiers (the `id`, or the Python name when no `id` is given) must not be an XCSP or
+  ACE keyword. ACE stops with `Fatal Error: The id E is a keyword, and so cannot be used.`.
+  Probed in the image, these 58 are reserved: `E` and the 57 words
+  `abs`, `acos`, `add`, `and`, `asin`, `atan`, `card`, `convex`, `cos`, `cosh`, `diff`, `dist`, `div`, `djoint`, `eq`, `exp`, `fdiv`, `fmod`, `ge`, `gt`, `hull`, `if`, `iff`, `imp`, `in`, `inter`, `le`, `ln`, `log`, `lt`, `max`, `min`, `mod`, `mul`, `ne`, `neg`, `not`, `nroot`, `or`, `others`, `PI`, `pow`, `sdiff`, `set`, `sin`, `sinh`, `sqr`, `sqrt`, `sub`, `subseq`, `subset`, `supseq`, `supset`, `tan`, `tanh`, `union`, `xor`.
+  Probed and accepted: `A`..`Z` except `E`, `a`..`z`, `instance`, `variables`, `var`, `array`, `domain`, `args`, `objective`, `minimize`,
+  `maximize`, `static`, `decision`, `ALL`, `STAR`, `TIMES`, `cst`, `ok`, `x_1`.
+- Values must stay in the 32-bit range that ACE reads. Values at or above about 2.1e9 fail
+  with `Fatal Error: Too big integer value 2147483640`. Accepted: `2147000000`. The same
+  holds for negative values (`-2147483640` fails).
+- Every domain value is built in memory. The total of all domain sizes, over all variables,
+  must stay under about 3e7: four variables with `range(0, 10**7)` solved, five and six ran out
+  of heap (`java.lang.OutOfMemoryError: Java heap space`). One `range(0, 10**9)` also ran out of
+  heap. A domain such as `range(0, 10**7)` is fine on its own.
 - A variable that no constraint mentions is not reported by ACE, and the runner refuses the
   output. A whole output with no constraint raises `ValueError: declared output 'z' has a
   variable that no constraint mentions`. A single element of an array raises `ValueError: a
@@ -55,14 +75,25 @@ satisfy(AllDifferent(x))
   `Table(scope=x, conflicts=[(0, 0)])`.
 - `(x[0], x[1]) in {(0, 1), (1, 2)}` (positive table). `ANY` or `*` matches any value:
   `(x[0], x[1], x[2]) in {(0, 1, ANY), (2, ANY, 1)}`.
-- `Element`: `v == t[idx]` where `t` is a VarArray (verified) and `idx` is a variable. Constant lists were not run.
+- `Element`: `v == t[idx]` where `t` is a VarArray and `idx` is a variable (verified). A Python
+  list indexed by a variable fails: `TypeError: list indices must be integers or slices, not
+  VariableInteger`. Use a `Table` over `(idx, value)` pairs, or a `VarArray` for `t`.
+- `Table` linked to a `Channel` (verified): `Channel(x, y)` with
+  `Table(scope=(y[i], y[(i + 1) % n]), conflicts=[...])` per consecutive pair.
+- `AllDifferent([x[0], x[1] + 1])` (mixed variable and expression) and `AllDifferent(x + y)`
+  (list concatenation) both post (verified).
 - `Cumulative(origins=s, lengths=d, heights=h) <= 2`, and
   `Cumulative(tasks=[(origin, length, height), ...]) <= 1`.
 - `NoOverlap(origins=s, lengths=d)`.
 - `Circuit(x)`: successors form one Hamiltonian cycle (0-based). `Channel(x, y)`: y is the inverse
   of x.
 - `LexIncreasing([x, y])`: vectors in lexicographic order. Use it to break symmetry on rows.
-- `Regular(scope=x, automaton=Automaton(start=..., transitions=[...], final=...))`.
+- `Regular(scope=x, automaton=Automaton(start=..., transitions=[...], final=...))` (verified: a
+  single block of two ones in five binary variables, with `Sum(x) == 2`). For a line of cells
+  with block runs (nonograms), one automaton per line: the transitions read the cell values
+  and the final states close each run.
+- `Product(list) == K` (verified for three variables). Four or more variables: see the
+  `Product` note in SKILL.md.
 - `BinPacking(b, sizes=w, limits=[4, 3])`: bin i has capacity `limits[i]`.
 - `Knapsack(x, weights=w, wlimit=c, profits=p) >= 6`.
 - `Hamming(x, y) == 2`: positions where x and y differ.
@@ -95,6 +126,12 @@ satisfy(AllDifferent(x))
 | `solve()` in the model | `RuntimeError: the model must not call solve(); the runner solves it` |
 | `a, b = Var(...), Var(...)` on one line | `AssertionError: Every simple declaration must be on its own line` |
 | Float in an expression | `ValueError: Problem: bad form of predicate 0.5` |
+| `Var` without `id=` in a loop, comprehension, helper or dict | `The identifier z is used twice`, `The variable identifier None / [ / d[0] is not valid` |
+| `Var` declared on a line with a comma | `AssertionError: Every simple declaration must be on its own line` |
+| Python list indexed by a variable | `TypeError: list indices must be integers or slices, not VariableInteger` |
+| `min(..., key=...)` after `from pycsp3 import *` | `TypeError: min() got an unexpected keyword argument 'key'`. Use `builtins.min` |
+| `Product(x[0]) == 2` (one value) | `AssertionError: Problem: Bad arity for node MUL. It is 1 but it should be between 2 and inf` |
+| An XCSP keyword as an identifier, e.g. `E` | `Fatal Error: The id E is a keyword` (ACE, reported by the runner as `error`) |
 
 ## Not run
 
@@ -106,3 +143,8 @@ lambda, `Decreasing`, `Automaton` beyond the example above. If one is needed, ru
 
 - `data._SHIP` and `data["_SHIP"]` both read a field whose name starts with an underscore.
 - Ragged input lists (`data.rows[i]` of different lengths) are plain Python lists.
+- `import builtins` then `builtins.min([3, 1, 2], key=lambda v: -v)` works in a model that
+  also does `from pycsp3 import *`.
+- ACE output is checked by the runner, not trusted. Some tuples ACE reports for `Product`
+  over four variables are invalid (`[100, 50, 1, 1]` for `Product == 5040`). Avoid such
+  products rather than relying on the check.
