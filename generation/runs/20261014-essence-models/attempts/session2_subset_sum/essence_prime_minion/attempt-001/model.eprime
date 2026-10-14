@@ -1,0 +1,12 @@
+language ESSENCE' 1.0
+$ A van lost a total number of coins; each stolen bag holds one of the given coin counts, so count the bags stolen of each type to make the total.
+given total_coins_lost : int(0..)
+given coin_numbers_dim1 : int(1..)
+given coin_numbers : matrix indexed by [int(1..coin_numbers_dim1)] of int(1..)
+find bags : matrix indexed by [int(1..coin_numbers_dim1)] of int(0..total_coins_lost)
+
+branching on [bags]
+
+such that
+$ the bags stolen of each type hold, together, exactly the total number of coins lost
+(sum i : int(1..coin_numbers_dim1) . bags[i] * coin_numbers[i]) = total_coins_lost

@@ -1,0 +1,1 @@
+- Facility location: json:4 (the largest instance) does not prove the optimum within 180 s; the evaluator tolerates it as execution_timeout. Branching on [open_warehouse, ships] and heuristic sdf did not help in 170 s.

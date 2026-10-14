@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Dinner: choose how many grandparents, parents and children go to dinner, with 1 to 6 grandparents, 1 to 10 parents and 1 to 40 children.
+$ the number of grandparents
+find grandparents : int(1..6)
+$ the number of parents
+find parents : int(1..10)
+$ the number of children
+find children : int(1..40)
+such that
+$ there must be 20 people in total at dinner
+grandparents + parents + children = 20,
+$ the dinner must cost exactly $20; costs are in cents: grandparents 300, parents 200, children 50
+300 * grandparents + 200 * parents + 50 * children = 2000

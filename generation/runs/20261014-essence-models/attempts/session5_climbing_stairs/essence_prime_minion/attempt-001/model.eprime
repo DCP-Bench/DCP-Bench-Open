@@ -1,0 +1,12 @@
+language ESSENCE' 1.0
+$ Climbing stairs: climb a stair of n steps, taking between m1 and m2 steps at each move; steps[i] is the number of steps of move i, or 0 once the top is reached.
+given n, m1, m2 : int(1..)
+find steps : matrix indexed by [int(1..n)] of int(0..m2)
+branching on [steps]
+such that
+$ the moves climb exactly the n steps of the stair
+(sum i : int(1..n) . steps[i]) = n,
+$ while the top is not reached, each move takes between m1 and m2 steps
+forAll i : int(1..n) . ((sum j : int(1..i-1) . steps[j]) < n -> (steps[i] >= m1 /\ steps[i] <= m2)),
+$ once the top is reached, no further steps are taken
+forAll i : int(1..n) . ((sum j : int(1..i-1) . steps[j]) >= n -> steps[i] = 0)

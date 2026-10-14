@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ An order N quasigroup is an N by N square where each value 1 to N occurs exactly once in every row and every column; complete the partially filled square.
+given N : int
+given start : matrix indexed by [int(1..N), int(1..N)] of int(0..N)
+find puzzle : matrix indexed by [int(1..N), int(1..N)] of int(1..N)
+
+branching on [puzzle]
+
+such that
+$ every row contains each value exactly once
+forAll i : int(1..N) . allDiff(puzzle[i,..]),
+$ every column contains each value exactly once
+forAll j : int(1..N) . allDiff(puzzle[..,j]),
+$ the filled cells keep the values given in the starting square (0 marks an empty cell)
+forAll i : int(1..N) . forAll j : int(1..N) . (start[i,j] = 0 \/ puzzle[i,j] = start[i,j])

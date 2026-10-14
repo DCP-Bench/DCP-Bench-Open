@@ -1,0 +1,14 @@
+language ESSENCE' 1.0
+$ Huey, Dewey and Louie cannot tell a lie, so each of their statements is true. Find who is guilty.
+$ huey, dewey, louie are true when that person is guilty
+find huey : bool
+find dewey : bool
+find louie : bool
+
+such that
+$ Huey: Dewey and Louie have equal share in the guilt (both guilty or both innocent), so Huey's statement is true
+dewey <-> louie,
+$ Dewey: if Huey is guilty, then Dewey is guilty too
+huey -> dewey,
+$ Louie: Dewey and Louie are not both guilty
+!(dewey /\ louie)

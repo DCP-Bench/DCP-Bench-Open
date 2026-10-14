@@ -1,0 +1,2 @@
+- A letting comprehension whose bounds come from a given (letting PI = [ i | i : int(1..n), j : int(1..n), i < j ]) binds and works with a varying n.
+- Matching a multiset of pair sums without a fixed pair order: a permutation perm with allDiff, and weights[perm[k]] = bales[PI[k]] + bales[PJ[k]] (decision index on the given list).

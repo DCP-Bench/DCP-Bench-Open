@@ -1,0 +1,3 @@
+- Farmer and cows: an integer `cow_assignments` with `gcc` plus weighted `toInt(x = s) * i` sums timed out at 25 cows and 5 sons (120 s).
+- A boolean matrix `gives[son, cow]` with the same sums solves in about 1 s; `cow_assignments` is then a derived output (`cow_assignments[i] = sum s . toInt(gives[s,i]) * (s-1)`).
+- Declared output names must all be present: a model with only `gives` as `find` failed with `invalid_output`, so the output must be a `find` even when it is derived.

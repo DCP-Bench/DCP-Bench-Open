@@ -1,0 +1,1 @@
+- brief lists Qualified (ragged rows of ints) as unbindable, but a padded ragged list of int rows binds with Qualified_dim1/Qualified_dim2 declared; 1-based worker ids make the 0 padding harmless.

@@ -1,0 +1,33 @@
+language ESSENCE' 1.0
+$ Mario starts at his house and ends at Luigi's house, visiting a set of houses on one circuit that closes from Luigi's house back to Mario's house. Choose the route that collects the most gold without using more fuel than the limit.
+given nHouses : int(1..)
+given marioHouse, luigiHouse : int(0..)
+given fuelLimit : int(0..)
+$ goldInHouse[i] is the gold in house i (houses are numbered from 0 in the data, so house h is model index h+1)
+given goldInHouse : matrix indexed by [int(1..nHouses)] of int(0..)
+$ arc_fuel[i,j] is the fuel used to travel from house i to house j
+given arc_fuel : matrix indexed by [int(1..nHouses), int(1..nHouses)] of int(0..)
+$ s[i] is the house succeeding house i on the route, s[i] = i-1 when house i is not on the route
+find s : matrix indexed by [int(1..nHouses)] of int(0..nHouses-1)
+$ ord[i] is the position of house i on the route, counted from Mario's house as 0
+find ord : matrix indexed by [int(1..nHouses)] of int(0..nHouses)
+find total_gold : int(0..sum(goldInHouse))
+
+maximising total_gold
+such that
+$ the successors form a permutation, so every house has one predecessor on the route
+allDiff(s),
+$ the total gold is the gold of the houses on the route
+total_gold = (sum i : int(1..nHouses) . toInt(s[i] != i-1) * goldInHouse[i]),
+$ the total fuel of the arcs travelled on the route, including the arc from Luigi's house back to Mario's house, is within the fuel limit
+(sum i : int(1..nHouses) . toInt(s[i] != i-1) * arc_fuel[i, s[i]+1]) <= fuelLimit,
+$ Mario's house is on the route, and the route leaves it
+s[marioHouse+1] != marioHouse,
+$ the route ends at Luigi's house, whose successor is Mario's house
+s[luigiHouse+1] = marioHouse,
+$ Mario's house is the first position of the route
+ord[marioHouse+1] = 0,
+$ each house on the route is one position after its predecessor, so the route is a single circuit from Mario's house and no separate loop of houses is formed
+forAll i : int(1..nHouses) . ((s[i] != i-1) /\ (i != luigiHouse+1)) -> (ord[s[i]+1] = ord[i] + 1),
+$ houses not on the route have position 0
+forAll i : int(1..nHouses) . (s[i] = i-1) -> (ord[i] = 0)

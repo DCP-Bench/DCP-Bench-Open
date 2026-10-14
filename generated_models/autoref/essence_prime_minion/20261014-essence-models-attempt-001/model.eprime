@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Find an auto-referential series S = (s_0, ..., s_{n+1}) where s_i counts the occurrences of i in S, for i = 0..n, and s_{n+1} = m.
+given n : int(1..)
+given m : int(0..)
+find s : matrix indexed by [int(1..n+2)] of int(0..n)
+branching on [s]
+such that
+$ every entry of S is one of the counted values 0..n
+forAll j : int(1..n+2) . s[j] <= n,
+$ s_{n+1} equals m
+s[n+2] = m,
+$ for each i in 0..n, s_i is the number of occurrences of i in the series S
+forAll i : int(0..n) . s[i+1] = (sum j : int(1..n+2) . (s[j] = i))

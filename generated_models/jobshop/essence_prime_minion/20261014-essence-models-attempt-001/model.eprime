@@ -1,0 +1,21 @@
+language ESSENCE' 1.0
+$ Schedule the tasks of several jobs on machines, each job's tasks in their given order, so as to minimise the makespan.
+$ jobs_data[j,k] = [machine, duration] of task k of job j (0-based machines); jobs_data_len[j] is the number of tasks of job j; padded entries are ignored.
+given jobs_data_dim1, jobs_data_dim2 : int(1..)
+given jobs_data : matrix indexed by [int(1..jobs_data_dim1), int(1..jobs_data_dim2), int(1..2)] of int(0..)
+given jobs_data_len : matrix indexed by [int(1..jobs_data_dim1)] of int(0..)
+find start : matrix indexed by [int(1..jobs_data_dim1), int(1..jobs_data_dim2)] of int(0..100000)
+find makespan : int(0..100000)
+
+branching on [start]
+
+minimising makespan
+such that
+$ a padded task that does not exist is not started anywhere in particular
+forAll j : int(1..jobs_data_dim1) . forAll k : int(1..jobs_data_dim2) . ((k > jobs_data_len[j]) -> (start[j,k] = 0)),
+$ the makespan is at least the end of every task
+forAll j : int(1..jobs_data_dim1) . forAll k : int(1..jobs_data_dim2) . ((k <= jobs_data_len[j]) -> (start[j,k] + jobs_data[j,k,2] <= makespan)),
+$ no task of a job can start until the previous task of that job is completed
+forAll j : int(1..jobs_data_dim1) . forAll k : int(1..jobs_data_dim2-1) . ((k + 1 <= jobs_data_len[j]) -> (start[j,k] + jobs_data[j,k,2] <= start[j,k+1])),
+$ a machine can only work on one task at a time, and a task once started runs to completion without overlap
+forAll j1 : int(1..jobs_data_dim1) . forAll k1 : int(1..jobs_data_dim2) . forAll j2 : int(1..jobs_data_dim1) . forAll k2 : int(1..jobs_data_dim2) . (((j1 < j2) \/ ((j1 = j2) /\ (k1 < k2))) -> ((jobs_data[j1,k1,1] != jobs_data[j2,k2,1]) \/ (k1 > jobs_data_len[j1]) \/ (k2 > jobs_data_len[j2]) \/ (start[j1,k1] + jobs_data[j1,k1,2] <= start[j2,k2]) \/ (start[j2,k2] + jobs_data[j2,k2,2] <= start[j1,k1])))

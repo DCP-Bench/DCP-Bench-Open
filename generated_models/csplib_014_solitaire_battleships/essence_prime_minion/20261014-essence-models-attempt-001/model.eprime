@@ -1,0 +1,58 @@
+language ESSENCE' 1.0
+$ Battleships puzzle: place a fleet of ships (one of length 4, two of length 3, three of length 2, four of length 1) on a grid, no two ships touching, with given row and column counts of occupied squares and given cell hints.
+given rows, cols : int(1..)
+given rowsum : matrix indexed by [int(1..rows)] of int(0..cols)
+given colsum : matrix indexed by [int(1..cols)] of int(0..rows)
+$ fleet_counts[k,1] is the ship length and fleet_counts[k,2] the number of ships of that length (rows: length 4, 3, 2, 1)
+given fleet_counts : matrix indexed by [int(1..4), int(1..2)] of int(0..10)
+$ hints are 0-based [row, col, cell code]
+given hints_dim1 : int(1..)
+given hints : matrix indexed by [int(1..hints_dim1), int(1..3)] of int(0..9)
+
+$ cell codes used in the grid
+letting WATER = 0
+letting CIRCLE = 2
+letting LEFT = 3
+letting RIGHT = 4
+letting TOP = 5
+letting BOTTOM = 6
+letting MIDDLE = 7
+
+$ the grid is padded with a border of water so every neighbour index is in range
+find p : matrix indexed by [int(0..rows+1), int(0..cols+1)] of int(0..7)
+find grid : matrix indexed by [int(1..rows), int(1..cols)] of int(0..7)
+
+branching on [grid]
+heuristic conflict
+such that
+$ the border of the padded grid is water
+forAll c : int(0..cols+1) . (p[0,c] = WATER /\ p[rows+1,c] = WATER),
+forAll r : int(1..rows) . (p[r,0] = WATER /\ p[r,cols+1] = WATER),
+$ the output grid is the inner part of the padded grid
+forAll r : int(1..rows) . forAll c : int(1..cols) . (grid[r,c] = p[r,c]),
+$ the number of occupied squares in each row is the row count
+forAll r : int(1..rows) . ((sum c : int(1..cols) . toInt(p[r,c] != WATER)) = rowsum[r]),
+$ the number of occupied squares in each column is the column count
+forAll c : int(1..cols) . ((sum r : int(1..rows) . toInt(p[r,c] != WATER)) = colsum[c]),
+$ each hint fixes the cell it names (hint rows and columns are 0-based)
+forAll h : int(1..hints_dim1) . (p[hints[h,1]+1, hints[h,2]+1] = hints[h,3]),
+$ a submarine is a single square with water all around it
+forAll r : int(1..rows) . forAll c : int(1..cols) . ((p[r,c] = CIRCLE) -> (p[r-1,c-1] = WATER /\ p[r-1,c] = WATER /\ p[r-1,c+1] = WATER /\ p[r,c-1] = WATER /\ p[r,c+1] = WATER /\ p[r+1,c-1] = WATER /\ p[r+1,c] = WATER /\ p[r+1,c+1] = WATER)),
+$ the left end of a horizontal ship has a middle or right part to its right, and water elsewhere around it
+forAll r : int(1..rows) . forAll c : int(1..cols) . ((p[r,c] = LEFT) -> (p[r,c-1] = WATER /\ (p[r,c+1] = MIDDLE \/ p[r,c+1] = RIGHT) /\ p[r-1,c-1] = WATER /\ p[r-1,c] = WATER /\ p[r-1,c+1] = WATER /\ p[r+1,c-1] = WATER /\ p[r+1,c] = WATER /\ p[r+1,c+1] = WATER)),
+$ the right end of a horizontal ship has a left end or middle part to its left, and water elsewhere around it
+forAll r : int(1..rows) . forAll c : int(1..cols) . ((p[r,c] = RIGHT) -> (p[r,c+1] = WATER /\ (p[r,c-1] = LEFT \/ p[r,c-1] = MIDDLE) /\ p[r-1,c-1] = WATER /\ p[r-1,c] = WATER /\ p[r-1,c+1] = WATER /\ p[r+1,c-1] = WATER /\ p[r+1,c] = WATER /\ p[r+1,c+1] = WATER)),
+$ a middle part of a ship continues the ship either left and right or up and down, with no other ship square touching it
+forAll r : int(1..rows) . forAll c : int(1..cols) . ((p[r,c] = MIDDLE) -> ((((p[r,c-1] = LEFT \/ p[r,c-1] = MIDDLE) /\ (p[r,c+1] = RIGHT \/ p[r,c+1] = MIDDLE) /\ p[r-1,c] = WATER /\ p[r+1,c] = WATER) \/ ((p[r-1,c] = TOP \/ p[r-1,c] = MIDDLE) /\ (p[r+1,c] = BOTTOM \/ p[r+1,c] = MIDDLE) /\ p[r,c-1] = WATER /\ p[r,c+1] = WATER)) /\ (p[r-1,c-1] = WATER /\ p[r-1,c+1] = WATER /\ p[r+1,c-1] = WATER /\ p[r+1,c+1] = WATER))),
+$ the top end of a vertical ship has a middle or bottom part below it, and water elsewhere around it
+forAll r : int(1..rows) . forAll c : int(1..cols) . ((p[r,c] = TOP) -> (p[r-1,c] = WATER /\ (p[r+1,c] = BOTTOM \/ p[r+1,c] = MIDDLE) /\ p[r,c-1] = WATER /\ p[r,c+1] = WATER /\ p[r-1,c-1] = WATER /\ p[r-1,c+1] = WATER /\ p[r+1,c-1] = WATER /\ p[r+1,c+1] = WATER)),
+$ the bottom end of a vertical ship has a top end or middle part above it, and water elsewhere around it
+forAll r : int(1..rows) . forAll c : int(1..cols) . ((p[r,c] = BOTTOM) -> (p[r+1,c] = WATER /\ (p[r-1,c] = TOP \/ p[r-1,c] = MIDDLE) /\ p[r,c-1] = WATER /\ p[r,c+1] = WATER /\ p[r-1,c-1] = WATER /\ p[r-1,c+1] = WATER /\ p[r+1,c-1] = WATER /\ p[r+1,c+1] = WATER)),
+$ the fleet has the required number of submarines (ships of length 1)
+(sum r : int(1..rows) . sum c : int(1..cols) . toInt(p[r,c] = CIRCLE)) = fleet_counts[4,2],
+$ the fleet has the required number of destroyers (ships of length 2), horizontal or vertical
+((sum r : int(1..rows) . sum c : int(1..cols-1) . toInt((p[r,c] = LEFT) /\ (p[r,c+1] = RIGHT))) + (sum r : int(1..rows-1) . sum c : int(1..cols) . toInt((p[r,c] = TOP) /\ (p[r+1,c] = BOTTOM)))) = fleet_counts[3,2],
+$ the fleet has the required number of cruisers (ships of length 3), horizontal or vertical
+((sum r : int(1..rows) . sum c : int(1..cols-2) . toInt((p[r,c] = LEFT) /\ (p[r,c+2] = RIGHT))) + (sum r : int(1..rows-2) . sum c : int(1..cols) . toInt((p[r,c] = TOP) /\ (p[r+2,c] = BOTTOM)))) = fleet_counts[2,2],
+$ the fleet has the required number of battleships (ships of length 4), horizontal or vertical
+((sum r : int(1..rows) . sum c : int(1..cols-3) . toInt((p[r,c] = LEFT) /\ (p[r,c+3] = RIGHT))) + (sum r : int(1..rows-3) . sum c : int(1..cols) . toInt((p[r,c] = TOP) /\ (p[r+3,c] = BOTTOM)))) = fleet_counts[1,2]

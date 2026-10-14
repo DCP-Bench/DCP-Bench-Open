@@ -1,0 +1,28 @@
+language ESSENCE' 1.0
+$ Aircraft landing on a single runway in a fixed landing sequence: each aircraft gets one landing time, and the total penalty for landing before or after its target time is minimised.
+given earliest_landing_dim1 : int
+letting n = earliest_landing_dim1
+given earliest_landing : matrix indexed by [int(1..n)] of int
+given latest_landing : matrix indexed by [int(1..n)] of int
+given target_landing : matrix indexed by [int(1..n)] of int
+given penalty_before : matrix indexed by [int(1..n)] of int
+given penalty_after : matrix indexed by [int(1..n)] of int
+given separation_time : matrix indexed by [int(1..n), int(1..n)] of int
+find landing_times : matrix indexed by [int(1..n)] of int(0..sum(latest_landing))
+find early : matrix indexed by [int(1..n)] of int(0..sum(latest_landing))
+find late : matrix indexed by [int(1..n)] of int(0..sum(latest_landing))
+find total_penalty : int(0..100000000)
+
+branching on [landing_times]
+minimising total_penalty
+such that
+$ each aircraft lands within its own time window (earliest and latest landing time)
+forAll i : int(1..n) . landing_times[i] >= earliest_landing[i] /\ landing_times[i] <= latest_landing[i],
+$ the aircraft land in the given fixed sequence, and any two landings are separated by at least the minimum separation time
+forAll i, j : int(1..n) . (i < j) -> (landing_times[j] >= landing_times[i] + separation_time[i, j]),
+$ earliness: an aircraft landing before its target time is early by the gap to the target
+forAll i : int(1..n) . early[i] = max(0, target_landing[i] - landing_times[i]),
+$ lateness: an aircraft landing after its target time is late by the gap past the target
+forAll i : int(1..n) . late[i] = max(0, landing_times[i] - target_landing[i]),
+$ the total penalty is the sum over aircraft of the early penalty and the late penalty
+total_penalty = (sum i : int(1..n) . penalty_before[i] * early[i] + penalty_after[i] * late[i])
