@@ -1,0 +1,44 @@
+// Find a 10-digit number using each digit 0 to 9 exactly once, where the first n digits form a number divisible by n.
+vocabulary {
+    type Pos := {1..10}            // digit positions, read from left to right
+    type Digit := {0..9}           // a decimal digit
+    d: Pos -> Digit                // the digit at each position
+    pre: Pos -> Int                // the number formed by the first k digits
+    number: () -> Int              // the 10-digit number
+}
+theory {
+    // the number has 10 digits, so the leading digit is not zero
+    d(1) ~= 0.
+
+    // each of the digits 0 to 9 is used exactly once
+    ! i, j in Pos: i ~= j => d(i) ~= d(j).
+
+    // the first digit forms the prefix of length 1
+    pre(1) = d(1).
+
+    // each further digit extends the prefix by one place
+    pre(2) = pre(1) * 10 + d(2).
+    pre(3) = pre(2) * 10 + d(3).
+    pre(4) = pre(3) * 10 + d(4).
+    pre(5) = pre(4) * 10 + d(5).
+    pre(6) = pre(5) * 10 + d(6).
+    pre(7) = pre(6) * 10 + d(7).
+    pre(8) = pre(7) * 10 + d(8).
+    pre(9) = pre(8) * 10 + d(9).
+    pre(10) = pre(9) * 10 + d(10).
+
+    // the number formed by the first n digits is divisible by n
+    pre(1) % 1 = 0.
+    pre(2) % 2 = 0.
+    pre(3) % 3 = 0.
+    pre(4) % 4 = 0.
+    pre(5) % 5 = 0.
+    pre(6) % 6 = 0.
+    pre(7) % 7 = 0.
+    pre(8) % 8 = 0.
+    pre(9) % 9 = 0.
+    pre(10) % 10 = 0.
+
+    // the number itself is the whole 10-digit prefix
+    number() = pre(10).
+}

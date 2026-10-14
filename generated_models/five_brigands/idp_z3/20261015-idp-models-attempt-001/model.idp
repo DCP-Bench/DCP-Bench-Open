@@ -1,0 +1,18 @@
+// Five brigands: five Spanish brigands (Alfonso A, Benito B, Carlos C, Diego D, Esteban E) share doubloons.
+vocabulary {
+    // each brigand has at least one and at most 200 doubloons (no brigand had less than one)
+    type Doubloons := {1..200}
+    // declared outputs: the doubloons held by each brigand
+    A: () -> Doubloons
+    B: () -> Doubloons
+    C: () -> Doubloons
+    D: () -> Doubloons
+    E: () -> Doubloons
+}
+theory {
+    // they had altogether exactly 200 doubloons
+    A() + B() + C() + D() + E() = 200.
+    // if Alfonso had twelve times as much, Benito three times, Carlos the same, Diego half and Esteban one-third,
+    // they would still have altogether 200 doubloons; multiplied by 6 so that every term is an integer
+    72 * A() + 18 * B() + 6 * C() + 3 * D() + 2 * E() = 1200.
+}

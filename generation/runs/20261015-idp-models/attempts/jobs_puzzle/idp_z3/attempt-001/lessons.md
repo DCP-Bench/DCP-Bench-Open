@@ -1,0 +1,3 @@
+- Scalar `-> Person` outputs over `type Person := {0..3}` read back as integers and work; counting jobs per person with `(if chef() = p then 1 else 0) + ... = 2` inside `! p in Person:` parses and solves.
+- "Person 0, the chef, and the police officer went golfing together" read as chef = police = 0 was rejected with "Declared outputs cannot extend to a reference solution"; reading them as three different people was accepted.
+- The model admits 96 solutions and the reference accepts all 96 (`evaluation.check --solution-limit 1000`). The default evaluate limit of 2 does not show this, so check the count before trusting a puzzle that says "determine".

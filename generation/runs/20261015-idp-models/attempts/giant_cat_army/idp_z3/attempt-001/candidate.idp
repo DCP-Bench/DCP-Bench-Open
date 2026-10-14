@@ -1,0 +1,30 @@
+// Giant cat army: build a list from [0] by adding 5, adding 7 or taking the square root, so that 2, 10 and 14 appear in that order.
+vocabulary {
+    // positions of the list: 24 elements
+    type Pos := {0..23}
+    // every element is an integer between 0 and 60
+    type Val := {0..60}
+
+    // the list, read in order from position 0
+    x: Pos -> Val
+
+    // auxiliary: v is the square of r
+    sqr: Val * Val -> Bool
+}
+theory {
+    // the square relation over the element range
+    { ! v, r in Val: sqr(v, r) <- v = r * r. }
+
+    // the list starts with 0 and ends with 14
+    x(0) = 0.
+    x(23) = 14.
+
+    // all the elements are distinct
+    ! i, j in Pos: i ~= j => x(i) ~= x(j).
+
+    // each step adds 5, adds 7, or takes the square root of the previous element
+    ! i, j in Pos: j = i + 1 => ((x(j) = x(i) + 5) | (x(j) = x(i) + 7) | sqr(x(i), x(j))).
+
+    // 2, 10 and 14 appear in the list in that order, other numbers may lie between them
+    ? i, j, k in Pos: i < j & j < k & x(i) = 2 & x(j) = 10 & x(k) = 14.
+}

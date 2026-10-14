@@ -1,0 +1,3 @@
+- Sign-flip models: encode each flip as a Bool predicate (rneg, cneg) and derive the printed -1/1 outputs with if-then-else; avoids a product of two decision symbols.
+- `if rneg(r) = cneg(c) then a else 0 - a` parses and gives the parity flip without unary minus on a decision; `{-1, 1}` as a type literal works as an output range.
+- Row and column sizes come from the input matrix through `type Row <: Int`; the 27x9 example and the 3x3, 4x8, 10x3, 5x5 instances all bound with no edits.

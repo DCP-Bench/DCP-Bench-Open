@@ -1,0 +1,3 @@
+- A nullary field such as the unknown-cell marker `X` binds with `X: () -> Int` and can be compared directly to a board entry, so no literal -1 is written.
+- Counts over two variables of different sized types parse: `#{ r2 in Row, c2 in Col: ... }`, with `abs(r2 - r) =< 1` for neighbours.
+- Sizing `Row` and `Col` separately from the 2-D board handled the 5x14 non-square instance with no change.
