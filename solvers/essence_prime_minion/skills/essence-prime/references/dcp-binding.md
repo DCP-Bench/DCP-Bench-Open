@@ -17,9 +17,15 @@ whatever its type, so `name` and `note` need no declaration. Names in `given` li
    given grid_dim1, grid_dim2 : int
    given grid : matrix indexed by [int(1..grid_dim1), int(1..grid_dim2)] of int
    ```
-   Essence' needs finite index domains, so a size that varies must come from a given like this.
+   Essence' needs finite index domains, so a size that varies must come from a given like this. Lists nested three deep bind padded the same way, with `<field>_dim1` to `<field>_dim3` and `<field>_len` when declared. A size that is not a field but equals a list's length is declared as `given grid_dim1 : int` and `letting n = grid_dim1` (run).
 5. Refused with `execution_error` naming the field: a declared field that is a float, string or empty list, a name that
    is not an identifier, other ragged or mixed shapes, and generated names that collide with an instance field.
+
+`generation.brief` lists `unbindable_fields` with a generic rule (ragged or mixed rows), which is looser than this
+binding. The withholding of a problem for this integration is decided by `run.py`'s own `refusal`, which
+`generation.next_work` asks on every listed instance. Rule 3 binds fields such as a list of rows whose columns differ
+in type, and a string field is refused (`refusal` names it). So a problem whose only strings are `name` and `note` is
+not withheld. A field with a string in any instance is withheld.
 
 Parameter order does not matter: Savile Row resolves lettings in any order, so dims may come after the matrix.
 
