@@ -1,0 +1,3 @@
+- Symmetric group labels per week: precede(x, IntArgs::create(g, 0, 1)) on each week column removes value symmetry cheaply.
+- Pairwise "meet at most once" needs a reified equality per pair and week plus linear(IRT_LQ, 1); no map row covers it.
+- Largest instance (32 golfers, 5 weeks, 8 groups) hit execution_timeout at 180 s with this encoding; the pair decomposition is the likely bottleneck.

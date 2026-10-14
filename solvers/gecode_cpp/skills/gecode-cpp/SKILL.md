@@ -32,6 +32,7 @@ verified in `catalogue.cpp`.
 | value v_j occurs c_j times (gcc) | `count(*this, x, cards, IntArgs(vals))`, cards `IntVarArgs`; bounds instead: `IntSetArgs` |
 | number of distinct values | `nvalues(*this, x, IRT_EQ, k)` |
 | every window of q has l..u items in S | `sequence(*this, x, IntSet(S), q, l, u)` |
+| two of them share a group at most once (pairs meet) | per pair: `BoolVarArgs m; m << expr(*this, g[p][r] == g[q][r])` over rounds r, then `linear(*this, m, IRT_LQ, 1)` |
 | how many are true / weighted count | `linear(*this, bools, IRT_EQ, k)`, `linear(*this, IntArgs(w), x, IRT_LQ, cap)` |
 | the i-th value of a table / array | `element(*this, IntArgs(table), i, y)` [table[i] = y], `element(*this, xs, i, y)` for variables |
 | a cell of a matrix indexed by variables | `element(*this, IntArgs(a), col, w, row, h, z)` [a[col + w*row] = z] |
@@ -143,8 +144,16 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
 - Scheduling: branch on start times with `INT_VAR_MIN_MIN()`, `INT_VAL_MIN()`.
   Sequencing/routing: on successors with `INT_VAR_SIZE_MIN()`.
 - Optimisation that finds a poor first solution and stalls: a search that builds good
-  solutions first (cheapest value first), or branch on the objective with
-  `INT_VAL_SPLIT_MIN()`.
+  solutions first, or branch on the objective with `INT_VAL_SPLIT_MIN()`. Choices with
+  a cost from a table: `element(*this, IntArgs(cost_i), choice_i, c_i)`, then branch on
+  the `c_i` first (`INT_VAR_REGRET_MIN_MAX()`, `INT_VAL_MIN()`): cheapest choice first.
+- Line or slot assignment with fixed totals and window limits (`sequence`, `count`):
+  branch on the slots in order (`INT_VAR_NONE()`) and try the hardest value first;
+  renumber values so the most constrained is smallest, or branch on a rank variable
+  linked by `element`. Add implied prefix bounds: a limit of u per window of q allows at
+  most `u*(t/q) + min(u, t%q)` in any t consecutive slots, so with a known total N the
+  first t slots hold at least `N - that bound for the other n - t`. Post them with
+  `linear` over the prefix Booleans.
 - Symmetry: `Symmetries syms; syms << VariableSymmetry(x) << ValueSymmetry(IntArgs(..));
   branch(*this, x, VAR, VAL, syms);` (LDSB; also `VariableSequenceSymmetry(x, len)` for
   interchangeable rows). Or post `precede`/lex. Never both on the same symmetry.
@@ -156,7 +165,8 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
   crashes. Update every `IntVarArray`, `IntVar`, `BoolVar*` and `SetVar*` member.
 - Posting on a failed space is fine, but check `status()` before reading values.
 - `IntVarArgs` slices of an array share variables; that is how sub-arrays are passed.
-- `IntSet` bounds are inclusive. `IntVar(*this, lo, hi)` throws `Int::OutOfLimits`
+- `IntSet` bounds are inclusive. From a `std::vector<int> v`: `IntSet(IntArgs(v))`;
+  `IntSet(v)` on a non-const vector does not compile. `IntVar(*this, lo, hi)` throws `Int::OutOfLimits`
   beyond ±(2^31 − 2); products of large domains overflow: bound them.
 - `TupleSet` needs `finalize()` before posting. `DFA(reg)` compiles the regular
   expression once; reuse it for rows with the same clue.
