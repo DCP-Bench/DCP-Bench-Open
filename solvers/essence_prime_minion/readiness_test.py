@@ -64,6 +64,9 @@ GOOD = HEAD + "such that (optimize -> x + y >= n) /\\ (!optimize -> x + y = n)\n
 # The objective sits on its own line, which is what lets the runner re-solve at
 # the proven optimum to enumerate.
 OPTIMAL = HEAD + "DIRECTION x + y\nsuch that x + y >= n\n"
+# The objective is a sum, unparenthesised, and has the same optimum as OPTIMAL.
+SUM_OPTIMAL = (HEAD + "find c : matrix indexed by [int(1..2)] of int(0..n)\n"
+               "minimising sum i : int(1..2) . c[i]\nsuch that x + y >= n, c[1] = x, c[2] = y\n")
 # Does not parse: Savile Row exits with an error.
 MALFORMED = HEAD + "such that x + y = n blah\n"
 UNSATISFIABLE = HEAD + "such that x + y = n, x = n, y = n, n > 0\n"
@@ -257,6 +260,9 @@ def main():
         # Enumeration of an optimisation goes through the fixed-objective re-run.
         check("optimum_enumeration", OPTIMAL.replace("DIRECTION", "minimising"), reference=OPTIMIZING,
               solution_limit=5)
+        # The runner re-states the objective to fix it at the optimum; an unparenthesised
+        # sum must not absorb that text into its quantifier.
+        check("sum_objective_enumeration", SUM_OPTIMAL, reference=OPTIMIZING, solution_limit=5)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=3)

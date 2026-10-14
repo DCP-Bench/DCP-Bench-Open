@@ -129,13 +129,21 @@ def runner(solver_id):
     return _runners[solver_id]
 
 
+def instances_of(problem):
+    """Every listed instance, or the embedded example alone when none is listed."""
+    rows = instance_rows(problem)
+    if rows:
+        return [row for row in rows if isinstance(row, dict)]
+    instance = instance_of(problem)
+    return [instance] if instance else []
+
+
 @functools.lru_cache(maxsize=None)
 def runner_refusals(problem, solver_id):
-    """The instance fields the integration's run.py refuses to reshape, by its own rules."""
-    instance = instance_of(problem) or {}
+    """The instance fields the integration's run.py refuses in any instance, by its own rules."""
     module = runner(solver_id)
-    return sorted(key for key, value in instance.items()
-                  if key not in ("name", "note") and module.refusal(key, value))
+    return sorted({key for instance in instances_of(problem) for key, value in instance.items()
+                   if key not in ("name", "note") and module.refusal(key, value)})
 
 
 def unbindable(problem):

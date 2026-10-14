@@ -188,8 +188,13 @@ def bind(instance, declared):
 
 
 def refusal(name, value):
-    """Why run.py cannot reshape this field on its own, or None. For a caller that
-    must know which fields a model could be given, without a model."""
+    """Why run.py refuses this instance field, or None. For a caller that must know
+    which fields a model could be given, without a model. A field holding strings
+    is refused too: Essence' has none, so a model that declares it cannot be given
+    the value, and the pair cannot be bound at all."""
+    if any(isinstance(leaf, str) for leaf in leaves(value)):
+        return (f"Instance field `{name}` holds string values; Essence' has no strings, "
+                "so the integration cannot bind it")
     try:
         list(bindings(name, value))
     except Unbindable as error:
@@ -444,7 +449,7 @@ def run(request, source, work, deadline):
         # Read the optimum through an auxiliary variable, then fix it.
         probe = OBJECTIVE.sub(lambda m: f"find dcp_objective_value : int({-BIG}..{BIG})\n"
                               f"{direction} dcp_objective_value", source, count=1)
-        probe = with_constraint(probe, f"dcp_objective_value = {expression}")
+        probe = with_constraint(probe, f"dcp_objective_value = ({expression})")
         solutions, info, error = savile_row(work, probe, None, deadline, None)
         if error == "timeout" or (not error and info.get("SolverTimeOut") != "0"):
             return flush("timeout", "Candidate optimum was not proven")
@@ -453,7 +458,7 @@ def run(request, source, work, deadline):
         if not solutions or "dcp_objective_value" not in solutions[0]:
             return runtime.finish("error", "Could not read the optimum back from Savile Row")
         value = solutions[0]["dcp_objective_value"]
-        source = with_constraint(OBJECTIVE.sub("", source, count=1), f"{expression} = {value}")
+        source = with_constraint(OBJECTIVE.sub("", source, count=1), f"({expression}) = {value}")
     # Satisfaction, or an optimisation fixed at its proven optimum. Savile Row
     # enumerates every `find` variable, so an auxiliary one that the constraints
     # leave free repeats an output assignment. Each round asks for the solutions
