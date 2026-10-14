@@ -1,0 +1,3 @@
+- Counts are over the 2n-1 people other than Jocelyn, since she is the one who asks; AllDifferent over all 2n people is unsatisfiable.
+- num_couples counts the invited couples besides Hilary and Jocelyn (the note for 4 couples says the answer is 4), so there are 2*(num_couples+1) people.
+- The example (num_couples 8) times out in ACE (1 of 2 solutions, 180 s) and the reference also times out on it, so it is not checked; the other four instances are verified.

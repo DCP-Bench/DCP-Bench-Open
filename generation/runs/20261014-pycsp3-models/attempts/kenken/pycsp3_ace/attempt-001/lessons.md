@@ -1,0 +1,2 @@
+- Product(values) with one value fails with 'Bad arity for node MUL. It is 1 but it should be between 2 and inf'. Post single-cell cages as values[0] == target.
+- Unknown cage operation: Or(...) over sum, product, difference and quotient for two-cell cages; Or(Sum, Product) for larger cages. Accepted on all 5 instances.

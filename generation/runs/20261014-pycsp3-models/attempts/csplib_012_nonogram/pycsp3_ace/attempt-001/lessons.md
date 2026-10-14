@@ -1,0 +1,2 @@
+- Table over all line patterns is too large for 50-60 cell lines (the count of patterns grows like a binomial). Use Regular with a block automaton: states g<i> (i blocks done, in a gap) and r<j>_<l> (block j has l cells), with a 0 required after each block.
+- The automaton version accepted all 13 instances in about 2 to 5 s each.

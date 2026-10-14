@@ -1,0 +1,2 @@
+- Reusing a Python name for a VarArray in a loop fails with `The identifier gts is used twice` (seen only with `-ev`; the harness reports `SystemExit: 1`). Build one VarArray up front instead.
+- Reified Boolean sums `(g == 1) == (x > y)` over 36 face pairs per die pair timed out (`The search stopped before it was exhausted`). `Sum(x > y for i for j) >= 19` solved it on the same model.

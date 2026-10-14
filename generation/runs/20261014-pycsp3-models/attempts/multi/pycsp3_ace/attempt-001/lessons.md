@@ -1,0 +1,2 @@
+- Instance json:4 (3x4x3 shipments, 36 integers) returns execution_timeout "Candidate optimum was not proven" at 180 s; the evaluator then skips it (tolerated). The record is accepted with 4 of 5 instances checked.
+- Tighter domains (ship <= min(supply, demand, limit)) and a direct Sum objective did not make json:4 prove in 170 s (attempt-002, not retained).

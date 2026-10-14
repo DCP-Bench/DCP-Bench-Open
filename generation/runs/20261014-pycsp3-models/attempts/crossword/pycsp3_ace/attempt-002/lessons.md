@@ -1,0 +1,2 @@
+ACE rejects the variable id E: a declared output named E gives execution_error-free 'timeout' ('The search stopped before it was exhausted') on any satisfiable model. Fix: declare the array under another name (chosen = VarArray(...)) and bind E = chosen at module level; ACE then solves.
+Crossword words are indexed by length then alphabetically; the entry-by-entry word list is in the model comments.

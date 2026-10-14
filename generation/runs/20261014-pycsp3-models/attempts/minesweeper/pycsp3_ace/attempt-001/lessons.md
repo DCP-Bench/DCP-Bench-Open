@@ -1,0 +1,2 @@
+- Evaluation on instance json:4 (game_data 6x6, minesweeper0) gives invalid_output with detail `Wrong shape at mines[0]`. The model sizes mines from game_data (6x6), as the contract says; the other four instances (8x8) are accepted.
+- The declared shape in the brief is [8][8], so the reference probably fixes 8 for this output. Unresolved: the model was not padded to 8x8 to force a pass.

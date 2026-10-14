@@ -1,0 +1,2 @@
+- A product of two Boolean matrix cells, Sum(matrix[i][j] * matrix[i2][j]), works for the scalar product of two rows.
+- LexIncreasing(matrix) on a 2-D VarArray orders its rows and was accepted.

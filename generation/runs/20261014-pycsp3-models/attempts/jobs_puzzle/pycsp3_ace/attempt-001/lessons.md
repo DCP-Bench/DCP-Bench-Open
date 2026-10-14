@@ -1,0 +1,1 @@
+- Clue 5 ("Person 0, the chef, and the police officer went golfing together") read as chef = police = 0 gave `invalid_solution` (check, not retained). Reading the three as three different people (chef != 0, police != 0, chef != police) was accepted, and the evaluator accepted both solutions it checked.
