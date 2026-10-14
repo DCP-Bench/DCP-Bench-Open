@@ -201,9 +201,10 @@ theory {
   slow; use Boolean presence predicates (`started(p, s) <=> ? t in T: t =< s & plays(p, t)`).
 - **A symbol name must be unique**: "Duplicate declaration of D" when an output
   and a helper share a name.
-- **Ragged or mixed instance fields are not bound** (`next_work` withholds such
-  pairs), nor are string fields the model declares ("instance values of type str
-  cannot be bound"). A string field the model does not declare is ignored.
+- **String fields cannot be bound**: declaring one fails with "instance values of
+  type str cannot be bound"; an undeclared string field or column is ignored, so
+  bind only the integer columns of a mixed row (`movies_2`, `movies_3`). Padding
+  of ragged rows is 0, so compare 1-based ids or guard with `F_len`.
 - **A data field holding 0/1 integers binds as `-> Int`**; compare it with `= 1`.
   Declared `-> Bool` it fails with "Declared outputs cannot extend ..." without
   naming the field.
@@ -215,8 +216,9 @@ theory {
   faster than a four-variable universal implication.
 - **`%` or comparisons between two decision sums are slow**: compare each sum
   with a constant computed in `${...}`, and fold `%` over data into counts.
-- **Two-variable existentials under an implication** fail with "set expected at
-  most 1 argument"; nest them (`? r in R: ? c in C: ...`). Definitions need a
+- **Two-variable quantifiers under an implication** (`!` or `?`) fail with "set
+  expected at most 1 argument"; nest them (`! r in R: ! c in C: ...`). A quantified
+  variable may not reuse a declared symbol's name. Definitions need a
   head quantifier: `{ ! x, y in T: rel(x, y) <- ... }`.
 - **Instance coordinates may be 1-based** while arrays bind 0-based; shift in
   the constraint (`r + 1 = lt(k, 0)`) rather than in the data.
