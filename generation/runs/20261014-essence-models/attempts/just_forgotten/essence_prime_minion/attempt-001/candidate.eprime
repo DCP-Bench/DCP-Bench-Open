@@ -1,0 +1,14 @@
+language ESSENCE' 1.0
+$ Joe's account number x has all the digits from 0 to 9 in some order; in each of the given sets exactly num_correct_digits digits are in their correct position.
+given num_correct_digits : int(0..10)
+$ the four sets Joe tried, each a list of the ten digits
+given sets : matrix indexed by [int(1..4), int(1..10)] of int(0..9)
+$ the digits of Joe's account number, by position
+find x : matrix indexed by [int(1..10)] of int(0..9)
+
+branching on [x]
+such that
+$ the account number has every digit from 0 to 9 exactly once
+allDiff(x),
+$ in each set, exactly num_correct_digits digits are in their correct position
+forAll k : int(1..4) . ((sum i : int(1..10) . toInt(sets[k, i] = x[i])) = num_correct_digits)

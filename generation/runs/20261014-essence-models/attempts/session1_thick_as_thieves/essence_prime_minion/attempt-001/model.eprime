@@ -1,0 +1,17 @@
+language ESSENCE' 1.0
+$ Thick as thieves: six suspects, each guilty (true) or innocent (false); innocent suspects tell the truth, guilty ones lie; at least four are innocent, so at most two are guilty; decide who is guilty.
+$ each suspect is guilty or not
+find artie, bill, crackitt, dodgy, edgy, fingers : bool
+branching on [artie, bill, crackitt, dodgy, edgy, fingers]
+such that
+$ at least one suspect is guilty, and at most two, since the getaway car held only two
+(toInt(artie) + toInt(bill) + toInt(crackitt) + toInt(dodgy) + toInt(edgy) + toInt(fingers)) >= 1,
+(toInt(artie) + toInt(bill) + toInt(crackitt) + toInt(dodgy) + toInt(edgy) + toInt(fingers)) <= 2,
+$ Bill says "Crackitt was in it up to his neck": Bill is innocent exactly when that statement is true
+!bill <-> crackitt,
+$ Dodgy says "If Crackitt did it, Bill did it with him": Dodgy is innocent exactly when that statement is true
+!dodgy <-> (crackitt -> bill),
+$ Edgy says "Nobody did it alone": Edgy is innocent exactly when the number of guilty suspects is not one
+!edgy <-> ((toInt(artie) + toInt(bill) + toInt(crackitt) + toInt(dodgy) + toInt(edgy) + toInt(fingers)) != 1),
+$ Fingers says "it was Artie and Dodgy together": Fingers is innocent exactly when Artie and Dodgy are the only guilty suspects
+!fingers <-> (artie /\ dodgy /\ ((toInt(artie) + toInt(bill) + toInt(crackitt) + toInt(dodgy) + toInt(edgy) + toInt(fingers)) = 2))

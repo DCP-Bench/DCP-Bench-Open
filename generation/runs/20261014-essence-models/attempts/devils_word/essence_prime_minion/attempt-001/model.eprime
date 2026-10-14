@@ -1,0 +1,11 @@
+language ESSENCE' 1.0
+$ Put a plus or minus sign before each of the 19 integers so that the signed values add up to the total.
+given arr : matrix indexed by [int(1..19)] of int(-100000..100000)
+given total : int(-100000000..100000000)
+find result : matrix indexed by [int(1..19)] of int(-100000..100000)
+
+such that
+$ each signed entry is the integer itself or its negation, i.e. the sign of each integer is chosen
+forAll i : int(1..19) . (result[i] = arr[i] \/ result[i] = -arr[i]),
+$ the signed integers sum to the total
+(sum i : int(1..19) . result[i]) = total

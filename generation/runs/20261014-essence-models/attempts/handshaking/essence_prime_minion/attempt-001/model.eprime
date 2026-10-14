@@ -1,0 +1,20 @@
+language ESSENCE' 1.0
+$ Hilary and Jocelyn and num_couples couples shake hands, nobody with self or spouse; all the hand counts asked of everyone but Jocelyn are different. Print Hilary's count.
+given num_couples : int(1..)
+find shake : matrix indexed by [int(1..2*num_couples+2), int(1..2*num_couples+2)] of bool
+find cnt : matrix indexed by [int(1..2*num_couples+2)] of int(0..2*num_couples)
+find hil : int(0..2*num_couples)
+
+such that
+$ a handshake is between two different people, so nobody shakes hands with him or herself
+forAll i : int(1..2*num_couples+2) . !shake[i,i],
+$ handshakes are mutual: if i shook hands with j then j shook hands with i
+forAll i : int(1..2*num_couples+2) . forAll j : int(1..2*num_couples+2) . shake[i,j] = shake[j,i],
+$ nobody shakes hands with his or her spouse; people 2k-1 and 2k are the couples, with Hilary = 1 and Jocelyn = 2
+forAll k : int(1..num_couples+1) . !shake[2*k-1,2*k],
+$ the number of hands a person has shaken is the number of people he or she shook hands with
+forAll i : int(1..2*num_couples+2) . cnt[i] = sum j : int(1..2*num_couples+2) . toInt(shake[i,j]),
+$ all the answers are different: everyone except Jocelyn was asked how many hands they shook, and the answers differ
+forAll i : int(1..2*num_couples+2) . forAll j : int(i+1..2*num_couples+2) . ((i != 2 /\ j != 2) -> cnt[i] != cnt[j]),
+$ Hilary's answer
+hil = cnt[1]

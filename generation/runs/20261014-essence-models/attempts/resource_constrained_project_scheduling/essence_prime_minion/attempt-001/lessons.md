@@ -1,0 +1,2 @@
+- heuristic conflict (after branching on [start_time]) solved the 32-job j301 instance where sdf, srf and the default timed out at 120 s.
+- The 4-resource 32-job instance (json:3) still times out at 180 s; tolerated as an inconclusive instance.

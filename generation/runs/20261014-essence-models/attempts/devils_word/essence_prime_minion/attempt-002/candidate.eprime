@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Insert a plus or a minus before each number of the array so that the signed sum equals the total.
+given arr_dim1 : int(1..)
+given arr : matrix indexed by [int(1..arr_dim1)] of int(0..)
+given total : int
+find plus : matrix indexed by [int(1..arr_dim1)] of bool
+find result : matrix indexed by [int(1..arr_dim1)] of int(-sum(arr)..sum(arr))
+
+branching on [plus]
+
+such that
+$ each number is taken with a plus or a minus sign: the result holds the number itself when plus, its negation otherwise
+forAll i : int(1..arr_dim1) . ((plus[i] -> (result[i] = arr[i])) /\ (!plus[i] -> (result[i] = -arr[i]))),
+$ the signed numbers sum to the total
+(sum i : int(1..arr_dim1) . result[i]) = total

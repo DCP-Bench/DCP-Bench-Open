@@ -1,0 +1,1 @@
+Blocked: instance field names holds a string value; the runner binds every instance field as a letting parameter, so any model fails with execution_error before solving (who_killed_agatha, and room_assignment whose start_data/end_data are strings).

@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Place m oranges in n bowls on a line (one per bowl) so that no three oranges are equally spaced. Print the bowls used in ascending order.
+given n : int(1..)
+given m : int(1..)
+find x : matrix indexed by [int(1..m)] of int(1..n)
+
+branching on [x]
+
+such that
+$ the bowls are listed in ascending order, with no bowl holding two oranges
+forAll i : int(1..m-1) . x[i] < x[i+1],
+$ no three oranges A, B, C (in bowl order) have the distance A to B equal to the distance B to C, i.e. x[i] + x[k] is not twice x[j]
+forAll i, j, k : int(1..m) . ((i < j /\ j < k) -> x[i] + x[k] != 2 * x[j])

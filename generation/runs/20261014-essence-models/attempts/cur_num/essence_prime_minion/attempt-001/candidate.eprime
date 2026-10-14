@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+$ Find a number between 1 and 10000, other than 48, whose successor is a square and whose half plus one is a square.
+find peculiar : int(1..10000)
+$ square roots of peculiar + 1 and of peculiar / 2 + 1
+find root1 : int(1..101)
+find root2 : int(1..101)
+
+branching on [peculiar, root1, root2]
+
+such that
+$ the number has an integer half, so it is even
+peculiar % 2 = 0,
+$ adding 1 to the number gives a square number
+peculiar + 1 = root1 * root1,
+$ adding 1 to its half gives a square number
+peculiar / 2 + 1 = root2 * root2,
+$ the number must be another number, not 48
+peculiar != 48

@@ -1,0 +1,17 @@
+language ESSENCE' 1.0
+$ Graceful labelling of a graph with n nodes and m edges: the nodes get distinct labels from 0 to m, and the edge labels |f(x) - f(y)| are all different. Print the node labels and the edge labels.
+given n : int(1..)
+given m : int(1..)
+given graph : matrix indexed by [int(1..m), int(1..2)] of int(0..n-1)
+find nodes : matrix indexed by [int(1..n)] of int(0..m)
+find edges : matrix indexed by [int(1..m)] of int(1..m)
+
+branching on [nodes]
+
+such that
+$ each node gets its own label from 0 to m
+allDiff(nodes),
+$ each edge is labelled with the absolute difference of the labels of its two end nodes (graph gives 0-based node numbers)
+forAll e : int(1..m) . (edges[e] = |nodes[graph[e,1] + 1] - nodes[graph[e,2] + 1]|),
+$ the edge labels are all different
+allDiff(edges)

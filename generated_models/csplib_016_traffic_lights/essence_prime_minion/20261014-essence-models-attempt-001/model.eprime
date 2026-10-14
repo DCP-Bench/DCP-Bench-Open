@@ -1,0 +1,17 @@
+language ESSENCE' 1.0
+$ Traffic lights: the eight light states of a four-way junction, four vehicle lights V1..V4 then four pedestrian lights P1..P4, such that each pair (V_i, P_i), (V_i+1, P_i+1) is one of the safe combinations, with V5 = V1 and P5 = P1.
+given allowed_tuples_dim1, allowed_tuples_dim2 : int(1..)
+$ the safe combinations (V_i, P_i, V_i+1, P_i+1) listed in the problem parameters
+given allowed_tuples : matrix indexed by [int(1..allowed_tuples_dim1), int(1..allowed_tuples_dim2)] of int(0..3)
+$ lights 1 to 4 are the vehicle lights, lights 5 to 8 are the pedestrian lights
+find lights : matrix indexed by [int(1..8)] of int(0..3)
+branching on [lights]
+such that
+$ vehicle lights V1 and V2 with pedestrian lights P1 and P2 form a safe combination
+table([lights[1], lights[5], lights[2], lights[6]], allowed_tuples),
+$ vehicle lights V2 and V3 with pedestrian lights P2 and P3 form a safe combination
+table([lights[2], lights[6], lights[3], lights[7]], allowed_tuples),
+$ vehicle lights V3 and V4 with pedestrian lights P3 and P4 form a safe combination
+table([lights[3], lights[7], lights[4], lights[8]], allowed_tuples),
+$ vehicle lights V4 and V1 with pedestrian lights P4 and P1 form a safe combination
+table([lights[4], lights[8], lights[1], lights[5]], allowed_tuples)

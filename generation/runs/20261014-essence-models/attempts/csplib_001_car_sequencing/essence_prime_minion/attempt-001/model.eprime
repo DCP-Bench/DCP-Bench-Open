@@ -1,0 +1,20 @@
+language ESSENCE' 1.0
+$ Produce cars in a sequence: each car type t is produced demand[t] times, and at each station (option o) no window of per_slots[o] consecutive cars may contain more than at_most[o] cars that require option o.
+given demand_dim1 : int(1..)
+given demand : matrix indexed by [int(1..demand_dim1)] of int(0..)
+given at_most_dim1 : int(1..)
+given at_most : matrix indexed by [int(1..at_most_dim1)] of int(0..)
+given per_slots_dim1 : int(1..)
+given per_slots : matrix indexed by [int(1..per_slots_dim1)] of int(1..)
+given requires_dim1, requires_dim2 : int(1..)
+given requires : matrix indexed by [int(1..requires_dim1), int(1..requires_dim2)] of int(0..1)
+letting NUM_CARS be sum(demand)
+find sequence : matrix indexed by [int(1..NUM_CARS)] of int(0..demand_dim1-1)
+
+branching on [sequence]
+
+such that
+$ the sequence contains exactly demand[t] cars of each car type t (types numbered from 0)
+gcc(sequence, [t - 1 | t : int(1..demand_dim1)], demand),
+$ each station's option capacity: in every window of per_slots[o] consecutive cars, at most at_most[o] cars require option o
+forAll o : int(1..at_most_dim1) . forAll s : int(1..NUM_CARS - per_slots[o] + 1) . ((sum p : int(s..s + per_slots[o] - 1) . requires[sequence[p] + 1, o]) <= at_most[o])

@@ -1,0 +1,16 @@
+language ESSENCE' 1.0
+$ Select a set of workers so that every task is performed by at least one selected worker who is qualified for it, minimising the total hiring cost of the selected workers.
+given nb_workers : int(1..)
+given Cost : matrix indexed by [int(1..nb_workers)] of int(0..)
+$ Qualified[t,p] is the p-th worker (1-based) qualified for task t; rows are padded with 0 beyond their length
+given Qualified_dim1, Qualified_dim2 : int(1..)
+given Qualified : matrix indexed by [int(1..Qualified_dim1), int(1..Qualified_dim2)] of int(0..)
+find total_cost : int(0..sum(Cost))
+find workers : matrix indexed by [int(1..nb_workers)] of bool
+
+minimising total_cost
+such that
+$ the total cost is the sum of the hiring costs of the selected workers
+total_cost = (sum w : int(1..nb_workers) . toInt(workers[w]) * Cost[w]),
+$ every task is performed by at least one selected worker who is qualified for it
+forAll t : int(1..Qualified_dim1) . (exists p : int(1..Qualified_dim2) . (Qualified[t,p] != 0) /\ workers[Qualified[t,p]])

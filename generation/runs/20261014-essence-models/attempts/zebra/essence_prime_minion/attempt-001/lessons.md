@@ -1,0 +1,2 @@
+- `abs(x)` as a function call does not parse in Savile Row 1.11.1 (`Successfully read part expression:abs`). Use `|x|` or an explicit disjunction `(a + 1 = b \/ b + 1 = a)`.
+- The disjunction form compiled and solved on the first try (attempt-002).

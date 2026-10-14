@@ -1,0 +1,2 @@
+- The `apples` output ends with the apple left after the last gate, which is 1 (the girl's apple is given after the last gate), not 0. The `invalid_solution` message "Declared outputs cannot extend to a reference solution" came from the wrong end value.
+- The even-apples requirement (a whole-number bribe) gives the unique chain `apples[i] = 2 * apples[i+1] + 2`.

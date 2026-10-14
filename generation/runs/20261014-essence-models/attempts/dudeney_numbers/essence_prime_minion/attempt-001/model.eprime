@@ -1,0 +1,16 @@
+language ESSENCE' 1.0
+$ Dudeney number: a perfect cube, larger than 1, with at most n digits, whose digit sum equals its cube root.
+given n : int(1..)
+find number : int(2..10**n-1)
+$ the decimal digits of the number, the first digit is the units digit
+find digits : matrix indexed by [int(1..n)] of int(0..9)
+$ the cube root of the number
+find root : int(2..1000)
+branching on [root, digits]
+such that
+$ the number is the cube of its root
+number = root * root * root,
+$ the digits, weighted by their place value, make up the number
+number = (sum k : int(1..n) . digits[k] * 10**(k-1)),
+$ the sum of the digits equals the cube root
+root = (sum k : int(1..n) . digits[k])

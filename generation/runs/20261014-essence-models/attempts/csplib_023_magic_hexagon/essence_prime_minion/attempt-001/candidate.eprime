@@ -1,0 +1,28 @@
+language ESSENCE' 1.0
+$ Magic hexagon: arrange the numbers 1 to NUM_CELLS in the hexagon cells A to S so that the numbers in each of the 15 lines (rows and diagonals) add up to the magic constant.
+given NUM_CELLS : int
+given MAGIC_SUM : int
+find LD : matrix indexed by [int(1..NUM_CELLS)] of int(1..NUM_CELLS)
+
+branching on [LD]
+such that
+$ every cell holds a different number
+allDiff(LD),
+$ the five horizontal lines ABC, DEFG, HIJKL, MNOP and QRS each sum to the magic constant
+LD[1] + LD[2] + LD[3] = MAGIC_SUM,
+LD[4] + LD[5] + LD[6] + LD[7] = MAGIC_SUM,
+LD[8] + LD[9] + LD[10] + LD[11] + LD[12] = MAGIC_SUM,
+LD[13] + LD[14] + LD[15] + LD[16] = MAGIC_SUM,
+LD[17] + LD[18] + LD[19] = MAGIC_SUM,
+$ the lines running down and to the right, AEJOS, BFKP, CGL, DINR and HMQ, each sum to the magic constant
+LD[1] + LD[5] + LD[10] + LD[15] + LD[19] = MAGIC_SUM,
+LD[2] + LD[6] + LD[11] + LD[16] = MAGIC_SUM,
+LD[3] + LD[7] + LD[12] = MAGIC_SUM,
+LD[4] + LD[9] + LD[14] + LD[18] = MAGIC_SUM,
+LD[8] + LD[13] + LD[17] = MAGIC_SUM,
+$ the lines running down and to the left, ADH, BEIM, CFJNQ, GKOR and LPS, each sum to the magic constant
+LD[1] + LD[4] + LD[8] = MAGIC_SUM,
+LD[2] + LD[5] + LD[9] + LD[13] = MAGIC_SUM,
+LD[3] + LD[6] + LD[10] + LD[14] + LD[17] = MAGIC_SUM,
+LD[7] + LD[11] + LD[15] + LD[18] = MAGIC_SUM,
+LD[12] + LD[16] + LD[19] = MAGIC_SUM

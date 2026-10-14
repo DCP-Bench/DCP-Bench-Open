@@ -1,0 +1,1 @@
+- Savile Row: `sum j : int(1..i-1)` inside a quantifier body is accepted, and an empty interval for i=1 only warns. Partial sums with the quantified index give the "stop once the top is reached" rule without auxiliary variables.

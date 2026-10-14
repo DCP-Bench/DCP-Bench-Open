@@ -1,0 +1,1 @@
+- A given named product_ (trailing underscore) failed with 'the instance has no such field'. The binder looks up the exact instance field name; product is not a reserved word, so the given is written product, and it parses next to the product() builtin.

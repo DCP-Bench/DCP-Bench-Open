@@ -1,0 +1,24 @@
+language ESSENCE' 1.0
+$ Farmer and cows: distribute cows numbered 1 to num_cows among the sons so that each son gets the given number of cows and every son gets the same total milk (a cow gives milk equal to its number).
+given num_cows : int
+given num_sons : int
+$ the number of cows each son must receive, one entry per son
+given cows_per_son : matrix indexed by [int(1..num_sons)] of int
+$ gives[s,i] is true when son s receives cow i
+find gives : matrix indexed by [int(1..num_sons), int(1..num_cows)] of bool
+$ cow_assignments[i] is the son (0-based) that receives cow i, read off from gives
+find cow_assignments : matrix indexed by [int(1..num_cows)] of int(0..num_sons-1)
+$ milk_each is the total milk each son receives
+find milk_each : int(0..num_cows * (num_cows + 1) / 2)
+branching on [gives]
+such that
+$ the milk of all cows, 1 + 2 + ... + num_cows, is shared equally among the sons
+milk_each * num_sons = num_cows * (num_cows + 1) / 2,
+$ the son of each cow is the one whose entry in gives is true
+forAll i : int(1..num_cows) . (cow_assignments[i] = (sum s : int(1..num_sons) . toInt(gives[s,i]) * (s - 1))),
+$ every cow goes to exactly one son
+forAll i : int(1..num_cows) . ((sum s : int(1..num_sons) . toInt(gives[s,i])) = 1),
+$ each son receives exactly the number of cows given for him
+forAll s : int(1..num_sons) . ((sum i : int(1..num_cows) . toInt(gives[s,i])) = cows_per_son[s]),
+$ each son's cows give him exactly milk_each litres of milk in total, the milk of a cow being its number
+forAll s : int(1..num_sons) . ((sum i : int(1..num_cows) . toInt(gives[s,i]) * i) = milk_each)

@@ -1,0 +1,2 @@
+Attempt 002 (coins_grid): brief declares x as [10][10]int, so 0/1 grids need int(0..1); bool gives "Expected integer at x[0][0]" (invalid_output). Evaluated attempt-001 failed that way on json:1 and timed out on example.
+With int(0..1) the optimum is not proven within 170 s on the 10x10 example (c=5): tried heuristic sdf/conflict/srf, tighter z domain, diagonal-ordered branching (comprehension in branching on did not parse), and per-row lower bound 0,1,1,2,2 squared. None finished.

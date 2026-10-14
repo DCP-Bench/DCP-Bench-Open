@@ -1,0 +1,12 @@
+language ESSENCE' 1.0
+$ Legendre pairs: find two sequences a and b of l values, each -1 or +1, whose periodic autocorrelations sum to -2 at every shift, with both sums equal to 1.
+given l : int(1..)
+find a : matrix indexed by [int(1..l)] of int(-1, 1)
+find b : matrix indexed by [int(1..l)] of int(-1, 1)
+such that
+$ the sum of the entries of a is 1
+(sum i : int(1..l) . a[i]) = 1,
+$ the sum of the entries of b is 1
+(sum i : int(1..l) . b[i]) = 1,
+$ for each shift s from 1 to m = (l - 1) / 2, the periodic autocorrelations of a and b at shift s add up to -2 (indices wrap around modulo l)
+forAll s : int(1..(l - 1) / 2) . ((sum i : int(1..l) . a[i] * a[((i + s - 1) % l) + 1]) + (sum i : int(1..l) . b[i] * b[((i + s - 1) % l) + 1])) = -2

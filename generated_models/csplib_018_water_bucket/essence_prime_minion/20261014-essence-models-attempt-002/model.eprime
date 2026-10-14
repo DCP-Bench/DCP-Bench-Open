@@ -1,0 +1,30 @@
+language ESSENCE' 1.0
+$ Pour water between three buckets, from the initial state to the goal state, using the fewest transfers.
+given MAX_STEPS : int(1..)
+given PADDING_VALUE : int
+given capacities : matrix indexed by [int(1..3)] of int(1..)
+given goal_state : matrix indexed by [int(1..3)] of int(0..)
+given initial_state : matrix indexed by [int(1..3)] of int(0..)
+letting MAXCAP = max(capacities)
+letting LOWEST = min(PADDING_VALUE, 0)
+find sequence : matrix indexed by [int(1..MAX_STEPS), int(1..3)] of int(LOWEST..MAXCAP)
+find cost : int(0..MAX_STEPS)
+
+minimising cost
+such that
+$ the sequence starts at the initial state
+forAll j : int(1..3) . sequence[1,j] = initial_state[j],
+$ a padding state is padding in every bucket
+forAll k : int(1..MAX_STEPS) . ((sequence[k,1] = PADDING_VALUE) -> (sequence[k,2] = PADDING_VALUE /\ sequence[k,3] = PADDING_VALUE)),
+$ padding states come only after the real states
+forAll k : int(1..MAX_STEPS-1) . ((sequence[k,1] = PADDING_VALUE) -> (sequence[k+1,1] = PADDING_VALUE)),
+$ the water in each bucket never exceeds its capacity
+forAll k : int(1..MAX_STEPS) . forAll j : int(1..3) . (sequence[k,j] <= capacities[j]),
+$ the sequence stops once the goal state has been reached
+forAll k : int(1..MAX_STEPS-1) . ((sequence[k,1] = goal_state[1] /\ sequence[k,2] = goal_state[2] /\ sequence[k,3] = goal_state[3]) -> (sequence[k+1,1] = PADDING_VALUE)),
+$ the goal state is reached in the sequence
+exists k : int(1..MAX_STEPS) . (sequence[k,1] = goal_state[1] /\ sequence[k,2] = goal_state[2] /\ sequence[k,3] = goal_state[3]),
+$ the number of transfers is the number of real states after the initial state
+cost = (sum k : int(2..MAX_STEPS) . toInt(sequence[k,1] != PADDING_VALUE)),
+$ each step pours water from one bucket into another until the source is empty or the destination is full, leaving the third bucket unchanged
+forAll k : int(1..MAX_STEPS-1) . ((sequence[k+1,1] = PADDING_VALUE) \/ ((sequence[k+1,1] = sequence[k,1] - min(sequence[k,1], capacities[2] - sequence[k,2]) /\ sequence[k+1,2] = sequence[k,2] + min(sequence[k,1], capacities[2] - sequence[k,2]) /\ sequence[k+1,3] = sequence[k,3]) \/ (sequence[k+1,1] = sequence[k,1] - min(sequence[k,1], capacities[3] - sequence[k,3]) /\ sequence[k+1,3] = sequence[k,3] + min(sequence[k,1], capacities[3] - sequence[k,3]) /\ sequence[k+1,2] = sequence[k,2]) \/ (sequence[k+1,2] = sequence[k,2] - min(sequence[k,2], capacities[1] - sequence[k,1]) /\ sequence[k+1,1] = sequence[k,1] + min(sequence[k,2], capacities[1] - sequence[k,1]) /\ sequence[k+1,3] = sequence[k,3]) \/ (sequence[k+1,2] = sequence[k,2] - min(sequence[k,2], capacities[3] - sequence[k,3]) /\ sequence[k+1,3] = sequence[k,3] + min(sequence[k,2], capacities[3] - sequence[k,3]) /\ sequence[k+1,1] = sequence[k,1]) \/ (sequence[k+1,3] = sequence[k,3] - min(sequence[k,3], capacities[1] - sequence[k,1]) /\ sequence[k+1,1] = sequence[k,1] + min(sequence[k,3], capacities[1] - sequence[k,1]) /\ sequence[k+1,2] = sequence[k,2]) \/ (sequence[k+1,3] = sequence[k,3] - min(sequence[k,3], capacities[2] - sequence[k,2]) /\ sequence[k+1,2] = sequence[k,2] + min(sequence[k,3], capacities[2] - sequence[k,2]) /\ sequence[k+1,1] = sequence[k,1])))

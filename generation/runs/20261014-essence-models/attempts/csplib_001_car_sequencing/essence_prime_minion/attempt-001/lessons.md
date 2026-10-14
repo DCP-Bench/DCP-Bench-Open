@@ -1,0 +1,3 @@
+- Car sequencing: the 200-car instances (json:1 and the others, sum(demand)=200, 20-30 types) gave no first solution in 60-170 s under Minion, while the 10-car example solves at once.
+- Tried without success on json:1: gcc with decision-indexed requires[sequence[p]+1,o] (vanilla); boolean channel opt[p,o] with element-free window sums; table channelling; implied option totals; per-position one-hot car[p,t] with linear sums; heuristic sdf, conflict, srf; branching on sequence, on car, on opt then sequence.
+- Element with a decision index into a given matrix (requires[sequence[p]+1, o]) parses and runs; the slowness is search, not parsing.

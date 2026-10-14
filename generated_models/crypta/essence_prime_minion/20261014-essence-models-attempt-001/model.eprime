@@ -1,0 +1,51 @@
+language ESSENCE' 1.0
+$ Cryptarithmetic puzzle: the 20-letter word BAIJJAJIIAHFCFEBBJEA plus the 20-letter word DHFGABCDIDBIFFAGFEJE equals GJEGACDDHFAFJBFIHEEF, each letter a distinct digit.
+find A, B, C, D, E, F, G, H, I, J : int(0..9)
+find carry : matrix indexed by [int(1..21)] of int(0..1)
+such that
+$ all letters are distinct digits
+allDiff([A, B, C, D, E, F, G, H, I, J]),
+$ the first letter of each number is not zero
+B != 0, D != 0, G != 0,
+$ no carry comes out of the leftmost column, and no carry goes into the rightmost column
+carry[1] = 0, carry[21] = 0,
+$ column 1 of the sum (leftmost): the digits B and D plus any carry give G
+B + D + carry[2] = G + 10 * carry[1],
+$ column 2 of the sum
+A + H + carry[3] = J + 10 * carry[2],
+$ column 3 of the sum
+I + F + carry[4] = E + 10 * carry[3],
+$ column 4 of the sum
+J + G + carry[5] = G + 10 * carry[4],
+$ column 5 of the sum
+J + A + carry[6] = A + 10 * carry[5],
+$ column 6 of the sum
+A + B + carry[7] = C + 10 * carry[6],
+$ column 7 of the sum
+J + C + carry[8] = D + 10 * carry[7],
+$ column 8 of the sum
+I + D + carry[9] = D + 10 * carry[8],
+$ column 9 of the sum
+I + I + carry[10] = H + 10 * carry[9],
+$ column 10 of the sum
+A + D + carry[11] = F + 10 * carry[10],
+$ column 11 of the sum
+H + B + carry[12] = A + 10 * carry[11],
+$ column 12 of the sum
+F + I + carry[13] = F + 10 * carry[12],
+$ column 13 of the sum
+C + F + carry[14] = J + 10 * carry[13],
+$ column 14 of the sum
+F + F + carry[15] = B + 10 * carry[14],
+$ column 15 of the sum
+E + A + carry[16] = F + 10 * carry[15],
+$ column 16 of the sum
+B + G + carry[17] = I + 10 * carry[16],
+$ column 17 of the sum
+B + F + carry[18] = H + 10 * carry[17],
+$ column 18 of the sum
+J + E + carry[19] = E + 10 * carry[18],
+$ column 19 of the sum
+E + J + carry[20] = E + 10 * carry[19],
+$ column 20 of the sum (rightmost column; it carries nothing in)
+A + E + carry[21] = F + 10 * carry[20]

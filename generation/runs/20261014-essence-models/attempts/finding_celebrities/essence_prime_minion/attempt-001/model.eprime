@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Finding celebrities: a celebrity is known by everybody at the party and knows only other celebrities; at least one celebrity is present.
+$ number of people at the party, taken from the instance graph
+given graph_dim1 : int
+$ graph[i,j] = 1 when person i knows person j
+given graph : matrix indexed by [int(1..graph_dim1), int(1..graph_dim1)] of int
+$ celebrities[i] is true when person i is a celebrity
+find celebrities : matrix indexed by [int(1..graph_dim1)] of bool
+such that
+$ at least one celebrity is present at the party
+exists i : int(1..graph_dim1) . celebrities[i],
+$ a person is a celebrity exactly when everybody else knows that person (first conjunct) and that person knows only celebrities (second conjunct)
+forAll c : int(1..graph_dim1) . (celebrities[c] <-> (forAll i : int(1..graph_dim1) . ((i != c) -> (graph[i,c] = 1)))) /\ (celebrities[c] <-> (forAll j : int(1..graph_dim1) . ((graph[c,j] = 1) -> celebrities[j])))

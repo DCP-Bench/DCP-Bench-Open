@@ -1,0 +1,21 @@
+language ESSENCE' 1.0
+$ Decide which warehouses to open and which open warehouse supplies each store, minimising the maintenance costs of the open warehouses plus the supply costs of the stores.
+given n_stores : int
+given n_suppliers : int
+given building_cost : int
+given capacity : matrix indexed by [int(1..n_suppliers)] of int(0..)
+given cost_matrix : matrix indexed by [int(1..n_stores), int(1..n_suppliers)] of int
+find open_warehouses : matrix indexed by [int(1..n_suppliers)] of bool
+find supplier_assignment : matrix indexed by [int(1..n_stores)] of int(0..n_suppliers-1)
+find total_cost : int(0..1000000000)
+
+branching on [open_warehouses, supplier_assignment]
+
+minimising total_cost
+such that
+$ each store is supplied by a warehouse that is open
+forAll s : int(1..n_stores) . open_warehouses[supplier_assignment[s]+1],
+$ the number of stores supplied by a warehouse does not exceed its capacity, and it supplies none when closed
+forAll w : int(1..n_suppliers) . (sum s : int(1..n_stores) . toInt(supplier_assignment[s] = w-1)) <= capacity[w] * toInt(open_warehouses[w]),
+$ the total cost is the maintenance cost of each open warehouse plus the supply cost of each store
+total_cost = building_cost * (sum w : int(1..n_suppliers) . toInt(open_warehouses[w])) + (sum s : int(1..n_stores) . cost_matrix[s, supplier_assignment[s]+1])

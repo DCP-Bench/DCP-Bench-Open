@@ -1,0 +1,24 @@
+language ESSENCE' 1.0
+$ Place rectangles, without rotation, in a bounding rectangle so that none overlap and the bounding rectangle has the smallest area.
+given widths_dim1 : int
+given widths : matrix indexed by [int(1..widths_dim1)] of int(1..)
+given heights : matrix indexed by [int(1..widths_dim1)] of int(1..)
+find pos_x : matrix indexed by [int(1..widths_dim1)] of int(0..(sum i : int(1..widths_dim1) . widths[i] + heights[i]))
+find pos_y : matrix indexed by [int(1..widths_dim1)] of int(0..(sum i : int(1..widths_dim1) . widths[i] + heights[i]))
+find total_x : int(0..(sum i : int(1..widths_dim1) . widths[i] + heights[i]))
+find total_y : int(0..(sum i : int(1..widths_dim1) . widths[i] + heights[i]))
+find area : int(0..100000000)
+
+branching on [pos_x, pos_y, total_x, total_y]
+
+minimising area
+such that
+$ the area is the width times the height of the bounding rectangle
+area = total_x * total_y,
+$ every rectangle lies within the bounding rectangle
+forAll i : int(1..widths_dim1) . (pos_x[i] + widths[i] <= total_x /\ pos_y[i] + heights[i] <= total_y),
+$ the bounding rectangle is exactly as wide and as high as its rectangles need: some rectangle touches the right edge and some the top edge
+exists i : int(1..widths_dim1) . pos_x[i] + widths[i] = total_x,
+exists i : int(1..widths_dim1) . pos_y[i] + heights[i] = total_y,
+$ no two rectangles overlap: one is left of, right of, above or below the other
+forAll i : int(1..widths_dim1) . forAll j : int(1..widths_dim1) . (i < j) -> ((pos_x[i] + widths[i] <= pos_x[j]) \/ (pos_x[j] + widths[j] <= pos_x[i]) \/ (pos_y[i] + heights[i] <= pos_y[j]) \/ (pos_y[j] + heights[j] <= pos_y[i]))

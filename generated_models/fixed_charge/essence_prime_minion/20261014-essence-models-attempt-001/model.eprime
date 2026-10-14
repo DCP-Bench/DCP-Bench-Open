@@ -1,0 +1,25 @@
+language ESSENCE' 1.0
+$ Fixed-charge production planning: shirts, shorts and pants share labour and cloth capacities, and each product can only be made on its machine after the machine is rented, at a fixed cost.
+given num_products : int(1..)
+given num_machines : int(1..)
+$ product[p,1] is the profit per unit of product p and product[p,2] is the 0-based index of its machine
+given product : matrix indexed by [int(1..num_products), int(1..2)] of int(0..)
+given renting_cost : matrix indexed by [int(1..num_machines)] of int(0..)
+$ use[p,k] is the amount of resource k (1 labour, 2 cloth) used per unit of product p
+given use : matrix indexed by [int(1..num_products), int(1..2)] of int(0..)
+given capacity : matrix indexed by [int(1..2)] of int(0..)
+given max_production : int(0..)
+
+find x : matrix indexed by [int(1..num_products)] of int(0..max_production)
+$ y[m] is 1 when machine m is rented
+find y : matrix indexed by [int(1..num_machines)] of int(0..1)
+find z : int(-100000000..100000000)
+
+maximising z
+such that
+$ a product can only be produced if its machine is rented (production is bounded by the maximum when the machine is rented, and zero otherwise)
+forAll p : int(1..num_products) . (x[p] <= max_production * y[product[p,2]+1]),
+$ the labour and cloth used by all products must stay within the labour and cloth capacity
+forAll k : int(1..2) . ((sum p : int(1..num_products) . use[p,k] * x[p]) <= capacity[k]),
+$ the profit is the profit from the products minus the cost of renting the machines
+z = ((sum p : int(1..num_products) . product[p,1] * x[p]) - (sum m : int(1..num_machines) . renting_cost[m] * y[m]))

@@ -1,0 +1,1 @@
+- Auxiliary root variables (not outputs) let squares be stated as products; Savile Row accepted the model first time.

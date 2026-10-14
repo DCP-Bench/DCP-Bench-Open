@@ -1,0 +1,1 @@
+- Progressive party: 8 of 9 instances accepted; lan09 (13 boats, 5 periods) timed out. Integer visits, boolean at[p,b,h] (with period lex symmetry), and conflict heuristic all timed out at 300 s on lan09. The lower bound num_hosts >= min(periods, boats) did not help the search.

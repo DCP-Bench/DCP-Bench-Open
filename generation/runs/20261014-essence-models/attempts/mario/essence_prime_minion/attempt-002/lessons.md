@@ -1,0 +1,3 @@
+- A find variable that is not an output (here `pos`) must be fixed by the constraints. Unpinned values let one output list come with many solutions, and the runner's optimisation enumeration then fails with `invalid_output` and "Could not open file for solution output".
+- Pinning `pos[i] = 0` for houses off the route fixed this.
+- Decision indices such as `arc_fuel[i, s[i]+1]` and `goldInHouse[i]` compiled fine.

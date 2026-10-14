@@ -1,0 +1,4 @@
+- Hint rows vary per instance (1 to 4 rows of [row, col, code]): declare hints_dim1 and index by int(1..hints_dim1); the instance's coordinates are 0-based, so the grid index is +1.
+- A given's domain covers every entry: hints coordinates reach 8 and 9, so int(0..7) for all columns fails with "Item 8 is not contained in domain"; use int(0..9).
+- On json:1 (one solution), no heuristic took 16 s, `heuristic sdf` took 145 s (timed out at 60 s), and `heuristic conflict` took 6 s.
+- Use a one-cell-padded board with explicit border cells instead of out-of-range neighbour indices (out-of-range makes the constraint false).

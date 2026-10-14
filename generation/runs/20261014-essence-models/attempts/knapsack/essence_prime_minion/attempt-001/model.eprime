@@ -1,0 +1,16 @@
+language ESSENCE' 1.0
+$ A hiker chooses which items to put in a backpack of limited capacity, maximising the total value of the items taken.
+given capacity : int(0..10000)
+given weights : matrix indexed by [int(1..5)] of int(0..10000)
+given values : matrix indexed by [int(1..5)] of int(0..10000)
+find x : matrix indexed by [int(1..5)] of bool
+find total : int(0..50000)
+
+branching on [x]
+
+maximising total
+such that
+$ the total weight of the items taken must not exceed the capacity of the backpack
+(sum i : int(1..5) . x[i] * weights[i]) <= capacity,
+$ the total value is the sum of the values of the items taken
+total = (sum i : int(1..5) . x[i] * values[i])

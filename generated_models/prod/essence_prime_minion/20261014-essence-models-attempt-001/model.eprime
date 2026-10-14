@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+$ Production planning: choose the production quantity x[j] of each product j, up to its limit u[j], so that the time used, the sum of x[j] divided by a[j], is at most b, and the total profit, the sum of c[j] times x[j], is maximal.
+given a_dim1 : int(1..)
+given a, c : matrix indexed by [int(1..a_dim1)] of int(1..)
+given u : matrix indexed by [int(1..a_dim1)] of int(0..)
+given b : int(0..)
+$ the product of all time rates; multiplying the time constraint by it keeps every term whole
+letting P = product(a)
+find x : matrix indexed by [int(1..a_dim1)] of int(0..sum(u))
+find total_profit : int(0..sum(c)*sum(u))
+maximising total_profit
+such that
+$ the quantity of each product is at most its limit
+forAll j : int(1..a_dim1) . x[j] <= u[j],
+$ the time needed for the production, the sum of x[j] divided by a[j], is at most b (multiplied through by P)
+(sum j : int(1..a_dim1) . x[j] * (P / a[j])) <= b * P,
+$ the total profit is the sum of the profit per unit times the quantity of each product
+total_profit = (sum j : int(1..a_dim1) . c[j] * x[j])
