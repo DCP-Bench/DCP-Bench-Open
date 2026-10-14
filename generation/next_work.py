@@ -17,7 +17,7 @@ import sys
 from evaluation.execution import ROOT, integration
 from evaluation.results import EvaluationError
 
-from .brief import RECTANGULAR_UNIFORM, unbindable
+from .brief import RECTANGULAR_UNIFORM, RESHAPED, runner_refusals, unbindable
 from .readiness import ReadinessError, verify
 
 GENERATED = ROOT / "generated_models"
@@ -125,19 +125,25 @@ def report(limit=20, include_unready=False):
 
     # An integration whose data interface takes only rectangular, single-type
     # arrays cannot be given a ragged or mixed-type instance field, whatever the
-    # model says. Those pairs are withheld here rather than discovered by a
+    # model says. An integration that reshapes such fields is asked its own
+    # refusals instead. Those pairs are withheld here rather than discovered by a
     # failed attempt.
     binding = {item["id"]: item.get("instance_binding", "any") for item in declared}
     awkward = {problem: unbindable(problem) for problem in problems}
 
     def unbindable_for(problem, solver):
-        return awkward[problem] if binding.get(solver) == RECTANGULAR_UNIFORM else []
+        mode = binding.get(solver)
+        if mode == RECTANGULAR_UNIFORM:
+            return awkward[problem]
+        if mode == RESHAPED:
+            return runner_refusals(problem, solver)
+        return []
 
     eligible = [{"problem": problem, "solver": solver, "instances": counts[problem]}
                 for solver in usable for problem in problems
                 if (problem, solver) not in accepted and not blocked(problem, solver)
                 and not unbindable_for(problem, solver)]
-    unbindable_pairs = sorted(f'{problem} / {solver}: {", ".join(awkward[problem])}'
+    unbindable_pairs = sorted(f'{problem} / {solver}: {", ".join(unbindable_for(problem, solver))}'
                               for solver in usable for problem in problems
                               if (problem, solver) not in accepted
                               and not blocked(problem, solver) and unbindable_for(problem, solver))

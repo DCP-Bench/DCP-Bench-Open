@@ -188,6 +188,70 @@ procedure main() {
     print("PROCEDURE EXECUTED")
 }
 """
+# A ragged list of rows binds padded to the longest row, with `rows_len` beside it.
+# The model reads each row's last real entry, which is cell rows(r, rows_len(r)-1).
+REFERENCE_RAGGED = '''
+# Data
+rows = [[1, 2, 3], [4]]
+# End of data
+import cpmpy as cp
+import json
+last = cp.intvar(0, 9, shape=len(rows), name="last")
+model = cp.Model([last[i] == row[-1] for i, row in enumerate(rows)])
+model.solve()
+solution = {"last": [int(value) for value in last.value()]}
+print(json.dumps(solution))
+'''
+RAGGED = """vocabulary {
+    type Row <: Int
+    type Col <: Int
+    rows: Row * Col -> Int
+    rows_len: Row -> Int
+    last: Row -> Int
+}
+theory {
+    ! r in Row : last(r) = rows(r, rows_len(r) - 1).
+}
+"""
+# Rows of one length whose columns differ in type bind one piece per column: `cage_1`
+# is the target and `cage_2` the padded list of cells. Rows of unequal length whose
+# first item is a scalar bind as `clue_1` (the first items) and `clue_2` (the rest).
+REFERENCE_MIXED = '''
+# Data
+cage = [[3, [[1, 1], [1, 2]]], [5, [[2, 2]]]]
+clue = [[16, [1, 1], [1, 2]], [24, [1, 5], [1, 6], [1, 7]]]
+# End of data
+import cpmpy as cp
+import json
+value = cp.intvar(0, 99, shape=len(cage), name="value")
+score = cp.intvar(0, 99, shape=len(clue), name="score")
+model = cp.Model([value[i] == target + len(cells) for i, (target, cells) in enumerate(cage)],
+                 [score[i] == target + len(cells) for i, (target, *cells) in enumerate(clue)])
+model.solve()
+solution = {"value": [int(v) for v in value.value()], "score": [int(s) for s in score.value()]}
+print(json.dumps(solution))
+'''
+MIXED = """vocabulary {
+    type Cage <: Int
+    type Cell <: Int
+    type Coord <: Int
+    type Line <: Int
+    type Slot <: Int
+    type Pos <: Int
+    cage_1: Cage -> Int
+    cage_2: Cage * Cell * Coord -> Int
+    cage_2_len: Cage -> Int
+    clue_1: Line -> Int
+    clue_2: Line * Slot * Pos -> Int
+    clue_2_len: Line -> Int
+    value: Cage -> Int
+    score: Line -> Int
+}
+theory {
+    ! g in Cage : value(g) = cage_1(g) + cage_2_len(g).
+    ! l in Line : score(l) = clue_1(l) + clue_2_len(l).
+}
+"""
 
 
 def main():
@@ -237,6 +301,12 @@ def main():
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=2)
+        check("ragged_binding", RAGGED, reference=REFERENCE_RAGGED,
+              instances=[{"rows": [[4, 5], [6, 7, 8]]}], instance_count=2)
+        check("mixed_row_binding", MIXED, reference=REFERENCE_MIXED,
+              instances=[{"cage": [[7, [[1, 1]]], [2, [[2, 2], [2, 3]]]],
+                          "clue": [[9, [1, 1], [1, 2], [1, 3]], [12, [1, 4]]]}],
+              instance_count=2)
 
     try:
         image_identity({"id": SOLVER, "image": "dcp-eval/definitely-absent:readiness"})

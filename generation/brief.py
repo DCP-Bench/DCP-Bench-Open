@@ -13,14 +13,20 @@ mixed-type field is what an integration's data interface may be unable to bind
 at all; `generation.next_work` uses the same analysis to withhold those pairs.
 """
 import argparse
+import functools
+import importlib.util
 import json
 import sys
+import types
 
 from evaluation.execution import ROOT
 from evaluation.reference import embedded_instance, load_reference
 from evaluation.results import EvaluationError
 
 RECTANGULAR_UNIFORM = "rectangular_uniform"
+# The integration reshapes ragged and mixed fields with its own run.py rules; the
+# refusals are asked of that run.py, so a pair is withheld exactly when it would fail.
+RESHAPED = "reshaped"
 
 
 def scalar_type(value):
@@ -96,6 +102,50 @@ def unbindable(problem):
     """The instance fields that no rectangular, single-type binder can take."""
     return sorted(key for key, shape in fields(problem).items()
                   if shape["ragged"] or shape["mixed"])
+
+
+def instances_of(problem):
+    """Every listed instance, or the reference's embedded example alone when none is listed."""
+    rows = instance_rows(problem)
+    if rows:
+        return [row for row in rows if isinstance(row, dict)]
+    source = ROOT / "dataset" / problem / f"{problem}.cpmpy.py"
+    if not source.is_file():
+        return []
+    try:
+        return [embedded_instance(source.read_text(encoding="utf-8"))]
+    except (OSError, EvaluationError, ValueError, SyntaxError):
+        return []
+
+
+_runners = {}
+
+
+def runner(solver_id):
+    """The integration's run.py, loaded on the host with the container's `runtime` stubbed."""
+    if solver_id not in _runners:
+        path = ROOT / "solvers" / solver_id / "run.py"
+        spec = importlib.util.spec_from_file_location(f"runner_{solver_id}", path)
+        module = importlib.util.module_from_spec(spec)
+        saved = sys.modules.get("runtime")
+        sys.modules["runtime"] = types.ModuleType("runtime")
+        try:
+            spec.loader.exec_module(module)
+        finally:
+            if saved is None:
+                del sys.modules["runtime"]
+            else:
+                sys.modules["runtime"] = saved
+        _runners[solver_id] = module
+    return _runners[solver_id]
+
+
+@functools.lru_cache(maxsize=None)
+def runner_refusals(problem, solver_id):
+    """The instance fields the integration's run.py refuses in any listed instance."""
+    module = runner(solver_id)
+    return sorted({key for instance in instances_of(problem) for key, value in instance.items()
+                   if key not in ("name", "note") and module.refusal(key, value)})
 
 
 def element_type(value):

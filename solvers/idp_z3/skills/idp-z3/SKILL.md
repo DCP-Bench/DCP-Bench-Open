@@ -65,6 +65,14 @@ parse error — so the runner provides two mechanisms:
    | `cost: [[..],[..]]` (2x3) | `cost: Task * Person -> Int` | `cost := {(0,0)->.., ...}.`, `Task := {0..1}.`, `Person := {0..2}.` |
    | `flag: [true, false]` | `flag: I -> Bool` | `flag := {0}.` (the set of true indices) |
    | `p: true` | `p: () -> Bool` | `p := true.` |
+   | `F: [[1, 2, 3], [4]]` (ragged rows) | `type I <: Int`, `type J <: Int`, `F: I * J -> Int`, `F_len: I -> Int` | `F := {(0,0)->1, ..., (1,0)->4, (1,1)->0, (1,2)->0}`, `J := {0..2}`, `F_len := {0->3, 1->1}` (`F_len` only if declared) |
+   | `R: [[7, [1, 1], [1, 2]], [9, [2, 2]]]` (rows of `[target, cells...]`) | `R_1: I -> Int`, `R_2: I * J * K -> Int`, `R_2_len: I -> Int` | `R_1 := {0->7, 1->9}`; `R_2` holds the padded cells, `R` itself is not bound |
+
+   A ragged list of rows pads with 0 (false for Booleans), so the model reads
+   `F(i, j)` only for `j` below `F_len(i)`. Mixed rows split into `F_1`, `F_2`, ...
+   by column when all rows have one length, or into a scalar head and a ragged tail
+   otherwise. Only the names the model declares are bound; strings and floats are
+   refused only in a declared field.
 
    Array indices are **0-based**, like the JSON. An argument type is sized
    from the data only when you declare it `type T <: Int` with no range of
