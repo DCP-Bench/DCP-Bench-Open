@@ -1,22 +1,32 @@
 """Essence' through Savile Row 1.11.1 to Minion, with the instance binding this integration adds.
 
-The JSON instance becomes an Essence' parameter file: one `letting NAME = VALUE`
-per field. The model declares each field with `given`, exactly as a MiniZinc
-model declares its parameters. Matrices are indexed from 1, Booleans are
-`true`/`false`. Essence' has no strings or floats and a matrix literal must be
-rectangular, so fields are bound by these rules:
+The JSON instance becomes an Essence' parameter file. Only the fields the model
+declares with `given` are bound, as `letting NAME = VALUE`: an instance field no
+`given` names is ignored, whatever its type, so string metadata such as `name`
+or `note` never reaches Savile Row. A declared given with no value is refused.
+A model that needs a size which varies per instance declares `F_dim1`, `F_dim2`,
+... beside a list field `F`; they bind the length along each axis of F after
+reshaping. Matrices are indexed from 1, Booleans are `true`/`false`. Essence' has
+no strings or floats and a matrix literal must be rectangular, so a declared
+field is bound by these rules:
 
 1. An int, a Boolean, or a rectangular list of them binds unchanged. When it is a
-   nonempty list of lists, `<field>_len` (each row's length) is bound beside it,
-   unless an instance field already has that name.
+   nonempty list of lists, `<field>_len` (each row's length) is available beside it.
 2. A ragged list of rows whose items all have one shape and whose scalars all
    have one type binds as `<field>`, padded to the longest row with 0 or false,
-   plus `<field>_len`.
+   plus `<field>_len`. `<field>_dim1` is the outer length and `<field>_dim2` the
+   padded longest row.
 3. A list of equal-length rows whose columns have different types binds as one
    matrix per column, `<field>_1`, `<field>_2`, ...; `<field>` itself is not
    bound. Each column then binds by rule 1 or 2, but is not split again.
-4. Anything else is refused: floats, strings, empty lists, names that are not
-   Essence' identifiers, ragged or mixed fields outside rules 2 and 3.
+4. `<field>_dimK` (K from 1) is the length of a bound list along axis K, for every
+   list bound by rules 1 to 3.
+5. Anything else that is declared is refused: floats, strings, empty lists, names
+   that are not Essence' identifiers, ragged or mixed fields outside rules 2 and 3.
+
+Essence' reserved words cannot be names, so a field or output named `matrix` is
+declared as `matrix_` (`given matrix_ : ...`, `find matrix_ : ...`). It binds under
+that name, and a solution value `matrix_` is reported as `matrix`.
 
 A refusal is an `error` status with the reason as detail.
 
@@ -40,8 +50,13 @@ sys.path.insert(0, "/opt/runner")
 import runtime
 
 SAVILEROW = "/opt/savilerow"
+# Essence' and Savile Row words. A field or output with one of these names is written
+# `<name>_` in the model, and binds or reads back under that name.
 RESERVED = {"forall", "forAll", "exists", "sum", "such", "that", "letting", "given", "where",
-            "find", "language", "int", "bool", "union", "intersect", "in", "false", "true"}
+            "find", "language", "int", "bool", "union", "intersect", "in", "false", "true",
+            "matrix", "indexed", "by", "of", "be", "domain", "minimising", "maximising",
+            "branching", "on", "heuristic", "toInt", "flatten", "table", "alldiff", "allDiff"}
+GIVEN = re.compile(r"(?m)^[ \t]*given[ \t]+([^:\n]*):")
 # Objective bounds for the auxiliary variable used to read the optimum back.
 BIG = 10 ** 12
 
@@ -87,7 +102,8 @@ def column_class(column):
 
 
 def field(name, value, split=True):
-    """Yield (name, value, required) bindings for one instance field."""
+    """Yield (name, value, required) bindings for one instance field. Derived
+    names (`_len`) are never required: they bind only when a given declares them."""
     if not isinstance(value, list):
         yield name, value, True
         return
@@ -106,7 +122,7 @@ def field(name, value, split=True):
             longest = max(len(row) for row in value)
             pad = filled(shapes[0][0], False if kind(leaves(items)[0]) == "bool" else 0)
             yield name, [row + [pad] * (longest - len(row)) for row in value], True
-            yield f"{name}_len", [len(row) for row in value], True
+            yield f"{name}_len", [len(row) for row in value], False
             return
         width = len(value[0])
         if split and width and all(len(row) == width for row in value):
@@ -122,10 +138,42 @@ def field(name, value, split=True):
         "type, or equal-length rows whose columns differ in type, are reshaped")
 
 
-def bind(instance):
+def bindings(name, value):
+    """field(), plus `<key>_dim1`, `<key>_dim2`, ... (the length along each axis of
+    every required list, after reshaping) as optional bindings."""
+    for key, data, needed in field(name, value):
+        yield key, data, needed
+        shape = layout(data) if needed and isinstance(data, list) else None
+        for axis, length in enumerate(shape[0] if shape else (), 1):
+            yield f"{key}_dim{axis}", length, False
+
+
+def declared_givens(source):
+    """Names declared by `given` lines, comma-separated lists included, comments ignored."""
+    names = []
+    for match in GIVEN.finditer(comment_free(source)):
+        names += [part.strip() for part in match.group(1).split(",") if part.strip()]
+    return names
+
+
+def escape(name):
+    """The Essence' name a field binds under: a reserved word gets a trailing `_`."""
+    return name + "_" if name in RESERVED else name
+
+
+def unescape(name):
+    return name[:-1] if name.endswith("_") and name[:-1] in RESERVED else name
+
+
+def bind(instance, declared):
+    """The bindings the model declares, by canonical name. Fields and derived names
+    the model does not declare are never bound, so they cannot be refused."""
+    wanted = {unescape(name) for name in declared}
+    relevant = {name: value for name, value in instance.items()
+                if name in wanted or any(d.startswith(name + "_") for d in wanted)}
     required, optional = {}, {}
-    for name, value in instance.items():
-        for key, data, needed in field(name, value):
+    for name, value in relevant.items():
+        for key, data, needed in bindings(name, value):
             if not needed:
                 optional[key] = data
                 continue
@@ -134,9 +182,19 @@ def bind(instance):
                                  "an instance field or another generated name")
             required[key] = data
     for key, data in optional.items():
-        if key not in instance and key not in required:
+        if key in wanted and key not in instance and key not in required:
             required[key] = data
-    return required
+    return {key: data for key, data in required.items() if key in wanted}
+
+
+def refusal(name, value):
+    """Why run.py cannot reshape this field on its own, or None. For a caller that
+    must know which fields a model could be given, without a model."""
+    try:
+        list(bindings(name, value))
+    except Unbindable as error:
+        return str(error)
+    return None
 
 
 def literal(name, value):
@@ -153,12 +211,23 @@ def literal(name, value):
                      "are integers, Booleans and matrices of them")
 
 
-def param_file(instance):
+def param_file(instance, source, check=True):
+    """The parameter file for the givens `source` declares. With `check`, a declared
+    given that the instance does not provide is refused."""
+    declared = declared_givens(source)
+    values = bind(instance, declared)
+    if check:
+        missing = [name for name in dict.fromkeys(declared) if unescape(name) not in values]
+        if missing:
+            raise Unbindable("Declared given " + ", ".join(f"`{name}`" for name in missing)
+                             + " has no value: the instance has no such field, and no field "
+                             "it is a size of")
     lines = ["language ESSENCE' 1.0"]
-    for name, value in bind(instance).items():
-        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name) or name in RESERVED:
+    for name, value in values.items():
+        escaped = escape(name)
+        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", escaped):
             raise Unbindable(f"Instance field `{name}` is not usable as an Essence' identifier")
-        lines.append(f"letting {name} = {literal(name, value)}")
+        lines.append(f"letting {escaped} = {literal(name, value)}")
     return "\n".join(lines) + "\n"
 
 
@@ -250,6 +319,30 @@ def with_constraint(source, constraint):
     return source.rstrip() + f"\nsuch that\n{constraint}\n"
 
 
+def cells(value, prefix=()):
+    """(1-based index, scalar) for every element of a solution value."""
+    if isinstance(value, list):
+        for position, item in enumerate(value, 1):
+            yield from cells(item, prefix + (position,))
+    else:
+        yield prefix, value
+
+
+def nogood(values):
+    """A constraint that excludes one assignment of the declared outputs, matrices
+    flattened to elements. None when there is nothing to exclude."""
+    parts = []
+    for name, value in values.items():
+        for index, scalar in cells(value):
+            target = escape(name) + (f"[{', '.join(map(str, index))}]" if index else "")
+            literal = ("true" if scalar else "false") if isinstance(scalar, bool) else str(scalar)
+            parts.append(f"{target} = {literal}")
+    if not parts:
+        return None
+    conjunction = " /\\ ".join(parts)
+    return "!(" + conjunction + ")"
+
+
 def savile_row(work, source, param, deadline, count):
     """One Savile Row + Minion run. Returns (solutions, info, error). `solutions`
     is a list of dicts of every find variable; `count` caps them (`None` for an
@@ -289,7 +382,8 @@ def savile_row(work, source, param, deadline, count):
     if process.returncode:
         return None, info, f"Savile Row exited {process.returncode}; see stderr"
     files = sorted(glob.glob(os.path.join(work, "out.solution*")))
-    return [parse_solution(open(path, encoding="utf-8").read()) for path in files], info, None
+    solutions = [parse_solution(open(path, encoding="utf-8").read()) for path in files]
+    return [{unescape(name): value for name, value in solution.items()} for solution in solutions], info, None
 
 
 def essence_solver(request):
@@ -298,7 +392,8 @@ def essence_solver(request):
     source = open("/input/model.eprime", encoding="utf-8").read()
     work = tempfile.mkdtemp(prefix="essence_", dir="/tmp")
     try:
-        param = param_file({} if request["legacy"] else request["instance"])
+        param = param_file({} if request["legacy"] else request["instance"], source,
+                           check=not request["legacy"])
         with open(os.path.join(work, "model.param"), "w", encoding="utf-8") as handle:
             handle.write(param)
         run(request, source, work, deadline)
@@ -359,12 +454,16 @@ def run(request, source, work, deadline):
             return runtime.finish("error", "Could not read the optimum back from Savile Row")
         value = solutions[0]["dcp_objective_value"]
         source = with_constraint(OBJECTIVE.sub("", source, count=1), f"{expression} = {value}")
-    # Satisfaction, or an optimisation fixed at its proven optimum: ask for
-    # `want` solutions, and ask again for more when duplicates on the declared
-    # outputs left too few.
-    want = limit
+    # Satisfaction, or an optimisation fixed at its proven optimum. Savile Row
+    # enumerates every `find` variable, so an auxiliary one that the constraints
+    # leave free repeats an output assignment. Each round asks for the solutions
+    # still missing, and excludes every assignment found so far with a nogood, so
+    # each round adds a new output assignment or shows that none remain.
+    nogoods = []
     while True:
-        solutions, info, error = savile_row(work, source, None, deadline, want)
+        want = limit - len(emitted)
+        attempt = with_constraint(source, ",\n".join(nogoods)) if nogoods else source
+        solutions, info, error = savile_row(work, attempt, None, deadline, want)
         if error == "timeout":
             return flush("timeout")
         if error:
@@ -372,12 +471,16 @@ def run(request, source, work, deadline):
         keep(solutions)
         if len(emitted) >= limit:
             return flush("limit")
-        exhausted = info.get("SolverTimeOut") == "0" and len(solutions) < want
-        if exhausted:
-            return flush("complete" if emitted else "unsat")
         if info.get("SolverTimeOut") != "0":
             return flush("timeout")
-        want *= 4
+        if len(solutions) < want:
+            return flush("complete" if emitted else "unsat")
+        for solution in solutions:
+            text = nogood(project(solution))
+            if text is None:
+                return flush("complete")
+            if text not in nogoods:
+                nogoods.append(text)
 
 
 # runtime.main sends any kind it does not know to python_solver, so replacing it

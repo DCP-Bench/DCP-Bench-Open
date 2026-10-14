@@ -149,6 +149,52 @@ solution = {"total": total.value(), "last": last.value()}
 print(json.dumps(solution))
 """
 
+# Only the givens a model declares are bound, so string metadata that no given
+# names must not reach Savile Row. The reference carries the fields as well.
+NAMED_REFERENCE = REFERENCE.replace("optimize = False", 'optimize = False\nname = "first"\nnote = "a"')
+NAMED_INSTANCES = [{"n": 2, "optimize": False, "name": "first", "note": "a"},
+                   {"n": 3, "optimize": False, "name": "second", "note": "b"}]
+# A declared given holding a string is refused, with the reason naming the field.
+NAMED_DECLARED = HEAD + "given name : int\nsuch that x + y = n\n"
+# `grid_dim1`, `grid_dim2` give the sizes of `grid`, which differ per instance.
+DIMS = (LANG + "given grid_dim1 : int(1..10)\ngiven grid_dim2 : int(1..10)\n"
+        "given grid : matrix indexed by [int(1..grid_dim1), int(1..grid_dim2)] of int(0..100)\n"
+        "find total : int(0..10000)\n"
+        "such that total = sum i : int(1..grid_dim1) . (sum j : int(1..grid_dim2) . grid[i, j])\n")
+DIMS_REFERENCE = """
+# Data
+grid = [[1, 2, 3], [4, 5, 6]]
+# End of data
+import cpmpy as cp
+import json
+total = cp.intvar(0, 10000, name="total")
+model = cp.Model(total == sum(sum(row) for row in grid))
+model.solve()
+solution = {"total": int(total.value())}
+print(json.dumps(solution))
+"""
+DIMS_INSTANCES = [{"grid": [[1, 2, 3], [4, 5, 6]]}, {"grid": [[7, 8], [9, 1], [2, 3]]}]
+# `matrix` and `where` are Essence' words: the model writes them with a trailing `_`.
+RESERVED = (LANG + "given where_ : int(0..100)\nfind matrix_ : int(0..100)\n"
+            "such that matrix_ = where_\n")
+RESERVED_REFERENCE = """
+# Data
+where = 7
+# End of data
+import cpmpy as cp
+import json
+matrix = cp.intvar(0, 100, name="matrix")
+model = cp.Model(matrix == where)
+model.solve()
+solution = {"matrix": int(matrix.value())}
+print(json.dumps(solution))
+"""
+# `aux` is free: every value of x and y repeats for each value of aux. Enumeration
+# must report distinct declared outputs, not repeats of them.
+AUXILIARY = HEAD + "find aux : int(0..n)\nsuch that x + y = n\n"
+# A declared given that the instance does not provide is refused.
+MISSING = HEAD + "given absent : int(0..3)\nsuch that x + y = n\n"
+
 ISOLATION_PROBE = """import os, socket
 probe = socket.socket(); probe.settimeout(0.5)
 assert os.getuid() != 0, "container runs as root"
@@ -234,6 +280,21 @@ def main():
             print(name, json.dumps({key: result.get(key) for key in
                                     ("accepted", "reason", "detail", "instances_checked")}),
                   file=sys.stderr)
+        named = check("undeclared_strings_ignored", GOOD, reference=NAMED_REFERENCE,
+                      instances=NAMED_INSTANCES, instance_count=2)
+        results["undeclared_strings_ignored"] &= named["instances_checked"] == 2
+        dims = check("declared_dims_bind", DIMS, reference=DIMS_REFERENCE,
+                     instances=DIMS_INSTANCES, instance_count=2)
+        results["declared_dims_bind"] &= dims["instances_checked"] == 2
+        reserved = check("reserved_names_escaped", RESERVED, reference=RESERVED_REFERENCE)
+        results["reserved_names_escaped"] &= reserved["accepted"]
+        auxiliary = check("auxiliary_free_distinct", AUXILIARY, solution_limit=2)
+        results["auxiliary_free_distinct"] &= auxiliary["solutions_checked"] == 2
+        declared_string = check("declared_string_refused", NAMED_DECLARED, reference=NAMED_REFERENCE,
+                                expected={"execution_error"})
+        results["declared_string_refused"] &= "Instance field `name` holds a string value" in declared_string.get("detail", "")
+        missing = check("declared_given_missing_refused", MISSING, expected={"execution_error"})
+        results["declared_given_missing_refused"] &= "`absent` has no value" in missing.get("detail", "")
         results["isolation"] = isolation(temp)
 
     try:
