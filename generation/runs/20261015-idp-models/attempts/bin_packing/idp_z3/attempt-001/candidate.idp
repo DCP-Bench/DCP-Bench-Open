@@ -1,0 +1,15 @@
+// Bin packing: assign each item to one of num_bins bins so that the total weight in each bin stays within the capacity.
+vocabulary {
+    type I <: Int                   // items, sized from weights
+    type Bin := {0..${num_bins}}    // bin indices 0..num_bins-1, plus one spare index that must stay empty
+    capacity: () -> Int             // capacity of each bin
+    weights: I -> Int               // weight of each item
+    bins: I -> Bin                  // declared output: the bin of each item
+}
+theory {
+    // Every item goes into one of the num_bins bins, not into the spare index.
+    ! i in I: bins(i) < ${num_bins}.
+
+    // The total weight of the items in each bin does not exceed the capacity.
+    ! b in Bin: sum{{ weights(i) | i in I: bins(i) = b }} =< capacity().
+}
