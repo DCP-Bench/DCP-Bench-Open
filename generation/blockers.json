@@ -161,6 +161,14 @@
       "detail": "attempt-001 checked 3/5 (example and json:4 timed out); attempt-002 rejected on 4 couples and reference_timeout on 8 couples",
       "evidence": "generation/runs/20261015-idp-models/attempts/handshaking/idp_z3/attempt-001",
       "recorded": "2026-10-14"
+    },
+    {
+      "problem": "cabling",
+      "solver": "idp_z3",
+      "reason": "unsupported_capability",
+      "detail": "String instance data (cable_struct endpoints, devices) cannot be bound into FO(·). The idp_z3 runner refuses string-valued instance fields before parsing, so the model cannot read the cable endpoints or the devices from the instance. Not modelled: a model with the endpoints typed in would hardcode the instance.",
+      "evidence": "dataset/cabling/cabling.json",
+      "recorded": "2026-10-14"
     }
   ]
 }

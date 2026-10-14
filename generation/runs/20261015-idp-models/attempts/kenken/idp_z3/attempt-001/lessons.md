@@ -1,0 +1,4 @@
+- Ragged cage lists `[target, [[r,c], ...]]` bind as `problem_1: I -> Int` (targets), `problem_2: I * J * K -> Int` (padded cells) and `problem_2_len: I -> Int`; the bound names are the column-split names, and K sized from the pair length.
+- Quantifiers with several variables under `=>` fail with "set expected at most 1 argument, got 2" (idp_engine annotate); nest single-variable quantifiers instead.
+- A quantified variable cannot share a name with a symbol (`c1` clashed with a declared `c1`); rename the symbol or the variable.
+- Cage operation is not in the instance; the model accepts sum, product, difference or exact quotient (two-cell only) and the evaluator accepted it on all 5 instances.

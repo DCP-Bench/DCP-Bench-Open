@@ -1,0 +1,38 @@
+// Job shop scheduling: schedule the tasks of all jobs on the machines so as to minimize the makespan.
+vocabulary {
+    type Job <: Int                       // the jobs, sized from the instance
+    type Task <: Int                      // task positions within a job, padded to the longest job
+    type Pair <: Int                      // 0 = machine of the task, 1 = its duration
+    jobs_data: Job * Task * Pair -> Int   // jobs_data(j, t, 0) machine, jobs_data(j, t, 1) duration
+    jobs_data_len: Job -> Int             // number of tasks of each job
+
+    valid: Job * Task -> Bool             // task t exists in job j
+    next: Job * Task * Task -> Bool       // task t2 directly follows task t in job j
+    total: () -> Int                      // sum of all durations, an upper bound on the makespan
+    start: Job * Task -> Int              // start time of each task (auxiliary)
+    makespan: () -> Int                   // declared output
+    minimize: () -> Int
+}
+theory {
+    { ! j in Job, t in Task: valid(j, t) <- t =< jobs_data_len(j) - 1. }
+    { ! j in Job, t, t2 in Task: next(j, t, t2) <- valid(j, t2) & t2 = t + 1. }
+
+    total() = sum{{ jobs_data(j, t, 1) | j in Job, t in Task: valid(j, t) }}.
+
+    // Each task occupies its machine for its full duration, the schedule ends at the makespan,
+    // and the tasks that do not exist are fixed at time 0.
+    ! j in Job, t in Task: valid(j, t) => 0 =< start(j, t) & start(j, t) + jobs_data(j, t, 1) =< makespan().
+    ! j in Job, t in Task: ~valid(j, t) => start(j, t) = 0.
+    makespan() =< total().
+
+    // No task for a job can be started until the previous task for that job is completed.
+    ! j in Job, t, t2 in Task: next(j, t, t2) => start(j, t) + jobs_data(j, t, 1) =< start(j, t2).
+
+    // A machine can only work on one task at a time.
+    ! j, j2 in Job, t, t2 in Task:
+        (valid(j, t) & valid(j2, t2) & (j ~= j2 | t ~= t2) & jobs_data(j, t, 0) = jobs_data(j2, t2, 0))
+        => (start(j, t) + jobs_data(j, t, 1) =< start(j2, t2) | start(j2, t2) + jobs_data(j2, t2, 1) =< start(j, t)).
+
+    // Print the optimal makespan, the total time taken to complete all jobs.
+    minimize() = makespan().
+}
