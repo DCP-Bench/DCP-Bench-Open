@@ -3,10 +3,15 @@
 A submission is a plain FO(.) knowledge base (`vocabulary` + `theory`, optionally
 its own `structure`), not a program. The runner binds the instance into it:
 
-- Every `${name}` in the source is replaced by the instance's integer scalar
-  field `name`. FO(.) type ranges must be integer literals, so this is the only
-  way to write `type Row := {1..${n}}`. `$` is otherwise only legal in FO(.)
-  directly before `(`, so the marker cannot collide with real syntax.
+- Every `${...}` in the source is replaced by the integer value of an expression
+  over the instance: an integer scalar field `n`, integer literals, `+ - * //`
+  and `/` (exact division, refused unless it divides evenly), parentheses, and
+  `sum(F)`, `len(F)`, `max(F)`, `min(F)` for a one-dimensional integer array
+  field `F`. FO(.) type ranges must be integer literals, so this is the only way
+  to write `type Row := {1..${n}}` or `type Slot := {1..${2*k}}`. The expression
+  is parsed with `ast` and evaluated by a whitelist, never by `eval`. `$` is
+  otherwise only legal in FO(.) directly before `(`, so the marker cannot collide
+  with real syntax.
 - Every instance field whose name matches a declared symbol is interpreted in a
   generated `structure`: a scalar as `n := 5.`, an array as `cost := {(0,0)->1, ...}.`
   with 0-based indices, a Boolean array as the set of its true tuples.
@@ -23,22 +28,39 @@ and treats a z3 `unknown` like `unsat`; `optimize` raises the same AssertionErro
 for an unsatisfiable theory and for a timeout. Here only the declared outputs are
 blocked, and `unknown` is always reported as a timeout, never as exhaustion.
 """
+import ast
 import contextlib
 import json
+import operator
 from pathlib import Path
 import re
 import signal
 import sys
 import time
 
-sys.path.insert(0, "/opt/runner")
-from runtime import emit, finish  # noqa: E402
+# The engine prints diagnostics to stdout, which is also the protocol channel. The
+# protocol keeps the original stdout; everything else goes to stderr.
+PROTOCOL = sys.stdout
+sys.stdout = sys.stderr
 
 import z3  # noqa: E402
 from idp_engine import IDP, Theory  # noqa: E402
 
+
+def emit(record):
+    print(json.dumps(record, allow_nan=False), file=PROTOCOL, flush=True)
+
+
+def finish(status, detail="", **metadata):
+    emit({"type": "status", "status": status, "detail": detail, **metadata})
+
 INPUT = Path("/input")
-TEMPLATE = re.compile(r"\$\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}")
+TEMPLATE = re.compile(r"\$\{([^{}]*)\}")
+SIZE_FORM = ("an integer expression over instance fields: integer literals, + - * // / and "
+             "parentheses, and sum, len, max or min of a one-dimensional integer array field")
+SIZE_FUNCTIONS = {"sum": sum, "len": len, "max": max, "min": min}
+SIZE_OPERATORS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
+                  ast.FloorDiv: operator.floordiv}
 DIRECTIONS = ("minimize", "maximize")
 INT_SET = "ℤ"
 BOOL_SET = "𝔹"
@@ -48,19 +70,70 @@ class Unsupported(Exception):
     pass
 
 
-def substitute(source, instance):
-    def replace(match):
-        name = match.group(1)
+def size_expression(body, instance):
+    """The integer that a placeholder body denotes, evaluated over the instance fields."""
+    label = "${" + body + "}"
+
+    def refuse(reason):
+        return ValueError(f"{label}: a placeholder takes {SIZE_FORM}; {reason}")
+
+    def scalar(name):
         if name not in instance:
-            raise ValueError(f"${{{name}}} names no instance field")
+            raise refuse(f"{name} is not an instance field")
         value = instance[name]
         if isinstance(value, bool) or not isinstance(value, int):
-            raise ValueError(f"${{{name}}} must name an integer scalar field, not {type(value).__name__}")
-        return str(value)
+            raise refuse(f"{name} is not an integer scalar field")
+        return value
+
+    def array(name):
+        if name not in instance:
+            raise refuse(f"{name} is not an instance field")
+        value = instance[name]
+        if not isinstance(value, list) or any(isinstance(item, bool) or not isinstance(item, int)
+                                              for item in value):
+            raise refuse(f"{name} is not a one-dimensional integer array field")
+        return value
+
+    def evaluate(node):
+        if isinstance(node, ast.Constant) and type(node.value) is int:
+            return node.value
+        if isinstance(node, ast.Name):
+            return scalar(node.id)
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+            value = evaluate(node.operand)
+            return value if isinstance(node.op, ast.UAdd) else -value
+        if isinstance(node, ast.BinOp) and (type(node.op) in SIZE_OPERATORS or isinstance(node.op, ast.Div)):
+            left, right = evaluate(node.left), evaluate(node.right)
+            if right == 0:
+                raise refuse("it divides by zero")
+            if isinstance(node.op, ast.Div):
+                if left % right:
+                    raise refuse(f"{left} / {right} is not an integer")
+                return left // right
+            return SIZE_OPERATORS[type(node.op)](left, right)
+        if isinstance(node, ast.Call):
+            if not (isinstance(node.func, ast.Name) and node.func.id in SIZE_FUNCTIONS
+                    and len(node.args) == 1 and not node.keywords and isinstance(node.args[0], ast.Name)):
+                raise refuse("calls are limited to sum, len, max and min of one array field")
+            values = array(node.args[0].id)
+            if not values and node.func.id in ("max", "min"):
+                raise refuse(f"{node.func.id} of an empty array is undefined")
+            return SIZE_FUNCTIONS[node.func.id](values)
+        raise refuse(f"{type(node).__name__} is not allowed here")
+
+    try:
+        tree = ast.parse(body.strip(), mode="eval")
+    except (SyntaxError, ValueError):
+        raise refuse("it does not parse")
+    return evaluate(tree.body)
+
+
+def substitute(source, instance):
+    def replace(match):
+        return str(size_expression(match.group(1), instance))
     result = TEMPLATE.sub(replace, source)
-    leftover = re.search(r"\$\{[^}]*\}", result)
-    if leftover:
-        raise ValueError(f"{leftover.group(0)}: a placeholder takes one integer field name, not an expression")
+    if re.search(r"\$\{", result):
+        raise ValueError(f"${{...}}: a placeholder takes {SIZE_FORM}")
     return result
 
 
