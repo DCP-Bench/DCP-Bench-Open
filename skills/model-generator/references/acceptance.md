@@ -28,6 +28,12 @@ evaluation record itself, not from your own expectation.
 Reduced coverage is acceptable **only** when the cause is a recorded reference or
 infrastructure limit. If the failure is the model's, the model is wrong; fix it.
 
+The top-level `accepted: true` does not show skipped instances; only the
+per-instance list does, so read it every time. A model whose `execution_timeout`
+skips survive repair is retainable as a performance limit only while at least
+80% of the available instances were checked (one skip out of five); below that,
+record a blocker with the attempt as evidence instead of retaining.
+
 ## The check the evaluator cannot do
 
 Most problems in this corpus have only the embedded example, so there is no

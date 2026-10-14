@@ -119,6 +119,13 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    one final status. Keep logs on stderr. Return explicit unsupported/error/
    timeout/compilation statuses. The runner must not invent solutions, silently
    alter the submission, or output more solutions than requested.
+
+   **A failure is never a timeout.** A solver crash, an out-of-memory, a
+   reserved-identifier error or a compile error must come back as `error` (or
+   `compilation_error`) with the tool's own message in the detail. Solvers often
+   print it somewhere unusual (a log file, stdout, a verbose flag only); find it
+   and forward it. When the message is hidden, modelling agents cannot fix their
+   model and start running it outside the container to see what went wrong.
 4. **Decide who turns the JSON instance into the framework's input, and say so
    in the modelling skill.** This is the design decision with the most
    consequences, and the three existing integrations answer it three ways:
@@ -137,6 +144,26 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
    deliberately rather than by accident, and write the choice into the skill with
    a worked example.
 
+   When the framework binds the data (a typed modelling language), these rules
+   kept problems usable that would otherwise be lost:
+
+   - **Bind only the fields the model declares, and ignore the rest.** Instances
+     carry metadata such as `name` and `note` (strings), and some carry data a
+     given model does not need. Binding every key makes such instances fail
+     whatever the model says.
+   - **Offer derived size parameters.** Languages that need finite index sets
+     cannot declare a matrix whose size differs between instances. Let the model
+     declare optional sizes per field (e.g. `F_dim1`, `F_dim2` for `F`) and bind
+     them from the data; pad ragged lists and offer their row lengths.
+   - **Escape reserved words.** When an output or field name is a keyword of the
+     language (`matrix`, `E`, ...), let the model use `name_` and map it back on
+     both input and output.
+   - **The runner decides what is bindable.** `generation.next_work` withholds
+     pairs it believes cannot bind. The brief's generic `unbindable_fields` is not
+     per integration and was wrong for several runners; have `next_work` ask the
+     runner's own refusal function (see how `essence_prime_minion` does it), so a
+     pair is withheld only when this runner can never bind it.
+
    Conversion always happens inside the candidate container. **Only one
    submission file is staged**, so a submission cannot ship a helper module: put
    shared conversion in the image or in `run.py`. Anything needing extra staging
@@ -144,8 +171,24 @@ proposal for a separate task. Keep setup changes isolated from passing integrati
 5. Implement minimization/maximization semantics honestly: establish optimum
    before emitting optimal assignments, fix it when enumerating, and count
    distinct declared outputs. A timeout before proving optimum must not report
-   success. Satisfaction enumeration may finish below the requested count only
-   on exhaustion. Mark unsupported enumeration explicitly.
+   success; what to emit in that case is set by the protocol in
+   `evaluation/README.md`, so follow it rather than choosing per integration.
+   Satisfaction enumeration may finish below the requested count only on
+   exhaustion. Mark unsupported enumeration explicitly.
+
+   - **Count distinct declared outputs, not solver solutions.** Solvers enumerate
+     over every variable, so a model with a free auxiliary variable returns the
+     same outputs several times. Deduplicate on the declared outputs and re-solve
+     with a nogood on each assignment already found until the count is reached
+     or the search is exhausted.
+   - **Parenthesise the objective when you re-post it** (e.g. as
+     `(objective) = optimum` to enumerate at the optimum). In languages where a
+     quantifier or sum extends as far right as possible, the appended text is
+     otherwise swallowed by the objective.
+   - **Check emitted solutions with the solver's own checker when it has one.**
+     A solver can return assignments that violate the model: ACE accepted wrong
+     tuples for a product of four or more variables. Reject such solutions and
+     continue the search instead of passing them on.
 6. Pin build/runtime dependencies and supply an image compatible with the
    evaluator's unprivileged, read-only, networkless execution and bounded scratch
    space. Compile inside the candidate container within its separate budget.
@@ -171,6 +214,15 @@ actual image through the evaluator/runner, with explicit expected outcomes:
 - Invalid/malformed/empty output rejection and accurate unsupported statuses.
 - Compilation failure for compiled targets; execution timeout and cleanup.
 - Current isolation guarantees and missing-image diagnostics.
+
+Beyond the required names, these checks each caught a real runner bug in past
+setups and are cheap to add: instance metadata strings (`name`, `note`) are
+ignored; a one-key instance works; ragged lists bind; sizes that vary between
+instances bind; a reserved name round-trips; a free auxiliary variable still
+yields distinct outputs; an unparenthesised objective still enumerates at the
+optimum; an unproven optimum is handled as the protocol says; a solver crash is
+reported as `error` with its message; an invalid solution returned by the
+solver is not emitted.
 
 Use tiny trusted synthetic references for integration fixtures if needed, never
 replace a corpus reference to make a generated candidate pass. Reuse existing
@@ -198,7 +250,11 @@ record binds the image identity, the hashes of `run.py`, `Dockerfile` and the
 check script, and the behavioural fields of `metadata.yaml` — everything except
 `name` and `paradigms`, which the catalogue reads and the container does not.
 So editing any of them except those two invalidates the record and the
-checks must run again.
+checks must run again. The record is write-once: to re-certify after a fix,
+rebuild the image, delete `readiness.json`, then run `check` and `verify`
+again. While models are being evaluated on the `:v1` image, build and test a
+runner fix on a separately tagged image, and rebuild `:v1` only once no
+evaluation is running on it.
 
 `solvers/cpmpy_python/readiness_test.py`
 is a working example. See repository `generation/AGENTS.md` for the exact list of
