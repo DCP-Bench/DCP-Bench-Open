@@ -1,0 +1,3 @@
+- A Var whose Python name is the single letter E (declared `E = Var(...)`) gets no solution: every round times out with 0 solutions, even for a trivially satisfiable model. The same model with the variable named Z plus the alias `E = Z` solves.
+- Names A and C/D were not the trigger in the probes (A alone was fine). Only E was tested as the trigger in isolation.
+- The model binds lowercase variables a..e and aliases A = a ... E = e at the end, which the declared output names need.

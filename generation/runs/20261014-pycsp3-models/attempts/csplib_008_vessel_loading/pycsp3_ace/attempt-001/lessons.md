@@ -1,0 +1,2 @@
+- The example instance (5x5 deck, widths 5,2,3, lengths 1,4,4, zero separations) is rejected with invalid_solution "Declared outputs cannot extend to a reference solution" for any placement the model finds, under this model's convention (right = left + width, bottom = top + length, exclusive edges, non-overlap by 4-way disjunction).
+- Probes that also failed on the example: inclusive far edges (right = left + width - 1), 1-based coordinates, swapped width/length, strict separation (no_solution).

@@ -1,0 +1,2 @@
+- Table per (weighing, piece) with the (side, weight, contribution) triples replaced the three imply constraints. It solved the 80-pound, 5-piece instance in about 15 s, where the imply encoding timed out at 180 s. Attempt-001 had the imply form and was not retained.
+- Non-strict Increasing on the piece weights (the description does not require distinct weights) was kept.

@@ -1,0 +1,1 @@
+- Attempt-001 (pairwise Or non-overlap only) accepted 5 of 6 instances; base 112 with 21 squares ended in `execution_timeout`. Adding the redundant `Cumulative(origins=y_coords, lengths=sides, heights=sides) <= base` and the same on x solved it in seconds (verified; all 6 instances accepted).
