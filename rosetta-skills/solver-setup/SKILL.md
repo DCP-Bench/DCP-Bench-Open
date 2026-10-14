@@ -73,7 +73,11 @@ Two Rosetta rules on top:
 Copy the closest existing integration under `solvers/` (same language, or same way of
 receiving the instance) and adapt `metadata.yaml`, `Dockerfile`, `run.py` and
 `readiness_test.py`. The rules for each file, and the choice of who converts the JSON
-instance, are in [integration files](references/integration.md).
+instance, are in [integration files](references/integration.md). Check them as you go:
+
+```bash
+python <this-skill>/scripts/check_integration.py ID --static
+```
 
 Build with `python -m evaluation.build <id>`, bounded by the remaining budget. Evaluation
 never builds or installs implicitly.
@@ -86,7 +90,9 @@ python -m generation.readiness check --solver ID --output solvers/ID/readiness.j
 
 This runs `solvers/<id>/readiness_test.py` against the built image and records the result
 only when every required check passes. Tests skipped because Docker or the image is
-missing do not count. After changing shared runner code, rerun the affected existing
+missing do not count. Then register it as a pilot (see *Once certified* in
+[integration files](references/integration.md)) and run `scripts/check_integration.py ID`
+without `--static`: it must exit 0 before you return **ready**. After changing shared runner code, rerun the affected existing
 integrations too.
 
 ## 5. Return
