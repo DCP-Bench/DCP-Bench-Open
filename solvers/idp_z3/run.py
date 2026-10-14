@@ -20,6 +20,11 @@ its own `structure`), not a program. The runner binds the instance into it:
 - An argument type of such a symbol that is declared `<: Int` and interpreted
   nowhere is sized from the array: `type Task <: Int` with `cost: Task * Person
   -> Int` and a 4x5 `cost` gives `Task := {0..3}. Person := {0..4}.`
+- A ragged list of rows `F` binds padded with 0 (false) to the longest row, as a
+  rectangular `F`, plus `F_len` with each row's real length. A list of mixed rows
+  such as `[target, [cells...]]` binds one piece per column, `F_1`, `F_2`, ... (see
+  `pieces`). Only the names a model declares are bound; a string is refused only in
+  a declared field.
 
 A nullary `minimize: () -> Int` or `maximize: () -> Int` makes it an optimization.
 
@@ -41,12 +46,20 @@ import sys
 import time
 
 # The engine prints diagnostics to stdout, which is also the protocol channel. The
-# protocol keeps the original stdout; everything else goes to stderr.
+# protocol keeps the original stdout; everything else goes to stderr. Only the runner
+# (`__main__`) redirects it: generation.next_work loads this file on the host to ask
+# refusal(), which needs neither the engine nor a redirected stdout.
 PROTOCOL = sys.stdout
-sys.stdout = sys.stderr
+if __name__ == "__main__":
+    sys.stdout = sys.stderr
 
-import z3  # noqa: E402
-from idp_engine import IDP, Theory  # noqa: E402
+try:
+    import z3  # noqa: E402
+    from idp_engine import IDP, Theory  # noqa: E402
+except ImportError:
+    if __name__ == "__main__":
+        raise
+    z3 = IDP = Theory = None
 
 
 def emit(record):
@@ -208,15 +221,130 @@ def interpreted_by_model(idp):
     return names
 
 
+def layout(value):
+    """(dimensions, scalar kinds) of a rectangular list or scalar, else None."""
+    if not isinstance(value, list):
+        return (), {scalar_kind(value)}
+    parts = [layout(item) for item in value]
+    if any(part is None for part in parts) or len({part[0] for part in parts}) > 1:
+        return None
+    return (len(value),) + (parts[0][0] if parts else ()), set().union(*(part[1] for part in parts))
+
+
+def scalar_kind(value):
+    if isinstance(value, bool):
+        return "bool"
+    if isinstance(value, int):
+        return "int"
+    return type(value).__name__
+
+
+def column_class(column):
+    classes = {"array" if isinstance(item, list) else scalar_kind(item) for item in column}
+    return classes.pop() if len(classes) == 1 else None
+
+
+def rows_of(value):
+    return bool(value) and all(isinstance(row, list) for row in value)
+
+
+def uniform(items):
+    """(dimensions, kind) when every item has one shape and one scalar kind, else None."""
+    if not items:
+        return None
+    shapes = [layout(item) for item in items]
+    if any(found is None for found in shapes) or len({found[0] for found in shapes}) != 1:
+        return None
+    kinds = set().union(*(found[1] for found in shapes))
+    return (shapes[0][0], kinds.pop()) if len(kinds) == 1 else None
+
+
+def filled(dimensions, value):
+    if not dimensions:
+        return value
+    return [filled(dimensions[1:], value) for _ in range(dimensions[0])]
+
+
+def pieces(name, value, split=True):
+    """The (key, rectangular value) pairs one instance field binds as, by these rules:
+
+    1. A rectangular list binds unchanged; a list of rows also gives `<name>_len`.
+    2. A ragged list of rows whose items share one shape and one scalar kind binds
+       padded with 0 (False) to the longest row, plus `<name>_len`.
+    3. Rows of one length whose columns differ in type bind one piece per column,
+       `<name>_1`, `<name>_2`, ..., each by rules 1 and 2 without splitting again.
+    4. Rows of unequal length whose first items are scalars bind as `<name>_1` (the
+       first items) and `<name>_2` (the rest of each row, by rule 2).
+
+    Anything else raises Unsupported. Strings and floats are not a shape problem here:
+    literal() refuses them only in a field the model declares."""
+    if not isinstance(value, list):
+        return [(name, value)]
+    shape = layout(value)
+    if shape is not None and len(shape[1]) <= 1:
+        return [(name, value)] + ([(f"{name}_len", [len(row) for row in value])]
+                                  if rows_of(value) else [])
+    if rows_of(value):
+        found = uniform([item for row in value for item in row])
+        if found is not None:
+            dims, kind = found
+            longest = max(len(row) for row in value)
+            pad = filled(dims, False if kind == "bool" else 0)
+            return [(name, [row + [pad] * (longest - len(row)) for row in value]),
+                    (f"{name}_len", [len(row) for row in value])]
+        width = len(value[0])
+        if split and width and all(len(row) == width for row in value):
+            columns = [[row[j] for row in value] for j in range(width)]
+            classes = [column_class(column) for column in columns]
+            if None not in classes and len(set(classes)) > 1:
+                return [piece for j, column in enumerate(columns, 1)
+                        for piece in pieces(f"{name}_{j}", column, split=False)]
+        heads = [row[0] for row in value] if all(value) else []
+        if split and heads and column_class(heads) not in (None, "array"):
+            return (pieces(f"{name}_1", heads, split=False)
+                    + pieces(f"{name}_2", [row[1:] for row in value], split=False))
+    raise Unsupported(f"Instance field `{name}` is ragged or mixes types in a way this integration "
+                      "cannot bind: only the shapes in the rules of pieces() are reshaped")
+
+
+def refusal(name, value):
+    """Why no model could bind this instance field, or None. generation.next_work asks
+    this on the host for every instance field, so it never needs the engine."""
+    try:
+        pieces(name, value)
+    except Unsupported as error:
+        return str(error)
+    return None
+
+
+def bound_symbol(vocab, taken, name):
+    decl = vocab.symbol_decls.get(name)
+    return decl is not None and name not in taken and type(decl).__name__ == "SymbolDeclaration"
+
+
 def bind(idp, instance):
-    """The generated structure interpreting declared data symbols and index types."""
+    """The generated structure interpreting declared data symbols and index types. Only
+    the pieces a model declares are bound: an undeclared field is never refused."""
     vocab_name, vocab = vocabulary(idp)
     taken = interpreted_by_model(idp)
-    lines, sizes = [], {}
+    fields, origin = {}, {}
     for name, value in instance.items():
-        decl = vocab.symbol_decls.get(name)
-        if decl is None or name in taken or type(decl).__name__ != "SymbolDeclaration":
+        try:
+            parts = pieces(name, value)
+        except Unsupported:
+            if bound_symbol(vocab, taken, name):
+                raise
             continue
+        for key_name, data in parts:
+            if key_name in fields and bound_symbol(vocab, taken, key_name):
+                raise Unsupported(f"instance fields `{origin[key_name]}` and `{name}` both bind "
+                                  f"as `{key_name}`")
+            fields[key_name], origin[key_name] = data, name
+    lines, sizes = [], {}
+    for name, value in fields.items():
+        if not bound_symbol(vocab, taken, name):
+            continue
+        decl = vocab.symbol_decls[name]
         dims = shape(value)
         if dims is None:
             raise Unsupported(f"instance field {name} is ragged and cannot be bound")
