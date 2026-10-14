@@ -1,0 +1,3 @@
+- `${base**n-1}` works in a type range and in a theory sentence when wrapped whole; `**` and `-` in one placeholder parse fine.
+- Cyclic indexing without `%`: a helper symbol `wrap(p, j)` defined by two guarded sentences (`p + j =< max` and `p + j > max`) gives the wrapped position; the output is then applied only to values of its own type.
+- Distinct windows imply every length-n string occurs once, so `p ~= q => ? j: out(wrap(p,j)) ~= out(wrap(q,j))` needs no counting.
