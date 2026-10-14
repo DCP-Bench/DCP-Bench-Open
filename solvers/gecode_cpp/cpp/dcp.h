@@ -107,8 +107,8 @@ class Space : public Gecode::Space {
     if (sense_ == 0) return;
     const Space& incumbent = static_cast<const Space&>(best);
     int bound = incumbent.objective_.val();
-    if (sense_ > 0) rel(*this, objective_, IRT_LE, bound - 1);
-    else rel(*this, objective_, IRT_GR, bound);
+    if (sense_ > 0) rel(*this, objective_, IRT_LE, bound);  // IRT_LE is strict: objective < bound
+    else rel(*this, objective_, IRT_GR, bound);  // IRT_GR is strict: objective > bound
   }
 
  protected:

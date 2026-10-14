@@ -91,6 +91,10 @@ def optimal(direction):
 
 GOOD = HEAD + SUM + "    linear(*this, xy, IRT_EQ, n);\n" + BRANCH + OUTPUTS + CLOSE
 OPTIMAL_MIN = optimal("minimize")
+# The first solution (x=2, y=1, total 3) is one above the optimum 2, so a bound
+# that is off by one ends the search at 3.
+STEP_ONE = optimal("minimize").replace(
+    BRANCH, "    branch(*this, v[0], INT_VAL_MAX());\n    branch(*this, v[1], INT_VAL_MED());\n")
 OPTIMAL_MAX = optimal("maximize")
 # Restarts with activity-based branching. Optimality must still be proven.
 RESTARTS = (HEAD + SUM + "    linear(*this, xy, IRT_GQ, n);\n"
@@ -248,6 +252,7 @@ def main():
         check("unbranched_fixed", UNBRANCHED_FREE, solution_limit=3)
         check("unbranched_aux", UNBRANCHED, solution_limit=3)
         check("optimum_enumeration", OPTIMAL_MIN, reference=OPTIMIZING, solution_limit=2)
+        check("optimum_one_below_first", STEP_ONE, reference=OPTIMIZING, solution_limit=1)
         check("restarts", RESTARTS, reference=OPTIMIZING, solution_limit=3)
         check("bool_output", BOOL_OUTPUT, reference=FLAG_REFERENCE, solution_limit=2)
         check("constant_output", CONSTANT_OUTPUT, reference=CONSTANT_REFERENCE)
