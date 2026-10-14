@@ -100,7 +100,8 @@ class Queens : public Space {
 
 ## Variables, arrays, data
 
-- `IntVarArray x(*this, n, lo, hi)` (member), `IntVar v(*this, lo, hi)`, domains from a
+- `IntVarArray x(*this, n, lo, hi)` (member; always give bounds: `IntVarArray(*this, n)` and
+  `BoolVarArray(*this, n)` leave the variables unset and crash at run time), `IntVar v(*this, lo, hi)`, domains from a
   set: `IntVar v(*this, IntSet({1, 3, 7}))`. `BoolVarArray`, `BoolVar` likewise (0/1).
 - A `BoolVar` is not an `IntVar`: it does not go into `IntVarArgs`, `mult`, or the
   count argument of `count`. In MiniModel it mixes freely (`expr(*this, x * b)`,
@@ -143,7 +144,8 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
 
 ## Search
 
-- `branch(*this, x, VAR, VAL)`. Variables: `INT_VAR_SIZE_MIN()` (first fail),
+- `branch(*this, x, VAR, VAL)` on an array; one variable takes only a value
+  choice: `branch(*this, v, INT_VAL_MIN())`. Variables: `INT_VAR_SIZE_MIN()` (first fail),
   `INT_VAR_DEGREE_MAX()`, `INT_VAR_AFC_SIZE_MAX(0.99)` and `INT_VAR_CHB_SIZE_MAX()`
   (learn from failures; best with restarts), `INT_VAR_NONE()` (in order),
   `tiebreak(a, b)`. Values: `INT_VAL_MIN()`, `INT_VAL_MAX()`, `INT_VAL_SPLIT_MIN()`
@@ -176,7 +178,10 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
   and bounds the rules imply: Σ_v p_t·k_tv = p_t·Σ_v k_tv, a lower bound on the objective
   (total demand / capacity, rounded up), per-item upper bounds. Implied constraints
   usually beat a change of heuristic.
-- Heavy-tailed satisfaction search: AFC or CHB variable choice plus Luby restarts.
+- On a timeout, first switch the search style: in-order branching without restarts
+  (`INT_VAR_NONE()`/`BOOL_VAR_NONE()`) against AFC or CHB with `restarts(100)`. Each
+  won where the other timed out (an optimisation grid needed in-order; a pair-cover
+  design needed AFC with restarts).
 
 ## Pitfalls
 
@@ -187,7 +192,7 @@ bounds; `IPL_VAL` only on assigned values; `IPL_DEF` is the propagator's default
 - `IntSet` bounds are inclusive. From a `std::vector<int> v`: `IntSet(IntArgs(v))`;
   `IntSet(v)` on a non-const vector does not compile. `IntVar(*this, lo, hi)` throws `Int::OutOfLimits`
   beyond ±(2^31 − 2); products of large domains overflow: bound them.
-- `TupleSet` needs `finalize()` before posting. `DFA(reg)` compiles the regular
+- `TupleSet t(arity)`, then `finalize()` before posting; `TupleSet t;` throws on `add`. `DFA(reg)` compiles the regular
   expression once; reuse it for rows with the same clue.
 - `path`: `succ[e] = n`, not a node. `circuit` over n nodes needs domain 0..n−1.
 - One-hot `channel(*this, bools, v, o)` makes exactly one Boolean true and keeps `v`
@@ -260,20 +265,25 @@ DCP_MODEL(Seating)
   come from the data, so create member arrays in the body: `x = IntVarArray(*this, n,
   lo, hi)`. Read data with `instance.at("n").get<int>()`, `std::vector<int> w =
   instance.at("w")`, `instance.at("m")[i][j].get<int>()`. The brief's shapes are those
-  of the example instance; take every size from the instance itself.
+  of the example instance; take every size, output lengths included, from the
+  instance itself. A field the brief calls unbindable (ragged rows, mixed types) is
+  still readable here from the JSON.
 - **Copy constructor** `M(M& s) : dcp::Space(s)` updates every member variable;
   `Gecode::Space* copy() override` returns `new M(*this)`. `dcp::Space` copies the
   outputs and the objective itself.
 - **Outputs** (in the constructor, once per name the brief declares, no others: an
   extra name such as the objective is `invalid_output`): `output("name", v)` with
   an `IntVar`, `BoolVar`, `IntVarArray`/`IntVarArgs`, `BoolVarArray`/`BoolVarArgs`,
-  `std::vector<IntVarArgs>` (one list per element), `Matrix<IntVarArray>` (one list per
-  row: `m.row(r)` becomes the r-th inner list), an `int`, or a `std::vector<int>`. A
+  `std::vector<IntVarArgs>` (one list per element), `Matrix<IntVarArray>` or
+  `Matrix<BoolVarArray>` (one list per row), three levels as
+  `std::vector<std::vector<IntVarArgs>>` (or `BoolVarArgs`), an `int`, or a
+  `std::vector<int>`. A number beyond the IntVar range: `output_digits("name", digits,
+  10)` with digit variables, most significant first. A
   derived value (a sum, a count) is an output through an `IntVar` made with `expr`.
 - **Objective**: `minimize(v)` or `maximize(v)` once, on an `IntVar`
   (`total = expr(*this, sum(...))`). Do not bound it with a value known from elsewhere.
 - **Restarts**: `restarts(100)` makes the driver use Luby restarts (still complete).
-  Pair it with AFC or CHB branching.
+  Pair it with AFC or CHB branching. Not a default: it can slow the optimality proof.
 - **Readability**: open with a `//` line stating the problem; start each constraint
   block with a `//` comment taken from the description's words, not the Gecode call.
 
