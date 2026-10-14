@@ -188,13 +188,10 @@ def bind(instance, declared):
 
 
 def refusal(name, value):
-    """Why run.py refuses this instance field, or None. For a caller that must know
-    which fields a model could be given, without a model. A field holding strings
-    is refused too: Essence' has none, so a model that declares it cannot be given
-    the value, and the pair cannot be bound at all."""
-    if any(isinstance(leaf, str) for leaf in leaves(value)):
-        return (f"Instance field `{name}` holds string values; Essence' has no strings, "
-                "so the integration cannot bind it")
+    """Why run.py cannot reshape this instance field on its own, or None. For a caller
+    that must know whether any model could be given the field, without a model. A
+    string is not a reshaping problem: it is refused only when a model declares the
+    field as a given (see literal()), so a model that ignores the field is unaffected."""
     try:
         list(bindings(name, value))
     except Unbindable as error:

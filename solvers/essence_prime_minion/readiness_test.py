@@ -157,6 +157,11 @@ print(json.dumps(solution))
 NAMED_REFERENCE = REFERENCE.replace("optimize = False", 'optimize = False\nname = "first"\nnote = "a"')
 NAMED_INSTANCES = [{"n": 2, "optimize": False, "name": "first", "note": "a"},
                    {"n": 3, "optimize": False, "name": "second", "note": "b"}]
+# A string-valued field that is not metadata, and that the model does not declare, is
+# ignored like `name`: the model still runs. Such fields occur in accepted models.
+LIST_STRING_REFERENCE = REFERENCE.replace("optimize = False", 'optimize = False\nnames = ["ann", "bob"]')
+LIST_STRING_INSTANCES = [{"n": 2, "optimize": False, "names": ["ann", "bob"]},
+                         {"n": 3, "optimize": False, "names": ["cy"]}]
 # A declared given holding a string is refused, with the reason naming the field.
 NAMED_DECLARED = HEAD + "given name : int\nsuch that x + y = n\n"
 # `grid_dim1`, `grid_dim2` give the sizes of `grid`, which differ per instance.
@@ -289,6 +294,9 @@ def main():
         named = check("undeclared_strings_ignored", GOOD, reference=NAMED_REFERENCE,
                       instances=NAMED_INSTANCES, instance_count=2)
         results["undeclared_strings_ignored"] &= named["instances_checked"] == 2
+        string_list = check("ignored_string_field", GOOD, reference=LIST_STRING_REFERENCE,
+                            instances=LIST_STRING_INSTANCES, instance_count=2)
+        results["ignored_string_field"] &= string_list["instances_checked"] == 2
         dims = check("declared_dims_bind", DIMS, reference=DIMS_REFERENCE,
                      instances=DIMS_INSTANCES, instance_count=2)
         results["declared_dims_bind"] &= dims["instances_checked"] == 2
