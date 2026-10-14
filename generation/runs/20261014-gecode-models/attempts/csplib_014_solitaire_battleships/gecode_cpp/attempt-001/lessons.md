@@ -1,0 +1,1 @@
+Battleships: first-pass Gecode model. Local square rules (ship ends, middles, submarine, no touching) and exact-length windows for the fleet; the codes, fleet and sums all come from the instance. Accepted on all instances without search changes.

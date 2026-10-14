@@ -1,0 +1,3 @@
+- Clue numbers in a grid do not end a run: a numbered cell inside a run (16 in row 4 of this grid) is part of the across entry, and only cells marked X break a run. Count runs by X positions, not by clue numbers.
+- The linear overload with an IntVar right-hand side and IntArgs weights (linear(home, a, x, IRT_EQ, v, IPL_DOM)) builds a digit-to-number link with no extra variables.
+- MiniModel products of IntVars (A13 == D26 * A23) and squares (s * s == A) compiled and propagated well; the first solution came in about 0.001 s of solve time.

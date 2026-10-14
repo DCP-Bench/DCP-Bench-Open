@@ -1,0 +1,3 @@
+- Sequential pieces: slot start times as a running sum (element on the duration table) and piece start via element(slot_start, pos[p]) gave a propagating timeline with no pairwise decomposition.
+- Player waiting = sum(last end) - sum(first start) - constant play time; min/max over IntVarArgs (MiniModel-free overloads) expressed it directly.
+- The constant play time is summed in C++ from the instance, so the objective needs no extra constraint.

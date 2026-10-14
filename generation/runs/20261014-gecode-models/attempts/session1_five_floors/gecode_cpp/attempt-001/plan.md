@@ -1,0 +1,10 @@
+Floors are 1..5 (the first five floors); each of B, C, F, M, S is one floor.
+Baker, Cooper, Fletcher, Miller and Smith each live on a different floor -> distinct(*this, {B,C,F,M,S}, IPL_DOM)
+Baker does not live on the fifth floor -> rel(*this, B, IRT_NQ, 5)
+Cooper does not live on the first floor -> rel(*this, C, IRT_NQ, 1)
+Fletcher does not live on either the fifth or the first floor -> rel(*this, F, IRT_NQ, 5), rel(*this, F, IRT_NQ, 1) (domain 2..4 by two constant disequalities; no map row needed beyond the plain rel form)
+Miller lives on a higher floor than does Cooper -> rel(*this, M, IRT_GR, C)
+Smith does not live on a floor adjacent to Fletcher -> rel(*this, S != F + 1), rel(*this, S != F - 1) (offset-disequality rows of the map)
+Fletcher does not live on a floor adjacent to Cooper -> rel(*this, F != C + 1), rel(*this, F != C - 1) (offset-disequality rows of the map)
+branching -> branch(*this, {B,C,F,M,S}, INT_VAR_SIZE_MIN(), INT_VAL_MIN())
+objective -> none (satisfaction problem)

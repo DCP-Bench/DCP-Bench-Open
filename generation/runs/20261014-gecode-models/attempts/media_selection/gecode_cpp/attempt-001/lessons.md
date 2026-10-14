@@ -1,0 +1,2 @@
+- Set covering maps directly: one linear(BoolVarArgs, IRT_GQ, 1) per audience over the media that reach it; the cost is expr(*this, sum(IntArgs(costs), BoolVarArray)) and minimize on it. Accepted on first evaluation, all 5 instances, optima match the source (45 for Lundgren).
+- Booleans with BOOL_VAR_AFC_MAX plus restarts(100) passed all five instances in 51 s total wall time including compilation; no implied constraints were needed.

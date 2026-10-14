@@ -1,0 +1,10 @@
+Spend as much as you can: total price of the chosen players as close to 30 million as possible without going over -> maximize z = sum(price_i * x_i), z <= 30000 (prices in GBP thousands, integers, z in thousands)
+Each listed player is a Boolean x_i (buy or not): 26 players, g1..g3, d1..d8, m1..m10, s1..s5 -> BoolVar via IntVar 0..1 (linear needs IntVars)
+Goalkeepers: must buy 1 exactly -> linear(*this, gk, IRT_EQ, 1)
+Defenders: must buy 2 or more -> linear(*this, def, IRT_GQ, 2)
+Midfielders: must buy 3 or more -> linear(*this, mid, IRT_GQ, 3)
+Strikers: must buy 2 or more -> linear(*this, str, IRT_GQ, 2)
+At least eleven players in total -> linear(*this, all, IRT_GQ, 11)
+Total price z: weighted count over all players -> linear(*this, price, x, IRT_EQ, z) with z in 0..30000, budget bound via domain of z plus linear(price, x, IRT_LQ, 30000)
+Branching: x with INT_VAR_NONE, INT_VAL_MAX (include players first, since maximising cost)
+Objective: maximize(z), output "z"

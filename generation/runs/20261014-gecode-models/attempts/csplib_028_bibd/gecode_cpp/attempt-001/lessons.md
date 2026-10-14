@@ -1,0 +1,3 @@
+- Row and column interchangeability of a 0/1 matrix is broken by double-lex: `rel(*this, rowA, IRT_LQ, rowB)` on consecutive rows and on consecutive columns of BoolVarArgs (the skill's lex form works on Boolean arrays).
+- Scalar product of two Boolean rows per pair: `expr(*this, x && y)` per column, then `linear(*this, m, IRT_EQ, lambda)`; accepted without a timeout on the 13x13 instance (about 115 s).
+- `output` takes `std::vector<BoolVarArgs>` for a Boolean matrix; `Matrix<BoolVarArray>` has no overload.

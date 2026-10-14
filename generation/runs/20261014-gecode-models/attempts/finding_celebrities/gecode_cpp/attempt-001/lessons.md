@@ -1,0 +1,2 @@
+- BoolVarArray flags work with MiniModel directly: `rel(*this, celeb[c] == 0)` and `rel(*this, (celeb[c] == 1) >> (celeb[j] == 1))` compile without converting to IntVar.
+- Data-dependent "known by all" conditions with constant data reduce to unit constraints on the flag; no global fits, so the per-pair implication is the decomposition.

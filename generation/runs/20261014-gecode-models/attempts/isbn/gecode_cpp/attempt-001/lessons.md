@@ -1,0 +1,2 @@
+- Branching on an auxiliary IntVar alone does not compile: `branch(home, IntVar, ...)` has no overload; a lone variable is fixed by propagation (here the check-digit sum k via linear IPL_DOM), or branch through an IntVarArgs.
+- Checksum rule (10 - sum%10)%10 is equivalent to a weighted sum of all digits being a multiple of 10; posting it as one linear equation with a multiple-of-10 quotient variable avoids a mod expression.

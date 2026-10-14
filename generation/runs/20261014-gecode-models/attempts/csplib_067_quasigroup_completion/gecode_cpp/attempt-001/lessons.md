@@ -1,0 +1,2 @@
+- Quasigroup completion: one distinct(IPL_DOM) per row and per column over a Matrix view, plus rel(cell == v) for givens. Accepted first try on all 5 instances.
+- Branching INT_VAR_SIZE_MIN with INT_VAL_MIN was enough here; no restarts or symmetry needed for order 10 Gomes patterns.

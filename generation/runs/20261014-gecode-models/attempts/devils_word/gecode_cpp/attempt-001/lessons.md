@@ -1,0 +1,2 @@
+- Signed-sum problems: one IntVar per element with a two-value IntSet {-a, a}, then linear IRT_EQ; no Boolean sign variables needed.
+- Zero elements give a one-value set; drop the duplicate before building IntSet.
