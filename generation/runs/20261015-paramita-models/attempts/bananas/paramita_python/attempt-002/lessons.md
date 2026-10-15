@@ -1,0 +1,3 @@
+- BestEncoder segfaults (runner exit 139) on a PB sum of one-hot values with many distinct weights (price times 1..97); unary keeps the weights to the price.
+- EvalMaxSAT did not prove the optimum in 180 s on a unary model with an exact 4-variable spend equation (execution_timeout); a table of allowed combinations solved in seconds.
+- The objective given as a sum over Bool weights passed, while bananas + apples over output expressions raised "the MaxSAT objective does not match the declared objective".

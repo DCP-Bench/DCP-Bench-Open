@@ -1,0 +1,2 @@
+- The puzzle is invariant under rotating the table, so the seat clues admit 3 solutions. The evaluator accepted with solution_limit 2 and the model was not given symmetry breaking.
+- Seats with "right of" as (p + 1) mod 3, and one-hot per name with Iff per seat, gave a small model that is accepted at once.

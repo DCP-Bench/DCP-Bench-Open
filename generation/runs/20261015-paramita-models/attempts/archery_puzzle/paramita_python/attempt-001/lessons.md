@@ -1,0 +1,1 @@
+Paramita integers: unary Bools for hits per target and for the over- and undershoot; the objective is overshoot plus undershoot, which equals the deviation at the optimum. The optimum bound (total below target plus max target) limits the unary width.

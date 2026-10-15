@@ -1,0 +1,2 @@
+- A ragged instance field (Qualified, lists of different lengths) reaches build() as a plain Python list; it is usable directly with no binding change.
+- Or([...]) with a list works as a clause over the hire Bools; the instance's worker indices are 1-based.

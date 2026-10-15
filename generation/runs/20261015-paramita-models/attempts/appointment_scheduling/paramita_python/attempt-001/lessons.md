@@ -1,0 +1,1 @@
+Model is data-driven: busy pairs come from instance["m"]; exactly-one per person and per slot is the full problem, no extra constraints needed. Paramita PB sums (sum(x[i]) == 1) and ~x literals cover the whole model.
