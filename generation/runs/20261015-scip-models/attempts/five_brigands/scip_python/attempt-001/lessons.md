@@ -1,0 +1,2 @@
+- Fractional coefficients (D/2, E/3) are scaled by the common denominator (6) to keep integer coefficients; the equation is unchanged over the reals.
+- The runner reports status limit on the satisfaction problem when it enumerates further solutions; accepted is still true.

@@ -1,0 +1,2 @@
+- Knapsack-style selection with per-group count constraints maps directly to binaries and linear constraints; no SCIP general constraints needed.
+- Prices with three decimals are scaled to integer thousands with round(price * 1000) so z is an integer output.

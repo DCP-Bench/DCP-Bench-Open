@@ -1,0 +1,2 @@
+- For QG3-style identities on one-hot cells, the implication x[a,b,c] + x[b,a,d] - 1 <= x[c,d,a] posts (a*b)*(b*a)=a as plain linear constraints over m^4 index tuples, with no auxiliary AND variables.
+- Satisfaction models with no objective were accepted with solution_limit 2 across all four instances (m = 8, 1, 4, 9).

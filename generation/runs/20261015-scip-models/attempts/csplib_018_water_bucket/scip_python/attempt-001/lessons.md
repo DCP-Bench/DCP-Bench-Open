@@ -1,0 +1,3 @@
+- Big-M linking of pour amounts (min of source and room) with binary selectors gave a 60 s timeout on the water bucket example (optimum 7 not proven).
+- Indicators on the emptying/filling pours plus a total-water conservation constraint solved the example in about 35 s and were accepted on the real run.
+- The reference-free encoding of a pour as one of six ordered bucket pairs with a done flag for padding worked without extra symmetry breaking.

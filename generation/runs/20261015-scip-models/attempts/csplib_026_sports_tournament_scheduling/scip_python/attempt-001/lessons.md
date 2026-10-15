@@ -1,0 +1,2 @@
+- Pair-meets-once and home/away slots came straight from the description as linear sums over game binaries play[i,j,w,p]; no general constraint was needed.
+- BIBD lambda counts used one binary per (pair, block) with addConsAnd on two incidence binaries; accepted on all 5 instances without any skill change.

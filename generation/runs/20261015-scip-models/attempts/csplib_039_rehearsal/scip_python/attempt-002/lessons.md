@@ -1,0 +1,3 @@
+- Sequencing with start times and disjunctions: one binary per pair, two addConsIndicator calls, no big-M. Slot numbers come from counting precedence binaries, which is how a rank output is tied to the order.
+- Waiting time is span minus playing time per player; the span uses arrive <= start and depart >= end, which the minimisation tightens from both sides.
+- A player who plays no piece must be skipped, otherwise arrive and depart are unbounded in the objective.

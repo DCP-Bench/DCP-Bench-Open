@@ -915,6 +915,7 @@ BACKEND_NAMES = {
     "evalmaxsat": "EvalMaxSAT",
     "highs": "HiGHS",
     "gecode": "Gecode",
+    "scip": "SCIP",
     # Picat solves with its own cp and sat modules: nothing to add.
     "cp, sat": "",
     "cbc": "CBC",
@@ -926,6 +927,7 @@ BACKEND_NAMES = {
     "z3": "Z3",
     "ace": "ACE",
     "minion": "Minion",
+    "idp-z3": "IDP-Z3",
 }
 
 # Where one paradigm row sees only part of an integration's backends. PySAT's

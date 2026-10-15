@@ -1,0 +1,3 @@
+- Fixed bounds: the pattern-count bound max(orders) is valid because using a pattern more often than the largest order never helps, so it does not remove optima.
+- Order constraints are >= (demand met, excess allowed); the description says "meets", not "equals".
+- The evaluator accepted this on all 5 instances, including the non-maximal and overlapping pattern sets.

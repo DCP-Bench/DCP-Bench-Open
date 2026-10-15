@@ -258,8 +258,10 @@ class RealRepositoryTests(unittest.TestCase):
         for solver, metadata in generate_site.load_integrations().items():
             with self.subTest(solver=solver):
                 name = metadata["name"]
-                if "(" in name and name.endswith(")"):
-                    self.assertIn(name[name.rindex("(") + 1:-1], languages)
+                # "Framework (Language)" has a space before its bracket; a DSL
+                # named after itself, such as FO(·), has none.
+                if " (" in name and name.endswith(")"):
+                    self.assertIn(name[name.rindex(" (") + 2:-1], languages)
                 raw = metadata.get("solver", "")
                 self.assertTrue(raw in generate_site.BACKEND_NAMES
                                 or raw.lower() in name.lower(),

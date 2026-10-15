@@ -1,0 +1,3 @@
+- The runner's no-good enumeration after the first solution has to prove that no other output exists. Without extra structure, SCIP timed out at 60 s on the example (only the first solution was reported).
+- Adding the derived fact that each invited couple's hand counts sum to 2n (the counts run 0..2n, each used once) let SCIP prove the rest infeasible within seconds.
+- One-hot counts with `== 1` over the guests Jocelyn asks (not `<= 1`) state the "all answers different" rule tightly.

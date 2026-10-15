@@ -1,0 +1,3 @@
+- Bowls are numbered 1 to n in the output. The first real evaluation accepted this numbering on all 5 instances.
+- Output x is a list of m expressions: `pos[k] = sum((i+1) * y[i,k])` with a one-hot `y[i,k]`, ordered by `pos[k] + 1 <= pos[k+1]`. This gives the ascending list without general constraints.
+- The three-term progression constraint is linear: `occupied[i] + occupied[i+d] + occupied[i+2d] <= 2` for each start `i` and step `d`.
