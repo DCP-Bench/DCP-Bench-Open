@@ -1,0 +1,31 @@
+{
+  "skill": "exact",
+  "source_digest": "sha256:8d401bf473d5088c4b64d71294e29bae7fb8cc332db4d8ece570797ed05e03c4",
+  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_3b2cad88-7fc)",
+  "verdict": "leaks",
+  "findings": [
+    {
+      "file": "assets/change-ways/model.py",
+      "line": 24,
+      "quote": "# block this solution projected onto the declared variables only",
+      "category": "benchmark",
+      "why": "'Declared variables' echoes the benchmark's declared outputs; in a standalone program, the sensible wording is the decision (coin-count) variables, as the README and SKILL.md say elsewhere."
+    }
+  ],
+  "refuted": [
+    {
+      "file": "SKILL.md",
+      "line": 74,
+      "quote": "Instances often carry extra keys such as `name` or `note`. They must not reach the model.",
+      "category": "benchmark",
+      "refuted_because": "The text is at SKILL.md:74, but it sits in the 'Reading data' section and tells the user to read a JSON data file key by key in a program they run themselves. The rubric lists that as not a leak. Ignoring metadata keys like name/note is sensible defensive advice for any data file. It does not mention a runner, a probe, instance counts or declared outputs. Unsure at most, so refuted."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 237,
+      "quote": "| Model fails or misreads data when the instance has extra keys (`name`, `note`) | All keys were read or passed in | Read only the keys the model uses, by name ([Reading data](#reading-data)) |",
+      "category": "benchmark",
+      "refuted_because": "The row is at SKILL.md:237 in Common issues. It repeats the same data-reading advice and links back to the 'Reading data' section. It describes how a user's own program can misread its own data file, with no runner, evaluator or protocol involved. That is on the rubric's not-a-leak list (reading a data file in a program the user runs)."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "skill": "clingo-asp",
+  "source_digest": "sha256:b87d96bceffca4058a1176fc8cc862dd13d7ebf55c655e92781a8c2fb6456671",
+  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_3b2cad88-7fc)",
+  "verdict": "leaks",
+  "findings": [
+    {
+      "file": "SKILL.md",
+      "line": 118,
+      "quote": "Reading a value back from a temporary `Control` (`clingo.Control(...).configuration...`) crashed the interpreter (exit 139) in the test image; keep the object in a variable.",
+      "category": "environment",
+      "why": "\"in the test image\" ties the observation to one particular container setup rather than presenting it as a fact about clingo, which matches the rubric's \"inside the image\" example."
+    }
+  ],
+  "refuted": []
+}

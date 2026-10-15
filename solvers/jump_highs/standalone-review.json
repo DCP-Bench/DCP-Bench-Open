@@ -1,0 +1,44 @@
+{
+  "skill": "jump",
+  "source_digest": "sha256:223fdac013f048e3788152ff6928ce14a0fecec84d856a1bb421a327ccb78df1",
+  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_3b2cad88-7fc)",
+  "verdict": "leaks",
+  "findings": [
+    {
+      "file": "SKILL.md",
+      "line": 37,
+      "quote": "The example runs in the test image use a project that already pins all three, so there the install step is not needed.",
+      "category": "environment",
+      "why": "Describes one particular test image's preinstalled Julia project as if it were part of using the solver; a standalone user has no such image."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 102,
+      "quote": "Each `AllDifferent` over expressions is checked in the test image: `[q[i] + i ...] in MOI.AllDifferent(n)` is OPTIMAL when the queens fit (n = 4, 8) and INFEASIBLE for n = 3, so the constraint is enforced, not ignored.",
+      "category": "environment",
+      "why": "Refers to verification done 'in the test image', a specific test setup, rather than to the solver's own behaviour."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 203,
+      "quote": "| Runner shows `exit code 1` with only `[16] _start()` and `in expression starting at ...` | the runner prints the last lines of the Julia stack, not the error | run `julia model.jl <instance>` yourself and read the first line of stderr, which starts with `ERROR:` |",
+      "category": "runner",
+      "why": "Describes what 'the runner' shows and truncates, which only makes sense for someone whose model is executed by a benchmark runner."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 167,
+      "quote": "- Print a status line for the non-solution cases (`{\"status\": \"unsatisfiable\"}` or similar) and exit with code 1 when the optimum is not proven, with the message on `stderr`.",
+      "category": "protocol",
+      "why": "Prescribes a JSON status record and an exit-code convention for unproven optima, an output protocol for a reading program rather than anything JuMP or HiGHS requires."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 166,
+      "quote": "- Print one line per solution when enumerating, so the output can be split on newlines.",
+      "category": "protocol",
+      "why": "Together with the one-line JSON object at line 162 this is a JSONL solution-record convention for something else to parse."
+    }
+  ],
+  "refuted": []
+}

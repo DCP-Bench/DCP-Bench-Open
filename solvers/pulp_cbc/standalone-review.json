@@ -1,0 +1,16 @@
+{
+  "skill": "pulp-cbc",
+  "source_digest": "sha256:0dd7453eb5c1ceeeed2800820edaa35cf704d6305d82466e64861ea3ad75ce2c",
+  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_3b2cad88-7fc)",
+  "verdict": "standalone",
+  "findings": [],
+  "refuted": [
+    {
+      "file": "SKILL.md",
+      "line": 34,
+      "quote": "It is not installed in the tested image, so its API changes are unverified here;",
+      "category": "environment",
+      "refuted_because": "The quote is at SKILL.md:34, but it is not a leak under the rubric. The `environment` category covers facts about one container or test setup that are presented as the solver's, such as image names, /opt paths, or 'inside the image'. This sentence makes no claim about how PuLP or CBC behaves. It only says what the skill was tested against (PuLP 4.0 was not tested), which is the same disclosure as the frontmatter line 'PuLP 4.0 is not tested here'. It names no image and gives no paths, and it is not addressed to someone submitting a model to a benchmark runner. A standalone reader still understands it as 'not tested with 4.0'. Rewording it to drop 'image' would read better, but that is a style change, not a leak. When unsure, the rubric says to prefer refuted."
+    }
+  ]
+}
