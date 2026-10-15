@@ -31,9 +31,11 @@ through one `DimacsVariablePool` per encoding:
   direction.
 
 Integers are 32-bit in paramita. A coefficient outside that range is a Python
-TypeError, and an expression whose value leaves it wraps around without an
-error. The evaluator then rejects the wrong value, so the runner does not check
-for wrapping itself.
+TypeError, and a constraint or objective whose value leaves it wraps around
+without an error. The evaluator then rejects the wrong value, so the runner does
+not check for wrapping itself. Integer outputs are read in Python integers,
+so an output such as a ten-digit number is exact as long as each coefficient
+fits in 32 bits.
 
 Satisfaction enumerates up to the solution limit, blocking the declared outputs
 rather than the whole assignment, so two models that agree on every output
@@ -69,6 +71,11 @@ if _SOFT != _HARD and os.environ.get("DCP_STACK_RAISED") != "1":
     resource.setrlimit(resource.RLIMIT_STACK, (_HARD, _HARD))
     os.environ["DCP_STACK_RAISED"] = "1"
     os.execv(sys.executable, [sys.executable] + sys.argv)
+# `sum(...)` over n Bools is a chain of n nested additions, and the expression
+# walkers below and in paramita recurse once per link: a flat sum of about a
+# thousand terms exceeds Python's default depth of 1000. The raised stack holds
+# the deeper recursion.
+sys.setrecursionlimit(1_000_000)
 
 # Taken before any paramita import, because the plugins print to descriptor 1
 # when they load and when EvalMaxSAT reports a hard-clause conflict.
@@ -199,13 +206,29 @@ def render(node, truth):
         return node
     if isinstance(node, int):
         return node
-    if isinstance(node, BOOLEAN_EXPRESSIONS + INTEGER_EXPRESSIONS):
+    if isinstance(node, INTEGER_EXPRESSIONS):
+        return exact_value(node, truth)
+    if isinstance(node, BOOLEAN_EXPRESSIONS):
         value = evaluate(node, truth)
         if isinstance(value, bool) or isinstance(value, int):
             return value
         raise ValueError(f"an output evaluated to {type(value).__name__}")
     raise ValueError("an output leaf must be a Bool, a Boolean or integer expression, "
                      f"an int or a bool; got {type(node).__name__}")
+
+
+def exact_value(node, truth):
+    """An integer expression's value in Python integers. paramita's `evaluate`
+    computes in 32 bits and wraps; an output such as a ten-digit number must not."""
+    if isinstance(node, int):
+        return int(node)
+    if isinstance(node, UnaryIntegerOperation):
+        return -exact_value(node.operand, truth)
+    if isinstance(node, BinaryIntegerOperation):
+        lhs, rhs = exact_value(node.lhs, truth), exact_value(node.rhs, truth)
+        return lhs * rhs if node.operator == BinaryIntegerOperation.Type.MULTIPLY else lhs + rhs
+    # A Bool or Boolean expression inside a sum counts as 0 or 1.
+    return int(evaluate(node, truth))
 
 
 class Assignment:

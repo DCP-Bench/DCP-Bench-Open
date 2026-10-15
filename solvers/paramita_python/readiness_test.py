@@ -12,8 +12,10 @@ reference computes, in both directions; `optimal_enumeration` that every
 enumerated answer is optimal; `suboptimal_rejected` that the evaluator still
 catches a model that optimises the wrong direction; `optimization_timeout` that
 an EvalMaxSAT search stopped at the budget ends as a timeout, never as an answer.
-`wide_output_rejected` checks that a total beyond 32 bits, which wraps, is not
-accepted as an answer. `rejects_bad_objective` checks that an objective which is not a linear integer
+`wide_output_rejected` checks that a total beyond 32 bits that is not the answer
+is not accepted; `exact_wide_output` that an integer output beyond 32 bits is read
+exactly, and `flat_sum` that a `sum` over thousands of Bools does not exceed the
+recursion depth. `rejects_bad_objective` checks that an objective which is not a linear integer
 expression is refused rather than ignored. `stray_stdout` checks that the
 `c ...` lines EvalMaxSAT writes to standard output do not break the protocol.
 
@@ -112,10 +114,9 @@ LARGE_PB = (PRELUDE + "    subject.append(x + y == n)\n"
             + OUTPUTS + "    return subject, outputs\n")
 UNSATISFIABLE = PRELUDE + "    subject.extend([x == 0, x == 1])\n" + OUTPUTS + "    return subject, outputs\n"
 
-# Paramita integers are 32 bits wide, and a value beyond that wraps around. This
-# candidate forces a total of at least 2**31 from two groups of 31 Bools, so the
-# runner reads a wrapped value. The reference asks for 2**33 + n, which is not
-# that value, so the evaluator must reject the output rather than accept it.
+# A total of at least 2**31 from two groups of 31 Bools. The reference asks for
+# 2**33 + n, which no assignment reaches, so the evaluator must reject the output
+# rather than accept it, whether the value arrives wrapped or exact.
 WIDE_REFERENCE = '''
 # Data
 n = 2
@@ -138,6 +139,27 @@ def build(instance):
     return [low[30], high[30]], {"x": total}
 '''
 # Two assignments with the same declared total: the runner must report it once.
+# Integer outputs are read in Python integers: two coefficients of 2 * 10**9
+# each fit in 32 bits, and their sum, 4 * 10**9, must arrive exact, not wrapped.
+EXACT_REFERENCE = WIDE_REFERENCE.replace("2 ** 33 + n", "4 * 10 ** 9")
+EXACT = '''from paramita.modelling import Bool
+
+
+def build(instance):
+    a, b = Bool("a"), Bool("b")
+    return [a, b], {"x": 2 * 10 ** 9 * a + 2 * 10 ** 9 * b}
+'''
+# A sum over 3000 Bools built with `sum`, a chain of 3000 nested additions,
+# as an output and in a constraint. It exceeded Python's default recursion
+# depth in the runner's expression walkers until the runner raised it.
+FLAT_SUM = '''from paramita.modelling import Bool
+
+
+def build(instance):
+    many = [Bool(f"m{i}") for i in range(3000)]
+    return [sum(many) == 1500], {"x": sum(many)}
+'''
+FLAT_SUM_REFERENCE = WIDE_REFERENCE.replace("2 ** 33 + n", "1500")
 REPEAT_REFERENCE = '''
 # Data
 n = 1
@@ -247,6 +269,8 @@ def main():
         check("native_api", NATIVE)
         check("wide_output_rejected", WIDE, reference=WIDE_REFERENCE,
               expected={"invalid_output", "invalid_solution", "no_solution"})
+        check("exact_wide_output", EXACT, reference=EXACT_REFERENCE)
+        check("flat_sum", FLAT_SUM, reference=FLAT_SUM_REFERENCE, execution_timeout=120)
         repeat = check("repeated_output_once", REPEAT, reference=REPEAT_REFERENCE, solution_limit=2)
         results["repeated_output_once"] = (repeat["accepted"] and repeat["solutions_checked"] == 1)
         check("isolation", ISOLATED)
