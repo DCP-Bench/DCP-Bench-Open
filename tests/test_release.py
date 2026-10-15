@@ -48,7 +48,18 @@ class ReleaseTests(unittest.TestCase):
         self.git("add", "-A")
         self.git("commit", "-q", "-m", "change")
 
+    def review(self, verdict="standalone", findings=(), digest=None):
+        """A standalone review of the demo skill's current content, written outside it."""
+        path = self.root / "review.json"
+        path.write_text(json.dumps({
+            "skill": "demo-python", "reviewer": "test",
+            "source_digest": digest or release.source_digest("demo_python")[1],
+            "verdict": verdict, "findings": list(findings)}))
+        return str(path)
+
     def publish(self, **kwargs):
+        if "review" not in kwargs and not kwargs.get("skip_review"):
+            kwargs["review"] = self.review()
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             return release.publish("demo_python", kwargs.pop("message", "First release"), **kwargs)
 
@@ -93,10 +104,28 @@ class ReleaseTests(unittest.TestCase):
         (other / "sources.md").write_text(SOURCES)
         self.commit()
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-            release.publish("other_python", "First release")
+            release.publish("other_python", "First release", skip_review=True)
         plugins = json.loads(marketplace.read_text())["plugins"]
         self.assertEqual([item["name"] for item in plugins], ["meta", "solvers"])
         self.assertEqual(plugins[1]["skills"], ["./demo-python", "./other-python"])
+
+    def test_release_needs_a_clean_review_of_exactly_this_content(self):
+        with self.assertRaisesRegex(release.ReleaseError, "needs a clean standalone review"):
+            self.publish(review=None)
+        stale = self.review(digest="sha256:" + "0" * 64)
+        with self.assertRaisesRegex(release.ReleaseError, "review the current content"):
+            self.publish(review=stale)
+        leaky = self.review(verdict="leaks", findings=[{"file": "SKILL.md", "line": 3, "quote": "build(instance)",
+                                                         "category": "harness", "why": "a runner entrypoint"}])
+        with self.assertRaisesRegex(release.ReleaseError, "SKILL.md:3: \\[harness\\]"):
+            self.publish(review=leaky)
+        self.assertFalse((self.root / release.LEDGER).exists())
+        self.publish()
+        self.assertEqual(self.ledger()["evidence"]["standalone_review"]["reviewer"], "test")
+
+    def test_skipping_the_review_is_recorded(self):
+        self.publish(skip_review=True)
+        self.assertEqual(self.ledger()["evidence"]["standalone_review"], {"skipped": True})
 
     def test_digest_is_path_and_content_hash_sorted_by_path(self):
         folder = self.source

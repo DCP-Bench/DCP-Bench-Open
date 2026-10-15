@@ -65,9 +65,13 @@ Two Rosetta rules on top:
 - **Nothing is installed on the host.** Write the `Dockerfile` first (step 3), build it,
   and run add-solver's probes and toy tests inside the image, e.g.
   `run_toy_tests.py --cmd 'docker run --rm --network none -v "$PWD":/w -w /w --entrypoint python IMAGE <workspace>/round-N/models/{problem}.py {instance}'`.
-- **The skill stays standalone.** No DCP-Bench, runner or submission instructions in it;
-  it must work outside this repository. Also validate it with
-  `python -m generation.skills validate --project <skill-folder>`.
+- **The skill stays standalone.** No DCP-Bench, runner or submission instructions in it,
+  and no facts about this integration's container (those go in `solvers/<id>/CONTRACT.md`);
+  it must work outside this repository. Check it three ways:
+  `python -m generation.skills validate --project <skill-folder>`,
+  `python -m generation.skills rosetta-mentions <skill-folder>` (names), and a
+  [standalone review](references/standalone-review.md) by a fresh agent (meaning). Keep
+  the clean review's JSON with the setup evidence: a release needs it.
 
 ## 3. Add the Rosetta infrastructure
 
@@ -119,4 +123,4 @@ recurse.
 
 Releasing the standalone skill to the public `skills/` folder is the user's call, not part
 of setup. Name the command as the next step:
-`python -m generation.release publish <id> -m "First release"`.
+`python -m generation.release publish <id> -m "First release" --review <review.json>`.

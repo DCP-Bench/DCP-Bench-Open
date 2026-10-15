@@ -55,8 +55,13 @@ def hashes(folder):
 
 
 # Text that ties a skill to this repository. A solver skill under solvers/<id>/skills/
-# must work outside it; sources.md and evals/ may still name the project.
-ROSETTA_TEXT = re.compile(r"DCP[- ]?Bench|Rosetta|dcp-eval|generation\.\w+|readiness|/input/|request\.json")
+# must work outside it; sources.md and evals/ may still name the project. This catches
+# names only; whether a skill teaches a submission harness or the runner's behaviour is
+# judged by the standalone review (rosetta-skills/solver-setup/references/standalone-review.md).
+ROSETTA_TEXT = re.compile(
+    r"DCP[- ]?Bench|Rosetta|dcp-eval|generation[./]\w+|readiness_test|readiness\.json"
+    r"|/input/|request\.json|\bbuild\(instance\)|\bsolvers/[a-z0-9_]+/|CONTRACT\.md|\brun\.py\b"
+    r"|--instance-count")
 
 
 def rosetta_mentions(folder):
@@ -103,11 +108,13 @@ def validate(folder, project=False):
     files = hashes(folder)
     for file in folder.rglob("*.md"):
         for link in re.findall(r"\]\(([^)]+)\)", file.read_text(encoding="utf-8")):
-            if "://" in link or link.startswith("#"):
+            # External URLs, anchors, and template placeholders such as (<URL>) are not files.
+            if "://" in link or link.startswith("#") or "<" in link:
                 continue
             target = inside(file.parent / link.split("#")[0], folder)
             if not target.is_file():
-                raise ValueError(f"Broken resource link: {link}")
+                raise ValueError(f"Broken resource link: {link} (links must point at an existing file; "
+                                 "for a folder, link a file in it such as its README.md)")
     if project:
         # Provenance is a plain sources.md: which documentation the instructions
         # came from. Bundle bytes are hashed per attempt, where it matters.
@@ -249,11 +256,17 @@ def main():
     for field in ("run", "skill", "candidate", "evidence"): sub.add_argument("--" + field, required=True)
     sub = commands.add_parser("check"); sub.add_argument("proposal"); sub.add_argument("--checks", required=True)
     sub = commands.add_parser("apply"); sub.add_argument("proposal")
+    sub = commands.add_parser("rosetta-mentions", help="List lines of a skill that name this repository; exit 1 on any")
+    sub.add_argument("skill")
     args = parser.parse_args()
     try:
         if args.command == "validate": result = validate(args.skill, args.project)
         elif args.command == "propose": result = propose(args.run, args.skill, args.candidate, args.evidence)
         elif args.command == "check": result = check_proposal(args.proposal, args.checks)
+        elif args.command == "rosetta-mentions":
+            hits = rosetta_mentions(args.skill)
+            print("\n".join(hits) if hits else f"OK: {args.skill} names nothing of this repository")
+            return 1 if hits else 0
         else: result = apply(args.proposal)
         print(json.dumps(result, indent=2))
         return 1 if isinstance(result, dict) and result.get("status") == "rejected" else 0

@@ -247,7 +247,41 @@ def add_changelog(entry):
     path.write_text(head.rstrip("\n") + "\n" + body, encoding="utf-8")
 
 
-def publish(solver_id, message, name=None, bump=None, version=None, allow_dirty=False, dry_run=False):
+def source_digest(solver_id, name=None):
+    """Digest of the content a release of this skill would ship, before its version stamp.
+
+    A standalone review names this digest, so it covers exactly what is released.
+    """
+    source = source_skill(solver_id, name)
+    with tempfile.TemporaryDirectory(prefix="skill-digest-") as directory:
+        return source.name, digest(stage(source, Path(directory)))
+
+
+def checked_review(path, name, expected_digest):
+    """The standalone review in `path`, if it is clean and covers exactly this content."""
+    try:
+        review = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise ReleaseError(f"Cannot read the review {path}: {error}") from error
+    if not isinstance(review, dict) or review.get("skill") != name:
+        raise ReleaseError(f"The review {path} is not a review of {name}")
+    if review.get("source_digest") != expected_digest:
+        raise ReleaseError(f"The review covers {review.get('source_digest')}, but this release ships "
+                           f"{expected_digest}: review the current content (python -m generation.release "
+                           "digest <solver_id> gives the digest)")
+    findings = review.get("findings")
+    if review.get("verdict") != "standalone" or findings:
+        listed = "\n  ".join(f"{item.get('file')}:{item.get('line')}: [{item.get('category')}] {item.get('why')}"
+                             for item in (findings or []) if isinstance(item, dict))
+        raise ReleaseError(f"The review found Rosetta content in {name}; fix it and review again:\n  " + listed)
+    if not str(review.get("reviewer", "")).strip():
+        raise ReleaseError(f"The review {path} does not say who reviewed")
+    return {"verdict": "standalone", "reviewer": review["reviewer"],
+            "file_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest()}
+
+
+def publish(solver_id, message, name=None, bump=None, version=None, allow_dirty=False, dry_run=False,
+            review=None, skip_review=False):
     source = source_skill(solver_id, name)
     name, relative = source.name, source.relative_to(ROOT).as_posix()
     dirty = bool(git("status", "--porcelain", "--untracked-files=all", "--", relative))
@@ -266,6 +300,15 @@ def publish(solver_id, message, name=None, bump=None, version=None, allow_dirty=
             print(f"{name} {current} is already released with this content; nothing to do "
                   "(pass --bump or --version to release it under a new version anyway)")
             return None
+        if skip_review:
+            reviewed = {"skipped": True}
+            print(f"warning: releasing {name} without a standalone review (recorded in the ledger)", file=sys.stderr)
+        elif review is None:
+            raise ReleaseError("A release needs a clean standalone review: see "
+                               "rosetta-skills/solver-setup/references/standalone-review.md, then pass "
+                               "--review FILE (or --skip-review, which the ledger records)")
+        else:
+            reviewed = checked_review(review, name, source_digest)
         new = next_version(current, bump, version)
         stamp_version(staged / "SKILL.md", new)
         meta = frontmatter(staged)
@@ -279,7 +322,7 @@ def publish(solver_id, message, name=None, bump=None, version=None, allow_dirty=
             "message": message,
             "source": {"solver_id": solver_id, "path": relative, "commit": commit,
                        "tree": git("rev-parse", f"HEAD:{relative}", check=False), "dirty": dirty},
-            "evidence": {"validate_project": "passed", "rosetta_free": True,
+            "evidence": {"validate_project": "passed", "rosetta_free": True, "standalone_review": reviewed,
                          "readiness": readiness_evidence(solver_id), "tested_with": tested_with(staged)},
         }
         target = ROOT / PUBLISHED / name
@@ -380,6 +423,12 @@ def main(argv=None):
     choice.add_argument("--version", help="explicit X.Y.Z, greater than the released version")
     publish_p.add_argument("--allow-dirty", action="store_true", help="release uncommitted changes (recorded)")
     publish_p.add_argument("--dry-run", action="store_true", help="run every gate, write nothing")
+    reviewing = publish_p.add_mutually_exclusive_group()
+    reviewing.add_argument("--review", metavar="FILE", help="the clean standalone review of this content")
+    reviewing.add_argument("--skip-review", action="store_true", help="release without a review (recorded)")
+    digest_p = commands.add_parser("digest", help="print the digest a standalone review must name")
+    digest_p.add_argument("solver_id")
+    digest_p.add_argument("--skill", help="skill folder name, when the integration has several")
     status_p = commands.add_parser("status", help="compare solvers/ skills with their releases")
     status_p.add_argument("--strict", action="store_true",
                           help="exit 1 if a published copy was edited directly, is missing, or is unrecorded")
@@ -390,7 +439,10 @@ def main(argv=None):
     try:
         if args.command == "publish":
             publish(args.solver_id, args.message, args.skill, args.bump, args.version,
-                    args.allow_dirty, args.dry_run)
+                    args.allow_dirty, args.dry_run, args.review, args.skip_review)
+        elif args.command == "digest":
+            name, value = source_digest(args.solver_id, args.skill)
+            print(f"{name} {value}")
         elif args.command == "withdraw":
             withdraw(args.name, args.message)
         else:

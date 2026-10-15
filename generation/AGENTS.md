@@ -206,19 +206,25 @@ decides, to the public skill repository `skills/solvers/<name>/`. Never edit a r
 directly; change the source and release again.
 
 ```sh
-python -m generation.release publish ID -m "what changed" [--bump patch|minor|major | --version X.Y.Z] [--dry-run]
+python -m generation.release digest ID                 # what a standalone review must name
+python -m generation.release publish ID -m "what changed" --review REVIEW.json [--bump patch|minor|major | --version X.Y.Z] [--dry-run]
 python -m generation.release status [--strict]
 python -m generation.release withdraw NAME -m "why"
 ```
 
 `publish` stages the git-tracked files of the source, refuses uncommitted changes (unless
 `--allow-dirty`, which is recorded), a skill that fails `generation.skills validate --project`,
-and one that mentions this repository (`DCP-Bench`, `generation.*`, `readiness`, ...). It
+and one that names this repository (`generation.skills rosetta-mentions`: `DCP-Bench`,
+image tags, repository paths, `build(instance)`, ...). It also needs a clean standalone
+review (`rosetta-skills/solver-setup/references/standalone-review.md`): a fresh agent's JSON
+verdict that the skill teaches the solver, not this benchmark's harness, naming the digest
+`release digest` prints, so it covers exactly what ships. `--skip-review` releases without
+one and the ledger records that. It
 copies the skill wholesale and stamps `metadata.version` into the published `SKILL.md`. The
 first release is `0.1.0`, and `--bump` defaults to `patch`, so `--bump major` declares a
 skill stable at `1.0.0`. It records the release in `skills/versions.json`: version, the
 digest of the published folder, the digest of the source content, the source commit and git
-tree, whether the source was dirty, the readiness record and image, the `Tested with` line
+tree, whether the source was dirty, the review (reviewer and file hash), the readiness record and image, the `Tested with` line
 of `sources.md`, and the earlier releases. It regenerates the catalog table in
 `skills/README.md` and the `solvers` plugin in `skills/.claude-plugin/marketplace.json`,
 which lists every released solver skill so install tools show them as one group (meta

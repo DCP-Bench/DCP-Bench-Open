@@ -68,6 +68,14 @@ class SkillWorkflowTests(unittest.TestCase):
                          "skill-standard.md has drifted between bundles: " +
                          ", ".join(str(p.relative_to(root)) for p in copies))
 
+    def test_placeholder_links_are_not_files_but_missing_files_are_reported(self):
+        """A template's [<install guide>](<URL>) is not a link; a link to a missing file is."""
+        (self.bundle / "SKILL.md").write_text(self.text + "[<guide>](<URL>) [<example>](assets/<example>/README.md)")
+        self.assertEqual(skills.validate(self.bundle)["name"], "test-skill")
+        (self.bundle / "SKILL.md").write_text(self.text + "[examples](assets/)")
+        with self.assertRaisesRegex(ValueError, "link a file in it"):
+            skills.validate(self.bundle)
+
     def test_bundle_hashes_cover_every_file(self):
         """Attempt snapshots rely on these hashes, so nothing may be skipped."""
         expected = {"SKILL.md", "evals/evals.json", "sources.md"}
