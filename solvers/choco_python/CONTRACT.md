@@ -44,10 +44,9 @@ enumerating.
 
 ## Solving
 
-- The runner sets one parameter, Choco's time limit, as `limit_time("<ms>ms")` with the
-  milliseconds left. pychoco 0.2.1 ignores a limit written in milliseconds (checked in
-  the image: `"1500ms"` ran an enumeration for 8 s, `"1.5s"` stopped it at 1.5 s), so in
-  practice the search has no solver-side limit.
+- The runner sets one parameter, Choco's time limit, as `limit_time("<seconds>s")` with
+  the time left (at least 1 ms). It is written in seconds because pychoco 0.2.1 ignores
+  a limit written in milliseconds.
 - Optimisation: `find_optimal_solution` on a first build. A result returned at least
   0.5 s before the budget left is the optimum; no result that early gives `unsat`; any
   later return gives `timeout`.
@@ -57,9 +56,9 @@ enumerating.
   `solve()` returning false at least 0.5 s before the budget is exhaustion (`complete`,
   or `unsat` with nothing found); later is `timeout`.
 - Time: the budget runs from the start of the run (including the first `build`). A
-  `SIGALRM` at `execution_timeout + 5` s becomes `timeout`, but only once control is back
-  in Python (between solutions); a single native search that outlasts it is killed by
-  the evaluator at `execution_timeout + 10` s, reported as `execution_timeout`.
+  search stops at Choco's own limit; a search stopped that late is reported as
+  `timeout`. A `SIGALRM` at `execution_timeout + 5` s is a backstop that only fires once
+  control is back in Python.
 
 ## Compilation
 
