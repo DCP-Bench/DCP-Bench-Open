@@ -1,0 +1,4 @@
+- Branching on the cow-to-son integer variables (SIZE_MIN, AFC with restarts, either value order) solved the 25-cow example but timed out at 60 s on the 81-cow, 9-son instance.
+- Branching son by son on the Boolean grid (gives[i][s], larger cows first, BOOL_VAL_MAX) solved both in under 0.2 s. The sum constraint per son then prunes early.
+- precede over the sons with equal cow counts is valid only for interchangeable sons; the post is data-driven, so it is skipped when all counts differ.
+- IPL_DOM on the weighted Boolean linear and on count made no measurable difference to search here.

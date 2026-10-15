@@ -1,0 +1,2 @@
+- Costas: a difference triangle as `rel(d == x_i - x_j)` plus `distinct(d, IPL_DOM)` per length accepted on all 5 instances (n = 8..12) with no symmetry breaking; quick and full evaluation took about 9 s per instance.
+- The `rel(d != 0)` redundancy was added in the plan but not measured separately.

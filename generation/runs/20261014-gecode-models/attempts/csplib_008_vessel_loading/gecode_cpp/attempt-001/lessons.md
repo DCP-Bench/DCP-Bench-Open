@@ -1,0 +1,3 @@
+- Gecode `channel(home, BoolVarArgs, IntVar y, offset)` restricts y to offset..offset+n-1: with an "empty" value, add a boolean for it at index 0 and use offset 0.
+- A cell-owner view (owner per cell, channel to the covering booleans) with an exact-area cell constraint solves tight packings where nooverlap plus restarts and AFC timed out.
+- Rectangle packing with separations: nooverlap with variable widths (x0, w, x1, y0, h, y1 form) works without a decomposition.

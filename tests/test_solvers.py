@@ -20,6 +20,7 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "jump_highs": "model_jump.jl",
           "essence_prime_minion": "model_essence.eprime",
           "pycsp3_ace": "model_pycsp3.py",
+          "gecode_cpp": "model_gecode.cpp",
           "scip_python": "model_scip.py",
           "idp_z3": "model_idp.idp"}
 
@@ -54,6 +55,7 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "jump_highs": ("Min,", "Max,"),
                       "essence_prime_minion": ("minimising", "maximising"),
                       "pycsp3_ace": ("minimize", "maximize"),
+                      "gecode_cpp": ("minimize(", "maximize("),
                       "paramita_python": ("minimize", "maximize"),
                       "scip_python": ("minimize", "maximize"),
                       "idp_z3": ("minimize", "maximize")}

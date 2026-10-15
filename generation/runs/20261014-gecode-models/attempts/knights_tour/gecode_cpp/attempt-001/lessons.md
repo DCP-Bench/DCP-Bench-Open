@@ -1,0 +1,3 @@
+- Open knight's tour: a dummy closing node turns the path into one circuit(IPL_DOM) over n*n+1 nodes; succ[c] restricted to knight neighbours plus the dummy by IntSet domains.
+- Move numbers come from element over rank (with a spare dummy entry) plus one reified step per square; no separate distinct needed.
+- Accepted first try on all 5 instances up to 10x10 (under 0.3 s each for checking).

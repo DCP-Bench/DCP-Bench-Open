@@ -1,0 +1,7 @@
+Find a 10 digit number that uses each of the digits 0 to 9 exactly once -> digits d[0..9] in 0..9, distinct(*this, d, IPL_DOM)
+the number has 10 digits, so its leading digit is not zero -> rel(*this, d[0] != 0)
+the number formed by the first n digits is divisible by n (n = 1..9) -> prefix p_n = 10*p_{n-1} + d[n-1] (linear), p_n = n*q_n (rel, q_n in 0..10^n/n)
+the whole number is divisible by 10 -> d[9] == 0 (rel)
+the number itself is printed -> number = sum of d[i]*10^(9-i) (linear over digits)
+branching: digits in reading order, INT_VAL_MIN (search over the digits)
+objective: none (satisfaction)

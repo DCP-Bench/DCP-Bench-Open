@@ -1,0 +1,2 @@
+expr(*this, a*b, IPL_DOM) on two IntVars with domains up to 10000 hit the 2 GB memory limit within 10 s (memory_limit, OOM -9); the default propagation level for the same product was accepted at once. For products of large domains, leave the default level and check memory before raising it.
+A square-product constraint (a*b = n*n) has no row in the constraint map; decomposed as expr product plus rel equality, it works with the default level.

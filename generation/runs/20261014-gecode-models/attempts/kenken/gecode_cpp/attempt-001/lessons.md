@@ -1,0 +1,2 @@
+- The kenken instances carry no cage operation, so the model accepts any operation that fits the cage size (sum or product for any cage; difference or quotient for two cells). Single-cell cages fix the digit to the target.
+- A disjunction over operations is a clause over reified expr(...) Booleans; no decomposition of the globals was needed, and distinct(IPL_DOM) on rows and columns solved all 5 instances within limits.

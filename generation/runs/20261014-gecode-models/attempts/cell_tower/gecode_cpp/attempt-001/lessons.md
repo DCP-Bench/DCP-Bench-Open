@@ -1,0 +1,2 @@
+- "y implies OR of x" for a Boolean y with several Boolean x is one linear: `linear(*this, coef, vars, IRT_GQ, 0)` with +1 on the x's and -1 on y. No reification needed.
+- A weighted sum equal to an IntVar total works as `linear(*this, IntArgs(w), BoolVarArgs, IRT_EQ, IntVar)`; build the BoolVarArgs by index from a BoolVarArray (no direct conversion used).

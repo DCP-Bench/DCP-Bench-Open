@@ -1,0 +1,5 @@
+Select a set of workers so that every task is performed by at least one hired worker -> for each task, Boolean OR over its qualified workers: linear(*this, cover_t, IRT_GQ, 1)
+Each worker has a hiring cost, minimise the total cost -> linear(*this, IntArgs(Cost), hire, IRT_EQ, total) with total = IntVar(0, sum Cost), minimize(total)
+Print total_cost and workers as a list of booleans, worker i True if hired -> output("total_cost", total), output("workers", hire)
+Branching: hire Booleans with BOOL_VAR_NONE, BOOL_VAL_MIN (default propagation; no decomposition needed, the cover is a linear over Booleans, the cost is a linear over Booleans)
+Objective: minimise total (BAB)

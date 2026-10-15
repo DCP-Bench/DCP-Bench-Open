@@ -1,0 +1,3 @@
+- Branching on the 27 row flips first timed out (60 s, optimum 812 not proven) on the example.
+- Branching on the 9 column flips first solved every instance in under 0.2 s: once the columns are fixed, each row's sign is forced by its non-negative sum, so the row flips follow by propagation.
+- Flipping every row and column together is a symmetry; fixing rowFlip[0] = 0 halves the search and does not change the objective.

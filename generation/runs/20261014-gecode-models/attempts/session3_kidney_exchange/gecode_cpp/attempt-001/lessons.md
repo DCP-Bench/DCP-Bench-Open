@@ -1,0 +1,3 @@
+- Kidney exchange as a permutation: succ[i] in {i} + compatible[i], distinct(succ, IPL_DOM); self-loop = idle person. Gives disjoint cycles with out = in = 1 automatically.
+- dom(*this, var, IntSet(IntArgs(sorted_unique))) restricts a variable domain after an IntVarArray is created; IntVarArray members cannot be rebuilt per element.
+- Largest instance (20 people, dense lists) timed out at 180 s with plain INT_VAR_SIZE_MIN/INT_VAL_MIN; the cycle-cover objective propagates weakly. Next step if needed: a value order that prefers donating, or a cycle-based implied bound.

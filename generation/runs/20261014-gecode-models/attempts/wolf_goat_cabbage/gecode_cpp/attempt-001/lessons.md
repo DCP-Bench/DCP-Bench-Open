@@ -1,0 +1,2 @@
+- BoolVarArray members as outputs crash the driver with "C++ process exited -11" on any model, even one that only creates and outputs them; IntVarArray 0/1 outputs work (the declared "bool" shape is accepted as 0/1 ints).
+- Full reification `rel(*this, x, IRT_EQ, y, b)` on IntVar pairs plus `imp(b)` half-reification covers "if the item crosses, it is with the farmer" without any BoolVar XOR relations.

@@ -1,0 +1,3 @@
+- Mirror pairs: sharing one IntVar for the second date (assigning the handle in the array) halves the search and needs no equality posts. Branch only on the first date of each pair.
+- With restarts(100) and AFC, a satisfaction model found one solution in about 10 s but no second solution in 180 s when opponents were branched first. Branching the home/away/bye pattern first found two solutions in about 11 s. The second solution is the one enumeration needs.
+- Per-date home/away balance and a random value order did not help this model.

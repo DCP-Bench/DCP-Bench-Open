@@ -1,0 +1,2 @@
+- Problems with no instance fields: the statement's numbers are problem constants, so mirror them in the model with a comment saying they come from the statement.
+- A two-variable linear program needs only two linear rows, one objective expression, and branching on the decisions. Accepted on the first attempt, optimum 1330.

@@ -1,0 +1,2 @@
+- Hanging-weights style puzzles: read each bar's pivot from the string column, one unit = 3 characters, a string on a non-plus column goes to the nearest plus; the given equations (5C=D, 3G=2(C+D)) confirmed the convention.
+- Each bar gives one torque equation, so this puzzle has 8 equations for 13 weights; with domains 1..13 the model still returned a unique solution (the second-solution search found none).

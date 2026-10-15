@@ -1,0 +1,1 @@
+Gecode 6.2.0 linear sums on the five brigands; the description's fractions are cleared by multiplying the second condition by 6. Lesson: no lessons beyond what the skill already says; the problem is linear and small.

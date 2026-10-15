@@ -1,0 +1,3 @@
+- Pipe connectivity without a path global: a distance variable per cell (0 at the ends, strictly closer neighbour required for every other cell) rules out loops; no skill row covers this, so it is a decomposition.
+- `expr(*this, (B[p] == B[q]) && (d[q] == d[p] - 1))` compiled first time and gave reified conjunctions; `clause(BOT_OR, ..., 1)` ensures a predecessor.
+- Degree per cell as a `linear` over reified `B[p] == B[q]` Booleans (one Boolean per undirected edge, shared by both ends) is a compact pipe-end/interior check.

@@ -1,0 +1,2 @@
+- A 20-digit cryptarithm cannot be one linear sum: the place values reach 10^19, past the 2^31 int limit of IntVar. Post one linear per column with carry variables instead (coefficients 1, 1, 1, -1, -10).
+- Stated the carries as IntVar in 0..1 with explicit zero ends; the evaluator accepted the model on the first evaluation.

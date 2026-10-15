@@ -1,0 +1,2 @@
+- Multiplying a fraction equation through by the denominators gives a 3-factor product equation; `expr` on each pairwise product, then a linear `rel`, is accepted at default propagation with domains up to 99.
+- `distinct(IPL_DOM)` on digits 1..9 plus the product relation solves with no search issues (0.03 s solve time).

@@ -1,0 +1,2 @@
+- Gecode branch(*this, IntVar, valbranch) takes only a value branch; a single variable with a variable branch is not a valid call. Use branch(*this, x, INT_VAL_MIN()).
+- A cube check via element over a table of k^3 indexed by the root gives domain consistency and needs no nonlinear propagator.

@@ -1,0 +1,2 @@
+- Reverse-complement check: the Watson-Crick complement of letter c is 5 - c, so "x[n-1-k] matches comp(y[k])" is the single test x[n-1-k] + y[k] == 5, reified with expr(...).
+- Hamming and reverse-complement bounds have no Gecode global; per-position reified booleans with linear(IRT_LQ, n-4) were enough (6/6 instances accepted, under 0.5 s each).

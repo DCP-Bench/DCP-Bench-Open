@@ -1,0 +1,2 @@
+- linear(IntArgs(c), x, IRT_EQ, k) reads as sum(c_i * x_i) = k, so a ratio like w = 5m needs coefficients {1,-5} over {w,m}; {5,-1} over {w,m} gives m = 5w and was unsat with no hint in the output.
+- An instance file of `[]` (no fields) means every number comes from the description; the model mirrors the problem constants and says so in a comment.

@@ -1,0 +1,1 @@
+- A ratio bound F/(k-F) <= 7/3 per prefix becomes F <= 7k/10 with unit-coefficient linear over the prefix Booleans; no decomposition needed.

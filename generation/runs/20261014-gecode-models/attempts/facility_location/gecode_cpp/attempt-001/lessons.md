@@ -1,0 +1,3 @@
+- Linking a Boolean to an IntVar with `channel(*this, b, x)` lets one `linear` express the per-warehouse capacity `sum_j ships <= M * open`.
+- `rel(*this, b0, IRT_LQ, b1)` posts a Boolean implication; `rel(*this, b0, BOT_OR, b1, 1)` posts the either-or.
+- Five-region instance timed out at 187 s with plain value-min branching; a first-fail search on the ships or stronger total-cost bounds may help.

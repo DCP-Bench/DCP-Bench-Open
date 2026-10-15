@@ -1,0 +1,2 @@
+- Futoshiki `lt` entries are [row, col, row, col], 1-based; the first cell is the smaller one (confirmed by acceptance on the unique-solution instances).
+- distinct with IPL_DOM plus branch(INT_VAR_SIZE_MIN, INT_VAL_MIN) solved all 5 instances in under 1 ms of search; compile dominates the runtime (about 8-10 s per instance).

@@ -1,0 +1,2 @@
+- Adjacent-pair cost: `extensional(*this, pair, tuples, true, Reify(c, RM_EQV), IPL_DOM)` with a TupleSet of the conflicting ordered pairs gives a reified 0/1 per pair; `expr(*this, sum(BoolVarArgs))` sums them. Compiled and accepted first time.
+- A problem whose instance has no fields still needs the problem's own data (here the get-along lists) in the model; it is written as a comment-headed table, not read from the instance.

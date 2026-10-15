@@ -1,0 +1,1 @@
+Attempt 1 was accepted at once. The fixed model reads A from the instance, and the subset-sum and disjointness constraints map directly to linear over Booleans. Only the bool linear form was needed; no decomposition.
