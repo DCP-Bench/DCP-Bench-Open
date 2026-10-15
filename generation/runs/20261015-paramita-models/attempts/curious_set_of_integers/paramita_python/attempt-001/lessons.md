@@ -1,0 +1,2 @@
+- One-hot root c with weight c*c (1095 values, weights up to 1.2e6) inside a*x+1 == c*c hit the 2 GB limit (memory_limit at quick check).
+- Fix: keep c one-hot, put c*c in binary bits fixed per value with If(root_c, bit_k), then one PB with 2^k weights over the bits. Accepted at 35 terms.

@@ -1,0 +1,2 @@
+- The grocery product is taken in dollars: prices are in cents, so prod(prices) = total * 100^(n-1). Reading the product in cents gives an unsat model for the 711 instance (no 4 divisors of 711 sum to 711 with product 711).
+- A prefix-product reachability over the divisors of M, with one-hot price items, solved the instances at once; the state keys must cover the previous state's keys, not the full divisor set.

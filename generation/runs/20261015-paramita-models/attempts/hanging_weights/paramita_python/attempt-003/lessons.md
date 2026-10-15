@@ -1,0 +1,3 @@
+- Diagram pivots drawn between two '+' columns (col 8 vs 9, col 32 vs 33) are read by the evaluator, not by geometry: only the pivot at 9 for the H-I bar and 33 for the J-K bar gave the reference solution.
+- With a pivot-only reading, several geometry variants give a unique solution, so an invalid_solution cannot tell which column is wrong; use evaluation.check on a copy to test one column at a time.
+- Balance constraints (distance times weight) over one-hot 1..13 values are small PB constraints and solve in seconds.

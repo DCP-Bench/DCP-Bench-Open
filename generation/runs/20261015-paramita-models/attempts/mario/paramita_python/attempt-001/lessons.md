@@ -1,0 +1,1 @@
+Pruning arcs whose fuel alone exceeds the limit, and a per-house visited Bool for the gold objective, made the optimum enumeration finish (the first version proved the optimum but timed out enumerating a second solution).

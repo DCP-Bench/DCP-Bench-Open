@@ -1,0 +1,1 @@
+Unary order (u_i >= k) plus succ gives the same optimum as the one-hot encodings on the 12-city example and the 6-city duplicate case, but the optimality proof still times out on the 20- and 30-city instances (eil51_first20, berlin52_first20, eil76_first30).

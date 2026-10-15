@@ -1,0 +1,2 @@
+- Devil's word: one Bool per position (true = '+'); the signed value 2*a*b - a is an integer expression with a constant offset, and works as an output directly.
+- Constant offsets in PB sums (e.g. 2*a*b - a) are accepted by to_cnf and by the output reader without a helper variable.

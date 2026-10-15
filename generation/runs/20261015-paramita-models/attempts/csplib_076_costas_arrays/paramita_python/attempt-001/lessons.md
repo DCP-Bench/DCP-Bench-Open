@@ -1,0 +1,2 @@
+- Costas: one-hot positions plus a one-hot difference per (line, position) pair with If(xv & xv, D) implications, then sum <= 1 per line and difference, accepted on all 5 instances in one attempt.
+- Paramita accepts nested Iff(agree, Iff(a, b)) for equality indicators.

@@ -1,0 +1,3 @@
+- Stage count comes from instance["stage"]: output lists have that length; stage 0 is the start state and the last stage is the finish.
+- Items crossing: a moves Bool per item and step, Iff(moves, a + b == 1), then sum(moves) <= 1; "crosses only with the farmer" is If(moves, Iff(item, boat)).
+- The evaluator accepted at all 5 instances on the first real evaluation; the 8-stage example and the 10-16 stage instances behaved the same.

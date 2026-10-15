@@ -1,0 +1,1 @@
+Unary production (up to 160 per product) plus a PB objective proved the optimum but CaDiCaL timed out on the solution enumeration. Binary bits for production (units = sum 2^k bit_k, with units <= a per-product bound) solved all five instances in under a second each.

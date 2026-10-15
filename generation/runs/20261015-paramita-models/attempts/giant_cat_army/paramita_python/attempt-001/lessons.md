@@ -1,0 +1,2 @@
+- Paramita: a pure-constant puzzle with an empty instance still needs its statement's constants written in the model; no instance data was read.
+- Sequence-of-states problems: one-hot per position over the value range plus one op Bool per step gave an accepted model in one attempt.
