@@ -1,0 +1,4 @@
+- visits each city exactly once -> sum(succ) == 1 per row and per column
+- returns to the origin city, one closed loop -> unary positions as in attempt-005
+- (new) the route can be driven either way round -> clause: the city after the origin has a smaller index than the city before it
+- objective: minimise travel distance -> reduced costs plus constant, as in attempt-005

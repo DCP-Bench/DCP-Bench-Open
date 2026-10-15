@@ -1,0 +1,3 @@
+- Rewriting shipping cost as cost - cheapest-per-region (constant moved out) plus a redundant total-capacity constraint cut solve time from ~75 s to ~1 s on four of five instances; json:4 (five regions, cap 120) still times out.
+- Unary, base-10 digit and unit-assignment encodings did not prove json:4 in 60 s either.
+- A layered-tail unary objective proved optima fast but made the CaDiCaL enumeration step at the fixed optimum time out ("the optimum was proven, the enumeration was not"): keep the objective binary-weighted.

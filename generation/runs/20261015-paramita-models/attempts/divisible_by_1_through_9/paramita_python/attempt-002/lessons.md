@@ -1,0 +1,2 @@
+- Integer outputs up to 10 digits are read exactly when each coefficient fits in 32 bits: `sum(10**(10-p) * digit_p)` with one-hot digits was accepted (coefficients up to 9e9 were not a problem in the output).
+- Prefix divisibility: replacing each weight 10^(n-p) by its residue mod n and bounding the quotient with a one-hot t keeps every constraint small.

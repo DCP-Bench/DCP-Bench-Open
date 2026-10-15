@@ -1,0 +1,2 @@
+Optimum proof speed in EvalMaxSAT depends on objective weights. Where a demand is met with equality, subtract the cheapest unit cost per (destination, product) from all origins and add the constant back: weights shrink and many become 0.
+This cut json:1 from about 13 s to 2 s and solved json:3/json:4 (162 s / 38 s) that timed out before. json:3 (4 origins, 2 destinations) is still near the 180 s limit.

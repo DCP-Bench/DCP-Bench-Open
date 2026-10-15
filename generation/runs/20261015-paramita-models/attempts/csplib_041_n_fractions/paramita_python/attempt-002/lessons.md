@@ -1,0 +1,2 @@
+- Paramita n_fractions: a table over the seven digits that fix the other two (the two-digit number HI is forced by the equation) solves the example in about 6 s, where digit-monomial and bit-level product encodings timed out.
+- The digit table has 181440 tuples and about 180k clauses; compile time is small, so large tables are fine here.
