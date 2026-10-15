@@ -5,6 +5,12 @@ framework. Each integration realises it in its own terms, documented in
 `solvers/<id>/CONTRACT.md`. Read this file first, then the integration's contract, then
 the solver skill for the API.
 
+The solver skill says what the solver does; the contracts say what the runner does,
+including any setting it forces on the solver and every fact about its container (paths,
+environment variables, network, preinstalled packages). The skill's examples are
+standalone programs, not submissions. Where the skill and a contract disagree about a
+submission, the contract wins, and the skill is corrected if it is wrong about the solver.
+
 A submission is checked against a trusted reference
 (`dataset/<problem>/<problem>.cpmpy.py`) by the evaluator ([evaluation/README.md](../evaluation/README.md)).
 `python -m generation.brief PROBLEM` prints the facts this contract refers to: the declared
@@ -98,7 +104,8 @@ this contract onto the integration, and solver-setup knows what a new runner mus
 | `## Instance` | In what form do the instance fields arrive (types, index base, strings, name changes)? |
 | `## Outputs` | How are the declared outputs handed back (container, keys, allowed value kinds)? |
 | `## Objective` | How is the objective declared, and what form must it take? |
+| `## Solving` | Which solver settings the runner forces; how it maps the solver's status to a result; how it rules out a reported solution to find the next and decides the search is exhausted; how the time budget becomes `timeout` |
 | `## Compilation` | Is the submission compiled, and under which budget? |
-| `## Environment` | Image, language and solver versions; what is available to import |
+| `## Environment` | Image, language and solver versions; edition or licence limits and the error they give; what is available to import (JSON library included); binary paths, environment variables and network inside the container |
 | `## Traps` | What this integration rejects or mishandles that the generic contract does not predict |
 | `## Example` | A minimal complete submission (the integration's pilot fixture) |

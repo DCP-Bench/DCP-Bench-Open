@@ -41,8 +41,26 @@ A `SparseAxisArray` or a quadratic expression is rejected (`execution_error`).
 ## Objective
 
 `@objective(model, Min, expr)` or `@objective(model, Max, expr)`, linear. No objective
-(`FEASIBILITY_SENSE`) is a satisfaction problem. The driver sets one thread, silence,
-`mip_rel_gap = 0` and the time limit; only `OPTIMAL` counts as an answer.
+(`FEASIBILITY_SENSE`) is a satisfaction problem.
+
+## Solving
+
+- Forced by the driver after `build`: `set_optimizer(model, HiGHS.Optimizer)`,
+  `set_silent`, `threads = 1`, `mip_rel_gap = 0` (so `OPTIMAL` means proven) and a time
+  limit per solve.
+- Status: `OPTIMAL` with a feasible point is an answer; `INFEASIBLE` and
+  `INFEASIBLE_OR_UNBOUNDED` are `unsat` (no re-solve); `DUAL_INFEASIBLE` is `error`
+  (objective unbounded); `TIME_LIMIT` is `timeout`, including a feasible point HiGHS did
+  not prove; any other status is `error`.
+- Enumeration (only when `solution_limit > 1`) pins the objective within 1e-5 of the
+  proven optimum, then adds a big-M no-good per answer over the variables under the
+  declared outputs (a binary indicator below and above each current value). A repeated
+  output value is re-solved, not emitted. Infeasible after a no-good, or every variable
+  fixed, is `complete`.
+- Time: `run.py` gives the driver a deadline 2 s inside the budget; each solve gets the
+  time left minus 0.5 s, and under 0.5 s left is `timeout`. Package loading, `build` and
+  JIT compilation spend the same budget. A driver still running 1 s before the budget
+  ends is killed and reported as `timeout`, after relaying the solutions it recorded.
 
 ## Compilation
 
@@ -51,9 +69,15 @@ budget.
 
 ## Environment
 
-Image `dcp-eval/jump_highs:v1`: Julia 1.12.7, JuMP 1.32.0, HiGHS.jl 1.26.0 (HiGHS_jll
-1.15.1), JSON 1.10.0, pinned in [Manifest.toml](Manifest.toml) and precompiled into a
-read-only depot; no network.
+Image `dcp-eval/jump_highs:v1`: Julia 1.12.7 (`/usr/local/julia/bin/julia`), JuMP 1.32.0,
+HiGHS.jl 1.26.0 (HiGHS_jll 1.15.1), JSON 1.10.0, pinned in [Manifest.toml](Manifest.toml)
+and precompiled into the read-only depot `/opt/julia-depot`. `JULIA_PROJECT=/opt/jump`
+is the environment that makes `using JuMP, HiGHS, JSON` resolve;
+`JULIA_DEPOT_PATH=/tmp/julia-depot:/opt/julia-depot` puts anything Julia writes in `/tmp`,
+and `JULIA_PKG_OFFLINE=true`: nothing can be added, and the container has no network.
+No licence. The runner itself is Python 3.11.2 (`/usr/bin/python3`), which the submission
+never sees. For an ad hoc run, `--entrypoint sh` bypasses `/opt/runner/run.py`; `julia`
+then picks up the same project.
 
 ## Traps
 
@@ -64,8 +88,8 @@ read-only depot; no network.
   expression over many variables makes the driver re-solve through every assignment
   with the same value. Declare such an output as its own bounded `Int` variable tied by
   an equality.
-- The driver relays a `String` leaf unchanged; the old skill lists strings as an
-  allowed output, but the generic contract rejects them.
+- The driver relays a `String` output leaf unchanged instead of failing, and the
+  evaluator then rejects it as `invalid_output` ("Expected integer").
 
 ## Example
 

@@ -41,15 +41,45 @@ whatever its sense. The runner accepts a solve only when CBC's `sol_status` is
 `LpSolutionOptimal`, then pins the objective to within 1e-6 of that value before
 enumerating.
 
+## Solving
+
+- Each solve is `PULP_CBC_CMD(msg=0, threads=1, timeLimit=max(1, int(seconds left)))`:
+  one thread, a whole-second limit of at least 1 s; no gap or presolve option is set.
+- Status: `Infeasible` gives `unsat` on the first solve and `complete` after;
+  `Unbounded` on the first solve gives `error` (see Traps). Otherwise a solve counts only
+  when `sol_status` is `LpSolutionOptimal`: CBC reports `Optimal` even when it stopped on
+  its time limit, and `sol_status` then reads `LpSolutionIntegerFeasible`, which gives
+  `timeout` ("Candidate optimum was not proven" when there is an objective).
+- Enumeration (solution limit above 1): every variable under a declared output, those
+  inside an output expression included, must be `Integer`/`Binary` with finite bounds,
+  else `unsupported`. The objective is held within 1e-6 of the optimum.
+- Next solution: a big-M no-good cut over those variables, with binaries
+  `_below_<k>_<i>` and `_above_<k>_<i>`, then a fresh CBC solve. A solution whose declared
+  values repeat an earlier one (the cut moved only a variable inside an expression) is
+  skipped. Exhausted when the cut problem is `Infeasible`, or every such variable is
+  already fixed by its bounds.
+- Time: the budget runs from the start of the run (`build` included). A `SIGALRM` at
+  `execution_timeout + 5` s becomes `timeout`.
+
 ## Compilation
 
 None.
 
 ## Environment
 
-Image `dcp-eval/pulp_cbc:v1`: Python 3.12.11, PuLP 3.3.2 with the CBC binary its wheel
-ships, nothing else (the shared `runner/requirements.txt` stack is not installed). The
-runner solves with one thread and a whole-second time limit.
+Image `dcp-eval/pulp_cbc:v1` (`python:3.12.11-slim-bookworm`): Python 3.12.11 at
+`/usr/local/bin/python`, PuLP 3.3.2 and nothing else besides pip (the shared
+`runner/requirements.txt` stack is not installed). CBC 2.10.3 is the binary the wheel
+ships, at `/usr/local/lib/python3.12/site-packages/pulp/solverdir/cbc/linux/i64/cbc`;
+`PULP_CBC_CMD` is the only solver PuLP finds. The pin must stay below PuLP 4, which
+removes both the bundled CBC and `PULP_CBC_CMD` that the runner calls. JSON is the
+standard library's `json`. No edition or size limits.
+
+Inside the container: no network, a read-only filesystem except `/tmp` (512 MB tmpfs, the
+working directory, and `HOME`), user 65534, the submission and `request.json` under
+`/input`. The image's entrypoint is the runner (`python /opt/runner/run.py`); for an ad
+hoc run override it, e.g. `docker run --rm --network none --entrypoint sh
+dcp-eval/pulp_cbc:v1 -c '...'`.
 
 ## Traps
 
@@ -59,8 +89,8 @@ runner solves with one thread and a whole-second time limit.
 - An output variable in no constraint is added through its bound; with no bound at all
   the run is an `execution_error`.
 - An unbounded objective is an `execution_error` ("The objective is unbounded").
-- A fractional output value raises in the runner and surfaces as `execution_error`, not
-  `invalid_output` as the old skill said.
+- A fractional output value (more than 1e-6 from an integer) raises in the runner and is
+  reported as `execution_error`.
 - The runner's no-good cuts add binaries named `_below_<i>_<j>` and `_above_<i>_<j>`; do
   not use those names.
 - `import numpy` fails in this image (`execution_error`).

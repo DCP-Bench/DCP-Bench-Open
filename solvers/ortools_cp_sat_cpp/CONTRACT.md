@@ -55,9 +55,26 @@ constant has to be an `IntVar` first (`model.NewIntVar(...)` plus `AddEquality`,
 ## Objective
 
 `model.Minimize(expr)` or `model.Maximize(expr)` on the builder, with an integer
-`LinearExpr`. A floating-point objective is refused (`unsupported`). The driver accepts
-only `OPTIMAL`; for further solutions it clears the objective, adds `objective ==
-optimum`, and forbids the reported tuple of output variables before each re-solve.
+`LinearExpr`. A floating-point objective is refused (`unsupported`).
+
+## Solving
+
+- The driver solves with `SolveWithParameters` and these parameters, which the model
+  cannot change: `num_search_workers = 1`, `keep_all_feasible_solutions_in_presolve =
+  true` (CP-SAT 9.11 to 9.15 dual presolve reductions can drop the optimum), and
+  `max_time_in_seconds` set to what is left of the budget. Presolve is otherwise on, with
+  CP-SAT's defaults.
+- With an objective, only `OPTIMAL` is a result; without one, `OPTIMAL` or `FEASIBLE`.
+  `INFEASIBLE` is `unsat` before any solution and `complete` after one; `MODEL_INVALID`
+  is `error`; anything else (`UNKNOWN`, or `FEASIBLE` with an objective) is `timeout`.
+- After a solution the driver re-solves: for optimisation it clears the objective and
+  adds `objective == optimum` once, and after every solution it adds
+  `AddForbiddenAssignments` over the distinct output variables with their reported
+  values. Exhaustion is the re-solve returning `INFEASIBLE`.
+- The budget is `execution_timeout`: the driver's clock starts after `Build` returns and
+  each re-solve gets what is left; the runner kills the binary at `execution_timeout`
+  counted from its start, `Build` included, and reports `timeout`. A nonzero exit is
+  `error`.
 
 ## Compilation
 
@@ -72,8 +89,17 @@ Yes. `cpp_solver` copies the file to `/tmp/model.cpp` and runs `cmake -S /opt/cp
 
 Image `dcp-eval/ortools_cp_sat_cpp:v1`: g++ 12.2 (Debian bookworm), CMake 3.25.1,
 OR-Tools 9.15.6755 (the official C++ archive, with its bundled Abseil and protobuf),
-nlohmann/json 3.11.2. The driver solves with one search worker and
-`keep_all_feasible_solutions_in_presolve` on; the model cannot change solver parameters.
+nlohmann/json 3.11.2 as the JSON library (`/usr/include/nlohmann/json.hpp`), Python
+3.12.11 for the runner. OR-Tools is unpacked at `/opt/ortools` (headers in
+`include`, libraries in `lib`, CLI tools such as `solve` and `fzn-cp-sat` in `bin`, not
+on `PATH`); the CMake project the runner builds is `/opt/cpp`. The image sets
+`CMAKE_PREFIX_PATH=/opt/ortools` and `LD_LIBRARY_PATH=/opt/ortools/lib`; configuring
+without `CMAKE_PREFIX_PATH` fails in `ortoolsConfig.cmake` with "Could NOT find ZLIB".
+The evaluator runs the container with no network, a read-only root file system, user
+65534, `HOME=/tmp`, a 512 MiB writable `/tmp` and `/input` read-only. For an ad hoc
+build, override the entrypoint and repeat the runner's steps: `docker run --rm --network
+none -v $PWD/model.cpp:/tmp/model.cpp:ro --entrypoint sh dcp-eval/ortools_cp_sat_cpp:v1
+-c 'cmake -S /opt/cpp -B /tmp/b -DCMAKE_BUILD_TYPE=Release && cmake --build /tmp/b'`.
 
 ## Traps
 

@@ -70,10 +70,23 @@ is not an output: tie it to a fresh `Var` with `equals`.
 ## Objective
 
 `m.minimise(var)` or `m.maximise(var)`, where `var` is a single `Var`; tie it to the
-objective expression with a constraint. The harness optimises with `LinearSatUnsat` and
-accepts only `OptimisationResult::Optimal`; `Satisfiable` or `Stopped` is `timeout`.
-It then posts `var == optimum` and enumerates, adding a clause that blocks the reported
-values of the declared output variables after each solution.
+objective expression with a constraint.
+
+## Solving
+
+- `run` uses the `Solver` it passed to `build` (`Solver::default()`), Pumpkin's
+  `default_brancher()` and a `ResolutionResolver`; the model cannot change them.
+- With an objective it calls `optimise` with `LinearSatUnsat`: `Optimal` is the first
+  solution, `Unsatisfiable` is `unsat`, and `Satisfiable`, `Stopped` or `Unknown` is
+  `timeout`. It then posts `var == optimum` and enumerates with `satisfy`.
+- After each solution it adds a clause over the `Var` and `Lit` leaves of the model
+  (each must differ from its reported value); `i32`/`bool` constant leaves are not
+  part of it. `Unsatisfiable` from `satisfy` is exhaustion (`complete`, or `unsat` with
+  nothing reported); `Unknown` is `timeout`; it stops at `limit` once enough are out.
+- The budget is `execution_timeout`, counted from the binary's start (so `build` spends
+  it); each `optimise`/`satisfy` call gets what is left as a `TimeBudget`. The runner
+  kills a binary still running 15 s after that and reports `timeout`; a nonzero exit (a
+  panic) is `error`.
 
 ## Compilation
 
@@ -81,13 +94,26 @@ Yes. One `rustc --edition 2021 -C opt-level=2 -C codegen-units=1` invocation on
 `main.rs`, linked against the prebuilt `libdcp_pumpkin.rlib` and its dependencies (no
 Cargo, no network). Budget: `compilation_timeout` (default 120 s); a failure or overrun
 is `compilation_error` with rustc's output on stderr. The binary then has
-`execution_timeout`, measured from when it starts and so including `build` (the runner
-kills it 15 s after that).
+`execution_timeout` (see [Solving](#solving)).
 
 ## Environment
 
-Image `dcp-eval/pumpkin_rust:v1`: Rust 1.98.1, `pumpkin-solver` 0.5.0, `serde_json`
-1.0.151 (Cargo.lock committed, built `--locked`).
+Image `dcp-eval/pumpkin_rust:v1`: Rust 1.98.1 (`rustc` and `cargo` on `PATH` under
+`/usr/local/cargo/bin`), `pumpkin-solver` 0.5.0, `serde_json` 1.0.151 as the JSON
+library (reached through the prelude's `Value` and `json!`), Python 3.11.2 for the
+runner. The harness crate and all its dependencies were built once at image build
+(Cargo.lock committed, `--locked`, with `NO_CHECKERS=true` and a temporary `git` for
+`pumpkin-solver`'s build script) and kept only as `/opt/rust/libdcp_pumpkin.rlib` plus
+`/opt/rust/deps/*.rlib` and proc-macro `.so` files. `git`, the Cargo registry and the
+target directory were then removed, so no crate can be fetched or rebuilt; submissions
+never need them, because `rustc` links only against those prebuilt artifacts. The
+evaluator runs the container with no network, a read-only root file system, user 65534,
+`HOME=/tmp`, a 512 MiB writable `/tmp` and `/input` read-only. For an ad hoc build,
+override the entrypoint and run the runner's `rustc` command (`RUSTC` in
+[run.py](run.py)) with the file mounted at `/input/model.rs`: `docker run --rm --network
+none -v $PWD/model.rs:/input/model.rs:ro --entrypoint sh dcp-eval/pumpkin_rust:v1 -c
+'rustc --edition 2021 /opt/rust/main.rs -o /tmp/c --extern
+dcp_pumpkin=/opt/rust/libdcp_pumpkin.rlib -L dependency=/opt/rust/deps'`.
 
 ## Traps
 

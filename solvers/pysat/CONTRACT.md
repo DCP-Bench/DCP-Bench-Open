@@ -47,14 +47,34 @@ weight of the soft clauses an assignment **falsifies**; maximising pays the shor
 Hard clauses are the constraints. A `CNF`, or a `WCNF` without soft clauses (only its
 hard clauses are kept), is a satisfaction problem solved with Glucose 4.2.
 
+## Solving
+
+- Fixed by the runner: Glucose 4.2 (`glucose42`) for satisfaction, `RC2Stratified` over
+  the same Glucose for a `WCNF` with soft clauses. No other setting is forced.
+- Status: Glucose `True` is an answer, `False` is `unsat` (`complete` once something was
+  emitted), `None` (interrupted) is `timeout`. RC2 returns a model only once it has proved
+  the optimum; no model is `timeout` if RC2 was interrupted, else `unsat`/`complete`.
+- Enumeration adds one blocking clause per answer over the declared outputs: a literal
+  flipped, `-x.equals(v)` per `Integer`, the same for each `Integer` a `LinearExpr` sums;
+  `bool` leaves are skipped. A repeated output value is re-solved, not emitted. It stops
+  with `complete` on unsat, on an empty blocking clause, or, for an optimisation, at the
+  first answer whose cost exceeds the first one.
+- Time: the budget runs from before `build`, so building spends it. Each search is
+  stopped by PySAT's interrupt from a timer thread, 0.5 s before the budget for Glucose
+  and 2.0 s before it for RC2. A SIGALRM armed for the whole budget can only fire in
+  Python code (`build`, or between searches); it too is reported as `timeout`.
+
 ## Compilation
 
 None.
 
 ## Environment
 
-Image `dcp-eval/pysat:v1`: Python 3.12.11, python-sat[pblib] 1.9.dev15. SAT solver
-`glucose42`, also the oracle under RC2. The budget covers `build` as well as the search.
+Image `dcp-eval/pysat:v1`: Python 3.12.11 (`/usr/local/bin/python`), python-sat 1.9.dev15
+with `pypblib` (compiled at build time, for `PBEnc`) and `six`; the standard library
+(`json` included) and nothing else. No licence, no environment variables of note, no
+network in the container. For an ad hoc run, `--entrypoint sh` bypasses
+`/opt/runner/run.py`.
 
 ## Traps
 
@@ -65,9 +85,12 @@ Image `dcp-eval/pysat:v1`: Python 3.12.11, python-sat[pblib] 1.9.dev15. SAT solv
   use `Integer(name, 0, 1, vpool=pool)`.
 - `cnf.weighted()` turns every clause into a weight-1 soft clause, which the runner then
   reads as objective, not constraint. Add hard clauses with `formula.extend(cnf.clauses)`.
-- Enumeration blocks the declared outputs: for a `LinearExpr` it blocks the combination
-  of its Integers, so another combination with the same total is re-solved and skipped.
-  For an optimisation, enumeration stops at the first answer costlier than the optimum.
+- Because enumeration blocks the combination of Integers a `LinearExpr` output sums,
+  every other combination with the same total costs a re-solve.
+- `IntegerEngine.add_linear(..., reified=True)` returns `None` when the constraint is a
+  bound on one `Integer` already entailed by its domain (`x <= 10` over 0..3). Putting
+  that `None` in a clause raises `TypeError` while building (`execution_error`); treat it
+  as "always holds" (a clause containing it is already satisfied).
 
 ## Example
 

@@ -106,11 +106,13 @@ Verify the final `ENTRYPOINT` invokes the intended runner.
 
 The integration contract, for modellers: how this runner realises `solvers/CONTRACT.md`.
 Use exactly the headings of that file's *Mapping checklist* (`## Submission file`,
-`## Entrypoint`, `## Instance`, `## Outputs`, `## Objective`, `## Compilation`,
-`## Environment`, `## Traps`, `## Example`) and follow an existing one such as
-`solvers/cpmpy_python/CONTRACT.md`. State what the code does, not what you meant it to do:
-signatures, the instance representation, the output container, the objective form. Put
-the pilot fixture in `## Example`. Leave out what `solvers/CONTRACT.md` already says and
+`## Entrypoint`, `## Instance`, `## Outputs`, `## Objective`, `## Solving`,
+`## Compilation`, `## Environment`, `## Traps`, `## Example`) and follow an existing one
+such as `solvers/cpmpy_python/CONTRACT.md`. State what the code does, not what you meant
+it to do: signatures, the instance representation, the output container, the objective
+form, the settings the runner forces. Every fact about the container (binary paths,
+environment variables, network, preinstalled packages) goes under `## Environment`, never
+into the standalone skill. Put the pilot fixture in `## Example`. Leave out what `solvers/CONTRACT.md` already says and
 what the standalone skill teaches about the solver's API. A model attempt refuses an
 integration without this file, and records its hash.
 

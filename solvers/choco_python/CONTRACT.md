@@ -42,15 +42,42 @@ The third element of the return value: `("minimize", var)` or `("maximize", var)
 `find_optimal_solution`, rebuilds the model and posts `arithm(var, "=", best)` before
 enumerating.
 
+## Solving
+
+- The runner sets one parameter, Choco's time limit, as `limit_time("<ms>ms")` with the
+  milliseconds left. pychoco 0.2.1 ignores a limit written in milliseconds (checked in
+  the image: `"1500ms"` ran an enumeration for 8 s, `"1.5s"` stopped it at 1.5 s), so in
+  practice the search has no solver-side limit.
+- Optimisation: `find_optimal_solution` on a first build. A result returned at least
+  0.5 s before the budget left is the optimum; no result that early gives `unsat`; any
+  later return gives `timeout`.
+- Enumeration: repeated `solver.solve()` on a fresh build with `arithm(objective, "=",
+  best)` posted. No no-good is added: Choco moves on to its next assignment of all
+  variables, and the runner skips any whose declared outputs it has already reported.
+  `solve()` returning false at least 0.5 s before the budget is exhaustion (`complete`,
+  or `unsat` with nothing found); later is `timeout`.
+- Time: the budget runs from the start of the run (including the first `build`). A
+  `SIGALRM` at `execution_timeout + 5` s becomes `timeout`, but only once control is back
+  in Python (between solutions); a single native search that outlasts it is killed by
+  the evaluator at `execution_timeout + 10` s, reported as `execution_timeout`.
+
 ## Compilation
 
 None.
 
 ## Environment
 
-Image `dcp-eval/choco_python:v1`: Python 3.12.11, pychoco 0.2.1 (bundles the Choco native
-library; no JVM), nothing else (the shared `runner/requirements.txt` stack is not
-installed).
+Image `dcp-eval/choco_python:v1` (`python:3.12.11-slim-bookworm`): Python 3.12.11 at
+`/usr/local/bin/python`, pychoco 0.2.1 and nothing else besides pip (the shared
+`runner/requirements.txt` stack is not installed). pychoco carries Choco as a native
+library (`site-packages/pychoco/libchoco_capi.so`): there is no JVM and nothing is fetched
+at run time. JSON is the standard library's `json`. No edition or size limits.
+
+Inside the container: no network, a read-only filesystem except `/tmp` (512 MB tmpfs, the
+working directory, and `HOME`), user 65534, the submission and `request.json` under
+`/input`. The image's entrypoint is the runner (`python /opt/runner/run.py`); for an ad
+hoc run override it, e.g. `docker run --rm --network none --entrypoint sh
+dcp-eval/choco_python:v1 -c '...'`.
 
 ## Traps
 
@@ -59,13 +86,10 @@ installed).
 - `import numpy` fails in this image (`execution_error`).
 - `build` must be deterministic and side-effect free: the optimum is proven on one call's
   model and pinned on another's.
-- pychoco 0.2.1 cannot say whether a search was exhausted, so the runner calls it
-  exhausted only if it stopped at least 0.5 s before the budget; a search that ends later
-  is reported as `timeout`.
 - Choco enumerates assignments of every variable; the runner skips repeats of the declared
   outputs, which costs search time. Auxiliary variables left free can starve enumeration.
-- An output leaf that is not a variable, integer or Boolean raises in the runner and
-  surfaces as `execution_error`, not `invalid_output` as the old skill said.
+- An output leaf that is not a variable, integer or Boolean raises in the runner and is
+  reported as `execution_error`.
 
 ## Example
 

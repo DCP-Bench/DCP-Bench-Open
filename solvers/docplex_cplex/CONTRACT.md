@@ -35,9 +35,30 @@ Boolean. A value that is not within 1e-6 of an integer is rejected (`execution_e
 ## Objective
 
 `model.minimize(expr)` or `model.maximize(expr)`; the runner reads
-`model.has_objective()`. No call (or `minimize(0)`) is a satisfaction problem. The runner
-sets `threads = 1`, `mip.tolerances.mipgap = 0` and the time limit over yours; other
-parameters you set are kept.
+`model.has_objective()`. No call (or `minimize(0)`) is a satisfaction problem. Any other
+constant (`minimize(3)`) makes `has_objective()` true, so the runner treats the model as
+an optimisation with that constant as the proven optimum.
+
+## Solving
+
+- Forced over the submission's own parameters: `threads = 1`,
+  `mip.tolerances.mipgap = 0` (CPLEX's default 1e-4 relative gap ends the search with
+  status 102, "integer optimal, tolerance", short of the optimum), `timelimit` = the
+  budget left, and `log_output=False`. Other parameters you set are kept.
+- Status codes: 1, 101, 102 with a solution are proven (`solved`); 3, 103 `unsat`;
+  2, 118 `error` (objective unbounded); 11, 107, 108 `timeout`; any other code `error`.
+  On 4 or 119 (infeasible or unbounded) the runner re-solves once with
+  `preprocessing.reduce = 1` (primal reductions only) and maps the new code.
+  `DOcplexLimitsExceeded` is `unsupported`.
+- Enumeration: after the first proven solve the objective is pinned by a range
+  (±0.5 around the optimum for an integral objective) and removed; each next solve adds
+  a no-good over the integer variables under the declared outputs (a linear term per
+  binary, two indicator constraints per general integer; fixed variables skipped).
+  A repeated output value is re-solved, not emitted. Infeasible after a no-good, or no
+  unfixed variable left to move, is `complete`.
+- Time: the deadline is set before `build` runs, so building spends the budget. Each solve
+  gets the time left; a SIGALRM at budget + 5 s, armed over `build` and the whole loop,
+  turns a hang in Python into `timeout`.
 
 ## Compilation
 
@@ -45,16 +66,21 @@ None.
 
 ## Environment
 
-Image `dcp-eval/docplex_cplex:v1`: Python 3.12.11, docplex 2.32.264 on the cplex
-22.2.0.1 wheel (CPLEX Community Edition, no licence file, no network). One thread.
+Image `dcp-eval/docplex_cplex:v1`: Python 3.12.11 (`/usr/local/bin/python`), docplex
+2.32.264 on the cplex 22.2.0.1 wheel, whose `cplex.__version__` reports `22.2.0.0`.
+Installed: `cplex`, `docplex`, `six` and the standard library (`json` included); no NumPy.
+The wheel is the CPLEX Community Edition: no licence file, and it refuses a model above
+1000 variables or 1000 constraints with `DOcplexLimitsExceeded: **** Promotional version.
+Problem size limits (1000 vars, 1000 consts) exceeded, model has ... CPLEX code=1016`.
+No environment variables of note; the container runs without network. For an ad hoc run,
+`--entrypoint sh` bypasses `/opt/runner/run.py`.
 
 ## Traps
 
-- The Community Edition refuses a model above 1000 variables or 1000 constraints
-  (indicator constraints count). That raises `DOcplexLimitsExceeded`, reported as
-  `unsupported`, which the evaluator records as `unsupported_capability`; size the
-  model for the largest instance. Enumeration adds rows of its own: one range pinning
-  the objective, one no-good per extra solution, and per general-integer output
+- The Community Edition limit (see Environment) counts indicator constraints. It is
+  reported as `unsupported`, which the evaluator records as `unsupported_capability`;
+  size the model for the largest instance. Enumeration adds rows of its own: one range
+  pinning the objective, one no-good per extra solution, and per general-integer output
   variable up to two binaries and two indicators.
 - With `solution_limit > 1`, any continuous variable under an output is `unsupported`.
   That includes the hidden continuous variable of `model.abs`, `model.max` and
@@ -65,7 +91,6 @@ Image `dcp-eval/docplex_cplex:v1`: Python 3.12.11, docplex 2.32.264 on the cplex
 - The no-good is over the variables an output is built from, not its value: an output
   expression over many variables makes the runner re-solve through every assignment
   with the same value. Declare such an output as its own integer variable.
-- The old skill says a constant objective means satisfaction; only a zero one does.
 
 ## Example
 

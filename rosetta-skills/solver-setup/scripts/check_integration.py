@@ -144,7 +144,7 @@ def check_scripts(root, folder, metadata):
 
 
 CONTRACT_HEADINGS = ("Submission file", "Entrypoint", "Instance", "Outputs", "Objective",
-                     "Compilation", "Environment", "Traps", "Example")
+                     "Solving", "Compilation", "Environment", "Traps", "Example")
 
 
 def check_contract(folder):

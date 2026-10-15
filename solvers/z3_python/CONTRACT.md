@@ -42,14 +42,38 @@ The third element of the return value: `("minimize", expr)` or `("maximize", exp
 The runner builds its own `z3.Optimize`, requires the proven lower and upper bound to be
 the same finite integer, then adds `expr == best` before enumerating.
 
+## Solving
+
+- The only parameter set is Z3's `timeout`, in milliseconds, on each `check()`: what is
+  left of `execution_timeout`, measured from the start of the run (including `build`).
+- Optimisation: `check()` on the runner's `z3.Optimize`. `unsat` gives `unsat`; `unknown`,
+  or `sat` with lower and upper bound apart, gives `timeout`.
+- Enumeration: a plain `z3.Solver` over the constraints (plus `objective == best`).
+  `sat` reports a solution; `unsat` gives `unsat` on the first check and `complete`
+  after; `unknown` gives `timeout`.
+- Next solution: `Or(leaf != value)` over every declared output leaf that is not a Python
+  constant, with values read under `model_completion=True`. With only constant leaves
+  the next check is refused outright, so the search is `complete` after one solution.
+- Time: a `SIGALRM` at `execution_timeout + 5` s is a backstop that becomes `timeout`;
+  Z3's own `timeout` is what stops a search.
+
 ## Compilation
 
 None.
 
 ## Environment
 
-Image `dcp-eval/z3_python:v1`: Python 3.12.11, `z3-solver` 5.1.0.0 and nothing else (the
-shared `runner/requirements.txt` stack is not installed).
+Image `dcp-eval/z3_python:v1` (`python:3.12.11-slim-bookworm`): Python 3.12.11 at
+`/usr/local/bin/python`, the `z3-solver` 5.1.0.0 wheel (Z3 core 5.1.0, as
+`z3.get_version_string()` reports) and nothing else besides pip (the shared
+`runner/requirements.txt` stack is not installed). JSON is the standard library's `json`.
+No edition or size limits.
+
+Inside the container: no network, a read-only filesystem except `/tmp` (512 MB tmpfs, the
+working directory, and `HOME`), user 65534, the submission and `request.json` under
+`/input`. The image's entrypoint is the runner (`python /opt/runner/run.py`); for an ad
+hoc run override it, e.g. `docker run --rm --network none --entrypoint sh
+dcp-eval/z3_python:v1 -c '...'`.
 
 ## Traps
 
@@ -60,8 +84,11 @@ shared `runner/requirements.txt` stack is not installed).
 - An objective with no finite bound, or a `Real`-sorted one, is reported as
   `execution_error` ("Objective is not a finite integer..."). `z3.Int` is unbounded, so
   add the bounds the problem implies.
-- An output of a non-integer, non-Boolean sort raises in the runner and surfaces as
-  `execution_error`, not `invalid_output` as the old skill said.
+- An output of a non-integer, non-Boolean sort raises in the runner and is reported as
+  `execution_error`.
+- An output in no constraint is accepted (model completion gives it `0` or `false`) and
+  is then enumerated over its whole domain, which for a `z3.Int` is unbounded: constrain
+  every output to the domain the problem implies.
 
 ## Example
 

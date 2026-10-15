@@ -38,15 +38,42 @@ integer (`0`/`1` for a Boolean).
 Set it on the model: `model.minimize(expr)` or `model.maximize(expr)`, with an integer
 linear expression. No objective for a satisfaction problem.
 
+## Solving
+
+- Every solve uses a fresh `CpSolver` with `num_search_workers = 1`,
+  `keep_all_feasible_solutions_in_presolve = True` and `max_time_in_seconds` = the
+  seconds left; the submission cannot set solver parameters.
+- Right after `build`, before any solve, a floating-point objective is refused with
+  runner status `unsupported` (see Traps).
+- Status: `OPTIMAL` is accepted; `FEASIBLE` is accepted only without an objective, and
+  with one (an incumbent at the time limit) gives `timeout` ("Candidate optimum was not
+  proven"). `INFEASIBLE` gives `unsat` on the first solve and `complete` after;
+  `MODEL_INVALID` gives `error` (see Traps); `UNKNOWN` gives `timeout`.
+- Next solution: the objective is cleared and pinned (`expression == best`), then one
+  reified `leaf != value` per declared output leaf (Booleans `_different_<k>_<i>`) and
+  their `add_bool_or` are added and the model is solved again. Exhausted when that solve
+  is `INFEASIBLE`.
+- Time: each solve gets what is left of `execution_timeout`, measured from the start of
+  the run (including `build`); a `SIGALRM` at exactly `execution_timeout` turns into
+  `timeout`.
+
 ## Compilation
 
 None.
 
 ## Environment
 
-Image `dcp-eval/ortools_cp_sat_python:v1`: Python 3.12.11, OR-Tools 9.15.6755, NumPy
-2.5.3 (pinned in `runner/requirements.txt`). The runner solves with one search worker and
-`keep_all_feasible_solutions_in_presolve`; the submission cannot set solver parameters.
+Image `dcp-eval/ortools_cp_sat_python:v1` (`python:3.12.11-slim-bookworm`): Python
+3.12.11 at `/usr/local/bin/python`, OR-Tools 9.15.6755, NumPy 2.5.3, all pinned in
+`runner/requirements.txt`, which also installs CPMpy 1.0.0, pandas 3.0.5, protobuf,
+absl-py, immutabledict, packaging, python-dateutil, six and typing_extensions. JSON is
+the standard library's `json`. No edition or size limits.
+
+Inside the container: no network, a read-only filesystem except `/tmp` (512 MB tmpfs, the
+working directory, and `HOME`), user 65534, the submission and `request.json` under
+`/input`. The image's entrypoint is the runner (`python /opt/runner/run.py`); for an ad
+hoc run override it, e.g. `docker run --rm --network none --entrypoint sh
+dcp-eval/ortools_cp_sat_python:v1 -c '...'`.
 
 ## Traps
 

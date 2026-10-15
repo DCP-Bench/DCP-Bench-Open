@@ -63,10 +63,27 @@ the usual form, but extra shown predicates do no harm.
 ## Objective
 
 Use clingo's own `#minimize { ... }.` or `#maximize { ... }.` (integer weights, any
-priority levels). The runner sets `opt_mode = optN` with `0` models: models clingo has
-not proven optimal are skipped, and once the optimum is proven it enumerates further
-optimal models, keeping only those whose declared outputs differ. A run that never
-proves the optimum is `timeout`.
+priority levels). See [Solving](#solving) for how the runner reaches and enumerates the
+optimum.
+
+## Solving
+
+- The runner creates `clingo.Control(["0"])` (all models) and sets
+  `solve.opt_mode = optN`; every other clingo setting is the default. It grounds once
+  and makes one asynchronous `solve` call.
+- With an objective, models whose `optimality_proven` is false are skipped; only proven
+  optimal models are reported. Without one, every answer set is a candidate.
+- Nothing is added to the program between models: clingo enumerates answer sets itself,
+  and the runner drops a model whose declared outputs repeat ones already reported
+  (other shown atoms and hidden atoms do not count). It stops at `limit` once enough
+  distinct ones are out.
+- When clingo has no further model the search is exhausted: `complete` if something was
+  reported, `unsat` if no model was found at all, and `timeout` if models with a cost
+  were found but none was proven optimal.
+- The time budget is `execution_timeout`, counted from before grounding and checked
+  while waiting for each model: an expired wait cancels the search and reports
+  `timeout`. A grounding that overruns is caught by a backstop timer at
+  `execution_timeout` + 5 s, also `timeout`.
 
 ## Compilation
 
@@ -76,7 +93,13 @@ a 5 s backstop timer); `compilation_timeout` does not apply.
 ## Environment
 
 Image `dcp-eval/clingo_asp:v1`: clingo 5.8.2 (pip wheel) on Python 3.12.11. Pure ASP
-only.
+only; the image installs nothing else (no JSON or other library is reachable from ASP,
+and the runner does all JSON reading and writing). There is no `clingo` binary on
+`PATH`: the wheel provides the Python module, and `python -m clingo model.lp` is its
+command line for ad hoc runs. The evaluator runs the container with no network, a
+read-only root file system, user 65534, `HOME=/tmp`, a 512 MiB writable `/tmp` and
+`/input` read-only. For an ad hoc run, override the entrypoint: `docker run --rm
+--network none --entrypoint sh dcp-eval/clingo_asp:v1 -c 'python -m clingo ...'`.
 
 ## Traps
 
@@ -89,8 +112,8 @@ only.
 - **Two arities under one output name** (`x/1` and `x/2` both shown) are an `error`.
 - **Strings with a tab or a non-ASCII character** cannot be loaded: the runner escapes
   strings with JSON rules (`\t`, `\uXXXX`), which clingo does not accept.
-- The old skill says an extra `#show` becomes an extra declared output; the runner reads
-  only the declared names and ignores other shown predicates.
+- Shown atoms of predicates that are not declared outputs are ignored: an extra `#show`
+  neither adds an output nor fails the run.
 
 ## Example
 

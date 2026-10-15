@@ -53,10 +53,25 @@ driver drops a solution whose output object repeats one already reported.
 Put at most one objective in `Options`, written with `$`: `$min(Obj)` or `$max(Obj)`,
 where `Obj` is a variable or an expression (the driver ties an expression to a fresh
 variable with `#=`). Everything else in `Options` (e.g. `ff`, `split`) is passed to
-`solve/2`; `Options` must be a list, `[]` for satisfaction. The driver solves with the
-objective first; Picat returns the first solution only once it is proven optimal, so a
-run cut off before that is `timeout`. It then rebuilds the model, posts `Obj #= Optimum`,
-and enumerates by backtracking into `solve/2`.
+`solve/2`; `Options` must be a list, `[]` for satisfaction.
+
+## Solving
+
+- The driver adds no solve options of its own: it calls `solve(Options, LabelVars)` of
+  the imported module (`cp` or `sat`) with the submission's `Options`, plus the
+  objective option in the first phase. Under `cp` it then runs
+  `once(solve_suspended([]))` on each solution.
+- Optimum phase: `once(solve([$min(V)|Options], LabelVars))`; both modules return the
+  first solution only once it is proven optimal. Failure there is `unsat`.
+- Enumeration phase: the model is rebuilt, `V #= Optimum` is posted, and the driver
+  backtracks into `solve/2` for the next labelling of `LabelVars`; nothing else is added.
+  A solution whose output object repeats one already reported is dropped. It stops at
+  `limit` once enough distinct ones are out; when backtracking fails the search is
+  exhausted: `complete` after a solution, `unsat` for a satisfaction model with none (an
+  optimum not found again is `error`).
+- The time budget: `run.py` kills the `picat` process at `execution_timeout` less 1 s
+  (and less the time it spent before starting it), keeps the solutions recorded so far,
+  and reports `timeout`. A `picat` exit without a status record is `error`.
 
 ## Compilation
 
@@ -68,8 +83,16 @@ line range.
 ## Environment
 
 Image `dcp-eval/picat:v1`: the official Picat 3.9#12 64-bit Linux build (checksummed),
-driven from Python 3.12.11. Solver modules `cp` and `sat` are usable; `mip` and `smt`
-are present as modules but have no external solver installed.
+driven from Python 3.12.11 (standard library only). The binary is
+`/opt/picat/picat` and is **not on `PATH`**; its library modules are in
+`/opt/picat/lib` (`cp`, `sat`, `util`, `planner`, `ordset`, `datetime`, `math`, `os`,
+...). Solver modules `cp` and `sat` are usable; `mip` and `smt` are present as modules
+but have no external solver installed. Picat has no JSON library; a submission needs
+none, because the instance arrives as a map and the driver writes the JSON. No
+environment variables are set for Picat. The evaluator runs the container with no
+network, a read-only root file system, user 65534, `HOME=/tmp`, a 512 MiB writable
+`/tmp` and `/input` read-only. For an ad hoc run, override the entrypoint: `docker run
+--rm --network none --entrypoint sh dcp-eval/picat:v1 -c '/opt/picat/picat ...'`.
 
 ## Traps
 

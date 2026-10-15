@@ -50,6 +50,13 @@ are reshaped by `run.py`:
 
 Declare `<field>_len` whenever a field is ragged in any instance of the problem: rule 1
 binds it for an instance whose rows happen to be equal, so the same model runs on both.
+Iterate a padded field row by row up to its length, never over the padded width:
+
+```minizinc
+array[int,int] of int: rules;
+array[int] of int: rules_len;
+constraint forall(i in index_set_1of2(rules), j in 1..rules_len[i])(x[rules[i,j]] > 0);
+```
 
 ## Outputs
 
@@ -79,6 +86,23 @@ and enumerates all solutions of that model. A solve item that does not match (an
 annotation, a trailing comment, an expression instead of `objective`, a second matching
 line) gets status `unsupported` whenever more than one solution is requested.
 
+## Solving
+
+- The runner passes no solver flags: Gecode runs with MiniZinc's defaults (one thread,
+  the model's own search, or Gecode's default search when there is none).
+- Optimisation is one `solve` call with `intermediate_solutions=False`: `OPTIMAL_SOLUTION`
+  is the first solution, `UNSATISFIABLE` is `unsat`, and any other status (a solution not
+  proven optimal, `UNKNOWN`) is `timeout`.
+- Enumeration (satisfaction, or the rewritten model pinned at the optimum) streams every
+  solution of the whole model with `all_solutions=True`; nothing is added to the model,
+  and a solution whose printed output object repeats one already reported is dropped.
+  It stops at `limit` once enough distinct objects are out; MiniZinc's `ALL_SOLUTIONS` or
+  `UNSATISFIABLE` is exhaustion (`complete`, or `unsat` with nothing reported); a stream
+  that ends any other way is `timeout`.
+- The time budget is `execution_timeout` from the start of the run: each MiniZinc call
+  gets what is left as its `time_limit`, and a timer around the whole run turns an
+  overrun into `timeout`.
+
 ## Compilation
 
 No separate step: MiniZinc flattens the model to FlatZinc inside the execution budget
@@ -88,8 +112,14 @@ No separate step: MiniZinc flattens the model to FlatZinc inside the execution b
 ## Environment
 
 Image `dcp-eval/minizinc_gecode:v1`: MiniZinc 2.9.3 (from the `minizinc/minizinc:2.9.3`
-image) with its bundled Gecode, driven from Python 3.12.11 by minizinc-python 0.10.0.
-Only the MiniZinc standard library is available.
+image) with its bundled Gecode 6.3.0, driven from Python 3.12.11 by minizinc-python
+0.10.0. The model can use only the MiniZinc standard library (`/usr/local/share/minizinc/std`);
+it needs no JSON library, since `showJSON` and string concatenation build the output.
+`minizinc` is on `PATH` at `/usr/local/bin/minizinc`; no environment variables are set
+for it. The evaluator runs the container with no network, a read-only root file system,
+user 65534, `HOME=/tmp`, a 512 MiB writable `/tmp` and `/input` read-only. For an ad hoc
+run, override the entrypoint: `docker run --rm --network none --entrypoint sh
+dcp-eval/minizinc_gecode:v1 -c 'minizinc --solver gecode ...'`.
 
 ## Traps
 
