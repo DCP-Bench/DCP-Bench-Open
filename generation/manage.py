@@ -213,9 +213,10 @@ def _writer(agent: str) -> str:
     """The model that writes one attempt, as the record will name it.
 
     A run can hand pairs to more than one model, so the run's `agent` cannot
-    say who wrote a given attempt. The value must name at most one Claude model,
-    in the form the site labels (generate_site.MODEL_ID): a run-wide description
-    such as "claude-haiku-5-5 subagents, claude-opus-5-5 coordinator" is refused.
+    say who wrote a given attempt. Any tool and model may be named, as
+    "TOOL (MODEL-ID)". A value naming several of the models the site recognises
+    (generate_site.MODEL_ID) is refused, since that is a run-wide description
+    copied in place of the one writer.
     """
     from generate_site import MODEL_ID
     if not isinstance(agent, str) or not agent.strip() or agent.strip().lower() == "unknown":

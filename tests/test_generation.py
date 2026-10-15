@@ -75,6 +75,8 @@ class GenerationTests(unittest.TestCase):
                 manage.attempt("run1", "problem", "solver", skill, refused)
         self.assertFalse((self.root / "generation" / "runs" / "run1" / "attempts").exists())
         manage.attempt("run1", "problem", "solver", skill, AGENT)
+        # Any tool and model may write an attempt.
+        manage.attempt("run1", "problem", "solver", skill, "codex (gpt-5)")
         sonnet = "claude-code (claude-sonnet-5-5)"
         attempt = manage.attempt("run1", "problem", "solver", skill, sonnet)
         self.assertEqual(manage._read(attempt / "attempt.json")["agent"], sonnet)
@@ -84,7 +86,7 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(record["generated_by"]["base_llm"], sonnet)
         created = [event["data"]["agent"] for event in manage.status("run1")["events"]
                    if event["kind"] == "attempt_created"]
-        self.assertEqual(created, [AGENT, sonnet])
+        self.assertEqual(created, [AGENT, "codex (gpt-5)", sonnet])
 
     def test_setup_attempt_records_the_skill_and_numbers_attempts(self):
         manage.init("run1")

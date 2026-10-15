@@ -271,6 +271,8 @@ def compact_json(value, indent: int = 0, width: int = 88) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
+# Model ids the site shortens to a display name. Any other generator is shown
+# as recorded; add a vendor's pattern here to give its models short labels too.
 MODEL_ID = re.compile(r"claude-(opus|sonnet|haiku)-(\d+)(?:-(\d{1,2})(?!\d))?")
 
 
