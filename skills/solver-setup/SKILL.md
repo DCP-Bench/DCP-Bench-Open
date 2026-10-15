@@ -215,14 +215,9 @@ actual image through the evaluator/runner, with explicit expected outcomes:
 - Compilation failure for compiled targets; execution timeout and cleanup.
 - Current isolation guarantees and missing-image diagnostics.
 
-Beyond the required names, these checks each caught a real runner bug in past
-setups and are cheap to add: instance metadata strings (`name`, `note`) are
-ignored; a one-key instance works; ragged lists bind; sizes that vary between
-instances bind; a reserved name round-trips; a free auxiliary variable still
-yields distinct outputs; an unparenthesised objective still enumerates at the
-optimum; an unproven optimum is handled as the protocol says; a solver crash is
-reported as `error` with its message; an invalid solution returned by the
-solver is not emitted.
+Beyond the required names, add a check that a solver crash is reported as
+`error` with the solver's own message. Without it, modelling agents cannot see
+why a model failed.
 
 Use tiny trusted synthetic references for integration fixtures if needed, never
 replace a corpus reference to make a generated candidate pass. Reuse existing

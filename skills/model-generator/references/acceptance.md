@@ -49,7 +49,7 @@ evaluator said. This has happened here: the first accepted model, for
 has exactly one instance.
 
 A constant that belongs to the *problem* rather than the instance — a nutrient
-table the reference itself fixes, a domain bound it declares — may be mirrored,
+table the description itself fixes, a domain bound it states — may be mirrored,
 but say so in a comment where it appears.
 
 ## The model has to be readable

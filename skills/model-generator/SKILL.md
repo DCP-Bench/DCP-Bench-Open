@@ -54,27 +54,24 @@ python -m generation.manage retain  --attempt ATTEMPT        # only when it was 
    Prefer problems with several instances when you want the evaluator itself to
    catch a hardcoded model. An integration reported as not `ready` cannot be
    used at all; legacy directories under `generated_models/` are not coverage.
-5. **Read the contract, then the reference.** `generation.brief PROBLEM` prints
-   the declared output names with their shapes, the objective direction, and
-   every instance field with its shape. The reference
-   (`dataset/<problem>/<problem>.cpmpy.py`) *is* the specification, and
-   translating its semantics is the work. Three things reading it does not
-   license: never execute its solve tail; never carry over a constraint it keeps
-   commented out between `<SYMMETRY_BREAKING_CONSTRAINT_START>` and `..._END>`;
-   and never embed an answer, whether computed by running the reference or
-   branched on which instance you were given. A missing or self-contradictory
-   specification is a reference blocker — record it and move on.
+5. **Read the contract.** `generation.brief PROBLEM` prints the problem
+   description, the declared output names with their shapes, the objective
+   direction, and every instance field with its shape.
+
+   **Start blind**: model from the brief, the instance JSON, the integration's
+   skill and the evaluator's feedback, without opening the reference
+   (`dataset/<problem>/<problem>.cpmpy.py`) or other integrations' models. If
+   that is not working, read the reference and say so in the attempt's
+   `lessons.md`. Never execute its solve tail, never carry over a constraint it
+   keeps commented out between `<SYMMETRY_BREAKING_CONSTRAINT_START>` and
+   `..._END>`, and never embed an answer, whether computed by running the
+   reference or branched on which instance you were given. A missing or
+   self-contradictory specification is a reference blocker — record it and move
+   on.
 
    The brief takes every shape from the *example* instance. Other instances can
    be larger or smaller (a board, a number of items, a matrix of classes), so
    take sizes from each instance's own data unless the description fixes them.
-
-   **Blind mode (optional, set by the user).** To measure modelling from the
-   description alone, the modeller does not read the reference: its inputs are
-   the brief (which includes the description), the instance JSON, the
-   integration's skill, the evaluator's feedback and the `lessons.md` notes of
-   its own run. It never opens `dataset/*/*.py`, another integration's
-   `generated_models/`, harness source, or searches the whole repository.
 6. **Write the model** into the attempt directory, following the frozen
    modelling skill for that integration. It must build the model *from* the
    instance argument. Fixed mathematical constants are fine; embedding a known
@@ -139,8 +136,7 @@ differ, and never weaken a profile mid-run to turn a failure into a pass.
 Set `agent` to name the actual model, e.g. `claude-code (claude-haiku-5-5
 modelling subagents, claude-opus-5-5 coordinator)`: it is copied into every
 retained record, and the site test rejects an unrecognised value such as
-`unknown`. When several models write attempts in one run, also write the
-model's id into `agent.txt` in each attempt directory.
+`unknown`.
 
 ## When something is missing, or teaches you something
 
@@ -163,8 +159,7 @@ model's id into `agent.txt` in each attempt directory.
 ## Running a campaign with subagents
 
 When the user asks you to coordinate other agents instead of modelling alone,
-you keep the decisions and they do the modelling. What worked over full-corpus
-campaigns for three integrations:
+you keep the decisions and they do the modelling.
 
 - **Start with the cheapest capable model.** Give each agent about 5-8
   problems, so its context stays under roughly 100k tokens; long contexts cost
@@ -173,9 +168,8 @@ campaigns for three integrations:
 - **Bound the load.** At most 8 agents at once, each running at most 2
   evaluations at once; more makes timeouts near the limit unreliable.
 - **Give each agent a fixed prompt**: the run, its problems, the skill path,
-  the blind-mode rules if any, a working directory of its own, and what to
-  report (a table per problem plus the skill gaps it hit, each with the exact
-  error message and the fix).
+  a working directory of its own, and what to report (a table per problem plus
+  the skill gaps it hit, each with the exact error message and the fix).
 - **Freeze the integration's skill while a wave runs.** Collect the reported
   gaps in one file and apply them between waves. Before adding a syntax claim,
   confirm it with a tiny model in the solver image; agents report wrong claims
@@ -183,7 +177,8 @@ campaigns for three integrations:
 - **Fix the runner, not the models, when many agents hit the same wall.** Tell
   the running agents to skip such pairs instead of spending attempts on them.
 - **Audit each wave** before committing it: search the agents' transcripts for
-  reads of forbidden files and for candidate code run outside the container.
+  reference reads their `lessons.md` does not mention and for candidate code run
+  outside the container.
 - **Leftovers** go to a retry wave (which may read its own run's `lessons.md`),
   then to blockers with evidence.
 
