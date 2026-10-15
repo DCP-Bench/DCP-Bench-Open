@@ -38,7 +38,9 @@ a, b, c, r = Bool("a"), Bool("b"), Bool("c"), Bool("r")
   Build names from indices (`Bool(f"x_{i}_{v}")`) and keep them unique per
   meaning.
 - `==` on Bools builds an expression, never a Python bool: do not put Bools in
-  sets, dict keys or `if` tests.
+  sets, dict keys or `if` tests. The converse: `sum([])` is the int 0, so
+  `sum([]) == k` is a Python bool. Skip empty sums, or check the bool and
+  drop a `True` (an empty `== 0`) or fail on a `False`.
 - Integers are 32-bit inside Paramita. A coefficient beyond ±2^31 is a
   TypeError; a sum whose value leaves that range wraps silently. Scale large
   data down or split the sum.
@@ -58,7 +60,9 @@ constraints, objectives and outputs.
   `x = sum(xs) + lb`. "x ≥ k" is the single literal `xs[k-1]`.
 - **Binary**, for wide ranges (hundreds of values or more, e.g. times):
   `x = sum(2**k * bit[k])`. Unary or one-hot over hundreds of values with
-  pairwise PB constraints ran out of memory.
+  pairwise PB constraints ran out of memory. Also for the digits of
+  multi-digit numbers in arithmetic (`n = sum(10**k * digit_k)`): one-hot
+  digits timed out where binary digits solved in seconds.
 
 Global-style constraints become PB constraints over the one-hot Bools:
 
@@ -115,8 +119,13 @@ if s.solve():
   permutations.
 - Symmetry: for interchangeable objects, order them (`x_i ≤ x_{i+1}` on the
   integer expressions) or fix the first one.
+- Separations between unary integers (`x_i + s ≤ x_j`, e.g. non-overlap of
+  placed squares) as clauses, `If(x_j_ge[k], x_i_ge[k+s])` per k, not one PB
+  constraint each: many PB separations ran out of memory.
 - Objectives: a weighted sum of Bools directly; for "minimise the maximum",
-  introduce unary `m` and require `If(load_k_ge_t, m_ge_t)` per t.
+  introduce unary `m` and require `If(load_k_ge_t, m_ge_t)` per t. An
+  objective over a wide range (hundreds of values) is best binary: unary
+  there ran out of memory or made the enumeration of further optima slow.
 - **Keep PB weights small.** A PB constraint with large, distinct weights over
   many Bools (one-hot value × price, a product of two binaries, weights up to
   10^4 and beyond) can exhaust the 2 GB memory limit. Instead:
@@ -165,12 +174,16 @@ def build(instance):
 
 - Read every size and value from `instance`; the brief's shapes are those of
   the example, and output lengths follow the instance. Problems without instance fields still take `instance`.
+  A field the brief lists as unbindable is still in `instance`, as parsed JSON.
+- A `# ... encoding: ...` comment in the first two lines is a Python coding
+  declaration and a SyntaxError: put encoding notes lower down.
 - Start each constraint block with a `#` comment in the description's words.
 - An objective that is also an output is the same expression in both places.
 - An output the brief declares `int` must be an integer expression: a cell that
   is a Bool goes out as `1 * b` (a bare Bool is read as a JSON boolean).
-- A value beyond 32 bits cannot be an output; split it (e.g. digits) only if
-  the brief declares it so.
+- The runner reads integer outputs exactly, beyond 32 bits too, provided each
+  coefficient fits in 32 bits (`sum(10**k * digit_k)` for a ten-digit number
+  is fine). Constraints and objectives over such values still wrap.
 
 **What the runner does.** It encodes with `to_cnf` (default encoder) through
 one pool. Satisfaction: CaDiCaL, enumerating up to the solution limit with
