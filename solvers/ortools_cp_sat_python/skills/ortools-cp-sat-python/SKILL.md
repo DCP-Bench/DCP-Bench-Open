@@ -12,9 +12,10 @@ metadata:
 # OR-Tools CP-SAT (Python)
 
 CP-SAT is a constraint solver over **integer and Boolean variables**. Every constraint is
-built from integer linear expressions or a global constraint, and the objective must be
-an integer linear expression. Anything else (products of variables, division, floats) has
-to be modelled with a helper constraint such as `add_multiplication_equality`.
+built from integer linear expressions or a global constraint, and the objective is a
+linear expression. Products of variables, division and modulo have to be modelled with a
+helper constraint such as `add_multiplication_equality`; floats are rejected in constraints
+and accepted only as objective coefficients.
 
 ## Contents
 - [Install](#install)
@@ -91,9 +92,9 @@ Reading and writing expressions:
 | `x in list`, `list.index(x)` | compares by identity; `==` between expressions builds a constraint, it is not a Boolean |
 
 Reading instance data: CP-SAT does not read files. Read them in plain Python and build the
-model from the values: `with open(path) as f: data = json.load(f)`, where `path` comes from
-the caller (for example `sys.argv[1]`). Size the variables from the data, not from the example
-you were shown. Worked example: `assets/coins-minimise/`.
+model from the values: `with open(path) as f: data = json.load(f)`, where `path` is given
+on the command line (for example `sys.argv[1]`). Size the variables from the data, so the same
+program works for any data file. Worked example: `assets/coins-minimise/`.
 
 Minimising the number of distinct values (for example colours): minimise the largest index
 with `add_max_equality`. At an optimum the values are `0..k-1`, so the largest index is
@@ -144,13 +145,13 @@ Enumeration needs a callback; the solver calls it once per solution. Full detail
 
 ```python
 class Collect(cp_model.CpSolverSolutionCallback):
-    def __init__(self, outputs):
+    def __init__(self, variables):
         super().__init__()
-        self.outputs = outputs
+        self.variables = variables
         self.solutions = []
 
     def on_solution_callback(self):
-        self.solutions.append(tuple(self.value(v) for v in self.outputs))
+        self.solutions.append(tuple(self.value(v) for v in self.variables))
 
 solver = cp_model.CpSolver()
 solver.parameters.enumerate_all_solutions = True
@@ -160,9 +161,9 @@ print(len(collector.solutions))
 ```
 
 - Solutions are counted **per assignment of all variables**. An auxiliary variable that takes
-  several values for the same declared outputs makes duplicates: record only the outputs
-  (as above) and dedupe with `set(...)`, or make auxiliary variables fully determined by
-  the outputs.
+  several values for the same values of the variables you report makes duplicates: record
+  only the variables you report (as above) and dedupe with `set(...)`, or make auxiliary
+  variables fully determined by them.
 - **Zero solutions:** the callback is never called and the status is `INFEASIBLE`
   (for example three Booleans with `sum == 5`). Decide "no solutions" from the status, not from
   an empty list. If the status is `UNKNOWN` or `MODEL_INVALID`, the list is not a complete
@@ -185,7 +186,7 @@ model.clear_objective()
 
 enumerator = cp_model.CpSolver()
 enumerator.parameters.enumerate_all_solutions = True
-collector = Collect(outputs)
+collector = Collect(reported)  # the variables you print
 enumerator.solve(model, collector)
 ```
 
@@ -200,15 +201,15 @@ expression as the objective.
 | `TypeError: new_int_var() missing ... 'name'` | the name argument is required in this version | pass a name string |
 | `NotImplementedError` on `if x` or `bool(...)` | using an expression as a Boolean | use `add`, `only_enforce_if` or `.Not()` |
 | `TypeError` on `x * y`, `x // k`, `x / k` | nonlinear arithmetic in a linear expression | introduce a variable with `add_multiplication_equality` or `add_division_equality` |
-| float objective: the runner refuses it, though `maximize(z * 0.5)` solves locally | the local solver accepts float coefficients, but the objective must be integer, so a local run does not show the model is valid | make every objective coefficient an integer: multiply the objective by a common factor (`maximize(z * 0.5)` becomes `maximize(z)`: the same `z` is optimal, and the true value is half the reported one) |
+| float coefficient in the objective, e.g. `maximize(z * 0.5 + y * 0.3)` | accepted: CP-SAT stores a floating-point objective and scales it to integers internally (the search log shows `[Scaling] ... worst-case absolute error`), so the proven optimum is exact only up to that error | for an exact integer optimum multiply by a common factor (`maximize(5 * z + 3 * y)`: the same solution is optimal, and the true value is a tenth of the reported one) |
 | `MODEL_INVALID` | e.g. a variable with lower bound above upper bound | `model.validate()` gives the message; fix the bound |
 | `RuntimeError: solve() has not been called` | reading values before solving | call `solver.solve(model)` first |
 | `FEASIBLE` instead of `OPTIMAL` on an optimisation problem | time limit reached before the proof | raise `max_time_in_seconds` and solve again, or report the status and gap; do not report the value as the optimum |
 | enumeration reports nothing | the instance is infeasible: the callback is never called | read the status: `INFEASIBLE` means zero solutions; other statuses mean the list is incomplete |
-| too many solutions in enumeration | auxiliary variables multiply solutions | record and dedupe on declared outputs only |
+| too many solutions in enumeration | auxiliary variables multiply solutions | record only the decision variables you print, and dedupe on them |
 | only one optimal solution enumerated | objective still set during enumeration | post `objective == best`, then `clear_objective()` |
 | enumeration hangs | unbounded variable domain | give every variable finite bounds |
-| data read from a file beside the script, not the path given | the file location is the caller's choice | open the path argument: `json.load(open(sys.argv[1]))`; see `assets/coins-minimise/` |
+| data read from a file beside the script, not the path given | the file location is chosen by whoever runs the program | open the path argument: `json.load(open(sys.argv[1]))`; see `assets/coins-minimise/` |
 | one `add_no_overlap` over all operations | operations on different machines block each other | build one interval list per machine and one `add_no_overlap` per list; see `assets/jobshop-no-overlap/` |
 | minimising "number of colours" with no counter | a count of distinct values is not a linear expression | minimise the largest index with `add_max_equality`; see `assets/colouring-min-colours/` |
 

@@ -34,7 +34,7 @@ julia -e 'using JuMP, HiGHS, JSON; println(pkgversion(JuMP), " ", pkgversion(HiG
 
 Tested with Julia 1.12.7, JuMP 1.32.0, HiGHS.jl 1.26.0 (HiGHS 1.15.1) and JSON 1.10.0. Details: [JuMP installation](https://jump.dev/JuMP.jl/stable/installation/), [HiGHS.jl](https://github.com/jump-dev/HiGHS.jl), [JSON.jl](https://github.com/JuliaIO/JSON.jl).
 
-The packages are per environment: a bare Julia session has none of them, and `using JSON` then fails with `Package JSON not found in current path`. The example runs in the test image use a project that already pins all three, so there the install step is not needed.
+The packages are per environment: a bare Julia session has none of them, and `using JSON` then fails with `Package JSON not found in current path`. Inside a project that already has all three (`julia --project=DIR`, or `JULIA_PROJECT=DIR`), the install step is not needed.
 
 ## Quick start
 
@@ -56,7 +56,7 @@ Prints `OPTIMAL x=4.0 y=0.0 obj=12.0`. `Model(HiGHS.Optimizer)` attaches HiGHS; 
 
 ## Reading input
 
-Instance files are JSON. Parse the path given on the command line, with a default so the file also runs without arguments:
+To read a JSON data file, parse the path given on the command line, with a default so the script also runs without arguments:
 
 ```julia
 using JSON
@@ -99,7 +99,7 @@ Full list: [JuMP manual](https://jump.dev/JuMP.jl/stable/manual/constraints/) an
 
 The sets above need **finite bounds** on their variables (see [Common issues](#common-issues)). Not available: `MOI.Reified`, a product of two variables in a constraint or the objective, and `!=` (use the linearisations below).
 
-Each `AllDifferent` over expressions is checked in the test image: `[q[i] + i ...] in MOI.AllDifferent(n)` is OPTIMAL when the queens fit (n = 4, 8) and INFEASIBLE for n = 3, so the constraint is enforced, not ignored.
+`AllDifferent` over expressions is enforced, not ignored: `[q[i] + i ...] in MOI.AllDifferent(n)` is OPTIMAL when the queens fit (n = 4, 8) and INFEASIBLE for n = 3.
 
 ### Linearisations
 
@@ -155,16 +155,15 @@ Where errors appear:
 
 ## Printing results
 
-Build the output line yourself; the examples do not use a JSON writer:
+Print results with `println`, converting values first:
 
 ```julia
 take = [round(Int, value(x[i])) for i in 1:n]          # integers, not 1.0
-println("{\"take\": [", join(take, ", "), "]}")         # one line, quotes escaped with \"
+println("take = [", join(take, ", "), "]")             # take = [1, 0, 1]
 ```
 
 - Convert each value with `round(Int, ...)` before `join`, or the list prints `1.0`.
-- Print one line per solution when enumerating, so the output can be split on newlines.
-- Print a status line for the non-solution cases (`{"status": "unsatisfiable"}` or similar) and exit with code 1 when the optimum is not proven, with the message on `stderr`.
+- Print a message with `termination_status(model)` when there is no solution to show (`INFEASIBLE`, `TIME_LIMIT` without values), instead of reading `value`; `println(stderr, ...)` writes to standard error.
 - Build a `Dict` of letter to digit in the order you need before printing: `Dict` iteration order is not stable.
 
 ## All solutions
@@ -200,7 +199,7 @@ Integer variables without both bounds cannot be cut: bound them first.
 | `UndefVarError` after a loop | a variable first assigned inside a loop is local to it | build sums with `sum(... for ...)` or `@expression`, or declare the variable before the loop |
 | `MethodError` with a `String` in a constraint | strings are not numbers | keep strings out of constraints; index a `Dict` built in the model |
 | Index error on a container | Julia arrays are 1-based and column-major | `x[i, :]` is row `i`; loop with `eachindex` |
-| Runner shows `exit code 1` with only `[16] _start()` and `in expression starting at ...` | the runner prints the last lines of the Julia stack, not the error | run `julia model.jl <instance>` yourself and read the first line of stderr, which starts with `ERROR:` |
+| The end of the output shows only `[16] _start()` and `in expression starting at ...` | an uncaught error prints the message first and the stack trace after it; the last lines are the bottom of the stack, not the error | read the first line of stderr that starts with `ERROR:` |
 
 ## Examples
 

@@ -10,7 +10,7 @@ model.add(sum(i * p for i, p in zip(range(1, N + 1), pick)) == T)
 
 
 class Collect(cp_model.CpSolverSolutionCallback):
-    """Called once per solution. Records the values of the declared outputs only."""
+    """Called once per solution. Records only the picked numbers, not every variable."""
 
     def __init__(self):
         super().__init__()

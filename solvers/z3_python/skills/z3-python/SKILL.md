@@ -129,15 +129,15 @@ with a traceback on stderr. A wrong answer is not an error; check results agains
 ## All solutions
 
 Z3 has no enumeration call: loop over `check()` and block each assignment of the
-**declared** variables. Auxiliary variables (intermediate sums, makespans) must stay out
+**decision** variables. Auxiliary variables (intermediate sums, makespans) must stay out
 of the blocking clause, or each solution appears once per auxiliary value.
 
 ```python
 while solver.check() == z3.sat:
     model = solver.model()
-    values = [z3.is_true(model.eval(b, model_completion=True)) for b in declared]
+    values = [z3.is_true(model.eval(b, model_completion=True)) for b in decision]
     solutions.append(values)
-    solver.add(z3.Or([b != v for b, v in zip(declared, values)]))
+    solver.add(z3.Or([b != v for b, v in zip(decision, values)]))
 ```
 
 All **optimal** solutions: solve with `Optimize` and take `best = upper(handle).as_long()`,
@@ -146,8 +146,9 @@ Example: [all-optimal-partition](assets/all-optimal-partition/README.md).
 
 ## Program interface
 
-When a runner calls the model program with a data file, read the file, bind only the keys
-the model uses, and print machine-readable results on stdout. Errors go to stderr.
+A model program that reads its data from a JSON file indexes the keys it needs by name, so
+extra keys in the file do no harm. Report `unsat` and `unknown` as outcomes, not crashes:
+Z3 signals them through `check()`, never through an exception.
 
 ```python
 import json
@@ -157,20 +158,26 @@ import z3
 
 with open(sys.argv[1]) as f:
     data = json.load(f)
-n_nodes, edges = data["n_nodes"], data["edges"]  # extra keys such as name or note are ignored
+n_nodes, edges = data["n_nodes"], data["edges"]  # other keys in the file are ignored
 
-# ... build the model and solve it ...
+colour = [z3.Int(f"c{i}") for i in range(n_nodes)]
+solver = z3.Solver()
+solver.add([z3.And(c >= 0, c < 3) for c in colour])
+solver.add([colour[a] != colour[b] for a, b in edges])
 
-if solver.check() == z3.unsat:
-    print(json.dumps({"status": "unsatisfiable"}))
-    sys.exit(0)
-print(json.dumps({"colour": values}))  # one JSON object per line, one per solution
+result = solver.check()
+if result == z3.sat:
+    model = solver.model()
+    print([model.eval(c, model_completion=True).as_long() for c in colour])
+elif result == z3.unsat:
+    print("no 3-colouring exists")
+else:
+    sys.exit(f"undecided: {solver.reason_unknown()}")
 ```
 
-When several solutions are asked for, print one JSON object per solution. When the caller
-parses stdout, do not print prose or a raw Z3 model there; print the reason for a failure
-to stderr and exit non-zero. The status strings above are an example: match whatever the
-caller specifies.
+Print the values from the model (`.as_long()`, `z3.is_true`), not the raw `model()`, whose
+order and format are Z3's own. `sys.exit("message")` prints the message to stderr and exits
+with status 1.
 
 ## Common issues
 
@@ -183,11 +190,10 @@ caller specifies.
 | `check()` returns `unknown`, `reason_unknown()` is `timeout` | unbounded integers, products of two variables, large `Distinct` over derived expressions | add the bounds the problem implies; linearise; raise `timeout`; reformulate |
 | optimum never proven: `lower` and `upper` differ or are infinite | objective unbounded, or search stopped early | bound the variables the objective depends on; raise the timeout |
 | `Z3Exception: model is not available` | `model()` read after `unsat` or `unknown` | test `check() == z3.sat` first |
-| enumeration repeats a solution | auxiliary variables included in the blocking clause | block only the declared variables |
+| enumeration repeats a solution | auxiliary variables included in the blocking clause | block only the decision variables |
 | a value prints as `1/3` | `z3.Real` sort | use `z3.Int` for integer answers, or `.as_fraction()` |
-| program fails only on some instances; they carry extra keys such as `name` or `note` | the code iterates over the JSON dict or passes it whole to Z3, so extra keys break it | index the keys the model needs by name (`data["edges"]`); ignore the rest |
-| program prints prose, a runner reads nothing from stdout | the model prints human text, not the caller's format | `print(json.dumps(...))`, one object per line, in the caller's status vocabulary |
-| non-zero exit and no useful message | the reason is in a traceback on stderr, or was never printed | print the status and `reason_unknown()` to stderr; exit non-zero only for a real failure |
+| program breaks on a data file with extra keys | the code iterates over the JSON dict or passes it whole to Z3 | index the keys the model needs by name (`data["edges"]`); ignore the rest |
+| program ends with no useful message | the reason is in a traceback on stderr, or was never printed | print the `check()` result and `reason_unknown()`; treat `unsat` as an answer, not an error |
 | `AttributeError: 'ArithRef' object has no attribute 'as_long'` on an objective bound | `upper` or `lower` is `oo` or `-1*oo` (unbounded), not a numeral | bound the objective; report unbounded explicitly |
 | minimising colours or groups counts the largest value, not the number used | `max + 1` is not the number of distinct values when values are not contiguous | one `used` flag per value, sum the flags ([Modelling](#modelling)) |
 | big-M schedule gives wrong or infeasible answers | `M` too small: it cuts off valid schedules; too large: weak relaxation | use the pairwise `z3.Or` no-overlap; see [Modelling](#modelling) |

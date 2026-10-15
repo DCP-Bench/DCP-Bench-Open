@@ -23,7 +23,7 @@ best = optimizer.upper(handle).as_long()
 assert optimizer.lower(handle).as_long() == best, "optimum not proven"
 print(f"Optimal makespan: {best}")
 
-# Step 2: pin the objective at the optimum and enumerate over the declared variables.
+# Step 2: pin the objective at the optimum and enumerate over the decision variables.
 solver = z3.Solver()
 solver.add(bound + [makespan == best])
 count = 0

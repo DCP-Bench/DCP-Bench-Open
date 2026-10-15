@@ -68,10 +68,9 @@ Prints `integer optimal solution 8.0 0 4.0`. Run it as `python3 quick.py`.
 
 ## Program shape
 
-A model is usually a script that reads its data, solves, and prints the answer. When a harness
-runs the script with the instance file as `sys.argv[1]` and reads one JSON object per line from
-stdout, this is the shape to write. The examples in `assets/` do not print JSON; see below. The output lines are fixed by that
-harness; DOcplex does not define them:
+A model is usually a script that reads its data, solves, and prints the answer. Here the data
+file is a JSON file named on the command line (`python3 knapsack.py data.json`); any format your
+own program can read works the same way:
 
 ```python
 import json
@@ -79,7 +78,7 @@ import sys
 
 from docplex.mp.model import Model
 
-with open(sys.argv[1]) as f:                  # the instance path is the only argument
+with open(sys.argv[1]) as f:                  # data file named on the command line
     data = json.load(f)
 weights, values, capacity = data["weights"], data["values"], data["capacity"]
 
@@ -93,25 +92,26 @@ sol = m.solve()
 status = m.solve_details.status
 if sol is None:
     if status == "integer infeasible":
-        print(json.dumps({"status": "unsatisfiable"}))   # proven infeasible
+        print("No selection fits: the model is infeasible")
     else:
         raise SystemExit(f"no answer: {status}")         # never print a guess
 elif status != "integer optimal solution":
     raise SystemExit(f"optimum not proven: {status}")
 else:
-    print(json.dumps({"take": [round(sol[t]) for t in take]}))
+    chosen = [i for i, t in enumerate(take) if round(sol[t]) == 1]
+    print(f"Best value {round(sol.objective_value)}: take items {chosen}")
 ```
 
 Three rules this shape follows:
 
 - Read the status string after `solve()`, never only `None`. `None` covers infeasible, unbounded
   and stopped-without-a-solution.
-- Print only a solution whose status is `integer optimal solution`. A feasible model with no
-  objective also reports that status, so one check covers optimisation and satisfaction.
+- Report a solution as the answer only when its status is `integer optimal solution`. A feasible
+  model with no objective also reports that status, so one check covers optimisation and
+  satisfaction.
 - Exit non-zero (`SystemExit` with a message) for every other case, so no guess is printed.
 
-The examples in `assets/` print plain text for a reader. The line shape above is what a harness
-needs. [Product mix](assets/product-mix/model.py) and [set cover](assets/set-cover/model.py) show
+[Product mix](assets/product-mix/model.py) and [set cover](assets/set-cover/model.py) show
 the optimisation side, and [infeasible staffing](assets/infeasible-staffing/model.py) shows reading
 the infeasible status without an exception.
 
@@ -251,7 +251,7 @@ set `relgap` and `absgap` to 0 instead, and the pool holds only optimal solution
 ## Speed
 
 Measured on one CPU, wall time of the whole script (Python start-up, model build, all solves),
-on the instances of the add-solver toy problems:
+on small textbook instances:
 
 | Script | Instance | Time |
 |---|---|---|

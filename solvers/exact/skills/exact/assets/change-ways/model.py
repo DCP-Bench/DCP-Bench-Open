@@ -21,7 +21,7 @@ solver.addConstraint([(1, name) for name in COUNTS] + [(-1, "total_coins")],
 solutions = []
 while solver.runFull(optimize=False) == "SAT":
     solutions.append(solver.getLastSolutionFor(COUNTS))
-    # block this solution projected onto the declared variables only
+    # block this solution projected onto the coin-count variables only
     solver.invalidateLastSol(COUNTS)
 
 print("Solutions:", len(solutions))

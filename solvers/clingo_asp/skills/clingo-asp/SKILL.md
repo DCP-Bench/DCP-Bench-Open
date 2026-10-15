@@ -115,7 +115,7 @@ Settings: [command-line options](https://potassco.org/guide/options) · [Python 
 | threads | `clingo.Control(["-t", "4"])` |
 | random seed | `ctl.configuration.solver.seed = "7"` or `Control(["--seed=7"])` |
 
-Set options before grounding; pass them to `clingo.Control(...)` or assign them to `ctl.configuration` in a variable. Reading a value back from a temporary `Control` (`clingo.Control(...).configuration...`) crashed the interpreter (exit 139) in the test image; keep the object in a variable.
+Set options before grounding; pass them to `clingo.Control(...)` or assign them to `ctl.configuration` in a variable. Reading a value back from a temporary `Control` (`clingo.Control(...).configuration...`) crashed the interpreter (exit 139) with clingo 5.8.2 (Python module); keep the object in a variable.
 
 Solve result, from `handle.get()` after the loop ([`SolveResult`](https://docs.potassco.org/clingo/python-api/current/)):
 
@@ -186,7 +186,7 @@ The [scheduling example](assets/scheduling/README.md) gives each task one start 
   1 { start(T,S) : time(S), S + D <= H } 1 :- task(T), dur(T,D), h(H).
   ```
 
-- **Models.** Use `opt_mode = "optN"` with `models = 1`, as above. In the test, `models = 0` was the cause of the timeout; the domain limit alone did not change the 120 s run.
+- **Models.** Use `opt_mode = "optN"` with `models = 1`, as above. In that measurement, `models = 0` was the cause of the timeout; the domain limit alone did not change the 120 s run.
 
 Measured: the 6x6 job shop (36 tasks, optimum 55) solved to a proven optimum in about 23 s with this encoding, and grounding took about 1 s. No larger instance was measured, so expect longer solves beyond that size.
 

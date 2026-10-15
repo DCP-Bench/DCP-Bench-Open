@@ -186,8 +186,8 @@ found = []
 with Solver(name="glucose42", bootstrap_with=cnf.clauses) as solver:
     while solver.solve():
         true_lits = {lit for lit in solver.get_model() if lit > 0}
-        found.append(tuple(v in true_lits for v in declared))
-        solver.add_clause([-v if v in true_lits else v for v in declared])
+        found.append(tuple(v in true_lits for v in answer_vars))
+        solver.add_clause([-v if v in true_lits else v for v in answer_vars])
 ```
 
 **Integer solutions:** block the value literals, not the Integers. Create the `equals` literals before `clausify()`, decode each solution with `Integer.decode`, then block it: `at = [[q[i].equals(c) for c in range(n)] for i in range(n)]` and `solver.add_clause([-at[i][c] for i, c in enumerate(cols)])` excludes that placement of n queens. Eight queens gives 92 solutions this way.

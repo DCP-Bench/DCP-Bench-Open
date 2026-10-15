@@ -22,7 +22,7 @@ with Solver(name="glucose42", bootstrap_with=cnf.clauses) as solver:
         true_lits = {lit for lit in solver.get_model() if lit > 0}
         setting = tuple(on[name] in true_lits for name in SWITCHES)
         solutions.append(setting)
-        # Block this setting of the declared switches; auxiliary variables may differ.
+        # Block this setting of the switches; auxiliary variables may differ.
         solver.add_clause([-on[name] if value else on[name]
                            for name, value in zip(SWITCHES, setting)])
 

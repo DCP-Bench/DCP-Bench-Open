@@ -71,7 +71,7 @@ data = json.load(open(sys.argv[1]))
 jobs = data["jobs"]          # bind the keys you use; leave the rest alone
 ```
 
-Instances often carry extra keys such as `name` or `note`. They must not reach the model.
+A data file may carry keys the model does not use, such as `name` or `note`. Leave them out of the model.
 Do not loop over the whole dictionary, do not unpack it into a call (`addVariable(**data)`),
 and do not copy every key into a variable. Reading `data["jobs"]` ignores everything else.
 
@@ -199,7 +199,7 @@ never an exception.
 default** (`timeout=0`). A hard model then runs until it finishes.
 
 - Pass `timeout` in seconds when the caller has a budget. Use the budget the task gives;
-  if there is none, time the model on the largest instance first and allow a margin.
+  if there is none, time the model on the largest input you expect first and allow a margin.
 - On `TIMEOUT`, report that the answer is **not proven**. Do not report the value or a
   schedule as optimal. Report the time limit and the state.
 - Measured in this build: the 6 x 6 job shop (ft06) proves makespan 55 in about 0.1 s,
@@ -235,7 +235,7 @@ Example: [assets/pick-items](assets/pick-items/README.md).
 
 | Problem | Likely cause | Fix |
 |---|---|---|
-| Model fails or misreads data when the instance has extra keys (`name`, `note`) | All keys were read or passed in | Read only the keys the model uses, by name ([Reading data](#reading-data)) |
+| Model fails or misreads data when the data file has extra keys (`name`, `note`) | All keys were read or passed in | Read only the keys the model uses, by name ([Reading data](#reading-data)) |
 | Run never ends, or hits an external limit with no answer | `timeout=0` (no limit) | Pass a `timeout` in seconds; on `TIMEOUT` report "not proven" ([Time limits](#time-limits)) |
 | Reported a solution after a timeout, and the value is wrong | `hasSolution()` read instead of the state | Accept only `SAT` from `toOptimum` or `runFull` as an answer |
 | Reported a schedule as optimal after a timeout | Read the value without checking `toOptimum`'s state | Use the value only when the state is `SAT` |
@@ -256,7 +256,7 @@ Timing reference (this build, Exact 2.2.1, Python 3.12): a knapsack with 60 item
 proves its optimum in 0.07 s, 120 items of 7 digits in 2.6 s, 200 items of 8 digits in 25 s.
 Pigeonhole-style infeasibility is not hard for Exact. For no-overlap, the ft06 job shop solved
 in 0.1 s with the reified pair pattern, and also with a big-M order constraint with M from 100
-to 10^8, so no time-out was seen for either; measure both on your instance before choosing.
+to 10^8, so no time-out was seen for either; measure both on your own model before choosing.
 Source: [sources.md](sources.md).
 
 ## Examples

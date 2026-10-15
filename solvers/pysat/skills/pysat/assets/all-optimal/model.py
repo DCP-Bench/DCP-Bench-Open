@@ -37,7 +37,7 @@ while True:
     true_lits = {lit for lit in model if lit > 0}
     chosen = tuple(name for name in names if pick[name] in true_lits)
     optimal.append(chosen)
-    # Block this choice of sets so the next model differs in a declared output.
+    # Block this choice of sets so the next model differs in the chosen sets.
     rc2.add_clause([-pick[n] if n in chosen else pick[n] for n in names])
 rc2.delete()
 
