@@ -15,7 +15,8 @@ running Docker Linux engine. Run every command from the repository root; all
 paths here are relative to it. An unavailable engine is a blocker to report, not
 something to work around: candidate code never runs on the host.
 
-**You are the only agent.** You are the coordinator and the modeller; "invoke a
+**You are the only agent**, unless the user asks you to coordinate subagents
+(see *Running a campaign with subagents*). You are the coordinator and the modeller; "invoke a
 skill" only ever means "read that file and follow it". There are three kinds of
 skill and only three: this one, the campaign loop; `skills/solver-setup`, read
 only when the integration you need does not exist; and
@@ -53,16 +54,24 @@ python -m generation.manage retain  --attempt ATTEMPT        # only when it was 
    Prefer problems with several instances when you want the evaluator itself to
    catch a hardcoded model. An integration reported as not `ready` cannot be
    used at all; legacy directories under `generated_models/` are not coverage.
-5. **Read the contract, then the reference.** `generation.brief PROBLEM` prints
-   the declared output names with their shapes, the objective direction, and
-   every instance field with its shape. The reference
-   (`dataset/<problem>/<problem>.cpmpy.py`) *is* the specification, and
-   translating its semantics is the work. Three things reading it does not
-   license: never execute its solve tail; never carry over a constraint it keeps
-   commented out between `<SYMMETRY_BREAKING_CONSTRAINT_START>` and `..._END>`;
-   and never embed an answer, whether computed by running the reference or
-   branched on which instance you were given. A missing or self-contradictory
-   specification is a reference blocker — record it and move on.
+5. **Read the contract.** `generation.brief PROBLEM` prints the problem
+   description, the declared output names with their shapes, the objective
+   direction, and every instance field with its shape.
+
+   **Start blind**: model from the brief, the instance JSON, the integration's
+   skill and the evaluator's feedback, without opening the reference
+   (`dataset/<problem>/<problem>.cpmpy.py`) or other integrations' models. If
+   that is not working, read the reference and say so in the attempt's
+   `lessons.md`. Never execute its solve tail, never carry over a constraint it
+   keeps commented out between `<SYMMETRY_BREAKING_CONSTRAINT_START>` and
+   `..._END>`, and never embed an answer, whether computed by running the
+   reference or branched on which instance you were given. A missing or
+   self-contradictory specification is a reference blocker — record it and move
+   on.
+
+   The brief takes every shape from the *example* instance. Other instances can
+   be larger or smaller (a board, a number of items, a matrix of classes), so
+   take sizes from each instance's own data unless the description fixes them.
 6. **Write the model** into the attempt directory, following the frozen
    modelling skill for that integration. It must build the model *from* the
    instance argument. Fixed mathematical constants are fine; embedding a known
@@ -72,6 +81,12 @@ python -m generation.manage retain  --attempt ATTEMPT        # only when it was 
    table in [the run protocol](references/run-protocol.md). Repair the model and
    open a *new* attempt; never overwrite one, never resubmit unchanged bytes.
    After the attempt cap, mark the pair exhausted and take the next one.
+
+   Iterate first with `python -m evaluation.check MODEL --problem P --solver S
+   --instance-count 2 --solution-limit 2`, which spends no attempt. Keep the
+   solution limit at 2: a second solution often exposes a reading looser than
+   the reference's. Never edit an attempt's files after it was evaluated;
+   `evaluate` will not run it again, so read its `evaluation.json` instead.
 8. **Before retaining**, satisfy yourself the model is right *and readable*:
    [acceptance](references/acceptance.md) says what the record has to show and
    what only you can check, including the comments a model has to carry. Then
@@ -118,6 +133,11 @@ wrong solution — drop it to 1 when the integration declares
 The profile is frozen for the run. Use one run per integration when capabilities
 differ, and never weaken a profile mid-run to turn a failure into a pass.
 
+Set `agent` to name the actual model, e.g. `claude-code (claude-haiku-5-5
+modelling subagents, claude-opus-5-5 coordinator)`: it is copied into every
+retained record, and the site test rejects an unrecognised value such as
+`unknown`.
+
 ## When something is missing, or teaches you something
 
 - **The integration does not exist, or is not usable.** Both cases are in
@@ -135,6 +155,32 @@ differ, and never weaken a profile mid-run to turn a failure into a pass.
   against, with your reasoning.
 - **A pair is not worth attempting again.** Add it to
   `generation/blockers.json` with its evidence, so the queue stops offering it.
+
+## Running a campaign with subagents
+
+When the user asks you to coordinate other agents instead of modelling alone,
+you keep the decisions and they do the modelling.
+
+- **Start with the cheapest capable model.** Give each agent about 5-8
+  problems, so its context stays under roughly 100k tokens; long contexts cost
+  more than extra agents. Move a pair to a stronger model only after the cheap
+  one exhausted its share of the attempts, and only with the user's consent.
+- **Bound the load.** At most 8 agents at once, each running at most 2
+  evaluations at once; more makes timeouts near the limit unreliable.
+- **Give each agent a fixed prompt**: the run, its problems, the skill path,
+  a working directory of its own, and what to report (a table per problem plus
+  the skill gaps it hit, each with the exact error message and the fix).
+- **Freeze the integration's skill while a wave runs.** Collect the reported
+  gaps in one file and apply them between waves. Before adding a syntax claim,
+  confirm it with a tiny model in the solver image; agents report wrong claims
+  too.
+- **Fix the runner, not the models, when many agents hit the same wall.** Tell
+  the running agents to skip such pairs instead of spending attempts on them.
+- **Audit each wave** before committing it: search the agents' transcripts for
+  reference reads their `lessons.md` does not mention and for candidate code run
+  outside the container.
+- **Leftovers** go to a retry wave (which may read its own run's `lessons.md`),
+  then to blockers with evidence.
 
 ## Rules that do not bend
 
