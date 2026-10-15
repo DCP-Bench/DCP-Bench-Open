@@ -17,7 +17,11 @@ found = []
 while True:
     sol = m.solve()
     if sol is None:
-        break  # no further solution: the status says whether the search is exhausted
+        # No further solution. Only "integer infeasible" proves the search is exhausted;
+        # anything else (a time limit, an error) leaves the list incomplete.
+        if m.solve_details.status != "integer infeasible":
+            raise SystemExit(f"enumeration incomplete: {m.solve_details.status}")
+        break
     values = [round(sol[t]) for t in take]
     found.append(values)
     # no-good: at least one decision binary must differ from this solution

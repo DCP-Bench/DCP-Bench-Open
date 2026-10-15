@@ -21,9 +21,10 @@ for j in range(N):
 
 cost = m.sum(COST[i][j] * x[i, j] for i in range(N) for j in range(N))
 m.minimize(cost)
+m.parameters.mip.tolerances.mipgap = 0  # the default 1e-4 may stop short of the optimum
 best = m.solve()
-if best is None:
-    raise SystemExit(f"no assignment: {m.solve_details.status}")
+if m.solve_details.status != "integer optimal solution":
+    raise SystemExit(f"optimum not proven: {m.solve_details.status}")
 optimum = round(best.objective_value)
 print(f"Optimal cost: {optimum} ({m.solve_details.status})")
 
@@ -33,6 +34,9 @@ found = []
 while True:
     sol = m.solve()
     if sol is None:
+        # Only "integer infeasible" proves every optimal assignment has been found.
+        if m.solve_details.status != "integer infeasible":
+            raise SystemExit(f"enumeration incomplete: {m.solve_details.status}")
         break
     picks = [[round(sol[x[i, j]]) for j in range(N)] for i in range(N)]
     found.append([next(j for j in range(N) if picks[i][j] == 1) for i in range(N)])
