@@ -1,0 +1,18 @@
+// Five statements: exactly k of the five statements are false, for k = 1..5.
+// Decide which of the statements are true.
+vocabulary {
+    type S := {1..5}
+    statements: S -> Bool
+}
+theory {
+    // statement 1 is true exactly when exactly one of these statements is false
+    statements(1) <=> #{ v in S: ~statements(v) } = 1.
+    // statement 2 is true exactly when exactly two of these statements are false
+    statements(2) <=> #{ v in S: ~statements(v) } = 2.
+    // statement 3 is true exactly when exactly three of these statements are false
+    statements(3) <=> #{ v in S: ~statements(v) } = 3.
+    // statement 4 is true exactly when exactly four of these statements are false
+    statements(4) <=> #{ v in S: ~statements(v) } = 4.
+    // statement 5 is true exactly when exactly five of these statements are false
+    statements(5) <=> #{ v in S: ~statements(v) } = 5.
+}

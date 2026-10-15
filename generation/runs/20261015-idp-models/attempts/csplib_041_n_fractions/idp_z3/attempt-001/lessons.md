@@ -1,0 +1,3 @@
+- Nonlinear products of decision digits (A * EF * HI) make idp_z3 slow to find the second solution. evaluation.check with --execution-timeout 60 timed out on the second solution, but `manage evaluate` (180 s limit) accepted the same file in 35 s with 2 solutions.
+- Writing the products as lookup tables (prod3 over Digit^3) and ordering the fractions to break symmetry were not faster under a 60 s check. Only the `digit: Pos -> Digit` distinctness form with Int auxiliaries got an accepted run.
+- Use the real `manage evaluate` before judging a timeout, since its limit is larger than the check's default.

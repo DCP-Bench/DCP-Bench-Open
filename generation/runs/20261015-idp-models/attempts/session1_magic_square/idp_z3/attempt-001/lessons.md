@@ -1,0 +1,2 @@
+- Placeholder expressions such as ${n*(n*n+1)//2} and ${n+1} - i work in the theory, so a formula of the instance size can be written without an auxiliary symbol.
+- Guard-free sums (sum{{ e | v in T: true }}) parsed fine; a range type {1..${n*n}} for the values kept z3 fast up to n=6.

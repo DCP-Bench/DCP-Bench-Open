@@ -1,0 +1,3 @@
+- `sum{{ if c then a else b | x in T }}` is a parse error ("Expected '(' or '<' or '|' ... sum{{ if"). Put the conditional term in an auxiliary symbol defined per tuple and sum that symbol.
+- A min/max over slots gated by a decision-dependent set (first start, last end per player) timed out at 60 s on the 9-piece example with the optimum unproven. Replacing it with boolean presence flags (`early(p,s)` and `late(p,s)` as existential over earlier and later slots) gave the same objective and solved all 5 instances.
+- The example alone takes about 44 s to prove the optimum, close to the 60 s check limit; the evaluator's limit is larger.

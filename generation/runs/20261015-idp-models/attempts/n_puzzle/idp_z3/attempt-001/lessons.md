@@ -1,0 +1,3 @@
+- An existential with two variables under an implication, `(? r2 in Row, c2 in Col: ...)`, fails with "set expected at most 1 argument, got 2" (class IDP). Nested single-variable `? r2 in Row: ? c2 in Col:` parses and runs.
+- `type Step := {0..${N_STEPS-1}}` plus `s + 1` inside atoms works; a 3-argument Int output `Step * Row * Col -> Int` read back as a list of 3-D lists.
+- Values bounded by a theory count `ncells() = #{ r in Row, c in Col: r = r }` and `steps(...) =< ncells() - 1` kept the output finite without a range type; all 5 instances accepted (4x4 in under 1 s of the 180 s run).

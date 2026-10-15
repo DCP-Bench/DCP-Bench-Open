@@ -1,0 +1,36 @@
+// Three people X, Y, Z of different nationalities (American, English, French) sit around a circular table
+// playing Hearts; find the nationality of each person. Values are seat positions 0, 1, 2 with 1 right of 0,
+// 2 right of 1, and 0 right of 2.
+vocabulary {
+    type Seat := {0..2}
+    // the person on the right of a seat
+    right: Seat -> Seat
+    x: () -> Seat
+    y: () -> Seat
+    z: () -> Seat
+    american: () -> Seat
+    english: () -> Seat
+    french: () -> Seat
+}
+theory {
+    // 1 is right of 0, 2 is right of 1, and 0 is right of 2
+    ! p in Seat: right(p) = (p + 1) % 3.
+
+    // X, Y and Z are seated at three different places around the table
+    x() ~= y().
+    x() ~= z().
+    y() ~= z().
+
+    // the Americans, the English and the French are three different persons
+    american() ~= english().
+    american() ~= french().
+    english() ~= french().
+
+    // each passed three cards to the person on their right
+    // Y passed three hearts to the American, so the American sits on the right of Y
+    right(y()) = american().
+
+    // X passed the queen of spades and two diamonds to the person who passed their cards to the Frenchwoman
+    // the person on the right of X passed to the Frenchwoman, so the Frenchwoman is two places right of X
+    right(right(x())) = french().
+}

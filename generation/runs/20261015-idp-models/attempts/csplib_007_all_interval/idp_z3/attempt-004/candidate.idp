@@ -1,0 +1,34 @@
+// All-interval series: find a permutation x of 0..n-1 whose neighbouring differences are a permutation of 1..n-1.
+vocabulary {
+    // the n positions of the series, 1..n, sized from n
+    type Pos := {1..${n}}
+    // pitch classes 0..n-1; the range reaches n and the theory excludes it
+    type Val := {0..${n}}
+    // positions 2..n, one per interval between neighbouring notes (n-1 intervals)
+    type Gap := {2..${n}}
+    // interval sizes 0..n; the theory requires 1..n-1
+    type Ival := {0..${n}}
+
+    n: () -> Int
+
+    // declared output: the series of pitch classes
+    x: Pos -> Val
+    // declared output: the interval between each pair of neighbouring notes
+    diffs: Gap -> Ival
+}
+theory {
+    // the series is a permutation of 0..n-1: each value is below n and occurs once
+    ! p in Pos: x(p) < n().
+    ! p, q in Pos: p ~= q => x(p) ~= x(q).
+
+    // reversing a series keeps its intervals, so the first note is taken below the last
+    x(1) < x(n()).
+
+    // the interval between neighbouring pitch classes is their absolute difference
+    ! g in Gap: x(g) > x(g - 1) => diffs(g) = x(g) - x(g - 1).
+    ! g in Gap: x(g) < x(g - 1) => diffs(g) = x(g - 1) - x(g).
+
+    // the intervals are a permutation of 1..n-1: each lies in 1..n-1 and occurs once
+    ! g in Gap: diffs(g) >= 1 & diffs(g) < n().
+    ! g, h in Gap: g ~= h => diffs(g) ~= diffs(h).
+}

@@ -1,0 +1,15 @@
+// Devil's word: insert '+' or '-' before each integer of an array so that the signed sum is the given total.
+vocabulary {
+    type I <: Int                  // positions of the array, sized from arr
+    arr: I -> Int                  // the integers of the array (instance data)
+    total: () -> Int               // the target sum (instance data)
+    s: I -> Bool                   // true when the integer at position i gets a '+' sign
+    result: I -> Int               // the array with the correct signs
+}
+theory {
+    // each integer gets a plus or a minus sign, and the signed value is the integer or its negation
+    ! i in I: result(i) = if s(i) then arr(i) else 0 - arr(i).
+
+    // the signed integers sum to the total
+    sum{{ result(i) | i in I }} = total().
+}

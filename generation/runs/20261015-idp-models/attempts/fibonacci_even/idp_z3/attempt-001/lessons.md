@@ -1,0 +1,3 @@
+- A recursive sequence over type Pos := {1..33} with fib(i) = fib(i - 1) + fib(i - 2) under i > 2 grounded without a guard error.
+- The 33-term bound is the smallest index where the term exceeds four million; the 4000000 limit is a problem constant.
+- sum{{ ... | i in Pos: ... }} with a % 2 filter and a -> Int output worked for a determined value.

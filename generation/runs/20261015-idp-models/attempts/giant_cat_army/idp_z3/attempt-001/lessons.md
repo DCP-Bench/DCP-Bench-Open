@@ -1,0 +1,2 @@
+- A square-root step over a finite range is cheap as a definition `{ ! v, r in Val: sqr(v, r) <- v = r * r. }` (the product is between quantified variables, grounded to constants), with no nonlinear decision terms.
+- Step relations with a successor index `! i, j in Pos: j = i + 1 => ...` avoid `x(i+1)` out of range at the last position.

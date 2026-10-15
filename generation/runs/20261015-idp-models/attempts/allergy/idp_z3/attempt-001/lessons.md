@@ -1,0 +1,2 @@
+- A nullary Int output can hold an index: `eggs() = sum{{ f | f in Friend: allergy(f) = 0 }}` over a range-typed Friend, with the decision a function into a range-typed Food and an injective constraint; the same pattern gave every output in one pass.
+- Range types `type T := {0..3}` are numeric, so a sum over them returns the element; the first check (evaluation.check) and the real evaluate agreed on the one example.

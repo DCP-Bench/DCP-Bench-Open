@@ -1,0 +1,25 @@
+// Fancy dress party: Mr Greenguest chooses which green items to wear (tie t, hat h, shirt r, socks s) and whether to pay the entrance fee n, at minimum total cost.
+vocabulary {
+    t: () -> Bool    // wears a green tie
+    h: () -> Bool    // wears a green hat (used)
+    r: () -> Bool    // wears a green shirt (owned, so no cost)
+    s: () -> Bool    // wears green socks
+    n: () -> Bool    // pays the entrance fee
+    minimize: () -> Int
+}
+theory {
+    // Rule 1: If someone wears a green tie he has to wear a green shirt.
+    t() => r().
+
+    // Rule 2: A guest may only wear green socks and a green shirt if he wears a green tie or a green hat.
+    (s() & r()) => (t() | h()).
+
+    // Rule 3: A guest wearing a green shirt or a green hat or who does not wear green socks must wear a green tie.
+    (r() | h() | ~s()) => t().
+
+    // Rule 4: A guest who is not dressed according to rules 1-3 must pay a $11 entrance fee.
+    n() <=> ~(((t() => r())) & ((s() & r()) => (t() | h())) & ((r() | h() | ~s()) => t())).
+
+    // The cost is the price of the green tie ($10), the used green hat ($2), the green socks ($12) and the entrance fee ($11). The owned shirt costs nothing.
+    minimize() = (if t() then 10 else 0) + (if h() then 2 else 0) + (if s() then 12 else 0) + (if n() then 11 else 0).
+}

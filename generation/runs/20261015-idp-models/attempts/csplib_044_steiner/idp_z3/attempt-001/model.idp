@@ -1,0 +1,18 @@
+// Ternary Steiner system of order n: find a set of n(n-1)/6 triples of distinct elements of {1..n}
+// such that any two triples have at most one common element.
+vocabulary {
+    // the elements are 1..n
+    type Elem := {1..${n}}
+    // one row per triple; the number of triples is not expressible from n, so this uses n rows
+    type Triple := {1..${n}}
+    n: () -> Int
+    // sets(t, e) is true when element e is part of triple t
+    sets: Triple * Elem -> Bool
+}
+theory {
+    // each triple consists of three elements
+    ! t in Triple: #{ e in Elem: sets(t, e) } = 3.
+
+    // any two distinct elements lie together in exactly one triple
+    ! e1, e2 in Elem: e1 ~= e2 => #{ t in Triple: sets(t, e1) & sets(t, e2) } = 1.
+}

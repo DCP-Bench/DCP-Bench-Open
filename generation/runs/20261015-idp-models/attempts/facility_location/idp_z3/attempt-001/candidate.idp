@@ -1,0 +1,39 @@
+// Choose which warehouses to open and how many units each open warehouse ships to each region, minimizing total cost.
+vocabulary {
+    type W := {0..${len(fixed_costs)-1}}   // warehouses: 0 New York, 1 Los Angeles, 2 Chicago, 3 Atlanta
+    type R := {0..${len(demands)-1}}       // regions
+
+    fixed_costs: W -> Int                  // fixed cost of opening each warehouse
+    shipping_costs: W * R -> Int           // unit shipping cost from warehouse to region
+    demands: R -> Int                      // demand of each region
+    max_shipping: () -> Int                // maximum units an open warehouse ships in total
+
+    open_warehouse: W -> Bool              // declared output: whether each warehouse is opened
+    ships: W * R -> Int                    // declared output: units shipped from warehouse i to region j
+    total_cost: () -> Int                  // declared output: total cost
+    minimize: () -> Int
+}
+theory {
+    // If the New York warehouse is opened, then the Los Angeles warehouse must also be opened.
+    open_warehouse(0) => open_warehouse(1).
+
+    // No more than three warehouses can be operational in any given week.
+    #{ w in W: open_warehouse(w) } =< 3.
+
+    // Either the Atlanta or the Los Angeles warehouse must be opened.
+    open_warehouse(3) | open_warehouse(1).
+
+    // Each region's demand is met exactly by the warehouses that ship to it.
+    ! r in R: sum{{ ships(w, r) | w in W }} = demands(r).
+
+    // A warehouse that is not opened ships nothing.
+    ! w in W, r in R: ~open_warehouse(w) => ships(w, r) = 0.
+
+    // An open warehouse ships at most max_shipping units in total; shipments are not negative.
+    ! w in W: sum{{ ships(w, r) | r in R }} =< max_shipping().
+    ! w in W, r in R: ships(w, r) >= 0.
+
+    // The total cost: fixed costs of the opened warehouses plus the shipping costs.
+    total_cost() = sum{{ (if open_warehouse(w) then fixed_costs(w) else 0) | w in W }} + sum{{ (shipping_costs(w, r) * ships(w, r)) | w in W, r in R }}.
+    minimize() = total_cost().
+}

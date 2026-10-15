@@ -1,0 +1,16 @@
+// 13 people, 4 of them male, enter a room one at a time. Find an order of male and female entries
+// so that the ratio of females to males in the room at any one time is no greater than 7/3.
+vocabulary {
+    // the 13 entry positions, in the order people enter the room
+    type Pos := {1..13}
+    // sequence[p] is true (1) for a female entering at position p, false (0) for a male
+    sequence: Pos -> Bool
+}
+theory {
+    // there are 4 males among the 13 people
+    #{ p in Pos: ~sequence(p) } = 4.
+
+    // at any one time, the ratio of females to males in the room is no greater than 7/3,
+    // written without division: females * 3 =< males * 7 (so an empty room with a female in it is not allowed)
+    ! t in Pos: 3 * #{ p in Pos: p =< t & sequence(p) } =< 7 * #{ p in Pos: p =< t & ~sequence(p) }.
+}

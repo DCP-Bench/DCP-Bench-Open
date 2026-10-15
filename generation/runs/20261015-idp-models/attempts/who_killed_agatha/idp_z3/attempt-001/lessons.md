@@ -1,0 +1,3 @@
+- Instance field names: [3]str cannot be bound, so the 3 people are fixed as {0..2} from the problem statement and the names order; comment says so.
+- Killer is unique by hand-check: Charles and the butler are ruled out by the constraints, so richer/hates need no extra axioms.
+- Output killer declared as () -> Person with Person := {0..2} was read back as an integer (0).

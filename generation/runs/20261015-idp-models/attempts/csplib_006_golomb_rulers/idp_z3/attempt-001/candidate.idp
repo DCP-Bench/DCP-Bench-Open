@@ -1,0 +1,30 @@
+// Golomb rulers: place m marks on an integer ruler so that all pairwise differences are distinct, minimising the length.
+vocabulary {
+    // the marks of the ruler are numbered 1..size, where size is the number of marks
+    type Mark := {1..${size}}
+    // the position of each mark, a_1 < a_2 < ... < a_m
+    marks: Mark -> Int
+    // the length of the ruler is the position of the last mark
+    length: () -> Int
+    // the objective is the length of the ruler
+    minimize: () -> Int
+}
+theory {
+    // the first mark is at position 0
+    marks(1) = 0.
+
+    // the marks are strictly increasing
+    ! i, j in Mark: i < j => marks(i) < marks(j).
+
+    // the m(m-1)/2 differences a_j - a_i, 1 <= i < j <= m, are distinct
+    ! i1, j1, i2, j2 in Mark: (i1 < j1 & i2 < j2 & (i1 ~= i2 | j1 ~= j2)) => marks(j1) - marks(i1) ~= marks(j2) - marks(i2).
+
+    // the length of the ruler is the position of the last mark a_m
+    length() = marks(${size}).
+
+    // a ruler and its mirror image have the same length, so the gap at the start is kept below the gap at the end
+    marks(2) < length() - marks(${size} - 1).
+
+    // minimum length rulers are wanted
+    minimize() = length().
+}

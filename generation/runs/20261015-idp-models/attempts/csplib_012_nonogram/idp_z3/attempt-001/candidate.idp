@@ -1,0 +1,31 @@
+// Nonogram: shade squares of a grid so that every row and column shows its block sequence.
+vocabulary {
+    // row and column indices, sized from the instance arrays (0-based)
+    type Row <: Int
+    type Col <: Int
+    // rule slots of a row and of a column, sized from the instance arrays
+    type RK <: Int
+    type CK <: Int
+    type Cell := {0..1}
+    row_rules: Row * RK -> Int
+    col_rules: Col * CK -> Int
+    // leftmost shaded square of each row block, topmost of each column block
+    rstart: Row * RK -> Col
+    cstart: Col * CK -> Row
+    // declared output: 1 = shaded, 0 = unshaded
+    board: Row * Col -> Cell
+}
+theory {
+    // blocks of consecutive shaded squares must fit inside their row
+    ! r in Row, k in RK: row_rules(r,k) > 0 => (? c in Col: c = rstart(r,k) + row_rules(r,k) - 1).
+    // blocks in a row keep their order and are separated by at least one unshaded square
+    ! r in Row, k1, k2 in RK: k1 < k2 & row_rules(r,k1) > 0 & row_rules(r,k2) > 0 => rstart(r,k2) > rstart(r,k1) + row_rules(r,k1).
+    // blocks of consecutive shaded squares must fit inside their column
+    ! c in Col, k in CK: col_rules(c,k) > 0 => (? r in Row: r = cstart(c,k) + col_rules(c,k) - 1).
+    // blocks in a column keep their order and are separated by at least one unshaded square
+    ! c in Col, k1, k2 in CK: k1 < k2 & col_rules(c,k1) > 0 & col_rules(c,k2) > 0 => cstart(c,k2) > cstart(c,k1) + col_rules(c,k1).
+    // a square is shaded exactly when a row block covers it
+    ! r in Row, c in Col: board(r,c) = 1 <=> (? k in RK: row_rules(r,k) > 0 & rstart(r,k) =< c & c < rstart(r,k) + row_rules(r,k)).
+    // a square is shaded exactly when a column block covers it
+    ! r in Row, c in Col: board(r,c) = 1 <=> (? k in CK: col_rules(c,k) > 0 & cstart(c,k) =< r & r < cstart(c,k) + col_rules(c,k)).
+}

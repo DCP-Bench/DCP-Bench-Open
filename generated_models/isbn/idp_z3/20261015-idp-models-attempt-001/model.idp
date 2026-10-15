@@ -1,0 +1,25 @@
+// ISBN-13 check digit completion: fill the unknown (-1) digits so the number is a valid ISBN-13.
+vocabulary {
+    // the 13 positions of the ISBN, sized from the instance field isbn_init
+    type I <: Int
+    // a single digit
+    type Digit := {0..9}
+    // the given digits, -1 marks an unknown digit
+    isbn_init: I -> Int
+    // the completed ISBN, one digit per position
+    isbn: I -> Digit
+    // weighted sum of the first 12 digits (weights 1 and 3 alternately, starting with 1)
+    total: () -> Int
+}
+theory {
+    // the first 12 digits are multiplied alternately by 1 and 3, starting with 1
+    total() = sum{{ isbn(i) | i in I: i % 2 = 0 & i =< 11 }} + 3 * sum{{ isbn(i) | i in I: i % 2 = 1 & i =< 11 }}.
+    // the sum is bounded by 6 * (9 * 1 + 9 * 3) = 216 since every digit is at most 9
+    0 =< total() & total() =< 216.
+    // the check digit is (10 - (sum % 10)) % 10
+    isbn(12) = (10 - total() % 10) % 10.
+    // the number starts with 978 or 979
+    isbn(0) = 9 & isbn(1) = 7 & (isbn(2) = 8 | isbn(2) = 9).
+    // every given digit is kept, unknown digits are free
+    ! i in I: isbn_init(i) ~= -1 => isbn(i) = isbn_init(i).
+}

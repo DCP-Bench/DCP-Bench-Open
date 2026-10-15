@@ -1,0 +1,2 @@
+- The bin index needs a range, and no instance field has the bin dimension, so the type is `{0..${num_bins}}` with one spare index; `bins(i) < ${num_bins}` keeps items out of it. Accepted with 0-based bins on all 5 instances.
+- A bin's capacity check quantifies over the bin type and uses `sum{{ ... | i in I: bins(i) = b }}`, which is empty-safe for the spare index.

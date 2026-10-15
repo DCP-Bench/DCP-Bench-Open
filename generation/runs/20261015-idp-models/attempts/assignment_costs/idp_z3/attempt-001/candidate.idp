@@ -1,0 +1,25 @@
+// Assignment costs: assign people to tasks with different costs so that the total cost is minimized.
+vocabulary {
+    // the tasks and the people, sized from the instance's cost table
+    type Task <: Int
+    type Person <: Int
+
+    // cost of each person doing each task, from the instance
+    cost: Task * Person -> Int
+
+    // declared output: whether task t is assigned to person p
+    x: Task * Person -> Bool
+
+    // total cost of the assignment
+    minimize: () -> Int
+}
+theory {
+    // each task must be assigned to exactly one person
+    ! t in Task: ?=1 p in Person: x(t, p).
+
+    // it is not necessary to assign all people to a task, but each person takes at most one task
+    ! p in Person: ?=<1 t in Task: x(t, p).
+
+    // the objective is the total cost of the assigned pairs
+    minimize() = sum{{ cost(t, p) | t in Task, p in Person: x(t, p) }}.
+}

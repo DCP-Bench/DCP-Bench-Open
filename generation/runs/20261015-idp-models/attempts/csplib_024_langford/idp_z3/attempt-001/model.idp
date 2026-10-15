@@ -1,0 +1,12 @@
+// Langford's problem: arrange two copies of each number 1..k in one sequence of 2k numbers.
+vocabulary {
+    type Val := {1..${k}}         // the numbers 1..k
+    type Pos := {1..${2*k}}       // the 2k positions of the sequence
+    sol: Pos -> Val               // sol(p) is the number at position p
+}
+theory {
+    // the two 1's, the two 2's, ..., the two k's each appear in the sequence
+    ! v in Val: #{ p in Pos: sol(p) = v } = 2.
+    // the two v's appear v numbers apart: between the two copies of v there are v numbers, so they are v+1 positions apart
+    ! v in Val, p in Pos, q in Pos: (sol(p) = v & sol(q) = v & p < q) => q = p + v + 1.
+}

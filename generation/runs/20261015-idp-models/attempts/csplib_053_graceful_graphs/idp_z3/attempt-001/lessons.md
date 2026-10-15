@@ -1,0 +1,3 @@
+- Data-sized index types (E, End as <: Int) bind a 2-D graph field; 0-based node ids from the data are shifted with graph(e,0)+1 into a Node := {1..${n}} type, and that worked without auxiliary symbols.
+- Nested application with an Int-valued argument (nodes(graph(e,0)+1)) and abs() in an equality with a range-typed output were both accepted by IDP-Z3 0.12.1 on the first try.
+- Label range {0..${m}} takes the edge count from the scalar field m, so no data-sized type is needed for labels.

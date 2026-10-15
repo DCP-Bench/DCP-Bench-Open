@@ -1,0 +1,32 @@
+// Csplib 016 traffic lights: assign a state to each of eight lights so that every
+// consecutive pair of junction states is a safe combination from the problem table.
+vocabulary {
+    // V1..V4 are lights 0..3 and P1..P4 are lights 4..7 (0-based)
+    type Light := {0..7}
+    // one row per allowed tuple (V_i, P_i, V_i+1, P_i+1), sized from the instance
+    type R <: Int
+    // four columns per row: V_i, P_i, V_i+1, P_i+1
+    type C <: Int
+    allowed_tuples: R * C -> Int
+    // declared output: [V1, V2, V3, V4, P1, P2, P3, P4]
+    lights: Light -> Int
+}
+theory {
+    // vehicle light states are 0=red, 1=red-yellow, 2=green, 3=yellow
+    ! i in Light: lights(i) >= 0.
+    lights(0) =< 3.
+    lights(1) =< 3.
+    lights(2) =< 3.
+    lights(3) =< 3.
+    // pedestrian light states are 0=red, 1=green
+    lights(4) =< 1.
+    lights(5) =< 1.
+    lights(6) =< 1.
+    lights(7) =< 1.
+    // for i=1..4 (with V5=V1 and P5=P1), the pair (V_i, P_i, V_i+1, P_i+1) is one of the listed safe combinations
+    ? r in R: allowed_tuples(r, 0) = lights(0) & allowed_tuples(r, 1) = lights(4) & allowed_tuples(r, 2) = lights(1) & allowed_tuples(r, 3) = lights(5).
+    ? r in R: allowed_tuples(r, 0) = lights(1) & allowed_tuples(r, 1) = lights(5) & allowed_tuples(r, 2) = lights(2) & allowed_tuples(r, 3) = lights(6).
+    ? r in R: allowed_tuples(r, 0) = lights(2) & allowed_tuples(r, 1) = lights(6) & allowed_tuples(r, 2) = lights(3) & allowed_tuples(r, 3) = lights(7).
+    ? r in R: allowed_tuples(r, 0) = lights(3) & allowed_tuples(r, 1) = lights(7) & allowed_tuples(r, 2) = lights(0) & allowed_tuples(r, 3) = lights(4).
+    // every other combination is disallowed: the chosen states of each pair must match a listed tuple
+}

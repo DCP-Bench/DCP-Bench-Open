@@ -1,0 +1,55 @@
+// Travelling salesman problem: find the shortest tour that visits each city exactly once
+// and returns to the origin city. The distance between two cities is the Euclidean distance
+// between their points, rounded to an integer.
+vocabulary {
+    // one city per location in the instance, indexed from 0 (sized from the data)
+    type City <: Int
+    // coordinate axis of a location: 0 is the first coordinate, 1 the second
+    type Dim <: Int
+    // position of a city along the tour, 0 .. number of cities - 1
+    type Pos := {0..${len(locations)-1}}
+    // candidate rounded distances, 0 .. twice the largest coordinate
+    type Dist := {0..${2*max(locations)}}
+
+    locations: City * Dim -> Int
+
+    // rounded Euclidean distance between two cities
+    dist: City * City -> Int
+
+    // x(i, j) holds when the tour travels directly from city i to city j
+    x: City * City -> Bool
+    // position of each city in the tour, the origin city 0 is at position 0
+    u: City -> Pos
+
+    // optimal travel distance
+    travel_distance: () -> Int
+    minimize: () -> Int
+}
+theory {
+    // the rounded distance is the candidate k whose range holds the squared distance between the points:
+    // k * k - k + 1 =< squared distance =< k * k + k, and the distance 0 rounds from 0 alone
+    ! i, j in City: dist(i, j) = sum{{ k | k in Dist:
+        (k = 0 & (locations(i, 0) - locations(j, 0)) * (locations(i, 0) - locations(j, 0))
+            + (locations(i, 1) - locations(j, 1)) * (locations(i, 1) - locations(j, 1)) = 0)
+        | (k ~= 0 & k * k - k + 1 =< (locations(i, 0) - locations(j, 0)) * (locations(i, 0) - locations(j, 0))
+            + (locations(i, 1) - locations(j, 1)) * (locations(i, 1) - locations(j, 1))
+            & (locations(i, 0) - locations(j, 0)) * (locations(i, 0) - locations(j, 0))
+            + (locations(i, 1) - locations(j, 1)) * (locations(i, 1) - locations(j, 1)) =< k * k + k) }}.
+
+    // no city travels to itself
+    ! i in City: ~x(i, i).
+    // every city has exactly one successor on the tour
+    ! i in City: ?=1 j in City: x(i, j).
+    // every city has exactly one predecessor on the tour
+    ! j in City: ?=1 i in City: x(i, j).
+    // the tour starts at the origin city 0
+    u(0) = 0.
+    // Miller-Tucker-Zemlin: between two cities other than the origin, the position grows along
+    // the tour, so no closed route can leave out the origin city
+    ! i, j in City: (i ~= 0 & j ~= 0 & x(i, j)) => u(i) + 1 =< u(j).
+
+    // the travel distance is the sum of the distances of the legs chosen
+    travel_distance() = sum{{ dist(i, j) | i, j in City: x(i, j) }}.
+    // the objective is the travel distance
+    minimize() = travel_distance().
+}

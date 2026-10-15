@@ -1,0 +1,40 @@
+// SEND + MORE = MONEY: assign a distinct digit from 0 to 9 to each of the eight letters
+vocabulary {
+    // one value per letter, each a digit from 0 to 9
+    s: () -> Int
+    e: () -> Int
+    n: () -> Int
+    d: () -> Int
+    m: () -> Int
+    o: () -> Int
+    r: () -> Int
+    y: () -> Int
+}
+theory {
+    // each letter represents a digit from 0 to 9
+    0 =< s() & s() =< 9.
+    0 =< e() & e() =< 9.
+    0 =< n() & n() =< 9.
+    0 =< d() & d() =< 9.
+    0 =< m() & m() =< 9.
+    0 =< o() & o() =< 9.
+    0 =< r() & r() =< 9.
+    0 =< y() & y() =< 9.
+
+    // each letter must be assigned a unique digit
+    s() ~= e() & s() ~= n() & s() ~= d() & s() ~= m() & s() ~= o() & s() ~= r() & s() ~= y().
+    e() ~= n() & e() ~= d() & e() ~= m() & e() ~= o() & e() ~= r() & e() ~= y().
+    n() ~= d() & n() ~= m() & n() ~= o() & n() ~= r() & n() ~= y().
+    d() ~= m() & d() ~= o() & d() ~= r() & d() ~= y().
+    m() ~= o() & m() ~= r() & m() ~= y().
+    o() ~= r() & o() ~= y().
+    r() ~= y().
+
+    // the first letter of each word cannot be zero
+    s() ~= 0.
+    m() ~= 0.
+
+    // the equation SEND + MORE = MONEY holds
+    1000 * s() + 100 * e() + 10 * n() + d() + 1000 * m() + 100 * o() + 10 * r() + e()
+        = 10000 * m() + 1000 * o() + 100 * n() + 10 * e() + y().
+}

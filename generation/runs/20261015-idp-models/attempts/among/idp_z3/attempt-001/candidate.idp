@@ -1,0 +1,30 @@
+// Among: an array x of n values, where exactly m of its entries take one of the values in v.
+
+vocabulary {
+    // The positions of x, 1..n (n is taken from the instance).
+    type I := {1..${n}}
+    // The positions of v (sized from the instance array v).
+    type K <: Int
+
+    // Instance data.
+    n: () -> Int
+    m: () -> Int
+    v: K -> Int
+
+    // Declared output: the array x.
+    x: I -> Int
+
+    // Helper: x(i) takes one of the values in v.
+    inV: I -> Bool
+}
+
+theory {
+    // every entry of x is a value between 0 and 7 (the problem fixes this domain)
+    ! i in I: x(i) >= 0 & x(i) =< 7.
+
+    // inV(i) holds exactly when x(i) equals one of the values in v
+    ! i in I: inV(i) <=> (? k in K: v(k) = x(i)).
+
+    // exactly m values in x take one of the values in v
+    #{ i in I: inV(i) } = m().
+}

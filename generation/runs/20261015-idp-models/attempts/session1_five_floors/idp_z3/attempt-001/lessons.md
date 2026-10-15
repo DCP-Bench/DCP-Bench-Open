@@ -1,0 +1,2 @@
+- Nullary `X: () -> Int` outputs with bounds in the theory and `C() < M().` ordering were accepted first time.
+- Adjacency written as `S() ~= F() + 1 & S() ~= F() - 1` avoids `abs` and parsed without errors.
