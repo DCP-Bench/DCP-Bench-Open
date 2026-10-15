@@ -1,0 +1,24 @@
+// Number partitioning: partition the numbers 1..N into two sets A and B of the same
+// cardinality, with equal sums and equal sums of squares.
+vocabulary {
+    type Num := {1..${n}}
+    type Half := {1..${n/2}}    // the positions of set A and of set B
+    A: Half -> Num              // the elements of A, in ascending order
+    B: Half -> Num              // the elements of B, in ascending order
+}
+theory {
+    // A and B have the same cardinality (both have n/2 elements, listed in ascending order)
+    ! i, j in Half: i < j => A(i) < A(j).
+    ! i, j in Half: i < j => B(i) < B(j).
+
+    // every number occurs in A or in B, and no number is in both
+    ! i, j in Half: i ~= j => A(i) ~= A(j).
+    ! i, j in Half: i ~= j => B(i) ~= B(j).
+    ! i, j in Half: A(i) ~= B(j).
+
+    // the sum of numbers in A equals the sum of numbers in B
+    sum{{ A(i) | i in Half }} = sum{{ B(i) | i in Half }}.
+
+    // the sum of squares of numbers in A equals the sum of squares of numbers in B
+    sum{{ (A(i) * A(i)) | i in Half }} = sum{{ (B(i) * B(i)) | i in Half }}.
+}

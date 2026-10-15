@@ -1,0 +1,4 @@
+- Existential-count `?=1 d in Day: ...` nested inside `=>` and parentheses returns no usable output (runner reports invalid_output); `#{d in Day: ...} = 1` works.
+- Five-variable day windows (`d1..d5` with `d2 = d1 + 1` guards) ground to about 17M instances and time out; the same windows written with one day variable and `d + k` terms, guarded by `d + k =< ${n_days}`, check in under 1 s.
+- Attempt 001 with the large windows: every instance execution_timeout, evaluation record reports no_instance_verified.
+- Problem-level constants (mirror pairs, rival pairs, team numbers 1..9) are written literally with comments; the single instance cannot test them.

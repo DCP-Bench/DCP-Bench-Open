@@ -1,0 +1,13 @@
+// Finding celebrities: among the guests of a party, find those whom every other guest knows.
+vocabulary {
+    // Guests, sized from the rows of the knowledge graph.
+    type Guest <: Int
+    // graph(i, j) = 1 when guest i knows guest j.
+    graph: Guest * Guest -> Int
+    // celebrities(c): guest c is a celebrity.
+    celebrities: Guest -> Bool
+}
+theory {
+    // A guest is a celebrity exactly when every other guest knows that guest.
+    ! c in Guest: celebrities(c) <=> (! i in Guest: i ~= c => graph(i, c) = 1).
+}

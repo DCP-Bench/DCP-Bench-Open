@@ -1,0 +1,2 @@
+- Four different numbers in 1..100 with a^2+b^2 = c^2+d^2: products of decision symbols over a range type {1..100} solve in under a second; no bounds beyond the type were needed.
+- The description says a != b != c != d; I read it as all four pairwise different (the problem says 4 different numbers).

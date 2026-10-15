@@ -1,0 +1,3 @@
+- Crossword: take slots from the grid, a run of open cells of length 2 or more that starts at an open cell with no open cell before it; a numbered cell can start both an across and a down run, so count runs, not labels.
+- Word tables (letters, lengths) fit in the theory as ground sentences like `ch(0,1) = 8.`; the runner accepted this with no structure block.
+- Output E is read in ascending slot order, so E[k] is the word for numbered slot k+1.

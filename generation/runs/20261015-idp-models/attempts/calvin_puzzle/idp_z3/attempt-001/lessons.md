@@ -1,0 +1,2 @@
+- Calvin puzzle (values 1..n*n, successor by a 3-square or 2-square diagonal move): every variant tried timed out in IDP-Z3 0.12.1 at 60-400 s, n=5 example. Without the successor constraint z3 answers in about 1 s, so the successor relation over Int values (`x(q) = x(p) + 1 =>` with move disjunctions) is the cost.
+- Values 1..n*n cannot be a finite type: `${...}` takes only one field name, so the value domain stays Int and is bounded only by constraints. Splitting the value into (block, position) over a sized type N did not help either.

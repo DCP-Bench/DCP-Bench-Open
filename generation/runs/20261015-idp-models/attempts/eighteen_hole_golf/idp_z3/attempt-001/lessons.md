@@ -1,0 +1,1 @@
+- A problem with no instance fields (eighteen_hole_golf) takes a fixed size and total from the statement; a range type plus one sum constraint was accepted on the first attempt.

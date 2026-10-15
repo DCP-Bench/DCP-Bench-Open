@@ -1,0 +1,29 @@
+// Find the smallest a >= min_a such that a, b > 0 with a - b prime and a * b = n^2 for some n
+vocabulary {
+    type Val := {1..${max_val}}                 // every quantity lies in 1..max_val
+    // a = x * x <= max_val, so x <= sqrt(max_val); sqrt(M) <= M // 100 + 26 for every M
+    type Root := {1..${max_val // 100 + 26}}
+    // divisors up to sqrt(p), where p <= 2 * sqrt(max_val) - 1 (same bound as Root)
+    type Div := {2..${max_val // 100 + 26}}
+    min_a: () -> Int                            // lower bound on a
+    x: () -> Root                               // helper: the root with a = x * x
+    a: () -> Val
+    b: () -> Val
+    n: () -> Val
+    p: () -> Val                                // the prime a - b
+    minimize: () -> Int
+}
+theory {
+    // a = x * x, b = (x - 1) * (x - 1), n = x * (x - 1), p = 2x - 1.
+    // Reason: if a - b is prime then gcd(a, b) = 1, so a * b being a square forces a and b to be squares,
+    // and x^2 - y^2 = (x - y)(x + y) prime forces y = x - 1. Each row is a constant table entry.
+    // a - b = 2x - 1 is prime: no divisor d with d * d =< 2x - 1 divides it (tested on constants).
+    ! k in Root: x() = k => (a() = k * k & b() = (k - 1) * (k - 1) & n() = k * (k - 1) & p() = 2 * k - 1
+        & #{ d in Div: d * d =< 2 * k - 1 & (2 * k - 1) % d = 0 } = 0).
+
+    // a is at least the given minimum
+    min_a() =< a().
+
+    // the objective: the smallest a
+    minimize() = a().
+}

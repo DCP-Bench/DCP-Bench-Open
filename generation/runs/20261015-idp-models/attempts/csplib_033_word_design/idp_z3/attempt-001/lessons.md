@@ -1,0 +1,3 @@
+- Word design (satisfaction, 2-D output): `type Word := {1..${num_words}}` with `words: Word * Pos -> Letter` and `Letter := {1..4}` reads back as the [num_words][n] list directly, no index shift needed.
+- Pairwise Hamming and reverse-complement distance are written as counts over pairs of positions: `#{ i in Pos, j in Pos: i + j = n() + 1 & words(x, j) ~= comp(words(y, i)) } >= 4` avoids indexing with an Int expression, which the typer rejects where a Pos is expected.
+- Letter classes go through a predicate defined by an equivalence (`is_cg(l) <=> (l = 2 | l = 3)`), and `#{ p in Pos: is_cg(words(w, p)) } = 4` counts them.

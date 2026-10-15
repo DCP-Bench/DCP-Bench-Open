@@ -1,0 +1,3 @@
+- A row mixing a string with ints (`[name, start, end]`) binds per column: declare `movies_2` and `movies_3` (1-based column suffix); the string column is left undeclared.
+- Column-split names keep the source column number, so the first int column of `[str, int, int]` is `_2`, not `_1`.
+- Evaluated with `evaluation.check --instance-count 2` first; the full `generation.manage evaluate` run took about 2 s on 5 instances.

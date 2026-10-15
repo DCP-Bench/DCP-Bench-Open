@@ -1,0 +1,2 @@
+- FO(.) cannot size a value type from a 2-D field: `type Num := {1..${len(puzzle)*len(puzzle)}}` fails at parse. Values stay `-> Int` with bounds `1 =< x(r,c) =< total()`, where `total() = #{ a, b in I: a = a }`.
+- Adjacency as a universal over all cell pairs (`x(r2,c2) = x(r1,c1)+1 => adjacent`) timed out at 60 s on the 12x12 instance. The existence form (`x(r,c) ~= total() => ? r2,c2 in I: x(r2,c2) = x(r,c)+1 & abs(r-r2) =< 1 & abs(c-c2) =< 1`) passed all 5 instances, 1-17 s each.

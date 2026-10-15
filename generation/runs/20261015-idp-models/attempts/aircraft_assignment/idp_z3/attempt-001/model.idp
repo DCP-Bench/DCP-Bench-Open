@@ -1,0 +1,32 @@
+// Aircraft assignment: assign aircraft of several types to routes to meet passenger demand at minimum cost.
+vocabulary {
+    // the aircraft types, sized from the availability list
+    type AircraftType <: Int
+    // the routes, sized from the demand list
+    type Route <: Int
+    // the number of aircraft of each type available
+    availability: AircraftType -> Int
+    // the passenger demand of each route
+    demand: Route -> Int
+    // the passenger capacity of one aircraft of a type on a route
+    capabilities: AircraftType * Route -> Int
+    // the operational cost of one aircraft of a type on a route
+    costs: AircraftType * Route -> Int
+    // the number of aircraft of type i assigned to route j
+    allocation: AircraftType * Route -> Int
+    // the total operational cost
+    minimize: () -> Int
+}
+theory {
+    // The number of aircraft assigned is never negative.
+    ! t in AircraftType, r in Route: allocation(t, r) >= 0.
+
+    // The aircraft of each type assigned to all routes stay within its availability.
+    ! t in AircraftType: sum{{ allocation(t, r) | r in Route }} =< availability(t).
+
+    // The passenger capacity assigned to each route meets its demand.
+    ! r in Route: sum{{ (capabilities(t, r) * allocation(t, r)) | t in AircraftType }} >= demand(r).
+
+    // The objective is the total operational cost of all assignments.
+    minimize() = sum{{ (costs(t, r) * allocation(t, r)) | t in AircraftType, r in Route }}.
+}

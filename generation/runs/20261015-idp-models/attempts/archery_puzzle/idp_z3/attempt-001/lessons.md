@@ -1,0 +1,2 @@
+- A count variable can be bounded by a ${field} placeholder when an exchange argument shows an optimum never exceeds it (here hits <= target_score, since removing an arrow from a ring with more than target hits does not worsen the deviation).
+- The objective abs(total - target) passed with abs() on a symbol expression; no division or negative divisors were needed.

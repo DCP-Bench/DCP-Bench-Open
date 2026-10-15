@@ -1,0 +1,2 @@
+- Nullary Bool outputs (p: () -> Bool) with <=>, =>, ~ and & are enough for propositional puzzles; no instance fields means no binding.
+- Statements the speakers make are asserted as theory sentences, so an all-true reading needs no extra machinery (accepted at first try).

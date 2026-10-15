@@ -1,0 +1,29 @@
+// Hadamard matrix Legendre pairs: find two sequences A, B of l entries in {-1, +1}, l odd,
+// whose periodic autocorrelations sum to -2 at every shift s = 1..m, with m = (l-1)/2.
+vocabulary {
+    // the positions 1..l of each sequence
+    type Idx := {1..${l}}
+    // the shifts 1..l (only shifts 1..m are constrained)
+    type Lag := {1..${l}}
+    // the entries take values -1 or +1
+    type Sgn := {-1, 1}
+    // a_1..a_l
+    a: Idx -> Sgn
+    // b_1..b_l
+    b: Idx -> Sgn
+    // wrap(i, s) is i + s taken mod l, in 1..l
+    wrap: Idx * Lag -> Idx
+}
+theory {
+    // periodic index: i + s, wrapped around when it exceeds l
+    ! i in Idx, s in Lag: wrap(i, s) = (if i + s =< ${l} then i + s else i + s - ${l}).
+
+    // PAF(A, s) + PAF(B, s) = -2 for every shift s = 1..m, where m = (l-1)/2
+    ! s in Lag: 2 * s + 1 =< ${l} => (sum{{ (a(i) * a(wrap(i, s))) | i in Idx }} + sum{{ (b(i) * b(wrap(i, s))) | i in Idx }} = -2).
+
+    // the linear constraint on A: a_1 + ... + a_l = 1
+    sum{{ a(i) | i in Idx }} = 1.
+
+    // the linear constraint on B: b_1 + ... + b_l = 1
+    sum{{ b(i) | i in Idx }} = 1.
+}

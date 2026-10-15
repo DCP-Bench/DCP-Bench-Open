@@ -1,0 +1,3 @@
+- The brief lists covering_opl's Qualified as unbindable, but a ragged list of ints binds: declare `T * P -> Int` plus `Qualified_len: T -> Int`, as the skill's ragged-row rule says.
+- Padded entries read 0, and worker ids are 1-based, so `Qualified(t, p) = w + 1` never matches a padding slot. The `p < Qualified_len(t)` guard is kept for readability.
+- `${sum(Cost)}` bounds total_cost from the instance, and `minimize() = total_cost()` keeps the declared output name as the objective.

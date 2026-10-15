@@ -1,0 +1,4 @@
+- Prices in cents: the cashier's product is read in dollars, so prod(prices) = total * 100^(n-1), not = total. A plain product constraint is unsat on every instance.
+- A running product bounded above by the final product (pref(k) =< total * 100^(n-1)) made the 711 and 720 instances time out at 60 s; keeping only pref(k) >= 1 solved them in 16-68 s.
+- Bounding each price by total - (num_items - 1) and giving prices a range type {1..total-n+1} both helped nothing: the range type made the 525 instance time out.
+- Arithmetic on {1..${num_items}} range types works (pref(k - 1) in a range-typed quantifier), and ${num_items-1} works inside a theory.

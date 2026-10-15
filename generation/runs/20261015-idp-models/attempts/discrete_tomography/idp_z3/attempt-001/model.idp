@@ -1,0 +1,16 @@
+// Discrete tomography: reconstruct a 0/1 matrix from the number of ones in each row and column.
+vocabulary {
+    type R <: Int                  // rows, sized from the length of row_sums
+    type C <: Int                  // columns, sized from the length of col_sums
+    type Bit := {0..1}             // a cell holds zero or one
+    row_sums: R -> Int             // total number of ones in each row
+    col_sums: C -> Int             // total number of ones in each column
+    matrix: R * C -> Bit           // the reconstructed matrix
+}
+theory {
+    // the matrix is x-rayed horizontally: each row contains the number of ones given for it
+    ! r in R: sum{{ matrix(r, c) | c in C }} = row_sums(r).
+
+    // the matrix is x-rayed vertically: each column contains the number of ones given for it
+    ! c in C: sum{{ matrix(r, c) | r in R }} = col_sums(c).
+}

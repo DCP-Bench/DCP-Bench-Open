@@ -1,0 +1,23 @@
+// Arrange the numbers 1 to 12 on the face of a clock so that no triplet of
+// adjacent numbers has a sum higher than 21.
+vocabulary {
+    // The twelve positions on the clock, 0-based like the list that is printed.
+    type Pos := {0..11}
+    // The numbers placed on the clock.
+    type Num := {1..12}
+    // x[p] is the number at position p (declared output).
+    x: Pos -> Num
+    // The position after p, going clockwise and wrapping from 11 back to 0.
+    nxt: Pos -> Pos
+}
+theory {
+    // every number from 1 to 12 is used once, so the positions hold different numbers
+    ! p1, p2 in Pos: p1 ~= p2 => x(p1) ~= x(p2).
+
+    // the clock wraps around, so position 11 is followed by position 0
+    nxt(11) = 0.
+    ! p in Pos: p < 11 => nxt(p) = p + 1.
+
+    // no triplet of adjacent numbers has a sum higher than 21
+    ! p in Pos: x(p) + x(nxt(p)) + x(nxt(nxt(p))) =< 21.
+}

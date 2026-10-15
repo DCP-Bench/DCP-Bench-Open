@@ -1,0 +1,27 @@
+// Multi-commodity transportation: ship every product from the origins to the destinations at the lowest total shipping cost.
+vocabulary {
+    type Origin <: Int
+    type Dest <: Int
+    type Product <: Int
+    supply: Origin * Product -> Int        // Supply_{i,p}: units of product p available at origin i
+    demand: Dest * Product -> Int          // Demand_{j,p}: units of product p needed at destination j
+    limit: Origin * Dest -> Int            // total units (all products) that may travel from origin i to destination j
+    cost: Origin * Dest * Product -> Int   // ShippingCost_{i,j,p}: cost of one unit of product p from i to j
+    ship: Origin * Dest * Product -> Int   // units of product p shipped from origin i to destination j
+    total_cost: () -> Int                  // declared output: total shipping cost
+    minimize: () -> Int
+}
+theory {
+    // Every shipment is a non-negative whole number of units, and no more than the lane limit.
+    ! i in Origin, j in Dest, p in Product: 0 =< ship(i, j, p) & ship(i, j, p) =< limit(i, j).
+    // The units of a product shipped out of an origin do not exceed its supply.
+    ! i in Origin, p in Product: sum{{ ship(i, j, p) | j in Dest }} =< supply(i, p).
+    // Each destination receives exactly its demand of each product.
+    ! j in Dest, p in Product: sum{{ ship(i, j, p) | i in Origin }} = demand(j, p).
+    // The lane limit applies to the total of all products sent from an origin to a destination.
+    ! i in Origin, j in Dest: sum{{ ship(i, j, p) | p in Product }} =< limit(i, j).
+    // The total cost of shipping all products from the origins to the destinations.
+    total_cost() = sum{{ (cost(i, j, p) * ship(i, j, p)) | i in Origin, j in Dest, p in Product }}.
+    // The objective is to minimize the total cost.
+    minimize() = total_cost().
+}

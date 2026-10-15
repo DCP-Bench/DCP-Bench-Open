@@ -1,0 +1,4 @@
+- `${max_production}` as the upper bound of a decision type (`type Q := {0..${max_production}}`) worked with the decision `x: P -> Q` and products inside sums.
+- Instance `product` is 3x2 with no field name for its columns. Column 0 matched profit and column 1 matched the machine per product (shirtM/shortM/pantM), inferred from values; the evaluator accepted all 5 instances.
+- Index types `P`, `M`, `R`, `C` sized by `<: Int` from `use`, `product`, `renting_cost`, `capacity` bound without conflict; literal `product(p, 0)` works on a `C <: Int` column.
+- Machine link `product(p, 1) = m & x(p) ~= 0 => rent(m)` avoided applying a machine-typed argument to an Int-valued term.

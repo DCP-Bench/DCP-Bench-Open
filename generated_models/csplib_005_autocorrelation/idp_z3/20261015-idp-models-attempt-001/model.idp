@@ -1,0 +1,45 @@
+// Binary sequence of length n (entries +1 or -1) that minimises the sum of squared periodic autocorrelations.
+vocabulary {
+    // Positions 1..n of the sequence, read cyclically.
+    type Pos := {1..${n}}
+    // Number of positions, from the instance.
+    n: () -> Int
+    // Autocorrelation values C_k lie in -n..n.
+    type Corr := {-${n}..${n}}
+
+    // true for +1, false for -1
+    bit: Pos -> Bool
+    // declared output: the sequence of +1 and -1 values
+    sequence: Pos -> Int
+    // position i+k around the cycle, wrapped into 1..n
+    shift: Pos * Pos -> Pos
+    // number of positions i whose bit agrees with the bit at i+k
+    agree: Pos -> Int
+    // periodic autocorrelation C_k
+    corr: Pos -> Int
+    // C_k squared, written linearly over the finite range of C_k
+    sq: Pos -> Int
+    minimize: () -> Int
+}
+theory {
+    // each entry is +1 or -1
+    ! i in Pos: sequence(i) = if bit(i) then 1 else -1.
+
+    // the cyclic index i+k, wrapped into 1..n
+    ! i, k in Pos: shift(i, k) = ((i - 1 + k) % n()) + 1.
+
+    // the number of agreeing bits at lag k
+    ! k in Pos: agree(k) = #{ i in Pos: bit(i) <=> bit(shift(i, k)) }.
+
+    // the first bit is +1 (flipping every bit keeps the energy, so this breaks that symmetry)
+    bit(1).
+
+    // C_k is the agreeing pairs minus the disagreeing pairs
+    ! k in Pos: corr(k) = 2 * agree(k) - n().
+
+    // the square of C_k, as a linear sum over the possible values
+    ! k in Pos: sq(k) = sum{{ (if corr(k) = c then c * c else 0) | c in Corr }}.
+
+    // the energy: sum of C_k squared for k = 1..n-1
+    minimize() = sum{{ sq(k) | k in Pos: k < n() }}.
+}

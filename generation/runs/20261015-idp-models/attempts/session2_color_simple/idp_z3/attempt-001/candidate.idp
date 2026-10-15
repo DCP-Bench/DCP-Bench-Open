@@ -1,0 +1,27 @@
+// Map colouring: assign a colour to each of the countries so that neighbouring countries differ, minimising the number of colours.
+vocabulary {
+    // one entry per neighbouring pair in the instance
+    type Edge <: Int
+    // the two ends of an edge
+    type Pos <: Int
+    // the countries, numbered 1..6 as in the problem statement (6 countries)
+    type Country := {1..6}
+    // colours are integers starting from 1; at most 6 are needed for 6 countries
+    type Color := {1..6}
+
+    // neighbouring pairs from the instance, 0-based rows, node ids are 1-based
+    graph: Edge * Pos -> Int
+
+    // the colour assigned to each country
+    colors: Country -> Color
+
+    // the number of colours used
+    minimize: () -> Int
+}
+theory {
+    // Two neighbouring countries cannot have the same colour.
+    ! e in Edge, c1, c2 in Country: graph(e, 0) = c1 & graph(e, 1) = c2 => colors(c1) ~= colors(c2).
+
+    // Find a colouring that minimizes the number of colours used: the largest colour in use is the number of colours, since colours are 1..k.
+    minimize() = max{ colors(c) | c in Country: c =< 6 }.
+}

@@ -1,0 +1,37 @@
+// Split a sorted list of N elements into K groups of consecutive elements, as close to round(N/K) elements each as possible.
+vocabulary {
+    type Pos := {0..${len(a)-1}}      // positions of the sorted list
+    type Adj := {0..${len(a)-2}}      // positions p whose next element p + 1 exists
+    type Grp := {0..${k-1}}           // the K groups
+    type Brk := {0..${k-2}}           // the K-1 break points
+    type Ext := {0..${k}}             // the K+1 group boundaries
+
+    a: Pos -> Int                     // the sorted elements
+    k: () -> Int                      // number of groups
+
+    ok: Pos -> Bool                   // a break may be placed before position p
+    x: Brk -> Pos                     // declared output: break points (the number of elements before each break, 1-based)
+    c: Ext -> Int                     // c(j) = number of elements before group j; c(K) = N
+    minimize: () -> Int
+}
+theory {
+    // A break cannot come before the first element.
+    ~ok(0).
+
+    // A break is allowed only between two different values, so equal values stay in one group.
+    ! p in Adj: ok(p + 1) <=> a(p + 1) ~= a(p).
+
+    // The break points are strictly increasing, so every group holds at least one element.
+    ! i, j in Brk: j = i + 1 => x(i) < x(j).
+
+    // Each break point is an allowed position.
+    ! j in Brk: ok(x(j)).
+
+    // The group boundaries: the first group starts at 0, and the break points separate the groups.
+    c(0) = 0.
+    ! j in Brk: c(j + 1) = x(j).
+    c(${k}) = ${len(a)}.
+
+    // Minimize the total deviation of the group sizes from round(N/K), with round(N/K) = ${(2*len(a)+k)//(2*k)} (rounding halves up, computed from the instance).
+    minimize() = sum{{ (abs(c(j + 1) - c(j) - ${(2*len(a)+k)//(2*k)})) | j in Grp }}.
+}

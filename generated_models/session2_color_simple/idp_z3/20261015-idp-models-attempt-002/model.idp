@@ -1,0 +1,23 @@
+// Colour the six countries Belgium, Denmark, France, Germany, Netherlands and Luxembourg so that
+// neighbouring countries have different colours, minimizing the number of colours used.
+vocabulary {
+    type Node := {1..${max(graph)}}   // the countries, numbered as in the graph data
+    type Color := {1..${max(graph)}}  // colours are integers from 1; one colour per country is always enough
+    type E <: Int                     // the neighbour pairs in the graph data
+    type Two <: Int                   // the two ends of a neighbour pair
+    graph: E * Two -> Int             // data: graph(e, 0) and graph(e, 1) are the two countries of pair e
+    edge: Node * Node -> Bool         // two countries are neighbours
+    colors: Node -> Color             // declared output: the colour of each country
+    minimize: () -> Int               // number of colours used
+}
+theory {
+    // two countries are neighbours when a pair in the graph data lists them, in either order
+    { ! a, b in Node: edge(a, b) <- ? e in E: (graph(e, 0) = a & graph(e, 1) = b) | (graph(e, 1) = a & graph(e, 0) = b). }
+
+    // two neighbouring countries cannot have the same colour
+    ! a, b in Node: edge(a, b) => colors(a) ~= colors(b).
+
+    // minimize the number of colours used: colours are numbered from 1, so the largest colour used
+    // is the number of colours used after renumbering
+    minimize() = max{ colors(a) | a in Node }.
+}

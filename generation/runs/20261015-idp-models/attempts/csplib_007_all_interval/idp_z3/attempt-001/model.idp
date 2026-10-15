@@ -1,0 +1,27 @@
+// All-interval series: arrange the numbers 0..n-1 in a sequence so that the absolute differences of adjacent elements are all distinct, i.e. they are exactly 1..n-1.
+vocabulary {
+    n: () -> Int
+    // Positions of the series, 1..n.
+    type Pos := {1..${n}}
+    // The n-1 adjacent pairs are indexed by their right-hand position, 2..n.
+    type Gap := {2..${n}}
+    // Values are bounded by the instance size; 0..n-1 is enforced in the theory.
+    type Val := {0..${n}}
+    // x(p): the number at position p of the series, a permutation of 0..n-1
+    x: Pos -> Val
+    // diffs(q): |x(q) - x(q-1)| for the adjacent pair ending at position q
+    diffs: Gap -> Val
+}
+theory {
+    // Every number in the series lies between 0 and n-1.
+    ! p in Pos: x(p) =< n() - 1.
+
+    // The series is a permutation: all numbers are different.
+    ! p, p2 in Pos: p ~= p2 => x(p) ~= x(p2).
+
+    // The adjacent absolute differences are defined from the series.
+    ! p in Pos, q in Gap: q = p + 1 => diffs(q) = abs(x(q) - x(p)).
+
+    // All adjacent absolute differences are different, so together they cover 1..n-1.
+    ! q, q2 in Gap: q ~= q2 => diffs(q) ~= diffs(q2).
+}

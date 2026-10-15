@@ -1,0 +1,4 @@
+- A route as a successor function: state s is a permutation with `! i, k: s(i) = s(k) => i = k`, which together with an ordering `ord` rules out subtours not through the start house.
+- `ord` is bounded with explicit `0 =< ord(i) & ord(i) =< ${nHouses-1}` on an `-> Int` symbol; `${nHouses-1}` works in a placeholder.
+- Fixed points (`s(i) = i`) take no fuel or gold: guard the sums with `s(i) ~= i` and use `arc_fuel(i, s(i))` directly on the decision.
+- Arc data had a zero for the Luigi-to-Mario arc in every instance, so the closing arc needs no special fuel case.

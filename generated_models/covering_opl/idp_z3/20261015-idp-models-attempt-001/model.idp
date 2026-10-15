@@ -1,0 +1,32 @@
+// Set covering: select a set of workers so that every task is performed, at minimum total hiring cost.
+vocabulary {
+    // Workers, indexed 0-based (the instance lists them 1-based)
+    type W <: Int
+    // Tasks: one row of Qualified per task
+    type T <: Int
+    // Positions in a task's list of qualified workers
+    type P <: Int
+
+    Cost: W -> Int                 // hiring cost of each worker
+    Qualified: T * P -> Int        // Qualified(t, p): the p-th qualified worker of task t (1-based, padded with 0)
+    Qualified_len: T -> Int        // number of qualified workers of task t
+
+    qualified: T * W -> Bool       // worker w can perform task t
+    workers: W -> Bool             // declared output: worker w is hired
+    total_cost: () -> Int          // declared output: total cost of the hired workers
+    minimize: () -> Int
+}
+theory {
+    // A worker can perform a task exactly when it is in that task's list of qualified workers.
+    { ! t in T, w in W: qualified(t, w) <- ? p in P: p < Qualified_len(t) & Qualified(t, p) = w + 1. }
+
+    // Ensure that all tasks are performed: each task has a hired worker who is qualified for it.
+    ! t in T: ? w in W: workers(w) & qualified(t, w).
+
+    // The total cost is the sum of the hiring costs of the selected workers.
+    total_cost() = sum{{ Cost(w) | w in W: workers(w) }}.
+    0 =< total_cost() & total_cost() =< ${sum(Cost)}.
+
+    // Minimize the total cost.
+    minimize() = total_cost().
+}

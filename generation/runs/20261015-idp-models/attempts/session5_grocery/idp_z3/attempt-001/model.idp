@@ -1,0 +1,38 @@
+// session5_grocery: a kid buys a number of items at a grocery store. The cashier
+// charges a total price. Recomputed by multiplying the item prices instead of
+// adding them, the same total comes out. Find the item prices in cents.
+vocabulary {
+    // one entry per item, sized by the instance's number of items
+    type Item := {1..${num_items}}
+    // positions 0 to num_items, used for the running product and its scale
+    type Prefix := {0..${num_items}}
+    total_price: () -> Int
+    // declared output: price of each item in cents
+    prices: Item -> Int
+    // running product of the first k prices in cents (pref(0) is the empty product)
+    pref: Prefix -> Int
+    // 100^k: each extra factor of a product of prices in cents adds a factor of 100
+    scale: Prefix -> Int
+}
+theory {
+    // every item costs at least one cent, and the others cost at least one cent each,
+    // so an item costs at most the total price minus (num_items - 1) cents
+    ! i in Item: prices(i) >= 1 & prices(i) =< total_price() - ${num_items-1}.
+
+    // adding the item prices gives the total price
+    sum{{ prices(i) | i in Item }} = total_price().
+
+    // the empty product is 1, and 100^0 is 1
+    pref(0) = 1.
+    scale(0) = 1.
+    // each running product is the previous one times the next price
+    ! k in Item: pref(k) = pref(k - 1) * prices(k).
+    // each power of 100 is the previous one times 100
+    ! k in Item: scale(k) = scale(k - 1) * 100.
+    // every running product is between 1 and the final product, which is at most the total times 100^(n-1)
+    ! k in Prefix: pref(k) >= 1 & pref(k) =< total_price() * scale(${num_items-1}).
+
+    // multiplying the item prices, read in dollars, gives the total price:
+    // the product in cents equals total_price * 100^(n-1)
+    pref(${num_items}) = total_price() * scale(${num_items-1}).
+}

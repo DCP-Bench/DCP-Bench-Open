@@ -1,0 +1,3 @@
+- One theory sentence that adds three count terms over a fleet index (`! i in Fleet: n(i) = #{..} + #{..} + #{..}`) made the runner print non-JSON ("invalid_output: Malformed runner JSON"), though each term alone ran. Splitting into one implication per ship length (`fleet_counts(i,0) = 1 => ...`, `~= 1 => ...`) fixed it.
+- Hints with 0-based row and column bind through `hints(h,0) = r & hints(h,1) = c => grid(r,c) = hints(h,2)`; `Row`/`Col` sized from `rowsum`/`colsum` cover the grid.
+- Ship shape as local connection predicates (hr, hl, vd, vu, plus a horizontal-middle flag) with existential neighbour checks (`hr(r,c) => ? c2 in Col: c2 = c+1 & hl(r,c2)`) avoids out-of-range indexing without a padded grid.

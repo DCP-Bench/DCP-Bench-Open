@@ -1,0 +1,22 @@
+// Added corners: enter the digits 1 through 8 in the circles and squares so that each square equals the sum of the adjoining circles.
+// Cells are numbered in reading order (left to right, top to bottom):
+//   1 C  2 F  3 C
+//   4 F     5 F
+//   6 C  7 F  8 C
+vocabulary {
+    type Pos := {1..8}
+    type Digit := {1..8}
+    positions: Pos -> Digit
+}
+theory {
+    // the digits 1 through 8 are each used once
+    ! p, q in Pos: p ~= q => positions(p) ~= positions(q).
+    // the top square (2) is the sum of the two circles above it at the top corners (1 and 3)
+    positions(2) = positions(1) + positions(3).
+    // the left square (4) is the sum of the two circles at the left corners (1 and 6)
+    positions(4) = positions(1) + positions(6).
+    // the right square (5) is the sum of the two circles at the right corners (3 and 8)
+    positions(5) = positions(3) + positions(8).
+    // the bottom square (7) is the sum of the two circles at the bottom corners (6 and 8)
+    positions(7) = positions(6) + positions(8).
+}
