@@ -29,9 +29,11 @@ for a, b in PRECEDES:
     m.add_constraint(start[a] + DUR[a] <= start[b])
 
 m.minimize(makespan)
+m.parameters.mip.tolerances.mipgap = 0  # the default 1e-4 may stop short of the optimum
 sol = m.solve()
-if sol is None:
-    raise SystemExit(f"no schedule: {m.solve_details.status}")
+# Accept the result only on "integer optimal solution": anything else is not a proven answer.
+if m.solve_details.status != "integer optimal solution":
+    raise SystemExit(f"no proven-optimal schedule: {m.solve_details.status}")
 
 print(f"Makespan: {sol.objective_value:.0f} ({m.solve_details.status})")
 for i in sorted(range(len(DUR)), key=lambda k: sol[start[k]]):

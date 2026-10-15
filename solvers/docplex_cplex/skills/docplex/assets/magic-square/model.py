@@ -23,8 +23,10 @@ m.add_constraint(m.sum(cell[i][N - 1 - i] for i in range(N)) == LINE)
 
 # no objective: a satisfaction problem
 sol = m.solve()
-if sol is None:
-    raise SystemExit(f"no magic square: {m.solve_details.status}")
+# "integer optimal solution" is the only proof: for a model without an objective it means
+# a solution was found; anything else (infeasible, a time limit) is not an answer.
+if m.solve_details.status != "integer optimal solution":
+    raise SystemExit(f"no magic square found: {m.solve_details.status}")
 
 print(f"Found a magic square with line sum {LINE} ({m.solve_details.status}):")
 for i in range(N):
