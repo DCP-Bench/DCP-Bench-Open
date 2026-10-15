@@ -126,6 +126,13 @@ if s.solve():
   introduce unary `m` and require `If(load_k_ge_t, m_ge_t)` per t. An
   objective over a wide range (hundreds of values) is best binary: unary
   there ran out of memory or made the enumeration of further optima slow.
+- Shrink objective weights before solving: EvalMaxSAT proves optima much
+  faster with small weights, many of them 0. Where a constraint fixes how many
+  choices are made (each demand met exactly, one successor per city), subtract
+  the cheapest cost of each such group from all its costs and add the constant
+  back (for a distance matrix: row minima, then column minima). This took
+  transport, facility and tour optima from timeouts to seconds. A redundant
+  bound such as "open capacity covers total demand" helps the proof as well.
 - **Keep PB weights small.** A PB constraint with large, distinct weights over
   many Bools (one-hot value × price, a product of two binaries, weights up to
   10^4 and beyond) can exhaust the 2 GB memory limit. Instead:
