@@ -1,0 +1,2 @@
+- Flipping all rows and columns together is a symmetry: fixing one row as unflipped halves the search without losing any optimum. It did not stop the 27x9 example from timing out in EvalMaxSAT, so the proof is hard for MaxSAT on this size.
+- EvalMaxSAT did not prove the 27x9 optimum within 180 s with either attempt. Changing the encoding for this instance is the open item.

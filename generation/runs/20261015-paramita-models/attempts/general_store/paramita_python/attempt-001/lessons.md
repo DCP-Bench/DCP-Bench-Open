@@ -1,0 +1,2 @@
+- Cryptarithm: a leading-nonzero rule the statement does not state made the puzzle UNSAT here; leave it out unless the statement says so.
+- Cryptarithm: tightening each carry's unary bits to (9 * digits in column + carry in) / 10 cut solve time from over 60 s to about 40 s.

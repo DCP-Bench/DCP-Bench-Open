@@ -1,0 +1,1 @@
+- Minesweeper: one Bool per cell (direct encoding, no integers). Open cells are forced to be non-mines; each clue is an equality over its neighbour Bools. Accepted at first attempt on all 5 instances.

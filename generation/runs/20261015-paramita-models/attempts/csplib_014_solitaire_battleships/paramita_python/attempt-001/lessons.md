@@ -1,0 +1,3 @@
+- Piece-type rules (end, middle, submarine) with all other neighbours water enforce non-touching ships without any ship-placement enumeration.
+- A middle cell has two orientations; express it as Or of two conjunctions, not as one rule with both orientations' water requirements.
+- Ship counts: one Iff aux per start cell and length (And of the parts), then one PB sum == count per length.

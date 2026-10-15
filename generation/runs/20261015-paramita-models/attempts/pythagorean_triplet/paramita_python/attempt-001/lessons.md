@@ -1,0 +1,3 @@
+- A weighted PB over unary bits (k^2 = sum of (2i+1) over the unary bits) ran out of 2 GB. Holding each square as 20 binary bits, linked to the exact unary value by implications, solved in about 40 s.
+- Long `sum()` over hundreds of Bools builds a chain deeper than the runner's recursion limit (RecursionError in bool_names). Build sums as a balanced tree.
+- A `# ... encoding: ...` comment in the first two lines is read as a Python coding declaration (SyntaxError: unknown encoding). Avoid the word "encoding" followed by a colon there.

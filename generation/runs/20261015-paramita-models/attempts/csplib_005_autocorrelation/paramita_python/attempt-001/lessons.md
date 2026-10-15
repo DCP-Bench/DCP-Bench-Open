@@ -1,0 +1,2 @@
+- Quadratic objectives over a small integer: count the value with a one-hot (here the number of differing pairs per lag) and weight the one-hot Bools by the squared value. The weights stay at most n^2, so the objective is a small PB sum.
+- A reified pair test `Iff(d, s_i + s_j == 1)` gives the XOR of two Bools without Xor.

@@ -1,0 +1,2 @@
+- Diet: unary chain per food, bound derived from the limits and the nutrient table; the bound holds for any non-negative price, since removing a surplus unit never raises cost.
+- Nutrient table is problem data: mirrored as a named constant with a comment, the rest is read from the instance.

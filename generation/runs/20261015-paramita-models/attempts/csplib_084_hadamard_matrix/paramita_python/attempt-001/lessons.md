@@ -1,0 +1,2 @@
+- Hadamard Legendre pairs: Boolean signs with an agreement indicator per shift, so PAF(A,s) = 2*E(s) - l and the shift constraint becomes a plain cardinality sum == l - 1. Accepted on all 5 instances in one attempt.
+- Output integers as 2*x - 1 over a Bool x: the constant term works in an integer output.

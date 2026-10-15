@@ -1,0 +1,2 @@
+- Interval scheduling needs no integer encoding: one Bool per movie, one clause per overlapping pair, objective is the plain sum of the Bools.
+- The brief lists movies as unbindable (mixed str/int rows), but the instance JSON loads as a list of lists and the evaluator bound it without error on all five instances.

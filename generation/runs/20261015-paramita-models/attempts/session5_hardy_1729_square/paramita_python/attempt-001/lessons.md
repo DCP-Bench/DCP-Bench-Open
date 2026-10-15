@@ -1,0 +1,2 @@
+- Squares with one-hot values: store v*v in binary bits via If(onehot_v, bit == bit_of(v*v)); a PB equality over 14 bits stays small, avoiding one weighted PB over 100 values with weights up to 10^4.
+- Problems with no instance fields still take instance; the model ignores it.
