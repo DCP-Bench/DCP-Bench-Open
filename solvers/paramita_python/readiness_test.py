@@ -103,6 +103,13 @@ CONTRADICTION = (PRELUDE + "    a = Bool(\"a\")\n    subject.extend([a, ~a])\n"
                  + '    return subject, outputs, ("minimize", x + y)\n')
 # A candidate that returns an output the runner cannot read.
 MALFORMED = PRELUDE + "    subject.append(x + y == n)\n" + '    outputs = {"x": "not an expression", "y": y}\n    return subject, outputs\n'
+# One weighted PB equality over 2000 Bools besides x + y == n. The default
+# encoder recurses once per term and overflowed the default stack (signal 11)
+# until the runner raised its stack limit.
+LARGE_PB = (PRELUDE + "    subject.append(x + y == n)\n"
+            "    many = [Bool(f\"m{i}\") for i in range(2000)]\n"
+            "    subject.append(sum((1 + i % 10) * b for i, b in enumerate(many)) == 1000)\n"
+            + OUTPUTS + "    return subject, outputs\n")
 UNSATISFIABLE = PRELUDE + "    subject.extend([x == 0, x == 1])\n" + OUTPUTS + "    return subject, outputs\n"
 
 # Paramita integers are 32 bits wide, and a value beyond that wraps around. This
@@ -245,6 +252,7 @@ def main():
         check("isolation", ISOLATED)
         check("malformed_output", MALFORMED, expected={"execution_error", "invalid_output"})
         check("empty_output", UNSATISFIABLE, expected={"no_solution"})
+        check("large_pb_constraint", LARGE_PB, execution_timeout=120)
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=2)
 
     try:

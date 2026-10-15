@@ -43,8 +43,10 @@ solution exists.
 Optimisation reports only a proven optimum. EvalMaxSAT has no budget, so its
 solve runs in a forked child process that is killed at the deadline, and a child
 that does not finish is reported as a timeout. After the optimum is proven, the
-runner emits the first optimal assignment, then fixes the objective at the
-optimum with a hard PB constraint in a fresh CaDiCaL instance and enumerates the
+runner emits the first optimal assignment, then, in a second forked child (so
+that a failure there cannot lose the optimum already emitted), fixes the
+objective at the optimum with a hard PB constraint in a fresh CaDiCaL instance
+and enumerates the
 rest of the optimal solutions, blocking the outputs as above. CaDiCaL supports only
 a conflict budget, so its search runs in conflict-limited calls, and the clock
 is checked between them.
@@ -52,9 +54,21 @@ is checked between them.
 Standard output is the protocol channel. EvalMaxSAT writes stray `c ...` lines
 to file descriptor 1, so before any plugin loads, descriptor 1 is pointed at
 descriptor 2 and the protocol is written to a saved copy of the original.
+
+The default PB encoder recurses once per term, so a PB constraint over about a
+thousand Bools overflows the default 8 MB stack and the process dies with
+signal 11. The runner therefore raises its stack limit to the hard limit and
+re-executes itself before doing anything else.
 """
 import os
+import resource
 import sys
+
+_SOFT, _HARD = resource.getrlimit(resource.RLIMIT_STACK)
+if _SOFT != _HARD and os.environ.get("DCP_STACK_RAISED") != "1":
+    resource.setrlimit(resource.RLIMIT_STACK, (_HARD, _HARD))
+    os.environ["DCP_STACK_RAISED"] = "1"
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 # Taken before any paramita import, because the plugins print to descriptor 1
 # when they load and when EvalMaxSAT reports a hard-clause conflict.
@@ -358,26 +372,77 @@ def optimise(subject_to, outputs, objective, request, deadline):
     if emitted >= request["solution_limit"]:
         return finish("limit", solve_seconds=deadline_spent(deadline))
 
-    # The rest of the optimal assignments: the objective fixed at the optimum,
-    # with the first one blocked so it is not emitted twice.
-    fixed = SatSolver.from_name(SAT_SOLVER)
-    fixed_pool = DimacsVariablePool()
-    encode(fixed_pool, fixed, subject_to)
-    encode(fixed_pool, fixed, expression == value)
     output_names = sorted(bool_names(outputs, set()))
-    if output_names:
-        fixed.add_clause(blocking_clause(fixed_pool, output_names, {
-            name: truth[name] for name in output_names}))
-    else:
+    if not output_names:
         return finish("complete", solve_seconds=deadline_spent(deadline))
-    emitted, status = enumerate_models(fixed, fixed_pool, outputs, output_names, request,
-                                       deadline, seen, emitted)
-    if status == "timeout":
+    # The rest of the optimal assignments, with the objective fixed at the
+    # optimum. Encoding that equality can crash the PB encoder on a large
+    # objective, so it runs in a forked child: a crash there loses only the
+    # extra solutions, never the optimum already emitted.
+    status = enumerate_optima(subject_to, outputs, expression, value, output_names,
+                              {name: truth[name] for name in output_names},
+                              request, deadline, seen, emitted)
+    if status in ("timeout", "failed"):
         return finish("timeout", "the optimum was proven, the enumeration was not",
                       solve_seconds=deadline_spent(deadline))
     if status == "limit":
         return finish("limit", solve_seconds=deadline_spent(deadline))
     return finish("complete", solve_seconds=deadline_spent(deadline))
+
+
+def _optima_worker(subject_to, outputs, expression, value, output_names, first,
+                   request, deadline, seen, emitted, connection):
+    """Runs in a forked child: sends ("solution", values) per new optimum, then
+    ("status", status)."""
+    def send_emit(record):
+        connection.send(("solution", record["values"]))
+    try:
+        global emit
+        emit = send_emit
+        fixed = SatSolver.from_name(SAT_SOLVER)
+        fixed_pool = DimacsVariablePool()
+        encode(fixed_pool, fixed, subject_to)
+        encode(fixed_pool, fixed, expression == value)
+        fixed.add_clause(blocking_clause(fixed_pool, output_names, first))
+        _, status = enumerate_models(fixed, fixed_pool, outputs, output_names, request,
+                                     deadline, seen, emitted)
+        connection.send(("status", status))
+    except Exception as error:  # reported to the parent as a failed enumeration
+        connection.send(("status", f"failed: {error!r}"))
+    finally:
+        connection.close()
+
+
+def enumerate_optima(subject_to, outputs, expression, value, output_names, first,
+                     request, deadline, seen, emitted):
+    """Further optimal solutions from a forked child; the parent emits them.
+
+    Returns "limit", "exhausted", "timeout", or "failed" (the child crashed or
+    raised)."""
+    context = multiprocessing.get_context("fork")
+    receiver, sender = context.Pipe(duplex=False)
+    worker = context.Process(target=_optima_worker, args=(
+        subject_to, outputs, expression, value, output_names, first,
+        request, deadline, seen, emitted, sender))
+    worker.start()
+    sender.close()
+    try:
+        while True:
+            if not receiver.poll(max(deadline.left(), 0.01)):
+                return "timeout"
+            try:
+                kind, payload = receiver.recv()
+            except EOFError:
+                return "failed"
+            if kind == "solution":
+                emit({"type": "solution", "values": payload})
+            else:
+                return "failed" if payload.startswith("failed") else payload
+    finally:
+        if worker.is_alive():
+            worker.kill()
+        worker.join()
+        receiver.close()
 
 
 def value_of(node, truth):
