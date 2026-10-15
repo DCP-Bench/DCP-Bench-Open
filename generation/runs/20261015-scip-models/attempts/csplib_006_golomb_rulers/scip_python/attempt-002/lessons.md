@@ -1,0 +1,3 @@
+- One-hot binaries over the difference values (m(m-1)/2 pairs x M values) and a pairwise-distinct constraint per value did not prove the 10-mark optimum (55) within the 170-180 s limit. The 8- and 7-mark instances solved.
+- Adding the sum-of-differences bound and a reflection symmetry break did not change this on the 10-mark example.
+- An occupancy formulation (one binary per ruler position, one pair binary per position and difference) also timed out on the 10-mark example.

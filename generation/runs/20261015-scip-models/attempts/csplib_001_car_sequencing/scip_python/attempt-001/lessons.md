@@ -1,0 +1,1 @@
+- Car sequencing: one-hot position/type binaries with an option indicator per position and sliding-window sums solved all 22 instances (44 solutions) without timeouts; largest instance about 9 s to check.

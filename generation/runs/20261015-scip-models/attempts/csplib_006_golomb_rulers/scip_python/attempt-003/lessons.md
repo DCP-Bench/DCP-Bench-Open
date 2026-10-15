@@ -1,0 +1,2 @@
+- Symmetric one-hot difference model (one binary per pair and value, distinct-per-value rows) with triangular mark bounds and a reflection break did not prove the 10-mark optimum (55) in 180 s.
+- The pigeonhole cut 'at most t pairs with difference <= t' plus the same bounds gave 4 of 5 instances checked, including the 8-, 9-, 5- and 7-mark ones. Only the 10-mark example timed out with 'Candidate optimum was not proven'.

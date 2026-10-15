@@ -915,6 +915,7 @@ BACKEND_NAMES = {
     "evalmaxsat": "EvalMaxSAT",
     "highs": "HiGHS",
     "gecode": "Gecode",
+    "scip": "SCIP",
     # Picat solves with its own cp and sat modules: nothing to add.
     "cp, sat": "",
     "cbc": "CBC",

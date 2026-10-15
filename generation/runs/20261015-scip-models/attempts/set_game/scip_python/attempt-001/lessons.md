@@ -1,0 +1,3 @@
+- For a feature with values 1..3, "all same or all different" over three cards is equivalent to the sum being a multiple of 3, so `3*q - S` with an integer `q` avoids `%`.
+- Indicator pairs (`<=` and `>=`) on the triple's binary give an equality under that binary, which SCIP accepts with no big-M.
+- Enumerating 220 triples with one binary each runs in about 1 s per instance.

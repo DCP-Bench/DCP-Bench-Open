@@ -1,0 +1,1 @@
+Deviation as an integer objective with two linear inequalities (no abs). Per-target hit bounds (goal + max ring) // ring[k] keep the domain finite and keep every optimum. Accepted first real evaluation, 5 of 5 instances.

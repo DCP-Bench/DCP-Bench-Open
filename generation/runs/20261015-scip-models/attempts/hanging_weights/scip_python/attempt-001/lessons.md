@@ -1,0 +1,2 @@
+- The bar diagram is ASCII art: bar ends and pivots sit on 3-character steps, so distances are read in units of 3 characters. Pivot alignment checked against the two rules given in the text (5*C=D and 3*G=2*(C+D)), which both matched.
+- The model is linear with integer bounds 1..13, so the evaluator's per-instance check was quick (under 2 s).
