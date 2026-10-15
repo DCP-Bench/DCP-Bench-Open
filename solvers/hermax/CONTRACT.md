@@ -73,8 +73,8 @@ None.
 
 Image `dcp-eval/hermax:v1`: Python 3.12.11 (`/usr/local/bin/python`), hermax 1.2.5 with
 python-sat 1.9.dev16 (and `six`); the standard library (`json` included) and nothing else.
-`Model.solve` defaults to RC2 for soft clauses and Glucose 4 otherwise, although
-`metadata.yaml` names EvalMaxSAT. No licence, no environment variables of note, no
+`Model.solve` defaults to RC2 for soft clauses and Glucose 4.1 otherwise, which is what
+`metadata.yaml` names. No licence, no environment variables of note, no
 network in the container. For an ad hoc run, `--entrypoint sh` bypasses
 `/opt/runner/run.py`.
 

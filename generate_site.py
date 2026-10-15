@@ -907,7 +907,7 @@ BACKEND_NAMES = {
     "cplex": "CPLEX",
     "exact": "Exact",
     "gurobi": "Gurobi",
-    "evalmaxsat": "EvalMaxSAT",
+    "glucose4, RC2": "Glucose 4.1 (SAT), RC2 (MaxSAT)",
     "highs": "HiGHS",
     "gecode": "Gecode",
     # Picat solves with its own cp and sat modules: nothing to add.
