@@ -75,7 +75,7 @@ Start from [references/skill-template.md](references/skill-template.md). Rules:
 - **Only what an agent lacks**: exact API names, status semantics, gotchas. No CP/MIP theory.
 - **One default per task**, alternatives only when they matter.
 - **Tables over prose**, code over tables. Every snippet is run before it goes in.
-- **Examples are runnable files** in `assets/<example>/`; only the Quick start lives inline. Check them with `python scripts/check_assets.py <skill-folder>`.
+- **Examples are runnable files** in `assets/<example>/`; only the Quick start lives inline. Check them with `python scripts/check_assets.py <skill-folder>`; when the solver lives in a container rather than on this machine, add `--image <image>` (and `--env` for what the image needs, such as a binary on `PATH`).
 - **Link in place**: each section links its doc page, each table row its API entry.
 - **One place per fact**: *Common issues* maps symptom → fix and links back.
 - `SKILL.md` under ~200 lines; references one level deep.
@@ -92,11 +92,13 @@ Without uv, use a venv in `~/.cache/skills-ref/` and `pip install` the same URL.
 
 Seven problems, 18 instances ([README](assets/toy-problems/README.md)).
 
-1. Spawn a **fresh subagent** given only the new skill, each `problem.md` and `instances/`. Task: *one program per problem in `<workspace>/round-N/models/`, taking the instance path as argument, printing solutions as in problem.md; report where the skill was missing, wrong or unclear*. Without subagents, do it yourself from the skill alone and report the test as not independent.
+1. Export what the tester may see, so the answer keys stay out of reach: `python scripts/run_toy_tests.py --export <workspace>/toy`. Spawn a **fresh subagent** given only the new skill and `<workspace>/toy`. Task: *one program per problem in `<workspace>/round-N/models/`, taking the instance path as argument, printing solutions as in problem.md; report where the skill was missing, wrong or unclear*. Without subagents, do it yourself from the skill alone and report the test as not independent.
 2. Check every instance:
    ```bash
-   python scripts/run_toy_tests.py --cmd 'python <workspace>/round-N/models/{problem}.py {instance}' | tee <workspace>/round-N/results.txt   # adapt to the language; --problems a,b reruns a subset
+   python scripts/run_toy_tests.py --public <workspace>/toy --logs <workspace>/round-N/logs \
+       --cmd 'python <workspace>/round-N/models/{problem}.py {instance}' | tee <workspace>/round-N/results.txt
    ```
+   Adapt `--cmd` to the language; `--problems a,b` reruns a subset. The runner itself runs here, next to the answer keys; when the solver lives in a container, put only the model run in it and mount just the exported copy, at the same path: `--cmd 'docker run --rm --network none -v <workspace>/toy:<workspace>/toy:ro -v <workspace>/round-N/models:/m:ro IMAGE python3 /m/{problem}.py {instance}'`. Each run has 120 s (`--timeout`); a correct but slow paradigm may need more, so raise it and say so in the report. Run the suite in the background, and build compiled models once before it.
 3. On failure, the README's table says what the skill lacks. Fix the **skill**, add the test agent's mistake to its *Common issues*, and rerun with a new fresh agent in `round-N+1/`. Problems, answer keys and checkers stay as they are. After 3 failed rounds, show the user the failing instances, checker messages and what you tried, and ask whether to continue, accept the gap or stop (unavailable: stop and report).
 4. Ship the skill that passed: any later edit needs another round.
 5. Write `evals/evals.json` as in the template.

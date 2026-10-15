@@ -10,7 +10,7 @@ Copy into the workspace as `research.md` and fill in. Every answer gets a source
 | Docs | `llms.txt` / `llms-full.txt`? Markdown pages? API reference? Examples directory? |
 | Install | Official route for this language? Platform limits (OS, arch, Python/JDK/compiler)? System deps? |
 | Verify | Smallest command proving the install works? Installed version? |
-| Data input | Reading a data file? Are extra keys (`name`, `note`) an error? Sizes from the data, ragged lists? |
+| Data input | Reading a data file? Which JSON library, and how is it installed (none → the skill shows a small reader)? Are extra keys (`name`, `note`) an error? Sizes from the data, ragged lists? |
 | Variables | Bool, int (domain syntax), interval, set, real? |
 | Constraints | Arithmetic beyond linear (`*`, `/`, `%`, `abs`, `min`/`max`)? Exact names of globals (all-different, element, table, cumulative, no-overlap, circuit)? |
 | Logic | Reification, implication, disjunction syntax? Indexing an array by a variable? |

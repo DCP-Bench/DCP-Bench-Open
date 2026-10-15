@@ -24,7 +24,7 @@ No empty folders or placeholder files.
 **Expected:** `Objective: 70`
 ```
 
-`Run` is one shell command executed in the example folder (compile and run for compiled languages: `g++ -std=c++17 main.cpp -lchuffed -o main && ./main`). `Expected` (repeatable) is text that must appear in stdout. Pick examples that cover what the toy problems exercise — satisfy, all solutions, all optimal solutions, maximise, minimise, infeasible, scheduling — as small general patterns, not copies of the toy problems. Prefer shortened versions of the solver's official examples, credited in `sources.md`.
+`Run` is one shell command executed in the example folder (compile and run for compiled languages: `g++ -std=c++17 main.cpp -lchuffed -o main && ./main`). `Expected` (repeatable) is text that must appear in stdout. Pick examples that cover what the toy problems exercise — satisfy, all solutions, all optimal solutions, maximise, minimise, infeasible, scheduling — as small general patterns, not copies of the toy problems. **One example reads its data from a JSON file** whose path is the first command-line argument, with a bundled `data.json` as the default: it names the JSON library and how to install it (or shows a small reader when the language has none), takes every size from the data, handles a ragged list, and ignores keys it does not use. Prefer shortened versions of the solver's official examples, credited in `sources.md`.
 
 Skeleton for `SKILL.md`. Adapt the sections to the solver, and drop any that do not apply.
 
@@ -59,7 +59,9 @@ metadata:
 - [All solutions](#all-solutions)
 - [Common issues](#common-issues)
 - [Further reading](#further-reading)
-- <Runnable examples: [assets/](assets/) — one folder per pattern>
+- <Runnable examples, one folder per pattern: [<example>](assets/<example>/README.md), …>
+
+Links point at files, never at folders: `skills-ref` and the repository validator reject a link to a directory, so link an example's `README.md`.
 
 ## Install
 

@@ -1,6 +1,6 @@
 # Toy problems
 
-Solver-independent tests for a new solver skill. Give the agent under test only `problem.md` and `instances/`. `expected/` (the answer key) and `check.py` are for `scripts/run_toy_tests.py`.
+Solver-independent tests for a new solver skill. Give the agent under test only what `scripts/run_toy_tests.py --export DIR` writes: each `problem.md` and `instances/`, and the output convention below. `expected/` (the answer key) and `check.py` are for the runner alone; never mount this folder where the tester's code runs.
 
 | Problem | Instances (answer) | Tests: a FAIL means the skill lacks this |
 |---|---|---|
@@ -19,6 +19,7 @@ Two failures cut across problems:
 
 ## Output convention (test only)
 
+- One program per problem, named after the problem directory with its hyphens kept (`models/n-queens-all.py`); a compiled language builds first and runs the binary.
 - The model is run with the instance JSON path as its only argument.
 - Each solution is printed as one JSON object on one line on stdout. Lines not starting with `{` are ignored.
 - An infeasible instance prints exactly `{"status": "unsatisfiable"}`.
