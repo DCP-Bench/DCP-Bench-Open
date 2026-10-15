@@ -48,10 +48,12 @@ A `SparseAxisArray` or a quadratic expression is rejected (`execution_error`).
 - Forced by the driver after `build`: `set_optimizer(model, HiGHS.Optimizer)`,
   `set_silent`, `threads = 1`, `mip_rel_gap = 0` (so `OPTIMAL` means proven) and a time
   limit per solve.
-- Status: `OPTIMAL` with a feasible point is an answer; `INFEASIBLE` and
-  `INFEASIBLE_OR_UNBOUNDED` are `unsat` (no re-solve); `DUAL_INFEASIBLE` is `error`
-  (objective unbounded); `TIME_LIMIT` is `timeout`, including a feasible point HiGHS did
-  not prove; any other status is `error`.
+- Status: `OPTIMAL` with a feasible point is an answer; `INFEASIBLE` is `unsat`;
+  `DUAL_INFEASIBLE` is `error` (objective unbounded); `TIME_LIMIT` is `timeout`,
+  including a feasible point HiGHS did not prove; any other status is `error`.
+  `INFEASIBLE_OR_UNBOUNDED`, which HiGHS reports for an unbounded MIP, gets one re-solve
+  of the constraints alone with the objective set aside: no feasible point is `unsat`, a
+  feasible point is `error` (objective unbounded).
 - Enumeration (only when `solution_limit > 1`) pins the objective within 1e-5 of the
   proven optimum, then adds a big-M no-good per answer over the variables under the
   declared outputs (a binary indicator below and above each current value). A repeated
