@@ -1,7 +1,8 @@
 """All solutions: every subset of the numbers that sums to a target.
 
-DOcplex has no solution-pool call, so each found solution is excluded with a
-no-good cut over the decision binaries, and the model is solved again.
+Each found solution is excluded with a no-good cut over the decision binaries, and
+the model is solved again. For more than a few dozen solutions, the solution pool
+(`populate()`) is much faster.
 """
 from docplex.mp.model import Model
 

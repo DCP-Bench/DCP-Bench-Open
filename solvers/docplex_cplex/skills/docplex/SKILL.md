@@ -44,7 +44,8 @@ but at most 1000 variables and 1000 constraints per model (indicators count as c
 raises `DOcplexLimitsExceeded` (code 1016). A licensed CPLEX installation lifts this; its setup is outside
 this skill. Details: [getting started](https://ibmdecisionoptimization.github.io/docplex-doc/getting_started_python.html).
 
-Tested with Python 3.12, docplex 2.32.264 and cplex 22.2.0.0.
+Tested with Python 3.12, docplex 2.32.264 and the pip package cplex 22.2.0.1, whose engine
+reports itself as 22.2.0.0 (`cplex.__version__`).
 
 ## Quick start
 
@@ -253,15 +254,15 @@ set `relgap` and `absgap` to 0 instead, and the pool holds only optimal solution
 Measured on one CPU, wall time of the whole script (Python start-up, model build, all solves),
 on small textbook instances:
 
-| Script | Instance | Time |
+| Model | Size | Time |
 |---|---|---|
-| cryptarithm | send-more-money, two-two-four, ab-ab-aaa (infeasible) | 0.1 to 0.6 s each |
-| graph-colouring | cycle6, k4-tail, petersen | 0.1 to 0.5 s each |
-| knapsack | small (5 items), p01 (10 items) | 0.1 s each |
-| jobshop, indicator encoding | small (3 jobs), ft06 (6 jobs by 6 machines) | 1.0 s, 0.5 s |
-| n-queens, one solution | n3, n4, n8 | 0.1 s each |
-| n-queens-all, no-good loop | n8, 92 solutions | 21 s |
-| n-queens-all, `populate()` alone | n8, 92 solutions | 0.7 s |
+| cryptarithm | SEND+MORE=MONEY, TWO+TWO=FOUR, an infeasible AB+AB=AAA | 0.1 to 0.6 s each |
+| minimum graph colouring | a 6-cycle, a 4-clique with a pendant vertex, the Petersen graph | 0.1 to 0.5 s each |
+| 0/1 knapsack | 5 and 10 items | 0.1 s each |
+| job shop, indicator encoding | 3 jobs; Fisher-Thompson ft06 (6 jobs by 6 machines) | 1.0 s, 0.5 s |
+| n-queens, one solution | n = 3, 4, 8 | 0.1 s each |
+| n-queens, all solutions, no-good loop | n = 8, 92 solutions | 21 s |
+| n-queens, all solutions, `populate()` alone | n = 8, 92 solutions | 0.7 s |
 
 The job shop timings are for those two instances only. The skill makes no claim about larger job
 shops: time one on your data before relying on this encoding. When a time limit is set, a run that
