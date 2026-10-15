@@ -56,7 +56,7 @@ def hashes(folder):
 
 # Text that ties a skill to this repository. A solver skill under solvers/<id>/skills/
 # must work outside it; sources.md and evals/ may still name the project.
-ROSETTA_TEXT = re.compile(r"DCP[- ]?Bench|Rosetta|generation\.\w+|readiness|/input/|request\.json")
+ROSETTA_TEXT = re.compile(r"DCP[- ]?Bench|Rosetta|dcp-eval|generation\.\w+|readiness|/input/|request\.json")
 
 
 def rosetta_mentions(folder):
