@@ -1,0 +1,3 @@
+- Problems with no instance fields still need the problem's fixed size in the vocabulary; here 10 digits as type Pos := {1..10}.
+- Divisibility by a literal n is written as pre(n) % n = 0 on a prefix symbol; no guard was needed because the divisor is a literal.
+- Prefix values built by explicit Horner equations (pre(k) = pre(k-1) * 10 + d(k)) avoid a recursive or power operator; the first attempt was accepted.

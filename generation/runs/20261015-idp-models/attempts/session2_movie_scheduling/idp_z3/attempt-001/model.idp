@@ -1,0 +1,20 @@
+// Session 2 movie scheduling: choose as many movies as possible whose filming intervals do not overlap.
+vocabulary {
+    // one index per movie in the input list
+    type I <: Int
+    // first day of filming of movie i (instance column 2, bound from the instance)
+    movies_2: I -> Int
+    // last day of filming of movie i (instance column 3, bound from the instance)
+    movies_3: I -> Int
+    // movie i is accepted
+    selected_movies: I -> Bool
+    // number of accepted movies
+    maximize: () -> Int
+}
+theory {
+    // you cannot accept two jobs whose intervals overlap
+    ! i, j in I: (i < j & selected_movies(i) & selected_movies(j)) => ~(movies_2(i) =< movies_3(j) & movies_2(j) =< movies_3(i)).
+
+    // you want to make as much money as possible: every film pays the same fee, so maximise the number of films
+    maximize() = #{ i in I: selected_movies(i) }.
+}

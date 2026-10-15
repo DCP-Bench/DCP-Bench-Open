@@ -1,0 +1,3 @@
+- x(r1,c1)+1 with an existential over squares timed out (60 s) on 8x8: the arithmetic successor is slow for z3.
+- A Boolean one-hot encoding at(k,r,c) with exactly-one counts solved 6x6 and 8x8 quickly.
+- 10x10 hits the 2048 MB memory limit under both encodings; the successor constraint grounds about 10^6 terms.

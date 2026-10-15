@@ -1,0 +1,2 @@
+- The problem has no instance fields, so the constant 1000 comes from the statement and is written in the theory. The statement's "exactly one triplet" needs a < b < c to hold, because permutations of a and b would otherwise also satisfy it.
+- Products of two bounded decision symbols (a*a + b*b = c*c with Nat = {1..1000}) were accepted, but took about 33 s in the 60 s quick check and 38 s in the full evaluation, close to the limit.

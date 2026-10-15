@@ -1,0 +1,3 @@
+- Real-valued auxiliary (`time: Product -> Real`, `a(j) * time(j) = x(j)`) avoids rational division by a data field; accepted 5/5 with exact optimum (35 on the 4-product instance).
+- Range types sized from data work: `type Coord := {0..${sum(widths)}}` bounded every output, and a nonlinear `total_x() * total_y()` objective solved in ~1-3 s per instance.
+- Inline range types in a declaration (`x: P -> {0..${max(u)}}`) were avoided; a named `type Qty := {...}` is the form used.

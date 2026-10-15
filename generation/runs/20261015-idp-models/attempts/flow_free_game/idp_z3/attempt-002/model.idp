@@ -1,0 +1,34 @@
+// Flow Free: connect matching colours with pipes so that every cell is covered.
+// The board is a grid of rows R and columns C, read from the instance field board.
+vocabulary {
+    type R <: Int
+    type C <: Int
+    board: R * C -> Int
+    // colours are 1..number of colours; the largest clue value gives the count
+    type Color := {1..${max(board)}}
+    // levels count steps from a clue cell along its pipe; a pipe has at most R*C cells
+    type Lvl := {0..${len(board)*len(board)}}
+    // grid adjacency: cells that share an edge
+    adj: R * C * R * C -> Bool
+    // the colour of every cell
+    B: R * C -> Color
+    lvl: R * C -> Lvl
+}
+theory {
+    // the grid adjacency: two cells are neighbours when they share an edge
+    { ! r in R, c in C, r2 in R, c2 in C: adj(r, c, r2, c2) <-
+        ((r2 = r + 1 | r2 = r - 1) & c2 = c) | ((c2 = c + 1 | c2 = c - 1) & r2 = r). }
+
+    // the clue cells keep their given colour
+    ! r in R, c in C: board(r, c) ~= 0 => B(r, c) = board(r, c).
+
+    // pipes never cross or overlap, so each cell has exactly one colour
+    // a clue cell is an end of its pipe and has exactly one neighbour of its colour
+    ! r in R, c in C: board(r, c) ~= 0 => #{ r2 in R, c2 in C: adj(r, c, r2, c2) & B(r2, c2) = B(r, c) } = 1.
+    // the empty cells are filled with a colour and lie inside a pipe with two neighbours of that colour
+    ! r in R, c in C: board(r, c) = 0 => #{ r2 in R, c2 in C: adj(r, c, r2, c2) & B(r2, c2) = B(r, c) } = 2.
+
+    // every pipe starts at a clue of its colour: levels rise by one along the pipe
+    ! r in R, c in C: board(r, c) ~= 0 => lvl(r, c) = 0.
+    ! r in R, c in C: board(r, c) = 0 => ? r2 in R: ? c2 in C: adj(r, c, r2, c2) & B(r2, c2) = B(r, c) & lvl(r2, c2) + 1 = lvl(r, c).
+}

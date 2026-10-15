@@ -1,0 +1,3 @@
+- `${name}` expands to a plain integer literal, so it can also name a fixed index in the theory (`steps(${num_moves}, c)`), not only a type range.
+- To relate consecutive indices of a `{0..${n}}` type without leaving the domain, quantify over pairs and guard with `t = s + 1 =>`; no `s < ${n}` guard is needed.
+- `#{c in Coin: a(s,c) ~= a(t,c)} = 1` expresses "exactly one coin flips" in one sentence and passed on the first evaluation.

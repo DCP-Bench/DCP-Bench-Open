@@ -1,0 +1,16 @@
+// Ternary Steiner system of order n: a set of n(n-1)/6 triples of distinct elements of {1..n}
+vocabulary {
+    type Elem := {1..${n}}                      // the elements 1..n
+    type Triple := {1..${n*(n-1)/6}}            // n(n-1)/6 triples, one row of sets each
+    sets: Triple * Elem -> Bool                 // sets(t, e): element e is part of triple t
+}
+theory {
+    // each triple consists of exactly three distinct elements
+    ! t in Triple: #{ e in Elem: sets(t, e) } = 3.
+
+    // any two triples have at most one common element
+    ! t1, t2 in Triple: t1 ~= t2 => #{ e in Elem: sets(t1, e) & sets(t2, e) } =< 1.
+
+    // every two distinct elements lie together in exactly one triple
+    ! e1, e2 in Elem: e1 ~= e2 => #{ t in Triple: sets(t, e1) & sets(t, e2) } = 1.
+}

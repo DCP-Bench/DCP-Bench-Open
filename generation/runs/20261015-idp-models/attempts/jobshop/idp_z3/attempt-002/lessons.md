@@ -1,0 +1,4 @@
+- A ragged list of [machine, duration] pairs binds as jobs_data: Job * Task * Pair -> Int with jobs_data_len: Job -> Int; the pair index type is sized to 2 from data.
+- Machine ids need no type: compare them as data values (jobs_data(j,t,0) = jobs_data(j2,t2,0)). Only index types are sized from data.
+- The successor relation is a definition (t2 = t + 1 & valid(j,t2)) rather than t + 1 as a function argument; I did not test the inline form.
+- Explicit bounds (0 =< start, makespan =< total()) kept the 4-variable machine clause fast: the 5 instances took at most 8 s.

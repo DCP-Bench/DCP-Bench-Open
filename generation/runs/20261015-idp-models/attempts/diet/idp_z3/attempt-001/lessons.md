@@ -1,0 +1,2 @@
+- A product inside a sum, `sum{{ nutr(f, k) * amount(f) | f in I }}`, is a parse error ("Expected 'in' ... '**'"); the same product outside a sum parses. Moving the product into an auxiliary symbol (`contrib(f, k) = nutr(f, k) * amount(f)`) fixed it.
+- The description says "at least" for every nutrient, not only calories; the first version with chocolate, sugar and fat as maxima returned invalid_solution, and all four as minima matched all five instance notes.

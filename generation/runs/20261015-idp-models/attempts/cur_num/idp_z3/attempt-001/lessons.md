@@ -1,0 +1,2 @@
+- Output `-> Int` with the range given as theory bounds (`1 =< peculiar() & peculiar() =< 10000.`) was accepted in 1.6 s; the skill's advice to give outputs a range type was not needed here.
+- A helper symbol with a linear defining equation (`2 * half() = peculiar()`) encodes "even" and "half" without division or modulo.

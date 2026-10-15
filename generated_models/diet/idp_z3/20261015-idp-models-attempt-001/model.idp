@@ -1,0 +1,45 @@
+// Diet: choose whole numbers of servings of four foods to minimise the total cost while meeting at least the nutritional requirements.
+vocabulary {
+    type I <: Int                   // foods, sized from price
+    type Nut <: Int                 // nutrients, sized from limits: 0 calories, 1 chocolate, 2 sugar, 3 fat
+    price: I -> Int                 // price of one unit of each food, in cents
+    limits: Nut -> Int              // minimum requirements: calories, chocolate, sugar and fat
+    nutr: I * Nut -> Int            // nutrient content of one unit of each food (problem constant)
+    amount: I -> Int                // number of units of each food bought
+    contrib: I * Nut -> Int         // nutrient content of the units bought
+    pay: I -> Int                   // cost of the units bought of each food
+    cost: () -> Int                 // declared output: total cost of the diet
+    minimize: () -> Int
+}
+theory {
+    // Nutrient table from the problem description: Chocolate Cake, Chocolate ice cream, Cola, Pineapple cheesecake.
+    nutr(0, 0) = 400.  nutr(0, 1) = 3.  nutr(0, 2) = 2.  nutr(0, 3) = 2.
+    nutr(1, 0) = 200.  nutr(1, 1) = 2.  nutr(1, 2) = 2.  nutr(1, 3) = 4.
+    nutr(2, 0) = 150.  nutr(2, 1) = 0.  nutr(2, 2) = 4.  nutr(2, 3) = 1.
+    nutr(3, 0) = 500.  nutr(3, 1) = 0.  nutr(3, 2) = 4.  nutr(3, 3) = 5.
+
+    // Each food is bought in a whole, non-negative number of units.
+    ! f in I: amount(f) >= 0.
+
+    // The nutrient content of the units bought, per food and nutrient.
+    ! f in I, k in Nut: contrib(f, k) = nutr(f, k) * amount(f).
+
+    // The diet must provide at least the required calories.
+    sum{{ contrib(f, 0) | f in I }} >= limits(0).
+
+    // The diet must provide at least the required amount of chocolate.
+    sum{{ contrib(f, 1) | f in I }} >= limits(1).
+
+    // The diet must provide at least the required amount of sugar.
+    sum{{ contrib(f, 2) | f in I }} >= limits(2).
+
+    // The diet must provide at least the required amount of fat.
+    sum{{ contrib(f, 3) | f in I }} >= limits(3).
+
+    // The cost of the diet is the price of each food times the amount bought.
+    ! f in I: pay(f) = price(f) * amount(f).
+    cost() = sum{{ pay(f) | f in I }}.
+
+    // The objective is to minimise the cost.
+    minimize() = cost().
+}

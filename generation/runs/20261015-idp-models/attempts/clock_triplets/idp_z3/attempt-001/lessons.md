@@ -1,0 +1,2 @@
+- Cyclic successor works as a function symbol: `nxt: Pos -> Pos` with `nxt(11) = 0.` and `! p in Pos: p < 11 => nxt(p) = p + 1.`, then `x(nxt(nxt(p)))` for the wrap-around triplets.
+- A satisfaction problem with no instance fields needs no `${...}` or data declarations; the fixed sizes (12, 21) stay in the theory with a comment citing the statement.

@@ -1,0 +1,18 @@
+// Pythagorean triplet: find natural numbers a, b, c with a^2 + b^2 = c^2 and a + b + c = 1000.
+vocabulary {
+    // natural numbers; with a + b + c = 1000 each one is below 1000
+    type Nat := {1..1000}
+    // the Pythagorean triplet (a, b, c)
+    a: () -> Nat
+    b: () -> Nat
+    c: () -> Nat
+}
+theory {
+    // a + b + c = 1000
+    a() + b() + c() = 1000.
+    // a^2 + b^2 = c^2
+    a() * a() + b() * b() = c() * c().
+    // a < b < c, so that the triplet is reported in one fixed order
+    a() < b().
+    b() < c().
+}

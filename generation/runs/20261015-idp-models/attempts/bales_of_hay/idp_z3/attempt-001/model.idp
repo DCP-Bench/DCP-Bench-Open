@@ -1,0 +1,31 @@
+// You have a number of bales of hay. They were weighed in all possible
+// combinations of two, and the weights were written down in numerical order.
+// Find the weight of each bale.
+vocabulary {
+    // Instance data: n is the number of bales.
+    n: () -> Int
+    // The bales are numbered 1..n.
+    type Bale := {1..${n}}
+    // The pair weights are numbered 0..(n(n-1)/2)-1; sized from the data.
+    type Pair <: Int
+    // Instance data: the weights of the combinations of two bales, in numerical order.
+    weights: Pair -> Int
+    // Declared output: the weight of each bale.
+    bales: Bale -> Int
+}
+theory {
+    // every bale weighs a non-negative amount
+    ! i in Bale: bales(i) >= 0.
+
+    // no bale weighs more than the heaviest combination of two bales
+    ! i in Bale: bales(i) =< max{ weights(k) | k in Pair: k >= 0 }.
+
+    // the bales are listed in non-decreasing order (symmetry breaking)
+    ! i, j in Bale: i < j => bales(i) =< bales(j).
+
+    // each combination of two different bales has a weight in the list
+    ! i, j in Bale: i < j => ?k in Pair: weights(k) = bales(i) + bales(j).
+
+    // the list holds exactly the combinations of two bales, each as often as it occurs
+    ! k in Pair: #{k2 in Pair: weights(k2) = weights(k)} = #{i, j in Bale: i < j & bales(i) + bales(j) = weights(k)}.
+}

@@ -1,0 +1,30 @@
+// Golomb ruler: place the marks of a ruler with size marks so that all pairwise differences are distinct, and minimise the length.
+vocabulary {
+    type Idx := {1..${size}}                 // mark numbers 1..m
+    type Pos := {0..${size*size}}            // a position on the ruler
+    size: () -> Int                          // number of marks m (instance field)
+    marks: Idx -> Pos                        // a_1, ..., a_m: the positions of the marks
+    length: () -> Int                        // the length of the ruler, a_m
+    minimize: () -> Int                      // objective: minimise the length
+}
+theory {
+    // a set of m integers 0 = a_1 < a_2 < ... < a_m
+    marks(1) = 0.
+    ! i, j in Idx: i < j => marks(i) < marks(j).
+
+    // the m(m-1)/2 differences a_j - a_i, 1 <= i < j <= m, are distinct
+    ! i, j, k, l in Idx: (i < j & k < l & ~(i = k & j = l)) => marks(j) - marks(i) ~= marks(l) - marks(k).
+
+    // the length of the ruler is a_m
+    length() = marks(size()).
+
+    // reflection symmetry: the first gap is smaller than the last gap
+    marks(2) < length() - marks(size() - 1).
+
+    // every mark is at least the sum of the smallest gaps before it, and at most the length less the gaps after it
+    ! i in Idx: 2 * marks(i) >= i * (i - 1).
+    ! i in Idx: 2 * (length() - marks(i)) >= (size() - i) * (size() - i + 1).
+
+    // find optimal (minimum length) rulers
+    minimize() = length().
+}

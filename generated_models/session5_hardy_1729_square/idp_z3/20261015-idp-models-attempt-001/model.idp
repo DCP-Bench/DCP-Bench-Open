@@ -1,0 +1,18 @@
+// session5_hardy_1729_square: find 4 different numbers between 1 and 100 such that
+// the sum of the squares of the first two equals the sum of the squares of the other two.
+vocabulary {
+    // the numbers range over 1 to 100
+    type Num := {1..100}
+    // declared outputs: the four numbers
+    a: () -> Num
+    b: () -> Num
+    c: () -> Num
+    d: () -> Num
+}
+theory {
+    // the four numbers are different from each other
+    a() ~= b() & a() ~= c() & a() ~= d() & b() ~= c() & b() ~= d() & c() ~= d().
+
+    // the sum of the squares of a and b equals the sum of the squares of c and d
+    a() * a() + b() * b() = c() * c() + d() * d().
+}

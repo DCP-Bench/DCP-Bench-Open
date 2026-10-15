@@ -1,0 +1,19 @@
+// Sports tournament scheduling: n teams play a tournament over n-1 weeks, each week split into n/2 periods of two slots.
+// home(w, p) plays away(w, p) in period p of week w.
+vocabulary {
+    type Team := {1..${n_teams}}          // the teams are numbered 1 to n
+    type Week := {0..${n_teams-2}}        // n-1 weeks, numbered from 0
+    type Period := {0..${n_teams//2-1}}   // n/2 periods per week, numbered from 0
+    home: Week * Period -> Team           // team playing at home in each slot
+    away: Week * Period -> Team           // team playing away in each slot
+}
+theory {
+    // every team plays once a week
+    ! w in Week, t in Team: #{ p in Period: home(w, p) = t } + #{ p in Period: away(w, p) = t } = 1.
+    // the first team in each slot plays at home, the second plays the first team away
+    ! w in Week, p in Period: home(w, p) ~= away(w, p).
+    // every team plays at most twice in the same period over the tournament
+    ! t in Team, p in Period: #{ w in Week: home(w, p) = t } + #{ w in Week: away(w, p) = t } =< 2.
+    // every team plays every other team
+    ! i, j in Team: i < j => #{ w in Week, p in Period: (home(w, p) = i & away(w, p) = j) | (home(w, p) = j & away(w, p) = i) } >= 1.
+}

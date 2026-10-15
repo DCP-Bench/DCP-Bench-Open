@@ -1,0 +1,14 @@
+// Fifty puzzle: knock over a set of dummies whose numbers add up to exactly the target sum.
+vocabulary {
+    // one element per dummy; sized from the length of the values array
+    type Dummy <: Int
+    // the number printed on each dummy, and the target sum (instance data)
+    values: Dummy -> Int
+    target_sum: () -> Int
+    // declared output: dummies(d) is true when dummy d is knocked over
+    dummies: Dummy -> Bool
+}
+theory {
+    // the numbers on the dummies knocked over sum to exactly the target sum, neither more nor less
+    sum{{ values(d) | d in Dummy: dummies(d) }} = target_sum().
+}

@@ -1,0 +1,3 @@
+- A range type whose bound is an instance field works with the field also declared as a symbol: `type Move := {1..${n}}` plus `n: () -> Int` accepted all 5 instances.
+- Bounds on a `-> Int` output written as `${m2}` literals in the theory were enough; no range type was needed for the values.
+- Zero-padding after the top (zeros only at the end) is stated as `k < l & steps(k) = 0 => steps(l) = 0`; the evaluator accepted it.

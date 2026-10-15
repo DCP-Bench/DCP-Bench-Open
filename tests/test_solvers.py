@@ -20,7 +20,8 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "jump_highs": "model_jump.jl",
           "essence_prime_minion": "model_essence.eprime",
           "pycsp3_ace": "model_pycsp3.py",
-          "scip_python": "model_scip.py"}
+          "scip_python": "model_scip.py",
+          "idp_z3": "model_idp.idp"}
 
 # Integrations whose metadata says they cannot optimize. The pilot cases that
 # need an objective are not run for these, and they carry no MAXIMIZATION_SWAPS
@@ -53,7 +54,8 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "jump_highs": ("Min,", "Max,"),
                       "essence_prime_minion": ("minimising", "maximising"),
                       "pycsp3_ace": ("minimize", "maximize"),
-                      "scip_python": ("minimize", "maximize")}
+                      "scip_python": ("minimize", "maximize"),
+                      "idp_z3": ("minimize", "maximize")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.

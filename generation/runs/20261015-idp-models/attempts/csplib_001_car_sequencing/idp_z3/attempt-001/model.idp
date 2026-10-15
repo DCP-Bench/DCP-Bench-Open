@@ -1,0 +1,33 @@
+// Car sequencing: cars of several types are put in an assembly line so that
+// no station is asked to handle more than its share of the cars.
+vocabulary {
+    // one car type per entry of demand
+    type Car <: Int
+    // one option (station) per entry of at_most
+    type Opt <: Int
+    // one position in the assembly line per car to produce
+    type Pos := {0..${sum(demand)-1}}
+    demand: Car -> Int
+    requires: Car * Opt -> Int
+    at_most: Opt -> Int
+    per_slots: Opt -> Int
+    // position p holds car type c
+    slot: Pos * Car -> Bool
+    // position p needs option o
+    needs: Pos * Opt -> Bool
+    // declared output: the car type at each position of the line
+    sequence: Pos -> Car
+}
+theory {
+    // every position of the line holds exactly one car type
+    ! p in Pos: ?=1 c in Car: slot(p, c).
+    // the number of cars of each type is its demand
+    ! c in Car: #{ p in Pos: slot(p, c) } = demand(c).
+    // a position needs option o when the car placed there requires o
+    ! p in Pos, o in Opt: needs(p, o) <=> ? c in Car: slot(p, c) & requires(c, o) = 1.
+    // a station can cope with at most at_most cars among any per_slots
+    // consecutive cars that need its option
+    ! o in Opt, s in Pos: s + per_slots(o) =< ${sum(demand)} => #{ p in Pos: s =< p & p < s + per_slots(o) & needs(p, o) } =< at_most(o).
+    // the declared sequence reads the car type off the slots
+    { ! p in Pos, c in Car: sequence(p) = c <- slot(p, c). }
+}

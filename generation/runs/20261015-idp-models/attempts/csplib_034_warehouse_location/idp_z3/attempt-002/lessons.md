@@ -1,0 +1,2 @@
+- Two data-sized types (Store from the first dimension of cost_matrix, Warehouse from capacity and the second dimension) bind a `[stores][warehouses]` matrix as `Store * Warehouse -> Int`; the scalars n_stores and n_suppliers need not be declared.
+- Nested application such as `cost_matrix(s, supplier_assignment(s))` and `#{ s in Store: supplier_assignment(s) = w }` checked fine at this size.

@@ -1,0 +1,23 @@
+// Candies: give each child at least one candy, give more candies to a child
+// with a higher rating than an immediate neighbour, and minimise the total.
+vocabulary {
+    type I <: Int                  // children in the line, sized from ratings
+    ratings: I -> Int              // rating score of each child
+    x: I -> Int                    // declared output: candies per child
+    z: () -> Int                   // declared output: total candies
+    minimize: () -> Int
+}
+theory {
+    // each child gets at least one candy
+    ! i in I: x(i) >= 1.
+
+    // a child never needs more candies than there are children
+    ! i in I: x(i) =< #{ k in I: true }.
+
+    // two children sitting next to each other: the one with the higher rating gets more candies
+    ! i, j in I: j = i + 1 => ((ratings(i) < ratings(j) => x(i) < x(j)) & (ratings(i) > ratings(j) => x(i) > x(j))).
+
+    // the total number of candies
+    z() = sum{{ x(i) | i in I }}.
+    minimize() = z().
+}

@@ -1,0 +1,3 @@
+- A ${name} placeholder also works inside the theory, e.g. apples(${num_gates}) = 1., so a literal index can follow an instance size without a symbol.
+- For a successor that may leave a type range, quantify over pairs in the type (! g, h in Pos: h = g + 1 => ...) instead of applying g + 1 inside the sentence.
+- The example's output list length depends on num_gates, so the output type must be sized by ${num_gates}; a fixed [6]int from the brief would not bind other instances.

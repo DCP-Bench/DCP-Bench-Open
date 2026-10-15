@@ -1,0 +1,18 @@
+// Given a collection of integers, find a number of elements that sum to zero. Print whether each element is selected.
+vocabulary {
+    // one index per element of the collection; the size comes from the instance
+    type Idx <: Int
+    // the integers of the collection
+    nums: Idx -> Int
+    // the number of elements to select, from the instance
+    m: () -> Int
+    // indices[i] is true when element i is selected
+    indices: Idx -> Bool
+}
+theory {
+    // select exactly m elements
+    #{i in Idx: indices(i)} = m().
+
+    // the selected elements sum to zero
+    sum{{ nums(i) | i in Idx: indices(i) }} = 0.
+}

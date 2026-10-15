@@ -1,0 +1,1 @@
+- A sum without a guard parses (`sum{{ x(r, c) | c in Row }}`), and `${n+1}` in a placeholder works for an anti-diagonal guard `i + j = ${n+1}`.

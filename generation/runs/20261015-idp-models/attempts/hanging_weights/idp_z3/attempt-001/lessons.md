@@ -1,0 +1,3 @@
+- A diagram with pivots reads cleanly if each bar's pivot is the column where its hanging line lands, and the distance is the number of 3-character segments from the pivot. The two worked equations in the description (5*C=D, 3*G=2*(C+D)) confirmed that reading.
+- `${2*num_couples+1}` in a range type binds correctly; the form `{0..2*${num_couples}+1}` produced `2**8` and a parse error.
+- A nullary output with bounds in the theory (`1 =< a() & a() =< 13.`) keeps `-> Int` helper totals simple and was accepted.

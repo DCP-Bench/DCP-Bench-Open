@@ -1,0 +1,53 @@
+// Flowshop scheduling: find one job sequence, the same for every machine, that minimizes the makespan, the time at which all jobs have finished on the last machine.
+vocabulary {
+    // Jobs, sized from the rows of the processing time table; also used for sequence positions.
+    type Job <: Int
+    // Machines, sized from the columns of the processing time table.
+    type Mach <: Int
+
+    // process_time(j, m): time needed to process job j on machine m.
+    process_time: Job * Mach -> Int
+
+    // seq(k): the job at position k of the common sequence.
+    seq: Job -> Job
+    // finish(k, m): time at which the job at position k completes on machine m.
+    finish: Job * Mach -> Int
+    // succ(k, k2): position k2 directly follows position k.
+    succ: Job * Job -> Bool
+    // msucc(m, m2): machine m2 directly follows machine m.
+    msucc: Mach * Mach -> Bool
+
+    // makespan: the time when all jobs have been processed.
+    makespan: () -> Int
+
+    minimize: () -> Int
+}
+theory {
+    // The sequence is a permutation: every job appears exactly once.
+    ! k, k2 in Job: k ~= k2 => seq(k) ~= seq(k2).
+
+    // Position and machine successor relations.
+    ! k, k2 in Job: succ(k, k2) <=> k2 = k + 1.
+    ! m, m2 in Mach: msucc(m, m2) <=> m2 = m + 1.
+
+    // A job cannot finish on a machine before its own processing time there.
+    ! k in Job, m in Mach: finish(k, m) >= process_time(seq(k), m).
+
+    // A job waits until the previous job in the sequence has left the same machine.
+    ! k, kp in Job, m in Mach: succ(kp, k) => finish(k, m) >= finish(kp, m) + process_time(seq(k), m).
+
+    // A job goes to the next machine only after it has finished on the previous one.
+    ! k in Job, m, mp in Mach: msucc(mp, m) => finish(k, m) >= finish(k, mp) + process_time(seq(k), m).
+
+    // The makespan is at least the completion time of every job on every machine.
+    ! k in Job, m in Mach: makespan() >= finish(k, m).
+
+    // The makespan cannot exceed the total processing time of all jobs on all machines.
+    makespan() =< sum{{ process_time(j, m) | j in Job, m in Mach }}.
+
+    // Every completion time is bounded by the makespan.
+    ! k in Job, m in Mach: finish(k, m) =< makespan().
+
+    // The objective is the makespan.
+    minimize() = makespan().
+}

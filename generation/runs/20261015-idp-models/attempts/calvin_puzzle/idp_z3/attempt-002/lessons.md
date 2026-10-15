@@ -1,0 +1,2 @@
+- Calvin puzzle: the cell-based successor (`x(r2,c2) = x(r1,c1) + 1 => move`, with an all-different over cells) timed out at 60 s on the n=5 instance. Naming the square of each number (`pr(v)`, `pc(v)` over a finite `Val := {1..${n*n}}`, linked by `pr(x(r,c)) = r`) and posting the move on `w = v + 1` solved every instance in 2-17 s.
+- `${n*n}` and `${n-1}` work as placeholders; a finite value type sized by the product gives the inverse function for free, with no all-different constraint needed.

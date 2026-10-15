@@ -1,0 +1,4 @@
+- Instance arrays size the types: Job <: Int and Edge <: Int are sized from durations_data and successors_link_data, and successors_link_data: Edge * Col -> Job binds the link table with job indices as values. Declaring the field with a type that the same data sizes differently is an error, so each type needs one source.
+- A horizon can come from the data: Time := {0..${sum(durations_data)}} bounds start_time with no literal.
+- Inside sum{{ }} and max{ }, an arithmetic term such as (start_time(j) + durations_data(j)) must be parenthesised. Without it the parser stops at the '+' with "Expected 'is enumerated' or 'in' or ... at position".
+- A sum over the whole sentence needs double braces: sum{{ ... }}. Single braces fail at the 'sum{' token.

@@ -1,0 +1,21 @@
+// Given a set A of distinct integers, find two disjoint non-empty subsets S and T
+// of A whose elements sum to the same value. S and T need not cover all of A.
+vocabulary {
+    type I <: Int                      // positions of A, sized from the data
+    A: I -> Int                        // the given integers
+    in_S: I -> Bool                    // in_S(i) = true if element i is in S
+    in_T: I -> Bool                    // in_T(i) = true if element i is in T
+}
+theory {
+    // S and T are disjoint
+    ! i in I: ~(in_S(i) & in_T(i)).
+
+    // S is non-empty
+    ? i in I: in_S(i).
+
+    // T is non-empty
+    ? i in I: in_T(i).
+
+    // the sum of the elements of S equals the sum of the elements of T
+    sum{{ (A(i)) | i in I: in_S(i) }} = sum{{ (A(i)) | i in I: in_T(i) }}.
+}

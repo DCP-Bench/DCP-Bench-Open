@@ -1,0 +1,2 @@
+- Pipe connectivity without transitive closure: give each non-clue cell a same-colour neighbour one level lower (levels in a range of len(board)*len(board)), with clue cells at level 0. Degree 1 at clues and 2 elsewhere then makes each pipe a simple path.
+- `${max(board)}` sizes the colour type and `${len(board)*len(board)}` the level type; accepted at the first evaluation (5x5 board).

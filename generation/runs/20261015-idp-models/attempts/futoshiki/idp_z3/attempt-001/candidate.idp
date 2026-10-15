@@ -1,0 +1,31 @@
+// Futoshiki: fill an N x N grid with digits 1..N so that every row and column holds each digit once, keeping the given digits and the less-than clues.
+vocabulary {
+    type Row <: Int                 // grid rows, sized from the values grid
+    type Col <: Int                 // grid columns, sized from the values grid
+    type Ineq <: Int                // less-than clues, sized from lt
+    type Field <: Int               // the four entries of a clue, sized from lt
+    values: Row * Col -> Int        // given digits, 0 marks an empty cell
+    lt: Ineq * Field -> Int         // clue k: cell (lt(k,0), lt(k,1)) is less than cell (lt(k,2), lt(k,3)); coordinates are 1-based
+    grid: Row * Col -> Int          // declared output: the completed grid
+    size: () -> Int                 // N, the number of rows
+}
+theory {
+    // N is the number of rows of the grid.
+    size() = #{ r in Row: r = r }.
+
+    // A given digit stays in its cell.
+    ! r in Row, c in Col: values(r, c) ~= 0 => grid(r, c) = values(r, c).
+
+    // Every cell holds a digit between 1 and N.
+    ! r in Row, c in Col: grid(r, c) >= 1 & grid(r, c) =< size().
+
+    // Each row contains every digit once: no two cells of a row are equal.
+    ! r in Row, c1 in Col, c2 in Col: c1 ~= c2 => grid(r, c1) ~= grid(r, c2).
+
+    // Each column contains every digit once: no two cells of a column are equal.
+    ! c in Col, r1 in Row, r2 in Row: r1 ~= r2 => grid(r1, c) ~= grid(r2, c).
+
+    // Each less-than clue holds between its two cells.
+    ! k in Ineq: ! r1 in Row, c1 in Col, r2 in Row, c2 in Col:
+        (r1 + 1 = lt(k, 0) & c1 + 1 = lt(k, 1) & r2 + 1 = lt(k, 2) & c2 + 1 = lt(k, 3)) => grid(r1, c1) < grid(r2, c2).
+}
