@@ -17,7 +17,7 @@ something to work around: candidate code never runs on the host.
 
 **You are the only agent.** You are the coordinator and the modeller; "invoke a
 skill" only ever means "read that file and follow it". There are three kinds of
-skill and only three: this one, the campaign loop; `skills/solver-setup`, read
+skill and only three: this one, the campaign loop; `rosetta-skills/solver-setup`, read
 only when the integration you need does not exist; and
 `solvers/<id>/skills/<name>`, one per integration, read every time you write a
 model for it. The third kind is the only one this workflow edits; the other two
@@ -122,7 +122,7 @@ differ, and never weaken a profile mid-run to turn a failure into a pass.
 
 - **The integration does not exist, or is not usable.** Both cases are in
   [integrations](references/integrations.md): building one means following
-  `skills/solver-setup` yourself and recording the setup skill *before* writing
+  `rosetta-skills/solver-setup` yourself and recording the setup skill *before* writing
   any integration file; certifying an existing one whose `readiness.json` is
   missing or stale is a separate, smaller job. Neither is a reason to rebuild a
   working integration.

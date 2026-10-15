@@ -3,7 +3,7 @@
 The contract an agent works to. `generation/README.md` is the short human
 overview; this file is the exact syntax, schemas and rules.
 
-`skills/model-generator` runs the campaign loop; `skills/solver-setup` creates or
+`rosetta-skills/model-generator` runs the campaign loop; `rosetta-skills/solver-setup` creates or
 repairs integrations. One agent reads them and does the work. These Python
 commands provide records and checks; they do not choose a solver, call an LLM
 provider, or replace the skills.
@@ -38,7 +38,7 @@ python -m generation.instances check PROBLEM candidates.json [--append]
 python -m generation.instances recheck PROBLEM --instances json:K ... [--flag] [--jobs N]
 ```
 
-`skills/instance-curator` is the procedure. `status` lists problems with data
+`rosetta-skills/instance-curator` is the procedure. `status` lists problems with data
 fields and fewer than 5 distinct instances, leaving out those listed under
 "Instances not added" in `SOURCES.md`. `check` takes a JSON list of candidate
 records and refuses one with missing or extra fields, a changed value type or
@@ -65,7 +65,7 @@ relative to the repository), `instance`, `instance_hash`, `reason`, `detail`,
 
 ```sh
 python -m generation.manage init --run RUN --config config.json
-python -m generation.manage setup-attempt --run RUN --solver SOLVER --skill skills/solver-setup
+python -m generation.manage setup-attempt --run RUN --solver SOLVER --skill rosetta-skills/solver-setup
 python -m generation.manage attempt --run RUN --problem abbots_puzzle --solver SOLVER --skill skills/SKILL
 python -m generation.manage evaluate --attempt ATTEMPT_PATH --model MODEL_PATH
 python -m generation.manage retain --attempt ATTEMPT_PATH
@@ -155,8 +155,8 @@ path.
 ## Skill provenance and improvement (all skill levels)
 
 ```sh
-python -m generation.skills validate skills/model-generator --project
-python -m generation.skills propose --run RUN --skill skills/model-generator --candidate working/model-generator --evidence "Failure cause and run evidence path"
+python -m generation.skills validate rosetta-skills/model-generator --project
+python -m generation.skills propose --run RUN --skill rosetta-skills/model-generator --candidate working/model-generator --evidence "Failure cause and run evidence path"
 python -m generation.skills check PROPOSAL_PATH --checks trusted-checks.json
 python -m generation.skills apply PROPOSAL_PATH
 ```
@@ -195,7 +195,7 @@ The skill bundles contain `evals/evals.json` with prompts and observable
 assertions. They are specifications, not stored pass claims.
 
 ```sh
-python -m generation.behaviour prepare --skill skills/model-generator --case empty-solvers --output TRIAL_DIRECTORY
+python -m generation.behaviour prepare --skill rosetta-skills/model-generator --case empty-solvers --output TRIAL_DIRECTORY
 python -m generation.behaviour assess TRIAL_DIRECTORY --assessment assessment.json
 ```
 
