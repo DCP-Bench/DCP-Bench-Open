@@ -22,9 +22,6 @@ REQUIRED_KEYS = {"id", "name", "language", "framework", "solver", "paradigms", "
 OPTIONAL_KEYS = {"optimization", "compilation", "instance_binding"}
 BINDINGS = {"any", "rectangular_uniform"}
 FILES = ("metadata.yaml", "Dockerfile", "run.py", "readiness_test.py")
-# Text that ties a skill to this repository. The standalone skill must work
-# outside it; sources.md and evals/ may still name the project.
-ROSETTA_TEXT = re.compile(r"DCP[- ]?Bench|Rosetta|generation\.\w+|readiness|/input/|request\.json")
 
 results = []
 
@@ -150,24 +147,14 @@ def check_skill(root, folder):
     skills = sorted(path.parent for path in (folder / "skills").glob("*/SKILL.md"))
     if not check("skill: standalone skill exists", bool(skills), f"no {folder.name}/skills/<name>/SKILL.md"):
         return
-    from generation.skills import validate
+    from generation.skills import rosetta_mentions, validate
     for skill in skills:
         try:
             validate(skill, project=True)
             report("PASS", f"skill {skill.name}: generation.skills validate --project")
         except (ValueError, OSError) as error:
             report("FAIL", f"skill {skill.name}: generation.skills validate --project", str(error))
-        hits = []
-        for path in sorted(skill.rglob("*")):
-            relative = path.relative_to(skill)
-            if not path.is_file() or relative.name == "sources.md" or relative.parts[0] == "evals":
-                continue
-            try:
-                lines = path.read_text(encoding="utf-8").splitlines()
-            except UnicodeDecodeError:
-                continue
-            hits += [f"{relative}:{number}: {match.group(0)}" for number, line in enumerate(lines, 1)
-                     for match in [ROSETTA_TEXT.search(line)] if match]
+        hits = rosetta_mentions(skill)
         check(f"skill {skill.name}: free of Rosetta text", not hits,
               "; ".join(hits[:5]) + (f" (+{len(hits) - 5} more)" if len(hits) > 5 else ""))
 

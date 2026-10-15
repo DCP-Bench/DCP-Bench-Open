@@ -189,6 +189,36 @@ attempt records the skill afresh; existing attempts never adopt edits retroactiv
 Tests executed by these helpers are evidence, not an adversarial security
 boundary against another process with write access to the repository.
 
+## Releasing a solver skill
+
+Solver skills are developed in `solvers/<id>/skills/<name>/` and released, when the user
+decides, to the public skill repository `skills/solvers/<name>/`. Never edit a released copy
+directly; change the source and release again.
+
+```sh
+python -m generation.release publish ID -m "what changed" [--bump patch|minor|major | --version X.Y.Z] [--dry-run]
+python -m generation.release status [--strict]
+python -m generation.release withdraw NAME -m "why"
+```
+
+`publish` stages the git-tracked files of the source, refuses uncommitted changes (unless
+`--allow-dirty`, which is recorded), a skill that fails `generation.skills validate --project`,
+and one that mentions this repository (`DCP-Bench`, `generation.*`, `readiness`, ...). It
+copies the skill wholesale and stamps `metadata.version` into the published `SKILL.md`. The
+first release is `0.1.0`, and `--bump` defaults to `patch`, so `--bump major` declares a
+skill stable at `1.0.0`. It records the release in `skills/versions.json`: version, the
+digest of the published folder, the digest of the source content, the source commit and git
+tree, whether the source was dirty, the readiness record and image, the `Tested with` line
+of `sources.md`, and the earlier releases. It regenerates the catalog table in
+`skills/README.md` and the plugin entries in `skills/.claude-plugin/marketplace.json`
+(whose `version` must change for Claude Code to update), prepends to `skills/CHANGELOG.md`,
+and prints a commit message. It never commits. Unchanged content is a no-op unless
+`--bump`/`--version` is given.
+
+`status` lists every solver skill as unreleased, up to date, or changed since release, and
+flags a published copy that was edited directly, is missing or is not in the ledger;
+`--strict` exits 1 on those.
+
 ## Behavioural evaluations
 
 The skill bundles contain `evals/evals.json` with prompts and observable
