@@ -29,6 +29,9 @@ CHANGELOG = "skills/CHANGELOG.md"
 CATALOG = "skills/README.md"
 MARKETPLACE = "skills/.claude-plugin/marketplace.json"
 FIRST_VERSION = "0.1.0"
+SOLVERS_PLUGIN = "solvers"
+SOLVERS_DESCRIPTION = ("Skills for individual constraint and optimisation solvers and modelling frameworks, "
+                       "each teaching an agent to install one solver and model with its own API.")
 CATALOG_START, CATALOG_END = "<!-- solver-skills:start -->", "<!-- solver-skills:end -->"
 CHANGELOG_HEADER = ("# Changelog\n\nReleases of the solver skills under `solvers/`, newest first. "
                     "Written by `python -m generation.release`; the full record is `versions.json`.\n")
@@ -200,9 +203,16 @@ def regenerate_listings(ledger):
         print(f"warning: {MARKETPLACE} not found; marketplace not updated", file=sys.stderr)
         return
     data = json.loads(marketplace.read_text(encoding="utf-8"))
-    plugins = [item for item in data.get("plugins", []) if not str(item.get("source", "")).startswith("./solvers/")]
-    plugins += [{"name": name, "description": entry["description"], "version": entry["version"],
-                 "source": f"./solvers/{name}", "skills": ["./"]} for name, entry in released.items()]
+    # Every released solver skill sits in the one `solvers` plugin, which install tools show
+    # as a group; other plugins (`meta`) are maintained by hand. The plugin has no
+    # `version`, so Claude Code follows the repository's commits and every release reaches
+    # its users; each skill's own version is stamped in its SKILL.md and the ledger.
+    plugins = [item for item in data.get("plugins", [])
+               if item.get("name") != SOLVERS_PLUGIN and not str(item.get("source", "")).startswith("./solvers/")]
+    if released:
+        plugins.append({"name": SOLVERS_PLUGIN,
+                        "description": SOLVERS_DESCRIPTION + " Includes: " + ", ".join(released) + ".",
+                        "source": "./solvers", "skills": [f"./{name}" for name in released]})
     data["plugins"] = plugins
     write_json(marketplace, data)
 

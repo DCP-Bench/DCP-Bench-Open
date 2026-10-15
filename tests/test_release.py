@@ -30,7 +30,7 @@ class ReleaseTests(unittest.TestCase):
         (self.root / "skills/.claude-plugin").mkdir(parents=True)
         (self.root / "skills/README.md").write_text("# Skills\n\n## Catalog\n\n| add-solver |\n")
         (self.root / release.MARKETPLACE).write_text(json.dumps(
-            {"name": "m", "plugins": [{"name": "add-solver", "source": "./add-solver", "skills": ["./"]}]}))
+            {"name": "m", "plugins": [{"name": "meta", "source": "./", "skills": ["./add-solver"]}]}))
         for command in (["init", "-q"], ["config", "user.name", "Tester"], ["config", "user.email", "t@example.org"]):
             self.git(*command)
         self.commit()
@@ -75,10 +75,28 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(entry["evidence"]["readiness"]["image_id"], "sha256:abc")
         self.assertEqual(entry["evidence"]["tested_with"], "Tested with Demo 1.2.3 on Python 3.12.")
         plugins = json.loads((self.root / release.MARKETPLACE).read_text())["plugins"]
-        self.assertEqual([item["name"] for item in plugins], ["add-solver", "demo-python"])
-        self.assertEqual(plugins[1]["version"], "0.1.0")
+        self.assertEqual([item["name"] for item in plugins], ["meta", "solvers"])
+        self.assertEqual((plugins[1]["source"], plugins[1]["skills"]), ("./solvers", ["./demo-python"]))
+        self.assertNotIn("version", plugins[1])
         self.assertIn("| `demo-python` | 0.1.0 |", (self.root / "skills/README.md").read_text())
         self.assertIn("## demo-python 0.1.0", (self.root / release.CHANGELOG).read_text())
+
+    def test_solver_skills_share_one_plugin(self):
+        marketplace = self.root / release.MARKETPLACE
+        data = json.loads(marketplace.read_text())
+        data["plugins"].append({"name": "old-skill", "source": "./solvers/old-skill", "skills": ["./"]})
+        marketplace.write_text(json.dumps(data))
+        self.publish()
+        other = self.root / "solvers/other_python/skills/other-python"
+        other.mkdir(parents=True)
+        (other / "SKILL.md").write_text(SKILL.replace("demo-python", "other-python"))
+        (other / "sources.md").write_text(SOURCES)
+        self.commit()
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            release.publish("other_python", "First release")
+        plugins = json.loads(marketplace.read_text())["plugins"]
+        self.assertEqual([item["name"] for item in plugins], ["meta", "solvers"])
+        self.assertEqual(plugins[1]["skills"], ["./demo-python", "./other-python"])
 
     def test_digest_is_path_and_content_hash_sorted_by_path(self):
         folder = self.source
@@ -156,7 +174,7 @@ class ReleaseTests(unittest.TestCase):
         entry = self.ledger()
         self.assertEqual((entry["status"], entry["withdrawn_because"]), ("withdrawn", "Superseded"))
         plugins = json.loads((self.root / release.MARKETPLACE).read_text())["plugins"]
-        self.assertEqual([item["name"] for item in plugins], ["add-solver"])
+        self.assertEqual([item["name"] for item in plugins], ["meta"])
         self.assertNotIn("demo-python", (self.root / "skills/README.md").read_text())
         self.publish(message="Back")
         self.assertEqual(self.ledger()["version"], "0.1.1")
