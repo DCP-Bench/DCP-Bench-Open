@@ -119,9 +119,31 @@ def tested_with(folder):
     return None
 
 
-def read_ledger():
-    path = ROOT / LEDGER
+def read_ledger(root=None):
+    path = (root or ROOT) / LEDGER
     return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"schema": 1, "skills": {}}
+
+
+def released_skill(solver_id, root=None):
+    """Repository-relative path of the released skill for an integration, or None."""
+    for entry in read_ledger(root)["skills"].values():
+        if entry.get("status") == "released" and entry.get("source", {}).get("solver_id") == solver_id:
+            return entry["path"]
+    return None
+
+
+def skill_for(solver_id, root=None):
+    """The solver skill to model with: the released copy, else the single development copy.
+
+    Returns (path, released); path is None when there is no release and the integration
+    has no development skill, or several to choose from.
+    """
+    root = root or ROOT
+    released = released_skill(solver_id, root)
+    if released and (root / released / "SKILL.md").is_file():
+        return released, True
+    found = sorted((root / "solvers" / solver_id / "skills").glob("*/SKILL.md"))
+    return (found[0].parent.relative_to(root).as_posix() if len(found) == 1 else None), False
 
 
 def write_json(path, value):

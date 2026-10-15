@@ -16,6 +16,9 @@ class GenerationTests(unittest.TestCase):
         (self.root / "skills" / "demo" / "SKILL.md").write_text("# Demo\n", encoding="utf-8")
         (self.root / "skills" / "demo" / "references" / "api.md").write_text("API v1\n", encoding="utf-8")
         (self.root / "model.py").write_text("model", encoding="utf-8")
+        (self.root / "solvers" / "solver").mkdir(parents=True)
+        (self.root / "solvers" / "CONTRACT.md").write_text("# Contract\n", encoding="utf-8")
+        (self.root / "solvers" / "solver" / "CONTRACT.md").write_text("# solver\n", encoding="utf-8")
         self.patch = patch.multiple(manage, REPO_ROOT=self.root,
                                     RUNS_ROOT=self.root / "generation" / "runs",
                                     GENERATED_ROOT=self.root / "generated_models")
@@ -53,6 +56,48 @@ class GenerationTests(unittest.TestCase):
         # Every file counts, so a change anywhere in the bundle moves the hash.
         (self.root / "skills" / "demo" / "references" / "api.md").write_text("changed", encoding="utf-8")
         self.assertNotEqual(record["skill_bundle_hash"], manage._skill_hash(self.root / "skills" / "demo"))
+
+    def test_attempt_cites_every_skill_and_both_contracts(self):
+        """A model is written from model-generator and a solver skill under two contracts."""
+        guide = self.root / "rosetta-skills" / "guide"
+        guide.mkdir(parents=True)
+        (guide / "SKILL.md").write_text("# Guide\n", encoding="utf-8")
+        manage.init("run1")
+        attempt = manage.attempt("run1", "problem", "solver", [str(guide), str(self.root / "skills" / "demo")])
+        record = manage._read(attempt / "attempt.json")
+        self.assertEqual(record["schema"], 3)
+        self.assertEqual([item["source"] for item in record["skills"]], ["rosetta-skills/guide", "skills/demo"])
+        self.assertEqual(record["skill_source"], "rosetta-skills/guide")
+        self.assertEqual(set(record["contracts"]), {"solvers/CONTRACT.md", "solvers/solver/CONTRACT.md"})
+        manage._attempt(attempt)
+        (guide / "SKILL.md").write_text("# Guide, edited\n", encoding="utf-8")
+        with self.assertRaisesRegex(manage.ManagementError, "rosetta-skills/guide"):
+            manage._attempt(attempt)
+
+    def test_editing_a_contract_invalidates_the_attempt(self):
+        attempt = self.new_attempt()
+        manage._attempt(attempt)
+        (self.root / "solvers" / "solver" / "CONTRACT.md").write_text("# changed\n", encoding="utf-8")
+        with self.assertRaisesRegex(manage.ManagementError, "Contract changed"):
+            manage._attempt(attempt)
+
+    def test_attempt_needs_the_integration_contract(self):
+        (self.root / "solvers" / "solver" / "CONTRACT.md").unlink()
+        manage.init("run1")
+        with self.assertRaisesRegex(manage.ManagementError, "CONTRACT.md"):
+            manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+
+    def test_schema_2_attempt_records_still_verify(self):
+        attempt = self.new_attempt()
+        record = manage._read(attempt / "attempt.json")
+        for key in ("skills", "contracts"):
+            del record[key]
+        record["schema"] = 2
+        (attempt / "attempt.json").write_text(json.dumps(record), encoding="utf-8")
+        manage._attempt(attempt)
+        (self.root / "skills" / "demo" / "SKILL.md").write_text("# Changed\n", encoding="utf-8")
+        with self.assertRaisesRegex(manage.ManagementError, "Skill bundle changed"):
+            manage._attempt(attempt)
 
     def test_unique_attempts_and_status_resume(self):
         first = self.new_attempt()

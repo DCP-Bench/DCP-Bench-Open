@@ -18,6 +18,7 @@ from evaluation.execution import ROOT, integration
 from evaluation.results import EvaluationError
 
 from .brief import RECTANGULAR_UNIFORM, unbindable
+from .release import skill_for
 from .readiness import ReadinessError, verify
 
 GENERATED = ROOT / "generated_models"
@@ -31,6 +32,9 @@ def integrations():
     for path in sorted((ROOT / "solvers").glob("*/metadata.yaml")):
         solver_id = path.parent.name
         record = {"id": solver_id, "ready": False}
+        # The solver skill to pass to `generation.manage attempt --skill`: the released copy
+        # the public gets, or the development copy until the solver has a release.
+        record["skill"], record["skill_released"] = skill_for(solver_id, ROOT)
         readiness = path.parent / "readiness.json"
         try:
             metadata = integration(solver_id)

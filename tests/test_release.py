@@ -166,6 +166,18 @@ class ReleaseTests(unittest.TestCase):
         self.assertIn("published copy edited directly", output)
         self.assertEqual(problems, ["demo-python"])
 
+    def test_skill_for_prefers_the_release_and_falls_back_to_development(self):
+        self.assertEqual(release.skill_for("demo_python"), ("solvers/demo_python/skills/demo-python", False))
+        self.assertIsNone(release.released_skill("demo_python"))
+        self.publish()
+        self.assertEqual(release.released_skill("demo_python"), "skills/solvers/demo-python")
+        self.assertEqual(release.skill_for("demo_python"), ("skills/solvers/demo-python", True))
+        with redirect_stdout(io.StringIO()):
+            release.withdraw("demo-python", "Superseded")
+        self.assertIsNone(release.released_skill("demo_python"))
+        self.assertEqual(release.skill_for("demo_python"), ("solvers/demo_python/skills/demo-python", False))
+        self.assertEqual(release.skill_for("absent"), (None, False))
+
     def test_withdraw_removes_the_copy_and_keeps_the_record(self):
         self.publish()
         with redirect_stdout(io.StringIO()):

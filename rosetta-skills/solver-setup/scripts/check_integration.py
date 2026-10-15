@@ -143,6 +143,21 @@ def check_scripts(root, folder, metadata):
     check("readiness_test.py: names every required check", not missing, f"missing {missing}")
 
 
+CONTRACT_HEADINGS = ("Submission file", "Entrypoint", "Instance", "Outputs", "Objective",
+                     "Compilation", "Environment", "Traps", "Example")
+
+
+def check_contract(folder):
+    """solvers/<id>/CONTRACT.md answers the mapping checklist of solvers/CONTRACT.md."""
+    path = folder / "CONTRACT.md"
+    if not check("contract: CONTRACT.md exists", path.is_file(),
+                 f"write solvers/{folder.name}/CONTRACT.md (see solvers/CONTRACT.md, Mapping checklist)"):
+        return
+    headings = re.findall(r"^## (.+?)\s*$", path.read_text(encoding="utf-8"), re.M)
+    missing = [heading for heading in CONTRACT_HEADINGS if heading not in headings]
+    check("contract: has every checklist heading", not missing, f"missing {missing}")
+
+
 def check_skill(root, folder):
     skills = sorted(path.parent for path in (folder / "skills").glob("*/SKILL.md"))
     if not check("skill: standalone skill exists", bool(skills), f"no {folder.name}/skills/<name>/SKILL.md"):
@@ -211,6 +226,7 @@ def main():
         check_dockerfile(args.solver_id, folder)
     if all(present[2:]):
         check_scripts(root, folder, metadata)
+    check_contract(folder)
     check_skill(root, folder)
     if not args.static:
         check_readiness(root, args.solver_id)

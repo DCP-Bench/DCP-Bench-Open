@@ -17,6 +17,8 @@ import uuid
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+# Where canonical skills live: public skills, the Rosetta skills, and solver skills.
+SKILL_ROOTS = ("skills", "rosetta-skills", "solvers")
 
 
 def read(path):
@@ -138,8 +140,8 @@ def propose(run, skill, candidate, evidence):
     if not (run / "run.json").is_file():
         raise ValueError("Initialize the run first")
     skill = inside(skill, ROOT)
-    if not any(skill.is_relative_to(ROOT / part) for part in ("skills", "solvers")):
-        raise ValueError("Canonical skill must live in skills/ or solvers/")
+    if not any(skill.is_relative_to(ROOT / part) for part in SKILL_ROOTS):
+        raise ValueError("Canonical skill must live in skills/, rosetta-skills/ or solvers/")
     candidate = Path(candidate).resolve()
     original = validate(skill, project=True)
     if validate(candidate, project=True)["name"] != original["name"]:
@@ -212,7 +214,7 @@ def check_proposal(path, checks_file):
 def apply(path):
     path, data = proposal_data(path)
     target = inside(ROOT / data["target"], ROOT)
-    if not any(target.is_relative_to(ROOT / part) for part in ("skills", "solvers")):
+    if not any(target.is_relative_to(ROOT / part) for part in SKILL_ROOTS):
         raise ValueError("Canonical target is outside skill locations")
     candidate = path / "candidate" / data["name"]
     if data["status"] != "validated" or not read(path / "checks.json")["passed"]:

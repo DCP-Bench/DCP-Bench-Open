@@ -4,7 +4,12 @@ The contract an agent works to. `generation/README.md` is the short human
 overview; this file is the exact syntax, schemas and rules.
 
 `rosetta-skills/model-generator` runs the campaign loop; `rosetta-skills/solver-setup` creates or
-repairs integrations. One agent reads them and does the work. These Python
+repairs integrations. One agent reads them and does the work. What a model must look
+like is in two repository files both skills share: the submission contract
+`solvers/CONTRACT.md`, and each integration's `solvers/<id>/CONTRACT.md` saying how that
+integration realises it. How to model with a solver is in its standalone skill: the
+released copy under `skills/solvers/`, or the development copy under `solvers/<id>/skills/`
+until it is released; `next_work` reports which as each integration's `skill`. These Python
 commands provide records and checks; they do not choose a solver, call an LLM
 provider, or replace the skills.
 Use the repository Python environment from the repository root. All operations
@@ -65,8 +70,8 @@ relative to the repository), `instance`, `instance_hash`, `reason`, `detail`,
 
 ```sh
 python -m generation.manage init --run RUN --config config.json
-python -m generation.manage setup-attempt --run RUN --solver SOLVER --skill rosetta-skills/solver-setup
-python -m generation.manage attempt --run RUN --problem abbots_puzzle --solver SOLVER --skill skills/SKILL
+python -m generation.manage setup-attempt --run RUN --solver SOLVER --skill rosetta-skills/solver-setup --skill skills/add-solver
+python -m generation.manage attempt --run RUN --problem abbots_puzzle --solver SOLVER --skill rosetta-skills/model-generator --skill SOLVER_SKILL
 python -m generation.manage evaluate --attempt ATTEMPT_PATH --model MODEL_PATH
 python -m generation.manage retain --attempt ATTEMPT_PATH
 python -m generation.manage status --run RUN
@@ -83,8 +88,12 @@ evaluator enforces individual solve limits. Helpers do not enforce LLM cost caps
 
 Use the path returned by `attempt` rather than constructing it. Attempts live
 under `generation/runs/RUN/attempts/PROBLEM/SOLVER/attempt-NNN/`. They contain the
-candidate, evaluation and retention pointer, and a reference to the solver
-skill: its path, the commit it ran against, and a hash of its bytes. Add `prompt.md`, `response.md`, and `lessons.md` as appropriate.
+candidate, evaluation and retention pointer, and a reference to every skill given with
+`--skill` (repeatable; `skills` in `attempt.json`, schema 3): its path, the commit it ran
+against, and a hash of its bytes. The legacy `skill_source`/`skill_version`/
+`skill_bundle_hash` fields repeat the first one. `contracts` holds the sha256 of
+`solvers/CONTRACT.md` and `solvers/SOLVER/CONTRACT.md`; `attempt` refuses an integration
+without its contract. Add `prompt.md`, `response.md`, and `lessons.md` as appropriate.
 Setup work lives under the same run's `setup/SOLVER/ATTEMPT/`; record started,
 finished, blocked and interrupted events with command logs and skill hashes.
 Give a second concurrent run its own run ID rather than writing to the same
@@ -163,10 +172,11 @@ python -m generation.skills apply PROPOSAL_PATH
 
 Each skill bundle carries a plain `sources.md` listing the documentation its
 instructions came from. `validate --project` requires that file plus a valid
-behavioural eval manifest. An attempt records the skill by reference, not by copy: its path, the commit it
+behavioural eval manifest. An attempt records each skill by reference, not by copy: its path, the commit it
 ran against, whether that path had uncommitted changes, and a hash of its bytes.
-Evaluation and retention re-hash the live bundle, so editing a skill mid-attempt
-is refused. That record is what ties a model to the skill version behind it.
+Evaluation and retention re-hash the live bundles and both contracts, so editing a
+skill or a contract mid-attempt is refused. `propose`/`apply` accept skills under
+`skills/`, `rosetta-skills/` and `solvers/`. That record is what ties a model to the skill version behind it.
 
 `trusted-checks.json` is a nonempty list such as:
 
