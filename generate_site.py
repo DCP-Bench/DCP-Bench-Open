@@ -32,7 +32,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v52"
+ASSET_VERSION = "catalogue-v53"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -51,18 +51,6 @@ SOURCE_COLLECTIONS = {
     "csplib": ("CSPLib", "https://www.csplib.org/Problems/"),
     "hakan_examples": ("Hakan Kjellerstrand's CPMpy models", "https://github.com/hakank/hakank/tree/master/cpmpy"),
 }
-
-# A tab icon: a solved 4-queens board, one queen to each row, column and
-# diagonal, in the site's accent colour.
-FAVICON_QUEENS = ((0, 1), (1, 3), (2, 0), (3, 2))
-FAVICON = "data:image/svg+xml," + quote(
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>"
-    "<rect width='32' height='32' rx='7' fill='#0e6c78'/><g fill='#fff' opacity='.16'>"
-    + "".join(f"<rect x='{4 + 6 * c}' y='{4 + 6 * r}' width='6' height='6'/>"
-              for r in range(4) for c in range(4) if (r + c) % 2)
-    + "</g><g fill='#fff'>"
-    + "".join(f"<circle cx='{7 + 6 * c}' cy='{7 + 6 * r}' r='2.3'/>" for r, c in FAVICON_QUEENS)
-    + "</g></svg>")
 
 # What a model is written in, per `language` in solvers/<id>/metadata.yaml:
 # the highlight.js grammar to ask for, and the label above the code block.
@@ -353,8 +341,9 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
     # The catalogue and the Solvers page share the site's own heading.
     if active in ("index", "paradigms"):
         hero = (
-            f'<div class="hero">'
-            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p></div>'
+            f'<div class="hero has-logo">'
+            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p>'
+            f'<img class="hero-logo" src="{prefix}logo.svg?v={ASSET_VERSION}" alt="" width="210" height="300"></div>'
         )
     else:
         note = f'<p class="hero-note">{hero_note}</p>' if hero_note else ""
@@ -400,7 +389,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(full_title)}</title>
-<link rel="icon" href="{FAVICON}">
+<link rel="icon" type="image/png" href="{prefix}favicon.png?v={ASSET_VERSION}">
 <meta name="theme-color" content="#ebf1f8">
 {chr(10).join(head)}
 <script>document.documentElement.classList.add("js");
@@ -1398,6 +1387,9 @@ def main() -> None:
     shutil.copy2(WEB_SRC / "app.js", OUTPUT_DIR / "app.js")
     shutil.copy2(WEB_SRC / "minizinc.js", OUTPUT_DIR / "minizinc.js")
     shutil.copy2(WEB_SRC / "og-image.png", OUTPUT_DIR / "og-image.png")
+    shutil.copy2(WEB_SRC / "logo.svg", OUTPUT_DIR / "logo.svg")
+    # The tab icon: logo.svg at 64 px.
+    shutil.copy2(WEB_SRC / "favicon.png", OUTPUT_DIR / "favicon.png")
 
     problems = []
     with DATASET_JSONL.open(encoding="utf-8") as fh:
