@@ -85,8 +85,8 @@ cleanup and a checkpoint even mid-attempt.
 ## Retain an accepted model
 
 Use `python -m generation.manage retain --attempt ATTEMPT_PATH`. It verifies the
-coordinator-produced evaluation, profile/IDs, actual coverage, candidate bytes
-and the cited skill before creating an unused run/attempt child under
+coordinator-produced evaluation, profile/IDs, actual coverage, candidate bytes,
+the cited skills and both contracts before creating an unused run/attempt child under
 `generated_models/<problem_id>/<solver_id>/`. It preserves legacy artifacts.
 Use the returned path in the final report. Do not edit retained bytes; a change
 requires another evaluation. Skill proposals can remain pending independently.

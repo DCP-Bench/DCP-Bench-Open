@@ -16,11 +16,23 @@ paths here are relative to it. An unavailable engine is a blocker to report, not
 something to work around: candidate code never runs on the host.
 
 **You are the only agent.** You are the coordinator and the modeller; "invoke a
-skill" only ever means "read that file and follow it". There are three kinds of
-skill and only three: this one, the campaign loop; `rosetta-skills/solver-setup`, read
-only when the integration you need does not exist; and
-`solvers/<id>/skills/<name>`, one per integration, read every time you write a
-model for it. The third kind is the only one this workflow edits; the other two
+skill" only ever means "read that file and follow it".
+
+What a model must look like comes from three layers, read in this order every time
+you write one:
+
+| Layer | Where | What it gives you |
+|---|---|---|
+| The submission contract | `solvers/CONTRACT.md` | What every model must do to be evaluated, for any solver: input, declared outputs, objective, what the runner does, what a model must not do |
+| The integration contract | `solvers/<id>/CONTRACT.md` | How that integration realises it: file, entrypoint, how the instance arrives, how outputs and the objective go back, its traps, a minimal working example |
+| The solver skill | the `skill` path `next_work` reports for the integration | How to model with that solver: its API and pitfalls. The released copy under `skills/solvers/` when there is one, otherwise the development copy under `solvers/<id>/skills/` |
+
+The contracts are Rosetta's; the solver skill is not, and knows nothing about this
+repository. Some solver skills still describe a submission format of their own from
+before the contracts existed: where they disagree, **the contracts win**.
+
+Two other skills exist: `rosetta-skills/solver-setup`, read only when the
+integration you need does not exist, and this one. This one and solver-setup
 change through the procedure in [operations](references/operations.md).
 
 ## The loop
@@ -30,8 +42,9 @@ git switch -c models/<run-id>                       # never commit to main, neve
 python -m generation.manage init --run <run-id> --config config.json
 python -m generation.next_work                      # what is uncovered, and what is not usable
 python -m generation.brief PROBLEM                  # the contract: outputs, objective, fields
-python -m generation.manage attempt --run <run-id> --problem P --solver S --skill solvers/S/skills/N
-#   write the model into the attempt directory, following that integration's skill
+python -m generation.manage attempt --run <run-id> --problem P --solver S \
+    --skill rosetta-skills/model-generator --skill <the integration's skill path from next_work>
+#   write the model into the attempt directory, following the contracts and the solver skill
 python -m generation.manage evaluate --attempt ATTEMPT --model ATTEMPT/model.EXT
 python -m generation.manage retain  --attempt ATTEMPT        # only when it was accepted
 #   commit each batch of accepted models, then take the next pair
@@ -63,10 +76,13 @@ python -m generation.manage retain  --attempt ATTEMPT        # only when it was 
    and never embed an answer, whether computed by running the reference or
    branched on which instance you were given. A missing or self-contradictory
    specification is a reference blocker — record it and move on.
-6. **Write the model** into the attempt directory, following the frozen
-   modelling skill for that integration. It must build the model *from* the
-   instance argument. Fixed mathematical constants are fine; embedding a known
-   answer is the one failure this whole system exists to catch.
+6. **Write the model** into the attempt directory: `solvers/CONTRACT.md` for what
+   it must do, `solvers/<id>/CONTRACT.md` for the shape it takes in that
+   integration (start from its example), and the solver skill for the API. It
+   must build the model *from* the instance argument. Fixed mathematical
+   constants are fine; embedding a known answer is the one failure this whole
+   system exists to catch. The attempt cites both skills and both contracts, so
+   none of them may change while it is open.
 7. **Evaluate through the helper**, which preserves the exact evaluated bytes.
    On a rejection, read `reason` and `detail` and route the failure with the
    table in [the run protocol](references/run-protocol.md). Repair the model and
@@ -126,13 +142,17 @@ differ, and never weaken a profile mid-run to turn a failure into a pass.
   any integration file; certifying an existing one whose `readiness.json` is
   missing or stale is a separate, smaller job. Neither is a reason to rebuild a
   working integration.
-- **A failure taught you about the framework** — an API needs integer
-  coefficients, a constraint has another name, a compiler mangles a shape. That
-  belongs in the integration's modelling skill so the next model benefits, via
-  the propose/check/apply procedure in [operations](references/operations.md):
-  evidence and a regression, never a hunch. Problem-specific insight belongs in
-  that pair's attempt history and nowhere else. Record a proposal you decided
-  against, with your reasoning.
+- **A failure taught you something general.** Put it where the next model will
+  read it, with evidence and a reproducer, never on a hunch:
+
+  | The lesson is about | It goes into |
+  |---|---|
+  | the solver or its API (an API needs integer coefficients, a constraint has another name) | the solver skill's **development copy** `solvers/<id>/skills/<name>/`, via propose/check/apply in [operations](references/operations.md). Never edit `skills/solvers/`: the user releases the fix |
+  | how this integration's runner reads a model (an output container it rejects, a shape it mangles) | that integration's `solvers/<id>/CONTRACT.md`, edited directly with the evidence. The runner's code is the authority, so check the claim against `run.py` |
+  | what every model must do | nothing: `solvers/CONTRACT.md` binds every integration, so report it to the user as a proposal |
+
+  Problem-specific insight belongs in that pair's attempt history and nowhere
+  else. Record a proposal you decided against, with your reasoning.
 - **A pair is not worth attempting again.** Add it to
   `generation/blockers.json` with its evidence, so the queue stops offering it.
 

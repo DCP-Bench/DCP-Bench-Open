@@ -6,15 +6,17 @@ Read this only when the integration you need is missing or unusable.
 
 Read `rosetta-skills/solver-setup/SKILL.md` and follow it yourself. It needs the
 `skills/add-solver` skill, which generates the standalone skill under
-`solvers/<id>/skills/<name>/`; it then adds `metadata.yaml`, `Dockerfile`, `run.py`
-and `readiness_test.py`, and runs the readiness checklist before the integration may be used.
+`solvers/<id>/skills/<name>/`; it then adds `metadata.yaml`, `Dockerfile`, `run.py`,
+`readiness_test.py` and the integration contract `solvers/<id>/CONTRACT.md`, and runs the
+readiness checklist before the integration may be used. An integration without a
+`CONTRACT.md` cannot be used for modelling: `generation.manage attempt` refuses it.
 
 Create the run and record the setup skill **before writing any integration
 file**, so the record freezes the instructions that guided the work rather than
 whatever they became afterwards:
 
 ```sh
-python -m generation.manage setup-attempt --run <run-id> --solver SOLVER --skill rosetta-skills/solver-setup
+python -m generation.manage setup-attempt --run <run-id> --solver SOLVER --skill rosetta-skills/solver-setup --skill skills/add-solver
 ```
 
 Doing it the other way round records the skill after the fact, which

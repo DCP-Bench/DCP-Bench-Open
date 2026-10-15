@@ -40,7 +40,8 @@ attempts and 30 minutes. Never start a nested run when called from model-generat
 Before writing any file, record the attempt:
 
 ```bash
-python -m generation.manage setup-attempt --run RUN --solver ID --skill rosetta-skills/solver-setup
+python -m generation.manage setup-attempt --run RUN --solver ID \
+    --skill rosetta-skills/solver-setup --skill skills/add-solver
 ```
 
 Reuse an existing integration when it really supports the target; never relabel another
@@ -70,10 +71,20 @@ Two Rosetta rules on top:
 
 ## 3. Add the Rosetta infrastructure
 
-Copy the closest existing integration under `solvers/` (same language, or same way of
-receiving the instance) and adapt `metadata.yaml`, `Dockerfile`, `run.py` and
-`readiness_test.py`. The rules for each file, and the choice of who converts the JSON
-instance, are in [integration files](references/integration.md). Check them as you go:
+Read the submission contract `solvers/CONTRACT.md` first: it is what every model must do,
+for any solver, and the runner you build is what lets a model in this solver's own terms
+do it. Then copy the closest existing integration under `solvers/` (same language, or same
+way of receiving the instance) and adapt `metadata.yaml`, `Dockerfile`, `run.py` and
+`readiness_test.py`.
+
+Write the integration contract `solvers/<id>/CONTRACT.md`: how this runner realises the
+submission contract, under the headings of its *Mapping checklist*, with the pilot fixture
+as its example. Every claim in it must be true of your `run.py`. It is what model-generator
+reads to write a model for this integration, next to the standalone skill, so the
+standalone skill itself stays free of it.
+
+The rules for each file, and the choice of who converts the JSON instance, are in
+[integration files](references/integration.md). Check them as you go:
 
 ```bash
 python <this-skill>/scripts/check_integration.py ID --static
