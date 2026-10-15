@@ -1,59 +1,8 @@
 {
   "skill": "docplex",
-  "source_digest": "sha256:e5ec907bde108fbeb3016290a2e245c6e449ab5fb2e6e346336a243a6830d676",
-  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_3b2cad88-7fc)",
-  "verdict": "leaks",
-  "findings": [
-    {
-      "file": "SKILL.md",
-      "line": 71,
-      "quote": "When a harness\nruns the script with the instance file as `sys.argv[1]` and reads one JSON object per line from\nstdout, this is the shape to write.",
-      "category": "runner",
-      "why": "Describes what an external harness does with the script (passes the instance path, reads JSON lines from stdout), which only matters to someone submitting a model to a runner."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 73,
-      "quote": "The output lines are fixed by that\nharness; DOcplex does not define them:",
-      "category": "protocol",
-      "why": "States that the output format is dictated by a harness rather than by the solver or the user, i.e. it teaches a submission protocol."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 96,
-      "quote": "print(json.dumps({\"status\": \"unsatisfiable\"}))   # proven infeasible",
-      "category": "protocol",
-      "why": "Emits a JSON record with a status string 'unsatisfiable' that is not a DOcplex status but a value for some other program to read."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 102,
-      "quote": "print(json.dumps({\"take\": [round(sol[t]) for t in take]}))",
-      "category": "protocol",
-      "why": "A one-line JSON output dictionary keyed by a declared output name, meant for the harness to parse rather than for a reader."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 113,
-      "quote": "The line shape above is what a harness\nneeds.",
-      "category": "runner",
-      "why": "Directly tells the reader to shape output for what a harness requires, which has no meaning outside a benchmark runner."
-    }
-  ],
-  "refuted": [
-    {
-      "file": "SKILL.md",
-      "line": 82,
-      "quote": "with open(sys.argv[1]) as f:                  # the instance path is the only argument",
-      "category": "harness",
-      "refuted_because": "Present at SKILL.md:82, but the code itself only reads a data file path from argv. The rubric lists 'reading a data file in a program the user runs' as not a leak. The comment also reads naturally as describing this script's own interface. The harness framing that surrounds it is already covered by findings 0, 1 and 5."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 254,
-      "quote": "on the instances of the add-solver toy problems:",
-      "category": "benchmark",
-      "refuted_because": "Present at SKILL.md:254, but it only qualifies a timing table, and the rubric lists 'timings measured anywhere' as not a leak. It does not teach a submission protocol or give advice that fits only the benchmark. The 'add-solver' name is a stray repository reference, better caught and reworded by the rosetta-mentions name check than counted as a standalone-review leak."
-    }
-  ]
+  "source_digest": "sha256:1cbf6ded8b12ebc991fef659d493af85dd4ee0e662eec9af1067c643103d08a4",
+  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_9b4ee981-aab, second review after fixes)",
+  "verdict": "standalone",
+  "findings": [],
+  "refuted": []
 }

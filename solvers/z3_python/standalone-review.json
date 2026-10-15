@@ -1,66 +1,8 @@
 {
   "skill": "z3-python",
-  "source_digest": "sha256:0c18de87acc0e686d57c36b8ac01b021f8783626dbdd8ff7693117b8fec5d233",
-  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_3b2cad88-7fc)",
-  "verdict": "leaks",
-  "findings": [
-    {
-      "file": "SKILL.md",
-      "line": 149,
-      "quote": "When a runner calls the model program with a data file, read the file, bind only the keys",
-      "category": "runner",
-      "why": "Frames the program as something an external runner invokes, rather than a program the user runs to solve their problem."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 165,
-      "quote": "print(json.dumps({\"status\": \"unsatisfiable\"}))",
-      "category": "protocol",
-      "why": "A JSON status record on stdout for another program to parse is a submission protocol, not how Z3 reports infeasibility (it returns z3.unsat)."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 167,
-      "quote": "print(json.dumps({\"colour\": values}))  # one JSON object per line, one per solution",
-      "category": "protocol",
-      "why": "JSONL solution records keyed by an output name for a caller to read are the benchmark's output protocol."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 170,
-      "quote": "When several solutions are asked for, print one JSON object per solution. When the caller",
-      "category": "protocol",
-      "why": "Prescribes a one-JSON-record-per-solution stdout format for a caller, which only matters to someone feeding a runner."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 172,
-      "quote": "to stderr and exit non-zero. The status strings above are an example: match whatever the",
-      "category": "protocol",
-      "why": "Status strings and a caller-specified vocabulary are a runner's protocol, unrelated to using Z3."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 188,
-      "quote": "| program fails only on some instances; they carry extra keys such as `name` or `note` |",
-      "category": "benchmark",
-      "why": "Describes a failure mode of the benchmark's instance set (some instances with extra name/note keys), not of Z3."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 189,
-      "quote": "| program prints prose, a runner reads nothing from stdout | the model prints human text, not the caller's format | `print(json.dumps(...))`, one object per line, in the caller's status vocabulary |",
-      "category": "runner",
-      "why": "A symptom only someone whose output is parsed by a runner would see; it teaches the submission format rather than the solver."
-    }
-  ],
-  "refuted": [
-    {
-      "file": "SKILL.md",
-      "line": 160,
-      "quote": "n_nodes, edges = data[\"n_nodes\"], data[\"edges\"]  # extra keys such as name or note are ignored",
-      "category": "benchmark",
-      "refuted_because": "Line 160 is ordinary code for reading a data file in a program the user runs, and the rubric lists that as not a leak. A comment saying unused keys are ignored is generic JSON-handling advice. The 'name or note' wording is a weak hint at the benchmark's instance files, but on its own it is not clearly benchmark-only, so this is refuted under prefer-refuted."
-    }
-  ]
+  "source_digest": "sha256:c99424e5ff3e9b07e6611446fd9f8c39fd88bc5a7d0baa965ae147ac062cd375",
+  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_9b4ee981-aab, second review after fixes)",
+  "verdict": "standalone",
+  "findings": [],
+  "refuted": []
 }

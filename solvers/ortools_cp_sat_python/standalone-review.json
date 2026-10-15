@@ -1,51 +1,8 @@
 {
   "skill": "ortools-cp-sat-python",
-  "source_digest": "sha256:6630f37e303ea1518a51f2073f8d57d6d76fb3579b334b1a75e04e449140d963",
-  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_3b2cad88-7fc)",
-  "verdict": "leaks",
-  "findings": [
-    {
-      "file": "SKILL.md",
-      "line": 203,
-      "quote": "float objective: the runner refuses it, though `maximize(z * 0.5)` solves locally | the local solver accepts float coefficients, but the objective must be integer, so a local run does not show the model is valid",
-      "category": "runner",
-      "why": "It describes what \"the runner\" refuses and contrasts it with a local run, which only matters to someone submitting to a harness; for a standalone user, CP-SAT accepting the float objective locally is simply the behaviour they get."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 163,
-      "quote": "several values for the same declared outputs makes duplicates: record only the outputs",
-      "category": "benchmark",
-      "why": "\"Declared outputs\" is benchmark vocabulary for names a problem spec declares; a standalone user has variables of interest, not declared outputs."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 208,
-      "quote": "| too many solutions in enumeration | auxiliary variables multiply solutions | record and dedupe on declared outputs only |",
-      "category": "benchmark",
-      "why": "It refers to the benchmark's declared outputs rather than the user's own variables of interest."
-    },
-    {
-      "file": "assets/subsets-all-solutions/model.py",
-      "line": 13,
-      "quote": "\"\"\"Called once per solution. Records the values of the declared outputs only.\"\"\"",
-      "category": "benchmark",
-      "why": "Nothing in this standalone script declares outputs; the phrase comes from the benchmark's problem specification."
-    },
-    {
-      "file": "assets/subsets-all-solutions/README.md",
-      "line": 4,
-      "quote": "recording only the declared outputs (the Boolean picks)",
-      "category": "benchmark",
-      "why": "It uses the benchmark's \"declared outputs\" concept, which has no meaning for a standalone user."
-    },
-    {
-      "file": "assets/ties-all-optimal/README.md",
-      "line": 4,
-      "quote": "then enumerate the declared outputs with `enumerate_all_solutions`",
-      "category": "benchmark",
-      "why": "It uses the benchmark's \"declared outputs\" concept instead of the variables the user cares about."
-    }
-  ],
+  "source_digest": "sha256:316c0b9964eea6a4ff7a1b2b77cedc99006f73a3f2b921f5268894282d8ffcab",
+  "reviewer": "fresh agent (Claude Opus 5.5) given only the skill and the rubric; findings checked by a second agent (workflow wf_9b4ee981-aab, second review after fixes)",
+  "verdict": "standalone",
+  "findings": [],
   "refuted": []
 }
