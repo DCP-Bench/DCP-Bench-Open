@@ -1,229 +1,194 @@
 ---
 name: gurobipy
-description: Write instance-agnostic gurobipy models for the DCP-Bench gurobipy_python integration, covering the build(instance) contract, what the runner does with the model, the size limits of the licence bundled with the gurobipy wheel, the general constraints Gurobi 13 offers, the encodings of the constraints this benchmark's references use, and the mistakes that make a submission fail.
+description: Gurobi's Python API (gurobipy) for linear, integer and binary optimisation models, covering install, variables, linear and indicator constraints, minimise or maximise, reading solutions, and enumerating all or all optimal solutions. Use when writing, debugging or explaining gurobipy models, or when the user has chosen Gurobi from Python for an optimisation or feasibility problem.
+license: Apache-2.0
+compatibility: Requires Python 3.10+ and pip install gurobipy (tested with gurobipy 13.0.3 on Python 3.12). The pip wheel runs under a size-limited licence without a key (2000 variables and 2000 constraints; 200 variables with quadratic terms); larger models need a Gurobi licence.
+metadata:
+  domain: constraint-programming
+  solver: gurobi
+  paradigm: mip
 ---
 
-# gurobipy models for `gurobipy_python`
+# Gurobi (Python, `gurobipy`)
 
-Write one Python file that builds a Gurobi model from instance data. The runner
-solves it inside a container; you never solve, print, or read values yourself.
+Gurobi solves linear and mixed-integer models by branch-and-cut. Two ideas to keep: every
+constraint must be linear (or an indicator, a general constraint, or a product linearised by
+hand), and the result is a **status** that must be checked before any value is read.
 
-Image: Python 3.12 with gurobipy 13.0.3 (the Gurobi Optimizer 13.0.3 it ships),
-NumPy 2.4.6 and SciPy 1.18.1. Available imports are `gurobipy`, `numpy`, `scipy`
-and the Python standard library. There is no network and no licence file: the
-model runs under the licence bundled in the wheel, described below.
+## Contents
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Modelling](#modelling)
+- [Solving](#solving)
+- [All solutions](#all-solutions)
+- [Common issues](#common-issues)
+- [Further reading](#further-reading)
+- Runnable examples: `assets/`, one folder per pattern; encodings in [references/encodings.md](references/encodings.md)
 
-## The contract
+## Install
+
+```bash
+pip install gurobipy numpy scipy
+python3 -c "import gurobipy as gp; print(gp.gurobi.version())"   # (13, 0, 3) when tested
+```
+
+The wheel bundles a size-limited licence: no key, no network needed, and a banner
+`Restricted license - for non-production use only - expires 2027-11-29` is printed to stdout
+when the default environment starts, that is at the first `gp.Model(...)`. Setting
+`model.Params.OutputFlag = 0` after the model exists does **not** hide it (verified). To silence
+the banner, create the environment with the flag: `env = gp.Env(params={"OutputFlag": 0})`, then
+`gp.Model("name", env=env)` (verified: no banner, same status). Above the limits it fails with
+`Model too large for size-limited license` (see [Common issues](#common-issues)).
+Details: [pip package](https://pypi.org/project/gurobipy/) and
+[size-limited licence](https://support.gurobi.com/hc/en-us/articles/360051597492).
+
+## Quick start
 
 ```python
 import gurobipy as gp
 from gurobipy import GRB
 
+model = gp.Model("quick")
+x = model.addVar(lb=0, ub=10, vtype=GRB.INTEGER, name="x")
+y = model.addVar(lb=0, ub=10, vtype=GRB.INTEGER, name="y")
+model.addConstr(x + y >= 7, name="demand")
+model.setObjective(3 * x + 2 * y, GRB.MINIMIZE)
+model.optimize()
 
-def build(instance):
-    n = instance["n"]
-    model = gp.Model()
-    x = model.addVar(lb=0, ub=n, vtype=GRB.INTEGER, name="x")
-    y = model.addVar(lb=0, ub=n, vtype=GRB.INTEGER, name="y")
-    model.addConstr(x + y >= n)
-    model.setObjective(x + y, GRB.MINIMIZE)
-    return model, {"x": x, "y": y}
+if model.Status == GRB.OPTIMAL:
+    print("Objective:", model.ObjVal)
+    print("x =", round(x.X), "y =", round(y.X))
+else:
+    print("Status:", model.Status)
 ```
 
-- `build(instance)` takes the instance as a plain dict parsed from JSON and
-  returns `(model, outputs)`, where `model` is a `gurobipy.Model`.
-- `outputs` maps **exactly** the problem's declared output names to variables,
-  linear expressions, integers, or nested lists of these. Extra or missing keys
-  are rejected, and shapes must match the reference exactly: a 2-D output is a
-  list of lists. A `tupledict` from `addVars` is a dict keyed by tuples, so turn
-  it into lists yourself, `[[x[i, j] for j in range(m)] for i in range(n)]`. An
-  `MVar` is accepted and read element by element; an `MLinExpr` is not, so build
-  expression outputs as lists of `LinExpr`.
-- **The model's objective says whether this is an optimization.** A model that
-  never calls `setObjective` (or sets a constant) is a satisfaction problem. The
-  direction is the `sense` argument, `GRB.MINIMIZE` or `GRB.MAXIMIZE`. One
-  objective only: multi-objective models are reported `unsupported`.
-- Every declared output must be **integer valued**. Declare output variables
-  `GRB.INTEGER` or `GRB.BINARY`; a continuous output is accepted only if it is
-  within 1e-6 of an integer, and enumeration refuses it outright.
-- A Boolean output of the reference is a `GRB.BINARY` variable; the runner
-  returns 0/1, which the evaluator accepts for a Boolean.
-- Auxiliary variables need not appear in `outputs`, and may be continuous.
+Expected output: `Objective: 14.0`, then `x = 0 y = 7`.
 
-**Take every quantity from `instance`.** A model that hardcodes the numbers of
-the example is the one failure this benchmark exists to catch, and it will be
-rejected the moment a second instance is checked.
+## Modelling
 
-Do not call `model.optimize()`, read `.X`, `print()`, or read files. The runner
-owns solving, optimality, enumeration and serialisation.
+Full reference: [Python API](https://docs.gurobi.com/projects/optimizer/en/current/reference/python.html)
+([Model](https://docs.gurobi.com/projects/optimizer/en/current/reference/python/model.html),
+[global functions](https://docs.gurobi.com/projects/optimizer/en/current/reference/python/func_global.html),
+[general constraint helpers](https://docs.gurobi.com/projects/optimizer/en/current/reference/python/func_utility.html)).
 
-## What the runner does with it
+| Need | API |
+|---|---|
+| one variable | [`addVar`](https://docs.gurobi.com/projects/optimizer/en/current/reference/python/model.html): `model.addVar(lb=0, ub=u, vtype=GRB.INTEGER, name="x")` |
+| many variables | `model.addVars(n, m, ...)`, indexed `x[i, j]`; `lb` defaults to **0** |
+| variables with string keys | `model.addVars(["a", "b", "c"], vtype=GRB.BINARY)`, indexed `x["a"]`; a list of strings is used as the keys directly |
+| variables with mixed keys | `model.addVars([("a", 1), ("b", 2)], ...)` or `model.addVars(["r", "s"], [1, 2, 3], ...)` (tuple keys `x["r", 2]`); the keys are the tuples you pass |
+| sum over one index | `x.sum(i, "*")` or `x.sum("*", j)` on a tupledict: `*` is a wildcard over that position (verified on string and integer keys); `x.sum()` sums all |
+| matrix of variables | `model.addMVar((n, m), vtype=GRB.BINARY)`; `sum` and `@` need SciPy |
+| a sum | [`gp.quicksum(...)`](https://docs.gurobi.com/projects/optimizer/en/current/reference/python/func_global.html), faster than `sum()` on many terms |
+| a constraint | `model.addConstr(expr <= rhs, name=...)`; also `>=`, `==`; `model.addConstrs(... for ...)` |
+| conditional constraint | `model.addConstr((b == 1) >> (x + y <= 3))`, `b` binary: an [indicator](https://docs.gurobi.com/projects/optimizer/en/current/reference/python/model.html) |
+| `y = abs(x)` | `model.addConstr(y == gp.abs_(v))`, where `v` is a **variable** |
+| `y = max(...)`, `min(...)` | `gp.max_([a, b], constant=0)`, `gp.min_(a, b)`; variables only |
+| `z = a and b`, `z = a or b` | `model.addConstr(z == gp.and_(a, b))`, `gp.or_`; binaries only |
+| objective | `model.setObjective(expr, GRB.MINIMIZE)` or `GRB.MAXIMIZE`; none means satisfaction |
+| negative or free domain | `lb=-5` explicitly, or `lb=-GRB.INFINITY` |
+| read a result | `x.X` (value), `model.ObjVal`, `model.Status` |
 
-- It sets `OutputFlag=0`, `Threads=1`, `MIPGap=0` and `TimeLimit` to the
-  remaining budget, over anything you set. `MIPGap=0` matters: Gurobi's default
-  gap of 1e-4 reports OPTIMAL for a solution that is not optimal, which the
-  evaluator would reject as `suboptimal_solution`. Other parameters you set
-  (`MIPFocus`, `Presolve`, `Cuts`, ...) stay as you set them.
-- It rounds every integer variable to the nearest integer (Gurobi returns them
-  within `IntFeasTol` = 1e-5) and evaluates a declared expression over the
-  rounded values.
-- An optimum it did not prove within the time limit is a `timeout`, never a
-  result. `INF_OR_UNBD` is re-solved without dual reductions to tell the two
-  apart.
-- For a second solution it pins the objective to the proven optimum and adds a
-  no-good over the integer variables your outputs are built from: one linear
-  constraint over binaries, and for each general integer two binaries with
-  indicator constraints. No bound is needed for that.
+Encodings for `!=`, all-different, element, disjunctions, products and `//`, `%`:
+[references/encodings.md](references/encodings.md).
 
-## The licence caps the model size
+What raises, in this exact form (gurobipy 13.0.3):
 
-The licence in the gurobipy wheel is size-limited. Measured in this image:
+| Code | Error |
+|---|---|
+| `model.addConstr(x != y)` | `GurobiError: Inequality constraints not supported` |
+| `x // 2`, `x % 2` | `TypeError: unsupported operand type(s) for //` |
+| `if x == 1:`, `bool(x <= y)` | `GurobiError: Constraint has no bool value`; branch on data, not decisions |
+| `gp.abs_(a - b)` | `TypeError: ... is not a variable`; create an auxiliary variable first |
+| `x` from model A used in model B | error; each variable belongs to one `Model` |
 
-| What the model contains | Limit |
-| --- | --- |
-| linear and general constraints only | 2000 variables, and 2000 constraints counting linear and general (`abs_`, `max_`, indicator, ...) together |
-| any quadratic or nonlinear term (`x * y`, `addGenConstrNL`, `addGenConstrPow`) | 200 variables |
+`x * y` over two variables builds a `QuadExpr`, a quadratic model. Gurobi accepts it, but
+it is nonconvex and slower, and the size-limited licence caps it. Linearise when one factor
+is binary or has a small range.
 
-A model over the limit fails at solve time and the runner reports
-`unsupported` naming the licence, which the evaluator records as
-`unsupported_capability`. That is a property of the instance size, not of your
-model's correctness, but it fails the pair all the same, because every instance
-is checked. So:
+## Solving
 
-- Count before you write: `n * n * n` one-hot binaries for an `n`-by-`n` grid of
-  values `1..n` is 729 at `n = 9` and 4096 at `n = 16`. Check the largest
-  instance in `dataset/<problem>/<problem>.json`, not only the example.
-- **Never multiply two variables.** It drops the variable limit to 200. A
-  product of a binary and a bounded integer has a linear encoding (below);
-  use it.
-- Leave headroom for enumeration: a second solution adds 2 constraints for the
-  pinned objective, 1 for the no-good, and for each general-integer output
-  variable up to 2 binaries and 2 indicator constraints. Declaring an output as
-  the expression `gp.quicksum(v * b[i][v] for v in values)` over one-hot binaries
-  makes the no-good a single linear constraint instead.
-- If the smallest honest formulation of the largest instance does not fit,
-  the pair cannot pass on this licence; record it as a blocker rather than
-  shrinking the model into a wrong one.
+Status codes: [status reference](https://docs.gurobi.com/projects/optimizer/en/current/reference/numericcodes/statuscodes.html).
+Parameters: [parameter reference](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html).
 
-## The API you need
+| `model.Status` | Value | Meaning |
+|---|---|---|
+| `GRB.OPTIMAL` | 2 | optimal (within `MIPGap`); `ObjVal` and `X` are valid |
+| `GRB.INFEASIBLE` | 3 | proven to have no solution; use `computeIIS()` to see why |
+| `GRB.INF_OR_UNBD` | 4 | infeasible or unbounded; set `DualReductions = 0` and re-solve to tell |
+| `GRB.UNBOUNDED` | 5 | objective unbounded; says nothing about feasibility |
+| `GRB.TIME_LIMIT` | 9 | stopped at `TimeLimit`; a solution exists only if `model.SolCount > 0` |
+| `GRB.SUBOPTIMAL` | 13 | tolerances not met; a suboptimal solution is available |
 
-| You want | You write |
-| --- | --- |
-| a variable | `model.addVar(lb=0, ub=u, vtype=GRB.INTEGER, name="x")`; `lb` defaults to 0, not minus infinity |
-| many variables | `x = model.addVars(n, m, lb=0, ub=u, vtype=GRB.INTEGER, name="x")`, indexed `x[i, j]` |
-| a matrix variable | `v = model.addMVar((n, m), vtype=GRB.BINARY)`, `v.sum(axis=1)`, `A @ v` |
-| a sum | `gp.quicksum(...)`, or `x.sum(i, "*")` on a `tupledict` |
-| a constraint | `model.addConstr(expr <= other)`; also `>=`, `==` |
-| the objective | `model.setObjective(expr, GRB.MAXIMIZE)` |
-| `y = |x|` | `model.addConstr(y == gp.abs_(x))`, where `x` is a **variable**: `gp.abs_(a - b)` raises `TypeError` |
-| `y = max(...)` / `min(...)` | `model.addConstr(y == gp.max_([a, b, c], constant=0))`, `gp.min_(a, b)`; variables only |
-| `z = a and b`, `z = a or b` | `model.addConstr(z == gp.and_(a, b))`, `gp.or_(a, b)`; binaries only |
-| `c == 1 → constraint` | `model.addConstr((c == 1) >> (x + y <= 3))`; `c` binary, the right side linear |
+Parameters you will set: `TimeLimit` (seconds), `Threads`, `Seed`, `MIPGap` (relative gap),
+`OutputFlag` (0 silences the log, but for the licence banner create the `Env` with it; see [Install](#install)), `MIPFocus`.
 
-Negative domains need an explicit `lb`: `model.addVar(lb=-5, ub=5, vtype=GRB.INTEGER)`.
-`lb=-GRB.INFINITY` makes a free variable.
+**The default `MIPGap` is 1e-4, not 0.** Gurobi reports `OPTIMAL` when the gap is below it, so a
+solution can be reported optimal and still be worse than the true optimum. Set `MIPGap = 0`
+when the exact optimum matters. Observed: a 40-item strongly correlated knapsack (weights
+`random.Random(3).randint(1, 1000)`, values `w + 100`, capacity `sum(w) // 2`) reports
+`OPTIMAL 12950` by default, and `12951` with `MIPGap = 0` (bound 12951).
 
-What raises, measured in this image:
+Errors: Python exceptions (`GurobiError`, `TypeError`) show in the traceback on stderr. A
+solver problem is a status, not an exception: always test `model.Status` before reading `.X`.
+Log lines go to stdout unless `OutputFlag = 0`.
 
-- `model.addConstr(x != y)` raises `GurobiError: Inequality constraints not supported`.
-- `x // 2` and `x % 2` raise `TypeError`; `x / 2` is fine and means `0.5 * x`.
-- `if x == 1:` or `bool(x <= y)` raises `GurobiError: Constraint has no bool
-  value`. Python control flow cannot branch on a decision; branch on data only.
-- `gp.abs_`, `gp.max_` and `gp.min_` take variables, not expressions: introduce
-  an auxiliary variable equal to the expression first.
-- A variable created in one `gp.Model` cannot be used in another.
+Read integer variables with `round(x.X)`: values come back within `IntFeasTol` (1e-5) of an integer.
 
-## Encoding the constraints the references use
+Examples: [satisfy](assets/satisfy/README.md), [maximise](assets/maximise/README.md), [minimise](assets/minimise/README.md),
+[infeasible](assets/infeasible/README.md), [scheduling](assets/scheduling/README.md).
 
-Indicator constraints need no big-M, so reach for them before a big-M. Where you
-do use `M`, derive it from the instance bounds and keep it as small as the data
-allows; a loose big-M slows the search and, with `IntFeasTol` at 1e-5, lets a
-"zero" binary carry `M * 1e-5` through the constraint.
+## All solutions
 
-```python
-# all-different over values 1..m: an assignment matrix, and x reads it back
-pick = model.addVars(n, range(1, m + 1), vtype=GRB.BINARY)
-for i in range(n):
-    model.addConstr(pick.sum(i, "*") == 1)
-    model.addConstr(x[i] == gp.quicksum(v * pick[i, v] for v in range(1, m + 1)))
-for v in range(1, m + 1):
-    model.addConstr(pick.sum("*", v) <= 1)
+Use the solution pool. With `PoolSearchMode = 2` Gurobi keeps up to `PoolSolutions`
+solutions; `PoolSolutions` above the number of feasible solutions makes the list exhaustive.
+Read each one with `SolutionNumber` (set `model.Params.SolutionNumber = k`) and `Xn`
+(the value in that solution; `X` is the current one).
 
-# a != b: one of the two strict inequalities holds
-before = model.addVar(vtype=GRB.BINARY)
-model.addConstr((before == 1) >> (a <= b - 1))
-model.addConstr((before == 0) >> (a >= b + 1))
+| You want | Settings | Example |
+|---|---|---|
+| every feasible solution | `setObjective(0)` or no objective, `PoolSearchMode = 2`, `PoolSolutions = 2_000_000_000` | [all-solutions](assets/all-solutions/README.md) |
+| every optimal solution | keep the objective, `MIPGap = 0`, `PoolSearchMode = 2`, `PoolGap = 0` | [all-optimal](assets/all-optimal/README.md) |
 
-# a disjunction of linear constraints: one indicator per branch, at least one on
-branch = model.addVars(len(parts), vtype=GRB.BINARY)
-for k, (left, right) in enumerate(parts):           # each branch is left <= right
-    model.addConstr((branch[k] == 1) >> (left <= right))
-model.addConstr(branch.sum() >= 1)
+- Count with `model.SolCount`. The pool is exhaustive only when `SolCount` is **strictly below**
+  `PoolSolutions` (and `Status` is `OPTIMAL`). If `SolCount == PoolSolutions`, the list may have
+  been cut short: raise `PoolSolutions` and re-run. Verified: with `PoolSolutions = 2` and 3
+  feasible solutions, the run still reports `OPTIMAL` and returns only 2. A count equal to the
+  cap is not proof of completeness, because a 3-solution model with `PoolSolutions = 3` also
+  returns 3.
+- Auxiliary variables can make two pool entries differ only in values you do not care about:
+  collect the outputs into a `set` of tuples before counting.
+- `PoolGap = 0` with a kept objective returns exactly the optimal solutions; verified on a
+  4-cycle (two minimum covers) and on "at most 2 of 4 binaries" maximised (6 solutions).
 
-# d = |a - b|: the argument must be a variable
-diff = model.addVar(lb=-u, ub=u, vtype=GRB.INTEGER)
-model.addConstr(diff == a - b)
-model.addConstr(d == gp.abs_(diff))
+Pool reference: [Solution Pool guide](https://docs.gurobi.com/projects/optimizer/en/13.0/features/solutionpool.html)
+and [parameters](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html)
+(`PoolSearchMode`, `PoolSolutions`, `PoolGap`).
 
-# reified equality: c == 1 exactly when a == b; when c == 0, a < b or a > b
-lt = model.addVar(vtype=GRB.BINARY)
-gt = model.addVar(vtype=GRB.BINARY)
-model.addConstr(lt + gt == 1 - c)
-model.addConstr((c == 1) >> (a == b))
-model.addConstr((lt == 1) >> (a <= b - 1))
-model.addConstr((gt == 1) >> (a >= b + 1))
+## Common issues
 
-# element: value == table[index], index a decision variable in 0..len(table)-1
-choose = model.addVars(len(table), vtype=GRB.BINARY)
-model.addConstr(choose.sum() == 1)
-model.addConstr(index == gp.quicksum(j * choose[j] for j in range(len(table))))
-model.addConstr(value == gp.quicksum(table[j] * choose[j] for j in range(len(table))))
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `Inequality constraints not supported` | `addConstr(a != b)` | use the `!=` encoding in [encodings.md](references/encodings.md) |
+| `Constraint has no bool value` | Python `if` or `bool()` on an expression | Branch on data; express the choice with an indicator |
+| `is not a variable` from `abs_`, `max_` | argument is an expression | introduce a variable equal to it, then apply the helper |
+| `Model too large for size-limited license` | pip licence limit exceeded | reduce variables or constraints (count them first), or use a full licence |
+| `No module named 'scipy'` | `MVar.sum` or `@` used without SciPy | `pip install scipy` |
+| `OPTIMAL` but a better solution exists | default `MIPGap` 1e-4 | `model.Params.MIPGap = 0` |
+| `INFEASIBLE` on a model you expect feasible | a default `lb=0` hides negative values, or a wrong bound | set `lb` explicitly; `computeIIS()` and `model.write("m.ilp")` to find the conflict |
+| `TIME_LIMIT` and no values | nothing found in time | check `SolCount` before reading; raise `TimeLimit`, tighten the formulation |
+| solution cut off by a big-M constraint | M too small for the bounds | derive M from variable bounds; prefer indicators ([encodings](references/encodings.md)) |
+| enumeration returns duplicates or too few | auxiliary variables; time limit hit | collect output tuples in a `set`; check `Status` is `OPTIMAL` |
+| enumeration returns fewer solutions than exist, `Status` still `OPTIMAL` | pool truncated at `PoolSolutions` | `SolCount == PoolSolutions` means possibly cut short: raise `PoolSolutions` (e.g. 2_000_000_000) and re-run |
+| licence banner still printed after `model.Params.OutputFlag = 0` | the flag was set after the environment started | `env = gp.Env(params={"OutputFlag": 0})` and `gp.Model(..., env=env)` |
+| `KeyError` on `x["a"]` or `x[i, j]` | keys are not the ones you think: `addVars(n)` gives `0..n-1`, string lists give the strings, tuples stay tuples | print `list(x.keys())[:5]` and index with exactly those keys |
+| `2.9999999` instead of `3` | integrality tolerance | `round(x.X)` |
+| `GurobiError` about a variable from another model | variable reused across `Model`s | create variables in the model that uses them |
 
-# counting: how many of the xs equal v, through the same assignment binaries
-model.addConstr(count == pick.sum("*", v))
+## Further reading
 
-# product of a binary b and an integer a in lo..hi: p == b * a, linearly
-model.addConstr(p <= hi * b)
-model.addConstr(p >= lo * b)
-model.addConstr(p <= a - lo * (1 - b))
-model.addConstr(p >= a - hi * (1 - b))
-
-# q = a // k and r = a % k for a constant k > 0 and a in 0..hi
-q = model.addVar(lb=0, ub=hi // k, vtype=GRB.INTEGER)
-r = model.addVar(lb=0, ub=k - 1, vtype=GRB.INTEGER)
-model.addConstr(a == k * q + r)
-```
-
-Problems whose references are already linear — assignment, covering, knapsack,
-blending, facility location, scheduling with fixed charges — need none of this
-and translate directly.
-
-## Check your own model before submitting
-
-```sh
-python -m generation.brief PROBLEM
-python -m evaluation.check MODEL.py --problem PROBLEM --solver gurobipy_python --instance-count 99
-```
-
-`--instance-count 99` checks every instance the problem has, which is what
-catches a model that fitted the example.
-
-Read `reason` and `detail` on failure:
-
-- `invalid_solution`: the reference rejects a solution your model allows. With
-  a big-M encoding, suspect an `M` too small to be inactive when its indicator
-  is off.
-- `suboptimal_solution`: your objective, or its direction, is wrong.
-- `invalid_output`: the declared outputs have the wrong keys, shapes, or types;
-  a `tupledict` returned as an output is the usual cause.
-- `unsupported_capability` naming the size-limited licence: the instance is
-  too large under the limits above. Reformulate smaller if an honest smaller
-  formulation exists; otherwise block the pair.
-- `execution_timeout` on an optimization: Gurobi never proved the optimum,
-  which a tighter formulation, a smaller `M`, or symmetry you remove from the
-  formulation (never from the reference) may fix.
-- `execution_error`: read `stderr` in the instance record for the traceback;
-  the API mistakes listed above are the usual cause.
-
-Never change the reference, the dataset, or the evaluator to make a submission
-pass.
+- Python API reference: https://docs.gurobi.com/projects/optimizer/en/current/reference/python.html
+- Solution pool: https://docs.gurobi.com/projects/optimizer/en/13.0/features/solutionpool.html
+- Status codes and parameters: https://docs.gurobi.com/projects/optimizer/en/current/reference/numericcodes/statuscodes.html, https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html
+- Gurobi examples (Python): https://docs.gurobi.com/projects/examples/en/current/
+- Size-limited licence: https://support.gurobi.com/hc/en-us/articles/360051597492

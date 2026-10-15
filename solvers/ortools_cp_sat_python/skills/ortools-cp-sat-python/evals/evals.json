@@ -1,0 +1,131 @@
+{
+  "skill_name": "ortools-cp-sat-python",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a Python CP-SAT model that picks 2 of 4 items with values 3, 3, 3 and 1 to maximise total value, and lists every optimal pick. Use OR-Tools from Python.",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "All optimal solutions enumerated after clearing the objective",
+      "files": [],
+      "assertions": [
+        "Solves for the optimum first and reads objective_value as an integer",
+        "Posts the objective as a constraint and calls clear_objective before enumerating",
+        "Uses enumerate_all_solutions with a solution callback over the Boolean picks",
+        "Reports three optimal solutions"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use CP-SAT in Python to find the fewest coins from {1, 5, 6, 9} that make 23, and check whether the solver proved the optimum.",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "Minimum of 3 coins with status OPTIMAL",
+      "files": [],
+      "assertions": [
+        "Models the counts as integer variables bounded by the amount",
+        "Minimises the sum of counts",
+        "Checks the status is OPTIMAL before reading the objective"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write a CP-SAT model in Python that enumerates all 3-element subsets of 1..6 summing to 10.",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "Three subsets: [1, 3, 6], [1, 4, 5], [2, 3, 5]",
+      "files": [],
+      "assertions": [
+        "Uses enumerate_all_solutions with a CpSolverSolutionCallback",
+        "Records only the Boolean picks, not auxiliary variables"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "My CP-SAT model reports INFEASIBLE for 4 pigeons in 3 holes. Is that a bug in the solver?",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "Explain that INFEASIBLE is a proof, not an error",
+      "files": [],
+      "assertions": [
+        "States that INFEASIBLE means proven no solution exists",
+        "Does not treat it as a solver failure"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Solve a small job scheduling problem with CP-SAT in Python: 5 tasks sharing 2 units of a resource, with precedences, minimising the makespan.",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "Interval variables with add_cumulative and a minimised makespan",
+      "files": [],
+      "assertions": [
+        "Uses new_interval_var and add_cumulative",
+        "Defines the makespan and minimises it"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Use OR-Tools CP-SAT from Python to schedule 3 jobs on 3 machines, where each job visits its machines in a fixed order and each machine runs one operation at a time. Minimise the makespan.",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "Makespan 11 with status OPTIMAL",
+      "files": [],
+      "assertions": [
+        "Creates one interval variable per operation and one add_no_overlap per machine",
+        "Adds job-order precedences between consecutive operations of a job",
+        "Minimises a makespan defined with add_max_equality over the last operations",
+        "Checks the status is OPTIMAL before reading the makespan"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Colour a graph with OR-Tools CP-SAT in Python so adjacent nodes get different colours, using as few colours as possible. Edges: 0-1, 1-2, 2-3, 3-0, 0-2.",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "3 colours, status OPTIMAL",
+      "files": [],
+      "assertions": [
+        "Adds an inequality constraint for each edge",
+        "Minimises the largest colour index with add_max_equality rather than a count of colours",
+        "Reports 3 distinct colours"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "My CP-SAT model maximises 0.5 times a variable z and reports the optimum. My supervisor's checker rejects it because the objective is a float. How do I fix it with CP-SAT?",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "Scale the objective to integer coefficients",
+      "files": [],
+      "assertions": [
+        "Says that the objective must have integer coefficients",
+        "Explains that a local solve succeeding does not prove the model is accepted",
+        "Rewrites the objective with integer coefficients and keeps the same optimum"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Enumerate all solutions with OR-Tools CP-SAT in Python for three Booleans where exactly five must be true. What does an empty result mean?",
+      "expected_skill": "ortools-cp-sat-python",
+      "expected_output": "No solutions, reported by status INFEASIBLE",
+      "files": [],
+      "assertions": [
+        "Explains the callback is never called when there are no solutions",
+        "Reads the status INFEASIBLE rather than treating an empty list as an error"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Write a Gurobi model in Python for the same knapsack problem.",
+      "expected_skill": null,
+      "expected_output": "The skill is not used",
+      "files": [],
+      "assertions": [
+        "ortools-cp-sat-python is not loaded"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Write a MiniZinc model for n-queens.",
+      "expected_skill": null,
+      "expected_output": "The skill is not used",
+      "files": [],
+      "assertions": [
+        "ortools-cp-sat-python is not loaded"
+      ]
+    }
+  ]
+}

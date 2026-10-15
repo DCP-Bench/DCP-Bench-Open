@@ -1,8 +1,7 @@
-# The `hermax.model` surface, exactly
+# The `hermax.model` surface
 
-Signatures taken from hermax 1.2.5 as installed in the integration image. The
-image installs nothing of this repository's own beside `run.py`, so this is the
-whole modelling vocabulary available to a submission.
+Signatures from hermax 1.2.5 as installed by `pip install hermax`. Full reference:
+[API](https://hermax.readthedocs.io/en/latest/api.html).
 
 ## Model
 
@@ -34,8 +33,8 @@ class Model:
     def scale(self, x, factor, name=None) -> IntVar      # factor must be > 0
     def floor_div(self, x, divisor, name=None) -> IntVar
 
-    # global
-    def cumulative(self, starts, durations, demands, capacity, *, backend="auto")
+    # global: adds its own constraint, do not wrap in `m &=`
+    def cumulative(self, starts, durations, demands, capacity, *, backend="auto") -> None
 
     # objective
     obj                       # obj[weight] += literal, or obj += expression
@@ -48,6 +47,10 @@ class Model:
 ```
 
 Constraints are posted with `model &= constraint`.
+
+`cumulative` backends: `"time"` loops over every time tick (size grows with the horizon),
+`"task"` adds pairwise indicators (size grows with the square of the task count), and
+`"auto"` picks `"task"` when `N*N < horizon`, otherwise `"time"`.
 
 ## Containers
 
@@ -62,9 +65,16 @@ IntVar:      lb  ub  in_range(lo, hi)  forbid_value(v)  forbid_interval(lo, hi)
 EnumVar:     choices  is_in(...)  is_in_or_none(...)
 ```
 
-`IntVar` supports `+ - *` with integers and other variables, and the six
-comparisons. A literal is negated with `~lit`, and literals combine with
-`|` and `&`.
+`IntVar` supports `+ - *` with integers and other variables, and the six comparisons.
+Linear constraints may have sums on both sides: `m &= (sum(a[i]) == sum(b[i]))`.
+`all_different`, `increasing` and the other container methods take variables, not expressions:
+give each expression its own `IntVar` first.
+A literal is negated with `~lit`; literals combine with `|` and `&`. `x != v` on an
+`IntVar` is a `Literal`. `x // k` is a `DivExpr`, not an `IntVar`; use `floor_div` when an
+`IntVar` is needed.
+
+A sum of variables is a `PBExpr`; a single `c * literal` is a `Term`. `m &= (pbexpr <= k)`
+posts a pseudo-Boolean constraint.
 
 ## SolveResult
 
@@ -74,25 +84,10 @@ result.status      # "sat" | "optimum" | "unsat" | "interrupted"
 result.cost        # int, or None when the model declares no soft clauses
 result.ok          # True for sat, optimum AND interrupted_sat
 result.backend     # which solver actually ran
-result[var]        # value; a container yields nested lists
-                   # a PBExpr (any sum) raises TypeError here; the runner
-                   # evaluates a declared PBExpr output itself
+result[var]        # value; r[vector] is a list, r[matrix] a list of row lists (same shape)
+                   # a PBExpr or Term raises TypeError here: compute the sum in Python
+                   # from the decoded variables
 ```
 
-**`result.ok` is broader than "this is an answer."** It includes
-`interrupted_sat`, where a solution exists but was never proven best. The
-runner treats that as a timeout.
-
-## Costs to keep in mind
-
-- **Integer variables are encoded**, so a wide domain is not free the way it is
-  in a CP or pseudo-Boolean solver. Bound them by what the instance can reach.
-- **A pseudo-Boolean equality is the expensive shape.** `sum(c[j] * x[j]) == t`
-  over a wide `t` dominated the run time of every model where it appeared.
-  Measured: 43 s to build, against 0.21 s for the same problem expressed with
-  soft clauses.
-- `m.scale` rejects a non-positive factor, so a sign flip has to be written as
-  a complement against a known upper bound.
-- Solving with `time_limit` selects a portfolio backend, which is slightly
-  slower than the default on easy models (3.15 s against 1.81 s on the
-  four-by-four assignment problem) and is what makes the budget enforceable.
+`result.ok` is broader than "proven": it includes `interrupted_sat`, where a solution
+exists but was not proven best. Test `result.status == "optimum"` for an optimal answer.
