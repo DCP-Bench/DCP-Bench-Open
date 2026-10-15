@@ -1,0 +1,2 @@
+- Paramita: the 1997/98 ACC schedule is satisfiable with one-hot home[d,i,j] plus bye[d,i] and PB sums for every window and count constraint.
+- For DCP config outputs the evaluator accepted 0-based team indices with a bye marked by the team's own index. 1-based indices (with 0 or with self for a bye) and -1 for a bye were rejected with "Declared outputs cannot extend to a reference solution".

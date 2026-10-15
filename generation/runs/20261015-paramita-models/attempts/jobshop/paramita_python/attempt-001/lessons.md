@@ -1,0 +1,2 @@
+- Start times as binary bits (value = sum 2^k bit_k) with If(sel, end_a <= start_b) / If(~sel, ...) per machine pair solved all five jobshop instances, including the 6x6 and 10x5 ones.
+- The brief lists jobs_data as unbindable (ragged rows), yet the evaluator bound it and the ragged instances were checked. Read the job list as Python data in build().

@@ -1,0 +1,2 @@
+- Window constraints work directly as PB sums over per-position integer expressions (`needs[p][o]`), no auxiliaries; the 200-car instances still solve to the solution limit in under 2 minutes each.
+- Per-position "requires option o" sums are plain integer expressions; skip options that no car type requires, since a sum of zero ints is not a PB expression.

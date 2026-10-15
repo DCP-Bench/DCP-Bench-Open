@@ -1,0 +1,2 @@
+- Knight's tour one-hot over (move, square) with n^4 Bools: 10x10 timed out at 180 s with forward links only.
+- Adding the backward link (square at move k+1 reached from a neighbour at move k) cut the 8x8 time from 42 s to 2 s and let 10x10 finish in 15 s.

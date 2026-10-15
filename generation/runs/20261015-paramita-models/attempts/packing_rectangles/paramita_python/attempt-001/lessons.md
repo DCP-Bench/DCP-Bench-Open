@@ -1,0 +1,2 @@
+- A flat sum over ~1300 Bools in the objective crashed the runner's expression walk (RecursionError in bool_names); summing each row first and then the rows fixed it.
+- Area as a product of two unary integers: one cell Bool per (a, b) pair, lower-bounded by If(gx[a] & gy[b], cell), with unit weights, gives the exact area.

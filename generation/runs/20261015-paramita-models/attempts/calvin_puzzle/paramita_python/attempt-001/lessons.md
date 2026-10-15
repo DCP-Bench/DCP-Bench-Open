@@ -1,0 +1,2 @@
+- Paramita `Or` takes one sequence (`Or(list)`) or two operands; `Or(*terms)` with three or more terms raises a TypeError in the build.
+- A one-hot grid (cell, number) with exactly-one per cell and per number, plus a disjunction over moves per cell and number, is enough for the Calvin puzzle; n=6 evaluated in under 1 s.

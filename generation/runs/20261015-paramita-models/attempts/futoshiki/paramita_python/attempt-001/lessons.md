@@ -1,0 +1,2 @@
+- futoshiki: one-hot digits per cell with row/column exactly-one constraints; each "less than" sign is a PB constraint over the integer values, g1 + 1 <= g2.
+- Instance lt entries are 1-based (row, col, row, col), with the first cell less than the second. Accepted on all 5 instances.

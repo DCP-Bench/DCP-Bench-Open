@@ -1,0 +1,2 @@
+- A pipe as a level chain: one-hot Bool per (colour, cell, distance), each cell at distance d needs a same-colour neighbour at d-1. Strictly decreasing levels rule out loops without global connectivity constraints.
+- Degree-based pipe constraints (endpoint 1, inner cell 2) with If(col, sum == k) read clearly and stay small for 5x5.

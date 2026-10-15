@@ -1,0 +1,2 @@
+- Coverage per region: `Iff(c, Or([...]))` over the sites that reach it. A region no site reaches is pinned with `~c`, so `Or` never sees an empty list.
+- A single reaching site needs no `Or`; `Iff(c, site)` is enough.

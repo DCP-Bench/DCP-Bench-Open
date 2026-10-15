@@ -1,0 +1,2 @@
+- In Paramita integer sums, a `0 * Bool` term is best left out of the sum; the first run with it gave a wrong accept/reject pattern on a small instance (fixed by `range(1, top + 1)`). Verify with the quick check on the smallest instance.
+- autoref: entries must stay in 0..n. An entry above n is never counted by any constraint, and the reference rejects series such as (4,0,0,0,0) for n=3, m=0 ("Declared outputs cannot extend to a reference solution").

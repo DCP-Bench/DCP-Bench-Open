@@ -1,0 +1,5 @@
+- visits each city exactly once (leave each city once) -> sum(succ[i][j] for j) == 1 per city i
+- visits each city exactly once (enter each city once) -> sum(succ[i][j] for i) == 1 per city j
+- returns to the origin city, one closed route (no separate loops) -> unary order position ge[i][k], origin fixed at 0, clauses succ[i][j] & ge[i][k] -> ge[j][k+1] for j != origin
+- distance = Euclidean distance rounded to an integer -> integer matrix from locations
+- objective: minimise travel distance -> sum of reduced arc costs (row minimum then column minimum subtracted) times succ, plus the subtracted constant (every tour pays it)

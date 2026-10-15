@@ -1,0 +1,2 @@
+- A coin flip as `If(m, Iff(next, ~cur)) & If(~m, Iff(next, cur))` passed the quick check on the first try; no XOR needed.
+- Initial Bool values can be fixed per field of the instance with `steps[0][i] if init[i] == 1 else ~steps[0][i]`.

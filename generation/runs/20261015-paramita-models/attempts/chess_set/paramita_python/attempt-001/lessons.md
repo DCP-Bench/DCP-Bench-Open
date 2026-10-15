@@ -1,0 +1,2 @@
+- Two small counts with unary order encoding: `If(ge[k+1], ge[k])` per k, value `sum(ge)`. Bounds come from the problem constants (lathe hours / machining time, boxwood / use).
+- A problem with no instance fields and one empty instance: the model reads no instance argument, and the constants are the problem's own, with a comment saying so.

@@ -177,6 +177,7 @@ class RenderingHelperTests(unittest.TestCase):
             "claude-opus-5 / model-generator campaign (100-model target)": "Claude Opus 5",
             "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, "
             "solution_limit 10)": "Claude Opus 5",
+            "codex (gpt-5)": "codex (gpt-5)",
             "some other system": "some other system",
             "": "Unknown",
         }
@@ -184,12 +185,14 @@ class RenderingHelperTests(unittest.TestCase):
             with self.subTest(raw=raw):
                 self.assertEqual(generate_site.generated_by_label(raw), label)
 
-    def test_every_recorded_generator_is_recognised(self):
+    def test_every_record_names_its_generator(self):
+        """Any tool or model may write a record, but it must say which one."""
         for by_framework in generate_site.load_generated_models().values():
             for entries in by_framework.values():
                 for entry in entries:
                     raw = (entry["metrics"].get("generated_by") or {}).get("base_llm")
-                    self.assertTrue(generate_site.generated_by_label(raw).startswith("Claude "), raw)
+                    self.assertNotIn(generate_site.generated_by_label(raw).strip().lower(),
+                                     ("unknown", ""), raw)
 
     def test_compact_json_is_the_same_data(self):
         for value in ({"a": [1, 2, 3], "m": [[1, 2], [3, 4]], "s": "x", "e": [], "d": {}},

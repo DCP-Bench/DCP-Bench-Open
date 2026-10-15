@@ -41,7 +41,7 @@ model = Model()
 
 # decision variables
 production = intvar(1, ub, shape=n_templates, name="production")
-layout = intvar(0, n_var, shape=(n_templates, n_var), name="layout")
+layout = intvar(0, n_slots, shape=(n_templates, n_var), name="layout")
 
 # all slots are populated in a template
 model += all(sum(layout[i]) == n_slots for i in range(n_templates))
