@@ -1,0 +1,27 @@
+// Kidney exchange: maximize the number of people who receive a kidney in a
+// directed compatibility graph, where anyone who gives a kidney must receive one
+// and no person receives more than one kidney.
+// Row r stands for person r+1 (the compatibility rows are 0-based, person ids inside them are 1-based).
+vocabulary {
+    type Row <: Int                  // one row per person of the waiting list
+    type Slot <: Int                 // position inside a (padded) compatibility list
+    compatible: Row * Slot -> Int    // compatible[r] lists the people r+1 can donate to (0 = padding)
+    transplants: Row * Row -> Bool   // declared output: transplants[r][t] = person r+1 donates to person t+1
+    maximize: () -> Int
+}
+theory {
+    // transplants[i][j] is 1 only if i can donate to j
+    ! r, t in Row: transplants(r, t) => ? s in Slot: compatible(r, s) = t + 1.
+
+    // each person gives at most one kidney
+    ! r in Row: #{ t in Row: transplants(r, t) } =< 1.
+
+    // no person receives more than one kidney
+    ! t in Row: #{ r in Row: transplants(r, t) } =< 1.
+
+    // anyone who gives a kidney must receive one
+    ! r in Row: (? t in Row: transplants(r, t)) => (? q in Row: transplants(q, r)).
+
+    // maximize the number of people who receive a new kidney
+    maximize() = #{ r, t in Row: transplants(r, t) }.
+}

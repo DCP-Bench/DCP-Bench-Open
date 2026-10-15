@@ -1,0 +1,3 @@
+- Attempt 1 (two-sided Int products a(i)*a(j) over {-1,1}) was accepted on 2 of 5 instances, then hit the execution limit on the larger l. The retain threshold is 80%.
+- For +-1 sequences, a product a(i)*a(j) equals 1 when the entries are equal and -1 otherwise. Counting equal pairs with #{...} gives a linear encoding: PAF = 2 * equal pairs - l. The product form was the cause of the timeouts.
+- Counting with #{ i in Idx: a(i) = a(wrap(i, s)) } and wrap defined by an if-term ran all 5 instances, the largest in about 75 s.

@@ -1,0 +1,2 @@
+- Parenthesised products inside `sum{{ (a(i) * b(i)) | i in I }}` parse and evaluate; the coin problem needed nothing else beyond an `I <: Int` index type sized from a `[6]int` field.
+- A `-> Int` decision bounded by `0 =< x(i) & x(i) =< avail(i)` (bound taken from the instance) was accepted on 5 of 5 instances in about 1 s each, with no timeout.

@@ -1,0 +1,3 @@
+- Two-index Couple * Side encoding has 4-variable quantifiers; a single Person type with a spouse predicate (persons 2k-1, 2k) is smaller and fits the same description.
+- The all-different hand counts plus `#{}` counts time out in z3 at 8 couples (reference_timeout), also with the spouse-of-maximum lemma; the lemma is implied by the constraints but did not help.
+- For 4 couples the model's derived answer is n-1 = 3, while the reference note says 4; the evaluator returns "Declared outputs cannot extend to a reference solution". Check the reference answer before modelling further.

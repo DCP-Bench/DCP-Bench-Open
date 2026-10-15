@@ -1,0 +1,21 @@
+// Three coins on a table: tails, heads, tails. Make them all heads or all tails in precisely three moves, each move flipping one coin.
+vocabulary {
+    // one index per coin; the size comes from the instance
+    type Coin <: Int
+    // initial state of the coins: 1 means tails, 0 means heads
+    init: Coin -> Int
+    // one index per state of the table, from the initial state to the final one
+    type Step := {0..${num_moves}}
+    // steps[s][c] is true when coin c shows tails in state s
+    steps: Step * Coin -> Bool
+}
+theory {
+    // the first state is the initial state of the coins
+    ! c in Coin: steps(0, c) <=> init(c) = 1.
+
+    // every move flips exactly one coin
+    ! s, t in Step: t = s + 1 => #{c in Coin: steps(s, c) ~= steps(t, c)} = 1.
+
+    // in the final state all coins face the same way
+    ! c1, c2 in Coin: steps(${num_moves}, c1) = steps(${num_moves}, c2).
+}

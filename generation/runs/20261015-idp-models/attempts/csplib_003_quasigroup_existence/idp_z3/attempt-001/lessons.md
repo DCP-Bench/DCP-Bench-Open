@@ -1,0 +1,2 @@
+- A type range `{0..${m}}` has m+1 elements, so it cannot be the row, column or value set of an m-order table.
+- Use `{1..${m}}` for the table and declare the 0-based output as a Int-valued symbol defined as `cell(a, b) - 1`.

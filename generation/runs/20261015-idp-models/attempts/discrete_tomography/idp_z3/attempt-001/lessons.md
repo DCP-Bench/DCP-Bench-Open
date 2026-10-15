@@ -1,0 +1,3 @@
+- Two data-sized index types (R <: Int from row_sums, C <: Int from col_sums) bind rectangular matrices of different lengths; R * C -> Bit with type Bit := {0..1} then sums fine.
+- Arithmetic over a Bit-valued output (sum of matrix cells) is accepted with no cast.
+- The skill's guidance held: the example and the four other instances were accepted in one pass with no repairs.

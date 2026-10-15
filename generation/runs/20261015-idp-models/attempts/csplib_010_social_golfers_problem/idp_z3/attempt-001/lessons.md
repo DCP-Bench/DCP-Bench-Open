@@ -1,0 +1,2 @@
+- A product of scalar fields in a placeholder works: Golfer := {0..${n_groups*group_size-1}} sized the golfers with no extra field.
+- Pairwise 'meet at most once' as #{ w in Week: assign(p1,w) = assign(p2,w) } =< 1 with p1 < p2 grounds fast (all 8 instances under 3 s).

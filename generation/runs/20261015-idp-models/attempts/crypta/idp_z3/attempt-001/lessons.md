@@ -1,0 +1,3 @@
+- A declared output and a symbol with the same name clash: `D: Letter -> Digit` plus `D: () -> Digit` gives execution_error "Duplicate declaration of D", visible only in the stderr traceback of evaluation.check.
+- Nullary `-> Digit` outputs read back as integers (first_solution shows `"A": 1`).
+- Column-wise addition with explicit carry sentences per column avoids index arithmetic and big-integer sums; it solved in about 1 s.

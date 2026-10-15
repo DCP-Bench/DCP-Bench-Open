@@ -1,0 +1,3 @@
+- Exact demand (`=`) with a sum-of-products objective came back unsat on the example; the reference accepts overproduction, so the demand constraint is `>=`.
+- A product of two decision symbols (production * copies) made the optimum unprovable. Writing it as a sum over the finite slot range (`if layout = k then k * production`) keeps it linear and fast.
+- Symmetry breaking (order the templates by production) and a redundant per-template capacity inequality were needed for the 3-template instance to finish within the evaluator's timeout.

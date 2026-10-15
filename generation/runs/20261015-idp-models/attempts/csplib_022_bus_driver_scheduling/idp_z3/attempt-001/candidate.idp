@@ -1,0 +1,22 @@
+// Bus driver scheduling: select a set of shifts that covers each piece of work
+// exactly once, minimizing the number of shifts selected.
+vocabulary {
+    type Shift <: Int
+    type Task := {0..${num_work-1}}
+    type Pos <: Int
+    shifts: Shift * Pos -> Int
+    shifts_len: Shift -> Int
+    covers: Shift * Task -> Bool
+    x: Shift -> Bool
+    minimize: () -> Int
+}
+theory {
+    // a shift covers a piece of work when that work is one of the tasks the shift lists
+    { ! s in Shift, t in Task: covers(s, t) <- ? p in Pos: p < shifts_len(s) & shifts(s, p) = t. }
+
+    // each piece of work is covered by exactly one selected shift
+    ! t in Task: ?=1 s in Shift: x(s) & covers(s, t).
+
+    // the cost of a selection is the number of shifts used
+    minimize() = #{ s in Shift: x(s) }.
+}

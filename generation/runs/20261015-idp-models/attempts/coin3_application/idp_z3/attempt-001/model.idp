@@ -1,0 +1,34 @@
+// Find the minimum number of coins that allows one to pay exactly any amount
+// smaller than a given maximum amount, using a given set of denominations.
+// Print the number of each type of coin used (x).
+vocabulary {
+    // the coin types, sized from the denominations list
+    type I <: Int
+    // instance: the value of each coin type
+    denominations: I -> Int
+    // instance: the amounts 1 to max_amount_to_pay - 1 must all be payable
+    max_amount_to_pay: () -> Int
+    // the amounts that have to be paid
+    type Amt := {1..${max_amount_to_pay}}
+    // the number of coins of one type; no more coins than the largest amount are needed
+    type Count := {0..${max_amount_to_pay}}
+    // declared output: the number of coins of each type used
+    x: I -> Count
+    // auxiliary: the coins of each type used to pay each amount
+    y: Amt * I -> Count
+    // objective: the total number of coins
+    minimize: () -> Int
+}
+theory {
+    // every amount smaller than the maximum can be paid exactly with the coins in x
+    ! v in Amt: v < max_amount_to_pay() => sum{{ (denominations(i) * y(v, i)) | i in I }} = v.
+
+    // the coins used for one amount are taken from the coins available
+    ! v in Amt, i in I: y(v, i) =< x(i).
+
+    // amounts at or above the maximum need no coins
+    ! v in Amt, i in I: v >= max_amount_to_pay() => y(v, i) = 0.
+
+    // the objective: the total number of coins used
+    minimize() = sum{{ x(i) | i in I }}.
+}

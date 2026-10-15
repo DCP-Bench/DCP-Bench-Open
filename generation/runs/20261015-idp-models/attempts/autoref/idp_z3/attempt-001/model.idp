@@ -1,0 +1,21 @@
+// Find a non-empty series S = (s0, s1, ..., sn, sn+1) such that s_i is the
+// number of occurrences of i in S for each i from 0 to n, and s_{n+1} = m.
+vocabulary {
+    // The series positions are numbered -1..n, so position k holds s_{k+1}.
+    type Idx := {-1..${n}}
+    // Instance data: n and m.
+    n: () -> Int
+    m: () -> Int
+    // The series S: s(k) = s_{k+1}.
+    s: Idx -> Int
+}
+theory {
+    // every entry of the series is a count of some value between 0 and n
+    ! k in Idx: s(k) >= 0 & s(k) =< n().
+
+    // the last entry s_{n+1} equals m
+    s(n()) = m().
+
+    // for each i from 0 to n, s_i is the number of occurrences of i in S
+    ! i in Idx: i >= 0 => #{k in Idx: s(k) = i} = s(i - 1).
+}

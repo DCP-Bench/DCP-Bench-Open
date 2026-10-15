@@ -1,0 +1,3 @@
+- A placeholder accepts integer arithmetic: `type Pos := {1..${2*k}}` and `type Val := {1..${k}}` bound fine on 5 instances.
+- Avoid indexing with a computed position (`sol(p+v+1)`): quantify both positions and state `q = p + v + 1` in an implication instead.
+- `#{ p in Pos: sol(p) = v } = 2` inside a universal quantifier parsed and solved without trouble.

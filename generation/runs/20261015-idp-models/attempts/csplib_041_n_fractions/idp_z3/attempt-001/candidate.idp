@@ -1,0 +1,45 @@
+// N-fractions puzzle: find distinct non-zero digits A..I such that A/BC + D/EF + G/HI = 1,
+// where BC, EF and HI are two-digit numbers formed by B and C, E and F, and H and I.
+vocabulary {
+    // the digits are non-zero, so each digit is 1..9
+    type Digit := {1..9}
+    A: () -> Digit
+    B: () -> Digit
+    C: () -> Digit
+    D: () -> Digit
+    E: () -> Digit
+    F: () -> Digit
+    G: () -> Digit
+    H: () -> Digit
+    I: () -> Digit
+    // the two-digit numbers BC, EF and HI
+    bc: () -> Int
+    ef: () -> Int
+    hi: () -> Int
+    // positions of the nine digits, used to state that they are distinct
+    type Pos := {1..9}
+    digit: Pos -> Digit
+}
+theory {
+    // the two-digit numbers
+    bc() = 10 * B() + C().
+    ef() = 10 * E() + F().
+    hi() = 10 * H() + I().
+
+    // the nine digits are the values at positions 1..9
+    digit(1) = A().
+    digit(2) = B().
+    digit(3) = C().
+    digit(4) = D().
+    digit(5) = E().
+    digit(6) = F().
+    digit(7) = G().
+    digit(8) = H().
+    digit(9) = I().
+
+    // distinct digits
+    ! p, q in Pos: p ~= q => digit(p) ~= digit(q).
+
+    // A / BC + D / EF + G / HI = 1, with the denominators cleared
+    A() * ef() * hi() + D() * bc() * hi() + G() * bc() * ef() = bc() * ef() * hi().
+}

@@ -1,0 +1,42 @@
+// Given two positive integers a and b, where a - b is a prime number and a * b
+// is a perfect square n^2, find the smallest a no less than a given minimum.
+// Print a, b, n and p, where p = a - b.
+vocabulary {
+    // instance: the minimum value of a
+    min_a: () -> Int
+    // instance: the upper bound on the values; a, b, n and p all stay within it
+    max_val: () -> Int
+    // the integers the variables range over
+    type Val := {1..${max_val}}
+    // declared outputs
+    a: () -> Val
+    b: () -> Val
+    n: () -> Val
+    p: () -> Val
+    // auxiliary: the square root of a, with b = (s - 1)^2
+    s: () -> Val
+    // objective: the value of a, which is minimized
+    minimize: () -> Int
+}
+theory {
+    // a - b is the prime number p
+    a() - b() = p().
+    p() > 1.
+    // p is prime: no divisor d with 1 < d < p
+    ! d in Val: (d > 1 & d < p()) => ~(p() % d = 0).
+
+    // a * b is a perfect square n^2 with a - b prime. Write a = g x^2 and b = g y^2
+    // with g = gcd(a, b). Then a - b = g (x - y) (x + y) is prime, which forces
+    // g = 1, x - y = 1 and x + y = p. So a = s^2, b = (s - 1)^2, n = s (s - 1) and
+    // p = 2 s - 1, with s = x.
+    a() = s() * s().
+    b() = (s() - 1) * (s() - 1).
+    n() = s() * (s() - 1).
+    p() = 2 * s() - 1.
+
+    // a is no less than the given minimum
+    a() >= min_a().
+
+    // the objective: the smallest such a
+    minimize() = a().
+}

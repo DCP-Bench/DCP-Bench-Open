@@ -1,0 +1,2 @@
+- A range type written as type T := {0..9} accepted <, = and p + 1 on its variables in the theory, with no <: Int declaration needed (checked by evaluation.check and evaluate).
+- Nullary Bool outputs (p: () -> Bool) with <=>, =>, ~ and & are enough for propositional puzzles; no instance fields means no binding.

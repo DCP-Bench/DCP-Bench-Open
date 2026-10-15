@@ -1,0 +1,22 @@
+// A farmer has cows numbered 1 up to the number of cows, each cow gives milk equal to its number.
+// He distributes the cows to his sons so that each son gets the given number of cows
+// and the same total quantity of milk.
+vocabulary {
+    // the cows, numbered from 1 up to the total number of cows
+    type Cow := {1..${num_cows}}
+    // the sons, numbered from 0
+    type Son := {0..${num_sons-1}}
+
+    // the number of cows each son should receive
+    cows_per_son: Son -> Int
+
+    // the son each cow is given to
+    cow_assignments: Cow -> Son
+}
+theory {
+    // each son receives the given number of cows
+    ! s in Son: #{ k in Cow: cow_assignments(k) = s } = cows_per_son(s).
+
+    // the total quantity of milk is the same for each son: each son gets a share of the total milk
+    ! s in Son: sum{{ (if cow_assignments(k) = s then k else 0) | k in Cow }} = ${(num_cows*(num_cows+1)//2)//num_sons}.
+}

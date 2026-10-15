@@ -1,0 +1,28 @@
+// Heterosquare of order n: an n*n square of distinct integers from 1 to n^2
+// whose row, column and diagonal sums are all different.
+vocabulary {
+    type Row := {1..${n}}
+    type Val := {1..${n*n}}
+    x: Row * Row -> Val
+    rowsum: Row -> Int
+    colsum: Row -> Int
+    diag: () -> Int
+    antidiag: () -> Int
+}
+theory {
+    // the elements of the square are distinct integers from 1 to n^2
+    ! r1, c1, r2, c2 in Row: (r1 ~= r2 | c1 ~= c2) => x(r1, c1) ~= x(r2, c2).
+
+    // the sums of each row, each column, the diagonal and the anti-diagonal
+    ! r in Row: rowsum(r) = sum{{ x(r, c) | c in Row }}.
+    ! c in Row: colsum(c) = sum{{ x(r, c) | r in Row }}.
+    diag() = sum{{ x(i, i) | i in Row }}.
+    antidiag() = sum{{ x(i, j) | i in Row, j in Row: i + j = ${n+1} }}.
+
+    // the sums of the rows, columns and diagonals are all different
+    ! a, b in Row: a ~= b => rowsum(a) ~= rowsum(b).
+    ! a, b in Row: a ~= b => colsum(a) ~= colsum(b).
+    ! a, b in Row: rowsum(a) ~= colsum(b).
+    ! a in Row: rowsum(a) ~= diag() & rowsum(a) ~= antidiag() & colsum(a) ~= diag() & colsum(a) ~= antidiag().
+    diag() ~= antidiag().
+}

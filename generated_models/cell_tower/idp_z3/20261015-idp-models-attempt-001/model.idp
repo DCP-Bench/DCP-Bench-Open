@@ -1,0 +1,26 @@
+// Choose which potential cell tower locations to build, under a limited budget, to cover as much population as possible.
+vocabulary {
+    type S <: Int                               // potential tower sites, sized from the cost list
+    type R <: Int                               // regions of the city, sized from the population list
+    delta: S * R -> Int                         // 1 if a tower at the site covers the region, 0 otherwise
+    cost: S -> Int                              // cost of building a tower at each site
+    population: R -> Int                        // known population of each region
+    budget: () -> Int                           // the budget limits how many towers can be built
+    build_tower: S -> Bool                      // declared output: build a tower at the site
+    covered: R -> Bool                          // auxiliary: the region is covered by at least one built tower
+    total_population_covered: () -> Int         // declared output: total population covered
+    maximize: () -> Int                         // objective: the largest population coverage possible
+}
+theory {
+    // a region is covered when some built tower has range over it
+    ! r in R: covered(r) <=> ?s in S: build_tower(s) & delta(s, r) = 1.
+
+    // due to budget constraints, the total cost of the towers built must not exceed the budget
+    sum{{ cost(s) | s in S: build_tower(s) }} =< budget().
+
+    // the total population covered is the sum of the populations of the covered regions
+    total_population_covered() = sum{{ population(r) | r in R: covered(r) }}.
+
+    // maximize the population covered
+    maximize() = total_population_covered().
+}

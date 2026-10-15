@@ -1,0 +1,19 @@
+// Magic sequence of length n: a sequence x_0, ..., x_{n-1} of integers between 0 and n-1
+// such that for all i in 0 to n-1, the number i occurs exactly x_i times in the sequence.
+vocabulary {
+    // the length of the sequence
+    n: () -> Int
+    // positions 1..n: position i holds x_{i-1}, so the output list is x_0 .. x_{n-1}
+    type Idx := {1..${n}}
+    // values of the sequence: 0..n (the bound n-1 is a constraint below)
+    type Val := {0..${n}}
+    // declared output
+    x: Idx -> Val
+}
+theory {
+    // every value of the sequence lies between 0 and n-1
+    ! i in Idx: x(i) =< n() - 1.
+
+    // the number i-1 occurs exactly x_{i-1} times in the sequence
+    ! i in Idx: #{ j in Idx: x(j) = i - 1 } = x(i).
+}

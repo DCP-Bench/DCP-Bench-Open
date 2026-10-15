@@ -1,0 +1,21 @@
+// Maximum clique: find a largest set of vertices in a simple undirected graph where every two
+// distinct vertices are adjacent.
+vocabulary {
+    // a vertex index; the number of vertices comes from the size of adj
+    type V <: Int
+
+    // adjacency matrix of the graph (1 if the two vertices are adjacent)
+    adj: V * V -> Int
+
+    // c[i] is true if vertex i is in the clique
+    c: V -> Bool
+
+    maximize: () -> Int
+}
+theory {
+    // a clique is a subset of vertices in which every two distinct vertices are adjacent
+    ! u, v in V: u ~= v & c(u) & c(v) => adj(u, v) = 1.
+
+    // the objective is the number of vertices in the clique
+    maximize() = #{ v in V: c(v) }.
+}

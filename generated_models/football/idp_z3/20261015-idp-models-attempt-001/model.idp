@@ -1,0 +1,90 @@
+// Football squad selection: choose players from four groups to maximize the total price spent
+// without going over GBP 30 million (prices are given here in GBP thousands).
+
+vocabulary {
+    // The 26 priced players: goalkeepers 1-3, defenders 4-11, midfielders 12-21, strikers 22-26.
+    type Pl := {1..26}
+    type Cost := {0..30000}
+
+    price: Pl -> Int
+    isGk: Pl -> Bool
+    isDef: Pl -> Bool
+    isMid: Pl -> Bool
+    isStr: Pl -> Bool
+
+    // Decision: whether each player is bought.
+    buy: Pl -> Bool
+
+    // Total price spent in GBP thousands (the declared output z).
+    z: () -> Int
+
+    maximize: () -> Int
+}
+
+theory {
+    // The groups of players, by their position in the list.
+    { ! p in Pl: isGk(p) <- p =< 3.
+      ! p in Pl: isDef(p) <- p >= 4 & p =< 11.
+      ! p in Pl: isMid(p) <- p >= 12 & p =< 21.
+      ! p in Pl: isStr(p) <- p >= 22.
+    }
+
+    // Prices of the goalkeepers: g1 0.73, g2 1.28, g3 3.88 million.
+    price(1) = 730.
+    price(2) = 1280.
+    price(3) = 3880.
+
+    // Prices of the defenders: d1 0.92, d2 1.31, d3 1.62, d4 2.41, d5 2.79, d6 3.28, d7 3.91, d8 4.57 million.
+    price(4) = 920.
+    price(5) = 1310.
+    price(6) = 1620.
+    price(7) = 2410.
+    price(8) = 2790.
+    price(9) = 3280.
+    price(10) = 3910.
+    price(11) = 4570.
+
+    // Prices of the midfielders: m1 1.8, m2 2.63, m3 3.17, m4 3.769, m5 4.14, m6 4.75, m7 5.38, m8 5.93, m9 6.78, m10 7.13 million.
+    price(12) = 1800.
+    price(13) = 2630.
+    price(14) = 3170.
+    price(15) = 3769.
+    price(16) = 4140.
+    price(17) = 4750.
+    price(18) = 5380.
+    price(19) = 5930.
+    price(20) = 6780.
+    price(21) = 7130.
+
+    // Prices of the strikers: s1 4.46, s2 6.47, s3 7.78, s4 8.39, s5 9.5 million.
+    price(22) = 4460.
+    price(23) = 6470.
+    price(24) = 7780.
+    price(25) = 8390.
+    price(26) = 9500.
+
+    // You must buy exactly one goalkeeper.
+    ?=1 p in Pl: isGk(p) & buy(p).
+
+    // You must buy 2 or more defenders.
+    #{ p in Pl: isDef(p) & buy(p) } >= 2.
+
+    // You must buy 3 or more midfielders.
+    #{ p in Pl: isMid(p) & buy(p) } >= 3.
+
+    // You must buy 2 or more strikers.
+    #{ p in Pl: isStr(p) & buy(p) } >= 2.
+
+    // You must buy at least eleven players in total.
+    #{ p in Pl: buy(p) } >= 11.
+
+    // The chairman's limit is GBP 30 million, so the purchases must not go over it (30000 thousands).
+    // Each player contributes its price when bought, and 0 otherwise.
+    sum{{ (if buy(p) then price(p) else 0) | p in Pl }} =< 30000.
+
+    // The output z is the total price of the selected players in GBP thousands.
+    z() = sum{{ (if buy(p) then price(p) else 0) | p in Pl }}.
+
+    // You want to spend as much money as you can.
+    maximize() = z().
+}

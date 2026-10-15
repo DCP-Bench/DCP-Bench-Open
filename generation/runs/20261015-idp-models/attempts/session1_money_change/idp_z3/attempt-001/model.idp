@@ -1,0 +1,20 @@
+// Change-making: Alice gives Bob change using coins of several values,
+// with a limited number of coins of each value, minimizing the number of coins used.
+vocabulary {
+    type I <: Int                      // one index per coin type, sized from the instance
+    amount: () -> Int                  // the amount of change to give
+    types_of_coins: I -> Int           // value of each coin type
+    available_coins: I -> Int          // number of coins of each type Alice has
+    coin_counts: I -> Int              // declared output: coins of each type given to Bob
+    minimize: () -> Int                // total number of coins used
+}
+theory {
+    // the number of coins of each type given is between 0 and the number available
+    ! i in I: 0 =< coin_counts(i) & coin_counts(i) =< available_coins(i).
+
+    // the coins given add up to the amount of change
+    sum{{ (types_of_coins(i) * coin_counts(i)) | i in I }} = amount().
+
+    // the objective is the total number of coins used
+    minimize() = sum{{ coin_counts(i) | i in I }}.
+}

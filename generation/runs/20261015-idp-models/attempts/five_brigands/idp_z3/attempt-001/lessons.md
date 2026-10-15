@@ -1,0 +1,3 @@
+- The problem has no instance fields, so the model only carries the problem's own constants (200, and the 12/3/1/1/2 weights) and says so in the comments.
+- A fractional equation (`D/2`, `E/3`) is avoided by multiplying through by 6 (72A+18B+6C+3D+2E=1200). The integrality of D and E follows from the equation itself, so no division is needed in FO(.) and no `/` guard is required.
+- A range type `{1..200}` on nullary outputs passed the evaluator with no extra type or bound declarations.

@@ -1,0 +1,36 @@
+// Warehouse location: decide which warehouses to open to supply every store, minimizing the total of maintenance and supply costs.
+vocabulary {
+    // one index per store, sized from the first dimension of cost_matrix
+    type Store <: Int
+    // one index per candidate warehouse, sized from capacity
+    type Warehouse <: Int
+
+    // fixed maintenance cost of an open warehouse
+    building_cost: () -> Int
+    // number of stores a warehouse can supply
+    capacity: Warehouse -> Int
+    // supply cost of a store from a warehouse, indexed [store][warehouse]
+    cost_matrix: Store * Warehouse -> Int
+
+    // declared output: which warehouses are open
+    open_warehouses: Warehouse -> Bool
+    // declared output: the warehouse supplying each store
+    supplier_assignment: Store -> Warehouse
+    // declared output: the minimized total cost
+    total_cost: () -> Int
+
+    minimize: () -> Int
+}
+theory {
+    // each store is supplied by exactly one open warehouse
+    ! s in Store: open_warehouses(supplier_assignment(s)).
+
+    // a warehouse supplies no more stores than its capacity
+    ! w in Warehouse: #{ s in Store: supplier_assignment(s) = w } =< capacity(w).
+
+    // the total cost is the maintenance cost of all opened warehouses plus the supply costs of all stores
+    total_cost() = sum{{ building_cost() | w in Warehouse: open_warehouses(w) }} + sum{{ cost_matrix(s, supplier_assignment(s)) | s in Store }}.
+
+    // the objective is the minimized total cost
+    minimize() = total_cost().
+}

@@ -1,0 +1,34 @@
+// Handshaking: Hilary and Jocelyn are married, the invited couples are friends, every
+// guest shakes hands with some others, and the answers to "how many hands" are all different.
+// Print the number of hands Hilary has shaken.
+vocabulary {
+    // people 0..2n+1: 0 is Hilary, 1 is Jocelyn, then the couples (2k, 2k+1)
+    type P := {0..${2*num_couples+1}}
+    spouse: P * P -> Bool
+    shakes: P * P -> Bool
+    type H := {0..${2*num_couples}}
+    hands: P -> H
+    hil: () -> Int
+}
+theory {
+    // Hilary and Jocelyn are married, and the invited couples are married
+    { ! p, q in P: spouse(p, q) <- p ~= q & ((p % 2 = 0 & q = p + 1) | (q % 2 = 0 & p = q + 1)). }
+
+    // Nobody shakes hands with him or herself or with his or her spouse.
+    ! p, q in P: (p = q | spouse(p, q)) => ~shakes(p, q).
+
+    // They shake hands with each other: a handshake involves two people.
+    ! p, q in P: shakes(p, q) <=> shakes(q, p).
+
+    // The number of hands each person has shaken is the number of people they shook hands with.
+    ! p in P: hands(p) = #{ q in P: shakes(p, q) }.
+
+    // All the answers are different (Jocelyn asks, so her own count is not one of the answers).
+    ! p, q in P: (p ~= q & p ~= 1 & q ~= 1) => hands(p) ~= hands(q).
+
+    // the 2n+1 answers take every value 0..2n exactly once (pigeonhole on the distinct answers)
+    ! v in H: #{ p in P: p ~= 1 & hands(p) = v } = 1.
+
+    // Print the number of hands Hilary has shaken.
+    hil() = hands(0).
+}
