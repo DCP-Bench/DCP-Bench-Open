@@ -32,7 +32,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v51"
+ASSET_VERSION = "catalogue-v52"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -350,7 +350,8 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
         '</svg><span>GitHub</span></a>'
     )
 
-    if active == "index":
+    # The catalogue and the Solvers page share the site's own heading.
+    if active in ("index", "paradigms"):
         hero = (
             f'<div class="hero">'
             f'<h1>{TITLE}</h1><p>{SUBTITLE}</p></div>'
@@ -360,7 +361,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
         # app.js points this at the catalogue as it was left, filters and all.
         crumb = (f'<a class="crumb" href="{prefix}index.html">&larr; All problems</a>'
                  if active == "problem" else "")
-        # A problem's title is its identifier; the solvers page's is a word.
+        # A problem's title is its identifier.
         title_cls = ' class="problem-id"' if active == "problem" else ""
         hero = f'<div class="hero problem-hero">{crumb}<h1{title_cls}>{esc(title)}</h1>{note}</div>'
 
@@ -965,6 +966,19 @@ def browse_button(solver: str, count: int) -> str:
     return f'<a class="browse" href="index.html?framework={esc(solver)}">Browse<span class="browse-long"> models</span> &rarr;</a>'
 
 
+def skill_button(solver: str) -> str:
+    """Opens on GitHub the skill a modelling agent follows to write models for
+    one integration. The skill's folder is named after the skill, not the
+    integration, so it is found by globbing."""
+    found = sorted((SOLVERS_DIR / solver / "skills").glob("*/SKILL.md"))
+    if not found:
+        return ""
+    name = found[0].parent.name
+    href = f"{REPO_URL}/blob/main/{found[0].as_posix()}"
+    return (f'<a class="skill" href="{esc(href)}" target="_blank" rel="noopener" '
+            f'title="The modelling skill {esc(name)}">skill&#8599;</a>')
+
+
 def coverage_count(count, total: int) -> str:
     """`163 / 164`: the count reads first, the catalogue size stays quiet."""
     return f'<span class="count">{count}</span><span class="of"> / {total}</span>'
@@ -1014,7 +1028,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             anchored.add(solver)
             entries.append(
                 f'<li{anchor}><span class="solver-name">{esc(INTEGRATIONS[solver].get("name", solver))}'
-                f'{backend_label(solver, tag)}</span>'
+                f'{backend_label(solver, tag)}{skill_button(solver)}</span>'
                 f'<span class="solver-count">{coverage_count(found.get(solver, 0), denominator)}</span>'
                 f'{browse_button(solver, integration_problems.get(solver, 0))}</li>'
             )
@@ -1044,7 +1058,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
         groups.append(f'<tbody class="paradigm collapsed" id="{esc(tag)}">{head}{panel}</tbody>')
 
     body = f"""
-    <div class="section"><div class="section-head"><h2>Coverage by paradigm</h2>
+    <div class="section"><div class="section-head"><h2>Solvers by paradigm</h2>
       <button type="button" class="btn expand-all" aria-pressed="false">Show all</button></div>
       <table class="plain paradigm-table"><thead><tr><th>Abbrev.</th><th>Name</th>
       <th class="num">Solvers</th><th class="num">Avg. problems</th></tr></thead>{"".join(groups)}</table>
