@@ -105,3 +105,7 @@ with `generation.manage event`.
 Return **ready** only after readiness passed. Otherwise return **blocked** with the exact
 failure, the attempts spent and what is left. Stop when the budget is spent; never
 recurse.
+
+Releasing the standalone skill to the public `skills/` folder is the user's call, not part
+of setup. Name the command as the next step:
+`python -m generation.release publish <id> -m "First release"`.

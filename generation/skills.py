@@ -52,6 +52,27 @@ def hashes(folder):
     return result
 
 
+# Text that ties a skill to this repository. A solver skill under solvers/<id>/skills/
+# must work outside it; sources.md and evals/ may still name the project.
+ROSETTA_TEXT = re.compile(r"DCP[- ]?Bench|Rosetta|generation\.\w+|readiness|/input/|request\.json")
+
+
+def rosetta_mentions(folder):
+    """Lines of a skill bundle that mention this repository, as `path:line: match`."""
+    folder = Path(folder)
+    hits = []
+    for path in sorted(folder.rglob("*")):
+        relative = path.relative_to(folder)
+        if not path.is_file() or relative.name == "sources.md" or relative.parts[0] == "evals":
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except UnicodeDecodeError:
+            continue
+        hits += [f"{relative.as_posix()}:{number}: {match.group(0)}" for number, line in enumerate(lines, 1)
+                 for match in [ROSETTA_TEXT.search(line)] if match]
+    return hits
+
 def validate(folder, project=False):
     folder = Path(folder).resolve()
     text = (folder / "SKILL.md").read_text(encoding="utf-8")
