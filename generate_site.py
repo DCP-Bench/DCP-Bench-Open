@@ -1058,7 +1058,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
         groups.append(f'<tbody class="paradigm collapsed" id="{esc(tag)}">{head}{panel}</tbody>')
 
     body = f"""
-    <div class="section"><div class="section-head"><h2>Solvers by paradigm</h2>
+    <div class="section"><div class="section-head"><h2>Solvers by paradigm <span class="tab-count">{len(anchored)}</span></h2>
       <button type="button" class="btn expand-all" aria-pressed="false">Show all</button></div>
       <table class="plain paradigm-table"><thead><tr><th>Abbrev.</th><th>Name</th>
       <th class="num">Solvers</th><th class="num">Avg. problems</th></tr></thead>{"".join(groups)}</table>
