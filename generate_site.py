@@ -926,6 +926,7 @@ BACKEND_NAMES = {
     "z3": "Z3",
     "ace": "ACE",
     "minion": "Minion",
+    "idp-z3": "IDP-Z3",
 }
 
 # Where one paradigm row sees only part of an integration's backends. PySAT's
