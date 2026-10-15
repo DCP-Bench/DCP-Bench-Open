@@ -22,7 +22,7 @@ a, b, c, r = Bool("a"), Bool("b"), Bool("c"), Bool("r")
 
 | The description says | Expression |
 |---|---|
-| a and b / a or b / not a | `a & b`, `a \| b`, `~a` (or `And(a, b)`, `Or(...)`, `Not(a)`) |
+| a and b / a or b / not a | `a & b`, `a \| b`, `~a`; `And`/`Or` take two operands or one list: `Or([a, b, c])` (`Or(a, b, c)` and `Or(a)` raise TypeError) |
 | if a then b | `If(a, b)` |
 | a exactly when b | `Iff(a, b)` |
 | exactly / at least / at most k of these | `sum(bs) == k`, `sum(bs) >= k`, `sum(bs) <= k` |
@@ -48,15 +48,17 @@ a, b, c, r = Bool("a"), Bool("b"), Bool("c"), Bool("r")
 Pick one encoding per integer; both give an integer expression usable in PB
 constraints, objectives and outputs.
 
-- **One-hot (direct)**, for values that are compared, indexed or all-different:
+- **One-hot (direct)**, for values that are indexed, matched or all-different:
   `xv = {v: Bool(f"x_{v}") for v in dom}`, `sum(xv.values()) == 1`,
   value `x = sum(v * xv[v] for v in dom)`. "x = 3" is `xv[3]`; "x ≠ y" is
   `~(xv[v] & yv[v])` per v.
-- **Unary (order)**, for values that are summed or bounded:
+- **Unary (order)**, for values that are summed, bounded or compared (`x > y`
+  over one-hot values timed out where unary solved in seconds):
   `xs = [Bool(f"x_ge_{i}") for i in 1..ub]`, `If(xs[i+1], xs[i])`, value
   `x = sum(xs) + lb`. "x ≥ k" is the single literal `xs[k-1]`.
-- **Binary**, only for wide ranges in sums: `x = sum(2**k * bit[k])`; weak
-  propagation, avoid for anything compared.
+- **Binary**, for wide ranges (hundreds of values or more, e.g. times):
+  `x = sum(2**k * bit[k])`. Unary or one-hot over hundreds of values with
+  pairwise PB constraints ran out of memory.
 
 Global-style constraints become PB constraints over the one-hot Bools:
 
@@ -115,8 +117,17 @@ if s.solve():
   integer expressions) or fix the first one.
 - Objectives: a weighted sum of Bools directly; for "minimise the maximum",
   introduce unary `m` and require `If(load_k_ge_t, m_ge_t)` per t.
-- Keep instances small in clauses: `sum(...) <= 1` over n Bools is cheap;
-  `sum(w*b) <= cap` with many distinct weights can be large: share sums.
+- **Keep PB weights small.** A PB constraint with large, distinct weights over
+  many Bools (one-hot value × price, a product of two binaries, weights up to
+  10^4 and beyond) can exhaust the 2 GB memory limit. Instead:
+  - products and squares: binary bits for the result, linked with
+    `If(xv[v], bit_k == ((v*v) >> k) & 1)`, or a column-by-column multiplier;
+  - choosing among many constants: `If(choice_q, x == q)` per q with x binary;
+  - |a − b| between one-hot positions: a unary length t with `a - b <= t`
+    and `b - a <= t`, not one implication per pair of positions;
+  - "amount a is payable" for many amounts: a clause-level reachability table
+    `r[j][v] ⇔ OR_k (r[j-1][v - k·d_j] ∧ x_j ≥ k)`, not one weighted PB per
+    amount.
 
 ## DCP-Bench (`paramita_python`)
 
@@ -153,9 +164,11 @@ def build(instance):
 ```
 
 - Read every size and value from `instance`; the brief's shapes are those of
-  the example. Problems without instance fields still take `instance`.
+  the example, and output lengths follow the instance. Problems without instance fields still take `instance`.
 - Start each constraint block with a `#` comment in the description's words.
 - An objective that is also an output is the same expression in both places.
+- An output the brief declares `int` must be an integer expression: a cell that
+  is a Bool goes out as `1 * b` (a bare Bool is read as a JSON boolean).
 - A value beyond 32 bits cannot be an output; split it (e.g. digits) only if
   the brief declares it so.
 
