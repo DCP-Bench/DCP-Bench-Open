@@ -799,7 +799,7 @@ def verified_models(generated: dict, integrations: dict):
 # Paradigms that can only express one kind of problem: SAT has no objective,
 # so a model of an optimisation problem does not count towards it.
 PARADIGM_SCOPE = {"sat": "satisfaction"}
-SCOPE_NOTES = {"sat": "SAT counts satisfaction problems only, as it has no objective function."}
+SCOPE_NOTES = {"sat": "SAT counts satisfaction problems only."}
 
 
 def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list,
