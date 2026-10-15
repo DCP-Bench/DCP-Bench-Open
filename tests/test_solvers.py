@@ -14,7 +14,7 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
           "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
-          "pysat": "model_pysat.py", "hermax": "model_hermax.py",
+          "pysat": "model_pysat.py", "paramita_python": "model_paramita.py", "hermax": "model_hermax.py",
           "exact": "model_exact.py", "gurobipy_python": "model_gurobipy.py",
           "docplex_cplex": "model_docplex.py", "picat": "model_picat.pi",
           "jump_highs": "model_jump.jl",
@@ -51,7 +51,8 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "picat": ("$min(", "$max("),
                       "jump_highs": ("Min,", "Max,"),
                       "essence_prime_minion": ("minimising", "maximising"),
-                      "pycsp3_ace": ("minimize", "maximize")}
+                      "pycsp3_ace": ("minimize", "maximize"),
+                      "paramita_python": ("minimize", "maximize")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.
