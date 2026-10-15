@@ -66,7 +66,7 @@ relative to the repository), `instance`, `instance_hash`, `reason`, `detail`,
 ```sh
 python -m generation.manage init --run RUN --config config.json
 python -m generation.manage setup-attempt --run RUN --solver SOLVER --skill skills/solver-setup
-python -m generation.manage attempt --run RUN --problem abbots_puzzle --solver SOLVER --skill skills/SKILL
+python -m generation.manage attempt --run RUN --problem abbots_puzzle --solver SOLVER --skill skills/SKILL --agent "claude-code (MODEL-ID)"
 python -m generation.manage evaluate --attempt ATTEMPT_PATH --model MODEL_PATH
 python -m generation.manage retain --attempt ATTEMPT_PATH
 python -m generation.manage status --run RUN
@@ -74,6 +74,10 @@ python -m generation.manage event --run RUN --kind setup_started --data '{"solve
 ```
 
 `--config` is optional. Its object can contain `agent`, `budgets`, and `profile`.
+The run's `agent` describes the run and is what setup attempts record. A model
+attempt records its own `--agent`, the one model that writes it; that value
+becomes `generated_by.base_llm` in the retained record. A value naming more
+than one Claude model is refused.
 The profile uses `evaluate()` keyword names: `instance_count`, `instance_ids`,
 `solution_limit`, `execution_timeout`, `reference_timeout`, `compilation_timeout`,
 `memory_mb`, and `cpus`. Choose count or IDs. Defaults are one instance/solution,

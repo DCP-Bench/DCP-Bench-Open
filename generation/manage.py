@@ -209,10 +209,29 @@ def _readiness(solver_id: str, record: Path | None = None) -> dict[str, Any]:
         raise ManagementError(f"Integration is not ready: {error}") from error
 
 
-def attempt(run_id: str, problem_id: str, solver_id: str, skill: str) -> Path:
+def _writer(agent: str) -> str:
+    """The model that writes one attempt, as the record will name it.
+
+    A run can hand pairs to more than one model, so the run's `agent` cannot
+    say who wrote a given attempt. The value must name at most one Claude model,
+    in the form the site labels (generate_site.MODEL_ID): a run-wide description
+    such as "claude-haiku-5-5 subagents, claude-opus-5-5 coordinator" is refused.
+    """
+    from generate_site import MODEL_ID
+    if not isinstance(agent, str) or not agent.strip() or agent.strip().lower() == "unknown":
+        raise ManagementError("agent must name the model that writes this attempt")
+    models = {match.group(0) for match in MODEL_ID.finditer(agent)}
+    if len(models) > 1:
+        raise ManagementError(f"agent names {len(models)} models ({', '.join(sorted(models))}); "
+                              "name only the one that writes this attempt")
+    return agent.strip()
+
+
+def attempt(run_id: str, problem_id: str, solver_id: str, skill: str, agent: str) -> Path:
     run_folder, run = _run(run_id)
     _identifier(problem_id, "problem ID")
     _identifier(solver_id, "solver ID")
+    agent = _writer(agent)
     readiness = _readiness(solver_id)
     supplied, bundle = _skill_bundle(skill)
     attempts = run_folder / "attempts" / problem_id / solver_id
@@ -227,11 +246,12 @@ def attempt(run_id: str, problem_id: str, solver_id: str, skill: str) -> Path:
               "skill_source": str(supplied.relative_to(REPO_ROOT)),
               "skill_version": _skill_version(bundle),
               "skill_bundle_hash": _skill_hash(bundle),
-              "profile": run["profile"], "agent": run.get("agent", "unknown"),
+              "profile": run["profile"], "agent": agent,
               "readiness_hash": _sha256(folder / "readiness.json")}
     _write_new(folder / "attempt.json", record)
     _append_event(run_folder, "attempt_created", {"attempt": str(folder.relative_to(run_folder)),
-                                                     "problem_id": problem_id, "solver_id": solver_id})
+                                                     "problem_id": problem_id, "solver_id": solver_id,
+                                                     "agent": agent})
     return folder
 
 
@@ -496,6 +516,7 @@ def main(argv: list[str] | None = None) -> int:
     attempt_p = commands.add_parser("attempt", help="freeze a solver skill for one pair")
     attempt_p.add_argument("--run", required=True); attempt_p.add_argument("--problem", required=True)
     attempt_p.add_argument("--solver", required=True); attempt_p.add_argument("--skill", required=True)
+    attempt_p.add_argument("--agent", required=True, help="the model that writes this attempt")
     setup_p = commands.add_parser("setup-attempt", help="freeze a solver-setup skill")
     setup_p.add_argument("--run", required=True); setup_p.add_argument("--solver", required=True)
     setup_p.add_argument("--skill", required=True)
@@ -510,7 +531,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "init": output = {"run": str(init(args.run, args.config))}
-        elif args.command == "attempt": output = {"attempt": str(attempt(args.run, args.problem, args.solver, args.skill))}
+        elif args.command == "attempt": output = {"attempt": str(attempt(args.run, args.problem, args.solver, args.skill, args.agent))}
         elif args.command == "setup-attempt": output = {"setup": str(setup_attempt(args.run, args.solver, args.skill))}
         elif args.command == "evaluate":
             output = evaluate(args.attempt, args.model)
