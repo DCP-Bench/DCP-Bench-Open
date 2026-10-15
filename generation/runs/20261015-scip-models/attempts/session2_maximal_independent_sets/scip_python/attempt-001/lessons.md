@@ -1,0 +1,1 @@
+Two-sided constraints: independence per undirected edge, maximality per node as a >= 1 sum over itself and its neighbours; plain binaries and linear constraints were enough, no general constraints needed.

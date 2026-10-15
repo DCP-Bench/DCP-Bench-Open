@@ -1,0 +1,3 @@
+- Four indicator binaries per pair (left, right, below, above) with a sum >= 1 cover non-overlap; indicators with binvar and a difference-of-coordinates inequality work without big-M.
+- The 21-square instance (base 112, json:6) times out at 180 s with this encoding. Bounds from the squares' sizes are the only redundancy used; a stronger model would need cumulative-style or area-based redundant constraints, which the skill does not cover.
+- Note: a second `manage evaluate` on an attempt that already has evaluation.json refuses to overwrite it, and exits 2 while the first run's record stands.

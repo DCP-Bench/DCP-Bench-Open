@@ -1,0 +1,2 @@
+- One-hot binaries with linear square terms (sq = sum v*v*b) avoided SCIP's quadratic handling and gave an accepted first attempt.
+- The circling_squares dataset file is an empty list; the instance has no fields, so the given example numbers are fixed in the model.

@@ -1,0 +1,2 @@
+- Pairwise sums: one assignment binary per (pair, given weight) with x_i + x_j == sum_k w_k * match[p,k] is accepted on all instances.
+- The domain lb=0 for bales assumes nonnegative weights; it was not contradicted by any instance.

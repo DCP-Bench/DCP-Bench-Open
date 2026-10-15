@@ -1,0 +1,2 @@
+- Variables bounded by (max-1)//d: any amount below the maximum never needs more coins of one denomination than that, so the bound is exact and derived from the instance.
+- Splitting "pay v" into per-amount integer variables pay[v,i] <= x[i] with sum d_i*pay[v,i] == v was accepted directly by SCIP on all 5 instances, with no general constraints needed.

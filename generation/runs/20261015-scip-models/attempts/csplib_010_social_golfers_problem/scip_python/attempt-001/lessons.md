@@ -1,0 +1,2 @@
+- Without symmetry breaking, the one-hot play[p, w, k] model with per-pair "together" binaries solves the small instances but hits execution_timeout (180 s) on two of eight; see attempt-002.
+- The 80% retention rule was not met (6 of 8 checked), so this attempt was not retained.

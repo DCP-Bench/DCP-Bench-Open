@@ -1,0 +1,3 @@
+- Sliding puzzle: one-hot tile per cell per step, exactly one blank move per step (no freezing).
+- Moves are linearised without big-M: a move forces the swapped cells equal via two linear constraints per tile, and untouched cells keep their tile via |diff| <= touched, where touched is the sum of moves in and out of the cell.
+- Grid size is read from the end configuration, so 2x2, 3x3 and 4x4 instances all use one model.

@@ -1,0 +1,3 @@
+- The skill's one-hot pattern works for a permutation output with a successor relation: `T[q, k+1] >= T[p, k] + b[p, v] - 1` links consecutive visit steps with no indicators.
+- The frog's start is card 1, and the output convention puts card 1 first in the list. Fixing the start to place 0 needs `b[0, 1] == 1`; a free start place gives "Declared outputs cannot extend to a reference solution".
+- Requiring the frog to return to its start after n jumps makes the instance unsatisfiable for n = 12. Only the first n positions need to be distinct.

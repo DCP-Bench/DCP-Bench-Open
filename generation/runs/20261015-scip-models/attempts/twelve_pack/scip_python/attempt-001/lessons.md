@@ -1,0 +1,3 @@
+- Open-ended integer counts with a single `>= target` constraint and a minimise-total objective solved at once for the 2-pack and 4-pack instances; no general constraint was needed.
+- Variable count is `len(packs)`, so the 4-pack instance (`four packs 1230`) works without changing the model. The brief's `[2]int` shape comes from the example only.
+- Upper bound `target // min(packs) + 1` is enough to keep the search small.

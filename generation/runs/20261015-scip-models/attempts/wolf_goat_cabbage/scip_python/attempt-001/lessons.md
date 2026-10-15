@@ -1,0 +1,2 @@
+- PySCIPOpt: generic binary-state encoding with a same-shore indicator d (wolf[t]-boat[t] <= d, boat[t]-wolf[t] <= d) worked for the river-crossing puzzle; two indicators per equality, always with binvar.
+- Permutation one-hot binaries x[attr, value, house] with pos = sum(h * x) made the zebra clues plain expression equalities; abs() in addCons(abs(a - b) == 1) was accepted by SCIP without a nonlinear error.

@@ -1,0 +1,1 @@
+- Integer program with one count variable per coin type, bounded by stock and amount//value. Accepted on all 5 instances; the 293-cent instance has 8 coin types, so the model takes K from len(types_of_coins), not the brief's [6].
