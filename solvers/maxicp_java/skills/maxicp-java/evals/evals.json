@@ -1,0 +1,14 @@
+{"skill_name": "maxicp-java", "evals": [
+  {"id": 1, "prompt": "Write a Java MaxiCP program that finds every magic square of order 3 with the numbers 1 to 9 and reports how many there are. Use the MaxiCP raw API.", "expected_skill": "maxicp-java",
+   "expected_output": "Eight solutions, search completed", "assertions": ["Uses CPFactory.makeSolver, allDifferent and sum constraints", "Counts solutions with onSolution and checks isCompleted()"]},
+  {"id": 2, "prompt": "I have a JSON file of camping items with costs, profits, a budget and groups of mutually exclusive items. Pick the most profitable set within the budget with MaxiCP in Java.", "expected_skill": "maxicp-java",
+   "expected_output": "A maximising program that reads JSON and ignores unused keys", "assertions": ["Maximises through cp.maximize and search.optimize", "Reads the groups with different sizes and ignores extra keys", "Reports optimality only when isCompleted() is true"]},
+  {"id": 3, "prompt": "Assign six jobs with given durations to three machines in MaxiCP (Java) so that the largest machine load is minimal, then list every optimal assignment.", "expected_skill": "maxicp-java",
+   "expected_output": "The optimum, then each optimal assignment once", "assertions": ["Minimises a max of loads built from isEq and mul", "Fixes the optimum before enumerating", "Forbids each assignment found with a no-good"]},
+  {"id": 4, "prompt": "Schedule four tasks on one machine in MaxiCP for Java with precedence and release times, minimising the makespan.", "expected_skill": "maxicp-java",
+   "expected_output": "A makespan minimisation over interval variables", "assertions": ["Creates tasks with makeIntervalVar(cp, false, length)", "Posts noOverlap, endBeforeStart and startAfter", "Minimises makespan(tasks)"]},
+  {"id": 5, "prompt": "Write a CPMpy model for the magic square of order 3 in Python.", "expected_skill": null,
+   "expected_output": "The MaxiCP skill is not used", "assertions": ["No MaxiCP or Java code is written"]},
+  {"id": 6, "prompt": "Explain how Choco's Model.solve() differs from MaxiCP's DFSearch in one paragraph.", "expected_skill": null,
+   "expected_output": "The MaxiCP skill is not used for the Choco question", "assertions": ["Does not load the MaxiCP skill for a Choco question"]}
+]}

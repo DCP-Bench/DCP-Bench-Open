@@ -1,0 +1,312 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/maxicp_java/CONTRACT.md": "7ef1a3d250c4c9a0b0749c8e38f6c81ea50d2aa0271dd67371ede0fd023c8303"
+    },
+    "created_at": 1792156167.8879218,
+    "problem_id": "aircraft_landing",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "50177dcfb049ec0003e84ba107e177767d9a5b99a3779d1e7d40d1a657c38319",
+    "run_id": "20261016-maxicp-java-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "cce410a5f0a34fe91d5c86d6a262e7a53c9bdc8a",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "cce410a5f0a34fe91d5c86d6a262e7a53c9bdc8a",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "de6dfcf4000026926d7fd71b271a77ed6e7c542e7a7a742888c4e7eb2e188075",
+        "source": "solvers/maxicp_java/skills/maxicp-java",
+        "version": {
+          "commit": "cce410a5f0a34fe91d5c86d6a262e7a53c9bdc8a",
+          "modified": false,
+          "path": "solvers/maxicp_java/skills/maxicp-java"
+        }
+      }
+    ],
+    "solver_id": "maxicp_java"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:ce12504d748601595c0a5916b4265b64a8363799b2b5191355d329fa12c6d06f",
+      "tag": "dcp-eval/maxicp_java:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.005029842024669051,
+        "execution_wall_seconds": 1.3031202429556288,
+        "first_solution": {
+          "landing_times": [
+            1,
+            3,
+            7
+          ],
+          "total_penalty": 50
+        },
+        "id": "example",
+        "instance_hash": "0533277377cd0bec25e0a9fda64ecaa031650a8a098865525441dedc4045ae63",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 50,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.370144329033792,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.227987285,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.615s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.006708289962261915,
+        "execution_wall_seconds": 1.8093905780115165,
+        "first_solution": {
+          "landing_times": [
+            98,
+            106,
+            118,
+            126,
+            134,
+            142,
+            150,
+            165,
+            180,
+            258
+          ],
+          "total_penalty": 700
+        },
+        "id": "json:1",
+        "instance_hash": "3583399054d9539e08fd828b58349277369bd996e5ed71f34d8e7e6c8b8d28d3",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 700,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.42078431404661387,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.483464931,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.821s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.032772940990980715,
+        "execution_wall_seconds": 1.9555011509801261,
+        "first_solution": {
+          "landing_times": [
+            90,
+            98,
+            106,
+            114,
+            122,
+            130,
+            138,
+            151,
+            171,
+            181,
+            196,
+            250,
+            313,
+            339,
+            342
+          ],
+          "total_penalty": 1480
+        },
+        "id": "json:2",
+        "instance_hash": "9376fb5d8d4213600d8cb68263a27d829b9c21a2768b3ce61ee5fd228eecd585",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 1480,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.38297640200471506,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.786240948,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.763s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.05184573901351541,
+        "execution_wall_seconds": 1.9059417839744128,
+        "first_solution": {
+          "landing_times": [
+            82,
+            100,
+            108,
+            116,
+            124,
+            132,
+            140,
+            149,
+            160,
+            169,
+            184,
+            197,
+            229,
+            258,
+            261,
+            287,
+            316,
+            335,
+            338,
+            409
+          ],
+          "total_penalty": 820
+        },
+        "id": "json:3",
+        "instance_hash": "7ac82dccd48544bab5a1b7eeec7cc42fc032e829c2433293e324ccc39e5f5cdb",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 820,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.4289425620227121,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.656435285,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.826s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.00581356103066355,
+        "execution_wall_seconds": 1.6058305790065788,
+        "first_solution": {
+          "landing_times": [
+            11,
+            15,
+            19,
+            22,
+            26,
+            33
+          ],
+          "total_penalty": 21
+        },
+        "id": "json:4",
+        "instance_hash": "547c194f945f54edff8a945c26abb4179443461cf0f717cfde625504bc32f0ec",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 21,
+        "outputs": [
+          "landing_times",
+          "total_penalty"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.442128459981177,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.295358207,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.816s\n"
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "e78255ea57cbb97277824ab3ed511630e46ab0da615f7455390080705a36833f",
+    "problem_id": "aircraft_landing",
+    "reason": "accepted",
+    "reference_hash": "132d764d185fc7616ee154307a99c5c1edeae9a97d595cf5527c1e4ede973f1d",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 7,
+    "solver_id": "maxicp_java",
+    "total_wall_seconds": 10.970594418991823,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.java",
+  "problem": "aircraft_landing",
+  "schema": 2,
+  "solver": "maxicp_java",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
