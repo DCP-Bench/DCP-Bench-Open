@@ -1,0 +1,12 @@
+{"skill_name": "highs-cpp", "evals": [
+  {"id": 1, "prompt": "Write a C++ program using HiGHS that picks a 0/1 knapsack with maximum value for 7 items and capacity 9.", "expected_skill": "highs-cpp",
+   "expected_output": "Binary columns, one capacity row, maximise with kMaximize, status check kOptimal", "assertions": ["Uses Highs::addVar and changeColIntegrality for binaries", "Checks getModelStatus() is kOptimal before reading values", "Sets mip_rel_gap to 0"]},
+  {"id": 2, "prompt": "In C++ with HiGHS, list every assignment of two integers x and y in 0..2 with x + y = 2.", "expected_skill": "highs-cpp",
+   "expected_output": "Three solutions via no-goods, final status Infeasible", "assertions": ["Adds a no-good over the integer columns after each solution", "Stops when getModelStatus() is not kOptimal", "Does not claim HiGHS enumerates solutions itself"]},
+  {"id": 3, "prompt": "Model with HiGHS in C++: a job either runs before another or after it on one machine; minimise the makespan.", "expected_skill": "highs-cpp",
+   "expected_output": "Binary plus big-M rows for the disjunction", "assertions": ["Uses a binary and two big-M rows", "Chooses big-M from the data, not a fixed large constant"]},
+  {"id": 4, "prompt": "Write a Python program using OR-Tools CP-SAT to solve a knapsack.", "expected_skill": null,
+   "expected_output": "The skill is not used", "assertions": ["highs-cpp is not loaded"]},
+  {"id": 5, "prompt": "Write a Gurobi model in Python for a small MIP.", "expected_skill": null,
+   "expected_output": "The skill is not used", "assertions": ["highs-cpp is not loaded"]}
+]}
