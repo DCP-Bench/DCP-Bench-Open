@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from evaluation.check import evaluate
-from evaluation.execution import execute, validate_records
+from evaluation.execution import OOM_REREADS, execute, validate_records
 from evaluation.reference import Reference, embedded_instance, load_reference, select_instances
 from evaluation.results import canonical, EvaluationError, strict_json
 from evaluation.reference import ReferenceSession
@@ -442,24 +442,56 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(result["reason"], "invalid_solution", result)
 
     def test_exit_137_is_a_memory_limit_only_when_docker_saw_an_oom_kill(self):
-        """A submission can SIGKILL itself; only the kernel's kill counts as the memory limit."""
-        for flag, reason in (("true", "memory_limit"), ("false", "execution_error")):
+        """A submission can SIGKILL itself; only the kernel's kill counts as the memory limit.
+
+        Docker can set OOMKilled after the exit, so an unset flag after an exit
+        137 is read again, and the detail gives the reading at exit and the last one.
+        """
+        rereads = OOM_REREADS
+        for flags, reason, inspections, readings in (
+                (["true"], "memory_limit", 1, "OOMKilled was true at exit"),
+                (["false", "false", "true"], "memory_limit", 3, "OOMKilled was false at exit and true 0.5 s later"),
+                (["false"] * (rereads + 1), "execution_error", rereads + 1,
+                 f"OOMKilled was false at exit and false {rereads * 0.25:g} s later")):
             commands = []
+            answers = iter(flags)
 
             def docker(command, timeout):
                 commands.append(command[1])
-                return {"run": (137, "", "Killed"), "inspect": (0, flag + "\n", ""), "rm": (0, "", "")}[command[1]]
+                if command[1] == "inspect":
+                    return 0, next(answers) + "\n", ""
+                return {"run": (137, "", "Killed"), "rm": (0, "", "")}[command[1]]
 
-            with self.subTest(flag=flag), tempfile.TemporaryDirectory() as temp, \
-                    patch("evaluation.execution.run_process", side_effect=docker):
+            with self.subTest(flags=flags), tempfile.TemporaryDirectory() as temp, \
+                    patch("evaluation.execution.run_process", side_effect=docker), \
+                    patch("evaluation.execution.time.sleep"):
                 model = Path(temp) / "model.py"
                 model.write_text("# stub")
                 with self.assertRaises(EvaluationError) as raised:
                     execute(model, {}, {"extension": ".py"}, "sha256:test", solution_limit=1, execution_timeout=5,
                             compilation_timeout=5, memory_mb=256, cpus=1)
                 self.assertEqual(raised.exception.reason, reason)
+                self.assertIn(f"exited 137 ({readings})", raised.exception.detail)
                 # The container outlives its exit only until it has been inspected.
-                self.assertEqual(commands, ["run", "inspect", "rm"])
+                self.assertEqual(commands, ["run"] + ["inspect"] * inspections + ["rm"])
+
+    def test_only_exit_137_rereads_the_oom_flag(self):
+        """Another exit code is not a kill, so one unset reading settles it."""
+        commands = []
+
+        def docker(command, timeout):
+            commands.append(command[1])
+            return {"run": (1, "", "Traceback"), "inspect": (0, "false\n", ""), "rm": (0, "", "")}[command[1]]
+
+        with tempfile.TemporaryDirectory() as temp, patch("evaluation.execution.run_process", side_effect=docker):
+            model = Path(temp) / "model.py"
+            model.write_text("# stub")
+            with self.assertRaises(EvaluationError) as raised:
+                execute(model, {}, {"extension": ".py"}, "sha256:test", solution_limit=1, execution_timeout=5,
+                        compilation_timeout=5, memory_mb=256, cpus=1)
+            self.assertEqual(raised.exception.reason, "execution_error")
+            self.assertEqual(raised.exception.detail, "Runner exited 1: Traceback")
+            self.assertEqual(commands, ["run", "inspect", "rm"])
 
     def test_legacy_framework_names_map_onto_integrations(self):
         """eval.py takes a framework name from a third party's JSONL. A known
