@@ -1,0 +1,22 @@
+{
+  "skill": "highs-cpp",
+  "source_digest": "sha256:c00466d09043021c21f2737bb95c778cee2d97de7e66ecf61d9bd7556dd3956a",
+  "reviewer": "fresh agent (Claude Haiku 5.5), given only the skill folder and standalone-review.md; the choco_java standalone-review.json was read for format only",
+  "verdict": "leaks",
+  "findings": [
+    {
+      "file": "SKILL.md",
+      "line": 95,
+      "quote": "Write each block of constraints as rows, with the comment line taken from the part of the problem it encodes.",
+      "category": "benchmark",
+      "why": "The required description-derived comment before each constraint block is a convention of the benchmark's model generation, not advice a HiGHS user needs."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 164,
+      "quote": "Only integer columns that the outputs depend on need no-goods",
+      "category": "benchmark",
+      "why": "\"the outputs\" refers to the declared-output contract of a runner that reads named outputs, not to what a standalone program prints."
+    }
+  ]
+}
