@@ -1,0 +1,121 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "created_at": 1792127506.3835592,
+    "problem_id": "contracting_costs",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "fe31cd05caf096d2ff44c728be66afb11db40c0b7313572d3e664d3130f187a0",
+    "run_id": "20261016-choco-java-models",
+    "schema": 2,
+    "skill_bundle_hash": "a519dd737caf4aed35a27f4cdba55942b2008c224d2458ffa15e6109722e2571",
+    "skill_source": "solvers/choco_java/skills/choco-java",
+    "skill_version": {
+      "commit": "776eb0fe9d8b26436d6991dbf70457395193b071",
+      "modified": false,
+      "path": "solvers/choco_java/skills/choco-java"
+    },
+    "solver_id": "choco_java"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:b027aefb064f6a7f9a307ab4334cb80af2d6aa7e6396671bda2461f32823c3e8",
+      "tag": "dcp-eval/choco_java:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.0029570420156233013,
+        "execution_wall_seconds": 2.003969468001742,
+        "first_solution": {
+          "carpenter": 3000,
+          "electrician": 300,
+          "mason": 2300,
+          "painter": 900,
+          "paper_hanger": 200,
+          "plumber": 800
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "paper_hanger",
+          "painter",
+          "plumber",
+          "electrician",
+          "carpenter",
+          "mason"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.6326330750016496,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.494032504,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.976s\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "32b5f0c8576ecfa0addccfbe82fe9c50cec14e6f706a40b2e4ff8207adb408f1",
+    "problem_id": "contracting_costs",
+    "reason": "accepted",
+    "reference_hash": "2a5125a2c5d1e2b3dd46fc3b9dfe796385fb351153e38e294342a5a957befd14",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.13.2"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "choco_java",
+    "total_wall_seconds": 2.733417520998046,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": false,
+  "model_file": "model.java",
+  "problem": "contracting_costs",
+  "schema": 2,
+  "solver": "choco_java",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}

@@ -1,0 +1,2 @@
+- Pair constraints over reified inequalities: m.arithm(a, "+", b, "!=", 5).reify() then m.sum(bools, ">=", 4) works for Hamming-style distances; no global needed.
+- among takes an IntVar count: pass m.intVar(4), not an int.

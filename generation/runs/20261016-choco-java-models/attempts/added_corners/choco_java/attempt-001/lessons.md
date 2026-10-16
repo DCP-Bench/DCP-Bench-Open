@@ -1,0 +1,2 @@
+- Plain expressions work for linear equalities: `a.add(b).eq(c).post()` compiled and checked first time.
+- For a puzzle with no instance fields, the example is the only instance; the model reads no instance data.

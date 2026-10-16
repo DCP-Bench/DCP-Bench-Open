@@ -1,0 +1,2 @@
+- Bounded-earliness/lateness pattern: `arithm(early, "+", t, ">=", target)` and `arithm(late, "-", t, ">=", -target)` with a `scalar` penalty sum, minimised. Matches the airland optima (50, 700, 1480, 820, 21).
+- Two of five instances stop at the solve limit (status `limit`) yet are accepted at the reference optimum; default search was enough at this size.

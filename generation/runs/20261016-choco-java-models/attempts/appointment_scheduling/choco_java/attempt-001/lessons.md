@@ -1,0 +1,2 @@
+- The brief names the matrix only as m; the instance notes settle that m[person][slot] = 1 means free, so read the notes before choosing the orientation.
+- Permutation-style problems: boolVarMatrix plus two m.sum(..., "=", 1) per row and column is enough; zeros become arithm(x, "=", 0).

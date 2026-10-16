@@ -1,0 +1,3 @@
+- Capacity-style rows (seats per route >= demand) post directly as `m.scalar(column, coeffs, ">=", demand)`; no decomposition needed.
+- A weighted total over a matrix is one `m.scalar(flat, coeffs, "=", total)` on a bounded IntVar, then `setObjective(MINIMIZE, total)`.
+- Per-cell upper bounds from availability keep the domains tight; the total's upper bound comes from the data.

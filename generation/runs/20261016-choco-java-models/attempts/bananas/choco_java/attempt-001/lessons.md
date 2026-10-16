@@ -1,0 +1,2 @@
+- Prices in fractional dollars were scaled by the common denominator (315) to integers; scalar() with the scaled budget keeps the exact cost equality.
+- The objective is a sum view over two quantities, set via setObjective on m.sum(name, vars).

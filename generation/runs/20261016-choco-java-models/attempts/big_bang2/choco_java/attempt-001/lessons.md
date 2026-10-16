@@ -1,0 +1,2 @@
+- With default search, the second solution of the 5x6 dice model did not come within 60 s; domOverWDeg over all faces plus Luby restarts found two solutions in about 5 s.
+- FailCounter lives in org.chocosolver.solver.search.limits (the import is in the skill's examples.md, not the signature list).

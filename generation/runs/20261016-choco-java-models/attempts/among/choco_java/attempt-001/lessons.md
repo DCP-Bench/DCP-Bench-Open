@@ -1,0 +1,3 @@
+- among(IntVar count, IntVar[] x, int[] values) takes the count as a variable, so a fixed m is wrapped with m.intVar(m).
+- The brief's output shape [7] is the example's size. x is sized from the instance n, which varies (5 to 12 here).
+- The value bound 0..7 is stated in the description, so it is a constant, not an instance field.

@@ -1,0 +1,2 @@
+- Minimise a weighted sum: build the total with m.scalar(IntVar[] flat, int[] weights, "=", total) and setObjective on total; the upper bound is the sum of row maxima.
+- Orientation: the brief's x is [tasks][people]; the matrix rows are tasks, so read cost rows as tasks.
