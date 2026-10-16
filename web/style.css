@@ -175,11 +175,19 @@ html:not(.js) .theme-toggle { display: none; }
 .hero p { margin: 0; color: var(--muted); font-size: 1.05rem; text-wrap: balance; }
 /* The letters that spell DCP. */
 .hero p strong { color: var(--text); font-weight: 600; }
-/* The logo leans in the hero's right corner, its foot cut off by the
-   header's rule; the title and tagline keep clear of it. */
-.hero.has-logo { position: relative; overflow: hidden; }
+/* The stone sits whole in the hero's right corner, clear of the rule
+   below; the title and tagline keep clear of it. */
+.hero.has-logo { position: relative; }
 .hero.has-logo h1, .hero.has-logo p { padding-right: 200px; }
-.hero-logo { position: absolute; top: -8px; right: 36px; height: 220px; width: auto; }
+.hero-logo {
+  position: absolute;
+  right: 36px;
+  bottom: 4px;
+  width: auto;
+  height: auto;
+  max-height: calc(100% - 10px);
+  max-width: 160px;
+}
 :root[data-theme="dark"] .hero-logo { filter: brightness(0.9); }
 .problem-hero {
   padding-top: 30px;
@@ -994,7 +1002,13 @@ footer {
   .hero { padding-top: 36px; padding-bottom: 26px; }
   .hero h1 { font-size: 1.9rem; }
   .hero.has-logo h1, .hero.has-logo p { padding-right: 140px; }
-  .hero-logo { top: auto; bottom: -42px; right: 2px; height: 182px; }
+  .hero-logo {
+    top: auto;
+    right: 4px;
+    bottom: 6px;
+    max-width: 110px;
+    max-height: calc(100% - 12px);
+  }
   .problem-hero h1 { font-size: 1.6rem; }
   .problem-hero h1.problem-id { font-size: 1.35rem; overflow-wrap: anywhere; }
   .provenance dl { grid-template-columns: 1fr; gap: 2px 0; }

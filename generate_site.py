@@ -32,7 +32,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v53"
+ASSET_VERSION = "catalogue-v54"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
