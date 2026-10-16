@@ -1,0 +1,3 @@
+- Reified sum works for "x is true iff all listed booleans are false": m.sum(bools, "=", 0).reifyWith(b), no post needed (reifyWith posts itself).
+- A sum over an empty array is not safe to build; branch in Java on the empty case and post a fixed value.
+- Data-only predicates (everybody knows i) can be computed in Java and posted as fixed domains, with a comment saying so.

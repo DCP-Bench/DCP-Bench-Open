@@ -1,0 +1,1 @@
+Boolean gives[cow][son] with boolsIntChanneling to the output, sum per son for counts and scalar with milk weights for equal totals. Inputs: the 81-cow instance (json:1) times out at 180 s with this encoding; the example (25 cows) takes about 26 s.

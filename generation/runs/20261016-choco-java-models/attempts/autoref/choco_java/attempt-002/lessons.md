@@ -1,0 +1,2 @@
+- Autoref: every term of S must be a counted value, so each s_k has domain 0..n. A domain of 0..n+2 lets a value above n through uncounted (the evaluator rejects (4,0,0,0,0) for n=3, m=0).
+- The retained model has no search strategy or redundant sums; all five instances (up to n=40) solve in about 1 s each.

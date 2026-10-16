@@ -1,0 +1,2 @@
+- A permutation problem with per-position durations: element(dur, column, seq[p]) gives each position's time on a machine, and precedence inequalities between neighbouring positions and machines model the flow shop without a cumulative.
+- A quick check on the 9x12 instance once returned reference_timeout on the reference side, then passed on rerun; treat a single reference_timeout as transient before changing the model.
