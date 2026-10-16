@@ -29,5 +29,14 @@ Verified by running (Java 21 image, MaxiCP 0.0.3):
 - A bound of `Integer.MAX_VALUE` is refused with a message naming the int limits.
 - An objective that is not fixed at a solution throws `objective not bound`.
 - `cp.post` of a constraint refuted at the root throws `InconsistencyException`.
+- Modelling API checks (Java 21 image, MaxiCP 0.0.3), each compiled and run: `sum(bs, k)` over `CPBoolVar[]`
+  and `sum(bs, y)` (16 for 4 Booleans); `sum(a, minus(b))` (a = 3 forces b = 2); `eq(sum(xs, k), ...)` and
+  `minus(CPIntVar, CPIntVar)` do not compile; `mul` with `0..40000` bounds works and `0..50000` throws the
+  domain message; `isEq(x, y)` (4 and 12 solutions); `table` with `int[][]` rows (3); `or`, `implies` as
+  constraints (`CPBoolVar` assignment does not compile); `isOr` nested reification; `ge(sum(bs), b)` (15);
+  `circuit` on 4 and 5 nodes (6 and 24); `element(CPIntVar[], idx)` and `element(int[][], r, c)`; a 2-D lookup
+  flattened to `element`; cumulative `le(sum(pulse...), cap)` against brute force on four cases.
+- Heap: 2 variables on `0..1000000000` are fine; 300 chained by `eq` throw `OutOfMemoryError` at `Equal.post`.
+- `firstFailBinary` ties: `minDomVariableSelector(x1, x0)` picks `x1` (the first argument), so the first argument wins.
 - The examples' expected outputs, the inline Quick start (copied from this file) and the examples' runs with
   only `maxicp-0.0.3.jar` on `CLASSPATH`.

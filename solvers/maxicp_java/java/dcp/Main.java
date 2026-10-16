@@ -92,19 +92,26 @@ public final class Main {
         if (out.isEmpty()) throw new IllegalStateException("Expected output dictionary: declare at least one output with out.put");
 
         CPSolver cp = model.cp();
+        // MaxiCP 0.0.3 overflows its objective bound on offset views (CPIntVarViewOffset
+        // computes v - o with the bound at 2147483646), so optimise a fresh variable that
+        // equals the declared objective. Its domain is the objective's root domain.
+        CPIntVar declared = model.objective();
+        CPIntVar objective = declared == null ? null : freshObjective(cp, declared);
         // Branch on every variable the submission made, on every output and on the
         // objective, so a solution fixes all of them and every constraint has been checked.
         Set<CPIntVar> decisions = new LinkedHashSet<>(model.variables());
         decisions.addAll(out.variables());
-        if (model.objective() != null) decisions.add(model.objective());
+        if (declared != null) {
+            decisions.add(declared);
+            decisions.add(objective);
+        }
         Supplier<Runnable[]> branching = Searches.firstFailBinary(decisions.toArray(new CPIntVar[0]));
 
         List<JsonObject> found = new ArrayList<>();
         Outcome outcome;
-        if (model.objective() == null) {
+        if (declared == null) {
             outcome = enumerate(cp, branching, out, limit, timeUp, found);
         } else {
-            CPIntVar objective = model.objective();
             IntObjective bound = model.minimise() ? cp.minimize(objective) : cp.maximize(objective);
             DFSearch search = CPFactory.makeDfs(cp, branching);
             long[] bestValue = {0};
@@ -123,6 +130,13 @@ public final class Main {
             outcome = enumerate(cp, branching, out, limit, timeUp, found);
         }
         finish(outcome, found);
+    }
+
+    // A plain variable with the declared objective's root domain, posted equal to it.
+    private static CPIntVar freshObjective(CPSolver cp, CPIntVar declared) {
+        CPIntVar target = CPFactory.makeIntVar(cp, declared.min(), declared.max());
+        cp.post(CPFactory.eq(target, declared));
+        return target;
     }
 
     /**

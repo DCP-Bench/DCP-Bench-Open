@@ -48,16 +48,34 @@ output too. A number beyond the `int` range goes through `out.putDigits("name", 
 significant digit first. A repeated name throws. Every output is fixed by the search, so every output is a
 value of the solution.
 
+Shapes follow each instance's own data. The driver calls `build` once per instance, so an output whose description
+ties its length to the data (an array of length `n`, a matrix with `rows` rows) is built from `inst` with that
+instance's size. `generation.brief` prints the shape of the example instance only (the first listed instance, or
+the embedded example; `shape_of` in [generation/brief.py](../../generation/brief.py)), so take the dimensions from
+the description and check them against each instance.
+
 ## Objective
 
-`m.minimize(x)` or `m.maximize(x)`, at most once, with `x` a `CPIntVar` (a view such as `sum(...)` or `max(...)`
-is fine). Absent: satisfaction. Do not bound it with a value known from elsewhere.
+`m.minimize(x)` or `m.maximize(x)`, at most once, with `x` a `CPIntVar` (a view such as `sum(...)`, `max(...)` or an
+offset `minus(x, 5)` / `plus(x, -5)` is fine). Absent: satisfaction. Do not bound it with a value known from elsewhere.
+
+The driver does not hand the declared view to MaxiCP's optimiser. It makes a fresh variable with the view's root
+domain, posts `eq(fresh, objective)` and optimises the fresh one (`freshObjective` in
+[java/dcp/Main.java](java/dcp/Main.java)). MaxiCP 0.0.3's `Minimize` starts its bound at 2147483646 and an offset
+view's `removeAbove` computes `v - o` unchecked, so optimising the view directly wrapped and reported `unsat` on
+satisfiable models. The readiness check `offset_objective` (`minus(x, 5)` over 0..3) guards this.
 
 ## Solving
 
 - **Branching:** the driver searches with `firstFailBinary` over every variable made with `m.intVar`,
-  `m.intVarArray`, `m.boolVar`, `m.boolVarArray`, over every output, and over the objective. A solution fixes all
-  of them, so every posted constraint has been checked. One thread.
+  `m.intVarArray`, `m.boolVar`, `m.boolVarArray` (in registration order), then over every output, then over the
+  declared objective and its fresh variable (`build` and `run` in [java/dcp/Main.java](java/dcp/Main.java)). A
+  solution fixes all of them, so every posted constraint has been checked. One thread.
+- **Variable order:** one `firstFailBinary` over that list (Main.java, `branching`) picks the unfixed variable
+  with the smallest domain; equal sizes go to the earlier one in the list, that is, registration order
+  (`minDomVariableSelector`, tested directly). So register the main decision variables first, and note that a
+  small-domain auxiliary made with `m.intVar`/`m.boolVar` is branched before larger decisions. An auxiliary that
+  propagation fixes can be made with `CPFactory` directly (unregistered), so it is not branched on.
 - **Optimisation:** `optimize` with the bound tightened at each improving solution. The last solution is the
   optimum only when the search is `completed`; a search stopped by the deadline is `timeout` and nothing is
   emitted ("Candidate optimum was not proven"). A completed search with no solution is `unsat`. Otherwise the
@@ -97,6 +115,15 @@ unprivileged, under the container's memory limit. No licence key or edition limi
 - **Printing** is harmless: the driver points `System.out` at stderr and writes the protocol itself.
 - **An exception in `build`**, such as `InvalidParameterException` from an empty domain, is `execution_error`
   with the Java message in `detail`.
+- **Domains are sparse sets built lazily.** A bounded variable over ~10^9 values costs little while nothing is
+  removed from it: one such variable fixed by `eq`, fifty fixed by `eq`, and fifty unfixed with pairwise `neq`
+  all solved. Once values are removed
+  the sparse set is built in full, and a thousand variables over 0..10^9 with a `neq` chain exhaust the 1400 MB
+  heap (`OutOfMemoryError` in `StateLazySparseSet`, `execution_error`). Keep domains small.
+- **`sum` over large domains** throws `IntOverFlowException` when the bounds of the summed domains exceed `int`
+  (a thousand variables over 0..10^9). The same holds for `mul`: `mul(x, y)` over 0..50000 each gives an
+  `InvalidParameterException` ("consider reducing the domains") from `makeIntVar`, an `execution_error`. Keep
+  products and sums within `int`.
 - **Empty domains** (`makeIntVar(cp, 3, 1)`) and bounds at `Integer.MIN_VALUE` or `Integer.MAX_VALUE` are refused.
 
 ## Example
