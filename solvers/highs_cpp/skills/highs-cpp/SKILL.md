@@ -92,7 +92,8 @@ Pass integer counts as `HighsInt` (32-bit on this build) and bounds as `double`.
 
 ## Linearising logic
 
-Write each block of constraints as rows, with the comment line taken from the part of the problem it encodes.
+Start each block of rows with a `//` comment in the problem statement's words, not the HiGHS call
+(`// every row holds different values`).
 Let `M` be a big-M constant computed from the data, not a guess (see the last row).
 
 | Pattern | Rows |
@@ -161,7 +162,7 @@ If no indicator is created, every column is fixed and the enumeration is complet
 For all optimal solutions: solve, record the optimum `z` from `getInfo().objective_function_value`. Write the
 objective as a row over the same columns, `sum_j c_j x_j + offset` (the cost coefficients and the offset from
 `changeObjectiveOffset`), and add it as `z - 1e-5 <= row <= z + 1e-5`. Then enumerate with the same no-goods.
-Only integer columns that the outputs depend on need no-goods; each solve costs one more round, so keep
+Only integer columns that the reported answer depends on need no-goods; each solve costs one more round, so keep
 the enumerated count small.
 
 ## Common issues
