@@ -7,7 +7,7 @@ import static org.maxicp.cp.CPFactory.*;
 import static org.maxicp.search.Searches.*;
 
 // Magic squares of order n: the numbers 1..n*n fill the grid once each, and every row,
-// column and both diagonals add up to the same magic sum. Every variable is an output,
+// column and both diagonals add up to the same magic sum. Every variable is part of each reported solution,
 // so each solution is distinct and no no-good is needed.
 public class MagicSquare {
     public static void main(String[] args) {

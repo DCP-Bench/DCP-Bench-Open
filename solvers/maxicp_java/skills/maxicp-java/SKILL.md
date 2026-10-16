@@ -39,7 +39,8 @@ java -version
 ```
 
 The examples run as single files with `java File.java`, which reads `CLASSPATH`. Only the JSON example
-needs Gson. The raw API needs nothing else. Details: [MaxiCP repository](https://github.com/aia-uclouvain/maxicp/tree/v0.0.3)
+needs Gson. The raw API needs nothing else. Name the file after its public class, so a problem named
+`n-queens` goes in `NQueens.java` (the source launcher accepts a mismatch, javac does not). Details: [MaxiCP repository](https://github.com/aia-uclouvain/maxicp/tree/v0.0.3)
 (tag `v0.0.3`), [Maven artifact](https://repo1.maven.org/maven2/org/maxicp/maxicp/0.0.3/).
 
 ## Quick start
@@ -71,8 +72,9 @@ Output: three lines `x=... y=...`, then `solutions: 3, completed: true`.
 
 ## Modelling
 
-Start each block of constraints with a comment line taken from the part of the problem description it
-encodes, for example `// every row holds different values`. The examples below follow this rule.
+**Readable models.** Open the program with a `//` comment stating the problem, and start each constraint
+block with a `//` comment in the problem statement's words, not the MaxiCP call, for example
+`// every row holds different values`. The examples below follow this.
 
 Full list: [CPFactory](https://github.com/aia-uclouvain/maxicp/blob/v0.0.3/src/main/java/org/maxicp/cp/CPFactory.java)
 (static factories and constraints; `import static org.maxicp.cp.CPFactory.*`).
@@ -92,7 +94,9 @@ Full list: [CPFactory](https://github.com/aia-uclouvain/maxicp/blob/v0.0.3/src/m
 | no overlap and makespan | `noOverlap(ts)`, `makespan(ts)` |
 
 - `cp.post(c)` posts a constraint and propagates. If it is refuted there and then, it throws
-  `InconsistencyException`.
+  `InconsistencyException` (`org.maxicp.util.exception`). A refusal at a root-level post, before any search,
+  means the problem is unsatisfiable: catch it and report that, with no solution. Inside a branch the search
+  handles it. See [Common issues](#common-issues).
 - A variable is fixed by the search only if the branching array covers it. Pass every variable a solution
   must fix to `firstFailBinary`.
 - A view (`sum`, `mul`, `max`, `element`, ...) follows the variables it is built from. It is fixed when they are.
@@ -123,12 +127,14 @@ Full list: [CPFactory](https://github.com/aia-uclouvain/maxicp/blob/v0.0.3/src/m
 
 ## All solutions
 
-`onSolution` runs once per solution. Auxiliary variables (any variable outside the outputs) multiply
-the solutions: a free `spare` in 0..5 makes each `(x, y)` appear six times. Either fix every auxiliary
-through a constraint, or forbid each output assignment with a no-good:
+`onSolution` runs once per solution. Auxiliary variables (any variable not part of the reported solution)
+multiply the solutions: a free `spare` in 0..5 makes each `(x, y)` appear six times. Either fix every
+auxiliary through a constraint, or forbid each assignment of the reported variables with a no-good:
 
 ```java
-int[] values = new int[n];                                  // inside the loop, values of the outputs
+import org.maxicp.util.exception.InconsistencyException;
+
+int[] values = new int[n];                                  // inside the loop, values of the variables the loop records
 DFSearch search = makeDfs(cp, firstFailBinary(xs));
 search.onSolution(() -> { for (int i = 0; i < n; i++) values[i] = xs[i].min(); });
 SearchStatistics stats = search.solve(s -> s.numberOfSolutions() >= 1);
@@ -151,7 +157,7 @@ Each pass builds a new `makeDfs`. [Min-makespan](assets/min-makespan/README.md) 
 - The objective must be fixed at every solution. If it is not, MaxiCP throws `objective not bound`: add the
   objective to the branching array.
 - To enumerate every optimum: post `eq(x, optimum)` at the root after `optimize`, then run the no-good loop
-  above over the outputs.
+  above over the variables the loop reports.
 - Do not bound the objective with a value the model does not imply.
 - Examples: [project-selection](assets/project-selection/README.md) (maximise),
   [min-makespan](assets/min-makespan/README.md) (minimise, all optimal),
@@ -169,7 +175,7 @@ Each pass builds a new `makeDfs`. [Min-makespan](assets/min-makespan/README.md) 
 | `InvalidParameterException ... MIN_VALUE and MAX_VALUE not allowed` | A bound at the int limit | Use tighter bounds from the data |
 | `InconsistencyException` from `cp.post` | Refuted at the root, outside the search | Catch it where the post is outside a search; inside a branch the search handles it |
 | Values read after `solve` are the root's | State is restored on return | Read values in `onSolution` |
-| Outputs repeat with different auxiliaries | Auxiliaries are branched on | Fix them, or use the no-good loop |
+| Solutions repeat with different auxiliaries | Auxiliaries are branched on | Fix them, or use the no-good loop |
 | `solve` returns 0 solutions and `completed` is false | The predicate stopped the search (often a time limit) | Raise the limit; a non-completed search proves nothing |
 
 ## Runnable examples
