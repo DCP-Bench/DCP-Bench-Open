@@ -1,0 +1,22 @@
+Problem: five houses, colours/nations/pets/drinks/jobs, each a permutation of houses 0..4; clue sentences below.
+
+- each of the five houses is a different colour -> allDifferent(colors, AC)
+- each inhabitant has a different nationality -> allDifferent(nations, AC)
+- different pets -> allDifferent(pets, AC)
+- different drinks -> allDifferent(drinks, AC)
+- different jobs -> allDifferent(jobs, AC)
+- the painter owns the horse -> jobs[painter] = pets[horse]
+- the diplomat drinks coffee -> jobs[diplomat] = drinks[coffee]
+- the one who drinks milk lives in the white house -> drinks[milk] = colors[white]
+- the Spaniard is a painter -> nations[spain] = jobs[painter]
+- the Englishman lives in the red house -> nations[england] = colors[red]
+- the snails are owned by the sculptor -> pets[snails] = jobs[sculptor]
+- the green house is immediately on the left of the red one -> colors[red] = colors[green] + 1
+- the Norwegian lives immediately on the right of the blue house -> nations[norway] = colors[blue] + 1
+- the doctor drinks milk -> jobs[doctor] = drinks[milk]
+- the diplomat is Japanese -> jobs[diplomat] = nations[japan]
+- the Norwegian owns the zebra -> nations[norway] = pets[zebra]
+- the green house is next to the white one -> |colors[green] - colors[white]| = 1
+- the horse is owned by the neighbour of the diplomat -> |pets[horse] - jobs[diplomat]| = 1
+- the Italian lives in the red, white or green house -> nations[italy] != colors[blue] (5 colours, so "not blue" = red/white/green)
+- Objective: none (satisfaction). Outputs: colors, drinks, jobs, nations, pets as IntVar[5].

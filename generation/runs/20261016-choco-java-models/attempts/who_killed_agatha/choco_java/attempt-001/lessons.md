@@ -1,0 +1,2 @@
+- A column of BoolVars works as the `table` of `m.element(m.intVar(c), column, killer, 0)` to say "killer's entry in that column equals c"; no extra channelling needed.
+- The description does not define "richer" as a relation; I modelled it as a free boolean matrix with an irreflexive diagonal and no other assumptions.

@@ -1,0 +1,2 @@
+- Ragged instance fields (cages of 2 to 9 cells, each [sum, [[r,c],...]]) bind through `inst.raw("problem").getAsJsonArray()` and Gson `JsonArray` navigation; no Instance helper is needed.
+- Cell indices in the instance are 1-based; subtract 1 when indexing the Choco matrix.

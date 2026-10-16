@@ -1,0 +1,2 @@
+- allDifferent(..., "AC") over offset views (m.offset) threw "This element is not present in the in-list" in AlgoAllDiffBimodal on a larger instance (json:2). Use explicit IntVars tied with arithm, or the default allDifferent.
+- Earlier attempt-001 passed the 2-instance quick check, so the quick check does not cover larger instances; run the full evaluation.

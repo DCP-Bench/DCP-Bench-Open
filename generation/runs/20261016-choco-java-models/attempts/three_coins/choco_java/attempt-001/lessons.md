@@ -1,0 +1,1 @@
+- Per-step flip count: reified arithm("!=") per element, then m.sum(flipped, "=", 1).post() expresses exactly one change between states.
