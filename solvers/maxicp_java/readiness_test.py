@@ -254,6 +254,35 @@ public class Submission {
   }
 }
 ''')
+# offset_objective: the objective is an offset view (x - 5). MaxiCP's objective bound
+# overflowed on offset views, so this model reported unsat. The minimum is at x = 0.
+OFFSET_REF = """
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 3, name="x")
+model = cp.Model(x >= 0)
+model.minimize(x - 5)
+model.solve()
+solution = {"x": int(x.value())}
+print(json.dumps(solution))
+"""
+OFFSET = '''import org.maxicp.cp.engine.core.CPIntVar;
+import static org.maxicp.cp.CPFactory.*;
+import dcp.Instance;
+import dcp.Model;
+import dcp.Outputs;
+
+public class Submission {
+  public static void build(Instance inst, Model m, Outputs out) {
+    CPIntVar x = m.intVar(0, 3);
+    m.minimize(minus(x, 5));
+    out.put("x", x);
+  }
+}
+'''
 # optimization_timeout: an easy reference (x >= n, minimise x). The submission
 # adds an unrelated hard part to its objective (a Golomb ruler of 11 marks) so the
 # solver finds a solution fast but cannot prove it within a 3 s budget.
@@ -431,6 +460,7 @@ def main():
                                            and all(item.get("solutions_received", 0) == 0
                                                    for item in result["instances"]))
         check("minimization_step_one", STEP, reference=STEP_REF)
+        check("offset_objective", OFFSET, reference=OFFSET_REF)
         result = check("optimum_enumeration", SUM, reference=SUM_REF, solution_limit=3)
         results["optimum_enumeration"] = result["accepted"] and result["solutions_checked"] == 3
         check("output_shapes", SHAPES, reference=SHAPES_REF)
