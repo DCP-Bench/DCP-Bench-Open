@@ -18,8 +18,8 @@ void row(Highs& h, const std::vector<HighsInt>& cols, const std::vector<double>&
 
 int main() {
   const double d1 = 3, d2 = 4;
-  // Safe big-M: in an optimal schedule with no idle time the starts are at most the total
-  // work, so no start needs to exceed d1 + d2. The starts are bounded by it.
+  // Safe big-M: a left-shifted schedule ends by the total work H = d1 + d2, so job j starts
+  // in 0..H - dj. Over those bounds each disjunction row's left side spans at most H.
   const double big_m = d1 + d2;
 
   Highs h;
@@ -28,7 +28,7 @@ int main() {
   h.setOptionValue("mip_rel_gap", 0.0);
   h.setOptionValue("mip_abs_gap", 0.0);
 
-  HighsInt s1 = column(h, 0, big_m, false), s2 = column(h, 0, big_m, false);
+  HighsInt s1 = column(h, 0, big_m - d1, false), s2 = column(h, 0, big_m - d2, false);
   HighsInt makespan = column(h, 0, kHighsInf, false);
   HighsInt first_is_1 = column(h, 0, 1, true);  // 1: job 1 before job 2
 

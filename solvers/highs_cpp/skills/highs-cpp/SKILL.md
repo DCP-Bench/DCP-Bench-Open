@@ -112,11 +112,12 @@ Let `M` be a big-M constant computed from the data, not a guess (see the last ro
 | `z = min(x_1..x_k)` | `z <= x_i` for all i; to force equality under maximisation, `z >= x_i - M (1 - b_i)`, `sum b_i = 1` |
 | `z = |x|` | `z >= x`, `z >= -x`; minimising the objective needs nothing more; to force equality under maximisation add `z <= x + M b`, `z <= -x + M (1 - b)`, `b` binary |
 | strict `x < y` (integers) | `x + 1 <= y` |
-| big-M from data | `M = sum over the terms of max(|a_j|) * max(|bound_j|) + |r|`, computed in the program from the input data |
+| big-M from data | `M = sum_j |a_j| * max(|lo_j|, |hi_j|) + |r|`, computed in the program from the input data |
 
 Choose M from the data: the smallest value with `a x` at its extremes over the column bounds, plus the
 right-hand side. A large M ruins the LP relaxation and slows the proof. Tiny M cuts off solutions. With
-a schedule, the total work bounds every start in an optimal left-shifted schedule, which is safe.
+a schedule, the total work `H` bounds the end of a left-shifted schedule; bound each start by `H - d_j`
+so that `M = H` covers every disjunction row.
 
 ## Solving
 
@@ -162,7 +163,7 @@ If no indicator is created, every column is fixed and the enumeration is complet
 For all optimal solutions: solve, record the optimum `z` from `getInfo().objective_function_value`. Write the
 objective as a row over the same columns, `sum_j c_j x_j + offset` (the cost coefficients and the offset from
 `changeObjectiveOffset`), and add it as `z - 1e-5 <= row <= z + 1e-5`. Then enumerate with the same no-goods.
-Only integer columns that the reported answer depends on need no-goods; each solve costs one more round, so keep
+Only integer columns that the printed answer depends on need no-goods; each solve costs one more round, so keep
 the enumerated count small.
 
 ## Common issues

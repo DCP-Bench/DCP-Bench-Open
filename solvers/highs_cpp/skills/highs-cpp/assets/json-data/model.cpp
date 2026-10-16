@@ -43,6 +43,6 @@ int main(int argc, char** argv) {
     std::printf("not solved: %s\n", h.modelStatusToString(h.getModelStatus()).c_str());
     return 1;
   }
-  std::printf("Value: %.0f with %d items\n", h.getInfo().objective_function_value, n);
+  std::printf("Value: %.0f from %d items\n", h.getInfo().objective_function_value, n);
   return 0;
 }
