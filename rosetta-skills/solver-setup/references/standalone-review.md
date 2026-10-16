@@ -13,7 +13,9 @@ and this file. Not the integration's `CONTRACT.md`, `run.py` or the old skill: a
 who knows the harness reads it into the text. Without a fresh agent, review it yourself
 and say so in `reviewer`.
 
-First get the digest of exactly the content that will be released:
+First get the digest of exactly the content that will be released. It covers git-tracked
+files only, as a release does, so `git add` new files first (the command warns about any
+untracked file it leaves out):
 
 ```bash
 python -m generation.release digest <solver_id>     # prints "<skill> sha256:..."; the review names the sha256

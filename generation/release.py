@@ -257,6 +257,13 @@ def source_digest(solver_id, name=None):
         return source.name, digest(stage(source, Path(directory)))
 
 
+def untracked(solver_id, name=None):
+    """Files in the skill folder git does not track: a release leaves them out, and so does the digest."""
+    relative = source_skill(solver_id, name).relative_to(ROOT).as_posix()
+    listed = git("ls-files", "-z", "--others", "--exclude-standard", "--", relative)
+    return sorted(item for item in listed.split("\0") if item)
+
+
 def checked_review(path, name, expected_digest):
     """The standalone review in `path`, if it is clean and covers exactly this content."""
     try:
@@ -443,6 +450,11 @@ def main(argv=None):
         elif args.command == "digest":
             name, value = source_digest(args.solver_id, args.skill)
             print(f"{name} {value}")
+            missing = untracked(args.solver_id, args.skill)
+            if missing:
+                print(f"warning: this digest leaves out {len(missing)} untracked file(s), which a release would "
+                      "not ship; git add them and take the digest again before the review:\n  "
+                      + "\n  ".join(missing), file=sys.stderr)
         elif args.command == "withdraw":
             withdraw(args.name, args.message)
         else:

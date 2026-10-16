@@ -127,6 +127,20 @@ class ReleaseTests(unittest.TestCase):
         self.publish(skip_review=True)
         self.assertEqual(self.ledger()["evidence"]["standalone_review"], {"skipped": True})
 
+    def test_digest_warns_about_untracked_files(self):
+        self.write("assets/new/model.py", "print('new')\n")
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            self.assertEqual(release.main(["digest", "demo_python"]), 0)
+        self.assertIn("demo-python sha256:", out.getvalue())
+        self.assertIn("1 untracked file(s)", err.getvalue())
+        self.assertIn("assets/new/model.py", err.getvalue())
+        self.commit()
+        err = io.StringIO()
+        with redirect_stdout(io.StringIO()), redirect_stderr(err):
+            release.main(["digest", "demo_python"])
+        self.assertEqual(err.getvalue(), "")
+
     def test_digest_is_path_and_content_hash_sorted_by_path(self):
         folder = self.source
         lines = "".join(f"{path}\0{hashlib.sha256((folder / path).read_bytes()).hexdigest()}\n"
