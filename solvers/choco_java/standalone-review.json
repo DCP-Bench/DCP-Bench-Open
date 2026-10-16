@@ -1,0 +1,58 @@
+{
+  "skill": "choco-java",
+  "source_digest": "sha256:f4ec9264c84bf27ba6b6ca26fdb400231c4727366da17653a3bf51d18f558b36",
+  "reviewer": "fresh agent (Claude Haiku 5.5) given only the skill and the rubric; its seven findings refuted by the session's main agent (Claude Opus 5.5) against the rubric. An earlier fresh review flagged two benchmark-flavoured lines in ## Optimisation, which were reworded before this digest. The reviewer read the working tree; the digest it was given (sha256:ad623d91...) left out the then-untracked assets/ folders, since the digest covers tracked files only. Nothing in the skill changed after the review, so this is the digest of the content reviewed.",
+  "verdict": "standalone",
+  "findings": [],
+  "refuted": [
+    {
+      "file": "references/catalogue.java",
+      "line": 1,
+      "quote": "Checks the semantics of Choco 6.0.1 constraints against brute force.",
+      "category": "runner",
+      "refuted_because": "references/catalogue.java is a standalone program the user compiles and runs (its own main, its own solve loop, printing a pass/fail line per global) to confirm Choco 6.0.1's semantics. It is not a benchmark runner and nothing in it only makes sense for someone submitting a model; the rubric lists 'enumeration done by the user's own loop' as not a leak. gecode-cpp's catalogue.cpp, the same kind of file, was reviewed standalone."
+    },
+    {
+      "file": "references/catalogue.java",
+      "line": 72,
+      "quote": "static void check(String name, int n, int lo, int hi, BiConsumer<Model, IntVar[]> post, Predicate<int[]> p) {",
+      "category": "harness",
+      "refuted_because": "references/catalogue.java is a standalone program the user compiles and runs (its own main, its own solve loop, printing a pass/fail line per global) to confirm Choco 6.0.1's semantics. It is not a benchmark runner and nothing in it only makes sense for someone submitting a model; the rubric lists 'enumeration done by the user's own loop' as not a leak. gecode-cpp's catalogue.cpp, the same kind of file, was reviewed standalone."
+    },
+    {
+      "file": "references/catalogue.java",
+      "line": 120,
+      "quote": "Compiled, never run: every call named in constraints.md and SKILL.md",
+      "category": "runner",
+      "refuted_because": "references/catalogue.java is a standalone program the user compiles and runs (its own main, its own solve loop, printing a pass/fail line per global) to confirm Choco 6.0.1's semantics. It is not a benchmark runner and nothing in it only makes sense for someone submitting a model; the rubric lists 'enumeration done by the user's own loop' as not a leak. gecode-cpp's catalogue.cpp, the same kind of file, was reviewed standalone."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 27,
+      "quote": "each global checked against brute force, with and without LCG",
+      "category": "runner",
+      "refuted_because": "references/catalogue.java is a standalone program the user compiles and runs (its own main, its own solve loop, printing a pass/fail line per global) to confirm Choco 6.0.1's semantics. It is not a benchmark runner and nothing in it only makes sense for someone submitting a model; the rubric lists 'enumeration done by the user's own loop' as not a leak. gecode-cpp's catalogue.cpp, the same kind of file, was reviewed standalone."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 82,
+      "quote": "Semantics in brackets are verified in",
+      "category": "runner",
+      "refuted_because": "references/catalogue.java is a standalone program the user compiles and runs (its own main, its own solve loop, printing a pass/fail line per global) to confirm Choco 6.0.1's semantics. It is not a benchmark runner and nothing in it only makes sense for someone submitting a model; the rubric lists 'enumeration done by the user's own loop' as not a leak. gecode-cpp's catalogue.cpp, the same kind of file, was reviewed standalone."
+    },
+    {
+      "file": "references/constraints.md",
+      "line": 14,
+      "quote": "**Verified:** the semantics in square brackets are checked against brute force in `catalogue.java`.",
+      "category": "runner",
+      "refuted_because": "references/catalogue.java is a standalone program the user compiles and runs (its own main, its own solve loop, printing a pass/fail line per global) to confirm Choco 6.0.1's semantics. It is not a benchmark runner and nothing in it only makes sense for someone submitting a model; the rubric lists 'enumeration done by the user's own loop' as not a leak. gecode-cpp's catalogue.cpp, the same kind of file, was reviewed standalone."
+    },
+    {
+      "file": "SKILL.md",
+      "line": 168,
+      "quote": "Take every size (item count, group count, days, the length of a list) from the input data, never from a",
+      "category": "benchmark",
+      "refuted_because": "Generic advice not to hardcode sizes copied from an example input; it names no answer key, reference or instance set, and fits any program that reads its data."
+    }
+  ]
+}
