@@ -1,0 +1,29 @@
+// Who killed Aunt Agatha in Dreadsbury Mansion? Print the 0-based index of the killer.
+vocabulary {
+    // The three inhabitants, in the order of the instance names:
+    // 0 Agatha herself, 1 the butler, 2 Charles.
+    type Person := {0..2}
+    killer: () -> Person
+    hates: Person * Person -> Bool
+    richer: Person * Person -> Bool
+}
+theory {
+    // A killer always hates, and is no richer than his victim (Agatha, 0).
+    hates(killer(), 0).
+    ~richer(killer(), 0).
+
+    // Charles hates noone that Agatha hates.
+    ! x in Person: hates(0, x) => ~hates(2, x).
+
+    // Agatha hates everybody except the butler.
+    ! x in Person: hates(0, x) <=> (x ~= 1).
+
+    // The butler hates everyone not richer than Aunt Agatha.
+    ! x in Person: ~richer(x, 0) => hates(1, x).
+
+    // The butler hates everyone whom Agatha hates.
+    ! x in Person: hates(0, x) => hates(1, x).
+
+    // Noone hates everyone.
+    ! x in Person: ? y in Person: ~hates(x, y).
+}

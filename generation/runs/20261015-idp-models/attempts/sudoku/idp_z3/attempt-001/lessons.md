@@ -1,0 +1,3 @@
+- In an FO(.) theory, `//` starts a comment, so `r1 // 3` silently cuts the line and fails with "Expected ... at position". Integer division in a theory is `/` (and `%` for modulo).
+- A block comment of `//` lines before each constraint group keeps the file readable; the parser ignores them.
+- Quick check on 99 instances takes about 2 s per sudoku instance, so the 180 s evaluate limit is not a concern for this encoding.

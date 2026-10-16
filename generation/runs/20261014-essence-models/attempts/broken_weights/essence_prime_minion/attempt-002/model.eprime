@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ A merchant's measuring weight broke into n pieces of whole-pound weights summing to m; the pieces must weigh every integer from 1 to m on a balance.
+given m, n : int
+find weights : matrix indexed by [int(1..n)] of int(1..m)
+find c : matrix indexed by [int(1..m), int(1..n)] of int(-1..1)
+
+branching on [weights, c]
+
+such that
+$ the pieces together make up the whole weight
+(sum i : int(1..n) . weights[i]) = m,
+$ the pieces have distinct weights; they are listed in increasing order to break symmetry
+forAll i : int(1..n-1) . weights[i] < weights[i+1],
+$ each integer weight w from 1 to m is balanced by placing pieces on the two pans (c[w,i] = 1 one pan, -1 the other, 0 unused)
+forAll w : int(1..m) . ((sum i : int(1..n) . c[w,i] * weights[i]) = w)

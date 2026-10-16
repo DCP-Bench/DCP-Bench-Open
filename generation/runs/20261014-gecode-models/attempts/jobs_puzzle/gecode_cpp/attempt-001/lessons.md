@@ -1,0 +1,3 @@
+- A clue like "X, the chef, and the police officer went golfing together" names three people; this attempt read it as three distinct holders (rel NQ pairs), which the evaluator accepted. The other reading (chef and police held by person 0) was not tried.
+- Puzzles with no instance fields: take the constructor argument as `(void)instance;` and state the constants in the description as comments.
+- `count(*this, holder, p, IRT_EQ, 2)` over an IntVarArray of holders gives the "exactly two per person" constraint with no decomposition.

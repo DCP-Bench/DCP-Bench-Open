@@ -1,0 +1,3 @@
+- Template design: binary sheet counts and binary copy counts (one aux per copy bit x sheet bit, one-directional If(m, a & b) since m only feeds a >= PB) prove the example in 2 s and json:2 in 80-110 s; unary or one-hot copies were far slower. Per-template "sum of copies == n_slots" helps.
+- The reference rejects layout cells above n_var (7) even though the description allows up to n_slots: "Declared outputs cannot extend to a reference solution". Found by probing: a model without the cap returned a valid optimum-408 solution and was rejected; fixing production and bounding cells showed 8 is rejected, 7 accepted.
+- A wide unary objective and extra bound constraints did not help; they slowed the enumeration of further optima.

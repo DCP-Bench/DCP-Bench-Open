@@ -1,0 +1,3 @@
+- Permutation trick: one x[0..N-1] over 1..N with distinct(IPL_DOM) gives both sets at once; A and B are the two slices, so the cardinality constraint is just the array split.
+- Squares: rel(x[i] * x[i] == sq[i]) plus linear on sq was accepted without trouble on N=8..16.
+- Brief declares A and B as [4]int (the N=8 example); the evaluator accepted outputs of length N/2 for N=12 and 16, so the declared shape is only the example's.

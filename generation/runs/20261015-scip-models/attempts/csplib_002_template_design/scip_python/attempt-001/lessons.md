@@ -1,0 +1,2 @@
+- Products of two bounded integers (production[t] * layout[t][v]) inside a linear sum were accepted as nonlinear constraints and solved in about a second per instance; no linearisation was needed on this size.
+- Upper bound max(demand) on the sheet count is valid for an optimum: a template with more sheets than its largest-demand variation is over-supplied, so one sheet can be removed.

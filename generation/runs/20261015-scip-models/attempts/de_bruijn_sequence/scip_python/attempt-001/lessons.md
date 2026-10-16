@@ -1,0 +1,3 @@
+- One-hot window encoding works: at[i,s] binaries for the length-n window at cyclic position i, with each of the base^n strings used once. Cost is base^(2n) binaries, fine for the corpus sizes.
+- Satisfaction problems need no objective; the runner enumerates further solutions via no-goods on the outputs.
+- Accepted on all 5 instances (B(2,3), B(2,5), B(3,3), B(4,2) and the example). Readability note: a comment refers to window[i], a name the code does not use.

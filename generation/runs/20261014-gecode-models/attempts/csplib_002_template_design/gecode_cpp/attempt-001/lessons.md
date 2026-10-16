@@ -1,0 +1,3 @@
+- Products production[t] * layout[t][v] have no global. Post them as printed[t][v] with rel(==), then the coverage and full-template sums are plain linear constraints over printed.
+- The per-template sums of printed copies equal n_slots times the sheets. Posting that identity and the bound "copies of v <= n_slots * total - demand of the others" was the difference: without them the 3-template instance (7 spare copies in total) timed out at 180 s, with them it solves in about 2 s.
+- Restarts with AFC and either branching order (production first or layout first) did not help on that instance; the implied bounds did.

@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Find a series of the pitch classes 0 to n-1, each used once, whose neighbouring intervals are exactly the values 1 to n-1, each once.
+given n : int
+find x : matrix indexed by [int(1..n)] of int(0..n-1)
+find diffs : matrix indexed by [int(1..n-1)] of int(1..n-1)
+
+branching on [x]
+
+such that
+$ the series is a permutation of the pitch classes 0 to n-1
+allDiff(x),
+$ each interval is the absolute difference of two neighbouring pitch classes
+forAll i : int(1..n-1) . diffs[i] = |x[i+1] - x[i]|,
+$ the intervals between neighbouring notes are all different, so they cover the full set 1 to n-1
+allDiff(diffs)

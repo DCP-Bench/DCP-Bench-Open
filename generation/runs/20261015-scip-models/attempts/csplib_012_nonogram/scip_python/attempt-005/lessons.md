@@ -1,0 +1,2 @@
+- Forcing overlap squares as fixed constraints made the nonogram slower, not faster: 11 of 13 checked (attempt-004 had 12 of 13).
+- json:13 (merka, 60x55) timed out at 180 s with overlap forcing; attempt-004 solved it in 122 s.

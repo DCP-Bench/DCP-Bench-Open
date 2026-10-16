@@ -1,0 +1,2 @@
+IntArgs(n, v) fails to compile as an iterator constructor; use IntArgs::create(n, v, 0) (the skill says so, but the first draft used the wrong form).
+Maximum density still life: a linear encoding of the live/dead rules (sum_nb >= 2x, sum_nb + 5x <= 8, Reify(x, RM_PMI) on sum_nb == 3) is fast on 6x6 and 7x7 but timed out on 8x8 with AFC branching and restarts; reading-order branching with live first solved 8x8 optimum 36 in 36 s.

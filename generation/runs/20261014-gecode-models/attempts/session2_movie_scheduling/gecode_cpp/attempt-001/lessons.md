@@ -1,0 +1,2 @@
+- Interval selection on one resource: each interval is an optional unary task with a fixed start (first day) and duration (last - first + 1). unary(..., bools, IPL_DEF) gives exact day-inclusive non-overlap, so no pairwise decomposition is needed.
+- The brief lists `movies` as unbindable (rows mix str and int), yet the driver passes the JSON through: read the fields with instance.at("movies")[i][1].get<int>() and accepted as-is.

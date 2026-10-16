@@ -1,0 +1,316 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5 modelling subagents, claude-opus-5-5 coordinator)",
+    "attempt_id": "attempt-001",
+    "created_at": 1792012712.5303802,
+    "problem_id": "flip_rows_cols",
+    "profile": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "2670d7dea8fcd8e4be97adaeba4a3df894481b34b7ec0d408bdc9b3987d7d554",
+    "run_id": "20261014-gecode-models",
+    "schema": 2,
+    "skill_bundle_hash": "3b41b2e209f47bebd30017fbd8b07db92c1918be9acba223e6ca122c27289fba",
+    "skill_source": "solvers/gecode_cpp/skills/gecode-cpp",
+    "skill_version": {
+      "commit": "68815b69dd72ff454c313332eb9f909522d9bd85",
+      "modified": false,
+      "path": "solvers/gecode_cpp/skills/gecode-cpp"
+    },
+    "solver_id": "gecode_cpp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:13b1c0a20ed8670549c4a52a2ba6148302d39cea7e46aa3ee7f030ed9f4c4e9c",
+      "tag": "dcp-eval/gecode_cpp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.04311626497656107,
+        "execution_wall_seconds": 10.636530900024809,
+        "first_solution": {
+          "col_signs": [
+            1,
+            1,
+            -1,
+            1,
+            1,
+            -1,
+            1,
+            -1,
+            -1
+          ],
+          "row_signs": [
+            1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            1,
+            1,
+            -1,
+            -1,
+            -1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "id": "example",
+        "instance_hash": "285c1c0bd5318eb68cecba87545812ee21b19ec57ccd0a85cd099bcc64972895",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 812,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 4.810792221978772,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.168352002,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 9.954s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.005942504038102925,
+        "execution_wall_seconds": 9.026604346989188,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            1,
+            -1
+          ],
+          "row_signs": [
+            1,
+            1,
+            1
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "c8ca361dacce9a6579216aa6e7e5896f29ed081f4826219ebb3fe26ed1dcebb0",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 52,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.5488917580223642,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000487456,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 8.550s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.007717397005762905,
+        "execution_wall_seconds": 8.169411383976694,
+        "first_solution": {
+          "col_signs": [
+            1,
+            -1,
+            1,
+            1,
+            1
+          ],
+          "row_signs": [
+            1,
+            -1,
+            1,
+            1,
+            -1
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "66b6712b59b544df4339198d36cbe7937bbf9894e51dac747d2377ccd86486c2",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 149,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.5342660159803927,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000986926,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 7.749s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.010533779044635594,
+        "execution_wall_seconds": 8.675556882051751,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            -1,
+            1,
+            1,
+            -1,
+            -1,
+            -1,
+            1
+          ],
+          "row_signs": [
+            1,
+            1,
+            -1,
+            1
+          ]
+        },
+        "id": "json:3",
+        "instance_hash": "00bc5cdae99677cc6c0e0fc34118baab21c3646ae4c15794b686844bb0b56171",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 119,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.4088749259826727,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000854689,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 8.301s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.009235186967998743,
+        "execution_wall_seconds": 8.32217205199413,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            -1,
+            1
+          ],
+          "row_signs": [
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            -1
+          ]
+        },
+        "id": "json:4",
+        "instance_hash": "881f1bd2cf753309a3fd40171f142b3682193b8dcf9c28710fffbe37e65aa48a",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 192,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.5184001739835367,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000636971,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 7.900s\n"
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 300,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "4b6135432112ab42aeb6962f09fb6b05cb2f9f4100f253667a2b5f2dd0b37fe3",
+    "problem_id": "flip_rows_cols",
+    "reason": "accepted",
+    "reference_hash": "86f958a3301e2da946d853fc510b207add942683c8c71d7a276b0875966588a3",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.13.2"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 5,
+    "solver_id": "gecode_cpp",
+    "total_wall_seconds": 51.992130069993436,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5 modelling subagents, claude-opus-5-5 coordinator)"
+  },
+  "is_optimization": true,
+  "model_file": "model.cpp",
+  "problem": "flip_rows_cols",
+  "schema": 2,
+  "solver": "gecode_cpp",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

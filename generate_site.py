@@ -32,7 +32,7 @@ REPO_URL = "https://github.com/DCP-Bench/DCP-Bench-Open"
 SITE_URL = "https://dcp-bench.github.io/DCP-Bench-Open/"
 
 TITLE = "DCP Rosetta"
-ASSET_VERSION = "catalogue-v51"
+ASSET_VERSION = "catalogue-v53"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
@@ -51,18 +51,6 @@ SOURCE_COLLECTIONS = {
     "csplib": ("CSPLib", "https://www.csplib.org/Problems/"),
     "hakan_examples": ("Hakan Kjellerstrand's CPMpy models", "https://github.com/hakank/hakank/tree/master/cpmpy"),
 }
-
-# A tab icon: a solved 4-queens board, one queen to each row, column and
-# diagonal, in the site's accent colour.
-FAVICON_QUEENS = ((0, 1), (1, 3), (2, 0), (3, 2))
-FAVICON = "data:image/svg+xml," + quote(
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>"
-    "<rect width='32' height='32' rx='7' fill='#0e6c78'/><g fill='#fff' opacity='.16'>"
-    + "".join(f"<rect x='{4 + 6 * c}' y='{4 + 6 * r}' width='6' height='6'/>"
-              for r in range(4) for c in range(4) if (r + c) % 2)
-    + "</g><g fill='#fff'>"
-    + "".join(f"<circle cx='{7 + 6 * c}' cy='{7 + 6 * r}' r='2.3'/>" for r, c in FAVICON_QUEENS)
-    + "</g></svg>")
 
 # What a model is written in, per `language` in solvers/<id>/metadata.yaml:
 # the highlight.js grammar to ask for, and the label above the code block.
@@ -86,11 +74,16 @@ LANGUAGES = {
     "picat": ("plaintext", "Picat"),
     # julia is not in the common bundle either and is loaded like prolog.
     "julia": ("julia", "Julia"),
+    # No highlight.js grammar exists for Essence'.
+    "essence_prime": ("plaintext", "Essence'"),
+    # highlight.js has no FO(.) grammar; label it correctly and leave it uncoloured.
+    "idp": ("plaintext", "FO(\u00b7)"),
 }
 
 # Only for a model whose integration is no longer installed under solvers/.
 EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
-                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia"}
+                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia", ".eprime": "essence_prime",
+                      ".idp": "idp"}
 
 VERDICT_STYLES = {
     "solution_valid_and_optimal": ("#16a34a", "solution valid · optimal",
@@ -266,6 +259,8 @@ def compact_json(value, indent: int = 0, width: int = 88) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
+# Model ids the site shortens to a display name. Any other generator is shown
+# as recorded; add a vendor's pattern here to give its models short labels too.
 MODEL_ID = re.compile(r"claude-(opus|sonnet|haiku)-(\d+)(?:-(\d{1,2})(?!\d))?")
 
 
@@ -343,17 +338,19 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
         '</svg><span>GitHub</span></a>'
     )
 
-    if active == "index":
+    # The catalogue and the Solvers page share the site's own heading.
+    if active in ("index", "paradigms"):
         hero = (
-            f'<div class="hero">'
-            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p></div>'
+            f'<div class="hero has-logo">'
+            f'<h1>{TITLE}</h1><p>{SUBTITLE}</p>'
+            f'<img class="hero-logo" src="{prefix}logo.svg?v={ASSET_VERSION}" alt="" width="210" height="300"></div>'
         )
     else:
         note = f'<p class="hero-note">{hero_note}</p>' if hero_note else ""
         # app.js points this at the catalogue as it was left, filters and all.
         crumb = (f'<a class="crumb" href="{prefix}index.html">&larr; All problems</a>'
                  if active == "problem" else "")
-        # A problem's title is its identifier; the solvers page's is a word.
+        # A problem's title is its identifier.
         title_cls = ' class="problem-id"' if active == "problem" else ""
         hero = f'<div class="hero problem-hero">{crumb}<h1{title_cls}>{esc(title)}</h1>{note}</div>'
 
@@ -392,7 +389,7 @@ def page(title: str, prefix: str, active: str, body: str, description: str = "",
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(full_title)}</title>
-<link rel="icon" href="{FAVICON}">
+<link rel="icon" type="image/png" href="{prefix}favicon.png?v={ASSET_VERSION}">
 <meta name="theme-color" content="#ebf1f8">
 {chr(10).join(head)}
 <script>document.documentElement.classList.add("js");
@@ -802,7 +799,7 @@ def verified_models(generated: dict, integrations: dict):
 # Paradigms that can only express one kind of problem: SAT has no objective,
 # so a model of an optimisation problem does not count towards it.
 PARADIGM_SCOPE = {"sat": "satisfaction"}
-SCOPE_NOTES = {"sat": "SAT counts satisfaction problems only, as it has no objective function."}
+SCOPE_NOTES = {"sat": "SAT counts satisfaction problems only."}
 
 
 def paradigm_breakdown(generated: dict, integrations: dict, vocabulary: list,
@@ -910,14 +907,19 @@ BACKEND_NAMES = {
     "glucose4, RC2": "Glucose 4.1 (SAT), RC2 (MaxSAT)",
     "highs": "HiGHS",
     "gecode": "Gecode",
+    "scip": "SCIP",
     # Picat solves with its own cp and sat modules: nothing to add.
     "cp, sat": "",
     "cbc": "CBC",
     "pumpkin": "Pumpkin",
     "glucose42, RC2": "Glucose 4.2 (SAT), RC2 (MaxSAT)",
+    "cadical, evalmaxsat": "CaDiCaL 3.0 (SAT), EvalMaxSAT 2022 (MaxSAT)",
     # SWI-Prolog's constraint library, which its models load and use.
     "clpfd": "CLP(FD)",
     "z3": "Z3",
+    "ace": "ACE",
+    "minion": "Minion",
+    "idp-z3": "IDP-Z3",
 }
 
 # Where one paradigm row sees only part of an integration's backends. PySAT's
@@ -951,6 +953,26 @@ def browse_button(solver: str, count: int) -> str:
     if not count:
         return ""
     return f'<a class="browse" href="index.html?framework={esc(solver)}">Browse<span class="browse-long"> models</span> &rarr;</a>'
+
+
+def skill_button(solver: str) -> str:
+    """Opens on GitHub the skill a modelling agent follows to write models for
+    one integration: the released copy under skills/solvers/ once there is one,
+    otherwise the development copy under solvers/<id>/skills/, the same choice
+    `generation.next_work` reports. The skill's folder is named after the skill,
+    not the integration, so the development copy is found by globbing."""
+    from generation.release import skill_for
+    path, _ = skill_for(solver, Path(".").resolve())
+    if path:
+        found = [Path(path) / "SKILL.md"]
+    else:
+        found = sorted((SOLVERS_DIR / solver / "skills").glob("*/SKILL.md"))
+    if not found:
+        return ""
+    name = found[0].parent.name
+    href = f"{REPO_URL}/blob/main/{found[0].as_posix()}"
+    return (f'<a class="skill" href="{esc(href)}" target="_blank" rel="noopener" '
+            f'title="The modelling skill {esc(name)}">skill&#8599;</a>')
 
 
 def coverage_count(count, total: int) -> str:
@@ -1002,7 +1024,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
             anchored.add(solver)
             entries.append(
                 f'<li{anchor}><span class="solver-name">{esc(INTEGRATIONS[solver].get("name", solver))}'
-                f'{backend_label(solver, tag)}</span>'
+                f'{backend_label(solver, tag)}{skill_button(solver)}</span>'
                 f'<span class="solver-count">{coverage_count(found.get(solver, 0), denominator)}</span>'
                 f'{browse_button(solver, integration_problems.get(solver, 0))}</li>'
             )
@@ -1032,7 +1054,7 @@ def build_paradigms(problems: list, breakdown: dict) -> None:
         groups.append(f'<tbody class="paradigm collapsed" id="{esc(tag)}">{head}{panel}</tbody>')
 
     body = f"""
-    <div class="section"><div class="section-head"><h2>Coverage by paradigm</h2>
+    <div class="section"><div class="section-head"><h2>Solvers by paradigm <span class="tab-count">{len(anchored)}</span></h2>
       <button type="button" class="btn expand-all" aria-pressed="false">Show all</button></div>
       <table class="plain paradigm-table"><thead><tr><th>Abbrev.</th><th>Name</th>
       <th class="num">Solvers</th><th class="num">Avg. problems</th></tr></thead>{"".join(groups)}</table>
@@ -1372,6 +1394,9 @@ def main() -> None:
     shutil.copy2(WEB_SRC / "app.js", OUTPUT_DIR / "app.js")
     shutil.copy2(WEB_SRC / "minizinc.js", OUTPUT_DIR / "minizinc.js")
     shutil.copy2(WEB_SRC / "og-image.png", OUTPUT_DIR / "og-image.png")
+    shutil.copy2(WEB_SRC / "logo.svg", OUTPUT_DIR / "logo.svg")
+    # The tab icon: logo.svg at 64 px.
+    shutil.copy2(WEB_SRC / "favicon.png", OUTPUT_DIR / "favicon.png")
 
     problems = []
     with DATASET_JSONL.open(encoding="utf-8") as fh:

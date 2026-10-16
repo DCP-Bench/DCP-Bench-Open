@@ -1,0 +1,23 @@
+// Dudeney numbers: a positive integer that is a perfect cube whose digit sum equals its cube root, print one larger than 1.
+vocabulary {
+    type Pos := {0..${n-1}}          // decimal digit positions of the number, units first
+    type Digit := {0..9}
+    type K := {2..${9*n}}            // cube root; a digit sum over n digits is at most 9n
+
+    d: Pos -> Digit                  // the decimal digit at each position
+    acc: Pos -> Int                  // the number formed by the digits up to a position
+    kk: () -> K                      // the cube root of the number
+    number: () -> Int                // the Dudeney number
+}
+theory {
+    // the number is the value of its digits, read from the top position
+    acc(0) = d(0).
+    ! p, q in Pos: q = p + 1 => acc(q) = 10 * acc(p) + d(q).
+    number() = acc(${n-1}).
+
+    // the number is a perfect cube of its cube root
+    ! k in K: kk() = k => number() = k * k * k.
+
+    // the sum of the digits of the number is equal to its cube root
+    sum{{ d(p) | p in Pos }} = kk().
+}

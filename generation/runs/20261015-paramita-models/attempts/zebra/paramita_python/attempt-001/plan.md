@@ -1,0 +1,17 @@
+# Plan: zebra puzzle (five houses 0..4, left to right)
+- "five houses, each painted a different color, one inhabitant" -> one-hot H[attr][value][house]; exactly one house per value; exactly one value per house per attribute; position P = sum(house * H) (int expression)
+- "the painter owns the horse" -> P_job_painter == P_pet_horse
+- "the diplomat drinks coffee" -> P_job_diplomat == P_drink_coffee
+- "the one who drinks milk lives in the white house" -> P_drink_milk == P_color_white
+- "the Spaniard is a painter" -> P_nation_spain == P_job_painter
+- "the Englishman lives in the red house" -> P_nation_england == P_color_red
+- "the snails are owned by the sculptor" -> P_pet_snails == P_job_sculptor
+- "the green house is immediately on the left of the red one" -> P_color_green + 1 == P_color_red
+- "the Norwegian lives immediately on the right of the blue house" -> P_nation_norway == P_color_blue + 1
+- "the doctor drinks milk" -> P_job_doctor == P_drink_milk
+- "the diplomat is Japanese" -> P_job_diplomat == P_nation_japan
+- "the Norwegian owns the zebra" -> P_nation_norway == P_pet_zebra
+- "the green house is next to the white one" -> Or(P_green + 1 == P_white, P_white + 1 == P_green)
+- "the horse is owned by the neighbor of the diplomat" -> Or(P_horse + 1 == P_diplomat, P_diplomat + 1 == P_horse)
+- "the Italian lives in the red, white or green house" -> Or(P_italy == P_red, P_italy == P_white, P_italy == P_green)
+- objective: none (satisfaction); outputs = house position of each value of each attribute, as int expressions

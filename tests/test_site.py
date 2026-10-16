@@ -177,6 +177,7 @@ class RenderingHelperTests(unittest.TestCase):
             "claude-opus-5 / model-generator campaign (100-model target)": "Claude Opus 5",
             "claude-opus-5 / model-generator campaign (50 models, five integrations incl. one new, "
             "solution_limit 10)": "Claude Opus 5",
+            "codex (gpt-5)": "codex (gpt-5)",
             "some other system": "some other system",
             "": "Unknown",
         }
@@ -184,12 +185,14 @@ class RenderingHelperTests(unittest.TestCase):
             with self.subTest(raw=raw):
                 self.assertEqual(generate_site.generated_by_label(raw), label)
 
-    def test_every_recorded_generator_is_recognised(self):
+    def test_every_record_names_its_generator(self):
+        """Any tool or model may write a record, but it must say which one."""
         for by_framework in generate_site.load_generated_models().values():
             for entries in by_framework.values():
                 for entry in entries:
                     raw = (entry["metrics"].get("generated_by") or {}).get("base_llm")
-                    self.assertTrue(generate_site.generated_by_label(raw).startswith("Claude "), raw)
+                    self.assertNotIn(generate_site.generated_by_label(raw).strip().lower(),
+                                     ("unknown", ""), raw)
 
     def test_compact_json_is_the_same_data(self):
         for value in ({"a": [1, 2, 3], "m": [[1, 2], [3, 4]], "s": "x", "e": [], "d": {}},
@@ -249,6 +252,23 @@ class RealRepositoryTests(unittest.TestCase):
         for solver, metadata in integrations.items():
             with self.subTest(solver=solver):
                 self.assertTrue(set(metadata.get("paradigms") or []) <= documented)
+
+    def test_names_and_backend_labels_follow_the_naming_rule(self):
+        """Brackets in a name hold only the host language, never a solver or
+        system; and every backend either has a display label or is already
+        in the name, so the site never prints a raw lowercase solver value."""
+        languages = {label for _, label in generate_site.LANGUAGES.values()}
+        for solver, metadata in generate_site.load_integrations().items():
+            with self.subTest(solver=solver):
+                name = metadata["name"]
+                # "Framework (Language)" has a space before its bracket; a DSL
+                # named after itself, such as FO(·), has none.
+                if " (" in name and name.endswith(")"):
+                    self.assertIn(name[name.rindex(" (") + 2:-1], languages)
+                raw = metadata.get("solver", "")
+                self.assertTrue(raw in generate_site.BACKEND_NAMES
+                                or raw.lower() in name.lower(),
+                                f"add {raw!r} to BACKEND_NAMES in generate_site.py")
 
 
 if __name__ == "__main__":

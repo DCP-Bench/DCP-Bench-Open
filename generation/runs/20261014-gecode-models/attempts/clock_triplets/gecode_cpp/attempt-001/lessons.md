@@ -1,0 +1,2 @@
+- Clock-style cyclic windows: index the adjacent triplets with (p + k) % n, one linear per window; no decomposition needed.
+- Problems with no instance fields: fixed sizes and limits from the statement are constants in the model, with a comment saying so.

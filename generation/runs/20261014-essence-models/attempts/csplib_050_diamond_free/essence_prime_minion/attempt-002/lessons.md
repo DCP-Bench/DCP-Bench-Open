@@ -1,0 +1,1 @@
+Diamond-free: the 4-set bound uses dependent domains (a < b < c < d) with a sum of six edge bools, so 1365 constraints for N=15 with no ordering filter. The degree sums and the % 3 and % 12 rules are plain expressions on an auxiliary deg vector. The output is named matrix, so the find is matrix_. Accepted on the first full evaluation (6 instances, N=10..15).

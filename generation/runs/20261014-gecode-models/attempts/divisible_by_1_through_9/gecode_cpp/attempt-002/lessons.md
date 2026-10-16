@@ -1,0 +1,2 @@
+- The "divisible by n" chain up to n=9 stays below 10^9 and fits an IntVar. The 10th digit cannot be a prefix IntVar; divisibility by 10 reduces to the last digit being 0.
+- With a permutation of the digits, `distinct(IPL_DOM)` on 10 digits plus a linear prefix chain solves the 10-digit answer at once; output_digits carries the 10-digit number.

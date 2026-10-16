@@ -1,0 +1,2 @@
+- Digits as one-hot over 0..9 with a unit clause for each given digit worked; the weighted sum (weights 1 and 3, max 216) stays small.
+- The check digit is encoded as: weighted sum + check digit = 10 * q, with q one-hot over the multiples of 10 the sum can reach. This needed no extra encoding.

@@ -1,0 +1,28 @@
+// Bank card PIN abcd: four digits, with three facts that identify it.
+vocabulary {
+    a: () -> Int
+    b: () -> Int
+    c: () -> Int
+    d: () -> Int
+}
+theory {
+    // each of the four PIN digits is a single digit
+    0 =< a() & a() =< 9.
+    0 =< b() & b() =< 9.
+    0 =< c() & c() =< 9.
+    0 =< d() & d() =< 9.
+
+    // no two digits are the same
+    a() ~= b().
+    a() ~= c().
+    a() ~= d().
+    b() ~= c().
+    b() ~= d().
+    c() ~= d().
+
+    // the 2-digit number cd is 3 times the 2-digit number ab
+    10 * c() + d() = 3 * (10 * a() + b()).
+
+    // the 2-digit number da is 2 times the 2-digit number bc
+    10 * d() + a() = 2 * (10 * b() + c()).
+}

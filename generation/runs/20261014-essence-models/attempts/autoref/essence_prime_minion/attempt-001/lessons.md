@@ -1,0 +1,1 @@
+- The counting constraint alone admitted series with entries above n that the reference rejects. Requiring every entry to lie in 0..n (every entry is counted) fixed it. Evaluator message before the fix: "Declared outputs cannot extend to a reference solution".

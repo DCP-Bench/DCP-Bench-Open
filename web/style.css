@@ -175,6 +175,12 @@ html:not(.js) .theme-toggle { display: none; }
 .hero p { margin: 0; color: var(--muted); font-size: 1.05rem; text-wrap: balance; }
 /* The letters that spell DCP. */
 .hero p strong { color: var(--text); font-weight: 600; }
+/* The logo leans in the hero's right corner, its foot cut off by the
+   header's rule; the title and tagline keep clear of it. */
+.hero.has-logo { position: relative; overflow: hidden; }
+.hero.has-logo h1, .hero.has-logo p { padding-right: 200px; }
+.hero-logo { position: absolute; top: -8px; right: 36px; height: 220px; width: auto; }
+:root[data-theme="dark"] .hero-logo { filter: brightness(0.9); }
 .problem-hero {
   padding-top: 30px;
   padding-bottom: 26px;
@@ -929,6 +935,17 @@ html:not(.js) .row-toggle { display: none; }
   white-space: nowrap;
 }
 .browse:hover { border-color: var(--accent); background: var(--accent-soft); text-decoration: none; }
+/* The skill a modelling agent follows for this integration, after its name. */
+.skill {
+  margin-left: 8px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+.skill:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); text-decoration: none; }
 
 /* On a phone the table has to fit without scrolling sideways, since a
    scrolling wrapper would clip the tooltips. */
@@ -976,6 +993,8 @@ footer {
 @media (max-width: 640px) {
   .hero { padding-top: 36px; padding-bottom: 26px; }
   .hero h1 { font-size: 1.9rem; }
+  .hero.has-logo h1, .hero.has-logo p { padding-right: 140px; }
+  .hero-logo { top: auto; bottom: -42px; right: 2px; height: 182px; }
   .problem-hero h1 { font-size: 1.6rem; }
   .problem-hero h1.problem-id { font-size: 1.35rem; overflow-wrap: anywhere; }
   .provenance dl { grid-template-columns: 1fr; gap: 2px 0; }

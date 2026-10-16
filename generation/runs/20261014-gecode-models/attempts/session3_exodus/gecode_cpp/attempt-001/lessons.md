@@ -1,0 +1,3 @@
+- Association puzzles with several category permutations: one row index per entity, distinct per category, channel for the inverse age slot, and element on a row-indexed years array for each clue.
+- Output values must be 1..n, but channel and element need 0-based indices: keep the model 0-based and post separate output arrays with rel(out[i] == x[i] + 1).
+- Problem-level constants (age values, the five names) are written in the code; the instance has no fields, so the model takes no data from the argument.

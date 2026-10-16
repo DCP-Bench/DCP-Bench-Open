@@ -1,0 +1,12 @@
+language ESSENCE' 1.0
+$ Maximum clique: choose the largest set of vertices of a graph in which every two chosen vertices are adjacent.
+given n : int(1..)
+$ adj[i,j] = 1 when vertices i and j are joined by an edge
+given adj : matrix indexed by [int(1..n), int(1..n)] of int(0..1)
+$ c[i] is true when vertex i is in the clique
+find c : matrix indexed by [int(1..n)] of bool
+branching on [c]
+maximising (sum i : int(1..n) . toInt(c[i]))
+such that
+$ two distinct vertices both in the clique must be joined by an edge
+forAll i : int(1..n) . forAll j : int(1..n) . ((i != j /\ c[i] /\ c[j]) -> adj[i,j] = 1)

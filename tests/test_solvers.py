@@ -10,14 +10,19 @@ from evaluation.results import EvaluationError
 from tests.test_evaluation import SOURCE, ROOT
 
 PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_sat.py",
-          "ortools_cp_sat_cpp": "model.cpp", "minizinc_gecode": "model.mzn",
+          "ortools_cp_sat_cpp": "model.cpp", "chuffed_cpp": "model_chuffed.cpp", "minizinc_gecode": "model.mzn",
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
           "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
-          "pysat": "model_pysat.py", "hermax": "model_hermax.py",
+          "pysat": "model_pysat.py", "paramita_python": "model_paramita.py", "hermax": "model_hermax.py",
           "exact": "model_exact.py", "gurobipy_python": "model_gurobipy.py",
           "docplex_cplex": "model_docplex.py", "picat": "model_picat.pi",
-          "jump_highs": "model_jump.jl"}
+          "jump_highs": "model_jump.jl",
+          "essence_prime_minion": "model_essence.eprime",
+          "pycsp3_ace": "model_pycsp3.py",
+          "gecode_cpp": "model_gecode.cpp",
+          "scip_python": "model_scip.py",
+          "idp_z3": "model_idp.idp"}
 
 # Integrations whose metadata says they cannot optimize. The pilot cases that
 # need an objective are not run for these, and they carry no MAXIMIZATION_SWAPS
@@ -29,7 +34,7 @@ def satisfaction_only(solver):
 # The minimize/maximize spelling each pilot fixture uses, so `test_maximization`
 # can turn it around. Kept beside PILOTS because the two are added together.
 MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_python": ("minimize", "maximize"),
-                      "ortools_cp_sat_cpp": ("Minimize", "Maximize"), "minizinc_gecode": ("minimize", "maximize"),
+                      "ortools_cp_sat_cpp": ("Minimize", "Maximize"), "chuffed_cpp": ("OPT_MIN", "OPT_MAX"), "minizinc_gecode": ("minimize", "maximize"),
                       "z3_python": ("minimize", "maximize"),
                       "clingo_asp": ("minimize", "maximize"),
                       "swipl_clpfd": ("min(", "max("),
@@ -47,7 +52,13 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "gurobipy_python": ("MINIMIZE", "MAXIMIZE"),
                       "docplex_cplex": ("minimize", "maximize"),
                       "picat": ("$min(", "$max("),
-                      "jump_highs": ("Min,", "Max,")}
+                      "jump_highs": ("Min,", "Max,"),
+                      "essence_prime_minion": ("minimising", "maximising"),
+                      "pycsp3_ace": ("minimize", "maximize"),
+                      "gecode_cpp": ("minimize(", "maximize("),
+                      "paramita_python": ("minimize", "maximize"),
+                      "scip_python": ("minimize", "maximize"),
+                      "idp_z3": ("minimize", "maximize")}
 
 # n-queens, with the board size left as a placeholder so the same model can be
 # written either instance-agnostically or with the embedded example baked in.

@@ -1,0 +1,3 @@
+- A balance check per target k works with two predicates per piece (`on_left(p,k)`, `on_right(p,k)`) and `sum{{ (if on_right(p, k) then weights(p) else 0) | p in Piece }} = k + sum{{ ... on_left ... }}`. No product of decision symbols, so no nonlinear timeouts.
+- Parenthesise the `if ... then ... else` term inside `sum{{ }}`.
+- Accepted on all 5 instances (7 solutions in total, solution limit 2).

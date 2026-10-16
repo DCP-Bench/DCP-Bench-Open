@@ -1,0 +1,3 @@
+- The description never mentions rotation, but the reference accepts rotated containers: the 16x16 instance with separation 2 is unsat with fixed orientation (SCIP proves it in about 23 s), and sat with a per-container rotation binary.
+- Rotation is linear: extent = width + (length - width) * rot with rot binary.
+- Four-way disjunction per pair (left, right, below, above) with one-hot binaries and addConsIndicator(..., binvar=) works well: all 5 instances solve in under 40 s.

@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Tommy received 15 coins worth 1 pound 5 shillings 6 pence (306 pence) and the question is how many are half-crowns.
+find half_crowns : int(0..15)
+find shillings : int(0..15)
+find sixpences : int(0..15)
+
+branching on [half_crowns, shillings, sixpences]
+
+such that
+$ he was given 15 coins in total
+half_crowns + shillings + sixpences = 15,
+$ the coins add up to 306 pence: a half-crown is 30 pence, a shilling 12 pence and a sixpence 6 pence
+30 * half_crowns + 12 * shillings + 6 * sixpences = 306

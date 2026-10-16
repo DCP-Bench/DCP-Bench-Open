@@ -1,0 +1,3 @@
+- Or() in Paramita takes one sequence: Or(list), not Or(*list). Unpacking gives a TypeError at build time.
+- Pair-sum matching works well with one-hot bales: each (pair, listed weight) gets a reified Or of And terms, and two exactly-one families give the multiset match. The largest instance (n=7, 21 pairs) took about 21 s.
+- Bales are constrained ascending (the reference convention); the description does not state an order.

@@ -1,0 +1,2 @@
+- abs(x[k+1] - x[k]) in a constraint gave timeouts at n=13 and n=14. Sign binaries with four addConsIndicator calls (activeone=True/False) plus a reversal symmetry break (x[0] < x[n-1]) solved n=5..14 quickly.
+- At n=20 the model still did not prove a first solution within 180 s, so the instance was not checked.

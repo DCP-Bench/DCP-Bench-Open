@@ -1,0 +1,2 @@
+- Permutation flow shop: a position-by-machine completion-time grid with one chain per machine and per job, `element(IntArgs(column_i), seq[k])` for the processing time, and `distinct(IPL_DOM)` on seq solved all 5 instances (largest 9x12, optimum 233) in under 1 s.
+- No unary() is needed when the job order is fixed per position: the chain constraints already enforce one job at a time per machine.

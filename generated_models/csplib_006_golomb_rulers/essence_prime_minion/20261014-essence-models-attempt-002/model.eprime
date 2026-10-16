@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+$ Golomb ruler: a set of marks, starting at 0, with all pairwise differences distinct, and minimum length.
+given size : int(2..)
+find marks : matrix indexed by [int(1..size)] of int(0..size*size)
+$ the length of the ruler is the position of its last mark
+find length : int(0..size*size)
+
+branching on [marks]
+minimising length
+such that
+$ the first mark is at position 0
+marks[1] = 0,
+$ the marks are in increasing order, so the ruler's positions are distinct and sorted
+forAll i : int(1..size-1) . (marks[i] < marks[i+1]),
+$ all m(m-1)/2 differences between pairs of marks are distinct
+allDiff([marks[j] - marks[i] | i : int(1..size), j : int(1..size), i < j]),
+$ the length of the ruler is the position of its last mark
+length = marks[size]

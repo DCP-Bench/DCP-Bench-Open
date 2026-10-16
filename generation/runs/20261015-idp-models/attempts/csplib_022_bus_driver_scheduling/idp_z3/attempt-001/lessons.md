@@ -1,0 +1,3 @@
+- A ragged list of int lists (`shifts`) binds as `shifts: Shift * Pos -> Int` plus `shifts_len: Shift -> Int` with `Shift <: Int`, `Pos <: Int`; the guard `p < shifts_len(s)` keeps padding out. Accepted on all 5 instances.
+- Task range taken from the instance with `{0..${num_work-1}}` in the type declaration; no declaration of num_work needed.
+- Minimizing a count works as `minimize() = #{ s in Shift: x(s) }.`

@@ -1,0 +1,1 @@
+Gecode: linear sums per origin/product (IRT_LQ), per destination/product (IRT_EQ) and per lane (IRT_LQ) over a flat IntVarArray with tight per-variable bounds. The data-driven shape and the cost sum use sum(IntArgs, IntVarArgs). Branching is INT_VAR_SIZE_MIN / INT_VAL_MIN over all shipments. json:4 (optimum 536) times out at 180 s; no search change yet.

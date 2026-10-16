@@ -1,0 +1,3 @@
+- `IntArgs(n, v)` and `IntArgs(std::vector<int>)` do not compile: they resolve to the iterator constructor and fail with "invalid type argument of unary '*' (have 'int')". Build with `IntArgs a(n); a[i] = ...;` (the skill's `IntArgs(n)` then fill form).
+- Gecode `count(x, IntSetArgs cards, IntArgs vals, ipl)` with singleton `IntSet(m, m)` cards gives a gcc with fixed multiplicities. It forces every x_i into vals, so a multiset equality with a list of sums needs one call, not one per value.
+- Summing pairwise sums: each element appears in n-1 pairs, so (n-1) * sum(x) = sum of all pair sums is a cheap implied constraint.

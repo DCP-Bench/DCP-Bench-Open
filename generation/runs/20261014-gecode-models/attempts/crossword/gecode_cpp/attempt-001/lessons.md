@@ -1,0 +1,4 @@
+- element(*this, IntArgs, IntVar index, IntVar value, IPL_DOM) compiles with a plain IntArgs table; no IntSharedArray needed.
+- A grid of shared cells is one IntVar per open cell, posted by one element per (entry, position): crossings need no extra constraint.
+- Entry-to-word choice as an IntVar with dom(*this, var, IntSet) on the words of that length, plus distinct(IPL_DOM) for the selection.
+- The instance is an empty list here; the grid and words are problem constants and are mirrored with a comment.

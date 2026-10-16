@@ -1,0 +1,25 @@
+language ESSENCE' 1.0
+$ Find a simple diamond-free graph on N vertices whose degree sequence is sorted, has positive degrees divisible by 3 and a degree sum divisible by 12. Print the adjacency matrix.
+given N : int(1..)
+find matrix : matrix indexed by [int(1..N), int(1..N)] of bool
+find deg : matrix indexed by [int(1..N)] of int(0..N)
+
+branching on [matrix]
+
+such that
+$ the graph is simple: no loop edges
+forAll i : int(1..N) . !matrix[i,i],
+$ the graph is undirected: the edge {u,v} is in E if and only if the edge {v,u} is in E
+forAll i : int(1..N) . forAll j : int(1..N) . matrix[i,j] = matrix[j,i],
+$ each degree d_v is the number of edges incident on vertex v
+forAll i : int(1..N) . deg[i] = sum j : int(1..N) . toInt(matrix[i,j]),
+$ the degree sequence is sorted: d_i >= d_{i+1}
+forAll i : int(1..N-1) . deg[i] >= deg[i+1],
+$ each vertex has a degree greater than zero (no isolated vertices)
+forAll i : int(1..N) . deg[i] > 0,
+$ the degree of each vertex is a multiple of 3 (modulo 3 equal to 0)
+forAll i : int(1..N) . deg[i] % 3 = 0,
+$ the sum of the degrees is a multiple of 12 (so |E| is a multiple of 6)
+(sum i : int(1..N) . deg[i]) % 12 = 0,
+$ diamond-free: for every four vertices the number of edges between them is at most four
+forAll i : int(1..N) . forAll j : int(i+1..N) . forAll k : int(j+1..N) . forAll l : int(k+1..N) . (toInt(matrix[i,j]) + toInt(matrix[i,k]) + toInt(matrix[i,l]) + toInt(matrix[j,k]) + toInt(matrix[j,l]) + toInt(matrix[k,l])) <= 4

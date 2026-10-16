@@ -1,0 +1,11 @@
+language ESSENCE' 1.0
+$ Put the balls 1 to n into c boxes so that no triple of balls x, y, z with x + y = z is all in one box (Schur's lemma).
+given n : int(1..)
+given c : int(1..)
+$ balls[i] is the box holding ball i
+find balls : matrix indexed by [int(1..n)] of int(1..c)
+
+branching on [balls]
+such that
+$ for every triple of balls x, y, z with x + y = z (z at most n), the three balls are not all in the same box
+forAll x : int(1..n) . forAll y : int(1..n-x) . forAll j : int(1..c) . (!(balls[x] = j /\ balls[y] = j /\ balls[x+y] = j))

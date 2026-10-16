@@ -1,0 +1,2 @@
+- The crossword instance file is an empty list, so the model takes no data from its argument. The grid and the word list come from the problem statement and are written as problem constants.
+- Clue order for the 8 outputs is clue number 1..8, not slot order. Slots are listed by clue number in the model.

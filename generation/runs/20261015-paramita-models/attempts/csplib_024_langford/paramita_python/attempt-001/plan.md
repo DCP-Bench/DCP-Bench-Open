@@ -1,0 +1,5 @@
+- two sets of the numbers 1 to k (k from the instance) -> for each number i, one-hot Bools over the position p of its first copy, p in 0..2k-2-i; `sum(first_i) == 1`
+- the second copy of i sits i+1 places after the first (i numbers between them) -> occupancy of i at position q is `first_i[q] + first_i[q-i-1]`
+- the 2k numbers form a single sequence, each position holds exactly one copy -> per position q, `sum over i of occupancy == 1`
+- the number at position q -> integer expression `sum(i * occupancy)`, used as the output sol
+- objective: none (satisfaction), output sol = list of the 2k integer expressions

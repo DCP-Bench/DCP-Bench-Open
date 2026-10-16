@@ -1,0 +1,4 @@
+- A declared output `number: () -> Num` with `type Num := {8..${729*n*n*n}}` timed out at 60 s, and with a finite `Val` prefix type it hit the 2048 MB limit. The same model with `number: () -> Int` was accepted.
+- A Horner chain `acc(q) = 10*acc(p) + d(q)` over `Pos` (units first) stays linear and fast; `number() = acc(${n-1})` reads the instance size.
+- `type K := {2..${9*n}}` (a digit sum over n digits is at most 9n) plus a ground table `kk() = k => number() = k*k*k` keeps the search finite.
+- The skill advice to give every output a range type did not hold here: the output is fixed by equations, and the range type made the run slower.

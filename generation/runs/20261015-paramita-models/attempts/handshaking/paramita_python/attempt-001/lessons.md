@@ -1,0 +1,3 @@
+- num_couples counts invited couples; Hilary and Jocelyn are an extra couple, so there are 2n+2 people and the asked set has 2n+1 people with counts 0..2n.
+- Hilary's answer is n (the example answer 8 for 8 couples); the one-hot all-different model is accepted on the 4 small instances.
+- The embedded 8-couple example times out while enumerating a second answer (CaDiCaL proving hil is unique); a unary encoding (attempt 002) did not change this.

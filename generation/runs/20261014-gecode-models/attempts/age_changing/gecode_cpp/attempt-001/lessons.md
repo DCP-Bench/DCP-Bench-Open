@@ -1,0 +1,3 @@
+- age_changing has no instance data (dataset file is `[]`; the brief shows one instance with no fields), so the model reads nothing from the instance.
+- Encoding a step as an extensional table of (operation, before, after) triples works well for small arithmetic puzzles: exact division is just the table rows for multiples of 8.
+- The puzzle has two symmetric solutions under exact division (m,h) = (53,48) and (48,53); the evaluator's first solution was (48,53).

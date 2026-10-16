@@ -241,11 +241,31 @@ def _readiness(solver_id: str, record: Path | None = None) -> dict[str, Any]:
         raise ManagementError(f"Integration is not ready: {error}") from error
 
 
-def attempt(run_id: str, problem_id: str, solver_id: str, skill: str | list[str]) -> Path:
-    """Open a numbered attempt citing every skill it is written from and both contracts."""
+def _writer(agent: str) -> str:
+    """The model that writes one attempt, as the record will name it.
+
+    A run can hand pairs to more than one model, so the run's `agent` cannot
+    say who wrote a given attempt. Any tool and model may be named, as
+    "TOOL (MODEL-ID)". A value naming several of the models the site recognises
+    (generate_site.MODEL_ID) is refused, since that is a run-wide description
+    copied in place of the one writer.
+    """
+    from generate_site import MODEL_ID
+    if not isinstance(agent, str) or not agent.strip() or agent.strip().lower() == "unknown":
+        raise ManagementError("agent must name the model that writes this attempt")
+    models = {match.group(0) for match in MODEL_ID.finditer(agent)}
+    if len(models) > 1:
+        raise ManagementError(f"agent names {len(models)} models ({', '.join(sorted(models))}); "
+                              "name only the one that writes this attempt")
+    return agent.strip()
+
+
+def attempt(run_id: str, problem_id: str, solver_id: str, skill: str | list[str], agent: str) -> Path:
+    """Open a numbered attempt citing every skill it is written from, both contracts and its writer."""
     run_folder, run = _run(run_id)
     _identifier(problem_id, "problem ID")
     _identifier(solver_id, "solver ID")
+    agent = _writer(agent)
     readiness = _readiness(solver_id)
     cited = _skills(skill)
     contracts = _contracts(solver_id)
@@ -259,11 +279,12 @@ def attempt(run_id: str, problem_id: str, solver_id: str, skill: str | list[str]
     record = {"schema": 3, "run_id": run_id, "problem_id": problem_id, "solver_id": solver_id,
               "attempt_id": folder.name, "created_at": time.time(),
               "skills": cited, **_legacy_skill_fields(cited), "contracts": contracts,
-              "profile": run["profile"], "agent": run.get("agent", "unknown"),
+              "profile": run["profile"], "agent": agent,
               "readiness_hash": _sha256(folder / "readiness.json")}
     _write_new(folder / "attempt.json", record)
     _append_event(run_folder, "attempt_created", {"attempt": str(folder.relative_to(run_folder)),
-                                                     "problem_id": problem_id, "solver_id": solver_id})
+                                                     "problem_id": problem_id, "solver_id": solver_id,
+                                                     "agent": agent})
     return folder
 
 
@@ -536,6 +557,7 @@ def main(argv: list[str] | None = None) -> int:
     attempt_p.add_argument("--solver", required=True)
     attempt_p.add_argument("--skill", required=True, action="append",
                            help="a skill the model is written from; repeat for each (model-generator, solver skill)")
+    attempt_p.add_argument("--agent", required=True, help="the model that writes this attempt, as TOOL (MODEL-ID)")
     setup_p = commands.add_parser("setup-attempt", help="cite the skills for one setup attempt")
     setup_p.add_argument("--run", required=True); setup_p.add_argument("--solver", required=True)
     setup_p.add_argument("--skill", required=True, action="append",
@@ -551,7 +573,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "init": output = {"run": str(init(args.run, args.config))}
-        elif args.command == "attempt": output = {"attempt": str(attempt(args.run, args.problem, args.solver, args.skill))}
+        elif args.command == "attempt": output = {"attempt": str(attempt(args.run, args.problem, args.solver, args.skill, args.agent))}
         elif args.command == "setup-attempt": output = {"setup": str(setup_attempt(args.run, args.solver, args.skill))}
         elif args.command == "evaluate":
             output = evaluate(args.attempt, args.model)

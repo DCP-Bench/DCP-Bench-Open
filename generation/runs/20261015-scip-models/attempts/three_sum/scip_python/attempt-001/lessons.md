@@ -1,0 +1,2 @@
+- Solver: SCIP's general constraints are not needed here; a linear cardinality equality plus a weighted-sum equality with binaries encode the problem directly.
+- The evaluator accepted attempt-001 on all 5 instances in one pass; no failure to learn from.

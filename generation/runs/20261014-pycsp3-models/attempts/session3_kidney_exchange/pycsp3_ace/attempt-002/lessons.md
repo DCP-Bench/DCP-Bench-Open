@@ -1,0 +1,2 @@
+- Attempt-001 (0/1 transplant matrix with row and column sums, maximise the sum) timed out on the 20-person 0.3-density instance: optimum not proven in 170 s.
+- Attempt-002 adds a successor variable per person with AllDifferent, and maximises the number of persons with a successor other than themselves (participation flags). Solved every instance in about 4 s.

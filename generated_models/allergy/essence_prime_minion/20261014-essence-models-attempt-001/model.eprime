@@ -1,0 +1,25 @@
+language ESSENCE' 1.0
+$ Four friends each have one surname and one allergy. Print, for each allergy and each surname, the friend index (Debra=0, Janet=1, Hugh=2, Rick=3).
+find eggs, mold, nuts, ragweed : int(0..3)
+find baxter, lemon, malone, fleet : int(0..3)
+
+branching on [eggs, mold, nuts, ragweed, baxter, lemon, malone, fleet]
+
+such that
+$ each friend has exactly one allergy, so the four allergies belong to four different friends
+allDiff([eggs, mold, nuts, ragweed]),
+$ each friend has exactly one surname, so the four surnames belong to four different friends
+allDiff([baxter, lemon, malone, fleet]),
+$ Rick is not allergic to mold
+mold != 3,
+$ Baxter is allergic to eggs: the friend with surname Baxter is the friend allergic to eggs
+baxter = eggs,
+$ Hugh is neither surnamed Lemon nor Fleet
+lemon != 2,
+fleet != 2,
+$ Debra is allergic to ragweed
+ragweed = 0,
+$ Janet, who is not Lemon, is neither allergic to eggs nor to mold
+lemon != 1,
+eggs != 1,
+mold != 1

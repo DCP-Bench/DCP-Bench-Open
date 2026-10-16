@@ -1,0 +1,2 @@
+- AllDifferent over a list that mixes Vars and expressions (first + [f[i] + i + 2]) makes the harness exit with SystemExit: 1 and no message in the result. Give the second copy its own VarArray and post second[i] == first[i] + i + 2.
+- A constant right-hand side on an element works: sol[first[i]] == i + 1 with first a VarArray (accepted on all 5 instances).

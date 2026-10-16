@@ -1,0 +1,2 @@
+- Paramita nonogram: one-hot start and prefix Bools per block give a clause-only line encoding; no PB sums are needed.
+- Zero entries in the padded rule lists are skipped before encoding, so leading zeros do not add blocks.

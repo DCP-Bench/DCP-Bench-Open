@@ -1,0 +1,3 @@
+- Quick check with INT_VAR_MIN_MIN and INT_VAL_MIN found no first solution for the 32-job j3037_1 instance in 60 s; INT_VAR_AFC_SIZE_MAX(0.99) with restarts(100) found solutions for the instances tried in the quick check. The real run still timed out on the largest instance (json:3).
+- The real evaluation of attempt-001 wrote evaluation.json; a second evaluate call on the same attempt refuses to overwrite it, so the first run's output is the record.
+- Precedence as rel(start[i] + d_i <= start[j]) and one cumulative per resource, with horizon = sum of durations, was enough for the other four instances.

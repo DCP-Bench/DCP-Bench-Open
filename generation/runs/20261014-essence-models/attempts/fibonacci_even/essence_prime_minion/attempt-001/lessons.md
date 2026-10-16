@@ -1,0 +1,2 @@
+- A sum with a bool condition times the term (toInt(cond) * x[i]) is accepted as a conditional sum.
+- Fibonacci terms beyond the bound need a wider domain than the limit, otherwise the chain is unsatisfiable; filter with the condition in the sum.

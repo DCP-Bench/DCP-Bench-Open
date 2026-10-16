@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Three sum: select exactly m of the given integers so that the selected integers sum to zero.
+$ number of integers, from the instance nums list
+given nums_dim1 : int
+given nums : matrix indexed by [int(1..nums_dim1)] of int
+given m : int
+$ indices[i] is true when the integer nums[i] is selected
+find indices : matrix indexed by [int(1..nums_dim1)] of bool
+such that
+$ exactly m elements are selected
+(sum i : int(1..nums_dim1) . toInt(indices[i])) = m,
+$ the selected elements sum to zero
+(sum i : int(1..nums_dim1) . toInt(indices[i]) * nums[i]) = 0

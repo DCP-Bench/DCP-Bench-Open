@@ -1,0 +1,1 @@
+Odd-length Legendre pair search: each +-1 product is a {-1,1} IntVar via mult with IPL_DOM, and one linear equality per shift. Branching with INT_VAR_NONE was enough; no restarts needed up to l=17 (largest instance 3.2 s).

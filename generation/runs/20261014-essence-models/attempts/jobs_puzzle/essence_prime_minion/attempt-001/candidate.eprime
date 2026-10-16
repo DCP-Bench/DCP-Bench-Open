@@ -1,0 +1,16 @@
+language ESSENCE' 1.0
+$ Four people (0 to 3) hold eight different jobs between them; decide which person holds each job, with every person holding exactly two jobs.
+find chef, guard, nurse, clerk, police_officer, teacher, actor, boxer : int(0..3)
+such that
+$ each person holds exactly two jobs
+gcc([chef, guard, nurse, clerk, police_officer, teacher, actor, boxer], [0, 1, 2, 3], [2, 2, 2, 2]),
+$ clue 1: the nurse is not a teacher, police officer, or clerk
+nurse != teacher, nurse != police_officer, nurse != clerk,
+$ clue 2: the clerk is not the chef
+clerk != chef,
+$ clue 3: person 0 is not the boxer
+boxer != 0,
+$ clue 4: person 3 is not the teacher, police officer, or nurse
+teacher != 3, police_officer != 3, nurse != 3,
+$ clue 5: person 0, the chef, and the police officer went golfing together, so they are three different people
+chef != 0, police_officer != 0, chef != police_officer

@@ -1,0 +1,73 @@
+// Cryptarithmetic puzzle: BAIJJAJIIAHFCFEBBJEA + DHFGABCDIDBIFFAGFEJE = GJEGACDDHFAFJBFIHEEF,
+// each letter stands for a distinct digit from 0 to 9, and the first letter of each number is not zero.
+vocabulary V {
+    type Digit := {0..9}
+    type Letter := {1..10}
+    type Col := {0..20}
+    // dg(l): the digit of letter number l (A=1 .. J=10)
+    dg: Letter -> Digit
+    // the digit of each letter (declared outputs)
+    A: () -> Digit
+    B: () -> Digit
+    C: () -> Digit
+    D: () -> Digit
+    E: () -> Digit
+    F: () -> Digit
+    G: () -> Digit
+    H: () -> Digit
+    I: () -> Digit
+    J: () -> Digit
+    // cy(k): carry into column k (columns numbered 1..20 from the left; column 0 is beyond the left end)
+    cy: Col -> Digit
+}
+theory T : V {
+    // each letter name stands for its digit
+    A() = dg(1). B() = dg(2). C() = dg(3). D() = dg(4). E() = dg(5).
+    F() = dg(6). G() = dg(7). H() = dg(8). I() = dg(9). J() = dg(10).
+    // all letters are distinct digits
+    ! i, j in Letter: i ~= j => dg(i) ~= dg(j).
+    // the first letter of each number cannot be zero
+    B() ~= 0. D() ~= 0. G() ~= 0.
+    // no carry comes out of the leftmost column, and none goes into the rightmost column
+    cy(0) = 0. cy(20) = 0.
+    // column 1 (from the left)
+    B() + D() + cy(1) = G() + 10 * cy(0).
+    // column 2
+    A() + H() + cy(2) = J() + 10 * cy(1).
+    // column 3
+    I() + F() + cy(3) = E() + 10 * cy(2).
+    // column 4
+    J() + G() + cy(4) = G() + 10 * cy(3).
+    // column 5
+    J() + A() + cy(5) = A() + 10 * cy(4).
+    // column 6
+    A() + B() + cy(6) = C() + 10 * cy(5).
+    // column 7
+    J() + C() + cy(7) = D() + 10 * cy(6).
+    // column 8
+    I() + D() + cy(8) = D() + 10 * cy(7).
+    // column 9
+    I() + I() + cy(9) = H() + 10 * cy(8).
+    // column 10
+    A() + D() + cy(10) = F() + 10 * cy(9).
+    // column 11
+    H() + B() + cy(11) = A() + 10 * cy(10).
+    // column 12
+    F() + I() + cy(12) = F() + 10 * cy(11).
+    // column 13
+    C() + F() + cy(13) = J() + 10 * cy(12).
+    // column 14
+    F() + F() + cy(14) = B() + 10 * cy(13).
+    // column 15
+    E() + A() + cy(15) = F() + 10 * cy(14).
+    // column 16
+    B() + G() + cy(16) = I() + 10 * cy(15).
+    // column 17
+    B() + F() + cy(17) = H() + 10 * cy(16).
+    // column 18
+    J() + E() + cy(18) = E() + 10 * cy(17).
+    // column 19
+    E() + J() + cy(19) = E() + 10 * cy(18).
+    // column 20
+    A() + E() + cy(20) = F() + 10 * cy(19).
+}

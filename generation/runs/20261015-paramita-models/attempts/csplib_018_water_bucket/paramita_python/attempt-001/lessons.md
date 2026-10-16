@@ -1,0 +1,3 @@
+- Padding after a goal can live in the one-hot domain: add the padding value to the domain of steps t>=1 and tie it with Iff to a done[t-1] flag, so the output is a plain linear sum with no product of Bool and integer.
+- A step-by-step state machine works with one-hot amounts: each pour i->j is a Bool tr, and If(And(tr, prev_i=p, prev_j=q), And(new_i=p-m, new_j=q+m)) plus an unchanged rule for the third bucket.
+- Minimising the number of pours (sum of tr Bools) found the optimum 7 in the quick check.

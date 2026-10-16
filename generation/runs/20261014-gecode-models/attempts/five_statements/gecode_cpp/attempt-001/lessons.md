@@ -1,0 +1,2 @@
+- Reified equality on a sum works with MiniModel: BoolVar eq = expr(*this, total == k); rel(*this, s[i] == eq);
+- Only one statement set is consistent here (exactly statement 4 true), so the single solution gives no test of the search; acceptance is weak evidence for this problem.

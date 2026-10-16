@@ -1,0 +1,2 @@
+- A weighted sum of v*v over a one-hot integer (weights up to 9801, 4 terms per side) makes the default encoder die with "Runner exited 139" (segfault) at domain 0..99. A single such equation crashes too; the same domain 0..20 works.
+- Encoding each square's square in 14 binary bits, tied to the one-hot by If(xv, bit == bit k of v*v), works and is accepted in ~2 s.

@@ -7,6 +7,8 @@ from unittest.mock import patch
 
 from generation import instances, manage, next_work
 
+AGENT = "claude-code (claude-haiku-5-5)"
+
 
 class GenerationTests(unittest.TestCase):
     def setUp(self):
@@ -31,7 +33,7 @@ class GenerationTests(unittest.TestCase):
 
     def new_attempt(self):
         manage.init("run1")
-        return manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+        return manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"), AGENT)
 
     @staticmethod
     def accepted(path, problem="problem", solver="solver"):
@@ -63,7 +65,7 @@ class GenerationTests(unittest.TestCase):
         guide.mkdir(parents=True)
         (guide / "SKILL.md").write_text("# Guide\n", encoding="utf-8")
         manage.init("run1")
-        attempt = manage.attempt("run1", "problem", "solver", [str(guide), str(self.root / "skills" / "demo")])
+        attempt = manage.attempt("run1", "problem", "solver", [str(guide), str(self.root / "skills" / "demo")], AGENT)
         record = manage._read(attempt / "attempt.json")
         self.assertEqual(record["schema"], 3)
         self.assertEqual([item["source"] for item in record["skills"]], ["rosetta-skills/guide", "skills/demo"])
@@ -85,7 +87,7 @@ class GenerationTests(unittest.TestCase):
         (self.root / "solvers" / "solver" / "CONTRACT.md").unlink()
         manage.init("run1")
         with self.assertRaisesRegex(manage.ManagementError, "CONTRACT.md"):
-            manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+            manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"), AGENT)
 
     def test_schema_2_attempt_records_still_verify(self):
         attempt = self.new_attempt()
@@ -101,9 +103,35 @@ class GenerationTests(unittest.TestCase):
 
     def test_unique_attempts_and_status_resume(self):
         first = self.new_attempt()
-        second = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+        second = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"), AGENT)
         self.assertNotEqual(first, second)
         self.assertEqual(len(manage.status("run1")["outcomes"]), 2)
+
+    def test_each_attempt_records_the_model_that_wrote_it(self):
+        """A pair moved to another model mid-run keeps that model in its record,
+        whatever the run's own agent says."""
+        config = self.root / "config.json"
+        run_agent = "claude-code (claude-haiku-5-5 modelling subagents, claude-opus-5-5 coordinator)"
+        config.write_text(json.dumps({"agent": run_agent}), encoding="utf-8")
+        manage.init("run1", str(config))
+        skill = str(self.root / "skills" / "demo")
+        for refused in (run_agent, "unknown", " "):
+            with self.subTest(agent=refused), self.assertRaises(manage.ManagementError):
+                manage.attempt("run1", "problem", "solver", skill, refused)
+        self.assertFalse((self.root / "generation" / "runs" / "run1" / "attempts").exists())
+        manage.attempt("run1", "problem", "solver", skill, AGENT)
+        # Any tool and model may write an attempt.
+        manage.attempt("run1", "problem", "solver", skill, "codex (gpt-5)")
+        sonnet = "claude-code (claude-sonnet-5-5)"
+        attempt = manage.attempt("run1", "problem", "solver", skill, sonnet)
+        self.assertEqual(manage._read(attempt / "attempt.json")["agent"], sonnet)
+        with patch("generation.manage.evaluate_model", side_effect=lambda p, *_args, **_kwargs: self.accepted(p)):
+            manage.evaluate(str(attempt), str(self.root / "model.py"))
+        record = manage._read(manage.retain(str(attempt)) / "record.json")
+        self.assertEqual(record["generated_by"]["base_llm"], sonnet)
+        created = [event["data"]["agent"] for event in manage.status("run1")["events"]
+                   if event["kind"] == "attempt_created"]
+        self.assertEqual(created, [AGENT, "codex (gpt-5)", sonnet])
 
     def test_setup_attempt_records_the_skill_and_numbers_attempts(self):
         manage.init("run1")
@@ -174,7 +202,7 @@ class GenerationTests(unittest.TestCase):
     def test_traversal_and_invalid_event_are_rejected(self):
         manage.init("run1")
         with self.assertRaises(manage.ManagementError):
-            manage.attempt("run1", "../x", "solver", str(self.root / "skills" / "demo"))
+            manage.attempt("run1", "../x", "solver", str(self.root / "skills" / "demo"), AGENT)
         with self.assertRaises(manage.ManagementError):
             manage.event("run1", "blocked", "[]")
         with self.assertRaises(manage.ManagementError):
@@ -187,7 +215,7 @@ class GenerationTests(unittest.TestCase):
         with self.assertRaisesRegex(manage.ManagementError, "Skill bundle changed"):
             manage.evaluate(str(attempt), str(self.root / "model.py"))
         (self.root / "skills" / "demo" / "SKILL.md").write_text("# Demo\n", encoding="utf-8")
-        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"), AGENT)
         with patch("generation.manage.evaluate_model", side_effect=lambda p, *_args, **_kwargs: self.accepted(p)):
             manage.evaluate(str(attempt), str(self.root / "model.py"))
         (attempt / "candidate.py").write_text("swapped after evaluation", encoding="utf-8")
@@ -207,7 +235,7 @@ class GenerationTests(unittest.TestCase):
         config = self.root / "config.json"
         config.write_text('{"profile":{"solution_limit":2}}', encoding="utf-8")
         manage.init("run1", str(config))
-        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"), AGENT)
         def exhausted(path, *_args, **_kwargs):
             result = self.accepted(path)
             result["requested"]["solution_limit"] = 2
@@ -223,7 +251,7 @@ class GenerationTests(unittest.TestCase):
         config = self.root / "config.json"
         config.write_text('{"profile":{"solution_limit":2}}', encoding="utf-8")
         manage.init("run1", str(config))
-        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"), AGENT)
         def exhausted(path, *_args, **_kwargs):
             result = self.accepted(path)
             result["requested"]["solution_limit"] = 2
@@ -239,7 +267,7 @@ class GenerationTests(unittest.TestCase):
         config = self.root / "config.json"
         config.write_text('{"profile":{"instance_count":3}}', encoding="utf-8")
         manage.init("run1", str(config))
-        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"))
+        attempt = manage.attempt("run1", "problem", "solver", str(self.root / "skills" / "demo"), AGENT)
         def clamped(path, *_args, **_kwargs):
             result = self.accepted(path)
             result["requested"]["instance_count"] = 3

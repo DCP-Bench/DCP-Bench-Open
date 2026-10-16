@@ -1,0 +1,1 @@
+- Single capital-letter outputs declared directly (`B = Var(...)`) gave no ACE solution in earlier runs (see n_fractions). Lowercase variables plus output aliases (`B, C, F, M, S = b, c, f, m, s`) avoid this (verified with `abs(s - f) != 1`).

@@ -1,0 +1,3 @@
+- A Var created inside a helper function (`return Var(dom=...)`) gets no name from its declaration line; the model then fails with `SystemExit: 1`, empty stderr, and status `error`. Passing `id="A20"` to Var fixes it (verified).
+- Module-level `a0 = Var(...)` declarations work too.
+- Attempt-001 of this problem was only run through evaluation.check (not evaluated, not retained) and carried the helper-function Var; attempt-002 is the fix.

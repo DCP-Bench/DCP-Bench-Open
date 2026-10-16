@@ -1,0 +1,3 @@
+- exists/forAll with several variables of different domains (b1 : D1, b2 : D2) fails to parse; declare them as one group (b1, b2, b3 : D) or nest the quantifiers.
+- forAll/exists with a comma-separated group of variables over one domain parse fine (Savile Row 1.11.1).
+- Multi-line quantifier bodies with the body in parentheses and a final ) work; a count over the 36^3 cube compiled quickly.

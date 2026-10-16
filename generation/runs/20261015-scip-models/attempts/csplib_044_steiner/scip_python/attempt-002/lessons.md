@@ -1,0 +1,2 @@
+- Pair coverage: one addConsAnd per (triple, pair) gives the AND, then sum <= 1 per element pair.
+- Adding the redundant per-element count (n-1)/2 is cheap and comes straight from the pair argument.

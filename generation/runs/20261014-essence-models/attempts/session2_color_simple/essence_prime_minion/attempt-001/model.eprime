@@ -1,0 +1,12 @@
+language ESSENCE' 1.0
+$ Colour six countries with the fewest colours so that no two neighbouring countries share a colour.
+given graph : matrix indexed by [int(1..9), int(1..2)] of int(1..6)
+find colors : matrix indexed by [int(1..6)] of int(1..6)
+
+branching on [colors]
+
+minimising max(colors)
+
+such that
+$ neighbouring countries (each edge of the border graph) must have different colours
+forAll e : int(1..9) . colors[graph[e,1]] != colors[graph[e,2]]

@@ -1,0 +1,19 @@
+language ESSENCE' 1.0
+$ Compose the change of the given amount from the available coins, using as few coins as possible.
+given types_of_coins_dim1 : int
+given types_of_coins : matrix indexed by [int(1..types_of_coins_dim1)] of int(1..)
+given available_coins : matrix indexed by [int(1..types_of_coins_dim1)] of int(0..)
+given amount : int
+find coin_counts : matrix indexed by [int(1..types_of_coins_dim1)] of int(0..amount)
+find total_coins : int(0..amount)
+
+branching on [coin_counts]
+
+minimising total_coins
+such that
+$ no more coins of each type are given than are available
+forAll i : int(1..types_of_coins_dim1) . coin_counts[i] <= available_coins[i],
+$ the coins given must add up to the amount of change
+(sum i : int(1..types_of_coins_dim1) . coin_counts[i] * types_of_coins[i]) = amount,
+$ the number of coins used is the total of the counts of each type
+total_coins = (sum i : int(1..types_of_coins_dim1) . coin_counts[i])

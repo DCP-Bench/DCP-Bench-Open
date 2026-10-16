@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Select bus driver shifts so that every piece of work is covered by exactly one selected shift, minimising the number of selected shifts.
+given num_work : int(1..)
+given shifts_dim1, shifts_dim2 : int(1..)
+$ shifts[k,p] is the p-th piece of work (0-based) of shift k, for p up to shifts_len[k]; the rest is padding
+given shifts : matrix indexed by [int(1..shifts_dim1), int(1..shifts_dim2)] of int(0..)
+given shifts_len : matrix indexed by [int(1..shifts_dim1)] of int(1..)
+find x : matrix indexed by [int(1..shifts_dim1)] of bool
+
+branching on [x]
+
+minimising (sum k : int(1..shifts_dim1) . toInt(x[k]))
+such that
+$ every piece of work is covered by exactly one selected shift: the selected shifts that contain the piece add up to one
+forAll t : int(0..num_work-1) . (sum k : int(1..shifts_dim1) . toInt(x[k]) * (sum p : int(1..shifts_dim2) . toInt((shifts[k,p] = t) /\ (p <= shifts_len[k])))) = 1

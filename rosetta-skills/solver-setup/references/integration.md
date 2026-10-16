@@ -43,9 +43,15 @@ drop keys, because readiness and evaluation both read this file. The loader pars
 - **`optimization: false`** only for an integration that genuinely cannot optimise, and
   **`compilation: true`** only for one that compiles. Both change which readiness checks
   are required. Use literal Booleans and never advertise a capability that was not tested.
-- **`instance_binding: "rectangular_uniform"`** only when the framework's data interface
-  takes only rectangular, single-type arrays (it makes `next_work` withhold problems with
-  ragged or mixed-type fields); otherwise omit it, which means `"any"`.
+- **`instance_binding`** says which instances this runner can bind, so `next_work`
+  withholds the pairs it never could. Omit it (`"any"`) when the submission reads the
+  instance itself. `"rectangular_uniform"`: the data interface takes only rectangular,
+  single-type arrays, and pairs with ragged or mixed-type fields are withheld.
+  `"reshaped"`: the runner reshapes fields itself (padding, splitting) and decides what it
+  cannot bind through a `refusal(name, value)` function in `run.py` that `generation.brief`
+  imports on the host, so it must not import the solver or write to stdout; see
+  `essence_prime_minion` and `idp_z3`. Refusal covers reshaping only, never strings: a
+  string field is refused at run time, and only when the model declares it.
 - **`name`** is what the website shows; the `id` never is. A library that drives one
   solver is named after that solver with the host language in brackets: `CPLEX (Python)`,
   `Choco (Python)`, `OR-Tools CP-SAT (C++)`; its package name (`docplex`, `pychoco`) goes
@@ -53,7 +59,12 @@ drop keys, because readiness and evaluation both read this file. The loader pars
   `CPMpy (Python)`, `PuLP (Python)`, `JuMP (Julia)`. A system with its own language stands
   alone: `MiniZinc`, `Picat`, `clingo`, `SWI-Prolog`. Neither the paradigm nor the backend
   goes in the name; the backend goes in `solver`, and the website prints it beside the
-  name (`MiniZinc · Gecode`). Names must be distinct (`tests/test_solvers.py`). Renaming
+  name (`MiniZinc · Gecode`). Brackets hold only the host language, never a solver or
+  system. When a modelling language and the system that runs it have different names, the
+  language is the name and the system goes in `solver`. Every `solver` value needs a
+  display label in `BACKEND_NAMES` in `generate_site.py`, unless the name already contains
+  it. Names must be distinct; `tests/test_solvers.py` and `tests/test_site.py` enforce
+  these rules, and nothing can enforce a name being clear. Renaming
   is cheap: the catalogue reads `name` on every build and it is not part of the readiness
   record.
 - **`language`** is what a submission is written in. It picks the label and syntax
@@ -79,8 +90,26 @@ skill already models.
 
 A framework whose input is generated source (facts for an ASP grounder, a bespoke data
 file) fits none cleanly: either the submission emits that text or `run.py` does, and that
-choice becomes the contract for every model. Conversion always happens inside the
-container. **Only one submission file is staged**, so shared conversion code goes in the
+choice becomes the contract for every model.
+
+When the framework binds the data (a typed modelling language), these rules kept problems
+usable that would otherwise be lost:
+
+- **Bind only the fields the model declares, and ignore the rest.** Instances carry
+  metadata such as `name` and `note` (strings), and some carry data a given model does
+  not need. Binding every key makes such instances fail whatever the model says.
+- **Offer derived size parameters.** Languages that need finite index sets cannot declare
+  a matrix whose size differs between instances. Let the model declare optional sizes per
+  field (e.g. `F_dim1`, `F_dim2` for `F`) and bind them from the data; pad ragged lists and
+  offer their row lengths (`F_len`); split a row of mixed types into one field per column.
+- **Escape reserved words.** When an output or field name is a keyword of the language
+  (`matrix`, `E`, ...), let the model use `name_` and map it back on both input and output.
+- **The runner decides what is bindable.** The brief's generic `unbindable_fields` is not
+  per integration and was wrong for several runners; use `instance_binding: "reshaped"`
+  with the runner's own `refusal()` (above), so a pair is withheld only when this runner
+  can never bind it.
+
+Conversion always happens inside the container. **Only one submission file is staged**, so shared conversion code goes in the
 image or `run.py`; anything needing extra staging is unsupported: report it.
 
 ## `run.py`
@@ -90,8 +119,33 @@ image or `run.py`; anything needing extra staging is unsupported: report it.
   helpers as the existing runners do.
 - Never invent solutions, alter the submission, or emit more solutions than requested.
 - Optimisation: prove the optimum before emitting; when enumerating, fix the objective to
-  it; count distinct declared outputs. A timeout before proving optimality is `timeout`,
-  never success. Fewer solutions than requested only with `complete` (exhausted).
+  it. A timeout before proving optimality must not report success; what to emit then is
+  set by the protocol in `evaluation/README.md` (`timeout`, and optimisation runners emit
+  only final optimal outputs), so follow it rather than choosing per integration. Decide
+  whether an objective exists before solving starts, so every kill, crash or deadline path
+  knows it: the evaluator checks solutions before the status, so an unproven incumbent
+  emitted before a `timeout` is rejected as suboptimal, not treated as inconclusive. Fewer
+  solutions than requested only with `complete` (exhausted).
+- **Count distinct declared outputs, not solver solutions.** Solvers enumerate over every
+  variable, so a model with a free auxiliary variable returns the same outputs several
+  times. Deduplicate on the declared outputs and re-solve with a nogood on each assignment
+  already found until the count is reached or the search is exhausted.
+- **Parenthesise the objective when you re-post it** (e.g. as `(objective) = optimum` to
+  enumerate at the optimum). In languages where a quantifier or sum extends as far right
+  as possible, the appended text is otherwise swallowed by the objective. In an API with a
+  strict-bound call, check from the docs and a test whether "better than the bound" is
+  already strict: an off-by-one there skips the true optimum.
+- **Check emitted solutions with the solver's own checker when it has one.** A solver can
+  return assignments that violate the model: ACE accepted wrong tuples for a product of
+  four or more variables. Reject such solutions and continue the search instead of passing
+  them on.
+- **A failure is never a timeout.** A solver crash, an out-of-memory, a reserved-identifier
+  error or a compile error must come back as `error` (or `compilation_error`) with the
+  tool's own message in the detail. Solvers often print it somewhere unusual (a log file,
+  stdout, a verbose flag only); find it and forward it. When the message is hidden,
+  modelling agents cannot fix their model and start running it outside the container to
+  see what went wrong. The protocol owns the real stdout: send the solver's own stdout to
+  stderr.
 - Return explicit `unsupported`, `error` and `compilation_error` statuses.
 
 ## `Dockerfile`
@@ -126,6 +180,10 @@ Boolean, and exits nonzero on any failure. Required checks: `satisfaction`,
 `enumeration` (or `unsupported_enumeration`); `compilation_error` when compiled. The
 exact list is in repository `generation/AGENTS.md`. Write each check to be able to fail.
 
+Beyond the required names, add a check that a solver crash is reported as `error` with the
+solver's own message in the detail. Without it, modelling agents cannot see why a model
+failed.
+
 ## Once certified
 
 `tests/test_solvers.py` requires every integration with a `readiness.json` to be a pilot:
@@ -135,4 +193,8 @@ optimise, to `MAXIMIZATION_SWAPS` with the minimise/maximise spelling that fixtu
 
 The readiness record binds the image identity and the hashes of `run.py`, `Dockerfile`,
 the check script and every `metadata.yaml` field except `name` and `paradigms`, so
-changing any of those means running the check again.
+changing any of those means running the check again. The record is write-once: to
+re-certify after a fix, rebuild the image, delete `readiness.json`, then run `check` and
+`verify` again. While models are being evaluated on the `:v1` image, build and test a
+runner fix on a separately tagged image, and rebuild `:v1` only once no evaluation is
+running on it.

@@ -20,7 +20,7 @@ import sys
 REQUIRED_KEYS = {"id", "name", "language", "framework", "solver", "paradigms", "image",
                  "extension", "enumeration", "protocol_version"}
 OPTIONAL_KEYS = {"optimization", "compilation", "instance_binding"}
-BINDINGS = {"any", "rectangular_uniform"}
+BINDINGS = {"any", "rectangular_uniform", "reshaped"}
 FILES = ("metadata.yaml", "Dockerfile", "run.py", "readiness_test.py")
 
 results = []

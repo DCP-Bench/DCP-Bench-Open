@@ -1,0 +1,2 @@
+- The declared output shape ([20]) is the example's n, not a constant: the output has n slots. Sizing it to 20 gave `invalid_output` "Wrong shape at steps" on the n=10 instance.
+- Use one binary per slot ("move taken") with a prefix constraint, plus `steps[i]` bounded by m1*b and m2*b; the sum equals n. SCIP solves this without any general constraints.

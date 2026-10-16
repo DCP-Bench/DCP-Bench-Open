@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "skill_name": "gecode-cpp",
+  "evals": [
+    {
+      "id": "dcp-satisfaction-with-globals",
+      "prompt": "Using this skill, write a gecode_cpp submission for a satisfaction puzzle such as sudoku, starting from `python -m generation.brief`, and check it with the repository evaluator across the listed instances.",
+      "prerequisites": ["Docker running", "image dcp-eval/gecode_cpp built"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The file includes dcp.h, defines a class derived from dcp::Space with a copy constructor that updates every member variable, and ends with DCP_MODEL.",
+        "Every instance-dependent quantity is read from the instance argument and the evaluator accepts every checked instance.",
+        "All-different requirements are posted with distinct and IPL_DOM, not with pairwise rel.",
+        "The file opens with a comment stating the problem, and each group of constraints starts with a comment worded as in the problem statement.",
+        "The model branches on its main decision variables."
+      ],
+      "evidence_required": ["the submitted .cpp file", "the evaluator JSON result"]
+    },
+    {
+      "id": "dcp-scheduling-optimization",
+      "prompt": "Using this skill, write a gecode_cpp submission for a scheduling problem with an objective, such as jobshop, and confirm the evaluator accepts the optimum.",
+      "prerequisites": ["Docker running", "image dcp-eval/gecode_cpp built"],
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "Machine capacity is posted with unary or cumulative, not with pairwise disjunctions.",
+        "The objective is an IntVar passed once to minimize or maximize, in the direction the brief states.",
+        "The evaluator reports accepted with the optimum on every checked instance."
+      ],
+      "evidence_required": ["the submitted .cpp file", "the evaluator JSON result"]
+    }
+  ]
+}

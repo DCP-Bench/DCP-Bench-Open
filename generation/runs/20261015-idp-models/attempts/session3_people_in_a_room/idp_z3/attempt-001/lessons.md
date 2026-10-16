@@ -1,0 +1,2 @@
+- Ratio constraints with an empty side: write `a * 3 =< b * 7` over prefix counts, not a division; a count `#{ p in Pos: p =< t & ... }` over a prefix variable works in idp-z3 0.12.1.
+- Evaluation: the example is the only instance, so the 13/4 counts are problem constants and are stated in comments, not read from data.

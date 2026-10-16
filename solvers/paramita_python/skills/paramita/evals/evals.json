@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "skill_name": "paramita",
+  "evals": [
+    {
+      "id": "written-against-paramita",
+      "prompt": "Using this skill, write a paramita_python submission for any listed satisfaction problem and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/paramita_python:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "assertions": [
+        "The submission imports only from paramita.modelling and builds Bool expressions and PB comparisons.",
+        "build returns (subject_to, outputs) with one output per declared name.",
+        "Integers are sums of Bools with an exactly-one or order constraint."
+      ],
+      "evidence_required": "The submission source and the evaluator result."
+    },
+    {
+      "id": "optimisation-direction",
+      "prompt": "Using this skill, write a paramita_python submission for a listed optimisation problem and check it with the repository evaluator.",
+      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/paramita_python:v1 image and a running Docker Linux engine.",
+      "expected_output": "An accepted model whose reported objective equals the reference optimum.",
+      "assertions": [
+        "build returns a third value (\"minimize\" or \"maximize\", expr) matching the brief's direction.",
+        "The objective expression is linear over Bools."
+      ],
+      "evidence_required": "The submission source and the evaluator result."
+    }
+  ]
+}

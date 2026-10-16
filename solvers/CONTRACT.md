@@ -28,6 +28,8 @@ outputs and their shapes, the objective direction, and every instance field with
 - **Never embed an answer**, whether computed by running the reference, copied from it, or
   chosen by recognising which instance you were given.
 - An instance may carry extra keys the brief does not list (`name`, `note`). Ignore them.
+- Coordinates in the data may be 1-based while the integration's arrays are 0-based (or the
+  reverse); the description says which, and the model shifts where they meet.
 
 ## Output: the declared outputs
 
@@ -35,10 +37,25 @@ outputs and their shapes, the objective direction, and every instance field with
   **declared shape** (a scalar, or a nested array with exactly the declared dimensions).
   Exactly those names: none missing, none extra.
 - Every leaf is an **integer or a Boolean**. Floats and strings are rejected, never
-  coerced; a Boolean may also be given as 0/1.
+  coerced; a Boolean may also be given as 0/1. The leaf kind follows the brief, not the
+  description's wording: an output the brief shows as `int` must be an integer even where
+  the statement speaks of yes/no, or the evaluator reports "Expected integer".
 - The model may use any number of **auxiliary** variables. They stay private: only the
   declared outputs are reported, and two solutions count as **distinct only if they differ
   in a declared output**.
+- **Constrain every output fully.** An output the model leaves free while the reference
+  fixes it passes only if every value it can take is acceptable; it is usually a missing
+  constraint.
+- **Follow the description's output conventions**: 0- or 1-based numbering, the stated
+  order, a fixed first element for rotation-invariant arrangements, integer versus
+  Boolean. Breaking one is the usual cause of `invalid_solution` with the detail
+  "Declared outputs cannot extend to a reference solution"; that detail can also mean a
+  value out of the integration's range or a model that is too loose. Add no ordering or
+  symmetry breaking the description does not ask for: it can exclude the solutions the
+  reference expects.
+- **Wide values.** Many solvers hold 32-bit integers. A value that can exceed that (a
+  ten-digit number) needs the integration's own mechanism for wide outputs, such as digit
+  outputs; its `CONTRACT.md` says which, under `## Outputs`.
 
 ## Objective
 
@@ -80,17 +97,25 @@ The reference is the specification, and translating its semantics is the work. B
 the run's instances and checks every reported solution against the reference. It looks for
 a counterexample; an accepted model is one for which none was found.
 
-| `reason` | Meaning |
-|---|---|
-| `invalid_solution` | A reported solution violates the reference: the model is wrong or under-constrained |
-| `suboptimal_solution` | A reported "optimal" solution is not optimal for the reference |
-| `no_solution` | The model reported no solution where the reference has one (over-constrained, or wrong) |
-| `invalid_output` | The reported outputs do not match the declared names or shapes, or too few distinct solutions without exhaustion |
-| `output_limit` | Too much output (8 MiB per stream) |
-| `compilation_error` | A compiled submission did not compile |
-| `execution_error` | The submission raised or crashed, or the runner could not read it (a missing entrypoint, a float or string output leaf); read `detail` |
-| `execution_timeout`, `memory_limit` | Inconclusive; solutions checked before it were all accepted |
-| `reference_timeout`, `reference_error`, `infrastructure_error` | Not the submission's fault |
+| `reason` | Meaning | First thing to try |
+|---|---|---|
+| `invalid_solution` | A reported solution violates the reference: the model is wrong or under-constrained | A constraint missing or too weak; with "Declared outputs cannot extend to a reference solution", an output convention (above) |
+| `suboptimal_solution` | A reported "optimal" solution is not optimal for the reference | The objective's direction or expression |
+| `no_solution` | The model reported no solution where the reference has one (over-constrained, or wrong) | A constraint too strong, or ordering the description does not ask for |
+| `invalid_output` | The reported outputs do not match the declared names or shapes, or too few distinct solutions without exhaustion | A declared name missing or extra, a shape wrong, a leaf of the wrong kind |
+| `output_limit` | Too much output (8 MiB per stream) | Printing from the model |
+| `compilation_error` | A compiled submission did not compile | The first error in `detail` |
+| `execution_error` | The submission raised or crashed, or the runner could not read it (a missing entrypoint, a float or string output leaf); read `detail` | The message in `detail` |
+| `execution_timeout`, `memory_limit` | Inconclusive; solutions checked before it were all accepted | Stronger propagation: a global instead of a decomposition, implied constraints, tighter domains, a better search order |
+| `reference_timeout`, `reference_error`, `infrastructure_error` | Not the submission's fault | Record a blocker |
+
+Iterate first with `python -m evaluation.check MODEL --problem P --solver S
+--instance-count 2 --solution-limit 2`, which spends no attempt; a second solution often
+exposes a reading looser than the reference's. A top-level `accepted` can hide skipped
+instances, so read the per-instance results. Instance IDs are `example` and `json:N`,
+where `N` is the 0-based position in the problem's instance file; a row identical to the
+example or to an earlier row gets no ID of its own, so the first selectable row is not
+always `json:0`.
 
 ## Mapping checklist
 

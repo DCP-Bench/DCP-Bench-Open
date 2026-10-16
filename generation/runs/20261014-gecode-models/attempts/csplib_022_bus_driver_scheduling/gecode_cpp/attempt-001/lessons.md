@@ -1,0 +1,3 @@
+- Exact cover over Booleans: one linear(IRT_EQ, 1) per work item, with the covering shifts as BoolVarArgs; no special global needed.
+- Branching on the Booleans with AFC and BOOL_VAL_MAX (select shifts first) plus restarts(100) gave an optimum on all 5 instances; the 40x120 instance proves in about 27 s.
+- The "limit" runner status on json:1, json:3 and json:4 is the solution limit being hit before the proof; the evaluator still accepts these.

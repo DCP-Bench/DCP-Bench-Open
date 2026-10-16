@@ -1,0 +1,1 @@
+- Attempt 001 timed out on the 20-person instance (kidney_exchange_20_0.1_fz, candidate optimum not proven in 180 s). branching on transplants with heuristic conflict solved it in 116 s (sdf 129 s, default not finished in 170 s).

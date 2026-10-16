@@ -1,0 +1,6 @@
+Given n > 0 and m >= 0, find a series S = (s0, ..., sn, sn+1) with n+2 terms -> IntVarArray s(*this, n+2, 0, n) (every term is one of the counted values 0..n; a larger term would be an uncounted value, e.g. (4,0,0,0,0) for n=3)
+there are si occurrences of i in S for each i from 0 to n -> count(*this, s, i, IRT_EQ, s[i], IPL_DOM) for i in 0..n (value i fixed, count is an IntVar)
+implied by the two lines above: the n+1 counts add up to the n+2 terms -> linear(*this, s[0..n], IRT_EQ, n+2) (redundant)
+sn+1 = m -> rel(*this, s[n+1] == m)
+branching over S in order, smallest domain first, smallest value first -> branch(*this, s, INT_VAR_SIZE_MIN(), INT_VAL_MIN())
+satisfaction, no objective; print the series S -> output("s", s)

@@ -1,0 +1,3 @@
+- Break points only at positions where the sorted value changes; a one-hot choice over those positions keeps equal values together and avoids pairwise constraints.
+- Group sizes come from linear differences of break-point expressions, with two inequalities per group for |size - target|.
+- All 5 instances accepted; the evaluator reports the optimum for each (26, 4, 4, 7, 7), so the objective is correct.

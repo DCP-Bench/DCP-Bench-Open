@@ -1,0 +1,2 @@
+- The brief's description for added_corners has a literal "..." line where the puzzle text should be; the grid picture alone gave the layout. Model followed the grid: corners are circles, edge midpoints are squares.
+- The dataset file dataset/added_corners/added_corners.json is an empty list and the instance has no fields, so the model ignores its argument. Only one instance exists.

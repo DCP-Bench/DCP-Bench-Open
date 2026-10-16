@@ -1,0 +1,2 @@
+- Comparing a 0/1 instance value with a binary in a constraint (c[i] <= graph[j][i]) works and keeps the data inline, which reads well for a per-pair rule.
+- The bounds from the instance (lb 1, ub 196 for a total of 200) are derived from the constraints, not copied from the example.

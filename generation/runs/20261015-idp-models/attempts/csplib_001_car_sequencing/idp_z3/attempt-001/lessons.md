@@ -1,0 +1,2 @@
+- The first encoding (requires as Bool, nested requires(sequence(p),o) inside #{}) was refused with 'Declared outputs cannot extend to a reference solution' on the example; the data field requires is [6][5]int and binding it as Int with '= 1' fixed it.
+- A nested lookup per window timed out at 200 cars. A Boolean slot(p,c) channel with needs(p,o) <=> ? c: slot(p,c) & requires(c,o)=1, and sequence defined by a definition, accepted 21 of 22 instances at 11-31 s each; json:18 hit execution_timeout at 180 s.

@@ -1,0 +1,26 @@
+language ESSENCE' 1.0
+$ Travelling salesman problem: visit every city exactly once and return to the start, minimising the total rounded Euclidean distance
+given locations_dim1, locations_dim2 : int
+given locations : matrix indexed by [int(1..locations_dim1), int(1..locations_dim2)] of int
+letting n = locations_dim1
+$ cities are numbered 1..n, city 1 is the origin
+find x : matrix indexed by [int(1..n), int(1..n)] of bool
+find u : matrix indexed by [int(1..n)] of int(1..n)
+find dist : matrix indexed by [int(1..n), int(1..n)] of int(0..3000)
+find travel_distance : int(0..1000000)
+branching on [x, dist]
+minimising travel_distance
+such that
+$ the distance between two cities is the Euclidean distance between their locations rounded to an integer: d is the integer nearest to sqrt(s), with s the squared distance, so (2d-1)^2 <= 4s < (2d+1)^2 (d = 0 only when the cities coincide)
+forAll i : int(1..n) . forAll j : int(1..n) . (((2*dist[i,j]-1)*(2*dist[i,j]-1) <= 4*((locations[i,1]-locations[j,1])*(locations[i,1]-locations[j,1]) + (locations[i,2]-locations[j,2])*(locations[i,2]-locations[j,2])) \/ dist[i,j] = 0) /\ 4*((locations[i,1]-locations[j,1])*(locations[i,1]-locations[j,1]) + (locations[i,2]-locations[j,2])*(locations[i,2]-locations[j,2])) < (2*dist[i,j]+1)*(2*dist[i,j]+1)),
+$ a city is not its own successor
+forAll i : int(1..n) . !x[i,i],
+$ every city is left exactly once: one outgoing edge per city
+forAll i : int(1..n) . (sum j : int(1..n) . toInt(x[i,j])) = 1,
+$ every city is entered exactly once: one incoming edge per city
+forAll j : int(1..n) . (sum i : int(1..n) . toInt(x[i,j])) = 1,
+$ the route is a single tour: positions u[i] of the cities along the route from the origin, so a successor edge moves one position forward (no subtours)
+u[1] = 1,
+forAll i : int(2..n) . forAll j : int(2..n) . ((i != j /\ x[i,j]) -> (u[j] = u[i] + 1)),
+$ the travel distance is the sum of the distances of the chosen edges
+travel_distance = (sum i : int(1..n) . (sum j : int(1..n) . toInt(x[i,j]) * dist[i,j]))

@@ -1,0 +1,23 @@
+language ESSENCE' 1.0
+$ Revenue maximisation: choose how many units of each itinerary package to sell so that the seats reserved on each flight leg stay within its capacity, and total revenue is as large as possible.
+given demand_dim1 : int
+letting n_packages = demand_dim1
+given demand : matrix indexed by [int(1..n_packages)] of int
+given revenue : matrix indexed by [int(1..n_packages)] of int
+given available_seats_dim1 : int
+letting n_legs = available_seats_dim1
+given available_seats : matrix indexed by [int(1..n_legs)] of int
+given delta_dim1, delta_dim2 : int
+given delta : matrix indexed by [int(1..delta_dim1), int(1..delta_dim2)] of int
+find packages_to_sell : matrix indexed by [int(1..n_packages)] of int(0..sum(demand))
+find max_revenue : int(0..1000000000)
+
+branching on [packages_to_sell]
+maximising max_revenue
+such that
+$ the number of units sold of each package cannot exceed its estimated demand
+forAll p : int(1..n_packages) . packages_to_sell[p] <= demand[p],
+$ the seats reserved on each flight leg, summed over the packages that use the leg, cannot exceed the seats available on it
+forAll l : int(1..n_legs) . (sum p : int(1..n_packages) . delta[p, l] * packages_to_sell[p]) <= available_seats[l],
+$ the total revenue is the price of each package times the units sold, summed over the packages
+max_revenue = (sum p : int(1..n_packages) . revenue[p] * packages_to_sell[p])

@@ -1,0 +1,2 @@
+- A Var created inside a for loop (k = Var(...) per pair) fails with SystemExit: 1; declare the auxiliaries as one VarArray before the loop.
+- Element through a variable index works as cells[positions[i]] == a with a VarArray of positions.

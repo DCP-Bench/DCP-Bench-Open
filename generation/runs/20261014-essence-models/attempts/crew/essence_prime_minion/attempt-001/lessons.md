@@ -1,0 +1,1 @@
+Crew: the required-crew table has a total in column 1 and per-language minimums in the next columns; the language rule is a sum of crew times attributes with >=, and the rest rule is two implications on crew[f,p] for f+1 and f+2. Accepted first try.

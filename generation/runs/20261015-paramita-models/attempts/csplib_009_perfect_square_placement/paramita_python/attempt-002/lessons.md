@@ -1,0 +1,3 @@
+- Unary coordinates with a PB per separation (attempt 1: 840 PBs of about 224 terms) ran out of 2 GB on base 112.
+- Writing "a >= k implies b >= k + s" as plain clauses over the order bits needs no PB and kept base 112 within limits.
+- Literals outside a unary domain (b >= m with m > top) drop out of the clause; a clause with only the condition left forces the condition false.

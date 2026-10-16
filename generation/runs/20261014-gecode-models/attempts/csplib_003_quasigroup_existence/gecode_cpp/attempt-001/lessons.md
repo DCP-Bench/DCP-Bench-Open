@@ -1,0 +1,3 @@
+- Matrix-form element `element(*this, flat, x, w, y, h, z, IPL_DOM)` reads flat[x + w*y]; for row-major row c, column d use x = d, w = m, y = c, h = m.
+- A constant value in element needs an IntVar: `IntVar symbol(*this, a, a)`.
+- Latin square plus a pairwise element-based identity was accepted on the first evaluation (4/4 instances, plain INT_VAR_SIZE_MIN branching, no symmetry breaking).

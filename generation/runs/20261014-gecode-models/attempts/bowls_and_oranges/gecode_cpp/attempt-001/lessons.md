@@ -1,0 +1,3 @@
+- Gecode `count(home, x, v, irt, c)` needs `c` as an `IntVar`; a `BoolVar` cardinality fails to compile (no conversion). Use an `IntVarArray` of 0..1 for flags that feed `count`.
+- A 3-term arithmetic progression ban on occupancy flags is a `linear(..., IRT_LQ, 2)` over three 0..1 IntVars; no global fits.
+- The skill's `clause(*this, BOT_OR, pos, neg, 1)` form does not appear in the constraint map; a Boolean clause with negated literals was not needed.

@@ -1,0 +1,2 @@
+- Output shape can depend on an instance field: the brief shows [20] from the example (n=20), but n=10 needs [10]. Size the output array from the instance, not from the example shape.
+- The dom() with IntSet over a per-variable loop, plus a linear sum and an implication chain for trailing zeros, is accepted at first try for this kind of sequence problem.

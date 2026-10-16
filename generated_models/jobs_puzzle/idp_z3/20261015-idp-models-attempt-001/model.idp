@@ -1,0 +1,28 @@
+// Jobs puzzle: four people (0-3) hold eight different jobs, each person holds exactly two; find who holds which job.
+vocabulary {
+    // the four people, numbered 0 to 3
+    type Person := {0..3}
+    // the person holding each job
+    chef: () -> Person
+    guard: () -> Person
+    nurse: () -> Person
+    clerk: () -> Person
+    police_officer: () -> Person
+    teacher: () -> Person
+    actor: () -> Person
+    boxer: () -> Person
+}
+theory {
+    // Four people hold eight different jobs. Each person holds exactly two jobs.
+    ! p in Person: (if chef() = p then 1 else 0) + (if guard() = p then 1 else 0) + (if nurse() = p then 1 else 0) + (if clerk() = p then 1 else 0) + (if police_officer() = p then 1 else 0) + (if teacher() = p then 1 else 0) + (if actor() = p then 1 else 0) + (if boxer() = p then 1 else 0) = 2.
+    // The nurse is not a teacher, police officer, or clerk.
+    nurse() ~= teacher() & nurse() ~= police_officer() & nurse() ~= clerk().
+    // The clerk is not the chef.
+    clerk() ~= chef().
+    // Person 0 is not the boxer.
+    boxer() ~= 0.
+    // Person 3 is not the teacher, police officer, or nurse.
+    teacher() ~= 3 & police_officer() ~= 3 & nurse() ~= 3.
+    // Person 0, the chef, and the police officer went golfing together: three different people.
+    chef() ~= 0 & police_officer() ~= 0 & chef() ~= police_officer().
+}

@@ -1,0 +1,2 @@
+- For a person-to-slot assignment with availability, a one-hot Boolean matrix plus `channel` per person and `distinct` on the slot variables propagates well; no search tuning was needed for 4x4.
+- `dom(*this, x, IntSet(...))` restricts a variable's domain directly. Posting `IntVar` plus `rel(x, IRT_EQ, ...)` also works but reads worse.

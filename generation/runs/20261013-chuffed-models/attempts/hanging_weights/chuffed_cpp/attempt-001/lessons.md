@@ -1,0 +1,3 @@
+- Diagram reading: pivots and weight positions sit on the '+' columns; a drawn '|' one column off a '+' lands on that '+'. Arms in units of 3 characters.
+- Literal character columns gave no solution for two bars; grid-aligned pivots (H at 9, J/K bar at 33) gave exactly one solution, accepted.
+- Brute-force the bar equations in plain Python first to check the reading before writing the Chuffed model.

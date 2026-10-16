@@ -1,0 +1,2 @@
+- Bipartite assignment with at-most-one rows and columns: linear(IRT_LQ, 1) over Booleans plus rel(EQ, 0) for forbidden pairs, objective as expr(sum(...)), was accepted first try with no decomposition.
+- The brief's [5][5] shape is the example only; sizes were read from possible_assignments and every instance (3x3, 4x6, 7x4) passed.

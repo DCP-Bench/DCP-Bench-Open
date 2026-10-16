@@ -1,0 +1,27 @@
+language ESSENCE' 1.0
+$ Five children at Hebrew school (Bernice, Carl, Debby, Sammy, Ted) each told one part of the Exodus story; each has an age (three, five, seven, eight, ten), and a family that came from one country (Ethiopia, Kazakhstan, Lithuania, Morocco, Yemen). Find the association of age, child, country and story.
+letting AV = [3, 5, 7, 8, 10]
+$ the value v of ages[a] is the bundle (age, child, country, story) of the bundle number v; the same number links the four lists
+find ages : matrix indexed by [int(1..5)] of int(1..5)
+find children : matrix indexed by [int(1..5)] of int(1..5)
+find countries : matrix indexed by [int(1..5)] of int(1..5)
+find stories : matrix indexed by [int(1..5)] of int(1..5)
+
+branching on [children, countries, stories, ages]
+
+such that
+$ each age, child, country and story belongs to exactly one bundle
+allDiff(ages),
+allDiff(children),
+allDiff(countries),
+allDiff(stories),
+$ Debby's family is from Lithuania (children 3 is Debby, countries 3 is Lithuania)
+children[3] = countries[3],
+$ the child who told the story of the Passover is two years older than Bernice (children 1)
+forAll a, c : int(1..5) . ((ages[a] = stories[4] /\ ages[c] = children[1]) -> AV[a] = AV[c] + 2),
+$ the child whose family is from Yemen (countries 5) is younger than the child from the Ethiopian family (countries 1)
+forAll a, c : int(1..5) . ((ages[a] = countries[5] /\ ages[c] = countries[1]) -> AV[a] < AV[c]),
+$ the child from the Moroccan family (countries 4) is three years older than Ted (children 5)
+forAll a, c : int(1..5) . ((ages[a] = countries[4] /\ ages[c] = children[5]) -> AV[a] = AV[c] + 3),
+$ Sammy (children 4) is three years older than the child who told the story of Moses's youth (stories 3)
+forAll a, c : int(1..5) . ((ages[a] = children[4] /\ ages[c] = stories[3]) -> AV[a] = AV[c] + 3)

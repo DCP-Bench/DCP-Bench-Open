@@ -1,0 +1,58 @@
+// Five children each tell one part of the Exodus story, with a different age,
+// a family from a different country. Find each child's age, country and story.
+vocabulary {
+    // the five children: 0 Bernice, 1 Carl, 2 Debby, 3 Sammy, 4 Ted
+    type Child := {0..4}
+    // the five ages: 0 three, 1 five, 2 seven, 3 eight, 4 ten
+    type Age := {0..4}
+    // the five countries: 0 Ethiopia, 1 Kazakhstan, 2 Lithuania, 3 Morocco, 4 Yemen
+    type Country := {0..4}
+    // the five stories: 0 burning bush, 1 captivity, 2 Moses's youth, 3 Passover, 4 Ten Commandments
+    type Story := {0..4}
+    // one shared position number 1..5 links a child, an age, a country and a story
+    type Pos := {1..5}
+
+    // the number of years of each age slot
+    agev: Age -> Int
+
+    // the position of each child
+    children: Child -> Pos
+    // the position of each age
+    ages: Age -> Pos
+    // the position of each country
+    countries: Country -> Pos
+    // the position of each story
+    stories: Story -> Pos
+}
+theory {
+    // the years of the five ages are three, five, seven, eight and ten
+    agev(0) = 3.
+    agev(1) = 5.
+    agev(2) = 7.
+    agev(3) = 8.
+    agev(4) = 10.
+
+    // each child has a different position
+    ! c, d in Child: c ~= d => children(c) ~= children(d).
+    // each age has a different position
+    ! a, b in Age: a ~= b => ages(a) ~= ages(b).
+    // each country has a different position
+    ! k, l in Country: k ~= l => countries(k) ~= countries(l).
+    // each story has a different position
+    ! s, t in Story: s ~= t => stories(s) ~= stories(t).
+
+    // Debby's family is from Lithuania.
+    children(2) = countries(2).
+
+    // The child who told the story of the Passover is two years older than Bernice.
+    ! a, b in Age: (ages(a) = stories(3) & ages(b) = children(0)) => agev(a) = agev(b) + 2.
+
+    // The child whose family is from Yemen is younger than the child from the Ethiopian family.
+    ! a, b in Age: (ages(a) = countries(4) & ages(b) = countries(0)) => agev(a) < agev(b).
+
+    // The child from the Moroccan family is three years older than Ted.
+    ! a, b in Age: (ages(a) = countries(3) & ages(b) = children(4)) => agev(a) = agev(b) + 3.
+
+    // Sammy is three years older than the child who told the story of Moses's youth in the house of the Pharaoh.
+    ! a, b in Age: (ages(a) = children(3) & ages(b) = stories(2)) => agev(a) = agev(b) + 3.
+}

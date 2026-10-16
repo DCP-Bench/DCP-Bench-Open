@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+$ Order in which Harriet bought four pairs of shoes, and at which of four stores each pair was bought.
+find ecruespadrilles, fuchsiaflats, purplepumps, suedesandals : int(1..4)
+find footfarm, heelsinahandcart, theshoepalace, tootsies : int(1..4)
+
+such that
+$ the four shoe purchases occur at four different stops (each stop position holds one shoe)
+allDiff([ecruespadrilles, fuchsiaflats, purplepumps, suedesandals]),
+$ the four stores are visited at four different stops (each stop position holds one store)
+allDiff([footfarm, heelsinahandcart, theshoepalace, tootsies]),
+$ Harriet bought fuchsia flats at Heels in a Handcart
+fuchsiaflats = heelsinahandcart,
+$ the store she visited just after buying her purple pumps was not Tootsies
+purplepumps + 1 != tootsies,
+$ The Foot Farm was Harriet's second stop
+footfarm = 2,
+$ two stops after leaving The Shoe Palace, Harriet bought her suede sandals
+theshoepalace + 2 = suedesandals

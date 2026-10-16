@@ -1,0 +1,20 @@
+// Ten people in a Maths lecture queue, each with initials that are an alphabetically ordered pair of distinct letters from A to E. Print the queue of initials, front first.
+vocabulary {
+    type Pos := {0..9}
+    type Idx := {0..1}
+    type Letter := {0..4}
+    queue: Pos * Idx -> Letter
+}
+theory {
+    // Each of them had initials which were an alphabetically ordered pair of distinct letters.
+    ! p in Pos: queue(p, 0) < queue(p, 1).
+    // None of the people had the same initials as any other.
+    ! p, q in Pos: p ~= q => ~(queue(p, 0) = queue(q, 0) & queue(p, 1) = queue(q, 1)).
+    // Mathematician BE was at the front of the queue, with CD right behind.
+    queue(0, 0) = 1 & queue(0, 1) = 4.
+    queue(1, 0) = 2 & queue(1, 1) = 3.
+    // BD was right at the end of the queue.
+    queue(9, 0) = 1 & queue(9, 1) = 3.
+    // No-one shared a letter with the person in front of them.
+    ! p, q in Pos: q = p + 1 => ~(queue(p, 0) = queue(q, 0) | queue(p, 0) = queue(q, 1) | queue(p, 1) = queue(q, 0) | queue(p, 1) = queue(q, 1)).
+}

@@ -1,0 +1,33 @@
+// Frog circle: arrange cards 1..n in a circle so the frog, starting on card 1 and jumping k places from card k, lands on every card.
+vocabulary {
+    n: () -> Int
+    // positions around the circle, numbered 0..n-1 clockwise; the size comes from the instance
+    type Pos := {0..${n-1}}
+    // card numbers 1..n
+    type Val := {1..${n}}
+
+    // card number at each position
+    x: Pos -> Val
+    // position the frog is on after t jumps (t = 0 is the start)
+    pos: Pos -> Pos
+    // position reached by one jump from position p
+    nxt: Pos -> Pos
+}
+
+theory {
+    // every card is used exactly once
+    ! p, q in Pos: p ~= q => x(p) ~= x(q).
+
+    // the frog starts on card 1; the circle is fixed by putting card 1 at position 0
+    ! p in Pos: p = 0 => x(p) = 1.
+    ! s in Pos: s = 0 => pos(s) = 0.
+
+    // from position p the frog jumps x(p) places clockwise, wrapping around the circle
+    ! p in Pos: nxt(p) = if p + x(p) < n() then p + x(p) else p + x(p) - n().
+
+    // each jump goes from the current card to the card it names
+    ! s, t in Pos: t = s + 1 => pos(t) = nxt(pos(s)).
+
+    // the frog lands on every card: its positions are all different
+    ! s, t in Pos: s ~= t => pos(s) ~= pos(t).
+}

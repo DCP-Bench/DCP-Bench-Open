@@ -1,0 +1,2 @@
+- Prices quoted per group (5 bananas for 3 dollars) become integer coefficients by scaling every price by the LCM of the denominators (315 here): 189 b + 225 o + 245 m + 945 a = 31500.
+- `minimize: () -> Int` defined as the sum of two nullary decisions was accepted with no extra bounds; the equality constraints fix the total.

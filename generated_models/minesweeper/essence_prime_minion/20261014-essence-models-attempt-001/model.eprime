@@ -1,0 +1,14 @@
+language ESSENCE' 1.0
+$ Minesweeper board: each opened cell (a clue other than X) is not a mine and its number is the count of mines among its eight neighbours; the mines are the answer.
+given X : int
+given game_data_dim1, game_data_dim2 : int(1..)
+given game_data : matrix indexed by [int(1..game_data_dim1), int(1..game_data_dim2)] of int
+find mines : matrix indexed by [int(1..game_data_dim1), int(1..game_data_dim2)] of bool
+
+branching on [mines]
+
+such that
+$ an opened cell is not a mine
+forAll i : int(1..game_data_dim1) . forAll j : int(1..game_data_dim2) . ((game_data[i,j] != X) -> !mines[i,j]),
+$ an opened cell's number is the number of mines in the neighbouring cells
+forAll i : int(1..game_data_dim1) . forAll j : int(1..game_data_dim2) . ((game_data[i,j] != X) -> ((sum a : int(1..game_data_dim1) . sum b : int(1..game_data_dim2) . toInt(mines[a,b] /\ (|a - i| <= 1) /\ (|b - j| <= 1) /\ !((a = i) /\ (b = j)))) = game_data[i,j]))

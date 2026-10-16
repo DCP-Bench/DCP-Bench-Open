@@ -1,0 +1,25 @@
+language ESSENCE' 1.0
+$ Knight's tour: move a knight so that it visits every square of an n by n board exactly once; x shows the move number of each square, from 0.
+given n : int(1..)
+$ the squares a knight can jump between, each square numbered (row-1)*n+column
+letting Jumps = [ [(r1-1)*n+c1, (r2-1)*n+c2] | r1 : int(1..n), c1 : int(1..n), r2 : int(1..n), c2 : int(1..n), ((|r1-r2| = 1) /\ (|c1-c2| = 2)) \/ ((|r1-r2| = 2) /\ (|c1-c2| = 1)) ]
+find x : matrix indexed by [int(1..n), int(1..n)] of int(0..n*n-1)
+$ row and column of the square visited at each move (moves numbered from 1)
+find rowOf : matrix indexed by [int(1..n*n)] of int(1..n)
+find colOf : matrix indexed by [int(1..n*n)] of int(1..n)
+$ the square of each move as one index from 1 to n*n
+find cell : matrix indexed by [int(1..n*n)] of int(1..n*n)
+$ the search follows the board squares, the one with the fewest possible moves first
+heuristic sdf
+branching on [x]
+such that
+$ every square is visited by exactly one move
+allDiff(cell),
+$ the move numbers on the board are all different
+allDiff(flatten(x)),
+$ each move number on the board is the move made from that square
+forAll r : int(1..n) . forAll c : int(1..n) . (cell[x[r,c]+1] = (r-1)*n + c),
+$ move k is made from the square given by rowOf and colOf, and x records the move number k-1 there
+forAll k : int(1..n*n) . ((cell[k] = (rowOf[k]-1)*n + colOf[k]) /\ (x[rowOf[k], colOf[k]] = k-1)),
+$ each move goes to a square a knight can reach from the previous one
+forAll k : int(1..n*n-1) . table([cell[k], cell[k+1]], Jumps)

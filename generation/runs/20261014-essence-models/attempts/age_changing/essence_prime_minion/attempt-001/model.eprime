@@ -1,0 +1,39 @@
+language ESSENCE' 1.0
+$ Two ages: my age m and my husband's age h, linked by four operations (+2, /8, -3, *7) applied in some order.
+find m : int(1..1000)
+find h : int(1..1000)
+$ the order in which the four operations are applied, starting from my age
+find o1 : matrix indexed by [int(1..4)] of int(1..4)
+$ the order in which the four operations are applied, starting from his age
+find o2 : matrix indexed by [int(1..4)] of int(1..4)
+$ the running value after each step, starting from my age
+find v1 : matrix indexed by [int(0..4)] of int(0..1000)
+$ the running value after each step, starting from his age
+find v2 : matrix indexed by [int(0..4)] of int(0..1000)
+
+branching on [o1, o2, m, h]
+such that
+$ each of the four operations is used exactly once in each order
+allDiff(o1),
+allDiff(o2),
+$ the first sequence of operations takes my age to his age
+v1[0] = m,
+v1[4] = h,
+$ the second sequence of operations takes his age to my age
+v2[0] = h,
+v2[4] = m,
+$ each step applies one operation: +2 (op 1), /8 with no remainder (op 2), -3 (op 3), *7 (op 4)
+forAll k : int(1..4) . (
+  (o1[k] = 1 -> v1[k] = v1[k-1] + 2) /\
+  (o1[k] = 2 -> v1[k-1] = 8 * v1[k]) /\
+  (o1[k] = 3 -> v1[k] = v1[k-1] - 3) /\
+  (o1[k] = 4 -> v1[k] = 7 * v1[k-1])
+),
+forAll k : int(1..4) . (
+  (o2[k] = 1 -> v2[k] = v2[k-1] + 2) /\
+  (o2[k] = 2 -> v2[k-1] = 8 * v2[k]) /\
+  (o2[k] = 3 -> v2[k] = v2[k-1] - 3) /\
+  (o2[k] = 4 -> v2[k] = 7 * v2[k-1])
+),
+$ the second order is a different order from the first
+exists k : int(1..4) . o1[k] != o2[k]

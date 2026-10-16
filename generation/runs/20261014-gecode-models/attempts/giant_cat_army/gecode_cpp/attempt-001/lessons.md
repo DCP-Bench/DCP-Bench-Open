@@ -1,0 +1,2 @@
+- TupleSet needs its arity in the constructor: TupleSet steps(2); a default TupleSet fails at add() with 'Attempt to use uninitialized tuple set'. The skill's catalogue shows t(arity) but the pitfalls list does not name this failure.
+- A three-way step relation (add 5, add 7, integer sqrt) over successive entries is one extensional table on x.slice(i, 1, 2); domain consistent, so no decomposition is needed.

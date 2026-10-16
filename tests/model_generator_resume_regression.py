@@ -56,7 +56,8 @@ def main():
             failures.append(f"could not create a run: {err.strip()[:200]}")
         else:
             code, out, err = helper("attempt", "--run", run, "--problem", PROBLEM,
-                                    "--solver", SOLVER, "--skill", SKILL)
+                                    "--solver", SOLVER, "--skill", SKILL,
+                                    "--agent", "claude-code (claude-haiku-5-5)")
             if code:
                 failures.append(f"could not create an attempt: {err.strip()[:200]}")
             else:

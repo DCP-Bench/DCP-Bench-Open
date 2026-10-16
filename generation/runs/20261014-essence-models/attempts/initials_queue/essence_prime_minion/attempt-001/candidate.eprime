@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+$ Initials queue: ten people in a queue each have a pair of distinct letters from A to E in alphabetical order, all pairs differ, and no one shares a letter with the person in front. The front is BE, then CD, and the last is BD. Letters are 0 (A) to 4 (E).
+find queue : matrix indexed by [int(1..10), int(1..2)] of int(0..4)
+
+branching on [queue]
+such that
+$ each person's initials are an alphabetically ordered pair of distinct letters
+forAll p : int(1..10) . queue[p, 1] < queue[p, 2],
+$ no two people have the same initials
+allDiff([queue[p, 1] * 5 + queue[p, 2] | p : int(1..10)]),
+$ no one shares a letter with the person in front of them in the queue
+forAll p : int(1..9) . (queue[p, 1] != queue[p + 1, 1]) /\ (queue[p, 1] != queue[p + 1, 2]) /\ (queue[p, 2] != queue[p + 1, 1]) /\ (queue[p, 2] != queue[p + 1, 2]),
+$ the mathematician at the front of the queue has initials BE
+queue[1, 1] = 1 /\ queue[1, 2] = 4,
+$ the person right behind the front has initials CD
+queue[2, 1] = 2 /\ queue[2, 2] = 3,
+$ the person right at the end of the queue has initials BD
+queue[10, 1] = 1 /\ queue[10, 2] = 3

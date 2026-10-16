@@ -1,0 +1,2 @@
+- Branching: branch() takes a BoolVarArgs or BoolVarArray, not a single BoolVar (the compile error is a long overload list from set.hh and float.hh; the fix is a BoolVarArgs list).
+- Soft rules (a violated rule costs a fee) are BoolVars from expr(), not hard rel() posts; a hard rel() would force the rules.

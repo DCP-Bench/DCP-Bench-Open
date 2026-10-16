@@ -1,4 +1,4 @@
-"""The contract of one problem: declared outputs, objective, instance fields.
+"""The contract of one problem: description, declared outputs, objective, instance fields.
 
 Every model starts by extracting the same facts from the reference, and getting
 any of them wrong costs an attempt: the declared output *names* come from the
@@ -8,19 +8,29 @@ it depends on. This prints those facts so they are read rather than inferred.
 
     python -m generation.brief csplib_056_sonet
 
+The description is the reference's docstring, so a modeller can work from
+the problem statement without reading the reference's code.
+
 It also reports the shape of each instance field, because a ragged or
 mixed-type field is what an integration's data interface may be unable to bind
 at all; `generation.next_work` uses the same analysis to withhold those pairs.
 """
 import argparse
+import ast
+import functools
+import importlib.util
 import json
 import sys
+import types
 
 from evaluation.execution import ROOT
 from evaluation.reference import embedded_instance, load_reference
 from evaluation.results import EvaluationError
 
 RECTANGULAR_UNIFORM = "rectangular_uniform"
+# The integration reshapes ragged and mixed fields with its own run.py rules; the
+# refusals are asked of that run.py, so a pair is withheld exactly when it would fail.
+RESHAPED = "reshaped"
 
 
 def scalar_type(value):
@@ -71,25 +81,69 @@ def instance_rows(problem):
     return rows if isinstance(rows, list) else []
 
 
-def fields(problem):
-    """Each instance field with its shape, from the first instance available.
+def instance_of(problem):
+    """The first instance's fields, or the reference's embedded example, or None.
 
-    Falls back to the reference's embedded example when no instances are listed,
-    and to nothing when neither is readable, so a caller sweeping every problem
-    is never stopped by one of them.
+    Falls back to the embedded example when no instances are listed, and to None
+    when neither is readable, so a caller sweeping every problem is never stopped
+    by one of them.
     """
     rows = instance_rows(problem)
-    instance = rows[0] if rows else None
-    if instance is None:
-        source = ROOT / "dataset" / problem / f"{problem}.cpmpy.py"
-        if not source.is_file():
-            return {}
-        try:
-            instance = embedded_instance(source.read_text(encoding="utf-8"))
-        except (OSError, EvaluationError, ValueError, SyntaxError):
-            return {}
+    if rows:
+        return rows[0]
+    source = ROOT / "dataset" / problem / f"{problem}.cpmpy.py"
+    if not source.is_file():
+        return None
+    try:
+        return embedded_instance(source.read_text(encoding="utf-8"))
+    except (OSError, EvaluationError, ValueError, SyntaxError):
+        return None
+
+
+def fields(problem):
+    """Each instance field with its shape, from the first instance available."""
+    instance = instance_of(problem) or {}
     return {key: describe(value) for key, value in instance.items()
             if key not in ("name", "note")}
+
+
+_runners = {}
+
+
+def runner(solver_id):
+    """The solver's run.py, loaded on the host with the container's `runtime` stubbed."""
+    if solver_id not in _runners:
+        path = ROOT / "solvers" / solver_id / "run.py"
+        spec = importlib.util.spec_from_file_location(f"runner_{solver_id}", path)
+        module = importlib.util.module_from_spec(spec)
+        saved = sys.modules.get("runtime")
+        sys.modules["runtime"] = types.ModuleType("runtime")
+        try:
+            spec.loader.exec_module(module)
+        finally:
+            if saved is None:
+                del sys.modules["runtime"]
+            else:
+                sys.modules["runtime"] = saved
+        _runners[solver_id] = module
+    return _runners[solver_id]
+
+
+def instances_of(problem):
+    """Every listed instance, or the embedded example alone when none is listed."""
+    rows = instance_rows(problem)
+    if rows:
+        return [row for row in rows if isinstance(row, dict)]
+    instance = instance_of(problem)
+    return [instance] if instance else []
+
+
+@functools.lru_cache(maxsize=None)
+def runner_refusals(problem, solver_id):
+    """The instance fields the integration's run.py refuses in any instance, by its own rules."""
+    module = runner(solver_id)
+    return sorted({key for instance in instances_of(problem) for key, value in instance.items()
+                   if key not in ("name", "note") and module.refusal(key, value)})
 
 
 def unbindable(problem):
@@ -126,6 +180,7 @@ def brief(problem):
         objective = "minimize" if getattr(model, "objective_is_min", True) else "maximize"
     return {
         "problem": problem,
+        "description": ast.get_docstring(ast.parse(source)) or "",
         "instances_listed": max(1, len(rows)),
         "objective": objective,
         "declared_outputs": {name: shape_of(value) for name, value in outputs.items()},

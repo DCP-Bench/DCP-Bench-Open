@@ -1,0 +1,1 @@
+- The reference reads the product in dollars: product(prices) = total * 100 ** (n-1) for prices in cents (the first attempt's product = total had no solution for the 2-item instance).

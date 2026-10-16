@@ -1,0 +1,2 @@
+- Fractional prices: double every coefficient and the total ($0.50 -> 1, $3 -> 6, $2 -> 4, $20 -> 40) so linear() gets integer coefficients.
+- Problems with no instance fields: the constructor ignores the argument (`(void)instance;`); constants come from the description and are commented as such.

@@ -1,0 +1,2 @@
+- SCIP one-hot letter encoding plus column-wise carries solves cryptarithms at once: 1 instance, 0.7 s.
+- crypta has no instance fields (the instance list is empty); the puzzle words are the problem definition and are mirrored as constants with a comment.
