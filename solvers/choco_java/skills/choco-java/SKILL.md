@@ -29,7 +29,7 @@ Write the model clause by clause, finding the row here for each sentence of the 
 | The description says | Post |
 |---|---|
 | all different | `m.allDifferent(x, "AC").post()` (`"BC"` for wide domains) |
-| all different after shifts (queens diagonals) | `m.allDifferent(views).post()`, `views[i] = m.offset(q[i], i)` |
+| all different after shifts (queens diagonals) | `m.allDifferent(views, "AC_REGIN").post()`, `views[i] = m.offset(q[i], i)` (not `"AC"` or the default over views: see Pitfalls) |
 | all different except 0 / except values | `m.allDifferentExcept0(x)`, `m.allDifferentExceptValues(x, vals...)` |
 | exactly k equal to v | `m.count(v, x, k)` [k = #{x_i = v}]; v or k may be an `IntVar` |
 | how many take a value in a set | `m.among(k, x, int[] values)` |
@@ -82,8 +82,8 @@ IntVar[] up = new IntVar[n], down = new IntVar[n];
 for (int i = 0; i < n; i++) { up[i] = m.offset(q[i], i); down[i] = m.offset(q[i], -i); }
 // no two queens share a column or a diagonal
 m.allDifferent(q, "AC").post();
-m.allDifferent(up, "AC").post();
-m.allDifferent(down, "AC").post();
+m.allDifferent(up, "AC_REGIN").post();    // views: "AC_REGIN" or "BC", see Pitfalls
+m.allDifferent(down, "AC_REGIN").post();
 Solver s = m.getSolver();
 while (s.solve()) { /* read q[i].getValue() */ }
 ```
@@ -157,6 +157,7 @@ while (s.solve()) { /* read q[i].getValue() */ }
   - `Search.inputOrderLBSearch(x)` follows array order, smallest value first, and `inputOrderUBSearch` takes the largest first.
   - `Search.minDomLBSearch(x)` is first-fail.
   - Learning heuristics: `Search.domOverWDegSearch(x)`, `activityBasedSearch`, `conflictHistorySearch`, `failureRateBasedSearch`. Pair them with restarts.
+  - These take one `IntVar...` list. Join several arrays first: `ArrayUtils.append(a, b)` (`org.chocosolver.util.tools.ArrayUtils`).
   - Custom: `Search.intVarSearch(new FirstFail(m), new IntDomainMiddle(true), x)`. Value selectors also include `IntDomainMin`, `IntDomainMax`, `IntDomainMedian`, `IntDomainRandom(seed)` and `IntDomainBest`.
   - Wrappers: `Search.lastConflict(s)` and `Search.bestBound(s)`.
   - Scheduling: `m.setTimes(tasks)`.
@@ -164,6 +165,9 @@ while (s.solve()) { /* read q[i].getValue() */ }
   Add `setNoGoodRecordingFromRestarts()` to keep learnt no-goods.
 - With no strategy set, Choco picks a black-box default (`Search.defaultSearch(m)`). It is good on
   many models.
+- A grid puzzle encoded with placement Booleans (a ship, a piece, a word at each position):
+  branch on the cell variables first, then on the placements. Branching on the placements
+  alone timed out where cells first solved in seconds.
 - Scheduling: branch on start times smallest first (`inputOrderLBSearch(starts)` or
   `setTimes`). Routing: branch on successors with first-fail.
 - Optimisation that finds a poor first solution and stalls: build good solutions first. Choices
@@ -194,6 +198,10 @@ Turn LCG on only for a model whose constraints are all on the checked list, and 
 - A constraint that is not posted is silently ignored: `m.allDifferent(x);` without `.post()`.
   The exceptions are the void methods (`ifThen`, `ifThenElse`, `ifOnlyIf`, `reifyX..`, 2D `element`,
   the `*Dec` decompositions and `addClauses*`), which post themselves.
+- `allDifferent(views, "AC")`, and the default consistency, over views (`m.offset`, `m.mul`, `m.neg`)
+  can throw `java.lang.Error: This element is not present in the in-list` in 6.0.1. It is a Choco bug,
+  reproduced on Langford-style positions, and it comes back as `execution_error`. Over views use
+  `"AC_REGIN"` or `"BC"`, or post the shifted values as their own IntVars. Plain variables are not affected.
 - `new Tuples(int[][], boolean)` does not exist in 6.0.1. Use `new Tuples(true)` and then
   `t.add(int[]...)`.
   - For a universal ("any") value use `new Tuples(tuples, true, OptionalInt.of(star))`.
