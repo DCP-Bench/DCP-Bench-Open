@@ -32,8 +32,10 @@ interfaces it implements (`IIntConstraintFactory`, `ISchedulingFactory`, `IReifi
 - `taskVar(IntVar s, int d)`, `taskVar(IntVar s, IntVar d)`, `taskVar(IntVar s, IntVar d, IntVar e)`.
   Alternatively `new Task(IntVar s, int d)` [s + d = e]. Optional tasks:
   `taskVar(s, d, BoolVar performed)`.
-- Every IntVar bound must lie within ±21474836. `checkIntDomainRange` rejects bigger ones; the
-  driver's 64-bit outputs go through digit variables.
+- An IntVar's bounds must fit in a Java `int`, and the domain width must be at most `Integer.MAX_VALUE`.
+  `checkIntDomainRange` rejects anything larger. Values beyond that go through the driver's digit outputs.
+- `times(x, y, z)` whose bound products overflow an `int` falls back to a slower long-based propagator.
+  Under LCG it throws "Multiplication constraint is not supported in LCG mode" instead.
 
 ## Views (no new propagator: a variable defined from another)
 

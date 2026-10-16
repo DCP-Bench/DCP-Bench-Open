@@ -126,8 +126,9 @@ while (s.solve()) { /* read q[i].getValue() */ }
   `m.sum(bools, ...)` uses the Boolean sum.
 - Views cost no propagator: `m.offset(x, c)`, `m.mul(x, a)`, `m.neg(x)`, `m.abs(x)`,
   `m.isEq(x, v)`, `m.isLeq(x, v)`, and `b.not()`.
-- Bounds must stay within ±21474836 (`Integer.MAX_VALUE / 100`). A product of large domains
-  overflows that, so bound intermediate variables from the data.
+- Bounds must fit in a Java `int`. When a product of two domains can overflow an `int`, `times`
+  switches to a slower propagator, and under LCG it throws. Give intermediate variables tight bounds
+  from the data.
 - A column of a matrix is a new array: `IntVar[] col = new IntVar[rows]; for (...) col[r] = x[r][c];`.
 - Tight domains from the data. A result variable made by a factory takes its bounds from its
   inputs: `m.sum("total", x)`, `m.max("mx", x)`, `m.element("v", table, i)`, `e.intVar()`.
