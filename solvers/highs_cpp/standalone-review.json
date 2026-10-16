@@ -1,29 +1,7 @@
 {
   "skill": "highs-cpp",
-  "source_digest": "sha256:7ea692ff3f61c6ca883bbe7f464c61d7fdf204240790346242f18cc3237d7e9e",
-  "reviewer": "fresh agent (claude-haiku-5-5), given the skill folder and standalone-review.md only; it did not author or edit the skill and did not read earlier review findings",
-  "verdict": "leaks",
-  "findings": [
-    {
-      "file": "SKILL.md",
-      "line": 95,
-      "quote": "Start each block of rows with a `//` comment in the problem statement's words, not the HiGHS call",
-      "category": "benchmark",
-      "why": "Tells the modeller to comment in the words of a problem statement, which is the benchmark's description-derived comment rule rather than advice about using HiGHS."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 115,
-      "quote": "computed in the program from the instance",
-      "category": "benchmark",
-      "why": "'Instance' is the benchmark's term for a test input; a solver user would say input data."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 91,
-      "quote": "Pass integer counts as `HighsInt` (32-bit on this build) and bounds as `double`.",
-      "category": "environment",
-      "why": "States the integer width of one particular build as if it were a property of the solver's API."
-    }
-  ]
+  "source_digest": "sha256:1a5c11f53dcb18c169cbb81e19eec93bd1900da94ade0de99f5d00577006bce5",
+  "reviewer": "fresh agent (Claude Haiku 5.5), given only the skill folder and rosetta-skills/solver-setup/references/standalone-review.md; read every file except sources.md and evals/",
+  "verdict": "standalone",
+  "findings": []
 }
