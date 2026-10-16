@@ -190,12 +190,15 @@ docker run --rm --network none -v $PWD/model.cpp:/tmp/model.cpp:ro --entrypoint 
 ```
 
 The binary reads the request (`instance`, `solution_limit`, `execution_timeout`) on
-stdin and prints `solution` records then one `status` record on stdout.
+stdin and prints `solution` records then one `status` record on its stdout (the
+process's own `std::cout` goes to stderr).
 
 ## Traps
 
-- **Do not write to `std::cout`.** The binary's stdout is the runner protocol, and every
-  line on it must be a JSON record (a stray line is `invalid_output`); log to `std::cerr`.
+- **Printing does not reach the protocol, but it is not shown as output either.** The
+  driver writes its records to a private copy of stdout and points `std::cout` and
+  `printf` at stderr, so a model's own printing ends up in the log only. Values are
+  reported through `output(...)` alone.
 - **An auxiliary that no branching and no propagation fixes can give a wrong
   solution**: Gecode reports a solution once every brancher is done, and the fallback
   branching covers only the outputs and the objective. The outputs are then reported

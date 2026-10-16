@@ -58,6 +58,10 @@ every solution ACE printed and reports it as a plain integer: a Boolean output (
 - any other leaf type: `TypeError: declared output of type T is not an integer variable`;
 - outputs with different numbers of recorded solutions.
 
+ACE values are 32-bit: a domain or constant beyond that range is refused when ACE parses
+the model (`Fatal Error: Too big integer value ...`, an `execution_error`), and a domain
+spanning billions of values runs out of memory. No output can carry a wider value.
+
 ## Objective
 
 At most one `minimize(term)` or `maximize(term)` with an integer term, in the direction
