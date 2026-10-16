@@ -160,9 +160,9 @@ A binary column (`lo = 0`, `hi = 1`) needs only one indicator: the one that flip
 If no indicator is created, every column is fixed and the enumeration is complete. Full code in
 [the example](assets/all-solutions-no-good/README.md).
 
-For all optimal solutions: solve, record the optimum `z` from `getInfo().objective_function_value`. Write the
-objective as a row over the same columns, `sum_j c_j x_j + offset` (the cost coefficients and the offset from
-`changeObjectiveOffset`), and add it as `z - 1e-5 <= row <= z + 1e-5`. Then enumerate with the same no-goods.
+For all optimal solutions: solve, record the optimum `z` from `getInfo().objective_function_value`. That value
+includes the offset from `changeObjectiveOffset`, and a row holds no constant, so add the row
+`sum_j c_j x_j` (the cost coefficients) with bounds `z - offset - 1e-5 <= row <= z - offset + 1e-5`. Then enumerate with the same no-goods.
 Only integer columns that the printed answer depends on need no-goods; each solve costs one more round, so keep
 the enumerated count small.
 
