@@ -1,0 +1,2 @@
+- Puzzles where each attribute value has a house: one IntVar per value, allDifferent per category, and 'same house' clues as arithm(x, "=", y).
+- Adjacency: colors[a].dist(colors[b]).eq(1).post() and 'immediately left' as arithm(x, "-", y, "=", 1); both accepted first time.

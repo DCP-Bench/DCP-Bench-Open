@@ -1,0 +1,2 @@
+- Friend indices (Debra=0 etc.) and the 'neither/nor' clauses come straight from the statement; the instance has no fields, so nothing is read from the instance argument.
+- Constraint blocks use the description's wording, and the file opens with a problem line.

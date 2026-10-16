@@ -1,0 +1,3 @@
+- Ordering constraints between neighbours: post arithm(">" or "<") only when the ratings differ, and leave equal neighbours unconstrained.
+- Domain 1..n for each child is valid because no child needs more than n candies, so the bound is derived from the instance size.
+- m.sum("z", x) gives the total with its bounds taken from the inputs; it is set as the objective.

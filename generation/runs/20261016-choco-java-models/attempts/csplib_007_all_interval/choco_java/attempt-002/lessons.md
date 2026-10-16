@@ -1,0 +1,2 @@
+- The default search timed out at 180 s on the n=20 instance. dom/wdeg over x and diffs with Luby restarts solved all five sizes in about 1 s each.
+- `Search.domOverWDegSearch` takes one `IntVar...` array; two arrays must be concatenated first (System.arraycopy), or javac rejects the call.

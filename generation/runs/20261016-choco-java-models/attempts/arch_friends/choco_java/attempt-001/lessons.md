@@ -1,0 +1,2 @@
+- arch_friends has no instance fields; the clues are fixed by the description, so the constants 2 and 1 are clue values, not instance data.
+- arithm(x, "-", y, "!=", c) and arithm(x, "-", y, "=", c) cover the 'two stops after' and 'just after' clues directly, no reification needed.

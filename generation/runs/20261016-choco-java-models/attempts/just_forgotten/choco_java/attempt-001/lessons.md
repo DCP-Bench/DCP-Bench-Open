@@ -1,0 +1,2 @@
+- Per-position matches: x[i].eq(v).boolVar() gives a 0/1 variable, and m.sum(bools, "=", k) counts the correct positions. No global is needed for this.
+- n comes from the set length; every size is read from the instance.

@@ -1,0 +1,2 @@
+- Giant cat army: the step rules are a table over (x[i-1], x[i]) with the +5, +7 and perfect-square sqrt moves. The problem has no instance fields.
+- "Appeared in that order" needs a running flag per position, seen2[i] = seen2[i-1] or is2[i]. The first attempt posted seen2[i] = seen2[i-1] together with or(seen2[i-1], is2[i]), which forced the flag to stay constant and made the model unsat. The fix posts seen2[i] >= seen2[i-1], seen2[i] >= is2[i], and seen2[i] <= seen2[i-1] + is2[i].

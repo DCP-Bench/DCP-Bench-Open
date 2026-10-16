@@ -1,0 +1,1 @@
+- Set covering with minimise: one BoolVar per set, m.sum over the covering sets >= 1 per element, and scalar(sel, costs, "=", total) with setObjective MINIMIZE. Optimum 45 on the Lundgren instance matches the source.

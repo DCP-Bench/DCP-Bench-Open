@@ -1,0 +1,2 @@
+- dom/wdeg with Luby restarts (50, FailCounter, 10000) solved n=6 in 3 s, where min-domain first-fail without restarts timed out at 180 s.
+- allDifferent "AC" over a flat view of a matrix plus per-line m.sum(..., "=", k) is enough for magic squares; no symmetry breaking was needed.

@@ -1,0 +1,2 @@
+- Without an explicit search, the driver's default complete strategy ran out of heap (OutOfMemoryError in DecisionPath) on a model with a free sum variable and reified `sum.eq(s).boolVar()` views. Setting `Search.inputOrderLBSearch(age)` on the decision variables fixed it.
+- Quantified statements ("I need more information", "I got it") can be encoded over a fixed table of candidate triples, with reified `sum.eq(s).boolVar()` and `m.ifThen`.
