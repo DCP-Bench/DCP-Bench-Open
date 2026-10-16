@@ -58,7 +58,7 @@ Write the model clause by clause, finding the row here for each sentence of the 
 | increasing / nondecreasing sequence | `m.increasing(x, 1)` / `m.increasing(x, 0)` |
 | minimum / maximum / position of the maximum | `m.min(y, x)`, `m.max(y, x)`, `m.argmax(i, 0, x)` [first index on ties] |
 | a set (team, group, subset) | `SetVar s = m.setVar(new int[]{}, universe)`, `s.getCard()`, `m.disjoint`, `m.partition`; outputs through `m.setBoolsChanneling(b, s)` |
-| arithmetic | `m.times(x, y, z)`, `m.div` [truncates], `m.mod` [sign of x], `m.absolute`, `m.square`, `m.pow`, or expressions: `x.mul(y).add(z).eq(5).post()` |
+| arithmetic | `m.times(x, y, z)`, `m.div` [truncates], `m.mod` [sign of x], `m.absolute(y, x)`, `m.square(y, x)` [y = x²], `m.pow(x, k, y)`, or expressions: `x.mul(y).add(z).eq(5).post()` |
 | x differs from y plus a constant | `m.arithm(x, "-", y, "!=", c)`, or `x.sub(y).ne(c).post()` |
 | logic between conditions | `x.gt(1).imp(y.eq(0)).post()`, `.and`, `.or`, `.xor`, `.iff`, `.not()`; `m.ifThen(c1, c2)` posts at once |
 | if-then-else value | `z.eq(b.eq(1).ift(x, y)).post()` (`ift` is on a relational expression) |
@@ -93,6 +93,27 @@ while (s.solve()) { /* read q[i].getValue() */ }
   `SearchState.TERMINATED` and not `STOPPED`.
 - **Limits:** `s.limitTime("10s")`, `limitFail`, `limitSolution`. `s.reset()` returns to the root and removes
   the limits. Constraints may be posted after a reset (not under LCG).
+- **Imports** (each checked in `catalogue.java`):
+
+  ```java
+  import org.chocosolver.solver.Model;
+  import org.chocosolver.solver.Solver;
+  import org.chocosolver.solver.SettingsBuilder;
+  import org.chocosolver.solver.constraints.Constraint;
+  import org.chocosolver.solver.constraints.extension.Tuples;
+  import org.chocosolver.solver.constraints.nary.automata.FA.FiniteAutomaton;
+  import org.chocosolver.solver.constraints.nary.automata.FA.CostAutomaton;
+  import org.chocosolver.solver.constraints.nary.cnf.LogOp;
+  import org.chocosolver.solver.search.strategy.Search;
+  import org.chocosolver.solver.search.limits.FailCounter;
+  import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
+  import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
+  import org.chocosolver.solver.variables.BoolVar;
+  import org.chocosolver.solver.variables.IntVar;
+  import org.chocosolver.solver.variables.SetVar;
+  import org.chocosolver.solver.variables.Task;
+  import java.util.OptionalInt;
+  ```
 - **Classpath:** `choco-solver-6.0.1-jar-with-dependencies.jar`. It logs SLF4J warnings to stderr, which are harmless.
 
 ## Variables, arrays, data
