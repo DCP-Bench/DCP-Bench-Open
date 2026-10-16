@@ -1,0 +1,4 @@
+- Quick check: 2 solutions in ~53 s; the full evaluation accepted 2 solutions in 44 s, so the rule reading and the self-as-bye convention in config were accepted.
+- Earlier r4 variants were not reliable: their rule blocks were partly empty (loops with bound 0, unposted groups), so their infeasible or timeout results do not isolate a rule.
+- Count with an IntVar: m.count(v, vars, m.intVar(k)) (int count does not compile in 6.0.1).
+- Mirror pairs share one opponent variable per team, so the bye, the involution and the team-wise allDifferent over 9 pairs carry most of the structure.
