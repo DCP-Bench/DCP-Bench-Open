@@ -1,148 +1,223 @@
 ---
 name: cpmpy-python
-description: Write instance-agnostic CPMpy models in Python for the DCP-Bench cpmpy_python integration, covering the submission contract, the CPMpy 1.0.0 API surface, and the mistakes that make a submission fail.
+description: CPMpy is a Python constraint modelling library for constraint programming and optimisation, solved by OR-Tools CP-SAT by default. Use when writing, debugging or explaining CPMpy models, or when the user has chosen CPMpy for scheduling, assignment, packing, sequencing or other combinatorial problems.
+license: Apache-2.0
+compatibility: Requires Python 3.10+ and cpmpy 1.0.0 (tested; installs OR-Tools as a dependency). Other solvers need their own packages through extras.
+metadata:
+  domain: constraint-programming
+  solver: cpmpy
+  paradigm: cp
 ---
 
-# CPMpy models for `cpmpy_python`
+# CPMpy (Python)
 
-Write one Python file that builds a model from instance data. The runner solves
-it inside a container; you never solve, print, or read values yourself.
+CPMpy is a modelling layer: you write NumPy-like expressions and constraints, and a
+backend solver (OR-Tools CP-SAT by default) searches. Expressions are lazy: nothing is
+computed until `solve()`, so the built-in Python operators on them build constraints, and
+the Python built-ins that test truth values (`max`, `min`, `any`, `all`, `if`) do not work.
 
-Image: CPMpy 1.0.0, OR-Tools 9.15.6755, NumPy 2.x. Available imports are
-`cpmpy`, `numpy`, and the Python standard library.
+## Contents
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Modelling](#modelling)
+- [Solving](#solving)
+- [Scheduling and objectives](#scheduling-and-objectives)
+- [All solutions](#all-solutions)
+- [Common issues](#common-issues)
+- [Further reading](#further-reading)
+- [Examples](#examples)
 
-## The contract
+## Install
+
+```bash
+pip install cpmpy
+python3 -c "import cpmpy; print(cpmpy.__version__)"
+```
+
+Python 3.10 or newer. OR-Tools is installed with CPMpy and is the default solver; no
+licence or account is needed. Other backends come as extras, e.g. `pip install "cpmpy[z3]"`.
+Details: [CPMpy documentation](https://cpmpy.readthedocs.io/en/latest/) and the
+[installation notes in the README](https://github.com/CPMpy/cpmpy/blob/master/README.md).
+
+## Quick start
 
 ```python
 import cpmpy as cp
 
-
-def build(instance):
-    n = instance["n"]
-    x, y = cp.intvar(0, n, shape=2)
-    model = cp.Model(x + y >= n if instance["optimize"] else x + y == n)
-    if instance["optimize"]:
-        model.minimize(x + y)
-    return model, {"x": x, "y": y}
+x, y = cp.intvar(0, 5, shape=2, name=["x", "y"])
+model = cp.Model(x + y >= 5)
+model.minimize(2 * x + 3 * y)
+if model.solve():
+    print("x =", x.value(), "y =", y.value(), "cost =", model.objective_value())
+    print("status:", model.status().exitstatus.name)   # OPTIMAL
 ```
 
-- `build(instance)` takes the instance as a plain dict parsed from JSON and
-  returns `(model, outputs)`.
-- `outputs` maps **exactly** the problem's declared output names to CPMpy
-  variables, expressions, constants, or nested lists/arrays of these. Extra or
-  missing keys are rejected, and shapes must match the reference exactly.
-- Every declared output must be an integer or Boolean. A float value fails.
-- Auxiliary variables need not appear in `outputs`. When several solutions are
-  requested, distinctness is measured only over the declared outputs.
-- Objectives are integer only, set with `model.minimize(...)` or
-  `model.maximize(...)`. The runner proves optimality; do not assume it.
+Output: `x = 5 y = 0 cost = 10`, then `status: OPTIMAL`.
 
-**Take every quantity from `instance`.** A model that hardcodes the numbers of
-the example is the one failure this benchmark exists to catch, and it will be
-rejected the moment a second instance is checked.
+## Modelling
 
-Do not call `.solve()`, `.value()`, `print()`, or read files. The runner owns
-solving, objective handling, enumeration, and serialisation.
+Full list: [API catalogue](references/api.md) and the
+[model and variable reference](https://cpmpy.readthedocs.io/en/latest/api/model.html).
 
-## Gotchas, all verified against CPMpy 1.0.0
+| Need | API |
+|---|---|
+| integer variables | [`cp.intvar(lb, ub, shape=None, name=None)`](https://cpmpy.readthedocs.io/en/latest/api/expressions/variables.html) |
+| Boolean variables | [`cp.boolvar(shape=None, name=None)`](https://cpmpy.readthedocs.io/en/latest/api/expressions/variables.html) |
+| a model | [`cp.Model(*constraints)`](https://cpmpy.readthedocs.io/en/latest/api/model.html); `model += c` adds more |
+| all different | [`cp.AllDifferent(*args)`](https://cpmpy.readthedocs.io/en/latest/api/expressions/globalconstraints.html) |
+| element / table / cumulative / no-overlap | [`arr[idx]`](#modelling), [`cp.Table`](https://cpmpy.readthedocs.io/en/latest/api/expressions/globalconstraints.html), [`cp.Cumulative`](https://cpmpy.readthedocs.io/en/latest/api/expressions/globalconstraints.html), [`cp.NoOverlap`](https://cpmpy.readthedocs.io/en/latest/api/expressions/globalconstraints.html) |
+| reification / implication | [`a.implies(b)`](https://cpmpy.readthedocs.io/en/latest/api/expressions/variables.html); `(x >= 3).implies(b)` |
+| index a Python list or NumPy array by a variable | [`cp.cpm_array(arr)[idx]`](https://cpmpy.readthedocs.io/en/latest/api/expressions/variables.html) |
+| index a CPMpy variable array by a variable | `arr[idx]`, no wrapping |
+| sum / absolute value / max / min | `cp.sum`, `cp.abs`, `cp.max`, `cp.min` ([functions](https://cpmpy.readthedocs.io/en/latest/api/expressions/globalfunctions.html)) |
+| number of distinct values | `cp.NValue(arr)` ([functions](https://cpmpy.readthedocs.io/en/latest/api/expressions/globalfunctions.html)) |
+| minimise / maximise | [`model.minimize(expr)` / `model.maximize(expr)`](https://cpmpy.readthedocs.io/en/latest/api/model.html) |
 
-- **`max`, `min`, `any`, `all` must be the CPMpy versions.** The Python
-  built-ins raise `ValueError: __bool__ should not be called on a CPMPy
-  expression`. Use `cp.max`, `cp.min`, `cp.any`, `cp.all`. Built-in `sum` does
-  work and produces the same expression as `cp.sum`, but prefer `cp.sum` for
-  consistency.
-- **No floats anywhere.** A float coefficient raises at build time:
-  `TypeError: Multiplication does not support float constants`. Scale to
-  integers instead.
-- **Broadcasting follows NumPy exactly.** `x * w` for `x` of shape `(2, 3)` and
-  `w` of shape `(3,)` multiplies column-wise and is correct; a mismatched shape
-  such as `(2,)` raises `ValueError` rather than silently misaligning. Reach for
-  `np.multiply` or explicit indexing for clarity, not for correctness.
-- **Indexing with a decision variable** works as `arr[idx]`. Wrap a plain Python
-  list in `cp.cpm_array(...)` first; a NumPy array or a CPMpy variable array
-  needs no wrapping.
-- **An output variable no constraint mentions** is still fine: the runner
-  registers declared outputs so they get a value.
+Operators on expressions: comparisons `== != < <= > >=`; arithmetic `+ - * // % **` and unary
+`-`; logic `& | ~ ^`, `a.implies(b)`. Integer only: a float anywhere fails (see
+[Common issues](#common-issues)).
 
-## API surface
+**Naming.** `cp.max` and `cp.min` are the expression-aware forms of `cp.Maximum` and
+`cp.Minimum`: `cp.max(x)` and `cp.Maximum(x)` build the same expression, printed as
+`max(x[0],x[1],...)`. Both `cp.max` and `cp.Maximum` take a list of expressions; `cp.max` also
+accepts several arguments (`cp.max(a, b, 3)`). On plain numbers, `cp.max` falls back to Python's
+built-in. `cp.sum` is the same as the built-in `sum` on expressions; prefer `cp.sum` for clarity.
 
-### Model and variables
+```python
+import cpmpy as cp
 
-| Call | Meaning |
-| --- | --- |
-| `cp.Model(*constraints)` | build a model; `model += constraint` adds more |
-| `model.minimize(expr)` / `model.maximize(expr)` | set an integer objective |
-| `cp.intvar(lb, ub, shape=None, name=None)` | integer decision variable(s) |
-| `cp.boolvar(shape=None, name=None)` | Boolean decision variable(s) |
-| `cp.cpm_array(arr)` | make a Python list indexable by a decision variable |
-
-Comparisons `== != < <= > >=`; arithmetic `+ - * // % **` and unary `-`; logic
-`& | ~ ^` and `a.implies(b)`; aggregations `cp.sum`, `cp.abs`, `cp.max`,
-`cp.min`, `cp.any`, `cp.all`.
-
-### Global constraints
-
-| Constraint | Meaning |
-| --- | --- |
-| `cp.AllDifferent(*args)` | all arguments take different values |
-| `cp.AllDifferentExcept0(*args)` | all nonzero arguments differ |
-| `cp.AllDifferentExceptN(args, n)` | all arguments not equal to a value in `n` differ |
-| `cp.AllEqual(*args)` | all arguments take the same value |
-| `cp.AllEqualExceptN(args, n)` | all arguments not equal to a value in `n` are equal |
-| `cp.Circuit(*args)` | the successor array forms one Hamiltonian circuit |
-| `cp.Inverse(array1, array2)` | channelling: `array1[i]` is the index of `i` in `array2` |
-| `cp.Table(array, table)` | the assignment matches a row of `table` |
-| `cp.ShortTable(array, table)` | as `Table`, with wildcards allowed in `table` |
-| `cp.NegativeTable(array, table)` | the assignment matches no row of `table` |
-| `cp.IfThenElse(cond, if_true, if_false)` | all three are Boolean expressions |
-| `cp.InDomain(expr, domain)` | non-interval domain for an expression |
-| `cp.Xor(arg_list)` | exclusive or |
-| `cp.Cumulative(start, duration, end=None, demand=None, capacity=None)` | resource capacity is never exceeded |
-| `cp.CumulativeOptional(..., is_present=None)` | `Cumulative` with optional tasks |
-| `cp.NoOverlap(start, duration, end=None)` | intervals do not overlap |
-| `cp.NoOverlapOptional(..., is_present=None)` | `NoOverlap` with optional tasks |
-| `cp.Precedence(vars, precedence)` | values must appear in the given order |
-| `cp.GlobalCardinalityCount(vars, vals, occ)` | each `vals[i]` occurs `occ[i]` times |
-| `cp.Increasing(array)` / `cp.IncreasingStrict(array)` | non-decreasing / strictly increasing |
-| `cp.Decreasing(array)` / `cp.DecreasingStrict(array)` | non-increasing / strictly decreasing |
-| `cp.LexLess(l1, l2)` / `cp.LexLessEq(l1, l2)` | lexicographic order between two lists |
-| `cp.LexChainLess(X)` / `cp.LexChainLessEq(X)` | rows of a matrix in lexicographic order |
-| `cp.Regular(array, transitions, start, accepting)` | the sequence is accepted by an automaton |
-| `cp.MDD(array, transitions, start=None, reduce=True)` | the sequence is accepted by a decision diagram |
-| `cp.DirectConstraint(name, arguments, novar=None)` | call a solver-specific constraint by name |
-
-`Regular` is the right tool for row/column pattern problems such as nonograms.
-
-### Global functions
-
-| Function | Meaning |
-| --- | --- |
-| `cp.Minimum(arg_list)` / `cp.Maximum(arg_list)` | minimum / maximum of the arguments |
-| `cp.Abs(expr)` | absolute value |
-| `cp.Element(arr, idx)` | `arr[idx]`; prefer writing `arr[idx]` directly |
-| `cp.Count(arr, val)` | how many entries of `arr` equal `val` |
-| `cp.Among(arr, vals)` | how many entries of `arr` take a value in `vals` |
-| `cp.NValue(arr)` / `cp.NValueExcept(arr, n)` | number of distinct values, optionally ignoring `n` |
-| `cp.BoolVal(arg)` | wrap a Python or NumPy Boolean as an expression |
-
-## Check your own model before submitting
-
-```sh
-python -m evaluation.check MODEL.py --problem PROBLEM --solver cpmpy_python --instance-count 99
+values = cp.intvar(0, 9, shape=3)
+pick = cp.boolvar(shape=3)
+table = [10, 20, 30]
+model = cp.Model(
+    cp.AllDifferent(values),
+    (values[0] >= 5).implies(pick[0]),          # reified implication
+    cp.cpm_array(table)[values[1] // 4] == 20,  # list indexed by a variable
+)
 ```
 
-`--instance-count 99` checks every instance the problem has, which is what
-catches a model that fitted the example.
+## Solving
 
-Some references contain LaTeX in their docstrings, so Python prints
-`SyntaxWarning: invalid escape sequence` while loading them. That comes from the
-reference, not your model, and is harmless; add `-W ignore::SyntaxWarning` to
-quieten it.
+Status values: [solver interface](https://cpmpy.readthedocs.io/en/latest/api/solvers/solver_interface.html).
+`solve()` returns `True` when a solution was found, `False` when none was found.
+Read the reason from `model.status().exitstatus`, a `cpmpy.solvers.solver_interface.ExitStatus`.
 
-Read `reason` and `detail` on failure:
-`invalid_solution` means the reference rejects a solution your model allows,
-`suboptimal_solution` means your objective is wrong, and `invalid_output` means
-the declared outputs have the wrong keys, shapes, or types.
+| Status | Meaning |
+|---|---|
+| `OPTIMAL` | optimisation: objective proven optimal |
+| `FEASIBLE` | solution found, optimality not proven (time limit), or a satisfaction problem solved |
+| `UNSATISFIABLE` | proven: no solution |
+| `UNKNOWN` | limit reached with no solution found |
 
-Repair the model from the reported reason. Never change the reference, the
-dataset, or the evaluator to make a submission pass.
+Satisfaction problems report `FEASIBLE`, not `OPTIMAL`; use the return value of `solve()`.
+`ERROR` and `NOT_RUN` also exist.
+
+Read values with `var.value()` (a NumPy integer or Boolean), and the objective with
+`model.objective_value()`. Both are `None` or invalid until a solution exists; read them only
+after `solve()` returned `True`.
+
+Parameters go to the solver, and naming it is required when passing keyword arguments:
+
+```python
+model.solve(solver="ortools", time_limit=10, num_workers=1, random_seed=7)
+```
+
+[Solve parameters](https://cpmpy.readthedocs.io/en/latest/api/model.html). A model can
+also be extended after solving: `model += constraint` and solve again.
+
+## Scheduling and objectives
+
+**Renewable resource (Cumulative).** `cp.Cumulative(start, duration, end=end, demand=demand,
+capacity=capacity)` keeps the total demand of the tasks running at any time within capacity.
+Worked example: [scheduling-cumulative](assets/scheduling-cumulative/README.md).
+
+**One task at a time on a machine (disjunctive).** Use one `NoOverlap` per machine, not one for
+all tasks (a single one would force every task to be disjoint from every other). Group the
+tasks by machine, then unpack each group into three lists with `zip(*tasks)`:
+
+```python
+tasks_on = {}                                   # machine -> [(start, duration, end), ...]
+for j, job in enumerate(jobs):                  # job = [(machine, duration), ...]
+    for k, (machine, duration) in enumerate(job):
+        tasks_on.setdefault(machine, []).append((start[j][k], duration, end[j][k]))
+for tasks in tasks_on.values():
+    s, d, e = (list(column) for column in zip(*tasks))
+    model += cp.NoOverlap(s, d, e)
+```
+
+**Job order.** A job's operations run in sequence: `end[j][k] <= start[j][k + 1]`.
+**Makespan.** `makespan >= end[j][k]` for every operation, then `model.minimize(makespan)`.
+Worked example: [scheduling-jobshop](assets/scheduling-jobshop/README.md).
+
+**Number of distinct values (for example, colours).** `model.minimize(cp.NValue(colour))` gives
+the number of distinct values directly. The alternative `model.minimize(cp.max(colour))` gives
+the largest label, which is one less than the count (labels 0..n-1), so report
+`max + 1`. Both were verified as optima; prefer `cp.NValue` for readability.
+
+## All solutions
+
+`model.solveAll(display=callback, solution_limit=None)` calls `callback()` on every
+solution (read the values inside it) and returns the count.
+
+- **OR-Tools rejects a model with an objective**: `solveAll` raises `NotSupportedError`.
+  Build the enumeration model without `minimize`/`maximize`.
+- **Solutions are counted over all variables of the model.** A variable the outputs do not
+  determine (a free auxiliary `intvar` or `boolvar`) multiplies the count: two outputs with
+  a free Boolean gave 12 solutions instead of 6. An auxiliary variable fixed by the outputs
+  (`a == cp.max(x)`) does not duplicate. Expressions over decision variables (`q[i] + i`,
+  `cp.max(x)`, `cp.abs(...)`) create no counted variables, so `AllDifferent` over diagonal
+  expressions enumerates each solution once. Either enumerate a model whose variables are all
+  outputs, or loop with blocking clauses:
+
+```python
+solutions = []
+while model.solve():
+    values = tuple(int(v.value()) for v in outputs)
+    solutions.append(values)
+    model += cp.any([v != x for v, x in zip(outputs, values)])
+```
+
+- **All optimal solutions**: solve with the objective to get `best`, then build
+  `cp.Model(constraints + [objective == best])` without an objective and enumerate with
+  `solveAll`. Ready-made in [assets/all-optimal](assets/all-optimal/README.md).
+
+[Solution enumeration](https://cpmpy.readthedocs.io/en/latest/api/model.html).
+
+## Examples
+
+Each folder under `assets/` is a standalone program with a README:
+
+| Example | Pattern |
+|---|---|
+| [satisfy-seating](assets/satisfy-seating/README.md) | satisfy; `AllDifferent`, `abs`, checking the result |
+| [all-solutions](assets/all-solutions/README.md) | enumerate every solution with `solveAll` |
+| [all-optimal](assets/all-optimal/README.md) | every optimal solution |
+| [maximise-production](assets/maximise-production/README.md) | maximise; integer vector; proven-optimal check |
+| [minimise-assignment](assets/minimise-assignment/README.md) | minimise; permutation; list indexed by a variable |
+| [infeasible-pigeonhole](assets/infeasible-pigeonhole/README.md) | infeasible; reading the status |
+| [scheduling-cumulative](assets/scheduling-cumulative/README.md) | scheduling; `Cumulative` with `end` variables; data from a JSON file |
+| [scheduling-jobshop](assets/scheduling-jobshop/README.md) | scheduling; one `NoOverlap` per machine; job order; makespan |
+
+## Common issues
+
+| Problem | Likely cause | Fix |
+|---|---|---|
+| `ValueError: __bool__ should not be called on a CPMPy expression` | Python `max`, `min`, `any`, `all` or an `if` on an expression | use `cp.max`, `cp.min`, `cp.any`, `cp.all`; the built-in `sum` works but prefer `cp.sum` |
+| Job-shop or machine schedule with no valid solution, or every task disjoint | one `NoOverlap` over all tasks | one `NoOverlap` per machine, see [Scheduling and objectives](#scheduling-and-objectives) |
+| Colour count is one less than expected | `minimize(cp.max(colour))` gives the largest label | minimise `cp.NValue(colour)` or report `max + 1` |
+| `TypeError: Multiplication does not support float constants` | a float coefficient, also inside a NumPy float array | scale to integers |
+| `TypeError: list indices must be integers or slices, not _IntVarImpl` | Python list indexed by a variable | `cp.cpm_array(list)[var]` |
+| `IndexError: only integers, slices ...` | NumPy array indexed by a variable | `cp.cpm_array(np_array)[var]` |
+| `ValueError: operands could not be broadcast together` | mismatched shapes in `*` | match the shapes; NumPy broadcasting rules apply |
+| `NotSupportedError: OR-tools does not support finding all optimal solutions` | `solveAll` on a model with an objective | move the objective to a constraint, see [All solutions](#all-solutions) |
+| `solveAll` returns more solutions than expected | a free auxiliary variable the outputs do not determine | enumerate over outputs only, or use blocking clauses; see [All solutions](#all-solutions) |
+| `NotSupportedError: Specify the solver when using kwargs` | `solve(time_limit=...)` without `solver=` | `solve(solver="ortools", time_limit=...)` |
+| `solve()` is `False` but the cause is unclear | expected | read `model.status().exitstatus`: `UNSATISFIABLE` is proof, `UNKNOWN` is a limit |
+| status `FEASIBLE` on a minimisation | time limit reached | the solution is valid but not proven optimal; raise the limit |
+| `AttributeError` from `DirectConstraint` | name is not a native method of the solver | use the native name, e.g. `"AddAllDifferent"` for OR-Tools |
+
+## Further reading
+
+- Documentation: [cpmpy.readthedocs.io](https://cpmpy.readthedocs.io/en/latest/)
+- API reference: [model](https://cpmpy.readthedocs.io/en/latest/api/model.html), [global constraints](https://cpmpy.readthedocs.io/en/latest/api/expressions/globalconstraints.html), [OR-Tools backend](https://cpmpy.readthedocs.io/en/latest/api/solvers/ortools.html)
+- Examples: [CPMpy examples folder](https://github.com/CPMpy/cpmpy/tree/master/examples)

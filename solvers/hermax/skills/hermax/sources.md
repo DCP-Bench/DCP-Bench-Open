@@ -1,75 +1,78 @@
 # Sources for `hermax`
 
-Documentation this skill's instructions were written from. Add an entry whenever
-a claim here comes from a specific page or version.
+Tested with hermax 1.2.5 (with python-sat 1.9.dev16), Python 3.12.11, Linux, inside the
+`python:3.12.11-slim-bookworm` image with `pip install hermax==1.2.5`.
 
-- <https://github.com/josalhor/hermax> — hermax 1.2.5, and `hermax.model`, the
-  modelling layer submissions are written against.
-- `solvers/hermax/run.py` and `Dockerfile` in this repository — the contract
-  this skill describes.
+Documentation:
 
-Every claim below was checked by running it inside the integration image, not
-taken from documentation alone.
+- <https://hermax.readthedocs.io/en/latest/> — documentation index: quick start, modelling,
+  portfolio, incremental solvers, API reference, examples
+- <https://github.com/josalhor/hermax> — repository and README (modelling example,
+  `m.obj` soft-clause usage, `solve`, `result.status`/`result.cost`)
+- <https://pypi.org/project/hermax/> — package metadata (Apache-2.0)
+- <https://hermax.readthedocs.io/en/latest/acknowledgments.html> — backend solver credits
 
-- `hermax.model.Model` is the framework's own modelling layer: Boolean, integer,
-  enum, set and interval variables, vectors, matrices and dicts of each,
-  `all_different`, the cardinality helpers, `cumulative`, `max`/`min`/`sum_var`,
-  and `solve`. The package exposes it as `hermax.model` beside `hermax.core`.
-- **`m.obj[weight] += literal` pays `weight` when the literal is false.** The
-  documented example is `m.obj[3] += a  # pay 3 if a is false`, confirmed by
-  solving it: `status optimum, cost 0, a=True b=False c=True`.
-- **`Model.solve(time_limit=...)` works**, and selects
-  `PortfolioSolver[first_optimal_or_best_until_time_limit]`. A 14-into-13
-  pigeonhole returned `interrupted` after 2.7 s against a 2.0 s limit. An
-  earlier version of this integration recorded that no hermax backend could be
-  time-bounded; that was measured against the raw backends in `hermax.core` and
-  is false at the `Model` layer, which is why the runner no longer supervises a
-  child process.
-- Solve statuses are plain strings: `sat`, `optimum`, `unsat`, `interrupted`,
-  `interrupted_sat`, `unknown`, `error`. `result.ok` covers `sat`, `optimum`
-  **and `interrupted_sat`**, so it is not a safe test for "this is an answer".
-- `result.cost` is `None` for a model with no soft clauses, which is how the
-  runner tells a satisfaction problem from an optimisation one.
-- `result[container]` returns nested Python lists of `bool` or `int`, so a
-  declared output can be handed over whole.
-- **Tying a weighted sum to an integer variable is the expensive shape.** On a
-  four-by-four assignment problem with costs up to 125,
-  `m &= (sum(cost[i][j] * x[i][j]) == total)` spent 43 s inside `build` before
-  solving began. The same problem written with `m.obj[cost[i][j]] += ~x[i][j]`
-  built and solved in 0.21 s and gave the same optimum, 265.
-- The solver is genuinely incremental across solve calls: posting a blocking
-  clause and re-solving returned the next-best cost rather than repeating the
-  first answer. That is what optimal-solution enumeration relies on.
-- `m.scale(x, factor)` raises `ValueError: Scale factor must be strictly
-  positive`, so a maximisation cannot be written as a scale by -1.
-- hermax brings its own `hermax.encoder.card` and `hermax.encoder.pb_enc`, and
-  does not call PySAT's `CardEnc` or `PBEnc`. Its only install requirement is
-  `python-sat`, so the image needs no pypblib build.
-- EvalMaxSAT is much faster at pigeonhole than the SAT integration's Glucose: it
-  refutes 13 pigeons into 12 holes in about 0.7 seconds, where Glucose already
-  needs more than two seconds. The `timeout_cleanup` check therefore uses 16
-  into 15 here.
-- **A sum of hermax variables is a `hermax.model.PBExpr`**, and a single
-  `c * literal` is a `hermax.model.Term`. A PBExpr carries `terms` (Terms of a
-  coefficient and a `Literal`), `int_terms` (coefficient and a derived integer
-  such as a `DivExpr`) and `constant`. An `IntVar` inside a sum is lowered to
-  its threshold literals, so `sum(10**(2-i) * d[i])` over 0..9 IntVars holds 27
-  Terms and no `int_terms`; `2 * (x // 3)` keeps the `DivExpr` in `int_terms`.
-- **`result[expression]` raises `TypeError: Unsupported decode target`** for a
-  PBExpr, while `result[literal]` and `result[DivExpr]` decode. Adding
-  `constant + sum(c * result[item])` reproduced the value computed from the
-  decoded variables on every one of five enumerated solutions, with negated
-  literals, subtraction and a `DivExpr` in the sum.
-- A ten-digit all-different number as `sum(10**(9-i) * digit[i])` imported,
-  built and solved in 0.25 s, and `sum(2**k * bit[k]) == 2**39 + 4613732` over
-  40 Booleans solved in 0.013 s. A lone `IntVar` over a ten-digit range, or
-  over 0..5,333,333, was killed at the 2048 MB limit with nothing else in the
-  model (`generation/runs/20261001T1218Z-hermax-e024`, attempt-002 of
-  `divisible_by_1_through_9` and of `fibonacci_even`).
-- `x != v` on an `IntVar` is a `Literal`, and literals OR into a `Clause`;
-  `DivExpr != v` is a `PBConstraint`, which `|` rejects with `TypeError`. That
-  is why the runner cannot block a `DivExpr` inside an output sum.
-- hermax has no `%` on a `PBExpr` or an `IntVar` (`TypeError`);
-  `number == 7 * q` with `q` a sum of Booleans solved to 980672, a multiple of 7.
-- With the runner's repeated-output guard disabled, `{"x": a + b}` under
-  `a + b == 1` emitted `{"x": 1}` twice; with it, once followed by `complete`.
+Verified by running (inside the image):
+
+- Soft-clause polarity: `m.obj[w] += literal` pays `w` when the literal is false
+  (`minimise` example chooses the cheapest assignment; `maximise` reports the forgone weight).
+- `solve(time_limit=...)` returns `interrupted` after the limit (2.03 s against a 2.0 s
+  limit on pigeonhole 14 into 13) and `r.backend` names `hermax.PortfolioSolver[...]`.
+- `r.cost` is `None` when the model has no soft clauses.
+- Blocking-clause enumeration: two free Booleans give 4 answers when auxiliary variables are
+  blocked too, 2 when only the reported variable is blocked.
+- Incremental re-solve after blocking returns the next-best cost; the all-optimal loop
+  matched brute force (10 optimal, one solution).
+- `m.scale(x, -1)` raises `ValueError`; `x % 3` raises `TypeError`; `r[sum]` raises
+  `TypeError: Unsupported decode target`; `(x | y) | False` raises `TypeError`;
+  `m &= m.cumulative(...)` raises `TypeError`; `DivExpr != v` is a `PBConstraint` that `|`
+  rejects; `m.floor_div(x, k)` returns an `IntVar` usable in `z == 3*q + 1`.
+- `result.ok` is `True` for `sat`, `optimum` and `interrupted_sat`
+  (`hermax/model/core.py`, `SolveResult.ok`).
+- Scheduling example: `cumulative` plus a makespan `IntVar` as `m.obj += makespan` gives the
+  brute-force makespan 8.
+- Soft-clause encoding of a random 4x4 assignment (costs up to 125) solved in 0.01 s; the
+  encoding with `total == sum(c * x)` as objective did not finish within 300 s.
+- A lone `m.int("x", 0, 5333333)` with a trivial constraint did not finish within 100 s under
+  a 2 GB limit (not reproduced as a memory kill).
+
+- Round 2 probes (inside the image): `r[matrix]` returns a list of row lists of the matrix
+  shape; `m &= (a[0] + a[1] == a[2] + 1)` is feasible; three tasks of durations 3, 2, 4 under
+  `cumulative(..., [1, 1, 1], 1)` give makespan 9 (no overlap); `q[0] != q[1]` posts a literal
+  usable in a block.
+- `interrupted_sat` was not triggered in round 2 probes (time limits 1, 2, 3 and 8 s on
+  a 300-item knapsack and a random clause-plus-soft model: `interrupted` with no solution,
+  or `optimum`). The status stays in the table because `SolveResult.ok` covers it.
+
+Independent toy test (add-solver toy problems, solved by a tester from this skill only,
+dcp-eval/hermax:v1): 18/18 passed after one repair round. First run 13/18: all five
+failures were knapsack variants with the minimise sign used for a maximisation (the Common
+issues sign row was then added). Per-problem results:
+
+| Problem | Result |
+|---|---|
+| cryptarithm/ab-ab-aaa | PASS (infeasibility reported) |
+| cryptarithm/send-more-money | PASS (feasible solution) |
+| cryptarithm/two-two-four | PASS (feasible solution) |
+| graph-colouring/cycle6 | PASS (optimal, 2) |
+| graph-colouring/k4-tail | PASS (optimal, 4) |
+| graph-colouring/petersen | PASS (optimal, 3) |
+| jobshop/ft06 | PASS (optimal, 55) |
+| jobshop/small | PASS (optimal, 11) |
+| knapsack/p01 | PASS (optimal, 309) |
+| knapsack/small | PASS (optimal, 15) |
+| knapsack-all-optimal/fourteen | PASS (all 9 optimal) |
+| knapsack-all-optimal/ties | PASS (all 5 optimal) |
+| knapsack-all-optimal/unique | PASS (all 1 optimal) |
+| n-queens/n3 | PASS (infeasibility reported) |
+| n-queens/n4 | PASS (feasible solution) |
+| n-queens/n8 | PASS (feasible solution) |
+| n-queens-all/n6 | PASS (all 4 solutions) |
+| n-queens-all/n8 | PASS (all 92 solutions) |
+
+Tester total: **18/18 passed** (final run, after one repair round).
+
+The README cross-cutting failures ("only instances with name/note keys fail", "exit code with
+no useful message") did not occur in the tester's runs; the tester read only the named keys.
+
+Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/hermax:v1 image.

@@ -1,25 +1,29 @@
-{
-  "skill_name": "idp-z3",
-  "evals": [
-    {
-      "id": "data-bound-model",
-      "prompt": "Using this skill, write an idp_z3 submission for assignment_costs and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The submission is a plain FO(.) vocabulary and theory, with no procedure block relied upon and no hardcoded cost values.",
-        "Declares cost with argument types declared `<: Int` and left unsized, so the runner sizes them from the instance, and declares the output x as a predicate over the same two types.",
-        "Declares a nullary minimize: () -> Int defined with a double-brace sum{{ ... }} aggregate, and the evaluator accepts every listed instance."
-      ]
-    },
-    {
-      "id": "scalar-sized-type",
-      "prompt": "Using this skill, write an idp_z3 submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Sizes the row type with the ${n} placeholder (e.g. type Row := {1..${n}}) rather than a literal range or an expression inside the placeholder.",
-        "Uses FO(.) operators rather than other languages' spellings: ~= for disequality, comma-separated quantified variables, and a period after every sentence.",
-        "The evaluator accepts every listed instance."
-      ]
-    }
-  ]
-}
+{"skill_name": "idp-z3", "evals": [
+  {"id": 1, "prompt": "Write an IDP-Z3 (FO(.)) model in Python that places n queens on an n x n board, with n given as a number in my program, and prints one placement.", "expected_skill": "idp-z3",
+   "expected_output": "A Python program using idp_engine that prints a valid placement",
+   "assertions": ["Declares the row type `<: Int` and sizes it in a structure written from n, not with `{1..n()}`", "Uses FO(.) operators: `~=`, commas between quantified variables, a period after every sentence", "Reads values with str(value), not bool(value)"]},
+  {"id": 2, "prompt": "With IDP-Z3, list every subset of the numbers in numbers.json that sums to the target in the same file.", "expected_skill": "idp-z3",
+   "expected_output": "Every subset, then a completed enumeration",
+   "assertions": ["Reads the JSON file in Python and writes a structure from it", "Uses theory.expand(max=0, ...) and stops at the message string", "Fixes any auxiliary symbol by an equation or definition so models do not repeat"]},
+  {"id": 3, "prompt": "Use IDP-Z3 to assign workers to tasks at minimum total cost and list all the cheapest assignments.", "expected_skill": "idp-z3",
+   "expected_output": "Every optimal assignment with the optimal cost",
+   "assertions": ["Declares a nullary integer objective defined with sum{{ ... }}", "Calls Theory.optimize(term, minimize=True) and then expand(max=0)"]},
+  {"id": 4, "prompt": "Maximise the value of chosen projects within a budget using an FO(.) knowledge base; the data (with a ragged conflicts list) is in a JSON file.", "expected_skill": "idp-z3",
+   "expected_output": "The maximum value and the chosen projects",
+   "assertions": ["Takes every size from the data", "Turns the ragged list into a predicate or a padded map with a length function", "Uses optimize with minimize=False"]},
+  {"id": 5, "prompt": "My IDP-Z3 model says `Expected IDPFLOAT or INT` at `type Day := {0..days()}`. How do I fix it?", "expected_skill": "idp-z3",
+   "expected_output": "Explains that type ranges are literals and shows writing the range into a structure from the data",
+   "assertions": ["Declares `type Day <: Int` and interprets it in a generated structure"]},
+  {"id": 6, "prompt": "Schedule jobs with precedences on one machine with IDP-Z3, minimising the makespan, and stop after 10 seconds telling me whether the optimum was proven.", "expected_skill": "idp-z3",
+   "expected_output": "A schedule with its makespan and a proven/unproven/infeasible status",
+   "assertions": ["Gives start times a finite type", "Separates infeasible from timeout, e.g. by driving theory.optimize_solver with a timeout and comparing lower and upper"]},
+  {"id": 7, "prompt": "Show that three people working at most 3 hours each cannot cover 10 hours, using IDP-Z3.", "expected_skill": "idp-z3",
+   "expected_output": "The model is reported infeasible",
+   "assertions": ["Recognises the \"No models.\" message from expand (or the AssertionError from optimize)"]},
+  {"id": 8, "prompt": "Write a MiniZinc model for n-queens.", "expected_skill": null,
+   "expected_output": "The skill is not used", "assertions": ["idp-z3 is not loaded"]},
+  {"id": 9, "prompt": "Solve this knapsack with the z3 Python API (z3-solver), no FO(.).", "expected_skill": null,
+   "expected_output": "The skill is not used", "assertions": ["idp-z3 is not loaded"]},
+  {"id": 10, "prompt": "How do I host the IDP-Z3 web Interactive Consultant behind nginx?", "expected_skill": null,
+   "expected_output": "The skill is not used", "assertions": ["idp-z3 is not loaded"]}
+]}

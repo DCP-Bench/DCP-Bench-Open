@@ -1,0 +1,18 @@
+% Maximise: the largest set of vertices with no edge inside it.
+import cp.
+
+main =>
+    N = 6,
+    Edges = [(1,2), (2,3), (3,4), (4,5), (5,6), (6,1), (1,4)],
+    In = new_list(N),
+    In :: 0..1,
+    foreach ((A, B) in Edges)
+        In[A] + In[B] #=< 1
+    end,
+    Size #= sum(In),
+    if solve([$max(Size)], In) then
+        println("Maximum size: " ++ to_string(Size)),
+        println("Chosen vertices: " ++ to_string([V : V in 1..N, In[V] == 1]))
+    else
+        println("No set found")
+    end.

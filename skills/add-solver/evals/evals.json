@@ -1,0 +1,94 @@
+{
+  "skill_name": "add-solver",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use the add-solver skill to create a skill for the Pumpkin constraint solver, used from Rust. Write the finished skill to ./out/pumpkin-rust/ and your notes and test models to ./scratch/. Do not ask me anything; I will not be available.",
+      "expected_skill": "add-solver",
+      "expected_output": "A from-scratch pumpkin-rust skill with install steps that work, sources.md, evals, and a toy-test table.",
+      "files": [],
+      "assertions": [
+        "The places searched are recorded, and each skill found is classified as source, companion or ignored",
+        "out/pumpkin-rust/SKILL.md exists, has name pumpkin-rust and a description under 1024 characters",
+        "out/pumpkin-rust/sources.md exists and names the tested version",
+        "run_toy_tests.py was run against models written by a fresh agent and its table is reported",
+        "The skill contains no benchmark, runner or JSON-output-convention instructions",
+        "The skill has a Gotchas section"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the add-solver skill to create a skill for Google OR-Tools CP-SAT from Python. Write it to ./out/ortools-cp-sat-python/ and use ./scratch/ for everything else. Do not ask me anything; I will not be available.",
+      "expected_skill": "add-solver",
+      "expected_output": "Discovery finds any existing public OR-Tools skill, learns from it (credited) or recommends it as a companion, but writes its own skill; the toy tests pass.",
+      "files": [],
+      "assertions": [
+        "Discovery checked skills.sh / npx skills find, the OR-Tools repo and google/skills, and logged results",
+        "Any upstream skill is credited in sources.md or recommended as a companion, never copied",
+        "All 18 toy instances pass, or failures are explained",
+        "The skill explains that OPTIMAL and FEASIBLE differ, how to enumerate all solutions, and how to enumerate all optimal solutions"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Use the add-solver skill to create a skill for PySAT (Python). Write it to ./out/pysat/ and use ./scratch/ for everything else. Do not ask me anything; I will not be available.",
+      "expected_skill": "add-solver",
+      "expected_output": "A pysat skill that teaches cardinality/PB encodings and MaxSAT (RC2) for optimisation; comparable to a hand-curated pysat skill.",
+      "files": [],
+      "assertions": [
+        "The skill teaches how to encode integers or cardinality in SAT, since toy problems need it",
+        "The skill explains optimisation via RC2 / WCNF with hard vs soft clauses",
+        "Toy-test table reported; the knapsack and jobshop results are present",
+        "sources.md names the tested PySAT version"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Use the add-solver skill to make a skill for Gurobi (gurobipy). Write it to ./out/gurobipy-python/. Do not ask me anything; I will not be available.",
+      "expected_skill": "add-solver",
+      "expected_output": "The agent sees that pip gurobipy ships a free size-limited licence (no key or account), proceeds, and documents the limits; a full licence would have been a stop-and-ask.",
+      "files": [],
+      "assertions": [
+        "The licence situation is identified during research, and the size limit is stated in compatibility and Common issues",
+        "No licence key, account or registration was used or requested",
+        "henryrobbins/gurobi-skills (or any other unused related skill) is linked as a related skill with an npx skills add line, not copied",
+        "Doc pages are linked in the relevant sections (status codes next to the status table, solution pool next to enumeration), not only in Further reading",
+        "Every round's test models and results.txt are kept in out/gurobipy-python-workspace/"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Use the add-solver skill to make a skill for chuffed. Write it to ./out/. Do not ask me anything; I will not be available.",
+      "expected_skill": "add-solver",
+      "expected_output": "Chuffed's native interface is its C++ API (MiniZinc is a modelling layer, not Chuffed's interface): the agent builds Chuffed from source, writes a chuffed-cpp skill, and explains the choice in the report.",
+      "files": [],
+      "assertions": [
+        "The skill is chuffed-cpp and teaches Chuffed's C++ API, not MiniZinc",
+        "A missing compiler/CMake is installed rather than used as a reason to switch interface",
+        "The report states the interface chosen and why",
+        "The shipped skill is the one tested in the last round (no untested edits after it)",
+        "Test models of every round are kept in the workspace next to the skill"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Write a CPMpy model for the knapsack problem in knapsack.json and solve it with OR-Tools.",
+      "expected_skill": null,
+      "expected_output": "A model; add-solver is not used, since no skill is being created.",
+      "files": [],
+      "assertions": [
+        "add-solver is not loaded"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Our gurobipy-python skill gives a wrong status table; fix the TIME_LIMIT row in skills/gurobipy-python/SKILL.md.",
+      "expected_skill": null,
+      "expected_output": "A direct edit of the existing skill; the full add-solver workflow is not run.",
+      "files": [],
+      "assertions": [
+        "No new skill folder or workspace is created"
+      ]
+    }
+  ]
+}

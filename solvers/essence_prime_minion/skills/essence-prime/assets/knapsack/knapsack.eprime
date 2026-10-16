@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+$ Choose items to put in a knapsack of limited capacity, maximising the total value.
+given n : int(1..50)
+given capacity : int(0..10000)
+given weights : matrix indexed by [int(1..n)] of int(0..1000)
+given values : matrix indexed by [int(1..n)] of int(0..1000)
+find take : matrix indexed by [int(1..n)] of bool
+$ the total value, bounded by the sum of all values
+find total : int(0..sum(values))
+maximising total
+such that
+$ the total weight of the chosen items must not exceed the capacity
+(sum i : int(1..n) . take[i] * weights[i]) <= capacity,
+$ total is the summed value of the chosen items
+total = (sum i : int(1..n) . take[i] * values[i])

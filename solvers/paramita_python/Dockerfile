@@ -28,9 +28,16 @@ RUN apt-get update \
 
 RUN pip install --no-cache-dir paramita==1.2.0
 
+# The plugins' FindZLIB.cmake downloads zlib from zlib.net at configure time, with no
+# hash. zlib.net now answers that URL with an HTML page, which broke the EvalMaxSAT
+# build ("Unrecognized archive format"). Fetch the same release from zlib's GitHub
+# releases instead, pinned by its SHA-256 (signed by Mark Adler).
 RUN git clone https://codeberg.org/paramita/paramita-plugins /src/paramita-plugins \
  && git -C /src/paramita-plugins checkout --detach "${PLUGINS_REF}" \
- && git -C /src/paramita-plugins rev-parse HEAD
+ && git -C /src/paramita-plugins rev-parse HEAD \
+ && sed -i 's#URL https://zlib.net/fossils/zlib-1.3.2.tar.gz#URL https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz URL_HASH SHA256=bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16#' \
+      /src/paramita-plugins/cmake/FindZLIB.cmake \
+ && grep -q "URL_HASH SHA256=bb329a0a" /src/paramita-plugins/cmake/FindZLIB.cmake
 
 WORKDIR /work
 
