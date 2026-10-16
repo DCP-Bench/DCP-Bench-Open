@@ -1,0 +1,2 @@
+- Fractional multipliers (1/2, 1/3) were written as one integer equation by multiplying through by 6, with `m.scalar(x, coeffs, "=", 1200)`.
+- `m.sum(IntVar[], "=", k)` and `m.scalar` both take `.post()`; the evaluator accepted the scaled equation as exact.

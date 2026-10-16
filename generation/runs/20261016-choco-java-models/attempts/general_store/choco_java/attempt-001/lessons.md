@@ -1,0 +1,2 @@
+- Cryptarithm: each word becomes an IntVar through m.scalar(letters, place-value coefficients, "=", wordVar); the addends are then summed with m.sum. Keeps each addend readable.
+- Leading-zero rule is not in the description, so none was posted. The reference accepted this.
