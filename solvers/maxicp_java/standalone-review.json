@@ -1,50 +1,7 @@
 {
   "skill": "maxicp-java",
-  "source_digest": "sha256:6afd59f19e1cb04576f5010b883bbbd526f0ef21e4f0c823fc5719df11e0be9e",
-  "reviewer": "fresh agent (Claude Haiku 5.5, claude-haiku-5-5) given only the skill folder and rosetta-skills/solver-setup/references/standalone-review.md; it did not write the skill",
-  "verdict": "leaks",
-  "findings": [
-    {
-      "file": "SKILL.md",
-      "line": 74,
-      "quote": "Start each block of constraints with a comment line taken from the part of the problem description it encodes",
-      "category": "benchmark",
-      "why": "The comment rule presumes a submitted problem description and is a model-submission convention, not a fact about the MaxiCP API."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 126,
-      "quote": "Auxiliary variables (any variable outside the outputs) multiply the solutions",
-      "category": "protocol",
-      "why": "\"Outputs\" is the benchmark's declared-output protocol; the solver's own point is about variables the loop reads."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 131,
-      "quote": "int[] values = new int[n];                                  // inside the loop, values of the outputs",
-      "category": "protocol",
-      "why": "Same declared-output wording in the code comment; it describes the values the user's own loop records."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 153,
-      "quote": "then run the no-good loop above over the outputs.",
-      "category": "protocol",
-      "why": "Refers to a declared output set for someone else to read rather than the variables the user's loop reports."
-    },
-    {
-      "file": "SKILL.md",
-      "line": 172,
-      "quote": "| Outputs repeat with different auxiliaries | Auxiliaries are branched on | Fix them, or use the no-good loop |",
-      "category": "protocol",
-      "why": "Uses the benchmark's \"outputs\" term as the thing that repeats; the symptom is repeated solutions."
-    },
-    {
-      "file": "assets/magic-square/MagicSquare.java",
-      "line": 10,
-      "quote": "Every variable is an output, so each solution is distinct and no no-good is needed.",
-      "category": "protocol",
-      "why": "Uses the declared-output term; the comment should say that every variable is part of each reported solution."
-    }
-  ]
+  "source_digest": "sha256:7bd5009736be1ef44d03080abf15a68c5c703a0b7c524f33f057bb7a209c7ff3",
+  "reviewer": "fresh agent (Claude Haiku 5.5, claude-haiku-5-5) given only the skill folder and rosetta-skills/solver-setup/references/standalone-review.md; it did not write the skill and did not read sources.md or evals/",
+  "verdict": "standalone",
+  "findings": []
 }
