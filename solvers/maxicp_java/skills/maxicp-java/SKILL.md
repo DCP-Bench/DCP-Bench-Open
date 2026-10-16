@@ -25,6 +25,7 @@ symbolic modelling layer (`org.maxicp.modeling`, `ModelDispatcher`) is a differe
 - [All solutions](#all-solutions)
 - [Optimisation](#optimisation)
 - [Common issues](#common-issues)
+- [Performance](#performance)
 - [Runnable examples](#runnable-examples)
 - [Further reading](#further-reading)
 
@@ -86,10 +87,11 @@ Full list: [CPFactory](https://github.com/aia-uclouvain/maxicp/blob/v0.0.3/src/m
 | Boolean variable | `makeBoolVar(cp)`, `makeBoolVarArray(cp, n)` (a `CPBoolVar` is a `CPIntVar` of 0..1) |
 | all different | `allDifferent(xs)` |
 | disequality | `neq(x, y)`, `neq(x, k)` |
-| linear equality or bound | `sum(xs, k)`, `sum(xs, y)` (the sum equals the variable `y`), `eq(x, k)`, `eq(x, y)`, `le(x, k)`, `ge(x, k)`, `ge(x, y)` |
-| views (no new constraint) | `sum(xs)`, `mul(x, k)`, `plus(x, k)`, `minus(x)` (-x), `minus(x, k)` (x - k), `max(xs)`, `minimum(xs)` |
-| element and table | `element(int[], idx)`, `table(xs, rows)` |
-| reification and logic | `isEq(x, k)`, `isLe(x, y)`, `not(b)`, `or(bs)`, `implies(b1, b2)` |
+| linear equality or bound | `eq(x, k)`, `eq(x, y)`, `le(x, k)`, `le(x, y)`, `ge(x, k)`, `ge(x, y)` |
+| sum as a constraint | `sum(xs, k)`, `sum(xs, y)`: post with `cp.post(...)`, see below |
+| views (no new constraint) | `sum(xs)`, `mul(x, k)`, `mul(x, y)`, `plus(x, k)`, `minus(x)` (-x), `minus(x, k)` (x - k), `max(xs)`, `minimum(xs)` |
+| element and table | `element(int[], idx)`, `element(CPIntVar[], idx)`, `element(int[][], r, c)`, `table(xs, rows)`, `circuit(xs)` |
+| reification and logic | `isEq(x, k)`, `isEq(x, y)`, `isLe(x, y)`, `not(b)`, `isOr(bs...)` (a `CPBoolVar`); constraints `or(bs)`, `implies(b1, b2)` |
 | interval (task) | `makeIntervalVar(cp, false, len)`, `start(t)`, `end(t)`, `startAfter(t, r)`, `endBeforeStart(a, b)` |
 | no overlap and makespan | `noOverlap(ts)`, `makespan(ts)` |
 
@@ -102,13 +104,37 @@ Full list: [CPFactory](https://github.com/aia-uclouvain/maxicp/blob/v0.0.3/src/m
 - A view (`sum`, `mul`, `max`, `element`, ...) follows the variables it is built from. It is fixed when they are.
 - Bounds may not be `Integer.MIN_VALUE` or `Integer.MAX_VALUE`. For a number that does not fit an int, use
   digits or a smaller scale.
+- `sum(xs, k)` and `sum(xs, y)` are constraints: the sum of `xs` equals `k`, or equals the variable `y`. Post
+  them with `cp.post(...)`. They cannot be an argument of `eq`, `le` or `ge` (`eq(sum(xs, 2), 1)` does not
+  compile). Use the view `sum(xs)` there.
+- Booleans in a sum: a `CPBoolVar[]` is accepted where a `CPIntVar[]` is expected, so `cp.post(sum(bs, k))`
+  counts the `true` values. `sum(bs)` is the count as a view.
+- No `minus(CPIntVar, CPIntVar)`. Write `a - b` as `sum(a, minus(b))`. `minus(b, k)` is `b - k`.
+- `mul(x, y)` computes its bounds in `int`. The largest product of bounds must stay below 2^31: `0..40000` times `0..40000` is fine;
+  `0..50000` times `0..50000` throws `InvalidParameterException: consider reducing the domains, Integer.MIN _VALUE
+  and Integer.MAX_VALUE not allowed`.
+- `or(bs)` and `implies(b1, b2)` are constraints: post them, do not assign them to a `CPBoolVar` (`CPBoolVar r
+  = implies(...)` does not compile). A Boolean equal to a clause is `isOr(...)`, which nests:
+  `r = isOr(not(isEq(x, 1)), isEq(y, 2))`, and `eq(r, 0)` forces `x = 1` and `y != 2`.
+- "`b` implies at least one of `bs`" is `cp.post(ge(sum(bs), b))`.
+- `table(xs, rows)`: `rows` is `int[][]`, one tuple per row, e.g. `new int[][]{{0, 1}, {1, 2}, {2, 0}}`.
+- `circuit(succ)`: `succ[i]` in `0..n-1` is the successor of node `i`, and the variables form one cycle through
+  all nodes. Self-loops are excluded (4 nodes: 6 circuits; 5 nodes: 24).
+- `element(CPIntVar[] xs, idx)` is a view equal to `xs[idx]`. A 2-D lookup with variable indices flattens the
+  grid: `element(flat, sum(mul(r, m), c))` for an `m`-column grid.
+- Cumulative resource (raw API): `CPIntervalVar t = makeIntervalVar(cp, false, len)`, then
+  `CPCumulFunction f = sum(pulse(t1, h1), pulse(t2, h2), ...)` and `cp.post(le(f, cap))`. The total height of
+  the active tasks is at most `cap` at every time point. Bound a start with `cp.post(le(start(t), H))`. Import
+  `org.maxicp.cp.engine.constraints.scheduling.CPCumulFunction`.
 
 ## Solving
 
 - A search is `DFSearch search = makeDfs(cp, branching)`. `branching` is a `Supplier<Runnable[]>` that
   returns `EMPTY` when it has nothing to branch on (a solution), or `branch(left, right)` otherwise.
 - Use `firstFailBinary(vars...)`: it picks the unfixed variable with the smallest domain, posts `x = min`
-  on the left and `x != min` on the right. This is the default heuristic in this skill.
+  on the left and `x != min` on the right. This is the default heuristic in this skill. Equal domain sizes
+  go to the variable that comes first in the arguments (creation order does not matter), so pass the main
+  decisions first.
 - `search.solve()` explores the whole tree. `search.solve(stats -> ...)` stops when the predicate is true.
 - `SearchStatistics`: `numberOfSolutions()`, `numberOfFailures()`, `numberOfNodes()`, `timeInMillis()`,
   `isCompleted()`. `isCompleted()` is true only when the tree was exhausted; a stopped search is not completed.
@@ -177,6 +203,22 @@ Each pass builds a new `makeDfs`. [Min-makespan](assets/min-makespan/README.md) 
 | Values read after `solve` are the root's | State is restored on return | Read values in `onSolution` |
 | Solutions repeat with different auxiliaries | Auxiliaries are branched on | Fix them, or use the no-good loop |
 | `solve` returns 0 solutions and `completed` is false | The predicate stopped the search (often a time limit) | Raise the limit; a non-completed search proves nothing |
+| `no suitable method found for eq(CPConstraint,int)` | `sum(xs, k)` is a constraint, not a view | `cp.post(sum(xs, k))` |
+| `CPConstraint cannot be converted to CPBoolVar` | `or`, `implies` are constraints | Post them; use `isOr` for a Boolean |
+| `no suitable method found for minus(CPIntVar,CPIntVar)` | No variable-minus-variable | `sum(a, minus(b))` |
+| `OutOfMemoryError: Java heap space` at `Equal.post` | Domains are allocated in full: 300 variables on `0..1000000000` linked by `eq` exhausted the heap (2 did not) | Use bounds from the data; keep domains small |
+| `InvalidParameterException: consider reducing the domains` | A `mul` bound product does not fit in `int` | Smaller domains |
+
+## Performance
+
+Plain DFS has no learning and no restarts, so the encoding decides whether a search finishes. Patterns that
+worked in practice:
+
+- One-hot Booleans with an exactly-one sum per item (`cp.post(sum(bs, 1))`) instead of channelling with reified `isEq`.
+- A position variable per item with `allDifferent`, and a binary `table` over consecutive positions, for paths
+  and tours (knight's tour, Hidato-like puzzles).
+- `table` for small arithmetic relations such as `|x - y|`, instead of `max` views.
+- Implied constraints taken from the problem statement, such as lower bounds on sums, to speed up optimality proofs.
 
 ## Runnable examples
 
