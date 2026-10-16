@@ -1,0 +1,16 @@
+language ESSENCE' 1.0
+$ Job shop: each job visits its tasks in the listed order, each machine runs one task at a time, finish every job as early as possible.
+given n_tasks : int(1..)
+given jobof, machineof, dur : matrix indexed by [int(1..n_tasks)] of int(1..)
+letting horizon = sum(dur)
+find start : matrix indexed by [int(1..n_tasks)] of int(0..horizon)
+find makespan : int(0..horizon)
+branching on [start]
+minimising makespan
+such that
+$ every task ends by the makespan
+forAll a : int(1..n_tasks) . start[a] + dur[a] <= makespan,
+$ within a job, a task starts after the task listed before it has finished
+forAll a : int(1..n_tasks-1) . (jobof[a] = jobof[a+1]) -> (start[a] + dur[a] <= start[a+1]),
+$ two tasks on the same machine never overlap: one of them ends before the other starts
+forAll a, b : int(1..n_tasks) . (a < b /\ machineof[a] = machineof[b]) -> ((start[a] + dur[a] <= start[b]) \/ (start[b] + dur[b] <= start[a]))

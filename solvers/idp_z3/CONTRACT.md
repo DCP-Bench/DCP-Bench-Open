@@ -46,7 +46,8 @@ an instance field, a Boolean or array where a scalar is needed) is refused with
 status `error`. A `$` is otherwise legal in FO(.) only directly before `(`, so the marker
 cannot collide with real syntax. Wrap the whole expression: `{0..${2*n+1}}`, not
 `{0..2*${n}+1}`. Inside `${...}`, `//` is Python floor division; outside it, `//` starts a
-comment and integer division is `/`.
+comment and integer division is `/`. The placeholder also works in the theory, e.g.
+`sum{{ ... }} = ${n*(n*n+1)//2}.`.
 
 **2. Symbols named like a field.** Every instance field (or reshaped piece, below) whose
 name is a symbol (function or predicate) declared in the vocabulary, and which no
@@ -72,6 +73,26 @@ name is a symbol (function or predicate) declared in the vocabulary, and which n
   `-> Int` and compare with `= 1`.
 - A field the model does not declare is ignored, whatever its type. A symbol interpreted
   in your own `structure` is **not** bound: the instance value is ignored.
+
+The two forms compose: size the index type from data, and use `${n}` for ranges that
+come from a scalar.
+
+```
+vocabulary {
+    type I <: Int                  // sized from npv's length
+    budget: () -> Int
+    npv: I -> Int
+    cash_flow: I -> Int
+    x: I -> Bool                   // declared output
+    z: () -> Int                   // declared output
+    maximize: () -> Int
+}
+theory {
+    sum{{ cash_flow(i) | i in I: x(i) }} =< budget().
+    z() = sum{{ npv(i) | i in I: x(i) }}.
+    maximize() = z().
+}
+```
 
 **Reshaping.** Fields FO(.) cannot interpret as they are are reshaped first (`pieces()`
 in run.py):
@@ -199,14 +220,30 @@ entrypoint is the runner (`python /opt/runner/run.py`); for an ad hoc run overri
   uninterpreted, a free unknown z3 may choose. Name data symbols exactly as the brief
   lists the fields.
 - **`type T` without `<: Int`** is never sized from data and is not numeric.
+- **Take every quantity from the instance.** A model that hardcodes the numbers of the
+  example passes that instance and is rejected on the next one checked.
 - **A 0/1 integer field declared `-> Bool`** binds as all false (only JSON `true` counts),
-  without an error naming the field; the evaluator then reports a wrong solution.
+  without an error naming the field; the evaluator then reports a wrong solution, or
+  "Declared outputs cannot extend to a reference solution".
 - **Arrays bind 0-based**: an instance holding 1-based coordinates or ids must be shifted
   in the constraint (`r + 1 = lt(k, 0)`), and ragged padding is 0, so compare 1-based ids
   or guard with `F_len`.
+- **An unbounded `-> Int` output** is read back as whatever integer z3 picks (the runner
+  applies no range), so it can take values the description rules out (negative, above n)
+  and the evaluator rejects them with "Declared outputs cannot extend to a reference
+  solution". Give every integer output a small range type or explicit bounds in the
+  theory (the skill's performance notes say when a range type is too large).
+- **An output the brief shows as `int` declared `-> Bool`** comes back as JSON
+  `true`/`false` and fails with "Expected integer at x[0][0]"; declare it over
+  `type Bit := {0..1}`.
 - **`${...}` is substituted everywhere**, comments included: a malformed placeholder in a
   comment still fails the run.
 - **The structure name `_dcp_instance`** is the runner's; do not declare it.
+
+- `execution_error` covers everything this runner rejects before solving: a parse or type
+  error naming line and column, a declared output that is not a symbol, a bad `${...}`, or
+  data that does not fit its declaration. `execution_timeout` usually means nonlinear
+  arithmetic or a type left far larger than the problem needs.
 
 ## Example
 

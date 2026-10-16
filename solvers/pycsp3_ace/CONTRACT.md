@@ -64,7 +64,8 @@ At most one `minimize(term)` or `maximize(term)` with an integer term, in the di
 the brief gives; none for a satisfaction problem. The runner wraps both functions: in the
 first round it records the direction and passes the call through; in later rounds the same
 call posts `satisfy(term == optimum)` instead, so the objective must be the same term
-every time the file runs.
+every time the file runs. Minimising a maximisation problem (or the reverse) is
+`suboptimal_solution`, verified with a knapsack model.
 
 ## Solving
 
@@ -116,6 +117,11 @@ ACE's log; `-ev` makes ACE print the cause of a failure (without it ACE prints o
   out. A `SIGALRM` at exactly `execution_timeout` from the start of `main` also turns into
   `timeout`; on that path, solutions already found are not emitted. Solutions found before
   a `timeout` on the other paths are emitted.
+- **Evaluator reasons**: the evaluator reads runner `error` as `execution_error`, `unsat` as
+  `no_solution`, `timeout` as `execution_timeout` (inconclusive, see [Checking](#checking)),
+  `unsupported` as `unsupported_capability`, and `compilation_error` as `compilation_error`.
+  A run with fewer distinct solutions than requested, and no `complete` status, is
+  `invalid_output`.
 
 ## Compilation
 
@@ -155,6 +161,10 @@ dcp-eval/pycsp3_ace:v1 -c 'cd /tmp && python ...'`.
 - **The model runs once per round**: nondeterministic model code (random, iteration order
   of a `set` of objects, the clock) can build a different model in a later round.
 - **A request without declared outputs** is `error` ("The request declares no outputs").
+- **`sys.argv` and files**: the runner sets `sys.argv` to pycsp3's own arguments
+  (`-data=<round dir>/placeholder.json`, `-output=<round dir>/`) and stages no data file. A
+  submission takes its instance from `data` only; reading a file or `sys.argv[1]` does not
+  find the instance.
 - No problem is withheld for its instance shape: ragged and mixed fields arrive as
   Python lists, and handling them is the model's job.
 

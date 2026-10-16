@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Place n queens on an n x n board so that no two attack each other.
+given n : int(1..20)
+$ q[c] is the row of the queen in column c
+find q : matrix indexed by [int(1..n)] of int(1..n)
+branching on [q]
+such that
+$ no two queens are in the same row
+allDiff(q),
+$ no two queens share an ascending diagonal
+allDiff([q[i] + i | i : int(1..n)]),
+$ no two queens share a descending diagonal
+allDiff([q[i] - i | i : int(1..n)])

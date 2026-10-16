@@ -110,9 +110,18 @@ if reserved), with the declared shape: an `int(lo..hi)` or `bool` scalar, or a n
 files (`letting NAME be VALUE`), parses ints, `true`/`false` and nested matrix literals
 (skipping any index-domain annotation, so a matrix becomes a plain JSON list by
 position), and projects each solution onto the declared outputs. Booleans are reported as
-JSON Booleans. Other `find` variables are auxiliary and never reported. If a declared
+JSON Booleans. A matrix is reported by position, so its first element (`M[1]` for a
+matrix indexed from 1) is the reference's index 0. Other `find` variables are auxiliary
+and never reported. If a declared
 output is missing from the solution, the runner does not project and reports every `find`
 variable, which the evaluator rejects as `invalid_output`.
+
+An output that is a function of other variables is a `find` of its own, constrained with an
+equality, so the runner reads its value. The evaluator matches output values to the
+reference's exactly, so each output is pinned by constraints and not left a range. Leaf kind
+follows the brief: an output the brief shows as `int` is an `int(...)` `find`, even where the
+statement speaks of yes or no; a `bool` leaf is reported as a JSON Boolean and is rejected
+where an integer is expected.
 
 ## Objective
 
@@ -144,6 +153,8 @@ java -XX:ParallelGCThreads=1 -XX:+UseSerialGC -Xmx1200m -Djava.library.path=/opt
 
 The submission cannot change these flags (its own `branching on` and `heuristic` still
 apply). Savile Row's stdout and stderr go to the run's stderr.
+No `-S` flag is passed, so Savile Row's default `-S1` applies: it may fix a `find` it
+considers unused (see [Traps](#traps)).
 
 - **Status of one call**: `SavileRowTimeOut:1` in the info file, or the process outliving
   its wait, is `timeout`; a nonzero exit is `error` with detail `Savile Row exited N; see
@@ -189,7 +200,11 @@ Image `dcp-eval/essence_prime_minion:v1`, from
 `eclipse-temurin:17-jre-jammy` (Ubuntu 22.04, Java 17 JRE): Savile Row 1.11.1 (release
 tarball, checksum-pinned) unpacked in `/opt/savilerow` with its bundled Minion at
 `/opt/savilerow/bin/minion` (`fzn-chuffed` and `kissat` removed), and Ubuntu's `python3`
-for the runner at `/opt/runner/run.py`. The model can use only Essence' itself; no JSON
+for the runner at `/opt/runner/run.py`. The `savilerow` launcher script is
+`/opt/savilerow/savilerow`, and `/opt/savilerow` is not on the image's `PATH` (it is
+`/opt/java/openjdk/bin` and the system directories), so a bare `savilerow` is `not found`
+inside the image; the runner calls the jar directly. An ad hoc run gives the launcher's full
+path or prepends `/opt/savilerow` to `PATH`. The model can use only Essence' itself; no JSON
 or other library is involved on the model's side. The JVM heap is capped at 1200 MB
 inside the evaluator's 2048 MiB container limit, so a quantifier over a very large domain
 exhausts Savile Row's memory (`memory_limit` or a Java error).
@@ -225,6 +240,16 @@ entrypoint is the runner (`python /opt/runner/run.py`); for an ad hoc run overri
   unless they are its derived sizes.
 - **`dcp_objective_value`** is the runner's own name; do not use it. An objective outside
   `-10^12..10^12` cannot be read back.
+- **An output fixed by `-S1`.** Savile Row's default `-S1` fixes a `find` whose only
+  constraints are unary (they fold into its domain) or that no constraint mentions. The
+  first enumeration round then returns one solution where several exist, fewer than asked,
+  and the runner reports `complete`: e.g. `find x : int(1..3)` with only `x != 2` and a
+  solution limit of 5 reports only `x = 1`. Constrain such an output in a way that is not
+  unary, or accept that only one value is enumerated.
+- **`min` and `max` are reserved but not escaped.** Savile Row rejects them as names
+  (`ERROR: Parsed keyword 'max'`), and they are not in `RESERVED`, so `given max_` is not
+  bound to a field `max` (``Declared given `max_` has no value``) and an output named
+  `min` or `max` cannot be declared at all.
 - **Rule-3 fields have no `<field>`**: declaring `given F` for a mixed-row field is a
   missing given; declare `F_1`, `F_2`, ....
 

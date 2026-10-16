@@ -27,7 +27,9 @@ in `build`, goes to stderr.
 
 `instance` is the JSON object as a plain Python `dict`: integers, Booleans, strings, and
 nested `list`s, 0-based. Every field is there, including ragged or mixed-type ones the
-brief lists as unbindable and extra keys (`name`, `note`) to ignore.
+brief lists as unbindable and extra keys (`name`, `note`) to ignore. The shape of each
+field is printed by `python -m generation.brief PROBLEM` (from the example instance);
+take every size from the data itself, not from that shape.
 
 ## Outputs
 
@@ -155,3 +157,7 @@ def build(instance):
         model.addCons(x + y == n)
     return model, {"x": x, "y": y}
 ```
+
+An earlier n-queens model of the scip_python skill (one-hot queens per row and column,
+diagonal constraints, outputs as column numbers from 1) was accepted on all instances of
+`csplib_054_n_queens`.

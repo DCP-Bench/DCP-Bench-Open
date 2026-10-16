@@ -7,9 +7,9 @@ together with the driver [cpp/driver.cpp](cpp/driver.cpp) and the header
 [cpp/dcp.h](cpp/dcp.h) (the `dcp::Space` base class) using
 [cpp/CMakeLists.txt](cpp/CMakeLists.txt), then runs the binary, which owns `main`,
 solving, enumeration and printing. The solver skill
-([skills/gecode-cpp/SKILL.md](skills/gecode-cpp/SKILL.md)) covers the Gecode API; its
-DCP section has a complete optimisation submission (row seating), and
-[references/examples.md](skills/gecode-cpp/references/examples.md) two more.
+([skills/gecode-cpp/SKILL.md](skills/gecode-cpp/SKILL.md)) covers the Gecode API with
+standalone programs (own `main`, `DFS`/`BAB`, printing); [Example](#example) below shows
+how one becomes a submission, with a complete optimisation submission (row seating).
 
 ## Submission file
 
@@ -42,7 +42,8 @@ DCP_MODEL(M)
 ```
 
 - **Constructor** `explicit M(const json& instance)`, also when the instance has no
-  fields (then `(void)instance;`). Sizes come from the data, so create member arrays in
+  fields (then `(void)instance;`, with the constants from the description written in
+  the constructor and commented). Sizes come from the data, so create member arrays in
   the body: `x = IntVarArray(*this, n, lo, hi)`. The driver constructs the model once.
 - **Copy constructor** `M(M& s) : dcp::Space(s)` updates every member variable
   (`IntVarArray`, `IntVar`, `BoolVar*`, `SetVar*`); `copy()` returns `new M(*this)`.
@@ -246,3 +247,77 @@ class Model : public dcp::Space {
 };
 DCP_MODEL(Model)
 ```
+
+### From a standalone Gecode program to a submission
+
+The skill's examples are standalone programs. To turn one into a submission:
+
+| Standalone program | Submission |
+|---|---|
+| `#include <gecode/...>`, `using namespace Gecode;` | `#include "dcp.h"` (includes them and nlohmann JSON) |
+| `class M : public Space` / `IntMinimizeSpace` / `IntMaximizeSpace` | `class M : public dcp::Space` |
+| data inline or read from a file in `main` | `explicit M(const json& instance)`, data from `instance` |
+| `IntVar cost() const override` and `BAB<M>` | `minimize(total)` / `maximize(total)` in the constructor |
+| `RBS<M, BAB>` with `Search::Cutoff::luby(100)` | `restarts(100)` in the constructor |
+| `int main()` with the search loop, `print()` | none: `output("name", v)` per declared output, then `DCP_MODEL(M)` |
+| copy constructor `M(M& s) : Space(s)`, `Space* copy()` | `M(M& s) : dcp::Space(s)`, `Gecode::Space* copy() override` |
+
+### Row seating (an optimisation submission)
+
+Outputs `seat` and `total`; instance fields `n`, `preferred`, `enemies`:
+
+```cpp
+#include "dcp.h"
+
+// Row seating: seat n guests in a row of n chairs so that no two enemies sit side
+// by side, and minimise the total distance from each guest's preferred chair.
+class Seating : public dcp::Space {
+ protected:
+  IntVarArray seat;   // seat[g]: chair of guest g
+  IntVarArray guest;  // guest[c]: guest on chair c
+  IntVar total;
+
+ public:
+  explicit Seating(const json& instance) {
+    int n = instance.at("n");
+    std::vector<int> preferred = instance.at("preferred");
+    seat = IntVarArray(*this, n, 0, n - 1);
+    guest = IntVarArray(*this, n, 0, n - 1);
+
+    // every chair holds exactly one guest
+    channel(*this, seat, guest, IPL_DOM);
+
+    // enemies never sit side by side
+    for (const auto& pair : instance.at("enemies"))
+      rel(*this, abs(seat[pair[0].get<int>()] - seat[pair[1].get<int>()]) >= 2);
+
+    // minimise the total distance from the preferred chairs
+    IntVarArgs distance;
+    for (int g = 0; g < n; ++g) distance << expr(*this, abs(seat[g] - preferred[g]));
+    total = expr(*this, sum(distance));
+
+    branch(*this, seat, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
+    minimize(total);
+    output("seat", seat);
+    output("total", total);
+  }
+
+  Seating(Seating& s) : dcp::Space(s) {
+    seat.update(*this, s.seat);
+    guest.update(*this, s.guest);
+    total.update(*this, s.total);
+  }
+  Gecode::Space* copy() override { return new Seating(*this); }
+};
+
+DCP_MODEL(Seating)
+```
+
+Two larger submissions of the same shape are the skill's
+[json-roster](skills/gecode-cpp/assets/json-roster/model.cpp) (registers
+`output("roster", m)` on the `Matrix` and `output("total", total)`; proven optimum 36 in
+0.1 s through the driver) and
+[scheduling-machines-crew](skills/gecode-cpp/assets/scheduling-machines-crew/model.cpp)
+(`restarts(100)`, outputs `start`, `machine`, `makespan`; optimum 8 in under 0.01 s),
+converted with the table above.
+

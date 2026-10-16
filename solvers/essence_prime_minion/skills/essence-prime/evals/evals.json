@@ -1,80 +1,12 @@
-{
-  "schema_version": 1,
-  "skill_name": "essence-prime",
-  "evals": [
-    {
-      "id": "standalone-essence-model",
-      "prompt": "Using this skill, write an Essence' model for the n-queens problem with n as a parameter, solve it for n = 6 with Savile Row and Minion, and enumerate all solutions.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/essence_prime_minion built"
-      ],
-      "expected_output": "A model, a parameter file and the four solution files for n = 6, or a recorded blocker.",
-      "assertions": [
-        "The model starts with `language ESSENCE' 1.0` and declares n with `given`; the parameter file holds `letting n = 6`.",
-        "The command uses `-run-solver -all-solutions` from a writable directory and produces four solution files.",
-        "Decision variables are a `find` with finite domains; constraints use allDiff or quantifiers over comma-separated constraints in one `such that` block.",
-        "The model opens with a `$` problem line and each constraint block has a `$` comment worded as in the problem statement."
-      ],
-      "evidence_required": [
-        "the .eprime and .param files",
-        "the solution files or the Savile Row output"
-      ]
-    },
-    {
-      "id": "dcp-satisfaction-from-description",
-      "prompt": "Using this skill, write an essence_prime_minion submission for a satisfaction problem such as csplib_054_n_queens, starting from `python -m generation.brief`, and check it with the repository evaluator across the listed instances.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/essence_prime_minion built"
-      ],
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Every instance field the model uses is declared with `given` under its own name; no instance data is hardcoded.",
-        "`find` variables carry exactly the declared output names and shapes, with 1-based matrices.",
-        "The evaluator accepts every checked instance.",
-        "The file opens with a `$` problem line and each group of constraints starts with a `$` comment worded as in the problem statement, not naming the global used."
-      ],
-      "evidence_required": [
-        "the submitted .eprime file",
-        "the evaluator JSON result"
-      ]
-    },
-    {
-      "id": "dcp-optimization-with-arrays",
-      "prompt": "Using this skill, write an essence_prime_minion submission for an optimisation problem whose instance holds arrays and a scalar, such as knapsack, and confirm the evaluator accepts the optimum.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/essence_prime_minion built"
-      ],
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
-      "assertions": [
-        "`minimising`/`maximising EXPR` appears once, alone on its line, before a single `such that`, with the problem's direction and no bound taken from a known answer.",
-        "Each quantified `sum` used in a comparison is parenthesised.",
-        "The evaluator reports accepted, not suboptimal_solution or execution_timeout.",
-        "Each constraint block starts with a `$` comment worded as in the problem statement."
-      ],
-      "evidence_required": [
-        "the submitted .eprime file",
-        "the evaluator JSON result"
-      ]
-    },
-    {
-      "id": "dcp-ragged-field",
-      "prompt": "Using this skill, write an essence_prime_minion submission for a problem whose instance has a ragged list of lists (for example per-group member lists) and check it with the evaluator.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/essence_prime_minion built"
-      ],
-      "expected_output": "An accepted model that reads the padded matrix and its `_len` field, or a recorded blocker.",
-      "assertions": [
-        "The model declares the padded matrix and `<field>_len` and only reads entries up to the row length.",
-        "The evaluator accepts every checked instance."
-      ],
-      "evidence_required": [
-        "the submitted .eprime file",
-        "the evaluator JSON result"
-      ]
-    }
-  ]
-}
+{"skill_name": "essence-prime", "evals": [
+  {"id": 1, "prompt": "Write an Essence' model for n-queens with n as a parameter, solve it for n = 6 with Savile Row and Minion, and list every solution.", "expected_skill": "essence-prime", "expected_output": "The 4 solutions for n = 6", "assertions": ["Declares n with `given` and supplies it in a .param file or with -params", "Runs `savilerow ... -run-solver -all-solutions` with `-S0`", "Uses allDiff on the rows and both diagonals"]},
+  {"id": 2, "prompt": "Solve a 0/1 knapsack in Essence' with Savile Row: weights [5, 4, 6, 3], values [10, 40, 30, 50], capacity 10. Print the best value and say whether it is proven optimal.", "expected_skill": "essence-prime", "expected_output": "Value 90, proven optimal", "assertions": ["Uses `maximising` on its own line before `such that`", "Parenthesises each quantified sum in a comparison", "Checks SolverTimeOut:0 in the info file or solution header"]},
+  {"id": 3, "prompt": "With Essence' and Savile Row, list every optimal selection of a small knapsack where several subsets reach the best value.", "expected_skill": "essence-prime", "expected_output": "Every optimal selection, each once", "assertions": ["Solves for the optimum first and checks it is proven", "Re-solves without the objective line, with `(EXPR) = optimum` added, using -all-solutions -S0"]},
+  {"id": 4, "prompt": "Model SEND + MORE = MONEY in Essence' and run it with Savile Row.", "expected_skill": "essence-prime", "expected_output": "9567 + 1085 = 10652", "assertions": ["Uses allDiff over the letters and nonzero leading digits", "Reads the values from the `letting ... be` lines"]},
+  {"id": 5, "prompt": "Write an Essence' model that schedules six tasks sharing a resource of capacity 3 with precedences, minimising the makespan, and run it with Minion through Savile Row.", "expected_skill": "essence-prime", "expected_output": "A schedule with its makespan, proven optimal", "assertions": ["Uses cumulative(starts, durations, demands, capacity)", "Bounds the horizon from the data", "Places branching on / heuristic before the objective"]},
+  {"id": 6, "prompt": "Show what Savile Row reports for an Essence' model that has no solution, e.g. 4 pigeons in 3 holes.", "expected_skill": "essence-prime", "expected_output": "Proven infeasible from the info file", "assertions": ["Reads SolverSatisfiable:0 and SolverTimeOut:0 from the .info file", "Does not rely on the exit code"]},
+  {"id": 7, "prompt": "I have a JSON file with ragged lists of lists. Run an Essence' model on it with Savile Row, taking every size from the data.", "expected_skill": "essence-prime", "expected_output": "A converter that writes a .param file and a model that reads the padded data", "assertions": ["Pads the ragged rows and passes a row-length matrix", "Declares every varying size as a `given`", "Ignores JSON keys the model does not use"]},
+  {"id": 8, "prompt": "Write a MiniZinc model for n-queens and run it with Gecode.", "expected_skill": null, "expected_output": "The skill is not used", "assertions": ["essence-prime is not loaded"]},
+  {"id": 9, "prompt": "Write a Google OR-Tools CP-SAT model for the 0/1 knapsack problem.", "expected_skill": null, "expected_output": "The skill is not used", "assertions": ["essence-prime is not loaded"]},
+  {"id": 10, "prompt": "Explain how to install a Java 17 JDK on Ubuntu.", "expected_skill": null, "expected_output": "The skill is not used", "assertions": ["essence-prime is not loaded"]}
+]}

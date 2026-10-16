@@ -6,10 +6,12 @@ C++ expresses it. Runner: [run.py](run.py), which calls `main("cpp")` in
 together with the driver [cpp/driver.cpp](cpp/driver.cpp) and the header
 [cpp/dcp.h](cpp/dcp.h) using [cpp/CMakeLists.txt](cpp/CMakeLists.txt), then runs the
 binary, which owns `main`, solving, enumeration and printing. The solver skill
-([skills/chuffed-cpp/SKILL.md](skills/chuffed-cpp/SKILL.md)) covers the Chuffed API;
-[its DCP-format examples](skills/chuffed-cpp/references/examples.md#dcp-bench-format) and
-[recipes1.cpp](skills/chuffed-cpp/references/recipes1.cpp) /
-[recipes2.cpp](skills/chuffed-cpp/references/recipes2.cpp) are complete submissions.
+([skills/chuffed-cpp/SKILL.md](skills/chuffed-cpp/SKILL.md)) covers the Chuffed API with
+standalone programs (`assets/*/model.cpp`). To turn one into a submission, keep the body of
+its `Problem` constructor (variables, constraints, `branch`, `optimize`) as the body of
+`Build`, read the data from `instance` instead of `argv`/a file, drop `main`, `print`,
+`output_vars`, `so.nof_solutions`/`print_sol`/`time_out` and any `fork()`, and export the
+outputs with `dcp::out` (below).
 
 ## Submission file
 
@@ -140,8 +142,8 @@ complete).
   binary starts, so `Build` (in every phase) counts. Each child gets the time left as
   `so.time_out` (at least 1 ms); at the deadline the parent `SIGKILL`s the child and
   reports `timeout`. The runner itself kills the binary at `execution_timeout` (status
-  `timeout`); a nonzero exit of the binary is `error` ("C++ process exited N"). The
-  evaluator maps `timeout` to `execution_timeout`, `unsat` to `no_solution` and `error`
+  `timeout`, 60 s by default in `evaluation.check`); a nonzero exit of the binary is `error`
+  ("C++ process exited N"). The evaluator maps `timeout` to `execution_timeout`, `unsat` to `no_solution` and `error`
   to `execution_error`.
 
 ## Compilation
@@ -183,8 +185,10 @@ docker run --rm --network none -v $PWD/model.cpp:/tmp/model.cpp:ro --entrypoint 
   \"solution_limit\": 2, \"execution_timeout\": 10}" | /tmp/b/candidate'
 ```
 
-The binary reads the request (`instance`, `solution_limit`, `execution_timeout`) on
-stdin and prints `solution` records then one `status` record on stdout.
+The binary reads the request on stdin as one JSON object (`instance`, `solution_limit`,
+`execution_timeout`, and also `compilation_timeout`, `legacy` and `outputs`, the declared
+output names, which the driver does not read) and prints `solution` records then one
+`status` record on stdout.
 
 ## Traps
 
@@ -197,11 +201,19 @@ stdin and prints `solution` records then one `status` record on stdout.
 - **`Build` runs in every phase**: an optimisation run with a solution limit above 1 pays
   for `Build` twice, and a `Build` that is not deterministic (random data, a different
   objective) breaks phase 2.
+- **The skill's all-optimal pattern is the driver's job here**: the skill shows a
+  standalone program forking a child for the optimum and enumerating with the objective
+  fixed; a submission does neither (no `fork`, no `int_rel(obj, IRT_EQ, ...)` from a known
+  value), the driver's two phases do it.
+- **Unfixed Booleans are not a problem here**: the driver appends `VAR_INORDER` over all
+  integer variables and `engine.branching->add(&sat)` with `so.vsids = true`
+  ([driver.cpp](cpp/driver.cpp)), so the skill's advice to branch on Booleans through
+  `bool2int` is about search quality, not correctness, in a submission.
 - **An optimum not proven within the budget emits nothing** (`execution_timeout`), even
   if good solutions were found: the proof is part of the work.
-- The skill's cheat sheet says the driver "only overrides `so.vsids` after your Build":
-  the driver also overrides `so.nof_solutions`, `so.print_sol` and `so.time_out`, so
-  setting those in `Build` has no effect.
+- The driver overrides `so.vsids`, `so.nof_solutions`, `so.print_sol` and `so.time_out`
+  after `Build`, so setting those in `Build` has no effect (other `so.*` fields, such as
+  the restart settings, are kept).
 - Without any `branch` call, Chuffed alone would stop at the root with unfixed variables;
   here the driver's appended in-order branching fixes every integer variable, so the
   model is correct but slow. A free auxiliary does not multiply the solutions (only the
