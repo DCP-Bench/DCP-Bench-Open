@@ -1,5 +1,5 @@
 // Reads a 0/1 knapsack from JSON: {"capacity": 9, "values": [...], "weights": [...]}.
-// The file is the first argument, or data.json next to the program. Every size comes
+// The file is the first argument, or data.json in the working directory. Every size comes
 // from the data; keys the model does not use are ignored.
 #include <cstdio>
 #include <fstream>

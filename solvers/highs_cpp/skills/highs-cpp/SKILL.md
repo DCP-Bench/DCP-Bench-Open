@@ -88,11 +88,11 @@ Columns are numbered in `addVar` order: the first is 0. Rows take index and valu
 | read a column's bounds or integrality back | [`getLp()`](https://github.com/ERGO-Code/HiGHS/blob/v1.15.1/highs/Highs.h): `col_lower_`, `col_upper_`, `integrality_` |
 
 Use `kHighsInf` (infinity, `+inf` in double). A row with no entries and bounds that exclude zero makes the model infeasible.
-Pass integer counts as `HighsInt` (32-bit on this build) and bounds as `double`.
+Pass integer counts as `HighsInt` (32-bit in a default build) and bounds as `double`.
 
 ## Linearising logic
 
-Start each block of rows with a `//` comment in the problem statement's words, not the HiGHS call
+Start each block of rows with a `//` comment that states the constraint in plain words, not the HiGHS call
 (`// every row holds different values`).
 Let `M` be a big-M constant computed from the data, not a guess (see the last row).
 
@@ -104,7 +104,7 @@ Let `M` be a big-M constant computed from the data, not a guess (see the last ro
 | `b = 1` implies `a x >= r` | `a x >= r - M (1 - b)` |
 | `b = (x >= r)`, integer x in `lo..hi` | `x >= r b + lo (1 - b)` and `x <= (r - 1) + (hi - r + 1) b`; exact with the bounds as M |
 | disjunction `a x <= r` or `c x <= s` | binary `b`: `a x <= r + M b`, `c x <= s + M (1 - b)` |
-| `x != v` for integer x in `lo..hi` | binaries `b1`, `b2` with `b1 + b2 >= 1`; `x <= v - 1 + (hi - v + 1) b1`; `x >= v + 1 - (v + 1 - lo) b2` |
+| `x != v` for integer x in `lo..hi` | binary `b` (1 means `x > v`): `x <= v - 1 + (hi - v + 1) b`; `x >= v + 1 - (v + 1 - lo) (1 - b)` |
 | all different `x_1..x_n` in `lo..hi` | `y[i][v]` binary: `x_i = sum v y[i][v]`, `sum_v y[i][v] = 1`, `sum_i y[i][v] <= 1` (see [example](assets/alldifferent-binaries/README.md)) |
 | product `p = b1 b2` (binaries) | `p <= b1`, `p <= b2`, `p >= b1 + b2 - 1`, `0 <= p <= 1` |
 | product `p = x y`, x integer in `lo..hi`, y binary | `p <= hi y`, `p >= lo y`, `p <= x - lo (1 - y)`, `p >= x - hi (1 - y)` (p is x when y = 1, else 0) |
@@ -112,7 +112,7 @@ Let `M` be a big-M constant computed from the data, not a guess (see the last ro
 | `z = min(x_1..x_k)` | `z <= x_i` for all i; to force equality under maximisation, `z >= x_i - M (1 - b_i)`, `sum b_i = 1` |
 | `z = |x|` | `z >= x`, `z >= -x`; minimising the objective needs nothing more; to force equality under maximisation add `z <= x + M b`, `z <= -x + M (1 - b)`, `b` binary |
 | strict `x < y` (integers) | `x + 1 <= y` |
-| big-M from data | `M = sum over the terms of max(|a_j|) * max(|bound_j|) + |r|`, computed in the program from the instance |
+| big-M from data | `M = sum over the terms of max(|a_j|) * max(|bound_j|) + |r|`, computed in the program from the input data |
 
 Choose M from the data: the smallest value with `a x` at its extremes over the column bounds, plus the
 right-hand side. A large M ruins the LP relaxation and slows the proof. Tiny M cuts off solutions. With
