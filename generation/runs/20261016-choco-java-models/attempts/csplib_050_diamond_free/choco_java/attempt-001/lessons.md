@@ -1,0 +1,3 @@
+- Symmetric boolean matrix: alias x[j][i] to the same BoolVar as x[i][j]; a diagonal constant comes from `m.boolVar("noLoop", false)`. Both compiled.
+- `m.sum(row, "=", deg)` with an IntVar total ties a degree to a row of BoolVars; `m.intVar(name, int[] values)` restricts degrees to multiples of 3.
+- Six-pair diamond check per 4-set is fast enough at N up to 15 with default search (under 2 s per solution).

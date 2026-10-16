@@ -1,0 +1,3 @@
+- Bowl occupancy via `m.count(p, x, occ[p])` with 0/1 `occ` IntVars, then a `sum(...) <= 2` per equally spaced triple, is a short, readable encoding of "no three in arithmetic progression".
+- Strictly increasing `arithm(x_i, "<", x_{i+1})` gives both ascending order and one orange per bowl; no allDifferent needed.
+- Instances with few solutions (5 bowls, 14 bowls) report `complete` after one or two solutions; that is the search finishing, not a fault.

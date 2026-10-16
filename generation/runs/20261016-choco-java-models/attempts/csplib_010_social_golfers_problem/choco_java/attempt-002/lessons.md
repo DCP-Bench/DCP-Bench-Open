@@ -1,0 +1,3 @@
+- Attempt 1 (plain GCC plus reified pair sums, default search) timed out at 180 s on 3 of 8 instances (15-25 golfers, 4-6 weeks).
+- Attempt 2 adds value precedence per week (groups are interchangeable), domOverWDeg search and Luby restarts. It was accepted on all 8 instances, the slowest in 4.8 s.
+- Symmetry breaking on interchangeable values is the fix that worked here; no LCG needed.

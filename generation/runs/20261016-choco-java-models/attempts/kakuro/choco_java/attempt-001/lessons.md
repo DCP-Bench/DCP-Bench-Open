@@ -1,0 +1,2 @@
+- In the kakuro instance field, "blanks" lists the non-white (black or clue) cells, not the white cells; the white cells are the cells the entries cover. Check which set a name denotes against an example before binding it.
+- An instance field whose name suggests the white cells can be the complement; a partition check against n * n catches a wrong reading early.

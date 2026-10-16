@@ -1,0 +1,2 @@
+- Long cryptarithms: one `m.scalar` per column over {digit_a, digit_b, carry_in, digit_s, carry_out} with coefficients {1, 1, 1, -1, -10} keeps the column equation in one constraint.
+- Build the column indices from the digit strings in Java (`names.indexOf(c)`) so the model text reads like the puzzle.

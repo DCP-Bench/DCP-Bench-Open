@@ -1,0 +1,3 @@
+- A path from s to e with optional nodes: fix succ[e] = s and post subCircuit(succ, 0, length); skipped nodes self-loop, so the cycle keeps s and e.
+- element(name, int[] table, IntVar index) gives per-arc costs; a skipped node indexes its own diagonal entry, which is 0 here.
+- scalar(BoolVar[] visited, gold, "=", IntVar) gives the collected value with no extra decomposition.

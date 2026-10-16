@@ -1,0 +1,1 @@
+- Default search with binPacking on 40 items and 11 bins hit execution_timeout (1 of 5 instances, 179 s). An implied sum over the loads (`m.sum(load, "=", total)`) plus `Search.intVarSearch(FirstFail, IntDomainMin, bins)` and Luby restarts (`new FailCounter(m, 1)`, from the skill's catalogue) solved all five instances in under 1 s each.

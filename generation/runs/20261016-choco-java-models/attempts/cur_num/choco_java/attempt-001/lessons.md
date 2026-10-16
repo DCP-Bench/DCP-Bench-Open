@@ -1,0 +1,3 @@
+- square(y, x) posts y = x*x; with y a plain IntVar and a relation like plusOne - peculiar = 1 it needs no expression API.
+- `arithm(x, "=", y, "*", 2)` works for doubling a variable.
+- Instance has no fields here, so the only data is the problem statement's 48 and the 1..10000 range.

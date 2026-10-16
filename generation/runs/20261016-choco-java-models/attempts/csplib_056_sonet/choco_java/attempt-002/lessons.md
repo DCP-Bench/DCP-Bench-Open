@@ -1,0 +1,2 @@
+- SONET: do not force every node onto a ring. Nodes without demand have 0 ADMs in the reference optimum; a per-node cover constraint raised the s1ring01 optimum from 8 to 9.
+- Choco 6.0.1 with `times` on two BoolVars plus `sum >= 1` expressed "shared ring" cleanly; no search change was needed for the 5 instances once the cover constraint was removed.

@@ -1,0 +1,2 @@
+- Puzzle clues of the form "X and Y went together" name three different people; reading them as one person gave "Declared outputs cannot extend to a reference solution".
+- Boolean person-by-job matrix: sum over persons = 1 per job, sum over jobs = 2 per person; person index output via m.scalar(holders, 0..3, "=", personVar).

@@ -1,0 +1,3 @@
+- Reified pair-coverage sums (one boolean per week/period/orientation, sum = 1) did not solve 8 teams in 60 s.
+- Per-team opponent variables (inverseChanneling of slot arrays with offsets (1, 0), partner slot by div/mod, element) plus allDifferent per team solved it with the default search.
+- A custom minDomLB search with Luby restarts on the slot variables timed out on 8 teams; the default search solved it in seconds.

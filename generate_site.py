@@ -69,6 +69,8 @@ LANGUAGES = {
     "minizinc": ("minizinc", "MiniZinc"),
     # highlight.js 11.9.0 ships rust in the common bundle, so no extra grammar.
     "rust": ("rust", "Rust"),
+    # java is in the common bundle as well.
+    "java": ("java", "Java"),
     # No highlight.js grammar exists for Picat; Prolog's would misread its
     # `=>` rules and loop statements, so the model is shown uncoloured.
     "picat": ("plaintext", "Picat"),
@@ -82,7 +84,7 @@ LANGUAGES = {
 
 # Only for a model whose integration is no longer installed under solvers/.
 EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
-                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".pi": "picat", ".jl": "julia", ".eprime": "essence_prime",
+                      ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".java": "java", ".pi": "picat", ".jl": "julia", ".eprime": "essence_prime",
                       ".idp": "idp"}
 
 VERDICT_STYLES = {

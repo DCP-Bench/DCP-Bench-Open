@@ -22,7 +22,8 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "pycsp3_ace": "model_pycsp3.py",
           "gecode_cpp": "model_gecode.cpp",
           "scip_python": "model_scip.py",
-          "idp_z3": "model_idp.idp"}
+          "idp_z3": "model_idp.idp",
+          "choco_java": "model_choco_java.java"}
 
 # Integrations whose metadata says they cannot optimize. The pilot cases that
 # need an objective are not run for these, and they carry no MAXIMIZATION_SWAPS
@@ -56,6 +57,7 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "essence_prime_minion": ("minimising", "maximising"),
                       "pycsp3_ace": ("minimize", "maximize"),
                       "gecode_cpp": ("minimize(", "maximize("),
+                      "choco_java": ("Model.MINIMIZE", "Model.MAXIMIZE"),
                       "paramita_python": ("minimize", "maximize"),
                       "scip_python": ("minimize", "maximize"),
                       "idp_z3": ("minimize", "maximize")}

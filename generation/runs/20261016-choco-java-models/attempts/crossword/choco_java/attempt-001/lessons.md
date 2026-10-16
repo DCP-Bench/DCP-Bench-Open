@@ -1,0 +1,2 @@
+- crossword: the word list and grid are fixed by the description, so they are typed in the model; no instance fields.
+- Each entry is one table over (word index, cell letters) with one tuple per word of the entry's length; crossings share the cell variable. Entries are indexed in clue-number order.

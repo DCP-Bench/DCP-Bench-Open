@@ -1,0 +1,2 @@
+- Signed-sum "weighable" constraints: one ternary side variable per piece, `m.times(side, weight, signed)`, then `m.sum(signed, "=", t)` per target t. Without the ordering and the input-order search, the 40-pound example timed out.
+- `m.increasing(weights, 1)` together with `allDifferent` fixes the order of equal sets of pieces and cut the search enough to pass the example.

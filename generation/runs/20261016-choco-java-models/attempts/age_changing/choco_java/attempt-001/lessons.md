@@ -1,0 +1,3 @@
+- Choco 6.0.1 `Tuples` is in `org.chocosolver.solver.constraints.extension`, not `constraints.nary`.
+- Operations that map one value to one value (+2, /8, -3, *7) fit a single `m.table` over (op, in, out) per step; the op code is a variable, so the choice of order is a search over op slots with `allDifferent`.
+- Exact division is encoded in the table (in % 8 == 0), so no separate constraint is needed.

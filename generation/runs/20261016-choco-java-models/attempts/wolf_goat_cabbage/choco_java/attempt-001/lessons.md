@@ -1,0 +1,2 @@
+- Crossing puzzles: a Boolean position per stage for each item and the boat, with the boat alternating (arithm !=), at most one item changing shore per step (sum of reified changes <= 1), and ifThen on each item's move forcing it onto the boat's shore. Unsafe pairs are ifThen constraints on each stage.
+- Output width follows the instance's stage (not the declared [8]), as with climbing stairs. The evaluator's shape check requires it.

@@ -1,0 +1,3 @@
+- Nonogram clues map to regular() with a regex built from the clue: "0*" then blocks "1{b,b}" joined by "0+", then "0*". Zero entries in the zero-padded clue are skipped.
+- FiniteAutomaton accepts "{n,n}" repetition, so block lengths above 9 need no angle-bracket form.
+- The first quick check and the full evaluation of 13 instances both passed with no edits, in about 6 s total.

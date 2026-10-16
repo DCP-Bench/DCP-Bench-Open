@@ -1,0 +1,3 @@
+- A mixed str/int `cable_struct` is read with `inst.raw(...)` as a Gson JsonArray; device names map to slots through a HashMap built from `getStringArray("devices")`.
+- Cable length as `slot[a].dist(slot[b]).intVar()`, weighted by cable counts in `m.scalar(lengths, counts, "=", total)`, minimised; all five instances match the reference optima (19, 15, 40, 50, 40).
+- `manage evaluate` refused attempt-001 with "Skill bundle changed since the attempt was created"; a fresh attempt under the current skill, with the same plan and model, evaluated normally.

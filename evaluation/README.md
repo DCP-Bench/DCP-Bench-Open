@@ -127,7 +127,10 @@ A runner need not report memory exhaustion itself. The evaluator reads
 Docker's `OOMKilled` flag on the exited container, which the kernel sets when
 it kills any process in it at the memory limit: the runner, or a solver
 process the runner started and then reported as an error. A run that fails
-after such a kill is `memory_limit`, whatever status the runner gave.
+after such a kill is `memory_limit`, whatever status the runner gave. Docker
+can set the flag a moment after the container exits, so after an exit 137 the
+evaluator reads it again for up to 2 s, and the detail of the failed run gives
+both readings.
 
 Zero solutions never pass. Returning fewer than N distinct solutions requires
 `complete`, which is the runner's report that the *submitted* model has no more

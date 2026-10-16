@@ -1,0 +1,2 @@
+- Min-cost location with fixed costs: one BoolVar per site, shipments as IntVars bounded by demand, and the cost as one scalar(...,"=",0) with the total as a variable.
+- Five-region instance (json:4) timed out in all three attempts (default search, implied channelling, dom/wdeg with Luby); the 4-of-5 coverage is kept as a performance limit.

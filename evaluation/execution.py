@@ -79,17 +79,39 @@ def image_identity(metadata):
     return identity
 
 
-def killed_for_memory(name):
-    """Whether the kernel killed any process in the exited container at its memory limit.
+OOM_REREADS = 8
+OOM_REREAD_INTERVAL = 0.25
 
-    Docker sets this for the runner and for a solver process the runner started
-    alike, and exit 137 alone cannot tell it apart from a SIGKILL a submission
-    sent itself.
-    """
+
+def oom_flag(name):
     code, stdout, stderr = run_process(["docker", "inspect", "--format", "{{.State.OOMKilled}}", name], 15)
     if code or stdout.strip() not in ("true", "false"):
         raise EvaluationError("infrastructure_error", f"Could not inspect container {name}: {stderr.strip()}")
     return stdout.strip() == "true"
+
+
+def killed_for_memory(name, exit_code):
+    """Whether the kernel killed any process in the exited container at its memory limit.
+
+    Docker sets this for the runner and for a solver process the runner started
+    alike, and exit 137 alone cannot tell it apart from a SIGKILL a submission
+    sent itself. Docker can record the kill after the exit that `docker run`
+    returns on, so after an exit 137 an unset flag is read again for up to
+    OOM_REREADS * OOM_REREAD_INTERVAL seconds. Returns the flag and, after an
+    exit 137, the readings for the detail of the failed run.
+    """
+    first = oom_flag(name)
+    if exit_code != 137:
+        return first, None
+    if first:
+        return True, "OOMKilled was true at exit"
+    later = False
+    for reread in range(1, OOM_REREADS + 1):
+        time.sleep(OOM_REREAD_INTERVAL)
+        later = oom_flag(name)
+        if later:
+            break
+    return later, f"OOMKilled was false at exit and {str(later).lower()} {reread * OOM_REREAD_INTERVAL:g} s later"
 
 
 def execute(model_path, instance, metadata, image, *, solution_limit, execution_timeout,
@@ -126,14 +148,15 @@ def execute(model_path, instance, metadata, image, *, solution_limit, execution_
         try:
             code, stdout, stderr = run_process(command, budget)
             try:
-                oom_killed = killed_for_memory(name)
+                oom_killed, readings = killed_for_memory(name, code)
             except EvaluationError as error:
                 raise EvaluationError(error.reason, f"{error.detail}; the run exited {code}: {stderr[-4000:]}") from error
             if code:
+                exited = f"exited {code}" + (f" ({readings})" if readings else "")
                 if oom_killed:
                     raise EvaluationError("memory_limit", f"The kernel killed a process at the {memory_mb} MB "
-                                                          f"memory limit and the runner exited {code}: {stderr[-4000:]}")
-                raise EvaluationError("execution_error", f"Runner exited {code}: {stderr[-4000:]}")
+                                                          f"memory limit and the runner {exited}: {stderr[-4000:]}")
+                raise EvaluationError("execution_error", f"Runner {exited}: {stderr[-4000:]}")
             try:
                 records = [strict_json(line) for line in stdout.splitlines() if line.strip()]
             except (ValueError, TypeError, RecursionError) as e:
