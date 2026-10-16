@@ -104,8 +104,9 @@ python -m generation.readiness check --solver ID --output solvers/ID/readiness.j
 ```
 
 This runs `solvers/<id>/readiness_test.py` against the built image and records the result
-only when every required check passes. Besides the required checks, include one that a
-solver crash comes back as `error` with the solver's own message. Tests skipped because
+only when every required check passes. Set `"readiness_level": 2` in `metadata.yaml`, which adds the
+bug-class checks of [integration files](references/integration.md); besides the required
+checks, include one that a solver crash comes back as `error` with the solver's own message. Tests skipped because
 Docker or the image is missing do not count. The record is write-once: after a fix,
 rebuild, delete `readiness.json`, and check and verify again (on a separately tagged image
 while a campaign is still evaluating on `:v1`). Then register it as a pilot (see *Once certified* in

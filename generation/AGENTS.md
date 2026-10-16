@@ -135,7 +135,13 @@ It must cover **every** required test:
 `timeout_cleanup`, `isolation`, `missing_image`; plus `minimization` and
 `maximization` (or `unsupported_optimization` if metadata explicitly sets
 `optimization:false`), `enumeration` (or `unsupported_enumeration`), and
-`compilation_error` for compiled integrations. Named checks must match actual
+`compilation_error` for compiled integrations. An integration whose metadata sets
+`"readiness_level": 2` (every new one, and existing ones as they are upgraded) also
+covers one check per runner bug class the campaigns exposed: `output_shapes`,
+`instance_shapes`, `error_detail`, `stray_stdout`, `large_model`; when it optimises,
+`optimization_timeout` and `minimization_step_one`; when it enumerates,
+`auxiliary_free_distinct`; and when it does both, `optimum_enumeration`.
+`solvers/cpmpy_python/readiness_test.py` implements all of them. Named checks must match actual
 test assertions in the evidence; the coordinator is responsible for that
 assessment. The helper prevents omission/stale evidence, not falsified reports.
 

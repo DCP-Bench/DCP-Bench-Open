@@ -19,7 +19,7 @@ import sys
 
 REQUIRED_KEYS = {"id", "name", "language", "framework", "solver", "paradigms", "image",
                  "extension", "enumeration", "protocol_version"}
-OPTIONAL_KEYS = {"optimization", "compilation", "instance_binding"}
+OPTIONAL_KEYS = {"optimization", "compilation", "instance_binding", "readiness_level"}
 BINDINGS = {"any", "rectangular_uniform", "reshaped"}
 FILES = ("metadata.yaml", "Dockerfile", "run.py", "readiness_test.py")
 
@@ -67,6 +67,9 @@ def check_metadata(root, solver_id, metadata):
     if "compilation" in metadata:
         check("metadata: compilation is only ever true", metadata["compilation"] is True,
               "omit the key for an integration that does not compile")
+    if "readiness_level" in metadata:
+        check("metadata: readiness_level is 2", metadata["readiness_level"] == 2,
+              "omit it for level 1; a new integration starts at 2")
     if "instance_binding" in metadata:
         check("metadata: instance_binding value", metadata["instance_binding"] in BINDINGS,
               f"one of {sorted(BINDINGS)}")

@@ -25,6 +25,9 @@ CHECK_SCRIPT = "readiness_test.py"
 # what a submission may be.
 DESCRIPTIVE_METADATA = ("name", "paradigms")
 CHECK_TIMEOUT = 1800
+# Required at readiness_level 2 whatever the integration's capabilities; the
+# optimisation and enumeration ones are added in _required.
+BUG_CLASS_CHECKS = ("output_shapes", "instance_shapes", "error_detail", "stray_stdout", "large_model")
 
 
 class ReadinessError(ValueError):
@@ -93,6 +96,17 @@ def _required(metadata: dict[str, Any]) -> set[str]:
         names.add("unsupported_enumeration")
     if metadata.get("compilation") is True:
         names.add("compilation_error")
+    # Level 2 adds one check per runner bug class the modelling campaigns exposed: tiny
+    # x + y models never reach them. An integration opts in with "readiness_level": 2;
+    # new integrations start there, existing ones move up one at a time.
+    if metadata.get("readiness_level", 1) >= 2:
+        names.update(BUG_CLASS_CHECKS)
+        if metadata.get("optimization", True) is not False:
+            names.update(("optimization_timeout", "minimization_step_one"))
+            if metadata.get("enumeration") is True:
+                names.add("optimum_enumeration")
+        if metadata.get("enumeration") is True:
+            names.add("auxiliary_free_distinct")
     return names
 
 

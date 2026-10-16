@@ -43,6 +43,8 @@ drop keys, because readiness and evaluation both read this file. The loader pars
 - **`optimization: false`** only for an integration that genuinely cannot optimise, and
   **`compilation: true`** only for one that compiles. Both change which readiness checks
   are required. Use literal Booleans and never advertise a capability that was not tested.
+- **`readiness_level: 2`** for every new integration: it adds the bug-class readiness checks
+  below. An existing integration without the key is at level 1 until it is upgraded.
 - **`instance_binding`** says which instances this runner can bind, so `next_work`
   withholds the pairs it never could. Omit it (`"any"`) when the submission reads the
   instance itself. `"rectangular_uniform"`: the data interface takes only rectangular,
@@ -183,6 +185,29 @@ exact list is in repository `generation/AGENTS.md`. Write each check to be able 
 Beyond the required names, add a check that a solver crash is reported as `error` with the
 solver's own message in the detail. Without it, modelling agents cannot see why a model
 failed.
+
+### Bug-class checks (`readiness_level: 2`)
+
+Tiny `x + y` models prove their optimum instantly and output flat integers, so they never
+reach the runner bugs that real models hit. Each of these checks covers one class that a
+modelling campaign exposed in some integration; `solvers/cpmpy_python/readiness_test.py`
+implements all of them, with a trusted reference each. Write the submission in this
+integration's own form, and make each check able to fail.
+
+| Check | Bug class | The submission, and what must happen |
+|---|---|---|
+| `optimization_timeout` | an unproven optimum emitted when time runs out | an easy reference; the submission adds an unrelated hard part to its objective (a Golomb ruler) so the solver finds a solution fast but cannot prove it within a 3 s budget: `execution_timeout` with **zero solutions received** |
+| `minimization_step_one` | an off-by-one bound in a runner that bounds the objective itself | a minimisation whose first solution is exactly optimum + 1 (steer the search there if the runner does branch and bound): accepted |
+| `optimum_enumeration` | a re-posted objective parsed or pinned wrongly | a compound objective (a sum) with ten optima, `solution_limit=3`: accepted with 3 solutions checked |
+| `output_shapes` | outputs the runner cannot carry | a three-level integer array, a Boolean matrix and a value beyond 32 bits: accepted, or `unsupported` with the limit documented under `## Outputs` |
+| `instance_shapes` | instance binding | ragged rows, rows of mixed types, an unused string field and `name`/`note`, on two instances of different shapes: accepted (for `rectangular_uniform`, the refusal the contract documents) |
+| `error_detail` | errors hidden as timeouts or bare exit codes | a submission that makes the solver or its library raise: `execution_error` with that tool's own message in the detail |
+| `stray_stdout` | solver or model output corrupting the protocol | a submission that prints: accepted |
+| `auxiliary_free_distinct` | duplicate outputs from free auxiliaries | a free auxiliary variable outside the outputs, `solution_limit=3`: accepted with 3 distinct solutions |
+| `large_model` | stack and recursion limits | a sum over 3000 Booleans, used as an output: accepted within 120 s |
+
+The checks that need optimisation or enumeration are required only when the metadata
+declares those capabilities.
 
 ## Once certified
 
