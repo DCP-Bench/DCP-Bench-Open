@@ -22,6 +22,7 @@ Python-MIP builds a mixed-integer linear model in Python and solves it with CBC.
 - [Solving](#solving)
 - [All solutions](#all-solutions)
 - [Common issues](#common-issues)
+- [Making CBC faster](#making-cbc-faster)
 - [Further reading](#further-reading)
 - Runnable examples: [knapsack](assets/knapsack/README.md), [all-optimal-committee](assets/all-optimal-committee/README.md), [n-queens-all](assets/n-queens-all/README.md), [latin-square](assets/latin-square/README.md), [cryptarithm](assets/cryptarithm/README.md), [single-machine-schedule](assets/single-machine-schedule/README.md), [encodings](assets/encodings/README.md), [graph-colouring](assets/graph-colouring/README.md), [status-check](assets/status-check/README.md)
 
@@ -73,6 +74,8 @@ Syntax facts, all checked by running:
 - `x * y`, `x * x`, `abs(x)` raise `TypeError`. Multiply by a number only (`2 * x`, `x / 2`).
 - `x == 3` gives an expression object, which is always true in an `if`. Use `==` only inside `m += ...`, and compare values with `v.x` after solving.
 - `m += 2 <= 3` raises `TypeError`: a constraint needs a variable.
+- `a + a + b` silently drops a coefficient (it becomes `a + b`), while `a + b + a` is correct. Write `2 * a + b`, or build sums with `mip.xsum([...])`. A constraint built from such a sum is weaker than intended.
+- Inside a nested helper function, `m += expr` makes `m` a local name and raises `UnboundLocalError`. Call `m.add_constr(expr)`, or pass `m` as a parameter.
 
 ## Encoding the constraints
 
@@ -132,6 +135,9 @@ Settings that matter (defaults from the package source, `mip/model.py`):
 | `m.threads` | `0` | solver default. `1` for reproducible runs |
 | `m.integer_tol`, `m.infeas_tol`, `m.opt_tol` | `1e-6` each | tolerances; leave them unless a model needs otherwise |
 | `m.seed` | `0` | random seed for CBC's tie-breaks |
+| `m.preprocess` | `-1` | `0` turns CBC's presolve off. Needed when a model with coefficients around 1e6 or larger returns `OPTIMAL` for a point that breaks a row (CBC prints "Postprocessed model is infeasible") |
+| `m.emphasis` | `0` | `1` favours feasibility, `2` optimality. It rarely helped in tests, and `1` raised memory sharply on a model with about 11,000 binaries |
+| `m.cuts`, `m.cut_passes` | `-1` | cut generation level and number of passes; `m.cuts = 2` crashed CBC on one scheduling model |
 | `optimize(max_seconds=...)` | no limit | time limit in seconds for that solve |
 
 With the default `verbose = 1` the package prints a solver banner and CBC's log to stdout. A program that prints its own answer sets `m.verbose = 0` before `optimize`; the `[cbcbox]` banner lines (binary and library paths) still print at `verbose = 0`, so a script that parses stdout must skip lines starting with `[cbcbox]`.
@@ -178,6 +184,24 @@ The loop itself prints nothing. With zero solutions the first `optimize` returns
 | Wrong answer after a disjunction or `!=` | `M` too small | compute `M` from the bounds |
 | Solver is Gurobi, not CBC | `gurobipy` installed | `mip.Model(solver_name="CBC")` |
 | `FEASIBLE` or `NO_SOLUTION_FOUND` on a hard model | time limit reached | the answer is not proven; say so or raise `max_seconds` |
+| `OPTIMAL`, but the point breaks a row by about 1 | coefficients around 1e6 or larger and CBC's presolve | `m.preprocess = 0` |
+| `UnboundLocalError` on `m` in a helper | `m += expr` inside a nested function | `m.add_constr(expr)` |
+| Solutions fail a check although every constraint was written | a sum like `a + a + b` lost a coefficient | `2 * a + b` or `mip.xsum` |
+| `unsat` on a tiny case with an index loop | a row with the same variable on both sides (`x == x`) | skip the degenerate row |
+
+## Making CBC faster
+
+CBC in the image is slow per node, so the encoding matters more than settings:
+
+- Ordered comparisons between many values: use order (thermometer) binaries `ge[t]` (monotone, `value = lo + sum ge[t]`) instead of one-hot with big-M.
+- Permutation or all-different puzzles with long ranges: pairwise order binaries (one binary per pair, big-M from the range) sometimes beat one-hot rows.
+- Pair, link or product variables tied to one-hot or binary decisions (`w >= p_a + p_b - 1`) can be continuous in `[0, 1]`; only the decisions stay integer. This shrank the search tree on set-cover and labelling problems.
+- Variables that stand for the same quantity under several index tuples can share one binary (for example a pair image `p[a, b, k, l]` for all four equivalent tuples).
+- Digit puzzles with sums: use column addition with integer carries, not one equation with place values (the place-value relaxation is weak and the second solve takes long).
+- Many resource rows over time: add clique rows `sum active_i(t) <= 1` over jobs that cannot run together; they are much tighter than pairwise big-M rows.
+- Optimisation over a count of used colours or labels numbered from 1: minimise the largest number, because a set like `{1, 2, 3, 5}` uses four colours but its largest number is 5.
+- Enumeration cuts: the cut over binaries is much cheaper than over wide integer outputs. Declare an integer output as an expression over the one-hot binaries when you can.
+- A state-transition problem (water buckets, moves over a board): a time-expanded flow over an enumerated state table, one binary per state and step, solves much faster than big-M pour variables.
 
 ## Further reading
 

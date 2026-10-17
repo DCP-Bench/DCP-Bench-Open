@@ -182,12 +182,34 @@ def forbid(model, variables, index):
     return True
 
 
+def violated(model):
+    """The first row or bound the current point breaks, or None."""
+    for constr in model.constrs:
+        excess = constr.expr.violation
+        if excess is not None and excess > TOLERANCE * max(1.0, abs(constr.rhs)):
+            return f"constraint {constr.name} (by {excess})"
+    for variable in model.vars:
+        slack = TOLERANCE * max(1.0, abs(variable.x))
+        if variable.x < variable.lb - slack or variable.x > variable.ub + slack:
+            return f"the bounds of {variable.name} (value {variable.x})"
+    return None
+
+
 def attempt(model, deadline, optimizing):
     """Solve once inside the remaining budget; say what CBC actually concluded."""
     left = deadline - time.monotonic()
     if left <= 0:
         return "timeout"
     status = model.optimize(max_seconds=left)
+    if status in (OptimizationStatus.OPTIMAL, OptimizationStatus.FEASIBLE):
+        # CBC's preprocessing can report a point that breaks the model, with "Postprocessed
+        # model is infeasible" in its log and OPTIMAL as the status. Solve again without it.
+        broken = violated(model)
+        if broken is not None and model.preprocess != 0:
+            model.preprocess = 0
+            return attempt(model, deadline, optimizing)
+        if broken is not None:
+            raise RuntimeError(f"CBC returned a point that violates {broken}")
     if status == OptimizationStatus.OPTIMAL:
         return "solved"
     if status in (OptimizationStatus.INFEASIBLE, OptimizationStatus.INT_INFEASIBLE):

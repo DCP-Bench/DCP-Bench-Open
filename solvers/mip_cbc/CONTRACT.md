@@ -29,6 +29,7 @@ Set on the model with `model.objective = expr` (a variable, a linear expression,
 ## Solving
 
 - Forced after `build`, overriding anything the model set: `verbose = 0`, `threads = 1`, `max_mip_gap = 0`, `max_mip_gap_abs = 0`. With the gap at zero, CBC's `OPTIMAL` means proven (the default gap of 1e-4 lets it stop early with a suboptimal value). Every solve gets `max_seconds` equal to the time left in the budget.
+- After every solve that returns a point, the runner checks the point against every constraint and bound (tolerance 1e-6, relative to the right-hand side or value when that exceeds 1). CBC's preprocessing can report `OPTIMAL` for a point that breaks the model (its log says "Postprocessed model is infeasible"); this happens when coefficients are around 1e6 or larger. On a violation the runner sets `preprocess = 0` for this and later solves and solves again. A point that still violates is `error`.
 - Status mapping (`OptimizationStatus` of the solve):
   - `OPTIMAL`: solved. For an optimisation this is the proven optimum; for a satisfaction problem it is a feasible point.
   - `INFEASIBLE`, `INT_INFEASIBLE`: `unsat` on the first solve, `complete` after a no-good.
@@ -37,7 +38,7 @@ Set on the model with `model.objective = expr` (a variable, a linear expression,
   - `NO_SOLUTION_FOUND`: `timeout`.
   - Any other status (`ERROR`, `OTHER`, `LOADED`, `CUTOFF`, `TRUNCATED`, `INF_OR_UNBD`): `error` with the message `RuntimeError: Python-MIP returned status ...`. `OTHER` is what a model with no variables returns.
 - Enumeration (`solution_limit > 1`): every variable under a declared output, including those inside an output expression, must be `INTEGER` or `BINARY` with finite bounds, else `unsupported` with the reason. An optimisation first pins the objective within 1e-6 of the proven optimum (`>= best` and `<= best`, with the tolerance).
-- Next solution: for each cut variable with current value `v` in `lb..ub`, a binary `_below_<k>_<i>` (`x <= v - 1 + (ub - v + 1) * b`) when `v > lb`, and a binary `_above_<k>_<i>` (`x >= v + 1 - (v + 1 - lb) * (1 - b)`) when `v < ub`. The sum of these binaries is at least 1. Then a fresh solve. A solution whose declared values repeat an earlier one is skipped, not emitted. Exhausted when the solve is infeasible, or when no cut variable can differ.
+- Next solution: for each cut variable with current value `v` in `lb..ub`, a binary `_below_<k>_<i>` (`x <= v - 1 + (ub - v + 1) * (1 - b)`) when `v > lb`, and a binary `_above_<k>_<i>` (`x >= v + 1 - (v + 1 - lb) * (1 - b)`) when `v < ub`. The sum of these binaries is at least 1. Then a fresh solve. A solution whose declared values repeat an earlier one is skipped, not emitted. Exhausted when the solve is infeasible, or when no cut variable can differ.
 - Time: the budget runs from the start of the run (`build` included). A `SIGALRM` at `execution_timeout + 5` seconds becomes `timeout`. CBC's own limit is `max_seconds`, set from the time left.
 
 ## Compilation
@@ -57,6 +58,9 @@ Inside the container: no network, a read-only filesystem except `/tmp` (512 MB t
 - Declared outputs and objective terms must be linear. `x * y`, `abs(x)` and `x / y` raise an error at build time (`TypeError`); the runner reports it as `error` with the message.
 - `x == 3` used as a Python condition is always true (it builds an expression). Use it inside `m += ...`.
 - `m += 2 <= 3` (a constraint with no variables) is a `TypeError`.
+- `a + a + b` (the same variable added twice at the start of a sum) silently drops a coefficient and becomes `a + b`, while `a + b + a` is correct. The model then has a weaker constraint and the evaluator reports `invalid_solution`. Write `2 * a + b` or `mip.xsum([...])`.
+- Inside a nested helper function, `m += expr` makes `m` a local name and raises `UnboundLocalError`; call `m.add_constr(expr)` instead.
+- A row with the same variable on both sides (`x == x` for a degenerate index) can make the model `unsat`; skip trivial rows.
 - A binary variable with bounds other than 0 and 1 is a `ValueError` at build time.
 - The runner overrides `threads`, `verbose`, `max_mip_gap` and `max_mip_gap_abs` after `build`. A submission cannot restore the default gap.
 - A model with an unbounded objective is `error`, not `unsat`.
