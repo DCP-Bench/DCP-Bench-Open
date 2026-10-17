@@ -136,6 +136,14 @@ under the compilation budget, with `driver.cpp` in the same executable. A compil
   contract requires; the driver does not shift them.
 - The objective is set only by `out.minimize/maximize`; calling `changeColCost` or
   `changeObjectiveSense` on `h` has no effect.
+- Infinity is HiGHS's global `kHighsInf`, not `dcp::kHighsInf` (that is a `compilation_error`).
+- HiGHS 1.15.1 can crash in its MIP symmetry detection (`HighsSymmetryDetection::partitionRefinement`);
+  the run then ends as `execution_error` "C++ process exited -11". Seen with many dense rows over
+  binaries plus an objective (tangent cuts over a long sum). Introduce an integer helper column for the
+  long sum and keep each row short; the same model then solves.
+- An output that is a sum of binaries with large coefficients (for example `sum_p p * y_p` with `p` up
+  to the data size) can land more than `1e-5` from an integer (`193.000011`), an `error`. Make the
+  value an integer column tied to the sum by an equality row, or use unit coefficients.
 
 ## Example
 
