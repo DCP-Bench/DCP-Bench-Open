@@ -1,0 +1,41 @@
+PASS  files: metadata.yaml
+PASS  files: Dockerfile
+PASS  files: run.py
+PASS  files: readiness_test.py
+PASS  metadata: JSON object
+PASS  metadata: required keys
+PASS  metadata: no unknown keys
+PASS  metadata: id matches folder
+PASS  metadata: id format
+PASS  metadata: name is a non-empty string
+PASS  metadata: language is a non-empty string
+PASS  metadata: framework is a non-empty string
+PASS  metadata: solver is a non-empty string
+PASS  metadata: image is a non-empty string
+PASS  metadata: extension is a non-empty string
+PASS  metadata: extension starts with '.'
+PASS  metadata: enumeration is a Boolean
+PASS  metadata: readiness_level is 2
+PASS  metadata: protocol_version matches the others
+PASS  metadata: name is distinct
+PASS  metadata: image is distinct
+PASS  metadata: paradigms is a non-empty list without repeats
+PASS  metadata: paradigms are in solvers/paradigms.json
+PASS  website: language has a LANGUAGES row
+PASS  website: extension is in EXTENSION_LANGUAGE
+PASS  Dockerfile: has a FROM
+PASS  Dockerfile: base images pinned by digest
+PASS  Dockerfile: copies its run.py
+PASS  Dockerfile: has an ENTRYPOINT
+PASS  Dockerfile: copies only runner/ and solvers/
+PASS  Dockerfile: pip packages pinned
+PASS  run.py: compiles
+PASS  readiness_test.py: compiles
+PASS  readiness_test.py: names every required check
+PASS  contract: CONTRACT.md exists
+PASS  contract: has every checklist heading
+PASS  skill: standalone skill exists
+PASS  skill mip-python: generation.skills validate --project
+PASS  skill mip-python: free of Rosetta text
+
+39 passed, 0 warnings, 0 failed
