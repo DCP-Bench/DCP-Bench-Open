@@ -64,7 +64,7 @@ Full reference: [classes](https://python-mip.readthedocs.io/en/latest/classes.ht
 | variable; `var_type` is `mip.BINARY`, `mip.INTEGER` or `mip.CONTINUOUS` (default) | [`m.add_var(name, lb, ub, obj, var_type)`](https://python-mip.readthedocs.io/en/latest/classes.html) |
 | many terms | [`mip.xsum(terms)`](https://python-mip.readthedocs.io/en/latest/classes.html) (Python's `sum` also builds an expression) |
 | constraint with `<=`, `>=` or `==` | `m += expr <= rhs` or [`m.add_constr(expr, name)`](https://python-mip.readthedocs.io/en/latest/classes.html) |
-| objective (a bare `m += expr` raises `TypeError`) | `m.objective = expr`; direction from `mip.Model(sense=mip.MAXIMIZE)` (default `MINIMIZE`) |
+| objective (a bare `m += expr` adds nothing and raises nothing; a bare variable raises `TypeError`) | `m.objective = expr`; direction from `mip.Model(sense=mip.MAXIMIZE)` (default `MINIMIZE`) |
 | constant in the objective | `expr + 5`; `m.objective_const` reports it and `objective_value` includes it |
 | value after solving | `v.x` and `expr.x` (float, or `None` without a solution), `m.objective_value`, `m.objective_bound`, `m.gap` |
 | variable by name, bounds, type | `m.var_by_name("x")`, `v.lb`, `v.ub`, `v.var_type` |
@@ -102,7 +102,7 @@ Worked code: [encodings](assets/encodings/README.md), [single-machine-schedule](
 ## Numbers
 
 - Solution values are floats: `5.0`, not `5`. Round them (`round(v.x)`) before comparing or printing. A value can sit up to `m.integer_tol` (1e-6 by default) from an integer, and an expression over continuous variables can drift a little further.
-- Keep an integer output an integer variable: `z = m.add_var(var_type=mip.INTEGER)` with `z == sum(w_i * b_i)` (unit or integer coefficients). The integer variable then comes back as a whole number.
+- Keep an integer output an integer variable: `z = m.add_var(var_type=mip.INTEGER)` with `z == sum(w_i * b_i)` (unit or integer coefficients). The integer variable then comes back as an integral float (`11.0`).
 - Coefficients up to 1e9 with integer outputs up to 2.5e10 gave exact integer values in tests (60 binaries). Larger magnitudes were not tested.
 
 ## Solving
@@ -134,7 +134,7 @@ Settings that matter (defaults from the package source, `mip/model.py`):
 | `m.seed` | `0` | random seed for CBC's tie-breaks |
 | `optimize(max_seconds=...)` | no limit | time limit in seconds for that solve |
 
-With the default `verbose = 1` the package prints a solver banner and CBC's log to stdout. A program that prints its own answer sets `m.verbose = 0` before `optimize`.
+With the default `verbose = 1` the package prints a solver banner and CBC's log to stdout. A program that prints its own answer sets `m.verbose = 0` before `optimize`; the `[cbcbox]` banner lines (binary and library paths) still print at `verbose = 0`, so a script that parses stdout must skip lines starting with `[cbcbox]`.
 
 Errors in building the model are Python exceptions at build time. A solver failure shows as status `ERROR`, which none of the tests with CBC produced. A model with no variables returns `OTHER` and logs `Model has no variables`.
 
@@ -163,13 +163,14 @@ The loop itself prints nothing. With zero solutions the first `optimize` returns
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | `OPTIMAL`, but a better solution exists | default `max_mip_gap` 1e-4 | set `max_mip_gap` and `max_mip_gap_abs` to 0 |
-| Log lines in the output, parser fails | `verbose` defaults to 1 | `m.verbose = 0` |
+| Log lines in the output, parser fails | `verbose` defaults to 1; the `[cbcbox]` banner prints even at 0 | `m.verbose = 0`, and skip `[cbcbox]` lines |
 | `TypeError: Can not multiply with type Var` | `x * y` | encode the product (table above) |
 | `TypeError: bad operand type for abs()` | `abs(var)` | `d >= a - b`, `d >= b - a` with minimisation |
 | A branch never runs, or a constraint has no effect | `if x == 3:` is always true | use `m += x == 3`, or compare `x.x` after the solve |
 | `ValueError: Invalid bounds for binary variable` | `var_type=mip.BINARY` with `lb` or `ub` other than 0 and 1 | omit the bounds of a binary |
 | `TypeError: type ... bool not supported` | `m += 2 <= 3` | write the constraint with variables |
-| `TypeError: type ... Var not supported` on `m += x` | a bare expression is not a constraint | `m.objective = x` |
+| `TypeError: type ... Var not supported` on `m += x` | a bare variable is not a constraint | `m.objective = x` |
+| `m += x + y` has no effect | a bare expression is accepted and adds no constraint | write a relation (`x + y <= 3`) or set `m.objective` |
 | `5.0` where `5` is expected | solution values are floats | `round()`; keep integer outputs integer variables |
 | `None` in output, or `TypeError` on `None` | no solution | check the status before reading values |
 | `OTHER`, `Model has no variables` | no `add_var` before `optimize` | create the variables first |

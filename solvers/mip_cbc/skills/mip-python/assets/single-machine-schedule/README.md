@@ -4,4 +4,5 @@
 **Shows:** integer start times with bounds from the data, a big-M no-overlap constraint for each pair of jobs (M computed from the data), a makespan variable as the objective.
 **Run:** `python model.py`
 **Expected:** `Makespan: 9`
-**Expected:** `job 2: start 3, finish 7`
+
+(Two schedules reach makespan 9, so the per-job start times can differ between runs of other versions; the makespan is what to check.)
