@@ -2,7 +2,9 @@
 # makespan (the finish time of the last job).
 # Data: durations and release times below. Method: a start time per job, and for each pair of jobs
 # one binary that says which runs first. The big-M constant H comes from the data: no job starts
-# later than the latest release plus the total duration.
+# later than the latest release plus the total duration. Each start is bounded by H minus its own
+# duration: in a left-justified schedule a start is at most the latest release plus the other jobs'
+# durations, so the bound cuts no optimal schedule and keeps each big-M constraint slack when off.
 import mip
 
 durations = [3, 2, 4]
@@ -14,7 +16,7 @@ m = mip.Model(sense=mip.MINIMIZE, solver_name="CBC")
 m.verbose = 0
 m.max_mip_gap = 0.0
 m.max_mip_gap_abs = 0.0
-start = [m.add_var(f"start_{i}", lb=releases[i], ub=H, var_type=mip.INTEGER) for i in range(n)]
+start = [m.add_var(f"start_{i}", lb=releases[i], ub=H - durations[i], var_type=mip.INTEGER) for i in range(n)]
 makespan = m.add_var("makespan", lb=0, ub=H, var_type=mip.INTEGER)
 
 # the makespan is at least the finish time of every job

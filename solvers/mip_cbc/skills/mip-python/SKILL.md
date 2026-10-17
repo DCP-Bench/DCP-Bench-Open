@@ -23,7 +23,7 @@ Python-MIP builds a mixed-integer linear model in Python and solves it with CBC.
 - [All solutions](#all-solutions)
 - [Common issues](#common-issues)
 - [Further reading](#further-reading)
-- Runnable examples: [knapsack](assets/knapsack/README.md), [all-optimal-committee](assets/all-optimal-committee/README.md), [n-queens-all](assets/n-queens-all/README.md), [latin-square](assets/latin-square/README.md), [single-machine-schedule](assets/single-machine-schedule/README.md), [encodings](assets/encodings/README.md), [graph-colouring](assets/graph-colouring/README.md), [status-check](assets/status-check/README.md)
+- Runnable examples: [knapsack](assets/knapsack/README.md), [all-optimal-committee](assets/all-optimal-committee/README.md), [n-queens-all](assets/n-queens-all/README.md), [latin-square](assets/latin-square/README.md), [cryptarithm](assets/cryptarithm/README.md), [single-machine-schedule](assets/single-machine-schedule/README.md), [encodings](assets/encodings/README.md), [graph-colouring](assets/graph-colouring/README.md), [status-check](assets/status-check/README.md)
 
 ## Install
 
@@ -91,10 +91,10 @@ Syntax facts, all checked by running:
 | `z = p * q`, binaries | `z <= p`, `z <= q`, `z >= p + q - 1` |
 | `w = b * x`, `x` integer in `lo..hi` | `w <= hi * b`, `w >= lo * b`, `w <= x - lo * (1 - b)`, `w >= x - hi * (1 - b)` |
 | `x` takes one value of `{v1, ..., vk}` | binaries `p[j]`: `sum p[j] == 1`, `x == sum vj * p[j]` |
-| all different `x_0..x_{n-1}` with values `1..m` | `p[i][v]` binary: `sum_v p[i][v] == 1`, `x_i == sum_v v * p[i][v]`, `sum_i p[i][v] <= 1` |
+| all different `x_0..x_{n-1}` with values in a set `V` (for example `range(lo, lo + k)`, or any list) | `p[i][v]` binary for `v` in `V`: `sum_v p[i][v] == 1`, `x_i == sum_v v * p[i][v]`, `sum_i p[i][v] <= 1` for each `v`. Values are the actual numbers, so an offset needs no change. Needs `k = len(V) >= n`, otherwise infeasible |
 | `x < v` on integers | `x <= v - 1` (and `x > v` is `x >= v + 1`) |
 | either `L1 <= R1` or `L2 <= R2` | binaries `b1 + b2 >= 1`, `L1 <= R1 + M1 * (1 - b1)`, `L2 <= R2 + M2 * (1 - b2)` |
-| two jobs do not overlap on one machine | binary `o`: `s_j >= s_i + d_i - H * (1 - o)`, `s_i >= s_j + d_j - H * o`, `H` = latest release + total duration |
+| two jobs do not overlap on one machine | binary `o`: `s_j >= s_i + d_i - H * (1 - o)`, `s_i >= s_j + d_j - H * o`. `H` = sum of all durations, and bound each start by `s_i <= H - d_i` (valid without release dates, because some optimal schedule is left-justified). With release dates `r_i`, use `H` = latest release + sum of durations and `r_i <= s_i <= H - d_i` |
 | `v = T[idx]` for a table `T` | binaries `ch[k]`: `sum ch[k] == 1`, `idx == sum k * ch[k]`, `v == sum T[k] * ch[k]` |
 
 Worked code: [encodings](assets/encodings/README.md), [single-machine-schedule](assets/single-machine-schedule/README.md) (no overlap, big-M from data), [latin-square](assets/latin-square/README.md) (all different with binaries), [graph-colouring](assets/graph-colouring/README.md).
@@ -111,7 +111,7 @@ Worked code: [encodings](assets/encodings/README.md), [single-machine-schedule](
 
 | Status | Meaning |
 |---|---|
-| `OPTIMAL` | a solution, proven optimal when `max_mip_gap` is 0; for a model with no objective, a feasible point |
+| `OPTIMAL` | a solution, proven optimal when `max_mip_gap` is 0 |
 | `INFEASIBLE` | proven: no solution (CBC also reports this when the relaxation is feasible but no integer point exists) |
 | `UNBOUNDED` | the objective has no bound |
 | `FEASIBLE` | a solution, optimality not proven (time limit reached) |
@@ -119,6 +119,8 @@ Worked code: [encodings](assets/encodings/README.md), [single-machine-schedule](
 | `OTHER` | the model has no variables, so nothing was solved |
 
 Reference: [`OptimizationStatus`](https://python-mip.readthedocs.io/en/latest/classes.html). Without a solution, `v.x` is `None`.
+
+A satisfaction model (no objective) may leave `m.objective` unset, or set it to 0. Then `m.optimize()` returns `OPTIMAL` when a feasible point exists (`m.objective_value` is 0.0) and `INFEASIBLE` when none does. Checked with CBC 2.935.
 
 Settings that matter (defaults from the package source, `mip/model.py`):
 
@@ -131,6 +133,8 @@ Settings that matter (defaults from the package source, `mip/model.py`):
 | `m.integer_tol`, `m.infeas_tol`, `m.opt_tol` | `1e-6` each | tolerances; leave them unless a model needs otherwise |
 | `m.seed` | `0` | random seed for CBC's tie-breaks |
 | `optimize(max_seconds=...)` | no limit | time limit in seconds for that solve |
+
+With the default `verbose = 1` the package prints a solver banner and CBC's log to stdout. A program that prints its own answer sets `m.verbose = 0` before `optimize`.
 
 Errors in building the model are Python exceptions at build time. A solver failure shows as status `ERROR`, which none of the tests with CBC produced. A model with no variables returns `OTHER` and logs `Model has no variables`.
 
@@ -147,6 +151,8 @@ while m.optimize(max_seconds=60) == mip.OptimizationStatus.OPTIMAL:
     placements.append(values)
     m += mip.xsum((1 - b) if v == 1 else b for b, v in zip(decisions, values)) >= 1
 ```
+
+The loop itself prints nothing. With zero solutions the first `optimize` returns `INFEASIBLE`, the loop body never runs and `placements` is empty, so a count of 0 is printed. With exactly one solution the count is 1. Check `placements` before indexing it. Any printing format works ([n-queens-all](assets/n-queens-all/README.md) prints a plain list).
 
 - Cut only over the variables that define the answer. An auxiliary variable in the cut gives duplicate answers.
 - Integer decisions need binaries before a cut (one-hot per value), or two binaries per variable (below and above the current value) with finite bounds.

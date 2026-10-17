@@ -1,7 +1,9 @@
 # N-queens: place n queens on an n x n board so that no two attack each other, and count every
 # placement. One binary per square; 1 means a queen stands there.
 # Enumeration: after each placement, a no-good cut over the square binaries (the only outputs)
-# forbids it, and the loop stops at the first infeasible model.
+# forbids it, and the loop stops at the first infeasible model. Zero solutions: the loop body never
+# runs, the count is 0 and nothing is printed after it. One solution: the count is 1.
+# Output: the count, then the first placement as a plain list of rows (1 = queen).
 import mip
 
 n = 6
@@ -43,6 +45,5 @@ while True:
                   for r in range(n) for c in range(n)) >= 1
 
 print("Solutions:", len(placements))
-print("First placement:")
-for row in placements[0]:
-    print("  " + " ".join("Q" if v else "." for v in row))
+if placements:
+    print("First placement (rows of 0/1, 1 = queen):", placements[0])
