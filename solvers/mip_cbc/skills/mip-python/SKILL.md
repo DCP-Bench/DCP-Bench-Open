@@ -32,7 +32,7 @@ pip install mip
 python3 -c "import mip; print(mip.__version__)"
 ```
 
-Tested with `mip` 2.0.0 (which installs `cbcbox` 2.935, the CBC solver: `CBC devel (git:146ce89)`). Pin `mip==2.0.0` when results must reproduce. `mip.Model()` picks Gurobi when Gurobi (`gurobipy`) is installed and CBC otherwise, so pass `solver_name="CBC"` explicitly. Details: [Python-MIP site](https://www.python-mip.com).
+Tested with `mip` 2.0.0 (which installs `cbcbox` 2.935, the CBC solver). Pin `mip==2.0.0` when results must reproduce. `mip.Model()` picks Gurobi when Gurobi (`gurobipy`) is installed and CBC otherwise, so pass `solver_name="CBC"` explicitly. Details: [Python-MIP site](https://www.python-mip.com).
 
 ## Quick start
 
@@ -152,7 +152,7 @@ while m.optimize(max_seconds=60) == mip.OptimizationStatus.OPTIMAL:
     m += mip.xsum((1 - b) if v == 1 else b for b, v in zip(decisions, values)) >= 1
 ```
 
-The loop itself prints nothing. With zero solutions the first `optimize` returns `INFEASIBLE`, the loop body never runs and `placements` is empty, so a count of 0 is printed. With exactly one solution the count is 1. Check `placements` before indexing it. Any printing format works ([n-queens-all](assets/n-queens-all/README.md) prints a plain list).
+The loop itself prints nothing. With zero solutions the first `optimize` returns `INFEASIBLE`, the loop body never runs and `placements` is empty, so a count of 0 is printed. With exactly one solution the count is 1. Check `placements` before indexing it. The [n-queens-all](assets/n-queens-all/README.md) example prints the first placement as a plain list.
 
 - Cut only over the variables that define the answer. An auxiliary variable in the cut gives duplicate answers.
 - Integer decisions need binaries before a cut (one-hot per value), or two binaries per variable (below and above the current value) with finite bounds.
@@ -167,7 +167,7 @@ The loop itself prints nothing. With zero solutions the first `optimize` returns
 | `TypeError: Can not multiply with type Var` | `x * y` | encode the product (table above) |
 | `TypeError: bad operand type for abs()` | `abs(var)` | `d >= a - b`, `d >= b - a` with minimisation |
 | A branch never runs, or a constraint has no effect | `if x == 3:` is always true | use `m += x == 3`, or compare `x.x` after the solve |
-| `ValueError: Invalid bounds for binary variable` | `var_type=mip.BINARY` with `lb` or `ub` other than 0 and 1 | omit the bounds of a binary |
+| `ValueError: Invalid bounds for binary variable` | `var_type=mip.BINARY` with a bound outside 0..1 (`ub=2`, `lb=-1`); a bound inside 0..1 such as `lb=1` is accepted and fixes the variable | omit the bounds of a binary |
 | `TypeError: type ... bool not supported` | `m += 2 <= 3` | write the constraint with variables |
 | `TypeError: type ... Var not supported` on `m += x` | a bare variable is not a constraint | `m.objective = x` |
 | `m += x + y` has no effect | a bare expression is accepted and adds no constraint | write a relation (`x + y <= 3`) or set `m.objective` |

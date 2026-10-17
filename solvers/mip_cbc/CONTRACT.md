@@ -24,7 +24,7 @@ The runner imports the file and calls `build(instance)` once. It must return exa
 
 ## Objective
 
-Set on the model with `model.objective = expr` (a variable, a linear expression, or a number). The direction is the model's `sense`: `mip.Model(sense=mip.MAXIMIZE)` or `mip.MINIMIZE`, which is the default. A model is an optimisation when its objective has at least one term or a nonzero constant. Otherwise it is a satisfaction problem, whatever its `sense`. `m += expr` without a relation is a `TypeError`, so the objective must use `m.objective`.
+Set on the model with `model.objective = expr` (a variable, a linear expression, or a number). The direction is the model's `sense`: `mip.Model(sense=mip.MAXIMIZE)` or `mip.MINIMIZE`, which is the default. A model is an optimisation when its objective has at least one term or a nonzero constant. Otherwise it is a satisfaction problem, whatever its `sense`. A bare `m += expr` is not an objective: a bare variable raises `TypeError`, and a bare expression is accepted and adds nothing. Use `m.objective`.
 
 ## Solving
 

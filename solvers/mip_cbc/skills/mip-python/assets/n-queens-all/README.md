@@ -5,4 +5,4 @@
 **Run:** `python model.py`
 **Expected:** `Solutions: 4`
 
-With zero solutions the program prints `Solutions: 0` and no placement. With exactly one it prints `Solutions: 1` and that placement. Any printing format works for the placements.
+With zero solutions the program prints `Solutions: 0` and no placement. With exactly one it prints `Solutions: 1` and that placement.
