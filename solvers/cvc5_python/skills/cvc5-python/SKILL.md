@@ -24,6 +24,7 @@ better value until the solver answers `unsat`. Integers are unbounded unless you
 - [Solving](#solving)
 - [All solutions](#all-solutions)
 - [Optimisation](#optimisation)
+- [Choosing an encoding](#choosing-an-encoding)
 - [Performance](#performance)
 - [Common issues](#common-issues)
 - [Further reading](#further-reading)
@@ -148,6 +149,35 @@ optimum. Returning `unknown` means the best value is only a bound. Examples:
 [minimise-jobshop](assets/minimise-jobshop/README.md). For all optimal solutions, first find
 the optimum, then add `objective == best` and enumerate as in [All solutions](#all-solutions).
 
+## Choosing an encoding
+
+Measured on puzzles and designs between 10 and 400 variables, default logic, 180 s limit.
+
+- **Boolean atoms and clauses beat integer sums on combinatorial designs.** Replacing `Int`
+  variables, `Distinct` and `Sum(If(...))` counts by one-hot Booleans with exactly-one and
+  at-most-one clauses solved what timed out otherwise: a Steiner system on 13 points
+  (clauses plus one degree sum, 7 s), a word-design code (12 s), a round-robin schedule
+  (10 s), n-queens 14 to 16 (1 s). A permutation with a cost, such as a rehearsal order,
+  was fast as pairwise order Booleans plus transitivity clauses (5 s) and timed out as
+  `Distinct` over slot variables.
+- **Costs and capacities: 0/1 integer variables with linear rows.** A warehouse location
+  model went from 157 s with `If` sums to 4.7 s with `x[t][w] <= open[w]` and plain linear
+  capacity and cost rows.
+- **Products of variables: case-split over a constant.** `Or([And(d == a, p == a * t) for a
+  in range(1, 10)])` made a three-factor digit puzzle solve in 3 s after the product form
+  timed out. A square test is an `Or` over the constant squares up to the bound.
+- **Large products: bit-vectors.** `BitVec`, `ZeroExt` to double width and `BV2Int` solved
+  products of four factors near 10^9 that timed out as integers. `<=` on bit-vectors is
+  signed: give a constant bound one extra bit, or it reads as negative and the model is
+  silently unsat.
+- **Redundant totals help.** Adding a derived equality (the cells of a magic hexagon sum to
+  n(n+1)/2, the line sums of a heterosquare lie between the sum of the smallest and of the
+  largest values) made two timeouts solve.
+- **Tightening for optimisation is the weak spot.** Every step ends in an unsat proof over
+  all the objective terms; weighted sums of 100 conditional terms timed out on a 10x10 grid.
+  The second solution of a satisfaction problem is the same kind of proof and can stall when
+  the instance is a pigeonhole in disguise.
+
 ## Performance
 
 Measured with cvc5 1.4.2, with `tlimit-per` set to 60 s per `check()`.
@@ -199,6 +229,9 @@ problems, so treat it as incomplete. Do not expect a definite answer on large pr
 | `SMTException: At least one of the arguments must be an SMT expression` | `Distinct([])` | skip the constraint |
 | `RuntimeError: LogicInfo::setLogicString(): cannot parse logic string: NOTALOGIC` | unknown logic name in `SolverFor` | use a standard name, e.g. `QF_LIA`, `QF_NIA` |
 | `RuntimeError: cannot get value unless after a SAT or UNKNOWN response.` | `model()` read after `unsat` | test `check() == sat` first |
+| `RuntimeError: ... solver is already fully initialized` | `s.set(...)` or a logic change after the first `add` | set options and the logic before the first `add` |
+| `RuntimeError: A non-linear term was asserted to arithmetic in a linear logic.` | `x * y` under `SolverFor("QF_LIA")` | use `QF_NIA` or the default `Solver()`, or case-split the product |
+| a bit-vector bound makes the model unsat with no error | `<=` on `BitVec` is signed, the constant's top bit is set | widen by one bit |
 | `if x == 3:` takes the wrong branch | `==` builds a term; `bool()` on it returned `False` with no error | `s.add(x == 3)`, or test a model value with `is_true(m.eval(...))` |
 | `check()` returns `unknown`, `TIMEOUT` | hard search, or nonlinear terms | `QF_LIA` for linear models, redundant bounds, a stronger encoding, a larger `tlimit-per` |
 | enumeration repeats a solution | auxiliary variable in the no-good | block only the decision variables |

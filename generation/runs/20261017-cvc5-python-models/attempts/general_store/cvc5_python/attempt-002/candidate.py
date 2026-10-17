@@ -1,0 +1,60 @@
+# general_store: cryptarithm. Each letter stands for a different digit.
+# The words above the line add up to ALL WOOL. Print the values of C, H, E, S, A, B, O, W, P, L.
+# The addition is encoded column by column, with a carry between columns.
+import cvc5.pythonic as cz
+
+
+def build(instance):
+    C, H, E, S, A, B, O, W, P, L = cz.Ints("C H E S A B O W P L")
+    letters = [C, H, E, S, A, B, O, W, P, L]
+
+    constraints = []
+
+    # Each letter is a digit from 0 to 9.
+    for v in letters:
+        constraints += [v >= 0, v <= 9]
+
+    # Each different letter stands for a different digit.
+    constraints.append(cz.Distinct(letters))
+
+    # The leading letter of each word is not zero.
+    for v in [C, B, A, P, H, S]:
+        constraints.append(v >= 1)
+
+    # The words above the horizontal line add up to ALL WOOL.
+    words = [
+        [C, H, E, S, S],          # CHESS
+        [C, A, S, H],             # CASH
+        [B, O, W, W, O, W],       # BOWWOW
+        [C, H, O, P, S],          # CHOPS
+        [A, L, S, O, P, S],       # ALSOPS
+        [P, A, L, E, A, L, E],    # PALEALE
+        [C, O, O, L],             # COOL
+        [B, A, S, S],             # BASS
+        [H, O, P, S],             # HOPS
+        [A, L, E, S],             # ALES
+        [H, O, E, S],             # HOES
+        [A, P, P, L, E, S],       # APPLES
+        [C, O, W, S],             # COWS
+        [C, H, E, E, S, E],       # CHEESE
+        [C, H, S, O, A, P],       # CHSOAP
+        [S, H, E, E, P],          # SHEEP
+    ]
+    total = [A, L, L, W, O, O, L]  # ALLWOOL
+
+    # Column by column from the units digit, the digits of the summands,
+    # plus the carry in, equal the digit of the total plus ten times the carry out.
+    ncols = len(total)
+    carry = [0] * (ncols + 1)
+    for k in range(ncols):
+        col_terms = [w[-1 - k] for w in words if len(w) > k]
+        if k + 1 < ncols:
+            carry[k + 1] = cz.Int(f"carry_{k + 1}")
+            constraints += [carry[k + 1] >= 0, carry[k + 1] <= 20]
+        carry_in = carry[k]
+        col_terms_all = col_terms if k == 0 else col_terms + [carry_in]
+        out_carry = carry[k + 1] if k + 1 < ncols else 0
+        constraints.append(cz.Sum(col_terms_all) == total[-1 - k] + 10 * out_carry)
+
+    outputs = {"A": A, "B": B, "C": C, "E": E, "H": H, "L": L, "O": O, "P": P, "S": S, "W": W}
+    return constraints, outputs

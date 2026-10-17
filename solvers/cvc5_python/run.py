@@ -45,7 +45,35 @@ def load(instance):
                              '("maximize", expression)')
         if isinstance(objective[1], int) and not isinstance(objective[1], bool):
             objective = (objective[0], cz.IntVal(objective[1]))
-    return assertions(constraints), outputs, objective
+    return assertions(constraints), configuration(constraints), outputs, objective
+
+
+# Options the runner sets itself: a returned Solver's values for these are not copied.
+OWNED = ("incremental", "produce-models", "tlimit", "tlimit-per")
+
+
+def configuration(constraints):
+    """The logic and the user-set options of a returned Solver, as (logic, options).
+
+    The runner solves on fresh solvers, so it reproduces these on each of them.
+    A list of constraints, or a Solver that sets nothing, gives (None, {}).
+    """
+    if not isinstance(constraints, cz.Solver):
+        return None, {}
+    native = constraints.solver
+    logic = native.getLogic() if native.isLogicSet() else None
+    options = {name: native.getOption(name) for name in native.getOptionNames()
+               if name not in OWNED and native.getOptionInfo(name)["setByUser"]}
+    return logic, options
+
+
+def fresh(configuration):
+    """A new pythonic Solver with the returned Solver's logic and options."""
+    logic, options = configuration
+    solver = cz.Solver() if logic is None else cz.SolverFor(logic)
+    for name, value in options.items():
+        solver.set(name, value)
+    return solver
 
 
 def assertions(constraints):
@@ -104,14 +132,14 @@ def check(solver, deadline):
     return result, None
 
 
-def optimum(constraints, direction, objective, deadline):
+def optimum(constraints, setup, direction, objective, deadline):
     """Prove the optimal objective value, or say why it could not be proven.
 
     Each step asserts a strictly better objective on one incremental solver. The
     last model found is the optimum once the next step is unsat; unknown or
     running out of time before that is `timeout`.
     """
-    solver = cz.Solver()
+    solver = fresh(setup)
     solver.add(constraints)
     best = None
     while True:
@@ -135,17 +163,17 @@ def optimum(constraints, direction, objective, deadline):
 
 def solve(request):
     deadline = time.monotonic() + request["execution_timeout"]
-    constraints, outputs, objective = load(request["instance"])
+    constraints, setup, outputs, objective = load(request["instance"])
     flat = flatten(outputs)
 
     if objective is not None:
-        best, failure = optimum(constraints, objective[0], objective[1], deadline)
+        best, failure = optimum(constraints, setup, objective[0], objective[1], deadline)
         if failure is not None:
             return finish(failure[0], failure[1])
         # Enumerate only assignments achieving the proven optimum.
         constraints = constraints + [objective[1] == best]
 
-    solver = cz.Solver()
+    solver = fresh(setup)
     solver.add(constraints)
     count = 0
     while count < request["solution_limit"]:

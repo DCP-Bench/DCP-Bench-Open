@@ -19,9 +19,10 @@ def build(instance) -> tuple[constraints, dict] | tuple[constraints, dict, tuple
 The runner imports the file and calls `build(instance)` once. It must return a 2-tuple
 `(constraints, outputs)` for a satisfaction problem, or a 3-tuple
 `(constraints, outputs, (direction, objective))` for an optimisation problem, where
-direction is `"minimize"` or `"maximize"`. `constraints` is a `cvc5.pythonic.Solver` (its
-assertions are taken), a list or tuple of Boolean expressions, or a single one. Anything
-the module prints goes to stderr.
+direction is `"minimize"` or `"maximize"`. `constraints` is a `cvc5.pythonic.Solver`, a
+list or tuple of Boolean expressions, or a single one. From a Solver the runner takes its
+assertions, its logic and the options set on it (see [Solving](#solving)). Anything the
+module prints goes to stderr.
 
 ## Instance
 
@@ -45,6 +46,14 @@ the objective. Solutions are only reported at the proven optimum.
 
 ## Solving
 
+- Solvers: the runner never checks the Solver `build` returns. It solves on fresh pythonic
+  Solvers that carry the returned Solver's assertions, its logic (set when the native
+  solver has one, `isLogicSet()`, as `SolverFor(logic)` and `solver.setLogic(...)` do)
+  and every option whose `getOptionInfo(name)["setByUser"]` is true, copied with
+  `set(name, getOption(name))`. The runner owns `tlimit-per`, `tlimit`, `incremental` and
+  `produce-models`: values a model sets for these are not copied, `incremental` and
+  `produce-models` stay on. Constraints given as a list, or a plain `Solver()` with no
+  options, are solved on `cz.Solver()` under cvc5's default logic.
 - Time: `execution_timeout` is measured from the start of `solve`, including `build`. Each
   solver check gets **all the time left** (cvc5 option `tlimit-per`, in ms, set before each
   check); the runner does not split the budget across tightening steps. A later step can
@@ -64,7 +73,9 @@ the objective. Solutions are only reported at the proven optimum.
   `INCOMPLETE`, which cvc5 gives for nonlinear arithmetic it cannot decide) maps to `error`
   with `cvc5 returned unknown: <reason>` as the detail.
 - Exceptions raised while building or solving map to `error` with the exception's own
-  message as the detail.
+  message as the detail. This covers a logic the model does not fit: a product of two
+  unknowns under `SolverFor("QF_LIA")` raises at the first check with `A non-linear term
+  was asserted to arithmetic in a linear logic.`
 - Backstop: a `SIGALRM` at `execution_timeout + 5` s becomes `timeout`.
 
 ## Compilation
@@ -88,6 +99,14 @@ submission and `request.json` under `/input`. The image's entrypoint is the runn
 - Use `cvc5.pythonic`, not the native `cvc5` API: the runner and the pythonic `Solver` are
   the only interface it supports.
 - `set("timeout", ...)` is rejected (`unrecognized option: timeout.`). Use `tlimit-per`.
+- A `tlimit-per`, `tlimit`, `incremental` or `produce-models` value set on the returned
+  Solver is dropped without a message; the runner sets its own. Other options and the logic
+  are kept, so a wrong logic fails the run: `SolverFor("QF_LIA")` with a product of two
+  unknowns is `error`, and `SolverFor("QF_UF")` over integers is `error` (`The logic was
+  specified as QF_UF, which doesn't include THEORY_ARITH, ...`). An option that limits work,
+  such as `rlimit-per`, ends a check with `unknown` / `RESOURCEOUT`, which is `error`.
+- Options and the logic must be set before the first `add`: cvc5 refuses both afterwards
+  (`invalid call to 'setOption' for option '...', solver is already fully initialized`).
 - The global `tlimit` option was not usable in this image: with it set, `check()` did not
   return within the budget in testing. Only `tlimit-per` is used.
 - `Sum([...])` over Boolean expressions raises `TypeError: unsupported operand type(s) for

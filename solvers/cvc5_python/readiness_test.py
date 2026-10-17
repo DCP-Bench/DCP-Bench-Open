@@ -217,6 +217,42 @@ TIMEOUT_SUBMISSION = ("import cvc5.pythonic as cz\n"
                       "    diffs = [marks[j] - marks[i] for i in range(10) for j in range(i + 1, 10)]\n"
                       "    s.add(cz.Distinct(diffs))\n"
                       "    return s, {'x': x, 'y': y}, ('minimize', x + y + marks[9])\n")
+# The runner solves on fresh solvers; these check that it keeps the returned
+# Solver's logic and options. A SolverFor("QF_LIA") Solver with an option set
+# still gets the proven optimum.
+LOGIC_SUBMISSION = ("import cvc5.pythonic as cz\n"
+                    "def build(instance):\n"
+                    "    n = instance['n']\n"
+                    "    x, y = cz.Ints('x y')\n"
+                    "    s = cz.SolverFor('QF_LIA')\n"
+                    "    s.set('sat-random-seed', 7)\n"
+                    "    s.add(x >= 0, x <= n, y >= 0, y <= n, x + y >= n)\n"
+                    "    return s, {'x': x, 'y': y}, ('minimize', x + y)\n")
+# x * y is nonlinear: accepted under the default logic, refused by cvc5 under QF_LIA.
+NONLINEAR = ("import cvc5.pythonic as cz\n"
+             "def build(instance):\n"
+             "    n = instance['n']\n"
+             "    x, y = cz.Ints('x y')\n"
+             "    s = cz.SOLVER\n"
+             "    s.add(x >= 0, x <= n, y >= 0, y <= n, x + y == n, x * y >= 0)\n"
+             "    return s, {'x': x, 'y': y}\n")
+# rlimit-per 1 stops the first check: only a copied option can give RESOURCEOUT.
+RESOURCE_SUBMISSION = ("import cvc5.pythonic as cz\n"
+                       "def build(instance):\n"
+                       "    n = instance['n']\n"
+                       "    x, y = cz.Ints('x y')\n"
+                       "    marks = cz.Ints(' '.join('m%d' % i for i in range(10)))\n"
+                       "    s = cz.Solver()\n"
+                       "    s.set('rlimit-per', 1)\n"
+                       "    s.add(x >= 0, x <= n, y >= 0, y <= n, x + y == n)\n"
+                       "    s.add(marks[0] == 0)\n"
+                       "    s.add([marks[i] < marks[i + 1] for i in range(9)])\n"
+                       "    s.add(cz.Distinct([marks[j] - marks[i] for i in range(10) for j in range(i + 1, 10)]))\n"
+                       "    return s, {'x': x, 'y': y}\n")
+# The runner owns tlimit-per: a 1 ms value on the returned Solver must not end the run.
+OWNED_SUBMISSION = GOOD.replace("    s = cz.Solver()\n",
+                                "    s = cz.Solver()\n    s.set('tlimit-per', 1)\n"
+                                "    s.set('incremental', False)\n")
 PIGEONHOLE = ("import cvc5.pythonic as cz\n"
               "def build(instance):\n"
               "    xs = cz.Ints(' '.join('p%d' % i for i in range(14)))\n"
@@ -279,6 +315,16 @@ def main():
         check("auxiliary_free_distinct", AUX_SUBMISSION, solution_limit=3)
         check("stray_stdout", STDOUT_SUBMISSION, reference=REFERENCE)
         check("large_model", LARGE_SUBMISSION, reference=LARGE_REFERENCE, execution_timeout=120)
+        check("logic_and_option_kept", LOGIC_SUBMISSION, reference=OPTIMIZING, solution_limit=3)
+        check("nonlinear_default_logic", NONLINEAR.replace("SOLVER", "Solver()"))
+        logic = check("logic_honoured", NONLINEAR.replace("SOLVER", "SolverFor('QF_LIA')"),
+                      expected={"execution_error"})
+        results["logic_honoured"] = (results["logic_honoured"]
+                                     and "non-linear term" in json.dumps(logic))
+        resource = check("option_honoured", RESOURCE_SUBMISSION, expected={"execution_error"})
+        results["option_honoured"] = (results["option_honoured"]
+                                      and "RESOURCEOUT" in json.dumps(resource))
+        check("runner_owned_options", OWNED_SUBMISSION, solution_limit=3)
         error = check("error_detail", ERROR_SUBMISSION, expected={"execution_error"})
         results["error_detail"] = (not error["accepted"] and error["reason"] == "execution_error"
                                    and "invalid argument" in json.dumps(error))
