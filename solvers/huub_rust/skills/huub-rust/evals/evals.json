@@ -1,0 +1,38 @@
+{
+  "skill_name": "huub-rust",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Using Huub in Rust, list every pair of whole numbers x and y in 0..=5 with x + y = 7 and x <= y.",
+      "expected_skill": "huub-rust",
+      "expected_output": "A Cargo program that lowers the model and enumerates all solutions over x and y with all_solutions and satisfy",
+      "assertions": [
+        "Posts both constraints with post() and handles the Result (with ? or unwrap), not ignoring it",
+        "Lowers with m.lower().to_solver() and maps each view with map.get before solving",
+        "Lists the distinct solutions over the two views with all_solutions and ends with satisfy"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a Huub Rust model that maximises profit 3x + 2y for whole numbers with x + y <= 4 and x + 3y <= 6, and prints the optimum only when it is proven.",
+      "expected_skill": "huub-rust",
+      "expected_output": "A program that ties the objective to an integer view, calls maximize on a fresh solver, and reports only a Complete result",
+      "assertions": [
+        "Calls maximize (not minimize) on the objective view as the first solve on the solver",
+        "Prints the value only when the status is Complete with Some(value)",
+        "Ties the objective view to the linear expression with a constraint, not by bounding it by hand"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Count the Hamiltonian cycles on five nodes in Huub, which has no circuit constraint.",
+      "expected_skill": "huub-rust",
+      "expected_output": "A decomposition of circuit over successor variables that enumerates over the successors and reports 24",
+      "assertions": [
+        "Uses successor variables with domain 0..=4 and makes them all different and non-self-loops",
+        "Adds a visiting order and element constraints that follow the successors through every node",
+        "Enumerates over the successor variables only, so the order variables do not repeat a count"
+      ]
+    }
+  ]
+}
