@@ -1,0 +1,594 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/eclipse_clp/CONTRACT.md": "0a79c7a17d3b244f132814712c15a00181e75914afd3c2027f68f49d7de06183"
+    },
+    "created_at": 1792316596.874415,
+    "problem_id": "knights_tour",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "1752abeb97f393db6abeed5d8072314cb019e53ea6cdba6c28e3a7b9f59b8a7c",
+    "run_id": "20261018-eclipse-clp-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "45205265a34ad34affcf6a5659d0ea93ba033657",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "45205265a34ad34affcf6a5659d0ea93ba033657",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "8f2254ed868f92f072796f1a85e20c99a430b5cc47a199e9b804654539cfcc7d",
+        "source": "solvers/eclipse_clp/skills/eclipse-clp",
+        "version": {
+          "commit": "45205265a34ad34affcf6a5659d0ea93ba033657",
+          "modified": false,
+          "path": "solvers/eclipse_clp/skills/eclipse-clp"
+        }
+      }
+    ],
+    "solver_id": "eclipse_clp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:cb05be3a8ccfa25074fb0739a6fbaa95e7671afbe485c0e2bd825f148cfc1318",
+      "tag": "dcp-eval/eclipse_clp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.20326474693138152,
+        "execution_wall_seconds": 1.1418744950788096,
+        "first_solution": {
+          "x": [
+            [
+              34,
+              13,
+              10,
+              3,
+              20,
+              31
+            ],
+            [
+              11,
+              4,
+              35,
+              32,
+              9,
+              2
+            ],
+            [
+              14,
+              33,
+              12,
+              21,
+              30,
+              19
+            ],
+            [
+              5,
+              22,
+              15,
+              26,
+              1,
+              8
+            ],
+            [
+              16,
+              27,
+              24,
+              7,
+              18,
+              29
+            ],
+            [
+              23,
+              6,
+              17,
+              28,
+              25,
+              0
+            ]
+          ]
+        },
+        "id": "example",
+        "instance_hash": "ade0bebbcdd770e830221a9ea5ea03aa975a54ba2b90f7077c3b5e0754faf3c8",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.4502096299547702,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.12,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.35247171006631106,
+        "execution_wall_seconds": 1.2925572149688378,
+        "first_solution": {
+          "x": [
+            [
+              0,
+              3,
+              24,
+              29,
+              32,
+              15,
+              48,
+              27
+            ],
+            [
+              23,
+              30,
+              1,
+              4,
+              25,
+              28,
+              33,
+              14
+            ],
+            [
+              2,
+              5,
+              40,
+              31,
+              16,
+              49,
+              26,
+              47
+            ],
+            [
+              39,
+              22,
+              17,
+              6,
+              41,
+              34,
+              13,
+              50
+            ],
+            [
+              18,
+              7,
+              42,
+              35,
+              62,
+              51,
+              46,
+              53
+            ],
+            [
+              21,
+              38,
+              19,
+              56,
+              43,
+              54,
+              61,
+              12
+            ],
+            [
+              8,
+              57,
+              36,
+              63,
+              10,
+              59,
+              52,
+              45
+            ],
+            [
+              37,
+              20,
+              9,
+              58,
+              55,
+              44,
+              11,
+              60
+            ]
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "fc08426470f8a393e4edc68b047d7c9e2aaef6de226a9de6e0eff23787c07fc0",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 3.317264692974277,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.21,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.6964847759809345,
+        "execution_wall_seconds": 1.290463304030709,
+        "first_solution": {
+          "x": [
+            [
+              18,
+              15,
+              48,
+              45,
+              20,
+              11,
+              8,
+              43,
+              34,
+              23
+            ],
+            [
+              49,
+              46,
+              19,
+              16,
+              9,
+              44,
+              21,
+              24,
+              7,
+              42
+            ],
+            [
+              14,
+              17,
+              50,
+              47,
+              12,
+              25,
+              10,
+              35,
+              22,
+              33
+            ],
+            [
+              51,
+              94,
+              13,
+              26,
+              53,
+              36,
+              85,
+              32,
+              41,
+              6
+            ],
+            [
+              82,
+              27,
+              52,
+              95,
+              84,
+              29,
+              54,
+              37,
+              86,
+              31
+            ],
+            [
+              93,
+              96,
+              83,
+              28,
+              55,
+              38,
+              87,
+              30,
+              5,
+              40
+            ],
+            [
+              72,
+              81,
+              92,
+              97,
+              88,
+              69,
+              56,
+              39,
+              60,
+              65
+            ],
+            [
+              91,
+              78,
+              73,
+              70,
+              75,
+              98,
+              63,
+              66,
+              1,
+              4
+            ],
+            [
+              80,
+              71,
+              76,
+              89,
+              68,
+              57,
+              2,
+              61,
+              64,
+              59
+            ],
+            [
+              77,
+              90,
+              79,
+              74,
+              99,
+              62,
+              67,
+              58,
+              3,
+              0
+            ]
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "2276bbd89947f3c8da3323b42c9b5bd65e20cecb675c3480ada6e85d11a10ede",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 13.875527660944499,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.17,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.15084784291684628,
+        "execution_wall_seconds": 0.9366711330367252,
+        "first_solution": {
+          "x": [
+            [
+              4,
+              19,
+              8,
+              13,
+              6
+            ],
+            [
+              9,
+              14,
+              5,
+              18,
+              23
+            ],
+            [
+              20,
+              3,
+              22,
+              7,
+              12
+            ],
+            [
+              15,
+              10,
+              1,
+              24,
+              17
+            ],
+            [
+              2,
+              21,
+              16,
+              11,
+              0
+            ]
+          ]
+        },
+        "id": "json:3",
+        "instance_hash": "7ac47f259bdefbfcf07f3f45b62d54a6333409b3eb3611894e8af2d0131c681d",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.08298686996568,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.13,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.2877566529205069,
+        "execution_wall_seconds": 1.1666497510159388,
+        "first_solution": {
+          "x": [
+            [
+              0,
+              3,
+              16,
+              19,
+              14,
+              11,
+              8
+            ],
+            [
+              17,
+              20,
+              1,
+              4,
+              9,
+              26,
+              13
+            ],
+            [
+              2,
+              5,
+              18,
+              15,
+              12,
+              7,
+              10
+            ],
+            [
+              21,
+              38,
+              41,
+              6,
+              27,
+              44,
+              25
+            ],
+            [
+              32,
+              35,
+              22,
+              39,
+              42,
+              47,
+              28
+            ],
+            [
+              37,
+              40,
+              33,
+              30,
+              45,
+              24,
+              43
+            ],
+            [
+              34,
+              31,
+              36,
+              23,
+              48,
+              29,
+              46
+            ]
+          ]
+        },
+        "id": "json:4",
+        "instance_hash": "c4c864215ba71329638dafb520a0a3abed19bb8414d26f3c6c063450caf5ea08",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.5851445780135691,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.12,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "a2bb4ab66a16204621f95ed68bdb3c1215bd05c17c10df20979b88147c1df3b0",
+    "problem_id": "knights_tour",
+    "reason": "accepted",
+    "reference_hash": "927c57181e65d293357f7f57663443c41936b0e2e306df030d3de12d6592a7e5",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 10,
+    "solver_id": "eclipse_clp",
+    "total_wall_seconds": 29.433952228049748,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": false,
+  "model_file": "model.ecl",
+  "problem": "knights_tour",
+  "schema": 2,
+  "solver": "eclipse_clp",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}
