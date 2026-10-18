@@ -170,6 +170,24 @@ Measured on puzzles and designs between 10 and 400 variables, default logic, 180
   products of four factors near 10^9 that timed out as integers. `<=` on bit-vectors is
   signed: give a constant bound one extra bit, or it reads as negative and the model is
   silently unsat.
+- **Write counters and definitions as clauses.** A sequential counter over 200 Booleans
+  written as `v == Or(prev, And(lit, prev_j))` made `check()` run for more than 800 s, past
+  `tlimit-per`. The same counter as four implication clauses (`v -> prev or lit`,
+  `v -> prev or prev_j`, `prev -> v`, `lit and prev_j -> v`) solved in seconds. Use it for
+  at-most-k windows and cardinalities; one clause per forbidden subset also worked.
+- **Bit-vectors under integer outputs need `bv-solver=bitblast-internal`.** A model on
+  `BitVec` letters with `ULE` bounds and `Distinct` solved a 10-letter cryptarithm in 0.3 s
+  with a bit-vector blocking clause, but the default `bv-solver=bitblast` stalled for
+  170 s once a no-good over `BV2Int` outputs was added. With `SolverFor("ALL")` and
+  `s.set("bv-solver", "bitblast-internal")` it took 13 to 17 s. `solve-int-as-bv` fails on an
+  incremental solver (`solveIntAsBV not supported with incremental solving`).
+- **Tours and routes: prune arcs before encoding.** With Int arcs, degree rows and an order
+  encoding, the optimality proof of a 12-city tour took 74 to 102 s and 20 cities timed out.
+  Computing in Python, from the distance matrix only, an assignment lower bound (Hungarian
+  method, reduced costs as arc coefficients), a tour upper bound (nearest neighbour plus 2-opt)
+  and a 1-tree bound that drops arcs which cannot be on a tour within the upper bound made all
+  instances solve in under 3 s, up to 30 cities. Cheapest-in and cheapest-out bounds alone did
+  not help.
 - **Redundant totals help.** Adding a derived equality (the cells of a magic hexagon sum to
   n(n+1)/2, the line sums of a heterosquare lie between the sum of the smallest and of the
   largest values) made two timeouts solve.
