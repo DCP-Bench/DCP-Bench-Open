@@ -9,27 +9,27 @@ fn build(inst: &Instance, m: &mut Model) -> Res<Out> {
     let budget = inst.int("budget");
     let n = npv.len();
 
-    // Decision: is investment i chosen.
-    let x: Vec<View<bool>> = (0..n).map(|_| m.new_bool_decision()).collect();
+    // Each investment is chosen (1) or not (0), as an integer 0/1 variable.
+    let pick: Vec<View<i64>> = (0..n).map(|_| m.new_int_decision(0..=1)).collect();
 
     // The total outflow of the chosen investments must not exceed the available budget.
-    let mut cost = IntLinearExp::from(0i64);
-    for i in 0..n {
-        cost = cost + IntLinearExp::from(x[i]) * cash_flow[i];
-    }
+    let cost: IntLinearExp = (0..n).map(|i| pick[i] * cash_flow[i]).sum();
     m.linear(cost).le(budget).post()?;
 
     // The total NPV of the chosen investments is the objective.
     let max_npv: i64 = npv.iter().sum();
     let total = m.new_int_decision(0..=max_npv);
-    let mut value = IntLinearExp::from(0i64);
-    for i in 0..n {
-        value = value + IntLinearExp::from(x[i]) * npv[i];
-    }
+    let value: IntLinearExp = (0..n).map(|i| pick[i] * npv[i]).sum();
     m.linear(value).eq(total).post()?;
 
+    // The Boolean output x[i] is true exactly when investment i is chosen.
+    let mut chosen: Vec<View<bool>> = Vec::with_capacity(n);
+    for i in 0..n {
+        chosen.push(m.linear(pick[i]).eq(1).reify());
+    }
+
     let mut out = Out::new();
-    out.put("x", x).put("z", total);
+    out.put("x", chosen).put("z", total);
     out.maximise(total);
     Ok(out)
 }
