@@ -1,0 +1,20 @@
+[package]
+name = "dcp_pindakaas"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "dcp_pindakaas"
+path = "src/lib.rs"
+
+[dependencies]
+pindakaas = { version = "=0.6.0", features = ["cadical"] }
+serde_json = "=1.0.151"
+
+# pindakaas's own release profile does not apply to dependents, so the profile that
+# builds the rlibs the submissions link against is set here.
+[profile.release]
+debug = false
+strip = "symbols"
+incremental = false

@@ -914,6 +914,7 @@ BACKEND_NAMES = {
     "cp, sat": "",
     "cbc": "CBC",
     "pumpkin": "Pumpkin",
+    "pindakaas": "Pindakaas",
     "glucose42, RC2": "Glucose 4.2 (SAT), RC2 (MaxSAT)",
     "cadical, evalmaxsat": "CaDiCaL 3.0 (SAT), EvalMaxSAT 2022 (MaxSAT)",
     # SWI-Prolog's constraint library, which its models load and use.

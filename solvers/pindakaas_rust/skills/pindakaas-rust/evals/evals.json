@@ -1,0 +1,38 @@
+{
+  "skill_name": "pindakaas-rust",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Using Pindakaas in Rust, list every pair of whole numbers x and y in 0..=5 with x + y = 7 and x <= y.",
+      "expected_skill": "pindakaas-rust",
+      "expected_output": "A Cargo program that encodes the two linear constraints into a Cadical solver and enumerates the pairs (2, 5) and (3, 4) with blocking clauses",
+      "assertions": [
+        "Encodes both constraints with Linear::new and a LinearEncoder, handling the Result with ?",
+        "Gives x and y a view (for example x.equals) before solving, or otherwise avoids reading a variable that has none",
+        "Enumerates with solve() and a blocking clause over the equality literals of x and y, reading the values before touching the solver again"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "In Pindakaas, require that if a Boolean b is true then x + y <= 4 for x and y in 0..=5, and count all (x, y, b) triples.",
+      "expected_skill": "pindakaas-rust",
+      "expected_output": "A model that defines x + y as a fresh integer variable and puts b on its order literal, counting 51 triples",
+      "assertions": [
+        "Does not use encode_implied over the integer terms x and y",
+        "Defines the sum as an integer variable and adds a clause [!b, z.at_most(4)] (or an equivalent safe form)",
+        "Reports 51 triples: 36 with b false and 15 with b true"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Make Pindakaas find the smallest value of x + 2y over whole numbers in 0..=5 with x + y >= 4. It has no optimiser.",
+      "expected_skill": "pindakaas-rust",
+      "expected_output": "A linear search over an objective variable with solve_assuming and an order literal bound, ending at 4",
+      "assertions": [
+        "Defines the objective as an IntVar tied to x + 2y by a linear equality",
+        "Tightens the bound with obj.at_most(best - 1) passed as an assumption to solve_assuming, and stops on Unsatisfiable",
+        "Imports the Assumptions trait and reports the minimum 4"
+      ]
+    }
+  ]
+}
