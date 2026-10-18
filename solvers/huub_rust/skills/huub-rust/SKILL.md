@@ -81,7 +81,7 @@ or `.define()` when it returns a new view.
 |---|---|
 | integer in a range | `m.new_int_decision(0..=5)`, `m.new_int_decisions(n, 0..=5)`; Boolean: `m.new_bool_decision()` |
 | linear `<=`, `<`, `==`, `!=`, `>=`, `>` | `m.linear(x * 3 - y * 2 + 5).le(z).post()?` (also `eq`, `ne`, `lt`, `ge`, `gt`) |
-| constraint holds iff a Boolean | `.reified_by(b)`; one way only: `.implied_by(b)`; the indicator: `.reify()` gives a `View<bool>` |
+| constraint holds iff a Boolean | `.reified_by(b)` is an equivalence (`b` true iff the constraint holds, so `b` false forces the negation); one way only: `.implied_by(b)` (`b` true forces the constraint, `b` false leaves it free); the indicator: `.reify()` gives a `View<bool>` |
 | all different | `m.unique(xs.clone()).post()?` |
 | allowed tuples (positive table only) | `m.table(vars).values(rows).post()?` |
 | `array[index] == value`, 0-based | `m.element(array).index(i).result(r).post()?`, or `.define()` for a new view |
@@ -90,12 +90,17 @@ or `.define()` when it returns a new view.
 | membership in a set | `m.contains(huub::Set::from_iter([1i64..=2, 7..=7])).member(x).define()` |
 | tasks sharing a resource | `m.cumulative().start_times(s).durations(d).usages(u).capacity(c).post()?` |
 | tasks on a unary resource | `m.disjunctive().start_times(s).durations(d).post()?` (durations are constants) |
-| rectangles that do not overlap | `m.no_overlap().origins(o).sizes(z).post()?` (`origins` and `sizes` are `Vec<Vec<View>>`) |
+| rectangles that do not overlap | `m.no_overlap().origins(o).sizes(z).post()?` with one inner `Vec` per object: `o[i] = vec![x[i], y[i]]`, `z[i] = vec![w[i], h[i]]`. Sizes must be constants or singleton domains; keep the default `strict` |
 | first occurrence order | `m.value_precede(xs).post()?` |
 | Boolean formula | `m.proposition(BoolFormula::Atom(b) \| BoolFormula::Atom(d)).post()?` |
 | sum of Booleans or counts | `m.linear(bs.iter().copied().sum::<IntLinearExp>()).eq(2).post()?`; a count of `x == v` is the same, with `x.eq(v)` in the sum |
 
-Views of mixed kinds in one sum need `IntLinearExp::from(v)` or `b.into()`.
+`IntLinearExp::from` takes only `i64` and `View<i64>`. A `View<bool>` does not convert: a single
+Boolean in a sum is `std::iter::once(b).sum::<IntLinearExp>()`, a weighted Boolean is
+`x.eq(v) * w` (a `View<bool>` times an `i64` is a valid term), and a 0/1 integer view
+`b.into()` (declared `let bi: View<i64> = b.into();`) can be scaled like any integer view. A
+product of an integer view and a constant (`xs[i] * c`) is a `View<i64>`, so wrap each term
+with `IntLinearExp::from(..)` before collecting them into a `Vec<IntLinearExp>`.
 
 **Not available:** `circuit`, `subcircuit`, `regular`, `count`, `global_cardinality`, `lex`,
 `inverse`, `nvalue`, `among`, `bin_packing`. Write them as decompositions. A count is a linear
@@ -169,7 +174,7 @@ when the number matters.
 | Symptom | Cause | Fix |
 |---|---|---|
 | A constraint has no effect; a solution violates it | `post()` returned `Err`, and the result was ignored | Write `post()?`, or `.unwrap()`. Never `let _ =` or `.ok()` on a `post()` |
-| `post()` never returns on two 2-term equalities over the same pair | Huub hangs on that pattern | Post `le` and `ge` instead of `eq` for those constraints |
+| `post()` never returns on a 2-term equality such as `a + b == 1100`, or on two 2-term equalities over the same pair | Huub aliases the variables of a 2-term `eq` and can hang, also on distinct pairs | Post `le` and `ge` instead of `eq` for every 2-term equality |
 | Memory explodes with `y == 3*x` on large domains | A 2-term equality with a coefficient other than 1 | Post `le` and `ge` instead of `eq` |
 | Optimum reported too low or high after another solve | `minimize` is not the first solve | Solve for the optimum on a fresh solver, first |
 | `all_solutions` panics with a constant objective | Mixed `minimize` and `all_solutions` | Use `minimize`, then pin and enumerate separately |
@@ -181,7 +186,10 @@ when the number matters.
 | `define()` returns a variable with the full `i64` range | `define` on `linear`, `minimum`, `maximum`, `mul` or `pow` | Create the variable yourself and pass it to `.result(v)` |
 | Does not compile: `3 * x`, `x % 3`, `x * y` | Operator forms Huub does not provide | Write `x * 3`; decompose modulo; use `m.mul(x, y)` |
 | `x == y` on views posts nothing | `==` on views is Rust equality | Use `m.linear(x - y).eq(0)` |
-| Does not compile: sum of `View<i64>` and `View<bool>` | Mixed view kinds | `IntLinearExp::from(v)` or `b.into()` |
+| `the trait bound IntLinearExp: From<View<bool>> is not satisfied`, or a sum of `View<i64>` and `View<bool>` does not compile | `IntLinearExp::from` accepts `i64` and `View<i64>` only | `std::iter::once(b).sum::<IntLinearExp>()` for one Boolean, `x.eq(v) * w` for a weighted Boolean, or a 0/1 integer view as in the table above |
+| The model is infeasible although a solution exists; a constraint seems to hold in both directions | `reified_by(b)` is an equivalence, so with `b` false the negation is enforced | Use `implied_by(b)` when `b` should only switch the constraint on |
+| Rectangles overlap in a solution of `no_overlap` | Origins nested per dimension (`vec![xs, ys]`) compile and mean two objects in n dimensions; or the sizes are decision variables, where Huub 100.1.0 can accept overlapping solutions | Nest per object (`(0..n).map(\|i\| vec![x[i], y[i]])`). With variable sizes (rotation) post the pairwise disjunction instead: `x_i + w_i <= x_j`, `x_j + w_j <= x_i`, `y_i + h_i <= y_j`, `y_j + h_j <= y_i`, at least one holds (reified linears and a proposition) |
+| `no_overlap` with `.strict(false)` misses solutions that contain zero-size objects | Huub 100.1.0 still treats a zero-size object as an obstacle | Use the pairwise disjunction and exempt a pair when one size is 0 |
 | `cannot find function circuit` | Huub has no circuit builder | Use the decomposition in [circuit-decomposition](assets/circuit-decomposition/README.md) |
 | Off-by-one in a 1-based array | `element` is 0-based | Index `i - 1` |
 

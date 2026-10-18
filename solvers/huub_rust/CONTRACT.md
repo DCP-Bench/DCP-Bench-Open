@@ -152,9 +152,11 @@ ones the harness is built around.
 - **An ignored `Err` drops a constraint silently.** Every `post()` returns a `Result`. The
   build fails on any ignored one (`-D unused_must_use`), so write `post()?`. Do not write
   `let _ = ....post();` or `.ok()`; both defeat the check.
-- **Two 2-term equalities over the same pair hang in `post()`**, and a 2-term equality with
-  a coefficient other than 1 (`y == 3*x`) exhausts memory on large domains. Post the
-  equality as two inequalities with `eq2(m, expr, rhs)?` (it posts `le` and `ge`).
+- **A 2-term equality can hang in `post()`**: two 2-term equalities over the same pair, and
+  also a single `a + b == c` over distinct pairs (seen with domains of about 5000). A 2-term
+  equality with a coefficient other than 1 (`y == 3*x`) exhausts memory on large domains.
+  Post every 2-term equality as two inequalities with `eq2(m, expr, rhs)?` (it posts `le`
+  and `ge`).
 - **A `minimize` after any other solve returns a stale bound.** The harness solves first;
   a submission never calls the solver.
 - **Maximising a loose objective climbs one value per step.** The runner does not add an
@@ -166,7 +168,19 @@ ones the harness is built around.
   constraint. Write modulo as a decomposition: `k*q + r == x` with `0 <= r < k`.
 - **Operators.** Write `x * 3`, not `3 * x`; a product of two views is `m.mul(x, y)`;
   `x % 3` does not compile; `x == y` on views posts nothing (use `m.linear(x - y).eq(0)`).
-  Mixing `View<i64>` and `View<bool>` in one sum needs `IntLinearExp::from(v)` or `b.into()`.
+  `IntLinearExp::from` takes only `i64` and `View<i64>`; a `View<bool>` does not convert. Put
+  a Boolean in a sum with `std::iter::once(b).sum::<IntLinearExp>()`, a weighted Boolean as
+  `x.eq(v) * w`, or go through a 0/1 integer view (`let bi: View<i64> = b.into();`).
+- **`reified_by(b)` is an equivalence** (`b` false enforces the negation); `implied_by(b)`
+  is the one-way form. Using `reified_by` where only one direction is meant makes the model
+  infeasible, with no error, at solve time.
+- **`no_overlap` nests per object and needs fixed sizes.** `origins[i][d]` and `sizes[i][d]`:
+  the outer `Vec` is the object, the inner `Vec` the dimension. `vec![xs, ys]` compiles and
+  runs but constrains almost nothing (3 rectangles: 31 overlapping solutions of 33). With
+  sizes that are decision variables, Huub 100.1.0 can report overlapping solutions (about 1
+  in 10^4 to 10^5 on random 4-object instances), and `strict(false)` drops valid solutions
+  that contain zero-size objects. Use `no_overlap` with fixed sizes and the default strict
+  mode; with variable sizes (rotation) post the pairwise disjunction.
 - **`define()` on linear, minimum, maximum, mul and pow gives the domain `i64::MIN..=i64::MAX`.**
   Create the variable yourself and use `.result(v)`.
 - **`element` is 0-based.** For 1-based data, index with `i - 1`. `element` over a constant
