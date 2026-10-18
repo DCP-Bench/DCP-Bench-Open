@@ -1,0 +1,220 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-002",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/eclipse_clp/CONTRACT.md": "e503a329fab3718402b6e76cf8f8ad8b52cd6cb318125a1b28a311ae19181707"
+    },
+    "created_at": 1792329727.8610318,
+    "problem_id": "csplib_002_template_design",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "f0a500d9220aac7ecb71e9888bf6f0c7d350b4eb3f41f2733c96324d6f870726",
+    "run_id": "20261018-eclipse-clp-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "f52da30fa76df3ace66917095cbd3374b56c0617",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "f52da30fa76df3ace66917095cbd3374b56c0617",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "ccaf722b4d95ea8c6813b93542603972c35590263d57adf62b847b3ef82e46c0",
+        "source": "solvers/eclipse_clp/skills/eclipse-clp",
+        "version": {
+          "commit": "f52da30fa76df3ace66917095cbd3374b56c0617",
+          "modified": false,
+          "path": "solvers/eclipse_clp/skills/eclipse-clp"
+        }
+      }
+    ],
+    "solver_id": "eclipse_clp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:e4905332141a71e556e7500da5a08e8c113fcd95f859b3b5bdda632b41633d0a",
+      "tag": "dcp-eval/eclipse_clp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.01412523991893977,
+        "execution_wall_seconds": 0.9002279050182551,
+        "first_solution": {
+          "layout": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              7
+            ],
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              0
+            ]
+          ],
+          "production": [
+            158,
+            260
+          ]
+        },
+        "id": "example",
+        "instance_hash": "8b885ec6a3a9dd29161b80284eeffaacac4c6e371911d761bad4368b3998ac05",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 418,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.9865219889907166,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.21,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.02203770389314741,
+        "execution_wall_seconds": 0.9999232030240819,
+        "first_solution": {
+          "layout": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              7
+            ],
+            [
+              0,
+              1,
+              2,
+              0,
+              0,
+              0,
+              6
+            ],
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              0
+            ]
+          ],
+          "production": [
+            152,
+            6,
+            250
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "aa569d28922003810909e38cc5be3666c8a18c2b1e5a48a67772432c92e9c39e",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 408,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 5.769989819033071,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.36,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 2,
+    "instances_checked": 2,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "f634d290dc7ed464ec578abdb636a16a6671a684bd14413bb7a64175767a8513",
+    "problem_id": "csplib_002_template_design",
+    "reason": "accepted",
+    "reference_hash": "2172807619c4014a048fda33778c15a14d17623f89de78e250bcb275ade93f9e",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 4,
+    "solver_id": "eclipse_clp",
+    "total_wall_seconds": 8.897657713037916,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.ecl",
+  "problem": "csplib_002_template_design",
+  "schema": 2,
+  "solver": "eclipse_clp",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
