@@ -117,6 +117,7 @@ dcp_optimum(Instance, Optimum) :-
 dcp_enumerate(Instance, Limit, Optimum, Status) :-
     (   dcp_build(Instance, Vars, Outputs, Objective),
         dcp_fix_objective(Objective, Optimum),
+        dcp_not_reported(Outputs),
         dcp_search_all(Vars, Outputs, Objective),
         dcp_report_solution(Outputs),
         getval(dcp_count, Count),
@@ -125,6 +126,16 @@ dcp_enumerate(Instance, Limit, Optimum, Status) :-
     ;   getval(dcp_count, Count),
         % Backtracking ran out: the model is exhausted, or it had no solution.
         (   Count > 0 -> Status = complete ; Status = unsat )
+    ).
+
+% Fails when the outputs are already ground and equal to a reported solution: no other
+% output assignment is left, so the search below would only visit duplicates (an output
+% that is just the pinned optimum, for example).
+dcp_not_reported(Outputs) :-
+    (   term_variables(Outputs, [])
+    ->  getval(dcp_seen, Seen),
+        \+ memberchk(Outputs, Seen)
+    ;   true
     ).
 
 dcp_fix_objective(none, _) :- !.

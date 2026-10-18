@@ -117,8 +117,11 @@ ad hoc run, override the entrypoint: `docker run --rm --network none --entrypoin
   aborts, so the run is an `error` whose detail is the last 2000 characters of the
   messages (for example `calling an undefined procedure foo(_956) in module user`,
   `instantiation fault in atom_length(_, _)`). Singleton-variable warnings go to the same
-  place and show up in that text; they are harmless. A thrown ball that is not `abort` is
-  reported as `The submission threw <ball>`.
+  place and show up in that text. Most are harmless, but `Singleton local variable X in
+  do-loop, maybe param(X) missing?` is not: an outer variable used in a `do` body without
+  `param(X)` becomes a fresh variable, so the constraint silently does nothing and the run
+  ends in `unsat`, a wrong model or an `invalid_solution`. A thrown ball that is not
+  `abort` is reported as `The submission threw <ball>`.
 - **Printing is harmless but useless.** The protocol goes to a file, so `writeln/1` and
   library load messages (`Loaded Gecode solver 6.2.0`) cannot corrupt it; they are
   forwarded to stderr only.
@@ -136,6 +139,17 @@ ad hoc run, override the entrypoint: `docker run --rm --network none --entrypoin
   outputs or in the objective expression are labelled with `labeling/1` after your search
   goal, which ignores your heuristic for them; a free auxiliary in `Vars` is labelled by
   your goal and handled by the output deduplication.
+- **Enumeration backtracks through every labelling.** Each assignment of an auxiliary
+  variable that gives the same declared outputs is visited again before the second distinct
+  output is found, so many witness variables make the second-solution phase slow even when
+  the optimum is found at once. Make auxiliaries follow from the other variables by
+  propagation. When the declared outputs are already ground after the objective is pinned
+  (an output that is only the optimum, such as a makespan), the driver stops at once: no
+  other output assignment exists.
+- **Output names are exactly the declared names.** A capitalised declared name is a quoted
+  atom, `'B'-B`, not `b-B`; a name that is a prefix operator (`export`, `dynamic`, `table`)
+  must be written in functional form, `-('export', Value)`, because `'export'-[...]`
+  reads as `export(-[...])`.
 - **Keep the model deterministic.** Enumeration backtracks through the labelling and then
   into `model/3,4`; a leftover choice point rebuilds and re-reports the same model.
 - **`**` is not an operator** (`2**70` is a syntax error); use `^`.
@@ -144,7 +158,9 @@ ad hoc run, override the entrypoint: `docker run --rm --network none --entrypoin
   loads no solver fails with `calling an undefined procedure labeling(...)`.
 - **The `lists` library is small.** `flatten/2`, `append/3`, `delete/3`, `reverse/2`,
   `sum/2` and `memberchk/2` are there; `nth0/3`, `nth1/3`, `last/2` and `sumlist/2` need
-  `lib(listut)`. Declarative `foreach ... do` loops need no library.
+  `lib(listut)`. `between/3`, `append/2`, `atom_codes/2` and `string_to_list/2` do not exist
+  (use `for/3` loops, a chain of `append/3`, and `string_list/2` for the character codes of a
+  string). Declarative `foreach ... do` loops need no library.
 - The driver's own state lives in `user` (`dcp_main/0`, `dcp_*` predicates and the
   `dcp_count`, `dcp_seen` variables); `model/3`, `model/4` and `search_goal/1` are the
   only names it reads from you.
