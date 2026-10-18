@@ -49,21 +49,21 @@ fn step(m: &mut Model, x: View<i64>, op: usize, on: View<bool>) -> Res<View<i64>
     match op {
         0 => {
             // y is x plus 2
-            m.linear(x - y).eq(-2).reified_by(on).post()?;
+            m.linear(x - y).eq(-2).implied_by(on).post()?;
         }
         1 => {
             // y is x divided by 8, with no remainder: x is 8 times y
-            m.linear(x - y * 8).le(0).reified_by(on).post()?;
-            m.linear(x - y * 8).ge(0).reified_by(on).post()?;
+            m.linear(x - y * 8).le(0).implied_by(on).post()?;
+            m.linear(x - y * 8).ge(0).implied_by(on).post()?;
         }
         2 => {
             // y is x minus 3
-            m.linear(x - y).eq(3).reified_by(on).post()?;
+            m.linear(x - y).eq(3).implied_by(on).post()?;
         }
         _ => {
             // y is x times 7: y is 7 times x
-            m.linear(x * 7 - y).le(0).reified_by(on).post()?;
-            m.linear(x * 7 - y).ge(0).reified_by(on).post()?;
+            m.linear(x * 7 - y).le(0).implied_by(on).post()?;
+            m.linear(x * 7 - y).ge(0).implied_by(on).post()?;
         }
     }
     Ok(y)
@@ -95,8 +95,8 @@ fn build(_inst: &Instance, m: &mut Model) -> Res<Out> {
     for (k, order) in orders.iter().enumerate() {
         let on = a[k];
         let end = chain(m, mine, order, on)?;
-        m.linear(end - husband).le(0).reified_by(on).post()?;
-        m.linear(end - husband).ge(0).reified_by(on).post()?;
+        m.linear(end - husband).le(0).implied_by(on).post()?;
+        m.linear(end - husband).ge(0).implied_by(on).post()?;
     }
 
     // Some order must give my husband's age from my age.
@@ -107,8 +107,8 @@ fn build(_inst: &Instance, m: &mut Model) -> Res<Out> {
     for (k, order) in orders.iter().enumerate() {
         let on = b[k];
         let end = chain(m, husband, order, on)?;
-        m.linear(end - mine).le(0).reified_by(on).post()?;
-        m.linear(end - mine).ge(0).reified_by(on).post()?;
+        m.linear(end - mine).le(0).implied_by(on).post()?;
+        m.linear(end - mine).ge(0).implied_by(on).post()?;
     }
 
     // Some order must give my age from his age.

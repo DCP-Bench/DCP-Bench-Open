@@ -4,25 +4,25 @@
 // and plumber, in dollars, so that every stated pair payment holds.
 
 fn build(_inst: &Instance, m: &mut Model) -> Res<Out> {
-    let paper_hanger = m.new_int_decision(0..=10000);
-    let painter = m.new_int_decision(0..=10000);
-    let plumber = m.new_int_decision(0..=10000);
-    let electrician = m.new_int_decision(0..=10000);
-    let carpenter = m.new_int_decision(0..=10000);
-    let mason = m.new_int_decision(0..=10000);
+    let paper_hanger = m.new_int_decision(0..=5300);
+    let painter = m.new_int_decision(0..=5300);
+    let plumber = m.new_int_decision(0..=5300);
+    let electrician = m.new_int_decision(0..=5300);
+    let carpenter = m.new_int_decision(0..=5300);
+    let mason = m.new_int_decision(0..=5300);
 
     // $ 1,100 to the paper hanger and the painter.
-    m.linear(paper_hanger + painter).eq(1100).post()?;
+    eq2(m, paper_hanger + painter, 1100)?;
     // $ 1,700 to the painter and plumber.
-    m.linear(painter + plumber).eq(1700).post()?;
+    eq2(m, painter + plumber, 1700)?;
     // $ 1,100 to the plumber and electrician.
-    m.linear(plumber + electrician).eq(1100).post()?;
+    eq2(m, plumber + electrician, 1100)?;
     // $ 3,300 to the electrician and carpenter.
-    m.linear(electrician + carpenter).eq(3300).post()?;
+    eq2(m, electrician + carpenter, 3300)?;
     // $ 5,300 to the carpenter and mason.
-    m.linear(carpenter + mason).eq(5300).post()?;
+    eq2(m, carpenter + mason, 5300)?;
     // $ 3,200 to the mason and painter.
-    m.linear(mason + painter).eq(3200).post()?;
+    eq2(m, mason + painter, 3200)?;
 
     let mut out = Out::new();
     out.put("carpenter", carpenter)
