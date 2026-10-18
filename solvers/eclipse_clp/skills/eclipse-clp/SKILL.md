@@ -104,7 +104,7 @@ Docs: [ic library](https://eclipseclp.org/doc/bips/lib/ic/index.html), [gfd libr
 | build a list in a loop | `( foreach(X, Xs), foreach(T, Ts) do T = W*X )`: the second `foreach` is the output |
 | integer loop | `( for(I, 1, N) do ... )`, `count(I, 1, _)`, nested `multifor([I,J], 1, [N,M])` |
 | accumulate | `( foreach(X, Xs), fromto(0, A, B, Total) do B is A + X )` |
-| outer variables in a loop | list every variable the body shares with the clause in `param(V1, V2)` |
+| outer variables in a loop | list every variable the body shares with the clause in `param(V1, V2)`. This holds for every loop, an inner `foreach` inside an outer one, and a loop bound such as `for(I, 1, D)`. A variable left out is silently a fresh variable in each iteration, so the constraint does nothing; the only sign is the warning `Singleton local variable I in do-loop, maybe param(I) missing?` |
 | reification | `B #= (X #> 5)`, or `(X #> 5) => (Y #> 3)`, `<=>`, `or`, `and`, `neg` |
 | value of a fixed variable | `Y is X + 1` works only once `X` is a number; use `#=` while `X` is open |
 
@@ -138,7 +138,9 @@ Every name and arity below was run.
 | lexicographic | `lex_le(Xs, Ys)` | `ic_global` |
 | sorted | `sorted(Xs, Ys)` | `ic_global` |
 
-`circuit/1` allows a self loop: post `Next[I] #\= I` for tours. `element/3` indexes from 1.
+`circuit/1` demands one cycle through every variable (checked in `ic`: `circuit([1,3,2])` with a self loop and
+`circuit([2,1,3])` with two cycles both fail), so it cannot skip a node; a route that visits only some nodes
+needs another encoding. `element/3` indexes from 1.
 
 ## Search
 
@@ -273,6 +275,17 @@ What follows from the numbers:
 | `Found a solution with cost ...` lines in the output | `bb_min` default reporting | `report_success:true/0, report_failure:true/0` |
 | run with a `timeout/3` limit keeps going under `gfd` | the Gecode search is not interrupted | operating-system time limit |
 | failure instead of a message | infeasible model, or a wrong constraint that fails | test with `( Goal -> ... ; ... )` |
+| `Singleton local variable N in do-loop, maybe param(N) missing?`, then a silent `unsat`, a wrong model, `instantiation fault in +(_, 1, _)` or a hang | an outer variable, an inner loop's outer iterator, or a loop bound is used in the body but not in `param(...)` | add it to `param(...)` of every loop that uses it, or use plain recursion; read the warnings on every run |
+| `number expected in set_up_ic_con(7, 1, [0 * 1, -1 * (...), ...])` | a linear expression built at run time (accumulated in a `fromto` loop, or nested through helper terms) was posted through a variable | build a flat list of `Coef*Var` terms and post `Total #= sum(Terms)`, or post one `#=` per term |
+| `instantiation fault in mod(_{0 .. 3}, 2, _)` or `number expected in mod(...)`; the same for `//` | `mod` and `//` in `ic` constraints work only when the operand is already a number | write `X #= Q*D + R` with `R :: 0..D-1`, or channel through `element/3` |
+| `calling an undefined procedure between(1, 5, _) in module user`, `atom_codes(...)`, `string_to_list(...)`, `append([...], _)` | not available in `lists` or the kernel | `( for(I, 1, N) do ... )` or recursion; `string_list/2` turns a string into character codes; chain `append/3` |
+| `Integer or gfd variable expected for: 0.0`, `type error in element(...)` | `floor/1` returns a float | `integer(floor(X))` |
+| `type error in indomain(<array>[1,2,2], min)` | `V = X[I,J,P]` does not read an array cell | `V #= X[I,J,P]`, or `V is X[I,J,P]` once fixed |
+| `number expected in make_bool(or(and(...)))` | nested `and`/`or` inside an `ic` reification once a part turns ground | 0/1 variables with linear rows: `E #= (A #= B)`, `P #=< E`, `P #>= E + F - 1` |
+| `sum/2` ambiguity under `gfd` | `lists` and `gfd` both export it | `H is sum(Ds)` |
+| a list element written as `'export'-[...]` parses as `export(-[...])` | the name is a prefix operator | write `-('export', [...])` |
+| enumerating all solutions takes far longer than finding one | auxiliary variables are labelled too, so one answer is found once per labelling | make auxiliaries follow from the main variables by propagation instead of labelling them |
+| search is slow with plain `labeling/1` | it labels in the order of the list, smallest value first | choose the order with `search/6` (`first_fail`, `input_order`, `smallest`) and the order of the list itself; it often decides between seconds and a timeout |
 
 ## Examples
 

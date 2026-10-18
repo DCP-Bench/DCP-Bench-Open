@@ -274,6 +274,39 @@ LARGE = HEADER + ("model(Instance, Bs, [b-Bs, count-Count]) :-\n"
                   "    Count #:: 0..3000,\n"
                   "    Count #= sum(Bs),\n"
                   "    Count #= N.\n")
+# objective_only_output: the only output is the optimum, and eight unit jobs on one
+# machine have 40320 optimal start vectors. Asking for two solutions must end at once
+# with one solution and `complete`, not walk the whole tree at the optimum.
+MAKESPAN_REF = """
+# Data
+n = 8
+# End of data
+import cpmpy as cp
+import json
+start = cp.intvar(0, 2 * n, shape=n, name="start")
+makespan = cp.intvar(0, 2 * n, name="makespan")
+model = cp.Model([cp.max(start + 1) == makespan],
+                 [cp.NoOverlap(start, [1] * n, start + 1)])
+model.minimize(makespan)
+model.solve()
+solution = {"makespan": int(makespan.value())}
+print(json.dumps(solution))
+"""
+MAKESPAN = HEADER + (
+    ":- lib(lists).\n"
+    "model(Instance, [Makespan|Starts], [makespan-Makespan], min(Makespan)) :-\n"
+    "    memberchk(n-N, Instance),\n"
+    "    length(Starts, N),\n"
+    "    H is 2 * N,\n"
+    "    Starts #:: 0..H,\n"
+    "    Makespan #:: 0..H,\n"
+    "    no_overlap(Starts),\n"
+    "    ( foreach(S, Starts), param(Makespan) do S + 1 #=< Makespan ),\n"
+    "    Makespan #= max(Starts) + 1.\n"
+    "no_overlap([]).\n"
+    "no_overlap([S|Rest]) :-\n"
+    "    ( foreach(T, Rest), param(S) do ( S + 1 #=< T ) or ( T + 1 #=< S ) ),\n"
+    "    no_overlap(Rest).\n")
 
 
 def main():
@@ -319,7 +352,13 @@ def main():
         check("minimization_step_one", STEP, reference=STEP_REF)
         result = check("optimum_enumeration", SUM, reference=SUM_REF, solution_limit=3)
         results["optimum_enumeration"] = result["accepted"] and result["solutions_checked"] == 3
-        check("negative_objective_min", HEADER + NEGATIVE.replace("OBJECTIVE", "min"),
+        result = check("objective_only_output", MAKESPAN, reference=MAKESPAN_REF, solution_limit=2,
+                       execution_timeout=20, reference_timeout=60)
+        results["objective_only_output"] = (
+            result["accepted"]
+            and result["instances"][0]["solutions_received"] == 1
+            and result["instances"][0]["runner_status"]["status"] == "complete")
+        check("negative_objective_min",HEADER + NEGATIVE.replace("OBJECTIVE", "min"),
               reference=NEGATIVE_MIN_REF)
         check("negative_objective_max", HEADER + NEGATIVE.replace("OBJECTIVE", "max"),
               reference=NEGATIVE_REF)
