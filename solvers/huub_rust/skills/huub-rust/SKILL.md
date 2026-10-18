@@ -173,7 +173,7 @@ when the number matters.
 | Memory explodes with `y == 3*x` on large domains | A 2-term equality with a coefficient other than 1 | Post `le` and `ge` instead of `eq` |
 | Optimum reported too low or high after another solve | `minimize` is not the first solve | Solve for the optimum on a fresh solver, first |
 | `all_solutions` panics with a constant objective | Mixed `minimize` and `all_solutions` | Use `minimize`, then pin and enumerate separately |
-| Maximisation climbs one value per step | A loose objective and the default search | Slow but correct. Verified in the spike: `IntBrancher::new_in(&mut s, vec![obj], DecisionSelection::InputOrder, DomainSelection::IndomainMax)` (in `huub::solver::branchers`) speeds it up. Not benchmarked on the DCP problems |
+| Maximisation climbs one value per step | A loose objective and the default search | Slow but correct. Tested on small cases: `IntBrancher::new_in(&mut s, vec![obj], DecisionSelection::InputOrder, DomainSelection::IndomainMax)` (in `huub::solver::branchers`) speeds it up. The effect on large models is not measured |
 | Panic when lowering (`new_int_decision(5..=3)`) | An empty domain | Give a valid range, `lo..=hi` with `lo <= hi` |
 | Panic on `element(vec![false, ...])` or a length mismatch in `table`, `cumulative` or `disjunctive` | Wrong element type or lengths | Use `i64` arrays of matching length |
 | `element` accepts one index past the end | `element` over a constant `Vec<bool>` ending in `true` | Use a `Vec<i64>` of 0/1, or restrict the index domain |
