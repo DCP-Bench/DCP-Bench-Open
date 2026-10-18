@@ -83,7 +83,7 @@ LANGUAGES = {
 }
 
 # Only for a model whose integration is no longer installed under solvers/.
-EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
+EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog", ".ecl": "prolog",
                       ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".java": "java", ".pi": "picat", ".jl": "julia", ".eprime": "essence_prime",
                       ".idp": "idp"}
 
