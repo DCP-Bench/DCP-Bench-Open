@@ -1,0 +1,340 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/huub_rust/CONTRACT.md": "d8f40986e6fada299880e6b66b049b4ad837a3b38768b888b1f9ff093cdd7a34"
+    },
+    "created_at": 1792337984.0035548,
+    "problem_id": "flip_rows_cols",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "a2c70087e8f2433eab5d5776cd1b16c368107a6f91e7009fd342dc293f811869",
+    "run_id": "20261018-huub-rust-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "58e821a5a58ae53184a14cfdf3a8de5eed066322",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "58e821a5a58ae53184a14cfdf3a8de5eed066322",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "bf97ec2383d6cd06a48d3e3b09ce03cdf3fdfbefc5ee2bb3507b950666ec4858",
+        "source": "solvers/huub_rust/skills/huub-rust",
+        "version": {
+          "commit": "58e821a5a58ae53184a14cfdf3a8de5eed066322",
+          "modified": false,
+          "path": "solvers/huub_rust/skills/huub-rust"
+        }
+      }
+    ],
+    "solver_id": "huub_rust"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:35a869397970121a6031aa0d37d953d5a9822eda3f71b0430a99530d298efb83",
+      "tag": "dcp-eval/huub_rust:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.26488680206239223,
+        "execution_wall_seconds": 2.2547998770605773,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            1,
+            1
+          ],
+          "row_signs": [
+            -1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            -1,
+            1,
+            1,
+            -1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            1,
+            -1,
+            -1
+          ]
+        },
+        "id": "example",
+        "instance_hash": "285c1c0bd5318eb68cecba87545812ee21b19ec57ccd0a85cd099bcc64972895",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 812,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 15.321543000056408,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.550261052,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 1.068s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.01941699895542115,
+        "execution_wall_seconds": 1.4459799960022792,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            1,
+            -1
+          ],
+          "row_signs": [
+            1,
+            1,
+            1
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "c8ca361dacce9a6579216aa6e7e5896f29ed081f4826219ebb3fe26ed1dcebb0",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 52,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.9399407979799435,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.00183755,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.822s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.04310594196431339,
+        "execution_wall_seconds": 1.8613635440124199,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            1,
+            -1,
+            -1,
+            -1
+          ],
+          "row_signs": [
+            -1,
+            1,
+            -1,
+            -1,
+            1
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "66b6712b59b544df4339198d36cbe7937bbf9894e51dac747d2377ccd86486c2",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 149,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.9444870121078566,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.003044619,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 1.125s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.11589308292604983,
+        "execution_wall_seconds": 1.3931171878939494,
+        "first_solution": {
+          "col_signs": [
+            1,
+            1,
+            -1,
+            -1,
+            1,
+            1,
+            1,
+            -1
+          ],
+          "row_signs": [
+            -1,
+            -1,
+            1,
+            -1
+          ]
+        },
+        "id": "json:3",
+        "instance_hash": "00bc5cdae99677cc6c0e0fc34118baab21c3646ae4c15794b686844bb0b56171",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 119,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.1568874759832397,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.004339199,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.783s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.05640280002262443,
+        "execution_wall_seconds": 1.3863038240233436,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            -1,
+            1
+          ],
+          "row_signs": [
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            -1
+          ]
+        },
+        "id": "json:4",
+        "instance_hash": "881f1bd2cf753309a3fd40171f142b3682193b8dcf9c28710fffbe37e65aa48a",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 192,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.316993300919421,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.004454444,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.767s\n"
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "241420b0405cd811bbf0f27ad7a725ddbb8f751c786dc885e3542454cc21e956",
+    "problem_id": "flip_rows_cols",
+    "reason": "accepted",
+    "reference_hash": "86f958a3301e2da946d853fc510b207add942683c8c71d7a276b0875966588a3",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 10,
+    "solver_id": "huub_rust",
+    "total_wall_seconds": 29.068741637980565,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.rs",
+  "problem": "flip_rows_cols",
+  "schema": 2,
+  "solver": "huub_rust",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

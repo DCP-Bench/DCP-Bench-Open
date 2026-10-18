@@ -2,13 +2,13 @@
 // square n^2, and b > 0, find the smallest value of a no less than min_a.
 // Output a, b, n, p, where p = a - b.
 
-// Domains: a in min_a..=max_val, b in 1..=max_val, n and p in 0..=max_val,
-// and sq = a * b = n^2 in 0..=max_val^2.
+// Domains: a in min_a..=max_val, b in 1..=max_val - 2 (since a - b = p >= 2),
+// n in 1..=max_val, p in 2..=max_val, and sq = a * b = n^2.
 fn build(inst: &Instance, m: &mut Model) -> Res<Out> {
     let min_a = inst.int("min_a");
     let max_val = inst.int("max_val");
 
-    // Primality flags for 0..=max_val, sieved from the instance bound.
+    // Primes up to max_val, sieved from the instance bound.
     let lim = max_val as usize;
     let mut is_prime = vec![true; lim + 1];
     is_prime[0] = false;
@@ -26,24 +26,30 @@ fn build(inst: &Instance, m: &mut Model) -> Res<Out> {
         }
         d += 1;
     }
-    let flags: Vec<i64> = is_prime.iter().map(|&pr| if pr { 1 } else { 0 }).collect();
+    let primes: Vec<Vec<i64>> = (0..=lim)
+        .filter(|&k| is_prime[k])
+        .map(|k| vec![k as i64])
+        .collect();
 
     let a = m.new_int_decision(min_a..=max_val);
-    let b = m.new_int_decision(1..=max_val);
-    let p = m.new_int_decision(0..=max_val);
-    let n = m.new_int_decision(0..=max_val);
-    let sq = m.new_int_decision(0..=max_val * max_val);
+    let b = m.new_int_decision(1..=max_val - 2);
+    let p = m.new_int_decision(2..=max_val);
+    let n = m.new_int_decision(1..=max_val);
+    let sq = m.new_int_decision(1..=max_val * max_val);
 
     // a - b = p
     m.linear(a - b).eq(p).post()?;
 
-    // p is prime: the flag at index p is 1.
-    let is_p_prime = m.element(flags).index(p).define();
-    m.linear(is_p_prime).eq(1).post()?;
+    // p is one of the primes up to max_val.
+    m.table(vec![p]).values(primes).post()?;
 
     // a * b = n^2
     m.mul(a, b).result(sq).post()?;
     m.mul(n, n).result(sq).post()?;
+
+    // Implied by a * b = n^2 with 0 < b < a: b < n < a.
+    m.linear(n - b).ge(1).post()?;
+    m.linear(a - n).ge(1).post()?;
 
     let mut out = Out::new();
     out.put("a", a).put("b", b).put("n", n).put("p", p);
