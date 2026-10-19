@@ -1,5 +1,9 @@
 # Skill manifests and run receipts hash exact bytes across Windows/Linux checkouts.
 skills/** -text whitespace=cr-at-eol
+rosetta-skills/** -text whitespace=cr-at-eol
+# An attempt hashes both submission contracts.
+solvers/CONTRACT.md -text whitespace=cr-at-eol
+solvers/*/CONTRACT.md -text whitespace=cr-at-eol
 # A readiness record hashes these files, so a checkout must reproduce their
 # bytes; core.autocrlf would otherwise invalidate every record. metadata.yaml is
 # hashed by its parsed behavioural fields rather than its bytes, and is kept
@@ -10,5 +14,6 @@ solvers/*/Dockerfile -text whitespace=cr-at-eol
 solvers/*/readiness_test.py -text whitespace=cr-at-eol
 solvers/*/readiness.json -text whitespace=cr-at-eol
 solvers/*/readiness/** -text whitespace=cr-at-eol
+solvers/*/readiness-*.json -text whitespace=cr-at-eol
 solvers/**/skills/** -text whitespace=cr-at-eol
 generation/runs/** -text whitespace=cr-at-eol

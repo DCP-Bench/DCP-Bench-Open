@@ -52,7 +52,7 @@ class GenerationTests(unittest.TestCase):
         attempt = self.new_attempt()
         record = manage._read(attempt / "attempt.json")
         self.assertFalse((attempt / "skill").exists())
-        self.assertEqual(record["skill_source"], str(Path("skills") / "demo"))
+        self.assertEqual(record["skill_source"], "skills/demo")
         self.assertEqual(record["skill_bundle_hash"], manage._skill_hash(self.root / "skills" / "demo"))
         self.assertEqual(set(record["skill_version"]), {"path", "commit", "modified"})
         # Every file counts, so a change anywhere in the bundle moves the hash.
