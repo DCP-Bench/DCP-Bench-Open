@@ -13,7 +13,7 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "ortools_cp_sat_cpp": "model.cpp", "chuffed_cpp": "model_chuffed.cpp", "minizinc_gecode": "model.mzn",
           "z3_python": "model_z3.py", "clingo_asp": "model_clingo.lp",
           "swipl_clpfd": "model_swipl.pl", "pulp_cbc": "model_pulp.py",
-          "pumpkin_rust": "model.rs", "choco_python": "model_choco.py",
+          "pumpkin_rust": "model.rs", "huub_rust": "model_huub.rs", "choco_python": "model_choco.py",
           "pysat": "model_pysat.py", "paramita_python": "model_paramita.py", "hermax": "model_hermax.py",
           "exact": "model_exact.py", "gurobipy_python": "model_gurobipy.py",
           "docplex_cplex": "model_docplex.py", "picat": "model_picat.pi",
@@ -41,6 +41,7 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "swipl_clpfd": ("min(", "max("),
                       "pulp_cbc": ("LpMinimize", "LpMaximize"),
                       "pumpkin_rust": ("minimise", "maximise"),
+                      "huub_rust": ("minimise", "maximise"),
                       "choco_python": ("minimize", "maximize"),
                       # hermax carries its objective on model.obj rather than
                       # in a keyword, so the swap replaces the whole expression
@@ -137,6 +138,21 @@ class MetadataTests(unittest.TestCase):
                 self.assertCountEqual(paradigms, set(paradigms), "repeated paradigm")
                 for tag in paradigms:
                     self.assertIn(tag, known, f"add {tag!r} to solvers/paradigms.json first")
+
+    def test_every_integration_has_a_contract(self):
+        """A modeller reads solvers/<id>/CONTRACT.md to know how this integration takes a
+        model, and an attempt refuses an integration without one. It answers the mapping
+        checklist of solvers/CONTRACT.md, heading by heading."""
+        generic = (ROOT / "solvers/CONTRACT.md").read_text(encoding="utf-8")
+        headings = re.findall(r"^\| `## (.+?)` \|", generic, re.M)
+        self.assertIn("Entrypoint", headings, "the mapping checklist lists the required headings")
+        for solver in self.integrations:
+            with self.subTest(solver=solver):
+                path = ROOT / "solvers" / solver / "CONTRACT.md"
+                self.assertTrue(path.is_file(), f"write solvers/{solver}/CONTRACT.md")
+                present = re.findall(r"^## (.+?)\s*$", path.read_text(encoding="utf-8"), re.M)
+                self.assertEqual([h for h in present if h in headings], headings,
+                                 "use every checklist heading, in order")
 
     def test_every_language_has_a_website_row(self):
         """`language` picks the label and the grammar above every model of an

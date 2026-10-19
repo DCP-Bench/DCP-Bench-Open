@@ -1,0 +1,20 @@
+% Satisfaction: complete a 4x4 Latin square that has a fixed first row.
+import cp.
+
+main =>
+    N = 4,
+    Sq = new_array(N, N),
+    Sq :: 1..N,
+    foreach (R in 1..N)
+        all_different([Sq[R, C] : C in 1..N]),
+        all_different([Sq[C, R] : C in 1..N])
+    end,
+    Sq[1, 1] #= 1, Sq[1, 2] #= 2, Sq[1, 3] #= 3, Sq[1, 4] #= 4,
+    Vars = vars(Sq),
+    if solve(Vars) then
+        foreach (R in 1..N)
+            println([Sq[R, C] : C in 1..N])
+        end
+    else
+        println("No Latin square")
+    end.

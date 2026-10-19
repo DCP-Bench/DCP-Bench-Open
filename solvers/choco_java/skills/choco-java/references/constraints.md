@@ -33,7 +33,7 @@ interfaces it implements (`IIntConstraintFactory`, `ISchedulingFactory`, `IReifi
   Alternatively `new Task(IntVar s, int d)` [s + d = e]. Optional tasks:
   `taskVar(s, d, BoolVar performed)`.
 - An IntVar's bounds must fit in a Java `int`, and the domain width must be at most `Integer.MAX_VALUE`.
-  `checkIntDomainRange` rejects anything larger. Values beyond that go through the driver's digit outputs.
+  `checkIntDomainRange` rejects anything larger. Larger numbers are written as digit variables, one per decimal digit (see SKILL.md, Variables and data).
 - `times(x, y, z)` whose bound products overflow an `int` falls back to a slower long-based propagator.
   Under LCG it throws "Multiplication constraint is not supported in LCG mode" instead.
 
@@ -270,8 +270,7 @@ For routing, successor variables with `circuit`/`path` are simpler and are cover
     - Value selectors: `new IntDomainMin()`, `new IntDomainMax()`, `new IntDomainMiddle(true)`, `new IntDomainMedian()`, `new IntDomainRandom(seed)`, `new IntDomainBest()`.
   - Wrappers: `Search.lastConflict(s)`, `Search.conflictOrderingSearch(s)`, `Search.bestBound(s)` and `Search.sequencer(s1, s2)`.
   - `Search.setVarSearch(sets...)` searches set variables.
-- `makeCompleteStrategy(true)` extends a strategy over some variables to all of them. The DCP driver
-  sets it.
+- `makeCompleteStrategy(true)` extends a strategy over some variables to all of them, for a search that must label every variable.
 - Restarts:
   - `solver.setLubyRestart(scale, new FailCounter(model, 1), maxRestarts)`, `setGeometricalRestart(base, factor, counter, max)`, `setLinearRestart`, `setConstantRestart`.
   - `setNoGoodRecordingFromRestarts()` keeps no-goods across restarts.

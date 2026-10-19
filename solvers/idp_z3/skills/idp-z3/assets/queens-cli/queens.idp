@@ -1,0 +1,21 @@
+// Six queens on a 6x6 board, none attacking another; list every placement.
+vocabulary V {
+    type Row <: Int                // sized in the structure, so it stays numeric
+    queens: Row -> Row             // queens(r) = column of the queen in row r
+}
+
+theory T: V {
+    // no two queens share a column
+    ! r1, r2 in Row: r1 ~= r2 => queens(r1) ~= queens(r2).
+    // no two queens share a diagonal
+    ! r1, r2 in Row: r1 ~= r2 => queens(r1) - r1 ~= queens(r2) - r2.
+    ! r1, r2 in Row: r1 ~= r2 => queens(r1) + r1 ~= queens(r2) + r2.
+}
+
+structure S: V {
+    Row := {1..6}.
+}
+
+procedure main() {
+    pretty_print(model_expand(T, S, max=0, timeout_seconds=0))
+}

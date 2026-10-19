@@ -138,14 +138,40 @@ function attempt(model, deadline)
     if code == OPTIMAL
         primal_status(model) == FEASIBLE_POINT && return :solved
         return :error
-    elseif code in (INFEASIBLE, INFEASIBLE_OR_UNBOUNDED)
+    elseif code == INFEASIBLE
         return :infeasible
+    elseif code == INFEASIBLE_OR_UNBOUNDED
+        return infeasible_or_unbounded(model, deadline)
     elseif code == DUAL_INFEASIBLE
         return :unbounded
     elseif code == TIME_LIMIT
         return :timeout
     end
     throw(SubmissionError("HiGHS stopped with status $(code)"))
+end
+
+# HiGHS stops at INFEASIBLE_OR_UNBOUNDED without saying which; it does so for an
+# unbounded MIP. Solving the constraints alone, with the objective set aside,
+# decides it: no feasible point means infeasible, a feasible point means the
+# objective is unbounded. The objective is restored either way.
+function infeasible_or_unbounded(model, deadline)
+    sense = objective_sense(model)
+    sense == FEASIBILITY_SENSE && return :infeasible
+    objective = objective_function(model)
+    set_objective_sense(model, FEASIBILITY_SENSE)
+    try
+        left = deadline - time()
+        left <= 0.5 && return :timeout
+        set_time_limit_sec(model, left - 0.5)
+        optimize!(model)
+        code = termination_status(model)
+        code == INFEASIBLE && return :infeasible
+        code == OPTIMAL && return :unbounded
+        code == TIME_LIMIT && return :timeout
+        throw(SubmissionError("HiGHS stopped with status $(code) deciding infeasible from unbounded"))
+    finally
+        set_objective(model, sense, objective)
+    end
 end
 
 function load(instance)
@@ -212,6 +238,7 @@ function solve(io, request, deadline)
         forbid!(model, variables, current) || return status(io, "complete")
         verdict = attempt(model, deadline)
         verdict == :infeasible && return status(io, "complete")
+        verdict == :unbounded && return status(io, "error", "The objective is unbounded")
         verdict == :solved || return status(io, "timeout")
         values, current = resolved(outputs), [round(Int, JuMP.value(v)) for v in variables]
     end

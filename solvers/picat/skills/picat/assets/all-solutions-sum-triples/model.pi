@@ -1,0 +1,16 @@
+% All solutions: strictly increasing triples from 1..6 whose sum is 12.
+import cp.
+
+main =>
+    Total = 12,
+    X = new_list(3),
+    X :: 1..6,
+    X[1] #< X[2],
+    X[2] #< X[3],
+    sum(X) #= Total,
+    % Every variable that defines a solution is listed, and nothing else.
+    Solutions = findall(X, solve(X)),
+    println("Solutions: " ++ to_string(len(Solutions))),
+    foreach (S in Solutions)
+        println(S)
+    end.

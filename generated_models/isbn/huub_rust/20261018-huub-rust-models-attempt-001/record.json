@@ -1,0 +1,313 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/huub_rust/CONTRACT.md": "d8f40986e6fada299880e6b66b049b4ad837a3b38768b888b1f9ff093cdd7a34"
+    },
+    "created_at": 1792338031.278462,
+    "problem_id": "isbn",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "a2c70087e8f2433eab5d5776cd1b16c368107a6f91e7009fd342dc293f811869",
+    "run_id": "20261018-huub-rust-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "58e821a5a58ae53184a14cfdf3a8de5eed066322",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "58e821a5a58ae53184a14cfdf3a8de5eed066322",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "bf97ec2383d6cd06a48d3e3b09ce03cdf3fdfbefc5ee2bb3507b950666ec4858",
+        "source": "solvers/huub_rust/skills/huub-rust",
+        "version": {
+          "commit": "58e821a5a58ae53184a14cfdf3a8de5eed066322",
+          "modified": false,
+          "path": "solvers/huub_rust/skills/huub-rust"
+        }
+      }
+    ],
+    "solver_id": "huub_rust"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:35a869397970121a6031aa0d37d953d5a9822eda3f71b0430a99530d298efb83",
+      "tag": "dcp-eval/huub_rust:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.005743923014961183,
+        "execution_wall_seconds": 1.2589994609588757,
+        "first_solution": {
+          "isbn": [
+            9,
+            7,
+            8,
+            3,
+            3,
+            1,
+            9,
+            2,
+            5,
+            8,
+            8,
+            1,
+            2
+          ]
+        },
+        "id": "example",
+        "instance_hash": "e323d8a3a3838194b1bd643c2416d1da4d7a2d6f47f752f06db11ef7f15f5d37",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "isbn"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.1448942539282143,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000470969,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.522s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.005741740926168859,
+        "execution_wall_seconds": 1.4532174569321796,
+        "first_solution": {
+          "isbn": [
+            9,
+            7,
+            8,
+            0,
+            2,
+            6,
+            2,
+            7,
+            2,
+            0,
+            3,
+            0,
+            4
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "8b4e8c7296399463a653dff08c587264b5856f1f2e82f3abb680c874899161cb",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "isbn"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.8141351960366592,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000349416,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.716s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.010471001034602523,
+        "execution_wall_seconds": 1.2864973701070994,
+        "first_solution": {
+          "isbn": [
+            9,
+            7,
+            8,
+            0,
+            2,
+            0,
+            0,
+            7,
+            2,
+            0,
+            3,
+            0,
+            4
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "59c1160fcc1d99571811e92f6f4184326996f8ee143d0a1b3242e38345fa7630",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "isbn"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.3895279800053686,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000562367,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.672s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.009376949048601091,
+        "execution_wall_seconds": 1.2926418939605355,
+        "first_solution": {
+          "isbn": [
+            9,
+            7,
+            8,
+            3,
+            3,
+            1,
+            9,
+            2,
+            5,
+            8,
+            8,
+            1,
+            2
+          ]
+        },
+        "id": "json:3",
+        "instance_hash": "c67a1e8a3e0ef3847743fd5156a4c5b07c1b674cb68f7e142e03c6ff800e1cf4",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "isbn"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.8122073960257694,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000636547,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.632s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.011304692947305739,
+        "execution_wall_seconds": 1.1477322919527069,
+        "first_solution": {
+          "isbn": [
+            9,
+            7,
+            8,
+            0,
+            2,
+            6,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "id": "json:4",
+        "instance_hash": "d25e88eee12b88cf8691f0c080e90ae3917e7ebb0b0fbadb667973c3eed13c4e",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "isbn"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.0265752660343423,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.000721012,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "Compilation: 0.567s\n"
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "109f0f0b4bc57b2925165cb4011dd29081343e46148c5ed9ca65e547708d8368",
+    "problem_id": "isbn",
+    "reason": "accepted",
+    "reference_hash": "2821860b8c3726daedcc2c0adf4ded49e78dffd433290296dc88b579b89dc8f3",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 8,
+    "solver_id": "huub_rust",
+    "total_wall_seconds": 12.211897469009273,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": false,
+  "model_file": "model.rs",
+  "problem": "isbn",
+  "schema": 2,
+  "solver": "huub_rust",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}
