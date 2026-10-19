@@ -1,0 +1,56 @@
+{
+  "solver": "maxicp_java",
+  "attempt": "setup-001",
+  "skills_frozen": ["rosetta-skills/solver-setup", "skills/add-solver"],
+  "maxicp": {
+    "version": "0.0.3",
+    "latest_release_checked": "Maven Central maven-metadata.xml <latest>0.0.3</latest>; GitHub tag v0.0.3 (only tag)",
+    "jar": {"url": "https://repo1.maven.org/maven2/org/maxicp/maxicp/0.0.3/maxicp-0.0.3.jar", "sha256": "904df52ac0b0125661abfc9a3eedfdef7f95c241a84ac571ae194f05ff7c90d6"},
+    "sources_jar_sha256": "eddc8c8e9b4d4e71e82ad90c5020f738e540c1def1fe52f8d400b1fd791cfd22",
+    "licence": "MIT"
+  },
+  "gson": {"version": "2.11.0", "sha256": "57928d6e5a6edeb2abd3770a8f95ba44dce45f3b23b7a9dc2b309c581552a78b"},
+  "base_image": "eclipse-temurin:21-jdk-noble@sha256:b468c3fc688b14450571494f588bd939378e7fd542ed5a73f8efc13f17872a87",
+  "java": "OpenJDK 21.0.12.1 (Temurin)",
+  "image": "dcp-eval/maxicp_java:v1",
+  "api_taught": "raw API (CPFactory, CPSolver, DFSearch); modelling layer (org.maxicp.modeling, ModelDispatcher) not taught",
+  "capabilities": {"satisfaction": true, "optimisation": true, "enumeration": true, "compilation": true, "readiness_level": 2},
+  "changed_files": [
+    "solvers/maxicp_java/Dockerfile",
+    "solvers/maxicp_java/run.py",
+    "solvers/maxicp_java/metadata.yaml",
+    "solvers/maxicp_java/readiness_test.py",
+    "solvers/maxicp_java/CONTRACT.md",
+    "solvers/maxicp_java/java/dcp/Instance.java (copied from solvers/choco_java/java/dcp/Instance.java, unchanged)",
+    "solvers/maxicp_java/java/dcp/Model.java",
+    "solvers/maxicp_java/java/dcp/Outputs.java",
+    "solvers/maxicp_java/java/dcp/Main.java",
+    "solvers/maxicp_java/skills/maxicp-java/ (SKILL.md, sources.md, evals/evals.json, assets/*)",
+    "solvers/maxicp_java/readiness.json and readiness-*.json/log (evidence)",
+    "tests/fixtures/model_maxicp_java.java",
+    "tests/test_solvers.py (PILOTS and MAXIMIZATION_SWAPS entries)",
+    "README.md (certified list)"
+  ],
+  "not_changed": ["solvers/choco_java/**", "runner/runtime.py", "runner/requirements.txt"],
+  "commands": {
+    "setup_attempt": "python3 -m generation.manage setup-attempt --run 20261016-maxicp-java-setup --solver maxicp_java --skill rosetta-skills/solver-setup --skill skills/add-solver",
+    "build": "python3 -m evaluation.build maxicp_java",
+    "toy_export": "python3 skills/add-solver/scripts/run_toy_tests.py --export <ws>/toy",
+    "toy_run": "run_toy_tests.py --public <ws>/toy --logs <ws>/round-1/logs --cmd 'docker run ... --entrypoint java dcp-eval/maxicp_java:v1 /m/{problem}.java {instance}'  (output: round-1/results.txt)",
+    "validate": "python3 -m generation.skills validate --project solvers/maxicp_java/skills/maxicp-java",
+    "rosetta_mentions": "python3 -m generation.skills rosetta-mentions solvers/maxicp_java/skills/maxicp-java",
+    "skills_ref": "skills-ref validate solvers/maxicp_java/skills/maxicp-java (skills-ref from git, in ~/.cache/skills-ref)",
+    "check_assets": "python3 skills/add-solver/scripts/check_assets.py solvers/maxicp_java/skills/maxicp-java --image dcp-eval/maxicp_java:v1 --env CLASSPATH=... --mount <jars>:/jars:ro",
+    "readiness": "/home/tias/.cache/dcp-bench-venv/bin/python -m generation.readiness check --solver maxicp_java --output solvers/maxicp_java/readiness.json",
+    "integration_check": "python3 rosetta-skills/solver-setup/scripts/check_integration.py maxicp_java [--static]"
+  },
+  "python_environment": "repo requirements.txt installed into /home/tias/.cache/dcp-bench-venv (cpmpy 1.0.0, ortools 9.15.6755), needed by the readiness reference; the host python3 lacks cpmpy",
+  "toy_tests": "round-1 by a fresh agent with only the skill and toy/: 18/18 PASS (round-1/results.txt). Skill edited afterwards for missing table rows (makeIntVarArray 3-argument form, neq, ge(x,k), minus(x,k), sum with variable right-hand side, infeasibility under optimize). Those edits were NOT re-tested by a fresh agent.",
+  "toy_tests_image": "round-1 ran on dcp-eval/maxicp_java:v1 before one later rebuild with identical sources",
+  "discovered_bugs": [
+    "MaxiCP 0.0.3 Searches.firstFailNary passes no variables to its selector (returns unfixed solutions)",
+    "MaxiCP 0.0.3 Searches.heuristicNary loops v < max and never branches on the largest value (8-queens: 13 solutions)",
+    "makeIntervalVar(cp, len) creates an optional interval; noOverlap and makespan ignore it"
+  ],
+  "standalone_review": "skipped (coordinator runs it)"
+}
