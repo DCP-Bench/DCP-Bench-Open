@@ -1,0 +1,218 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-006",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/cvc5_python/CONTRACT.md": "5de6095cf6fa8dc9e12359ca58b2fb83e2eb1d16b47de3675ac678adb59b5cdf"
+    },
+    "created_at": 1792277487.0139768,
+    "problem_id": "csplib_002_template_design",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "8ee0cf83a598d010a7cc75788e62b76adaff1311a8f595e7b00879912bc16a7f",
+    "run_id": "20261017-cvc5-python-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "fe13c453cbdb9cd22f5aaec15a154a9ba256f302",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "fe13c453cbdb9cd22f5aaec15a154a9ba256f302",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "5c1038a6fe8b4414dd70f83cc267a4ba9de9917236eb9b2d10990d64d74c1f39",
+        "source": "solvers/cvc5_python/skills/cvc5-python",
+        "version": {
+          "commit": "fe13c453cbdb9cd22f5aaec15a154a9ba256f302",
+          "modified": false,
+          "path": "solvers/cvc5_python/skills/cvc5-python"
+        }
+      }
+    ],
+    "solver_id": "cvc5_python"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:794a5744a6336201c588e9db4172bb3ec050a2584d570418cdcacbe414c6cb8e",
+      "tag": "dcp-eval/cvc5_python:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.02327760704793036,
+        "execution_wall_seconds": 10.42152095399797,
+        "first_solution": {
+          "layout": [
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              7
+            ]
+          ],
+          "production": [
+            260,
+            158
+          ]
+        },
+        "id": "example",
+        "instance_hash": "8b885ec6a3a9dd29161b80284eeffaacac4c6e371911d761bad4368b3998ac05",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 418,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.9497672299621627,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.019832653924822807,
+        "execution_wall_seconds": 63.298360708984546,
+        "first_solution": {
+          "layout": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              7
+            ],
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              0
+            ],
+            [
+              0,
+              1,
+              2,
+              0,
+              0,
+              0,
+              6
+            ]
+          ],
+          "production": [
+            152,
+            250,
+            6
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "aa569d28922003810909e38cc5be3666c8a18c2b1e5a48a67772432c92e9c39e",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 408,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 5.367000082973391,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 2,
+    "instances_checked": 2,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "5fcfdf6a2b24f01f250bf557f32972c254085e17058c0992808d28d805561e4b",
+    "problem_id": "csplib_002_template_design",
+    "reason": "accepted",
+    "reference_hash": "2172807619c4014a048fda33778c15a14d17623f89de78e250bcb275ade93f9e",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 4,
+    "solver_id": "cvc5_python",
+    "total_wall_seconds": 80.32623943500221,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.py",
+  "problem": "csplib_002_template_design",
+  "schema": 2,
+  "solver": "cvc5_python",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

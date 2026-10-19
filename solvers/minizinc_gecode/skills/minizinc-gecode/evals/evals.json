@@ -1,34 +1,30 @@
-{
-  "skill_name": "minizinc-gecode",
-  "evals": [
-    {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a minizinc_gecode submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Declares the instance parameters by the names the JSON uses and assigns none of them, so the runner can bind every instance.",
-        "The output item emits one JSON object with exactly the declared output names and no auxiliary fields.",
-        "The evaluator accepts all six listed instances, so nothing from the embedded example is baked in."
-      ]
-    },
-    {
-      "id": "implied-constraints-under-timeout",
-      "prompt": "Using this skill, repair a minizinc_gecode submission that is accepted on the small instances of its problem but reaches execution_timeout on a larger one.",
-      "expected_output": "Either a model accepted on more instances than before, or a recorded performance limit with the instances the model is actually evidenced on.",
-      "assertions": [
-        "Anything added is implied by the constraints already present; no symmetry breaking or bound that removes solutions is introduced to buy speed.",
-        "If the timeout remains, the result is reported as a performance limit naming the instances covered, not as a blocked problem."
-      ]
-    },
-    {
-      "id": "reshaped-instance-fields",
-      "prompt": "Using this skill, write a minizinc_gecode submission for session3_kidney_exchange, whose field compatible is a ragged list of lists, and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Declares compatible as a 2-D int array and compatible_len as a 1-D int array, both with int index sets, and assigns neither.",
-        "Reads row i of compatible only up to compatible_len[i], never treating a padding 0 as a person.",
-        "The evaluator accepts every listed instance, including the one with an empty compatibility row."
-      ]
-    }
-  ]
-}
+{"skill_name": "minizinc-gecode", "evals": [
+  {"id": 1, "prompt": "Write a MiniZinc model that completes a 4 x 4 Latin square from a given first row, and solve it with Gecode.", "expected_skill": "minizinc-gecode",
+   "expected_output": "A satisfaction model with a data file or parameter, all_different on rows and columns, and a printed grid", "assertions": ["Uses include \"globals.mzn\" and all_different for rows and columns", "Uses solve satisfy and does not hard-code the solution", "Runs with minizinc --solver gecode"]},
+  {"id": 2, "prompt": "Using MiniZinc with Gecode, list every way to split the numbers 1 to 8 into two groups of four with equal sums.", "expected_skill": "minizinc-gecode",
+   "expected_output": "All eight solutions of the enumeration, with the -a flag or all_solutions", "assertions": ["Enumerates with -a on the command line or all_solutions=True in Python", "Notes that each split appears twice, once per group as left", "Uses solve satisfy for enumeration"]},
+  {"id": 3, "prompt": "With MiniZinc and Gecode from Python, find the minimum-cost assignment of 3 workers to 3 tasks and list every assignment that achieves that cost.", "expected_skill": "minizinc-gecode",
+   "expected_output": "The optimal cost 12 and the three optimal assignments", "assertions": ["Proves the optimum first, with the objective and solve minimize", "Pins the objective to the optimum before enumerating", "Does not call all_solutions on the minimise model"]},
+  {"id": 4, "prompt": "Maximise the profit of making chairs and tables from 40 labour hours and 12 boards in MiniZinc with Gecode.", "expected_skill": "minizinc-gecode",
+   "expected_output": "Profit 260 with 4 chairs and 8 tables", "assertions": ["Uses solve maximize on a defined or declared objective", "Bounds every variable", "States the result from the solver output, not from memory"]},
+  {"id": 5, "prompt": "Find the minimum vertex cover of a 6-node graph in MiniZinc using Gecode.", "expected_skill": "minizinc-gecode",
+   "expected_output": "A cover of size 3", "assertions": ["Uses solve minimize on the cover size", "Expresses each edge as a disjunction of its endpoints", "Prints the cover and its size"]},
+  {"id": 6, "prompt": "Show that 4 pigeons cannot each have their own hole when there are 3 holes, using MiniZinc with Gecode.", "expected_skill": "minizinc-gecode",
+   "expected_output": "An UNSATISFIABLE result", "assertions": ["Uses all_different with the globals include", "Reports UNSATISFIABLE and does not claim a solution"]},
+  {"id": 7, "prompt": "Schedule five tasks on two workers with two precedence constraints in MiniZinc with Gecode, minimising the finish time.", "expected_skill": "minizinc-gecode",
+   "expected_output": "A minimal makespan of 9", "assertions": ["Uses cumulative for the shared workers", "Expresses precedences as start-time inequalities", "Minimises a makespan variable bounded below by every task end"]},
+  {"id": 8, "prompt": "My MiniZinc model with Gecode runs out of time on a larger instance of a permutation-partition problem. How can I speed it up without changing its answers?", "expected_skill": "minizinc-gecode",
+   "expected_output": "Advice to add implied constraints that remove no solution", "assertions": ["Suggests constraints every solution already satisfies", "Warns against constraints that remove solutions", "Does not suggest symmetry breaking that the reference would not keep"]},
+  {"id": 9, "prompt": "From Python, call a MiniZinc model with Gecode and print its objective, handling a time limit and an unproven result.", "expected_skill": "minizinc-gecode",
+   "expected_output": "Code with a timeout and a branch for SATISFIED versus OPTIMAL_SOLUTION", "assertions": ["Uses Instance.solve with a timedelta timeout", "Branches on result.status, not on the presence of output", "Reads the objective with result[\"objective\"]"]},
+  {"id": 10, "prompt": "My MiniZinc model says 'cannot determine coercion from type float to type var int' on a line that divides two integers. What is wrong?", "expected_skill": "minizinc-gecode",
+   "expected_output": "The / operator yields a float; use div", "assertions": ["Explains that / gives a float", "Suggests div for integer division"]},
+  {"id": 11, "prompt": "Write a Choco model in Java for n-queens with 8 queens.", "expected_skill": null,
+   "expected_output": "The skill is not used", "assertions": ["minizinc-gecode is not loaded", "The answer is about Choco, not MiniZinc"]},
+  {"id": 12, "prompt": "Which licence does the MiniZinc distribution use, and is Gecode included in it?", "expected_skill": null,
+   "expected_output": "The skill is not used, or only its install notes are consulted", "assertions": ["The answer does not write a model", "minizinc-gecode does not drive a modelling task here"]},
+  {"id": 13, "prompt": "Model a job shop in MiniZinc with Gecode: three jobs with 3, 3 and 2 tasks on three machines, no overlap on a machine, and minimise the makespan. The data comes from Python.", "expected_skill": "minizinc-gecode",
+   "expected_output": "A flattened task list bound from Python, precedence inside each job, disjunctive per machine selected by where, and solve minimize on the makespan", "assertions": ["Flattens the ragged jobs into 1-based arrays before binding", "Writes the machine constraint with disjunctive over a where-selected subset", "Minimises a makespan variable that bounds every task end", "Reads the makespan as result[\"objective\"] or the declared variable"]},
+  {"id": 14, "prompt": "My MiniZinc model with Gecode maximises a variable named value, and result['value'] raises KeyError in Python. What is wrong?", "expected_skill": "minizinc-gecode",
+   "expected_output": "The objective is read as result['objective'] whatever the variable is called", "assertions": ["Reads the objective with result[\"objective\"]", "Explains that a variable defined with = in its declaration is not returned", "Does not suggest renaming the variable as the only fix"]}
+]}

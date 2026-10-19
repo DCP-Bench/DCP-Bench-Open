@@ -92,8 +92,12 @@ def remaining(deadline):
 
 
 def limit(solver, seconds):
-    """Give Choco the budget left, in whole milliseconds and never zero."""
-    solver.limit_time(f"{max(1, int(seconds * 1000))}ms")
+    """Give Choco the budget left, in seconds and never zero.
+
+    Written in seconds because pychoco 0.2.1 ignores a limit written in
+    milliseconds ("1500ms" does not stop a search, "1.500s" does).
+    """
+    solver.limit_time(f"{max(0.001, seconds):.3f}s")
 
 
 def best_objective(instance, direction, deadline):

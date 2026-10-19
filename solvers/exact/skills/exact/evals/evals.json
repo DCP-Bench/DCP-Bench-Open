@@ -1,53 +1,16 @@
-{
-  "schema_version": 1,
-  "skill_name": "exact",
-  "evals": [
-    {
-      "id": "written-against-exact",
-      "prompt": "Using this skill, write an exact submission for any listed problem and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The submission imports Exact from exact and builds the model with addVariable, addConstraint, addReification or addMultiplication; it does not import any repository-local helper module.",
-        "build returns the exact.Exact instance as its first value, and outputs maps declared names to variable-name strings or nested lists of them.",
-        "Both bounds of a two-sided constraint go in one addConstraint call rather than two."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
-    },
-    {
-      "id": "linear-objective-in-the-return",
-      "prompt": "Using this skill, write an exact submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
-      "assertions": [
-        "The objective is returned as (direction, terms) with terms a list of (coefficient, variable name) pairs; the submission does not call setObjective itself, and introduces no auxiliary variable just to hold the objective.",
-        "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result, including the runner status."
-    },
-    {
-      "id": "indicators-only-where-needed",
-      "prompt": "Using this skill, write an exact submission for a problem needing all-different or counting, such as csplib_054_n_queens, and check it across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Indicator variables are built only for the variables whose values have to be named, with the two channelling constraints that tie them to the integer variable.",
-        "Variables that need no indicators are left as plain bounded integers, and the reasoning says which are which and why the indicator domains are small enough to afford.",
-        "Every instance-dependent quantity comes from the instance argument, and the evaluator accepts every listed instance rather than only the example."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for every instance."
-    },
-    {
-      "id": "wide-integer-domains",
-      "prompt": "Using this skill, write an exact submission for a problem whose variables or objective run into the thousands, such as revenue_maximization or diet, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/exact:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Wide-domain quantities are declared as bounded integer variables and left unencoded, with no indicators built over them.",
-        "The reasoning says where each bound comes from in the instance.",
-        "The evaluator accepts, rather than the run being abandoned as it would be under a one-hot integration."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
-    }
-  ]
-}
+{"skill_name": "exact", "evals": [
+  {"id": 1, "prompt": "Write an Exact Python model that picks integer quantities of two products to maximise profit under two resource limits, and check the status is proven optimal.", "expected_skill": "exact",
+   "expected_output": "A model using setObjective with minimize=False and toOptimum, which reports SAT only as a proven optimum and flips the sign of the maximised value", "assertions": ["Uses Exact's addVariable, addConstraint and setObjective", "Reads the value from toOptimum and negates it for a maximisation", "Accepts only the SAT state as a proven optimum"]},
+  {"id": 2, "prompt": "Enumerate every solution of a small Exact model, without counting auxiliary variables twice.", "expected_skill": "exact",
+   "expected_output": "A runFull(optimize=False) loop with invalidateLastSol over the declared variables only", "assertions": ["Blocks solutions with invalidateLastSol(names) on the declared variables", "Stops when runFull returns UNSAT"]},
+  {"id": 3, "prompt": "Enumerate all optimal solutions of a 0/1 selection model with Exact.", "expected_skill": "exact",
+   "expected_output": "Solve for the optimum, pin the objective at that value, then enumerate", "assertions": ["Pins the real objective terms at the optimum with addConstraint", "Enumerates with invalidateLastSol over the decision variables"]},
+  {"id": 4, "prompt": "Model 'either x is at most 3 or at least 8' in Exact.", "expected_skill": "exact",
+   "expected_output": "Two reified switch variables and a disjunction", "assertions": ["Uses addReification or addLeftReification/addRightReification with a head variable", "Requires one of the switches to hold"]},
+  {"id": 5, "prompt": "Write a Gurobi model for knapsack in Python.", "expected_skill": null,
+   "expected_output": "The exact skill is not used", "assertions": ["The exact skill is not loaded"]},
+  {"id": 6, "prompt": "Write a CP-SAT model for n-queens with all_different.", "expected_skill": null,
+   "expected_output": "The exact skill is not used", "assertions": ["The exact skill is not loaded"]},
+  {"id": 7, "prompt": "Explain what a pseudo-Boolean solver is, in general terms.", "expected_skill": null,
+   "expected_output": "The exact skill is not used", "assertions": ["The exact skill is not loaded"]}
+]}

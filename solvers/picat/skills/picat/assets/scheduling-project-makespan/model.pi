@@ -1,0 +1,26 @@
+% Scheduling: four tasks with precedence and a shared resource of capacity 2.
+import cp.
+
+main =>
+    Dur = [3, 2, 4, 2],
+    Demand = [1, 2, 1, 2],
+    Capacity = 2,
+    Prec = [(1, 3), (2, 4)],          % task A must finish before task B starts
+    N = len(Dur),
+    Start = new_list(N),
+    Horizon = sum(Dur),
+    Start :: 0..Horizon,
+    Makespan :: 0..Horizon,
+    cumulative(Start, Dur, Demand, Capacity),
+    foreach ((A, B) in Prec)
+        Start[A] + Dur[A] #=< Start[B]
+    end,
+    foreach (I in 1..N)
+        Start[I] + Dur[I] #=< Makespan
+    end,
+    if solve([$min(Makespan)], Start ++ [Makespan]) then
+        println("Makespan: " ++ to_string(Makespan)),
+        println("Start times: " ++ to_string(Start))
+    else
+        println("No schedule")
+    end.

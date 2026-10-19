@@ -73,7 +73,8 @@ def main():
         broken = outcome(directory, "global", GLOBAL)
         repaired = outcome(directory, "pairwise", PAIRWISE)
     real = broken == (False, "invalid_solution") and repaired[0] is True
-    warned = all(word in text for word in WARNING) and "invalid_solution" in text
+    # The skill is standalone, so it names the defect, not the evaluator verdict.
+    warned = all(word in text for word in WARNING)
     print(f"defect reproduced: {real} (all_different {broken}, pairwise {repaired}); "
           f"skill warns: {warned}")
     if not (real and warned):

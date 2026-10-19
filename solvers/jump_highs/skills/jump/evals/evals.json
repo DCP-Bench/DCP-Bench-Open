@@ -1,50 +1,87 @@
 {
-  "schema_version": 1,
   "skill_name": "jump",
   "evals": [
     {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a jump_highs submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 1,
+      "prompt": "Write a JuMP model with HiGHS in Julia that picks a 0/1 subset of 5 items to maximise value under a weight limit, and print the optimal value.",
+      "expected_skill": "jump",
+      "expected_output": "A Model(HiGHS.Optimizer) program with Bin variables, a linear weight constraint, a Max objective, and a termination status check",
       "assertions": [
-        "The submission defines build(instance), creates Model() without an optimizer, and never calls optimize!, value or println.",
-        "Every instance-dependent quantity is read from the instance Dict, and the evaluator accepts all listed instances.",
-        "Every output variable is Int or Bin with finite bounds, so enumeration is not reported unsupported."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
+        "Uses @objective(model, Max, ...) with a linear expression",
+        "Checks termination_status is OPTIMAL before reading the value",
+        "Reads integer results with round(Int, value(...))"
+      ]
     },
     {
-      "id": "optimization-contract",
-      "prompt": "Using this skill, write a jump_highs submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "id": 2,
+      "prompt": "In Julia with JuMP and HiGHS, list every assignment of three integers in 0..3 that sum to 4.",
+      "expected_skill": "jump",
+      "expected_output": "A program that solves repeatedly and forbids each found assignment with a no-good cut until the status is INFEASIBLE",
       "assertions": [
-        "The objective is set once with @objective and Min or Max over a linear expression, with no bound on it and no constant taken from a known answer.",
-        "The evaluator reports accepted rather than suboptimal_solution."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
+        "Forbids each solution with a cut over the decision variables, not auxiliary ones",
+        "Cut variables have finite bounds",
+        "Stops when termination_status is not OPTIMAL"
+      ]
     },
     {
-      "id": "linearised-logic",
-      "prompt": "Using this skill, write a jump_highs submission for a problem with a product or a disjunction of decision variables, such as csplib_028_bibd or a scheduling problem, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 3,
+      "prompt": "Write a JuMP model with HiGHS that enumerates all optimal solutions of a small assignment problem.",
+      "expected_skill": "jump",
+      "expected_output": "A program that finds the optimum, pins it as a constraint, switches to feasibility sense and enumerates",
       "assertions": [
-        "No product of two variables appears in a constraint or the objective; each is linearised or expressed with an indicator constraint.",
-        "Every big-M constant is derived from the variables' bounds in the instance rather than chosen as an arbitrary large number."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
+        "Pins the objective to the proven optimum before enumerating",
+        "Uses MOI.FEASIBILITY_SENSE or an equivalent before the enumeration loop"
+      ]
     },
     {
-      "id": "matrix-outputs",
-      "prompt": "Using this skill, write a jump_highs submission for a problem whose declared output is a matrix, such as sudoku, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/jump_highs:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 4,
+      "prompt": "Model with JuMP that requires two integer variables to differ, using HiGHS. Use the != operator.",
+      "expected_skill": "jump",
+      "expected_output": "A model that replaces != with a linearisation or MOI.AllDifferent(2), and notes that JuMP has no != constraint",
       "assertions": [
-        "The declared output is a Matrix or a vector of rows whose shape matches the reference, and the evaluator does not report invalid_output."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
+        "Does not use != inside @constraint",
+        "Uses MOI.AllDifferent(2) on bounded variables or a big-M binary disjunction"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Write a Julia program with JuMP and HiGHS that reads its instance from a JSON file given as the first command-line argument, where the file holds a list of jobs and each job is a list of [machine, duration] pairs of unequal length, and prints the optimal makespan.",
+      "expected_skill": "jump",
+      "expected_output": "A program that calls JSON.parsefile on ARGS[1], converts the numbers with Int, sizes the start variables per job, and prints the makespan",
+      "assertions": [
+        "Parses the file with JSON.parsefile and uses using JSON",
+        "Takes each job's operation count from that job, not from the first job",
+        "Converts JSON numbers before arithmetic and prints integers without decimal points"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Write a MiniZinc model for the n-queens problem and solve it with Gecode.",
+      "expected_skill": null,
+      "expected_output": "The JuMP skill is not used",
+      "assertions": [
+        "The jump skill is not loaded",
+        "The answer is MiniZinc code, not JuMP"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Write a Python PuLP model that minimises the cost of a diet with three foods.",
+      "expected_skill": null,
+      "expected_output": "The JuMP skill is not used",
+      "assertions": [
+        "The jump skill is not loaded",
+        "The answer is Python PuLP code"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Why does my Julia installation of JuMP fail to find the HiGHS package after I restarted my computer?",
+      "expected_skill": null,
+      "expected_output": "The JuMP skill is not used, since this is a Julia environment question rather than a modelling task",
+      "assertions": [
+        "The answer addresses the Julia package environment and does not write a model"
+      ]
     }
   ]
 }

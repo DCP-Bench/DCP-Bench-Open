@@ -1,0 +1,380 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-003",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/cvc5_python/CONTRACT.md": "5de6095cf6fa8dc9e12359ca58b2fb83e2eb1d16b47de3675ac678adb59b5cdf"
+    },
+    "created_at": 1792277498.2924535,
+    "problem_id": "csplib_032_max_density_still_life",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "8ee0cf83a598d010a7cc75788e62b76adaff1311a8f595e7b00879912bc16a7f",
+    "run_id": "20261017-cvc5-python-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "fe13c453cbdb9cd22f5aaec15a154a9ba256f302",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "fe13c453cbdb9cd22f5aaec15a154a9ba256f302",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "5c1038a6fe8b4414dd70f83cc267a4ba9de9917236eb9b2d10990d64d74c1f39",
+        "source": "solvers/cvc5_python/skills/cvc5-python",
+        "version": {
+          "commit": "fe13c453cbdb9cd22f5aaec15a154a9ba256f302",
+          "modified": false,
+          "path": "solvers/cvc5_python/skills/cvc5-python"
+        }
+      }
+    ],
+    "solver_id": "cvc5_python"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:794a5744a6336201c588e9db4172bb3ec050a2584d570418cdcacbe414c6cb8e",
+      "tag": "dcp-eval/cvc5_python:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.0321855410002172,
+        "execution_wall_seconds": 4.718189849052578,
+        "first_solution": {
+          "grid": [
+            [
+              false,
+              false,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              false,
+              false,
+              true,
+              true,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              false,
+              false,
+              false
+            ],
+            [
+              false,
+              true,
+              false,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              false,
+              false,
+              true,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              false,
+              true,
+              true
+            ]
+          ]
+        },
+        "id": "example",
+        "instance_hash": "6ea2976b565844a6e67fad8155e54578906a24b64bf9b5a5f2338057b46f83af",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 18,
+        "outputs": [
+          "grid"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 3.078425068059005,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.06830818101298064,
+        "execution_wall_seconds": 9.326095374999568,
+        "first_solution": {
+          "grid": [
+            [
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              false,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              false,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            [
+              false,
+              true,
+              false,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true
+            ]
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "39cc44bdce2147ea10497376b5813d7409a4fcbef110658f9724b0c2e9b48e55",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 28,
+        "outputs": [
+          "grid"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 2.2533804839476943,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.040233690990135074,
+        "execution_wall_seconds": 170.65577470208518,
+        "first_solution": {
+          "grid": [
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true
+            ]
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "006dc4849781097c110e2bdbc2ed7606338303ac6f0e9e950cf1cf948cd29bba",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 36,
+        "outputs": [
+          "grid"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 31.513698175898753,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 3,
+    "instances_checked": 3,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "77bf0fe3564a8ec9293477ddbaf7ec3ed519d1c6892ca84dd0dca3af509c3a28",
+    "problem_id": "csplib_032_max_density_still_life",
+    "reason": "accepted",
+    "reference_hash": "6d54a6899008b3471854afbd4297abdb2221a8109d978a7c05b9f45d92c2dbc7",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 5,
+    "solver_id": "cvc5_python",
+    "total_wall_seconds": 222.0184400640428,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.py",
+  "problem": "csplib_032_max_density_still_life",
+  "schema": 2,
+  "solver": "cvc5_python",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

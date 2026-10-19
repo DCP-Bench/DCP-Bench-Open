@@ -1,0 +1,8 @@
+language ESSENCE' 1.0
+$ Put 4 pigeons in 3 holes, at most one pigeon per hole.
+letting pigeons = 4
+letting holes = 3
+find hole : matrix indexed by [int(1..pigeons)] of int(1..holes)
+such that
+$ no two pigeons share a hole
+allDiff(hole)

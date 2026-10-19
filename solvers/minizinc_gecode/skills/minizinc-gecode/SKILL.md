@@ -1,122 +1,207 @@
 ---
 name: minizinc-gecode
-description: Generate or repair instance-agnostic MiniZinc models for the DCP-Bench Gecode integration.
+description: MiniZinc constraint modelling language solved by the Gecode constraint solver, from the command line or the minizinc-python API. Use when writing, running or debugging MiniZinc (.mzn) models, listing all or all optimal solutions, or using Gecode through MiniZinc.
+license: Apache-2.0
+compatibility: Requires MiniZinc 2.9.3 on PATH (bundles Gecode 6.3.0; free, no licence key); the Python API needs minizinc 0.10.0 and Python 3.12 (tested)
+metadata:
+  domain: constraint-programming
+  solver: gecode
+  paradigm: cp
 ---
 
-Write one `.mzn` entrypoint. Declare instance parameters with names matching the supplied JSON fields; do not assign example values. The runner supplies JSON through the MiniZinc data interface, including nested arrays; a field that interface cannot take as it is arrives reshaped, under the names in **How instance fields bind** below. Run `python -m generation.brief PROBLEM` to see each field's shape.
-Include an `output` item producing one JSON object with exactly the problem's declared output names and their values. Auxiliary MiniZinc variables must not create extra output fields. Use valid JSON Booleans or 0/1 for Boolean outputs.
-For satisfaction use `solve satisfy;`. For optimization expose an integer variable named `objective`, equate it to the objective expression, and put either `solve minimize objective;` or `solve maximize objective;` alone on a line, without solve annotations or trailing comments. This convention lets the runner fix the optimum and enumerate optimal outputs in a second satisfaction solve.
-The integration uses MiniZinc 2.9.3 and Gecode. Data with native sets/enums or other problem-specific encodings requires a separately implemented integration/converter; do not quietly reinterpret JSON fields.
+# MiniZinc with Gecode
 
-A working example is `tests/fixtures/model.mzn`; the evaluator is documented in `evaluation/README.md`.
-Check with `python -m evaluation.check MODEL.mzn --problem PROBLEM --solver minizinc_gecode`.
-Repair the candidate, not the reference or acceptance rules.
+MiniZinc is a declarative modelling language: you state variables and constraints, and
+MiniZinc flattens them to FlatZinc for a solver. Here the solver is Gecode, a
+constraint-programming solver that propagates constraints and searches depth-first. Keep
+one idea in mind: the model says *what* must hold, and Gecode decides *how* to search
+unless you add a search annotation.
 
-## How instance fields bind
+Contents: [Install](#install) · [Quick start](#quick-start) · [Modelling](#modelling) · [Solving](#solving) · [All solutions](#all-solutions) · [Common issues](#common-issues) · [Further reading](#further-reading)
 
-MiniZinc's data interface takes only rectangular arrays of one element type:
-Booleans, integers and floats mix, strings and numbers do not, and scalars do
-not mix with arrays. `run.py` binds every JSON field by these rules. Every array
-is indexed from 1, so declare `array[int]`, `array[int,int]` (or `index_set`
-of a bound array) rather than `0..n-1`.
+## Install
 
-1. **A field MiniZinc accepts binds unchanged.** When it is a nonempty list of
-   lists, `<field>_len` (each row's length) is bound beside it, unless an
-   instance field already has that name. Declare `<field>_len` only when you
-   need it; an undeclared one is ignored.
-2. **A ragged list of rows** binds as `<field>`, padded to the longest row,
-   plus `<field>_len`. Padding is `0`, `false`, `0.0` or `""`, and may equal a
-   real value (machine `0`, task `[0, 0]`), so read row `i` only up to
-   `<field>_len[i]`. Rows of equal-shape arrays gain one dimension.
-3. **Equal-length rows whose columns differ in type** bind as one array per
-   column, `<field>_1`, `<field>_2`, ..., numbered from 1. `<field>` itself is
-   not bound, so do not declare it. Each column then binds by rule 1 or 2.
-4. Anything else ragged or mixed is refused with an `error` status naming the
-   field, as is a generated name that clashes with another field. No model can
-   work around that; report the pair as blocked.
+Gecode ships inside the MiniZinc bundle, so there is nothing else to install for the
+command line. The Python package drives the `minizinc` executable, so MiniZinc must be
+on `PATH` first.
 
-Declare `<field>_len` whenever a field is ragged in any listed instance:
-rule 1 supplies it even for an instance whose rows happen to be equal, so one
-model runs on every instance. The second index set of a padded array is the
-longest row, not row `i`'s length.
+```bash
+minizinc --version                 # tested with MiniZinc 2.9.3
+minizinc --solvers                 # lists "Gecode ... default solver"
+pip install minizinc               # optional: Python API
+python3 -c "from minizinc import Solver; print(Solver.lookup('gecode').version)"
+```
 
-Ragged integer rows, `"compatible": [[2, 3], [1, 6], [1, 4, 7]]`:
+Details: [MiniZinc installation](https://docs.minizinc.dev/en/2.9.3/installation.html) ·
+[minizinc-python getting started](https://python.minizinc.dev/en/latest/getting_started.html)
+
+## Quick start
+
+```python
+from minizinc import Instance, Model, Solver
+
+model = Model()
+model.add_string("""
+include "globals.mzn";
+int: n;
+array[1..n] of var 1..n: x;
+constraint all_different(x);
+constraint x[1] < x[n];
+solve satisfy;
+""")
+instance = Instance(Solver.lookup("gecode"), model)
+instance["n"] = 4                  # data is assigned by name, not written into the model
+result = instance.solve()
+if result.status.has_solution():
+    print("x =", result["x"])
+else:
+    print("no solution:", result.status.name)
+```
+
+From the command line the same model is a file, run with `minizinc --solver gecode model.mzn data.dzn`.
+
+## Modelling
+
+Full list: [language specification](https://docs.minizinc.dev/en/2.9.3/spec.html) ·
+[global constraints](https://docs.minizinc.dev/en/2.9.3/lib-globals.html) ·
+[scheduling globals](https://docs.minizinc.dev/en/2.9.3/lib-globals-scheduling.html)
+
+| Need | Syntax |
+|---|---|
+| integer variable with domain | [`var 1..10: x;`](https://docs.minizinc.dev/en/2.9.3/spec.html) |
+| boolean variable | [`var bool: b;`](https://docs.minizinc.dev/en/2.9.3/spec.html) |
+| array of variables | [`array[1..n] of var 1..n: x;`](https://docs.minizinc.dev/en/2.9.3/spec.html), 2-D: `array[1..n, 1..m] of var 0..5: g;` |
+| data parameter | [`int: n;`](https://docs.minizinc.dev/en/2.9.3/spec.html), value from a `.dzn` file or from Python |
+| all different | [`all_different(x)`](https://docs.minizinc.dev/en/2.9.3/lib-globals.html) after `include "globals.mzn";` |
+| index an array by a variable | `c[x] = 7`, where `c` is a constant array (element) |
+| allowed tuples | [`table([x, y], [\| 1, 2 \| 2, 3 \|])`](https://docs.minizinc.dev/en/2.9.3/lib-globals.html) |
+| shared resource over time | [`cumulative(s, d, r, cap)`](https://docs.minizinc.dev/en/2.9.3/lib-globals-scheduling.html) |
+| no overlap of tasks | [`disjunctive(s, d)`](https://docs.minizinc.dev/en/2.9.3/lib-globals-scheduling.html); one machine's tasks: `disjunctive([s[t] \| t in 1..T where mach[t] = m], [dur[t] \| t in 1..T where mach[t] = m])` ([jobshop](assets/jobshop/model.py)) |
+| minimise a maximum | bound each term by a variable (`s[t] + dur[t] <= makespan`), then `solve minimize makespan;` |
+| reification | [`b <-> (x < y);`](https://docs.minizinc.dev/en/2.9.3/spec.html) (also `b -> c`, `/\`, `\/`) |
+| count of true booleans | [`sum(i in 1..n)(bool2int(b[i]))`](https://docs.minizinc.dev/en/2.9.3/spec.html) |
+| integer division, modulo | `div`, `mod`; `/` yields a float and is refused in integer context |
+| minimise / maximise | [`solve minimize expr;`](https://docs.minizinc.dev/en/2.9.3/spec.html), `solve maximize expr;` |
+| satisfaction | [`solve satisfy;`](https://docs.minizinc.dev/en/2.9.3/spec.html) |
+| print values | [`output ["x = ", show(x), "\n"];`](https://docs.minizinc.dev/en/2.9.3/spec.html); 2-D: `showJSON(g)` |
+
+Bound every `var`; an unbounded `var int` gets the solver's 32-bit range.
+
+### One-sided bounds
+
+MiniZinc 2.9.3 can flatten a model in which an auxiliary variable is bounded from one side
+only, so that the variable doing the bounding drops out of another constraint. Shape:
+`bool2int(covered[j]) <= sum(i)(delta[i, j] * bool2int(build[i]))` together with a budget
+on `build`. The flattened model then lets `build[i]` take any value, and the solver reports
+a solution that breaks the budget. The fix is to state the relation as an equivalence:
 
 ```minizinc
-array[int,int] of int: compatible;      % [|2,3,0|1,6,0|1,4,7|]
-array[int] of int: compatible_len;      % [2,2,3]
-set of int: P = index_set(compatible_len);
-array[P] of var int: total;
-constraint forall(i in P)(total[i] = sum(k in 1..compatible_len[i])(compatible[i,k]));
+constraint forall(j in Regions)(covered[j] <-> exists(i in Sites)(delta[i, j] = 1 /\ build[i]));
 ```
 
-Ragged rows of pairs, `"jobs_data": [[[0, 3], [1, 2]], [[1, 4]]]`:
+Use the equivalence whenever the one-sided bound is tight at every solution you may report.
+To confirm, compile with `minizinc --solver gecode -c model.mzn` and check that each variable
+appears in some constraint.
 
-```minizinc
-array[int,int,int] of int: jobs_data;   % job, task, 1 = machine / 2 = duration
-array[int] of int: jobs_data_len;       % [2,1]; task [0,0] pads job 2
-```
+### Data from Python
 
-Mixed-type rows, `"movies": [["Epic", 1, 30], ["Chain 1", 1, 6]]`:
+`instance["name"] = value` binds a parameter; lists become 1-based arrays. Bind exactly the
+parameters the model declares: a key the model does not declare was accepted without error
+in the test, so a misspelled name is silent. Encode sets and enumerated types as integers or
+booleans.
 
-```minizinc
-array[int] of string: movies_1;         % ["Epic","Chain 1"]
-array[int] of int: movies_2;            % [1,1]
-array[int] of int: movies_3;            % [30,6]
-```
+Arrays must be rectangular (a ragged list raises `TypeError`). For ragged data, flatten into
+one 1-based array per field and keep the row positions in Python, as
+[assets/jobshop/model.py](assets/jobshop/model.py) does: `job[t]` is the job of task `t`,
+`mach[t]` its machine, `dur[t]` its duration. Then `where job[t] = job[t+1]` selects the
+precedences inside a job.
 
-Mixed rows with a ragged column, `"problem": [[11, [[1, 1], [2, 1]]], [3, [[2, 2]]]]`:
+## Solving
 
-```minizinc
-array[int] of int: problem_1;           % [11,3]
-array[int,int,int] of int: problem_2;   % cage, cell, 1 = row / 2 = column
-array[int] of int: problem_2_len;       % [2,1]
-```
+Status values: [`Status`](https://python.minizinc.dev/en/latest/api.html#minizinc.result.Status)
 
-## When Gecode runs out of time
+| Python `Status` | CLI output | Meaning |
+|---|---|---|
+| `OPTIMAL_SOLUTION` | `==========` after the last solution | optimum proven |
+| `SATISFIED` | `----------` with no `==========` | a solution was found; the search stopped early (time limit), so optimality or the rest of the space is unproven |
+| `UNSATISFIABLE` | `=====UNSATISFIABLE=====` | the whole search space was explored; no solution |
+| `UNKNOWN` | `=====UNKNOWN=====` | the limit was reached before any solution |
+| `ALL_SOLUTIONS` | `==========` | all solutions enumerated (see [All solutions](#all-solutions)) |
+| `UNBOUNDED`, `ERROR` | | rarely reported; a syntax or type error raises `minizinc.error` instead |
 
-`execution_timeout` on a larger instance is usually propagation, not encoding.
-Before reaching for a different model, add the constraints every solution
-already satisfies but that Gecode cannot derive — a total that follows from an
-`all_different` over a known set, a bound implied elsewhere in the model. They
-remove no solution, and on this benchmark they are often the difference between
-finishing an instance and not: `csplib_049_number_partitioning` times out on
-n = 20 without the two implied half-totals and is accepted with them.
+Options: CLI [`--time-limit <ms>`](https://docs.minizinc.dev/en/2.9.3/command_line.html),
+`-s`, `-d data.dzn`, `-c`. Python: [`Instance.solve(timeout=...)`](https://python.minizinc.dev/en/latest/api.html#minizinc.instance.Instance.solve), `result.statistics`.
 
-Search annotations are not available here — the solve item must stay
-`solve satisfy;` or an unannotated `solve minimize objective;` — so implied
-constraints and a tighter domain are the tools you have.
+Reading results from Python:
 
-Never add a constraint that removes solutions to buy speed. Symmetry breaking a
-reference keeps commented out is not part of the contract, and a model that
-narrows the problem can pass the evaluator while being wrong.
+| Need | How |
+|---|---|
+| a declared variable | `result["x"]` (declare it `var ...: x;`, see below) |
+| the objective of an optimisation | `result["objective"]` (always present, whatever the variable is named; `result["value"]` for a variable called `value` raises `KeyError` when it is defined with `=`) |
+| all fields of the solution | `result.solution`, an object with one attribute per variable |
+| no solution | `result.solution` is `None` (`[]` with `all_solutions=True`); check `result.status.has_solution()` |
 
-## A one-sided bound can cost you the variable
+A variable defined in its declaration (`var int: t = expr;`) is **not** returned to Python.
+Declare it and constrain it instead: `var int: t; constraint t = expr;`.
 
-MiniZinc 2.9.3 can flatten a model in which an auxiliary variable is bounded
-from one side so that the variable doing the bounding **disappears from another
-constraint it belongs to**. Several references have this shape — a flag that is
-only upper-bounded by what enables it, as in `csplib_056_sonet` or
-`cell_tower`'s `covered[j] <= sum_i delta[i][j] * build_tower[i]`.
+Search annotations, for example `solve :: int_search(x, input_order, indomain_min, complete) satisfy;`,
+override Gecode's default search: [search annotations](https://docs.minizinc.dev/en/2.9.3/mzn_search.html).
 
-Translated literally, alongside `sum_i cost[i] * build_tower[i] <= budget`,
-MiniZinc compiled that pair to
+### Implied constraints
 
-```
-constraint int_lin_le([3,4],[X_6,X_9],4);   % X_6 = build_tower[1], X_9 = covered[2]
-```
+When Gecode runs out of time, the cause is often weak propagation. Add constraints that every
+solution satisfies but Gecode cannot derive. Example: if `x ++ y` is a permutation of `1..n`
+and `sum(x) = sum(y)`, then `4 * sum(x) = n * (n + 1)` holds in every solution. Never add a
+constraint that removes solutions to gain speed: a narrower model can be fast and still wrong.
 
-leaving `build_tower[2]` in no constraint at all. It then takes either value,
-and the runner reports a solution that spends more than the budget. MiniZinc's
-own output item evaluates the budget constraint to `false` on that solution, and
-Chuffed reproduces it, so this is the flattening rather than the solver.
+## All solutions
 
-**State the relationship as an equivalence** — `covered[j] <-> exists(i)(...)` —
-whenever the reference's one-sided bound is tight at every solution you may
-report, which for an optimisation is every optimum. That flattens soundly.
+| Goal | CLI | Python (`minizinc`) |
+|---|---|---|
+| every solution of a satisfaction model | `minizinc --solver gecode -a model.mzn` | `instance.solve(all_solutions=True)`, status `ALL_SOLUTIONS`; `result.solution` is a list with one `Solution` per solution, `[]` when there is none (status `UNSATISFIABLE`) |
+| the first k solutions | `-n k` | `instance.solve(nr_solutions=k)` |
+| all optimal solutions | not by `-a` (it prints one optimum) | two passes, below |
 
-How it shows up: `invalid_solution` from the evaluator on a model you cannot
-fault by reading. To confirm it rather than guess, compile with
-`minizinc --solver gecode -c model.mzn` and look for a declared variable that
-appears in no constraint, or add the suspect constraint to the `output` item and
-watch it print `false` on a returned solution.
+Details: [enumeration in the command line](https://docs.minizinc.dev/en/2.9.3/command_line.html)
+
+**Duplicates.** The CLI enumerates distinct values of the output, so unconstrained auxiliary
+variables do not repeat a solution. Python's `all_solutions` enumerates every variable,
+auxiliary ones included: a free auxiliary variable doubles the count. Either make auxiliaries
+functions of the outputs, or keep only distinct values of the output variables in Python
+(example: [assets/python-all-solutions/model.py](assets/python-all-solutions/model.py)).
+
+**All optimal solutions.** Gecode refuses `all_solutions` on an optimisation model
+(`NotImplementedError: Solver does not support the -a-o flag`), so:
+
+1. solve `solve minimize objective;` and check the status is `OPTIMAL_SOLUTION`;
+2. add `int: best;` and `constraint objective = best;` to the model and change the solve item to `solve satisfy;`;
+3. assign `best` the optimum and call `solve(all_solutions=True)`.
+
+Full code: [assets/all-optimal/model.py](assets/all-optimal/model.py).
+
+## Common issues
+
+| Problem | Likely cause | Fix |
+|---|---|---|
+| `Solver does not support the -a-o flag` (or `-n-o`) | `all_solutions` or `nr_solutions` on a minimise or maximise model | two passes, see [All optimal solutions](#all-solutions) |
+| `syntax error, unexpected opt, expecting identifier` | `opt` is a reserved word | rename the variable (`best`); other keywords fail the same way |
+| `no function or predicate with name 'all_different'` | `include "globals.mzn";` missing | add the include |
+| `cannot determine coercion from type float to type var int` | `/` on integers | use `div` |
+| `cannot determine coercion from type array[_] of array[int] of int` | ragged list passed from Python | flatten to 1-based arrays, see [Data from Python](#data-from-python) |
+| `lower bound of empty array undefined` | a `where` comprehension selects no element, e.g. a machine count `M` above the machines in use | use `M = max(mach)`, or guard the loop with `where exists(t in 1..T)(mach[t] = m)` |
+| `KeyError` on `result["value"]` (or another name) | the objective is read by a name other than `objective`, or the variable is defined with `=` | read `result["objective"]`; it is present whatever the variable is called |
+| `KeyError` when reading `result["t"]` | `t` is defined with `=` in its declaration | declare `var int: t;` and `constraint t = ...;` |
+| `TypeError` iterating `result.solution` | a plain `solve` found no solution, so `result.solution` is `None` | check `result.status.has_solution()` first; with `all_solutions=True` the list is empty instead |
+| `Warning: model inconsistency detected` then `UNSATISFIABLE` | the domains and constraints contradict each other directly, e.g. `x > 5` with `var 0..3` | fix the model; it is not a solver fault |
+| objective reported as `2147483646` | a variable without bounds, so the solver used the 32-bit range | bound every variable |
+| repeated solutions from Python `all_solutions` | auxiliary variables | see [Duplicates](#all-solutions) |
+| `=====UNKNOWN=====` on a larger instance | propagation too weak | see [Implied constraints](#implied-constraints) |
+| a solution that breaks a constraint you wrote | one-sided bound flattened away | see [One-sided bounds](#one-sided-bounds) |
+
+## Further reading
+
+- MiniZinc handbook, 2.9.3: [docs.minizinc.dev/en/2.9.3](https://docs.minizinc.dev/en/2.9.3/) (start with [Tutorial](https://docs.minizinc.dev/en/2.9.3/part_2_tutorial.html) and [Efficiency](https://docs.minizinc.dev/en/2.9.3/efficient.html))
+- Global constraint catalogue: [lib-globals](https://docs.minizinc.dev/en/2.9.3/lib-globals.html)
+- minizinc-python API: [python.minizinc.dev/en/latest/api.html](https://python.minizinc.dev/en/latest/api.html)
+- Gecode documentation and reference: [gecode.org/doc-latest](https://www.gecode.org/doc-latest/) ([Modeling and Programming with Gecode](https://www.gecode.org/doc-latest/MPG.pdf))
+- Examples: the `assets/` folder; each subfolder is one pattern, runnable on its own.

@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.18)
+project(model LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+find_package(chuffed CONFIG REQUIRED)
+find_package(nlohmann_json 3 REQUIRED)  # apt install nlohmann-json3-dev / brew install nlohmann-json
+find_package(Threads REQUIRED)
+add_executable(model model.cpp)
+target_include_directories(model PRIVATE ${CHUFFED_INCLUDE_DIRS})
+target_link_libraries(model PRIVATE chuffed chuffed_fzn chuffed nlohmann_json::nlohmann_json Threads::Threads)

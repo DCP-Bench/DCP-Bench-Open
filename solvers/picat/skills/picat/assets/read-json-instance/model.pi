@@ -1,0 +1,106 @@
+% Reads a JSON instance file given on the command line. Picat 3.9 has no JSON
+% library, so the reader below is plain Picat: objects become lists of
+% (KeyChars, Value) pairs, arrays become lists, non-negative integers become
+% integers and strings become lists of characters.
+% Reader clauses use :- because their heads take output arguments; an => head
+% only matches its input and leaves outputs unbound.
+main(Args) =>
+    json_read(Args[1], Inst),
+    Name = kv(Inst, "name"),
+    Weights = kv(Inst, "weights"),
+    println("name: " ++ Name),
+    println("total weight: " ++ to_string(sum(Weights))).
+
+% Value of a key in a parsed object.
+kv(Ps, Key) = V => member((Key, V), Ps).
+
+json_read(Path, V) :-
+    Cs = read_file_chars(Path),
+    jvalue(Cs, V, _).
+
+jvalue(Cs0, V, Rest) :-
+    skip_ws(Cs0, Cs),
+    jval(Cs, V, Rest).
+
+jval([C|Cs], Ps, Rest) :- ord(C) == 123, jobj(Cs, Ps, Rest).
+jval([C|Cs], Vs, Rest) :- ord(C) == 91, jarr(Cs, Vs, Rest).
+jval([C|Cs], S, Rest) :- ord(C) == 34, jstr(Cs, S, Rest).
+jval([C|Cs], N, Rest) :-
+    is_digit(C),
+    jdigits([C|Cs], Ds, Rest),
+    N = to_integer(Ds).
+
+jobj(Cs0, Ps, Rest) :-
+    skip_ws(Cs0, Cs),
+    if (Cs = [C|Rest0], ord(C) == 125) then
+        Ps = [], Rest = Rest0
+    else
+        jmembers(Cs, Ps, Rest)
+    end.
+
+jmembers(Cs0, [(K, V)|Ps], Rest) :-
+    skip_ws(Cs0, Cs1),
+    Cs1 = [Q|Cs2], ord(Q) == 34,
+    jstr(Cs2, K, Cs3),
+    skip_ws(Cs3, Cs4),
+    Cs4 = [Colon|Cs5], ord(Colon) == 58,
+    jvalue(Cs5, V, Cs6),
+    skip_ws(Cs6, Cs7),
+    Cs7 = [Sep|Cs8],
+    if (ord(Sep) == 44) then
+        jmembers(Cs8, Ps, Rest)
+    else
+        ord(Sep) == 125,
+        Rest = Cs8,
+        Ps = []
+    end.
+
+jarr(Cs0, Vs, Rest) :-
+    skip_ws(Cs0, Cs),
+    if (Cs = [C|Rest0], ord(C) == 93) then
+        Vs = [], Rest = Rest0
+    else
+        jelems(Cs, Vs, Rest)
+    end.
+
+jelems(Cs0, [V|Vs], Rest) :-
+    jvalue(Cs0, V, Cs1),
+    skip_ws(Cs1, Cs2),
+    Cs2 = [Sep|Cs3],
+    if (ord(Sep) == 44) then
+        jelems(Cs3, Vs, Rest)
+    else
+        ord(Sep) == 93,
+        Rest = Cs3,
+        Vs = []
+    end.
+
+% Characters of a string up to the closing quote; the quote is consumed.
+jstr([C|Cs], S, Rest) :-
+    if (ord(C) == 34) then
+        S = [], Rest = Cs
+    else
+        S = [C|S1],
+        jstr(Cs, S1, Rest)
+    end.
+
+jdigits([C|Cs], Ds, Rest) :-
+    if (is_digit(C)) then
+        Ds = [C|Ds1],
+        jdigits(Cs, Ds1, Rest)
+    else
+        Ds = [], Rest = [C|Cs]
+    end.
+jdigits([], [], []).
+
+is_digit(C) => ord(C) >= 48, ord(C) <= 57.
+
+skip_ws([C|Cs], Out) :-
+    if (is_ws(C)) then
+        skip_ws(Cs, Out)
+    else
+        Out = [C|Cs]
+    end.
+skip_ws([], []).
+
+is_ws(C) => ord(C) == 32 ; ord(C) == 10 ; ord(C) == 13 ; ord(C) == 9.
