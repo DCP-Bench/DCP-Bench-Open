@@ -29,6 +29,11 @@ npx skills add DCP-Bench/DCP-Bench-Open --skill add-solver
 Never reconstruct its steps from memory. Note its path in the setup notes: the setup
 attempt freezes only this bundle.
 
+The repository's own tools run on the host, in its Python environment: `.venv/bin/python`
+(`.venv/Scripts/python.exe` on Windows). A fresh checkout or worktree has none; create it
+with `python -m venv .venv` and install `requirements.txt` into it. `generation.readiness`
+needs it, since it runs `readiness_test.py` and the CPMpy reference with that interpreter.
+
 ## 1. Inputs and bookkeeping
 
 The caller gives the target (solver, language, backend), the capabilities it needs
@@ -56,13 +61,13 @@ Follow add-solver. Its step 0 questions are answered here:
 | add-solver asks | Answer |
 |---|---|
 | Solver and language | The caller's target |
-| Where to write the skill | `solvers/<id>/skills/<framework>-<language>/` |
+| Where to write the skill | `solvers/<id>/skills/<name>/`, named as users know the tool (`choco-java`, `gurobipy`) |
 | Workspace | `generation/runs/RUN/setup/<id>/<attempt>/add-solver-workspace/` |
 | How thorough | Thorough, unless the budget forbids it; then quick, and say so |
 
 Two Rosetta rules on top:
 
-- **Nothing is installed on the host.** Write the `Dockerfile` first (step 3), build it,
+- **The solver is never installed on the host.** Write the `Dockerfile` first (step 3), build it,
   and run add-solver's probes and toy tests inside the image, e.g.
   `run_toy_tests.py --cmd 'docker run --rm --network none -v "$PWD":/w -w /w --entrypoint python IMAGE <workspace>/round-N/models/{problem}.py {instance}'`.
 - **The skill stays standalone.** No DCP-Bench, runner or submission instructions in it,
@@ -70,8 +75,10 @@ Two Rosetta rules on top:
   it must work outside this repository. Check it three ways:
   `python -m generation.skills validate --project <skill-folder>`,
   `python -m generation.skills rosetta-mentions <skill-folder>` (names), and a
-  [standalone review](references/standalone-review.md) by a fresh agent (meaning). Keep
-  the clean review's JSON with the setup evidence: a release needs it.
+  [standalone review](references/standalone-review.md) by a fresh agent (meaning). If
+  this setup itself runs as a subagent and cannot start one, return the digest and the
+  skill path, and the caller runs the review. Keep the clean review's JSON with the setup
+  evidence: a release needs it.
 
 ## 3. Add the Rosetta infrastructure
 

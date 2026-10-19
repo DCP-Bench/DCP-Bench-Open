@@ -85,7 +85,10 @@ The evaluation framework:
 | `runner/` | The protocol that runs inside those images. |
 | `tests/` | Unit tests, plus container tests behind `DCP_CONTAINER_TESTS=1`. |
 
-The model generation framework:
+The model generation framework. *Rosetta* names the collection of models (one per problem
+and framework, shown side by side in the catalogue) and the machinery here that writes and
+checks them: integrations, contracts, evaluator and campaign harness. A Rosetta-independent
+skill works outside this repository; a skill in `rosetta-skills/` works only inside it.
 
 | Path | What it holds |
 | --- | --- |

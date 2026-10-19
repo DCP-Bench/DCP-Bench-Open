@@ -237,10 +237,12 @@ skill stable at `1.0.0`. It records the release in `skills/versions.json`: versi
 digest of the published folder, the digest of the source content, the source commit and git
 tree, whether the source was dirty, the review (reviewer and file hash), the readiness record and image, the `Tested with` line
 of `sources.md`, and the earlier releases. It regenerates the catalog table in
-`skills/README.md` and the `solvers` plugin in `skills/.claude-plugin/marketplace.json`,
-which lists every released solver skill so install tools show them as one group (meta
-skills such as add-solver sit in a hand-maintained `meta` plugin). That plugin has no
-`version`, so Claude Code follows commits and picks up every release. It prepends to `skills/CHANGELOG.md`,
+`skills/README.md`. Once `skills/.claude-plugin/marketplace.json` exists it also rewrites
+the `solvers` plugin there, which lists every released solver skill so install tools show
+them as one group (meta skills such as add-solver sit in a hand-maintained `meta` plugin).
+That plugin has no `version`, so Claude Code follows commits and picks up every release.
+The marketplace file is not in the repository yet: the plugin format is still open, and
+until it is added a release prints a warning and skips this step. It prepends to `skills/CHANGELOG.md`,
 and prints a commit message. It never commits. Unchanged content is a no-op unless
 `--bump`/`--version` is given.
 

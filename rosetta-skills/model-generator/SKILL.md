@@ -29,8 +29,8 @@ you write one:
 | The solver skill | the `skill` path `next_work` reports for the integration | How to model with that solver: its API and pitfalls. The released copy under `skills/solvers/` when there is one, otherwise the development copy under `solvers/<id>/skills/` |
 
 The contracts are Rosetta's; the solver skill is not, and knows nothing about this
-repository. Some solver skills still describe a submission format of their own from
-before the contracts existed: where they disagree, **the contracts win**.
+repository. Where a skill and a contract disagree on how a submission looks, **the
+contracts win**.
 
 Two other skills exist: `rosetta-skills/solver-setup`, read only when the
 integration you need does not exist, and this one. This one and solver-setup
@@ -100,7 +100,9 @@ python -m generation.manage retain  --attempt ATTEMPT        # only when it was 
    After the attempt cap, mark the pair exhausted and take the next one.
 
    Iterate first with `python -m evaluation.check MODEL --problem P --solver S
-   --instance-count 2 --solution-limit 2`, which spends no attempt. Keep the
+   --instance-count 2 --solution-limit 2 --execution-timeout 180 --reference-timeout 180`,
+   which spends no attempt. Pass the run profile's timeouts: the defaults are 60 s,
+   and a model that needs longer would look like a failure there. Keep the
    solution limit at 2: a second solution often exposes a reading looser than
    the reference's. Never edit an attempt's files after it was evaluated;
    `evaluate` will not run it again, so read its `evaluation.json` instead.

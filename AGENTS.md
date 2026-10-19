@@ -10,6 +10,10 @@
 
 ## Writing models for this benchmark
 
+*Rosetta* is this repository's model collection and the machinery that writes and checks
+it (see the README). Skills in `rosetta-skills/` work only here; skills in `skills/` and
+the solver skills in `solvers/<id>/skills/` must work anywhere.
+
 Follow `rosetta-skills/model-generator`, which runs a
 campaign end to end, and `rosetta-skills/solver-setup` for adding a framework/solver.
 Follow `rosetta-skills/instance-curator` to add instances to existing problems. A generated model should be kept only when the evaluator accepts it.

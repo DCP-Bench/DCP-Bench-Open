@@ -37,9 +37,9 @@ format validators cannot substitute for them. The helpers automatically log
 under the same run ID. Use an explicit event for pending/deferred decisions.
 No new agent is needed just to follow this update procedure.
 
-New modelling skills must record their documentation in `sources.md` and include
-behavioural scenarios.
-Use [the skill standard](skill-standard.md) and this bundle's `evals/evals.json`
-as a schema example. Run cases through a capable agent and store observed results
+A new solver skill is written with add-solver (`skills/add-solver`), through
+solver-setup. A change to an existing skill keeps its documentation in `sources.md`
+and its behavioural scenarios current. Use [the skill standard](skill-standard.md)
+and this bundle's `evals/evals.json` as a schema example. Run cases through a capable agent and store observed results
 outside the installed skill bundle. Do not write 'passed' merely from reading a
 scenario. Consult `generation/AGENTS.md` for the evaluation evidence format.

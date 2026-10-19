@@ -9,7 +9,7 @@ metadata:
 
 # Add a solver skill
 
-Produce one self-contained skill folder `<framework>-<language>/` (e.g. `choco-python`, `pumpkin-rust`; own-language systems keep their name: `minizinc`, `clingo`) that teaches a fresh agent to install the solver or modelling framework and model with it. Below, "solver" covers both. The skill is about that tool only; benchmarks and runners stay out.
+Produce one self-contained skill folder `<name>/`, named as users know the tool (e.g. `choco-python` and `choco-java` for one solver with bindings in two languages; `gurobipy`, `minizinc`, `clingo` for a tool with its own name), that teaches a fresh agent to install the solver or modelling framework and model with it. Below, "solver" covers both. The skill is about that tool only; benchmarks and runners stay out.
 
 ## Workflow
 

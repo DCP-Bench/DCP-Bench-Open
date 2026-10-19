@@ -2,7 +2,7 @@
 
 Bookkeeping for models written by an agent rather than by hand.
 
-The agent itself is not here — it lives in `skills/`. This package only keeps
+The agent's instructions are not here: they live in `rosetta-skills/`. This package only keeps
 the records that make a generated model trustworthy: what was attempted, what
 the evaluator said, and whether an integration was in a state to be trusted at
 all. No module calls an LLM or decides what to model.
@@ -15,6 +15,7 @@ all. No module calls an LLM or decides what to model.
 | `instances` | Gates a new instance before it joins the dataset, and rechecks retained models on it. |
 | `skills` | Validates a skill bundle, and reviews proposed changes to one. |
 | `behaviour` | Runs a skill's behavioural evals. |
+| `release` | Publishes a solver skill from `solvers/<id>/skills/` to the public `skills/solvers/`, after its checks, and records the version. |
 
 ## The two commands worth knowing
 

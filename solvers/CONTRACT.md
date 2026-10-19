@@ -36,6 +36,9 @@ outputs and their shapes, the objective direction, and every instance field with
 - The model exposes a mapping from **each declared output name** to a value of the
   **declared shape** (a scalar, or a nested array with exactly the declared dimensions).
   Exactly those names: none missing, none extra.
+- The brief prints each dimension as it is on the example instance (`[10]int`). A
+  dimension that follows an instance field (`n`, the length of `demand`) follows it on
+  every instance: size the output from the data, never from the brief's number.
 - Every leaf is an **integer or a Boolean**. Floats and strings are rejected, never
   coerced; a Boolean may also be given as 0/1. The leaf kind follows the brief, not the
   description's wording: an output the brief shows as `int` must be an integer even where

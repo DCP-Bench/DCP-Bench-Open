@@ -32,7 +32,7 @@ Skeleton for `SKILL.md`. Adapt the sections to the solver, and drop any that do 
 
 ````markdown
 ---
-name: <framework>-<language>
+name: <skill-name>
 description: <What the solver or framework is: language, paradigm, package/import names.> Use when <writing, debugging or explaining models with it; typical problem words; the user has chosen this tool>.
 license: <licence of the skill text, e.g. Apache-2.0>
 compatibility: Requires <language/runtime version> and <package>; <licence or size limits, if any>
@@ -92,6 +92,10 @@ Full list: [<API reference / global constraint catalogue>](<URL>)
 | minimise / maximise | [`<exact call>`](<URL>) |
 
 <Short code blocks only for patterns a table cannot show.>
+
+**Readable models.** Open the program with a comment that states the problem, and start
+each block of constraints with a comment in the words of the problem statement, not the
+API call. <Use this sentence, with the language's comment syntax.>
 
 ## Solving
 

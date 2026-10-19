@@ -23,8 +23,9 @@ python -m generation.release digest <solver_id>     # prints "<skill> sha256:...
 
 ## What counts as a leak
 
-Read every file except `sources.md` and `evals/`. Report a line when it only makes sense
-for someone submitting a model to a benchmark runner:
+Read every file except `sources.md` and `evals/` (the release check
+`python -m generation.skills rosetta-mentions` scans those for project names). Report a
+line when it only makes sense for someone submitting a model to a benchmark runner:
 
 | Category | Examples |
 |---|---|
@@ -36,7 +37,9 @@ for someone submitting a model to a benchmark runner:
 
 Not a leak: the solver's own API, its statuses and parameters, reading a data file in a
 program the user runs, enumeration done by the user's own loop, timings measured
-anywhere, and generic installation advice (containers, `PATH`, no network).
+anywhere, generic installation advice (containers, `PATH`, no network), and the
+readability rule from the add-solver template (a comment stating the problem, and a
+comment in the problem statement's words before each block of constraints).
 
 ## Output
 

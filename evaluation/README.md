@@ -85,7 +85,7 @@ must do, for every integration, is the submission contract
 (file, entrypoint, instance, outputs, objective) is its `solvers/<id>/CONTRACT.md`.
 Each `solvers/<id>/` holds `metadata.yaml`, `run.py`, a `Dockerfile`, the
 `readiness_test.py` that certifies it, that contract, and a standalone skill for
-the solver under `skills/`.
+the solver under `solvers/<id>/skills/` (released copies go to the top-level `skills/solvers/`).
 
 Models are instance-agnostic. Python implements `build(instance)`, C++
 implements `Build(instance, model, outputs)`, MiniZinc declares matching data
