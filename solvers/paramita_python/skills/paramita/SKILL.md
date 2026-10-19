@@ -1,24 +1,92 @@
 ---
 name: paramita
-description: Model problems with the Paramita SAT/MaxSAT framework (Python, paramita 1.2.0) - Bool variables, propositional operators and pseudo-Boolean constraints from paramita.modelling, integers encoded in Booleans, optimisation as MaxSAT. Also covers DCP-Bench Open submissions for the paramita_python integration (build(instance) returning constraints, outputs and an optional objective).
-compatibility: paramita 1.2.0 on Linux, with the Cadical300 and EvalMaxSAT2022 plugins and the pblib/pysat PB encoders built from paramita-plugins. DCP-Bench use needs the repository and the image dcp-eval/paramita_python:v1.
+description: Paramita SAT and MaxSAT framework for Python (paramita 1.2.0) - Bool variables, propositional operators and pseudo-Boolean constraints from paramita.modelling, integers encoded as Booleans, satisfiability and all-solutions enumeration with CaDiCaL, and optimisation as MaxSAT with EvalMaxSAT2022. Use when writing, debugging or explaining Paramita models, or when the user has chosen Paramita for a SAT, MaxSAT or pseudo-Boolean problem.
+license: Apache-2.0
+compatibility: Requires Python 3.12 (tested) and paramita 1.2.0 with the Cadical300 and EvalMaxSAT2022 plugins built from paramita-plugins (CMake and a C++ compiler). No licence key, no size limit.
+metadata:
+  domain: constraint-programming
+  solver: paramita
+  paradigm: sat
 ---
 
-# Paramita models
+# Paramita (Python)
 
-Paramita is a SAT/MaxSAT framework. A model is propositional: `Bool` variables,
-logical operators and pseudo-Boolean (PB) constraints, `Σ wᵢ·bᵢ ⋈ k`. There are
-no integer or finite-domain variables: an integer is a sum of Bools. `to_cnf`
-turns every expression into clauses, with the PB encoder `BestEncoder` (PBLib's
-choice per constraint) by default. Files: [references/api.md](references/api.md)
-(the calls, checked in the image), [sources.md](sources.md).
+Paramita is a SAT and MaxSAT framework. A model is propositional: `Bool` variables,
+logical operators and pseudo-Boolean (PB) constraints `Σ wᵢ·bᵢ ⋈ k`. There are no
+integer or finite-domain variables: an integer is a sum of Bools, so the modelling
+work is choosing the encoding. `to_cnf` turns each expression into clauses (PB
+encoder `BestEncoder` by default). Satisfiable problems go to CaDiCaL; optimisation
+goes to EvalMaxSAT as a weighted problem. Call signatures: [references/api.md](references/api.md).
+Encodings and modelling advice: [references/modelling.md](references/modelling.md).
 
-## Expressions
+## Install
+
+```bash
+python3 -m venv .venv && . .venv/bin/activate
+pip install paramita
+python3 -c "import importlib.metadata as m; print('paramita', m.version('paramita'))"
+```
+
+The solver plugins are not in the wheel. Build them from
+[paramita-plugins](https://codeberg.org/paramita/paramita-plugins) at commit
+`a9c15a0bbaca86e89eaa1cff5d4d62a4218596cb` (tested), into the install prefix paramita
+searches ([plugin docs](https://ulog.udl.cat/static/doc/paramita/)):
+
+```bash
+git clone https://codeberg.org/paramita/paramita-plugins && git -C paramita-plugins checkout a9c15a0bbaca86e89eaa1cff5d4d62a4218596cb
+P="$PWD/paramita-plugins"; PREFIX="$HOME/.local/paramita"
+paramita plugins build cmake -j 4 -i "$PREFIX" "file://$P#sat-solvers/cadical-3.0.0"
+paramita plugins build cmake -j 4 -i "$PREFIX" "file://$P#maxsat-solvers/mse22-EvalMaxSAT2022"
+paramita plugins build cmake -j 4 -i "$PREFIX" "file://$P#pb-to-cnf-encoders/pblib"
+```
+
+The pysat encoders (`file://$P#pb-to-cnf-encoders/pysat`) are optional and are not used
+below. They build a `libpairwise.so` of the same name as pblib's, so install them to a
+second search path. If the
+EvalMaxSAT build fails while configuring, its `FindZLIB.cmake` is downloading zlib from
+zlib.net; use a system zlib or the zlib 1.3.2 GitHub release (SHA-256
+`bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16`).
+
+Verify: `SatSolver.from_name("Cadical300")` and `MaxSatSolver.from_name("EvalMaxSAT2022")`
+must both construct without an error.
+
+## Quick start
 
 ```python
-from paramita.modelling import Bool, And, Or, Not, If, Iff
-a, b, c, r = Bool("a"), Bool("b"), Bool("c"), Bool("r")
+from paramita.modelling import Bool, DimacsVariablePool, add_to_container, to_cnf
+from paramita.solvers import SatSolver
+
+a, b, c = Bool("a"), Bool("b"), Bool("c")
+constraints = [a | b, ~a | ~c, sum([a, b, c]) == 2]
+
+pool = DimacsVariablePool()
+solver = SatSolver.from_name("Cadical300")
+for e in constraints:
+    add_to_container(e, to_cnf, solver, pool)
+
+if solver.solve():
+    true = {abs(lit) for lit in solver.model() if lit > 0}
+    print({name: pool.get_variable(v) in true for name, v in [("a", a), ("b", b), ("c", c)]})
+else:
+    print("unsatisfiable")
 ```
+
+Prints `{'a': False, 'b': True, 'c': True}`. Every model is a standalone program: it builds, solves
+and prints. Worked examples, each with a README (problem, what it shows, run, expected output):
+
+| Pattern | Example |
+|---|---|
+| satisfy: one solution, one-hot cells | [queens-one](assets/queens-one/README.md) |
+| all solutions, blocking clauses over the answer Booleans | [queens-all](assets/queens-all/README.md) |
+| maximise (MaxSAT) | [knapsack-max](assets/knapsack-max/README.md) |
+| all optimal solutions | [all-optimal](assets/all-optimal/README.md) |
+| minimise, instance read from a JSON file | [colouring-json](assets/colouring-json/README.md) |
+| infeasible, read from the status | [infeasible](assets/infeasible/README.md) |
+| scheduling with deadlines, reading start times | [scheduling](assets/scheduling/README.md) |
+
+## Modelling
+
+Full reference: [Python API](https://ulog.udl.cat/static/doc/paramita/). Calls are in [references/api.md](references/api.md).
 
 | The description says | Expression |
 |---|---|
@@ -32,186 +100,89 @@ a, b, c, r = Bool("a"), Bool("b"), Bool("c"), Bool("r")
 
 - PB comparisons take negative coefficients and sums on both sides
   (`a + b <= c + r`). Weights are integers.
-- `Xor` and `^` are not supported by `to_cnf` ("Invalid operation when
+- `Xor` and `^` build an expression but `to_cnf` rejects it ("Invalid operation when
   converting to NNF+"): write `(a & ~b) | (~a & b)` or `a + b == 1`.
 - `Bool("x")` is identified by its name: the same name is the same variable.
-  Build names from indices (`Bool(f"x_{i}_{v}")`) and keep them unique per
-  meaning.
+  Build names from indices (`Bool(f"x_{i}_{v}")`) and keep them unique per meaning.
 - `==` on Bools builds an expression, never a Python bool: do not put Bools in
   sets, dict keys or `if` tests. The converse: `sum([])` is the int 0, so
-  `sum([]) == k` is a Python bool. Skip empty sums, or check the bool and
-  drop a `True` (an empty `== 0`) or fail on a `False`.
-- Integers are 32-bit inside Paramita. A coefficient beyond ±2^31 is a
-  TypeError; a sum whose value leaves that range wraps silently. Scale large
-  data down or split the sum.
+  `sum([]) == k` and `sum([]) >= k` are Python bools, not expressions. Skip the
+  constraint when the list is empty (check `len(bs)` first); never pass such a bool
+  into `If` or `~`, because `If(a, False)` silently forces `a` false.
+- Integers are 32-bit inside Paramita: a coefficient beyond ±2^31 is a TypeError, and a
+  sum whose value leaves that range wraps silently. Scale large data down or split the
+  sum.
+- `Bool | (PB comparison)`, `If(PB, Bool)` and `If(Bool, PB)` are all accepted by `to_cnf`
+  (checked on small cases against brute force). A PB comparison that is a constant in
+  Python is not an expression: see Common issues.
+- Integers as Booleans (one-hot, unary, binary), global-style constraints as PB
+  constraints (all different, element, table, no-overlap, product), symmetry, wide
+  ranges and weight shrinking: [references/modelling.md](references/modelling.md).
 
-## Integers in Booleans
+## Solving
 
-Pick one encoding per integer; both give an integer expression usable in PB
-constraints, objectives and outputs.
+**Satisfaction.** Add every expression with `add_to_container(expr, to_cnf, solver, pool)`,
+then `solver.solve()`:
 
-- **One-hot (direct)**, for values that are indexed, matched or all-different:
-  `xv = {v: Bool(f"x_{v}") for v in dom}`, `sum(xv.values()) == 1`,
-  value `x = sum(v * xv[v] for v in dom)`. "x = 3" is `xv[3]`; "x ≠ y" is
-  `~(xv[v] & yv[v])` per v.
-- **Unary (order)**, for values that are summed, bounded or compared (`x > y`
-  over one-hot values timed out where unary solved in seconds):
-  `xs = [Bool(f"x_ge_{i}") for i in 1..ub]`, `If(xs[i+1], xs[i])`, value
-  `x = sum(xs) + lb`. "x ≥ k" is the single literal `xs[k-1]`.
-- **Binary**, for wide ranges (hundreds of values or more, e.g. times):
-  `x = sum(2**k * bit[k])`. Unary or one-hot over hundreds of values with
-  pairwise PB constraints ran out of memory. Also for the digits of
-  multi-digit numbers in arithmetic (`n = sum(10**k * digit_k)`): one-hot
-  digits timed out where binary digits solved in seconds.
-
-Global-style constraints become PB constraints over the one-hot Bools:
-
-| Requirement | Encoding |
+| Result | Meaning |
 |---|---|
-| all different | per value v: `sum(xv[v] for x in X) <= 1` (`== 1` for a permutation) |
-| value v occurs c times | `sum(xv[v] for x in X) == c` |
-| element: y = t[x] | `y = sum(t[v] * xv[v] for v in dom)` (t constant) |
-| x + y = k, x ≤ y | PB over the integer expressions: `x + y == k`, `x <= y` |
-| table of allowed tuples | one Bool per tuple, `sum(tuple_bools) == 1`, `If(tb, xv[a] & yv[b])` |
-| at most u in every window of q | `sum(bs[i:i+q]) <= u` per i |
-| no overlap of intervals | one-hot start times; for each time t, `sum(covers_t) <= 1` |
-| product x·y | one Bool per pair `p[a][b] = xv[a] & yv[b]`; avoid when domains are wide |
-
-## Solving directly
+| `True` | a model; read it with `solver.model()` (one signed literal per variable) |
+| `False` | proven unsatisfiable |
+| `None` | the conflict budget ran out before an answer (only with a budget, see below) |
 
 ```python
-from functools import partial
-from paramita.modelling import DimacsVariablePool, add_to_container, add_to_weighted_container, to_cnf
-from paramita.solvers import SatSolver, MaxSatSolver, MAXSAT_ANSWER
-
-pool = DimacsVariablePool()
-s = SatSolver.from_name("Cadical300")
-for e in constraints:
-    add_to_container(e, to_cnf, s, pool)
-if s.solve():
-    m = s.model()                      # signed literal per variable: [-1, 2, ...]
-    true = {abs(l) for l in m if l > 0}
-    a_val = pool.get_variable(a) in true
+true = {abs(lit) for lit in solver.model() if lit > 0}
+value = pool.get_variable(a) in true          # abs(lit) ignores the sign; read the list
 ```
 
-- Another PB encoder: `partial(to_cnf, encoder=PbToCnfEncoder.from_name("TotalizerPySatEncoder"))`.
-  Only `BestEncoder` and `BddEncoder` accept weighted constraints.
-- Enumeration: after a model, add a clause that excludes the values you care
-  about and solve again (CaDiCaL is incremental).
-- `val_lit(l)` returns the value of `abs(l)`, ignoring the sign: read the model
-  list instead.
-- Optimisation: `add_to_weighted_container(objective, subject_to, to_cnf, ms, pool)`
-  with `ms = MaxSatSolver.from_name("EvalMaxSAT2022")` **maximises** the linear
-  objective; it returns the objective's constant part, and the optimum is
-  `constant + ms.benefit()`. To minimise, pass the negated objective.
-  `solve()` returns `MAXSAT_ANSWER.OPTIMAL`, `SATISFIABLE`, `UNSATISFIABLE` or
-  `UNKNOWN`.
-- Budgets: CaDiCaL takes only `SolvingBudget(num_conflicts=...)` (a `None`
-  answer means undecided); EvalMaxSAT takes no budget at all.
+**All solutions.** After each model, add a clause that differs from it in at least one
+answer Boolean, and solve again; `False` means the list is complete. Block only the
+answer variables: auxiliary variables make duplicates of the same answer.
+See [queens-all](assets/queens-all/README.md).
 
-## Modelling advice
+**Optimisation (MaxSAT).** `add_to_weighted_container(objective, subject_to, to_cnf, ms, pool)`
+with `ms = MaxSatSolver.from_name("EvalMaxSAT2022")` **maximises** the linear objective and
+returns the objective's constant part; the optimum is `constant + ms.benefit()`. To
+minimise, pass the negated objective and negate the result. `subject_to` must be one
+expression: wrap a list with `And(list)`. `ms.solve()` returns `MAXSAT_ANSWER.OPTIMAL`,
+`SATISFIABLE`, `UNSATISFIABLE` or `UNKNOWN`; only `OPTIMAL` is a proven result.
+See [knapsack-max](assets/knapsack-max/README.md) and
+[colouring-json](assets/colouring-json/README.md).
 
-- Prefer one-hot for anything that is distinct, indexed or matched; unary for
-  quantities that are summed. Link two encodings of the same integer with
-  `Iff` per value only when both are needed.
-- Exactly-one per variable plus at-most-one per value gives the SAT solver
-  strong unit propagation; add the redundant "each value used once" for
-  permutations.
-- Symmetry: for interchangeable objects, order them (`x_i ≤ x_{i+1}` on the
-  integer expressions) or fix the first one.
-- Separations between unary integers (`x_i + s ≤ x_j`, e.g. non-overlap of
-  placed squares) as clauses, `If(x_j_ge[k], x_i_ge[k+s])` per k, not one PB
-  constraint each: many PB separations ran out of memory.
-- Objectives: a weighted sum of Bools directly; for "minimise the maximum",
-  introduce unary `m` and require `If(load_k_ge_t, m_ge_t)` per t. An
-  objective over a wide range (hundreds of values) is best binary: unary
-  there ran out of memory or made the enumeration of further optima slow.
-- Shrink objective weights before solving: EvalMaxSAT proves optima much
-  faster with small weights, many of them 0. Where a constraint fixes how many
-  choices are made (each demand met exactly, one successor per city), subtract
-  the cheapest cost of each such group from all its costs and add the constant
-  back (for a distance matrix: row minima, then column minima). This took
-  transport, facility and tour optima from timeouts to seconds. A redundant
-  bound such as "open capacity covers total demand" helps the proof as well.
-- **Keep PB weights small.** A PB constraint with large, distinct weights over
-  many Bools (one-hot value × price, a product of two binaries, weights up to
-  10^4 and beyond) can exhaust the 2 GB memory limit. Instead:
-  - products and squares: binary bits for the result, linked with
-    `If(xv[v], bit_k == ((v*v) >> k) & 1)`, or a column-by-column multiplier;
-  - choosing among many constants: `If(choice_q, x == q)` per q with x binary;
-  - |a − b| between one-hot positions: a unary length t with `a - b <= t`
-    and `b - a <= t`, not one implication per pair of positions;
-  - "amount a is payable" for many amounts: a clause-level reachability table
-    `r[j][v] ⇔ OR_k (r[j-1][v - k·d_j] ∧ x_j ≥ k)`, not one weighted PB per
-    amount.
+**All optimal solutions.** Solve for the optimum, then add `objective == optimum` as a
+hard constraint to a **fresh** solver and enumerate the answer Booleans as above. See
+[all-optimal](assets/all-optimal/README.md).
 
-## DCP-Bench (`paramita_python`)
+**Time limits.** CaDiCaL takes only `SolvingBudget(num_conflicts=N)`: call `solve` in
+rounds of N conflicts and check the clock between them. EvalMaxSAT takes no budget at all:
+run it in a child process and kill that process at the deadline; a child that has not
+finished is a timeout, not a result.
 
-**Contract.** One Python file defining `build(instance)`, written against
-`paramita.modelling` only. It returns
+**Recursion.** The default PB encoder recurses once per term. A single sum of about 5000
+Bools segfaults on the default 8 MB stack (2000 was fine). Run under `ulimit -s unlimited`
+(or a larger stack), or split the sum into smaller ones.
 
-- `(subject_to, outputs)` for satisfaction, or
-- `(subject_to, outputs, ("minimize", expr))` / `("maximize", expr)` for
-  optimisation,
+## Common issues
 
-where `subject_to` is an expression or a list of them, `expr` a linear integer
-expression over Bools, and `outputs` maps each name the brief declares (no
-others) to a Bool (read as a JSON boolean), an integer expression (read as a
-JSON integer), an int constant, or nested lists of these.
+| Problem | Likely cause | Fix |
+|---|---|---|
+| `RuntimeError: Invalid operation when converting to NNF+` | `Xor` or `^` in an expression | Expand: `(a & ~b) \| (~a & b)` |
+| `TypeError` from `And`/`Or` | three operands, or one bare operand | `Or([a, b, c])`, or nest two-operand calls |
+| `TypeError` on a coefficient | outside the 32-bit range | scale the data, or split the sum |
+| A sum wraps and the answer is wrong | a constraint or objective value beyond 32 bits | scale down or split; read big numbers from the model bits in Python |
+| Segmentation fault on a wide sum | the recursive PB encoder overflows the stack | `ulimit -s unlimited`, or split the sum |
+| A Bool in a set, a dict key or an `if` test misbehaves | `==` on Bools builds an expression, and a Bool is not a Python bool | keep Booleans as expressions; map them to ids with `pool.get_variable` |
+| `sum([]) == k` gives a Python `bool` | an empty sum is the int 0 | skip empty sums (see Modelling) |
+| A constraint silently forces a Bool false, e.g. `If(a, sum([]) >= 1)` makes `a` false | `sum([]) >= 1` is Python `False`, and `If` with a Python bool on one side is not a dropped constraint | build the constraint only when the list is non-empty |
+| A unary chain gives too small a value (e.g. a makespan of 0) | an end time that is always at least `t` (end >= t with `t` at most the duration) was left out of the clauses instead of asserted | assert such a fact as a unit clause (`m[t]`, `s[b][t]`), not as an `If` with a constant |
+| EvalMaxSAT proof takes minutes on a scheduling-sized model (a 6x6 job shop took about 3 minutes to prove optimal) | MaxSAT has no budget, and a large horizon with many unary bits makes the proof long | tighten the horizon to a feasible makespan upper bound, use the unary makespan from [modelling.md](references/modelling.md#precedence-and-makespan), run in a child process with a deadline, and treat anything not `OPTIMAL` as unresolved |
+| `SyntaxError` at the top of the file | a comment such as `# ... encoding: ...` in lines 1-2 is a Python coding declaration | move encoding notes below line 2 |
+| EvalMaxSAT run never returns | no budget exists for it | run it in a child process and kill at the deadline |
+| Enumeration returns duplicates | blocking clauses cover auxiliary variables | block only the answer Booleans |
+| Optimum or direction looks wrong | objective not negated for a minimise, or the constant part not added | `optimum = constant + ms.benefit()`; negate for minimise |
 
-```python
-from paramita.modelling import Bool, If
+## Further reading
 
-# Row seating: seat n guests on n chairs, enemies not side by side,
-# minimise the total distance from the preferred chairs.
-def build(instance):
-    n, pref = instance["n"], instance["preferred"]
-    s = [[Bool(f"s_{g}_{c}") for c in range(n)] for g in range(n)]
-    cons = []
-    # every guest takes one chair and every chair holds one guest
-    cons += [sum(s[g]) == 1 for g in range(n)]
-    cons += [sum(s[g][c] for g in range(n)) == 1 for c in range(n)]
-    # enemies never sit side by side
-    for g, h in instance["enemies"]:
-        cons += [~(s[g][c] & s[h][d]) for c in range(n) for d in range(n) if abs(c - d) == 1]
-    seat = [sum(c * s[g][c] for c in range(n)) for g in range(n)]
-    total = sum(abs(c - pref[g]) * s[g][c] for g in range(n) for c in range(n))
-    return cons, {"seat": seat, "total": total}, ("minimize", total)
-```
-
-- Read every size and value from `instance`; the brief's shapes are those of
-  the example, and output lengths follow the instance. Problems without instance fields still take `instance`.
-  A field the brief lists as unbindable is still in `instance`, as parsed JSON.
-- A `# ... encoding: ...` comment in the first two lines is a Python coding
-  declaration and a SyntaxError: put encoding notes lower down.
-- Start each constraint block with a `#` comment in the description's words.
-- An objective that is also an output is the same expression in both places.
-- An output the brief declares `int` must be an integer expression: a cell that
-  is a Bool goes out as `1 * b` (a bare Bool is read as a JSON boolean).
-- The runner reads integer outputs exactly, beyond 32 bits too, provided each
-  coefficient fits in 32 bits (`sum(10**k * digit_k)` for a ten-digit number
-  is fine). Constraints and objectives over such values still wrap.
-
-**What the runner does.** It encodes with `to_cnf` (default encoder) through
-one pool. Satisfaction: CaDiCaL, enumerating up to the solution limit with
-clauses that block the declared outputs. Optimisation: EvalMaxSAT in a child
-process killed at the deadline; only a proven optimum is reported, then the
-objective is fixed at that value and further optimal outputs are enumerated
-with CaDiCaL. A timeout before the proof is `execution_timeout`.
-
-**Check.**
-1. `python -m generation.brief PROBLEM`: description, output names and shapes,
-   objective, instance fields.
-2. `python -m evaluation.check MODEL.py --problem PROBLEM --solver paramita_python
-   --instance-count 2 --solution-limit 2`.
-3. By `reason`: `invalid_output`: a declared name missing, an extra name, or a
-   wrong shape; `invalid_solution`: a constraint missing or wrong;
-   `suboptimal_solution` or `no_solution`: wrong direction or over-constrained;
-   `execution_timeout`: a smaller encoding (one-hot vs unary, fewer
-   auxiliaries, redundant cardinality constraints); `execution_error`: the
-   Python exception is in `detail` (Xor, a 32-bit overflow, a non-expression
-   in `subject_to`).
-4. "Declared outputs cannot extend to a reference solution": the outputs break
-   a convention of the description (0- or 1-based, order); reread it.
-5. A top-level `accepted` can hide skipped instances: read the per-instance
-   reasons.
+- Paramita 1.2.0 documentation (tutorials, Python API reference): <https://ulog.udl.cat/static/doc/paramita/>
+- Plugin sources, pinned commit: <https://codeberg.org/paramita/paramita-plugins>
+- [references/api.md](references/api.md): the calls used in the examples.

@@ -83,7 +83,7 @@ LANGUAGES = {
 }
 
 # Only for a model whose integration is no longer installed under solvers/.
-EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog",
+EXTENSION_LANGUAGE = {".py": "python", ".cpp": "cpp", ".pl": "prolog", ".ecl": "prolog",
                       ".lp": "asp", ".mzn": "minizinc", ".rs": "rust", ".java": "java", ".pi": "picat", ".jl": "julia", ".eprime": "essence_prime",
                       ".idp": "idp"}
 
@@ -906,7 +906,7 @@ BACKEND_NAMES = {
     "cplex": "CPLEX",
     "exact": "Exact",
     "gurobi": "Gurobi",
-    "evalmaxsat": "EvalMaxSAT",
+    "glucose4, RC2": "Glucose 4.1 (SAT), RC2 (MaxSAT)",
     "highs": "HiGHS",
     "gecode": "Gecode",
     "scip": "SCIP",
@@ -959,9 +959,16 @@ def browse_button(solver: str, count: int) -> str:
 
 def skill_button(solver: str) -> str:
     """Opens on GitHub the skill a modelling agent follows to write models for
-    one integration. The skill's folder is named after the skill, not the
-    integration, so it is found by globbing."""
-    found = sorted((SOLVERS_DIR / solver / "skills").glob("*/SKILL.md"))
+    one integration: the released copy under skills/solvers/ once there is one,
+    otherwise the development copy under solvers/<id>/skills/, the same choice
+    `generation.next_work` reports. The skill's folder is named after the skill,
+    not the integration, so the development copy is found by globbing."""
+    from generation.release import skill_for
+    path, _ = skill_for(solver, Path(".").resolve())
+    if path:
+        found = [Path(path) / "SKILL.md"]
+    else:
+        found = sorted((SOLVERS_DIR / solver / "skills").glob("*/SKILL.md"))
     if not found:
         return ""
     name = found[0].parent.name

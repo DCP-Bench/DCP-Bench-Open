@@ -1,29 +1,12 @@
-{
-  "schema_version": 1,
-  "skill_name": "paramita",
-  "evals": [
-    {
-      "id": "written-against-paramita",
-      "prompt": "Using this skill, write a paramita_python submission for any listed satisfaction problem and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/paramita_python:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The submission imports only from paramita.modelling and builds Bool expressions and PB comparisons.",
-        "build returns (subject_to, outputs) with one output per declared name.",
-        "Integers are sums of Bools with an exactly-one or order constraint."
-      ],
-      "evidence_required": "The submission source and the evaluator result."
-    },
-    {
-      "id": "optimisation-direction",
-      "prompt": "Using this skill, write a paramita_python submission for a listed optimisation problem and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/paramita_python:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model whose reported objective equals the reference optimum.",
-      "assertions": [
-        "build returns a third value (\"minimize\" or \"maximize\", expr) matching the brief's direction.",
-        "The objective expression is linear over Bools."
-      ],
-      "evidence_required": "The submission source and the evaluator result."
-    }
-  ]
-}
+{"skill_name": "paramita", "evals": [
+  {"id": 1, "prompt": "Write a Paramita (Python) program that places 8 queens on a chessboard so that none attack each other, and print one placement.", "expected_skill": "paramita", "expected_output": "One-hot Boolean per cell with exactly-one rows and columns and at-most-one diagonals, solved with Cadical300, printing one board", "assertions": ["Uses paramita.modelling Bool and add_to_container with to_cnf", "Rows and columns are exactly-one (sum == 1) and diagonals at most one", "Solves with SatSolver Cadical300 and prints a placement from model()"]},
+  {"id": 2, "prompt": "Using Paramita in Python, list every way to put 6 non-attacking queens on a 6 x 6 board and print how many there are.", "expected_skill": "paramita", "expected_output": "Enumeration with blocking clauses over the cell Booleans, printing the count 4", "assertions": ["Enumerates with repeated solve() and a blocking clause", "The blocking clause covers only the answer cell Booleans, not auxiliary variables", "Stops when solve() returns False"]},
+  {"id": 3, "prompt": "Solve a 0/1 knapsack with Paramita in Python: items (weight, value) (3, 30), (4, 50), (2, 40), capacity 7. Maximise the value and print the optimum.", "expected_skill": "paramita", "expected_output": "Optimum 90 from EvalMaxSAT2022 with add_to_weighted_container", "assertions": ["Passes the objective to add_to_weighted_container, which maximises it", "Reads the optimum as constant + benefit() and checks status OPTIMAL", "Uses a PB constraint for the capacity"]},
+  {"id": 4, "prompt": "Using Paramita in Python, find every selection of items that reaches the maximum value of a knapsack with weights 2, 2, 2, 4, values 3, 3, 3, 6, capacity 4.", "expected_skill": "paramita", "expected_output": "Optimum 6 and four distinct optimal selections", "assertions": ["Solves the optimum first with MaxSAT and checks the status is OPTIMAL", "Posts objective == optimum to a fresh solver before enumerating", "Enumerates over the item Booleans so each selection is printed once"]},
+  {"id": 5, "prompt": "Colour a graph with Paramita in Python using as few colours as possible; read the graph from a JSON file given as the first argument.", "expected_skill": "paramita", "expected_output": "Minimum colour count from a MaxSAT model over the negated number of used colours, reading the JSON file", "assertions": ["Reads the file path from sys.argv and parses it with json", "Minimises by passing the negated objective to add_to_weighted_container", "Negates the result of constant + benefit()"]},
+  {"id": 6, "prompt": "Show with Paramita in Python that 3 pigeons cannot each have their own hole when there are only 2 holes.", "expected_skill": "paramita", "expected_output": "Program prints unsatisfiable from solve() returning False", "assertions": ["Reads infeasibility from solve() returning False, not an exception", "Uses at-most-one per hole and exactly-one per pigeon"]},
+  {"id": 7, "prompt": "Schedule three jobs on one machine with Paramita in Python so that no two jobs overlap and each job meets its deadline; print the start times.", "expected_skill": "paramita", "expected_output": "One-hot start times with a no-overlap constraint per time slot, printing a feasible schedule", "assertions": ["Start times are one-hot per job with exactly-one", "No overlap is at most one running job per time slot", "Reads start times back from the model"]},
+  {"id": 8, "prompt": "Write a MiniZinc model for n-queens and solve it with Gecode.", "expected_skill": null, "expected_output": "The paramita skill is not used", "assertions": ["paramita is not loaded"]},
+  {"id": 9, "prompt": "Write a PuLP model for the 0/1 knapsack problem and solve it with CBC.", "expected_skill": null, "expected_output": "The paramita skill is not used", "assertions": ["paramita is not loaded"]},
+  {"id": 10, "prompt": "Which Python package installs Gurobi, and how do I get a licence?", "expected_skill": null, "expected_output": "The paramita skill is not used", "assertions": ["paramita is not loaded"]}
+]}
