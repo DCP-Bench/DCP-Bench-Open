@@ -138,6 +138,21 @@ class MetadataTests(unittest.TestCase):
                 for tag in paradigms:
                     self.assertIn(tag, known, f"add {tag!r} to solvers/paradigms.json first")
 
+    def test_every_integration_has_a_contract(self):
+        """A modeller reads solvers/<id>/CONTRACT.md to know how this integration takes a
+        model, and an attempt refuses an integration without one. It answers the mapping
+        checklist of solvers/CONTRACT.md, heading by heading."""
+        generic = (ROOT / "solvers/CONTRACT.md").read_text(encoding="utf-8")
+        headings = re.findall(r"^\| `## (.+?)` \|", generic, re.M)
+        self.assertIn("Entrypoint", headings, "the mapping checklist lists the required headings")
+        for solver in self.integrations:
+            with self.subTest(solver=solver):
+                path = ROOT / "solvers" / solver / "CONTRACT.md"
+                self.assertTrue(path.is_file(), f"write solvers/{solver}/CONTRACT.md")
+                present = re.findall(r"^## (.+?)\s*$", path.read_text(encoding="utf-8"), re.M)
+                self.assertEqual([h for h in present if h in headings], headings,
+                                 "use every checklist heading, in order")
+
     def test_every_language_has_a_website_row(self):
         """`language` picks the label and the grammar above every model of an
         integration. A value `generate_site.py` does not know is not an error

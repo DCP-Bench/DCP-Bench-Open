@@ -1,123 +1,222 @@
 ---
 name: chuffed-cpp
-description: Write, build and run C++ models for the Chuffed 0.14.0 lazy clause generation CP solver through its native API (standalone programs linked against an installed Chuffed). Also covers DCP-Bench Open submissions for the chuffed_cpp integration (Build(instance, outputs) against dcp.h).
-compatibility: Chuffed 0.14.0, C++17, CMake 3.18+. DCP-Bench use needs the repository and the Docker image dcp-eval/chuffed_cpp.
+description: Chuffed, a lazy clause generation constraint programming solver, used directly from C++ through its native API (Problem subclass, IntVar/BoolView, int_linear, all_different, cumulative, branch, optimize, engine.solve), built with CMake. Use when writing, building, debugging or explaining C++ programs that model with Chuffed, or when the user has chosen Chuffed's C++ API.
+license: Apache-2.0
+compatibility: Requires a C++17 compiler, CMake 3.18+ and Chuffed built from source (tested with Chuffed 0.14.0, g++ 12.2, CMake 3.25, Debian 12); MIT licence, no key or size limit. The JSON example also needs nlohmann/json.
+metadata:
+  domain: constraint-programming
+  solver: chuffed
+  paradigm: cp
 ---
 
-# Chuffed 0.14.0 C++ models
+# Chuffed (C++)
 
-Chuffed is a CP solver with lazy clause generation. Its C++ API is raw: global
-solver state is the model, so `createVars`, `int_linear`, `all_different`, ...
-post straight into it. Other files: [references/api-cheatsheet.md](references/api-cheatsheet.md)
-(calls, tables, recipes), [references/examples.md](references/examples.md),
-[sources.md](sources.md).
+Chuffed is a CP solver with lazy clause generation: propagators explain their inferences
+as clauses, so it learns from failures like a SAT solver. Its C++ API is raw: the global
+solver state **is** the model, so `createVars`, `int_linear`, `all_different`, ... post
+straight into it. **There are no expressions**: every intermediate value (a sum, a
+difference, a count, the objective) is its own `IntVar` with a defining constraint, and
+**one process solves once** (the globals cannot be reset).
 
-## Build and link
+## Contents
+- [Install](#install) · [Quick start](#quick-start) · [Program shape](#program-shape)
+- [Modelling](#modelling) · [Solving](#solving) · [All solutions](#all-solutions)
+- [Hard instances](#hard-instances) · [Common issues](#common-issues) · [Further reading](#further-reading)
+- Every call, signature and recipe: [references/api-cheatsheet.md](references/api-cheatsheet.md);
+  search and performance lessons: [references/performance.md](references/performance.md)
+- Runnable examples: [queens](assets/queens/README.md) (satisfy, all solutions, none),
+  [knapsack-maximise](assets/knapsack-maximise/README.md),
+  [make-change-all-optimal](assets/make-change-all-optimal/README.md),
+  [project-schedule](assets/project-schedule/README.md) (scheduling, minimise),
+  [graph-colouring-json](assets/graph-colouring-json/README.md) (JSON input, minimise),
+  [pigeonhole-infeasible](assets/pigeonhole-infeasible/README.md),
+  [derived-quantities](assets/derived-quantities/README.md), [globals-tour](assets/globals-tour/README.md)
 
-Chuffed installs a CMake package (prefix e.g. `/opt/chuffed`, set `CMAKE_PREFIX_PATH`).
+## Install
+
+Chuffed has no package for its C++ library (the `fzn-chuffed` binary shipped with
+MiniZinc is not it): build it from source with CMake, which installs a CMake package.
+Needs a C++17 compiler, CMake and make. Source and build notes: [github.com/chuffed/chuffed](https://github.com/chuffed/chuffed#readme)
+
+```bash
+git clone --depth 1 https://github.com/chuffed/chuffed.git   # or a release tag: --branch <tag>
+cmake -S chuffed -B chuffed/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local/chuffed"
+cmake --build chuffed/build -j"$(nproc)" && cmake --install chuffed/build
+export CMAKE_PREFIX_PATH="$HOME/.local/chuffed"               # where find_package looks
+ls "$CMAKE_PREFIX_PATH/lib/cmake/chuffed/chuffed-config.cmake" # verify
+```
+
+`CMakeLists.txt` for a program `model.cpp` (every example has one):
 
 ```cmake
 cmake_minimum_required(VERSION 3.18)
-project(models LANGUAGES CXX)
+project(model LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 find_package(chuffed CONFIG REQUIRED)
 find_package(Threads REQUIRED)
-add_executable(queens queens.cpp)
-target_include_directories(queens PRIVATE ${CHUFFED_INCLUDE_DIRS})
-target_link_libraries(queens PRIVATE chuffed chuffed_fzn chuffed Threads::Threads)
+add_executable(model model.cpp)
+target_include_directories(model PRIVATE ${CHUFFED_INCLUDE_DIRS})
+target_link_libraries(model PRIVATE chuffed chuffed_fzn chuffed Threads::Threads)
 ```
 
 `chuffed` is listed twice on purpose (static library cycle). Build Release:
 `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build`.
 
+## Quick start
+
+```cpp
+// Two numbers x < y in 0..10 that sum to 10.
+#include <chuffed/branching/branching.h>
+#include <chuffed/core/engine.h>
+#include <chuffed/core/options.h>
+#include <chuffed/globals/globals.h>
+#include <chuffed/primitives/primitives.h>
+#include <chuffed/support/vec.h>
+#include <chuffed/vars/int-var.h>
+#include <chuffed/vars/modelling.h>
+#include <iostream>
+
+class Pair : public Problem {
+ public:
+  vec<IntVar*> xy;
+  Pair() {
+    createVars(xy, 2, 0, 10);
+    int_linear(xy, IRT_EQ, 10);         // x + y = 10
+    int_rel(xy[0], IRT_LT, xy[1]);      // x < y
+    branch(xy, VAR_INORDER, VAL_MIN);   // always branch on the decisions
+  }
+  void print(std::ostream& os) override {  // variables are fixed only here
+    os << "x = " << xy[0]->getVal() << ", y = " << xy[1]->getVal() << "\n";
+  }
+};
+
+int main() {
+  so.print_sol = true;                  // call print() per solution
+  engine.solve(new Pair());
+  std::cout << (engine.solutions > 0 ? "solved" : "no solution") << std::endl;
+}
+```
+
+Prints `x = 0, y = 10`, then Chuffed's own `----------`, then `solved`.
+
 ## Program shape
 
-Complete tested programs: [standalone_queens.cpp](references/standalone_queens.cpp) (satisfaction,
-n from argv), [standalone_knapsack.cpp](references/standalone_knapsack.cpp) (optimization).
+- Headers: `<chuffed/{branching/branching,core/engine,core/options,globals/globals,primitives/primitives,support/vec,vars/int-var,vars/modelling}.h>`; everything is in the global namespace. Template: [examples/template.cpp](https://github.com/chuffed/chuffed/blob/0.14.0/chuffed/examples/template.cpp).
+- Subclass `Problem`, post the model in the constructor (order: variables, constraint blocks, `branch`, `optimize`), and **always** override `void print(std::ostream&)`: it is pure virtual, so a subclass without it does not compile, even when the output comes from a callback. Use an empty body if `print` is unused.
+- `main`: set options on the global `so`, then `engine.solve(new P(...))`; afterwards read `engine.status`, `engine.solutions`, `engine.best_sol`.
+- Values: `x->getVal()` (IntVar), `b.getVal()` (BoolView, 0/1) only inside `print` or the solution callback, where all branched variables are fixed.
+- `engine.setSolutionCallback(f)`, `f` a `std::function<void(Problem*)>` (a lambda), runs per solution, also with `so.print_sol = false`, and per improving solution during `optimize`.
+- One solve per process. To solve twice (all optimal solutions), `fork()` or run the program twice: [make-change-all-optimal](assets/make-change-all-optimal/README.md).
+- Log to stderr: Chuffed prints solutions and its markers to stdout.
 
-- Headers: `<chuffed/{branching/branching,core/engine,core/options,globals/globals,primitives/primitives,support/vec,vars/int-var,vars/modelling}.h>`.
-- Subclass `Problem`, post the model in the constructor, override `void print(std::ostream&)`.
-- `main`: set options, then `engine.solve(new P(...))`.
-- Options: fields of the global `so`: `so.nof_solutions` (default 1, 0 = all), `so.time_out = std::chrono::milliseconds(ms)`, `so.print_sol`, `so.vsids`. `parseOptions(argc, argv)` reads Chuffed's CLI flags and can exit on unknown flags; do not use it with your own arguments.
-- Values: `x->getVal()` (IntVar), `b.getVal()` (BoolView, 0/1) only inside `print` or the callback, where all variables are fixed.
-- `engine.setSolutionCallback(f)`, with `f` a `std::function<void(Problem*)>` (a lambda), runs per solution.
-- After solve: `engine.status` is `RES_SAT` (stopped at limit, solutions may remain), `RES_UNK` (time out), `RES_GUN`/`RES_LUN` (search complete); `engine.solutions` counts solutions; `engine.best_sol` is the best objective value (optimization).
-- To enumerate several solutions declare `output_vars(vec)` on the variables that tell solutions apart; without it search ends after the first.
-- One solve per process: Chuffed globals cannot be reset. To solve twice, fork or restart.
-- Chuffed calls `exit(0)` when posting a constraint fails at the root (infeasible model): no `print`, no status. Treat exit 0 with no output as unsatisfiable.
-- Without any `branch(...)` call Chuffed reports an unfixed root "solution". Always declare branching on the decision variables.
-- Log to stderr; Chuffed prints solutions and `==========` / `=====UNSATISFIABLE=====` to stdout.
+## Modelling
 
-## Modelling rules
+Signatures, semantics and recipes: [references/api-cheatsheet.md](references/api-cheatsheet.md);
+headers: [primitives.h](https://github.com/chuffed/chuffed/blob/0.14.0/chuffed/primitives/primitives.h), [globals.h](https://github.com/chuffed/chuffed/blob/0.14.0/chuffed/globals/globals.h).
 
-- Comment each conceptual constraint block with one line taken from the problem statement (`// all rows must have different values`). Open the file with a line stating the problem. Name variables in the problem's vocabulary. Comment where a bound comes from and where an encoding works around a Chuffed limit.
-- Order: variables, constraint blocks, branching, `optimize`, output.
-- Prefer globals (`all_different`, `table`, `circuit`, `cumulative`) over decompositions and `int_linear`/`bool_linear` over hand-built sums.
-- Tight domains from the data. One `optimize` call, one IntVar objective, integer only.
-- Test on a second instance with different data.
+| Need | API |
+|---|---|
+| integer variables (bounds required) | `createVars(vec, n, lo, hi[, eager])`, `newIntVar(lo, hi)`, `createVar(v, lo, hi, true)` |
+| Booleans | `newBoolVar()`, `createVars(vecBool, n)`; to integers `bool2int(b, x01)` |
+| constant as a variable | `getConstant(k)` |
+| `x rel y + c`, `x rel c` | `int_rel(x, IRT_LE, y, c)`, `int_rel(x, IRT_NE, c)` |
+| (weighted) sum | `int_linear(coefs, xs, IRT_EQ, result)`; count of BoolViews `bool_linear(bs, rel, y)` |
+| arithmetic | `int_plus`, `int_minus`, `int_times`, `int_div`, `int_abs`, `int_min`, `int_max`, `minimum`, `maximum` |
+| reification / implication | `int_rel_reif(x, rel, y, b[, c])`, `int_rel_half_reif`, `int_linear(..., b)`, `bool_clause(pos, neg)`, `array_bool_and/or` |
+| all different (with offsets) | `all_different(xs)`, `all_different_offset(offsets, xs)` |
+| element | `array_int_element(i, table, y, offset)`, `array_var_int_element_bound` |
+| table / regular | `table(xs, tuples)`, `regular(xs, q, s, dfa, q0, accepting)` |
+| circuit / inverse / lex | `circuit(succ)`, `inverse(x, y, o1, o2)`, `lex(a, b, strict)` |
+| scheduling | `disjunctive(start, dur)`, `cumulative(start, dur, demand, cap)`, `cumulative2` |
+| read data from a file | nlohmann/json, copied into `vec` with `push`: [graph-colouring-json](assets/graph-colouring-json/README.md) |
+| search | `branch(vecIntVar, VAR_..., VAL_...)` on the decisions |
+| minimise / maximise | `optimize(obj, OPT_MIN)` / `OPT_MAX`, once, on one integer `IntVar` |
 
-## Compile and runtime pitfalls
+Rules that keep models compiling and correct (symptoms in [Common issues](#common-issues)):
 
-- `vec` copies are shallow. `vec<IntVar*> a = b;` or pushing a local `vec` into a `vec<vec<>>` crashes with "double free or corruption" (signal 6). Build rows in place: `m.push(); m.last().push(x);` or `createVars(m.last(), ...)`. Never copy a constraint's argument vec.
-- Constraints take `vec<...>&` (non-const lvalue). No `std::vector`, no initializer list, no temporary. Declare `vec<IntVar*> t; t.push(a); t.push(b);` first. Same for `vec<int>`.
-- No expressions: `x + y`, `2 * x` do not exist. Make an IntVar per intermediate and post `int_linear`/`int_plus`/`int_times`. Its domain must hold every value or the model is infeasible.
-- Constants: use the `int c` overload; where only `IntVar*` is accepted use `getConstant(k)`.
-- `~b` needs a named `BoolView` lvalue: `BoolView nb = ~b;`.
-- `vec<IntVar*>` and `vec<BoolView>` do not convert. Use `bool_*`/`array_bool_*` for BoolViews, `bool2int(b, intVar)` to cross over. `BoolView r = x;` from an `IntVar*` does not compile.
-- `branch` takes a named flat `vec<IntVar*>`, not `vec<BoolView>` (branch on the 0/1 IntVars from `bool2int`) and not `vec<vec<>>` (`flatten` first).
-- `array_int_element(index, table, result, offset)` reads `table[index - offset]`; default offset 0, so a 1-based index needs `offset = 1`. Keep the index domain inside the table. No 2-D element: flatten row-major, `idx = cols*r + c` via `int_linear`.
-- Domains within +-500,000,000, sums within `int` (32-bit). A value that can exceed this (a 10-digit number) cannot be one variable: split it into digits or blocks if the output allows, else the problem is out of reach. Bounds are required on `createVars`/`newIntVar`.
-- `newIntVar(lo, hi)` has no eager flag. Eager one: `IntVar* v; createVar(v, lo, hi, true);`. Pass `true` last to `createVars` for small domains you reify or read with `getLit`.
-- `createVars(vec, n, lo, hi)`, `flatten`, `transpose` need an empty output vec; call once per vec.
-- `int_mod` compiles and aborts at run time ("Not yet supported"). Encode `x = q*y + r`, `0 <= r < y` with `int_linear`.
-- `lex` crashed (signal 11) on rows of eager 0/1 variables; avoid there.
-- Reified and half-reified forms exist only for linear and binary relations; encode the rest with BoolViews and `array_bool_and/or`.
-- `int_rel_reif(x, rel, y, r, offset)` with variables, `(x, rel, c, r)` with a constant: the BoolView precedes the offset.
-- `and`, `or`, `not` are C++ alternative tokens and cannot be variable names.
-- `inverse(x, y)` without offsets is tested with 0-based positions and values; for 1-based values pass the offsets (see the cheat sheet).
+- Constraints take `vec<...>&` non-const lvalues: no `std::vector`, initializer list or temporary. Declare `vec<IntVar*> t; t.push(a); t.push(b);` first; same for `vec<int>`. Build rows of a `vec<vec<>>` in place: `m.push(); m.last().push(x);` or `createVars(m.last(), ...)`.
+- No operators on `IntVar*`: one `IntVar` per intermediate, posted with `int_linear`/`int_plus`/`int_times`. Its domain must hold every value it can take, or the model turns infeasible.
+- Tight domains from the data. Domains within ±500,000,000 and sums within 32-bit `int`; a value that can exceed this (a 10-digit number) must be split into digits or blocks.
+- Prefer globals (`all_different`, `table`, `circuit`, `cumulative`) over decompositions and one `int_linear`/`bool_linear` over hand-built sums or chains of `int_plus`.
+- Eager variables (`true` last in `createVars`/`createVar`) for 0/1 and small domains you reify or read with `getLit`; they cost memory on large domains.
+- Style: open the file with a line stating the problem, comment each constraint block with the problem's own words (`// all rows must have different values`), name variables in its vocabulary, and say where a bound comes from or where an encoding works around a Chuffed limit. Test on a second data set.
+
+## Solving
+
+Header: [core/engine.h](https://github.com/chuffed/chuffed/blob/0.14.0/chuffed/core/engine.h), options: [core/options.h](https://github.com/chuffed/chuffed/blob/0.14.0/chuffed/core/options.h).
+
+| After `engine.solve` | Meaning |
+|---|---|
+| `RES_SAT` | stopped at `so.nof_solutions`; more solutions may exist |
+| `RES_GUN` | search complete (satisfaction): `engine.solutions` is all of them, 0 = infeasible |
+| `RES_LUN` | optimisation complete: the last solution is optimal, `engine.best_sol` is its objective |
+| `RES_UNK` | time out (`so.time_out`): an optimisation's last solution is only the best found |
+| no return | failure at the root (while posting or before search): Chuffed prints `=====UNSATISFIABLE=====`, `% Top level failure!` and calls `exit(0)`; catch it with `std::atexit` and a flag, see [pigeonhole-infeasible](assets/pigeonhole-infeasible/README.md) |
+
+- Stdout markers: `----------` after each printed solution, `==========` when the search is complete, `=====UNSATISFIABLE=====` when none exists. They are printed even with `so.print_sol = false`.
+- Optimisation keeps improving until proven, whatever `so.nof_solutions`; with `so.print_sol` each improving solution is printed, the last one is the optimum.
+- Options (fields of `so`, set before `engine.solve`): `nof_solutions` (default 1, 0 = all), `time_out = std::chrono::milliseconds(ms)`, `print_sol`, `vsids`, restarts (`restart_type`, `restart_scale`, `toggle_vsids`, `sat_polarity`, `branch_random`; see [references/performance.md](references/performance.md)). `parseOptions(argc, argv)` reads Chuffed's own CLI flags and can exit on unknown ones: do not use it on your program's arguments.
+- A process exit code of 0 says nothing about the result: check the status or the flag.
+
+## All solutions
+
+Declare `output_vars(vec)` on the variables that tell solutions apart and set
+`so.nof_solutions = 0`; without `output_vars` search ends after the first solution.
+Solutions are distinct on those variables. Example: [queens](assets/queens/README.md).
+
+**All optimal solutions** need two solves, so two processes: minimise or maximise in a
+`fork()`ed child that sends `engine.best_sol` back through a pipe; then build the model
+again with `int_rel(obj, IRT_EQ, best)`, **no** `optimize`, `output_vars` on the
+decisions, and enumerate: [make-change-all-optimal](assets/make-change-all-optimal/README.md).
+Flush `std::cout` before `fork()`.
+
+**One printed optimum**: `print` runs for every improving solution, so the output shows
+several. To print only the optimum, keep `so.print_sol = false`, copy the values in the solution
+callback (it runs for each improving solution) and print once after the solve: the recipe is in
+[the cheat sheet](references/api-cheatsheet.md#recipes).
 
 ## Hard instances
 
-- Branch first on the structural decisions everything else follows from, then the rest. Try `VAR_ACTIVITY` or `VAR_SIZE_MIN` when `VAR_INORDER` stalls.
-- Tighten domains from the data (a shipment is at most min(capacity, demand)).
-- Add implied constraints that bound the objective (cost >= demand x cheapest unit cost via `minimum` cut one facility-location proof from 190 s to 36 s).
-- Redundant implied constraints help less than a good `branch`.
-- Optimization that finds one poor solution then stalls: branch on the objective first (`VAL_MIN` for minimize, `VAL_MAX` for maximize), then on the decisions. This can fail to find any first solution on wide cost ranges; then branch on the decision or cost variables with `VAR_MIN_MIN`.
-- Library defaults have no restarts (`restart_scale` is effectively infinite). For hard satisfaction or heavy-tailed search, set in Build: `so.restart_type = LUBY; so.restart_scale = 1000; so.toggle_vsids = true; so.sat_polarity = 2;` (`so.branch_random` also exists). Scales 100 to 600 left instances unsolved; 1000 with anti-polarity solved all. See the cheat sheet.
-- Weak optimization bounds: compute stronger bounds in Build from the instance (Lagrangian or reduced-cost preprocessing, then add the penalties to the costs). Count indicator literals directly in the objective instead of summing derived Booleans; the summed form left the solver searching for the bound.
-- No custom value order exists. To try values in a chosen order, branch on a rank variable `k` and map it with `array_int_element(k, order, x)`.
-- Symmetric multisets (dice faces, groups): search a sorted copy and link the output through a permutation (`all_different` on positions plus element constraints), so every output order stays reachable.
-- Optimization proof too slow on a grid of costs: add per-row and per-group cost variables with lower and upper bounds from the data (the sum of the c smallest and of the c largest costs).
-- A redundant sum constraint (the answers sum to n(2n+1)) fixed a handshaking timeout; implied sums can help where a branch alone does not.
-- Booleans as decisions: `VAR_SIZE_MIN` on home/away Booleans solved a sports schedule that `VAR_INORDER` stalled on.
+Branch first on the structural decisions everything else follows from; try `VAR_SIZE_MIN`
+or `VAR_ACTIVITY` when `VAR_INORDER` stalls; derive tight domains and objective bounds from
+the data; turn on Luby restarts for heavy-tailed search (`so.restart_type = LUBY;
+so.restart_scale = 1000; so.toggle_vsids = true; so.sat_polarity = 2;`). Measured cases
+and the reasoning behind each: [references/performance.md](references/performance.md).
 
-## Using this skill in DCP-Bench Open
+## Common issues
 
-Applies only to the `chuffed_cpp` integration. Everything above still holds; this adds the submission contract.
+| Problem | Likely cause | Fix |
+|---|---|---|
+| "invalid new-expression of abstract class type 'X'" | no `print` override: `Problem::print` is pure virtual | override `void print(std::ostream&) override {}`, empty body if unused |
+| several solutions printed where one optimum is wanted | `so.print_sol = true` prints each improving solution | [One printed optimum](#all-solutions) |
+| "double free or corruption", signal 6 | `vec` copies are shallow: `vec<IntVar*> a = b;` or pushing a local `vec` into a `vec<vec<>>` | build rows in place (`m.push(); m.last().push(x)`); never copy a constraint's argument `vec` |
+| "no matching function" on a constraint call | `std::vector`, `{a, b}` or a temporary passed for `vec<...>&` | named `vec` built with `push` |
+| `x + y`, `2 * x` do not compile | no expressions | auxiliary `IntVar` + `int_linear` / `int_plus` / `int_times` |
+| an `int` where only `IntVar*` is accepted | no implicit constant | `getConstant(k)`, or the `int c` overload |
+| `~b` fails | negation of a temporary | `BoolView nb = ~b;` on a named `BoolView` |
+| "conversion from 'IntVar*' to non-scalar type 'BoolView'" | `BoolView r = x;`; `vec<IntVar*>` and `vec<BoolView>` do not convert | `BoolView r = newBoolVar(); bool2int(r, x);`, `bool_*` calls for Booleans |
+| "cannot convert 'BoolView' to 'Branching*'" | `branch` on `vec<BoolView>` (or on a `vec<vec<>>`) | branch on 0..1 `IntVar`s from `bool2int`; `flatten` a grid first |
+| a reported solution breaks a constraint; Booleans read 0 | variables no `branch` reaches stay unfixed (also with `so.vsids`); with no `branch` at all the root is reported | branch on every decision, Booleans through `bool2int`: [globals-tour](assets/globals-tour/README.md); or, after your `branch` calls, `so.vsids = true; engine.branching->add(&sat);` (`<chuffed/core/sat.h>`) to let the SAT search fix the rest |
+| `newIntVar(0, 8, true)`: "too many arguments" | `newIntVar` has no eager flag | `IntVar* v; createVar(v, 0, 8, true);` |
+| `createVars`/`flatten`/`transpose` misbehave | output `vec` not empty | call once per fresh `vec` |
+| abort "arithmetic.cpp:691: Not yet supported" | `int_mod` compiles but is not implemented | `x = q*y + r`, `0 <= r < y` with `int_linear`; parity `x = 2*h + r`, `r` in 0..1 |
+| abort "value selection branching is not yet supported" | `VAL_RANDOM` | another `ValBranch`; `so.branch_random` for randomised restarts |
+| signal 11 in `lex` | `lex` on rows of eager 0/1 variables | avoid `lex` there |
+| no reified form of a global | only linear and binary relations have `_reif` / `_half_reif` | encode with BoolViews and `array_bool_and/or` |
+| `int_rel_reif` picks the wrong overload | argument order | `(x, rel, y, r, offset)` with a variable, `(x, rel, c, r)` with a constant: the BoolView comes before the offset |
+| element reads the wrong cell or fails | `array_int_element(i, t, y, offset)` reads `t[i - offset]`, default 0; no 2-D form | `offset = 1` for 1-based; keep `i`'s domain inside the table; flatten row-major, `idx = cols*r + c` |
+| `inverse` wrong with 1-based values | offsets default to 0 | `inverse(x, y, 1, 0)` etc. (cheat sheet) |
+| variable named `and`, `or`, `not` | C++ alternative tokens | rename |
+| a large value overflows or is rejected | domains limited to ±500,000,000, 32-bit sums | split into digits or blocks |
+| only one solution although more exist | no `output_vars`, or `so.nof_solutions` left at 1 | both, see [All solutions](#all-solutions) |
+| nothing printed after `engine.solve`, exit code 0 | root failure calls `exit(0)` | [Solving](#solving), `std::atexit` |
+| second `engine.solve` misbehaves | globals cannot be reset | fork or run again |
+| program exits on its own arguments | `parseOptions` | parse your arguments yourself |
+| undefined references at link time | missing second `chuffed` or Threads | the link line in [Install](#install) |
+| infeasible though a solution exists | an auxiliary `IntVar`'s domain too narrow | bound it by the extreme values of its definition |
 
-Submission: one `.cpp` that has `#include "dcp.h"`, defines `void Build(const json& instance, json& outputs);` and no `main`. `dcp.h` includes the Chuffed headers and `using nlohmann::json;`. Do not call `engine.solve`, `parseOptions` or `output_vars`. Log to `std::cerr` only. Examples: [references/examples.md](references/examples.md) (DCP format).
+## Further reading
 
-- Read every instance quantity from `instance` (`instance.at("n")`, `instance.at("w").get<std::vector<int>>()`). The same file runs on several instances; no hardcoded data. A problem constant may be written in code with a comment.
-- `outputs` is a JSON object with exactly the declared output names. Leaves are the integers returned by `dcp::out(IntVar*)`, nested arrays for matrices: `outputs = {{"x", arr}, {"total", dcp::out(total)}};`. `dcp::out` may be called twice on one variable.
-- Only `IntVar*` can be an output. A Boolean output is a 0..1 IntVar linked by `bool2int(boolView, intVar)`. A `BoolView` cannot go to `dcp::out`.
-- An output variable must hold exactly the value the reference reports: for sums, constants or other expressions create an IntVar constrained equal to it. Constrain outputs fully; a variable free in the model but fixed in the reference passes only if every value is acceptable.
-- Optimization: `optimize(obj, OPT_MIN|OPT_MAX)` once, direction as in the problem. If the objective is an output, export `obj`. Never bound it by a value known from elsewhere.
-- A thrown exception (`instance.at` on a missing field) is an `error` status.
-- Comment rule above is required by `skills/model-generator/references/acceptance.md`.
-
-How the driver solves: forks one process per phase (`Build` runs once per phase, globals fresh).
-- Satisfaction: enumerates solutions distinct on the declared outputs, until the solution limit or exhaustion. Auxiliary variables are not compared.
-- Optimization: phase 1 proves the optimum and emits nothing before; if the proof misses the time budget the result is `execution_timeout` and nothing is emitted. Phase 2 fixes the objective to the optimum and enumerates distinct outputs.
-- `evaluate` can return accepted overall while one instance has reason `execution_timeout`. Before retaining a model, check the per-instance reasons in the evaluation, not only the top-level `accepted`.
-- After your `branch(...)` calls the driver appends branching on all integer variables in creation order, then VSIDS on the Booleans. Without your own `branch` search follows creation order over auxiliaries, which is poor. Declare `branch` on the main decision variables.
-
-Output conventions: on "Declared outputs cannot extend to a reference solution" the outputs break a convention in the description (1-based vs 0-based, fixed first element for rotation-invariant arrangements, a stated order). Re-read the output sentence and pin that convention. The same message can also mean a value outside 32-bit range or a semantic mismatch with the description. Add no ordering the description does not ask for.
-
-Workflow:
-1. `python -m generation.brief PROBLEM`: output names and shapes, objective direction, instance fields.
-2. Write `MODEL.cpp`.
-3. `python -m evaluation.check MODEL.cpp --problem PROBLEM --solver chuffed_cpp` (stronger: `--instance-count 3 --solution-limit 5`). Result JSON has `accepted`, `reason`, `detail`.
-4. By `reason`: `compilation_error` fix the first error in `detail`; `invalid_output` a leaf is not a registered index, a name is missing or a value is not an integer; `invalid_solution` a constraint is missing or too weak; `suboptimal_solution`/`no_solution` wrong direction or overconstrained; `execution_timeout` weak search, add `branch`, tighter domains or a global; `execution_error` exception from `Build` or a crash.
-5. Repeat a bounded number of times; do not edit the reference or evaluator.
-
-- `evaluation.check` instance ids are 1-based: `json:1` is the first row.
+- Source, README and build notes: <https://github.com/chuffed/chuffed>
+- Headers (the API reference): <https://github.com/chuffed/chuffed/tree/0.14.0/chuffed> (`primitives/`, `globals/`, `vars/`, `branching/`, `core/`)
+- Official C++ examples: <https://github.com/chuffed/chuffed/tree/0.14.0/chuffed/examples> (`queens.cpp`, `golomb.cpp`, `rcpsp.cpp`, `shift.cpp`)

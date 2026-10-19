@@ -17,6 +17,8 @@ import uuid
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+# Where canonical skills live: public skills, the Rosetta skills, and solver skills.
+SKILL_ROOTS = ("skills", "rosetta-skills", "solvers")
 
 
 def read(path):
@@ -52,6 +54,31 @@ def hashes(folder):
     return result
 
 
+# Text that ties a skill to this repository. A solver skill under solvers/<id>/skills/
+# must work outside it, and a release ships every file in the bundle, sources.md and
+# evals/ included, so all of them are checked. This catches names only; whether a skill
+# teaches a submission harness or the runner's behaviour is judged by the standalone
+# review (rosetta-skills/solver-setup/references/standalone-review.md). A repository path
+# such as solvers/<id>/ counts only where it starts a path, not inside an upstream URL.
+ROSETTA_TEXT = re.compile(
+    r"(?i:DCP[-_ ]?Bench|Rosetta|dcp-eval|\bscratchpad\b)|generation[./]\w+|readiness_test|readiness\.json"
+    r"|/input/|request\.json|\bbuild\(instance\)|(?<![\w./-])solvers/[a-z0-9_]+/|CONTRACT\.md"
+    r"|\brun\.py\b|--instance-count|generated_models/|/home/[\w.-]+/|[A-Za-z]:[\\/]Users[\\/]")
+
+
+def rosetta_mentions(folder):
+    """Lines of a skill bundle that mention this repository, as `path:line: match`."""
+    folder = Path(folder)
+    hits = []
+    for path in sorted(folder.rglob("*")):
+        relative = path.relative_to(folder)
+        if not path.is_file():
+            continue
+        lines = path.read_bytes().decode("utf-8", errors="replace").splitlines()
+        hits += [f"{relative.as_posix()}:{number}: {match.group(0)}" for number, line in enumerate(lines, 1)
+                 for match in [ROSETTA_TEXT.search(line)] if match]
+    return hits
+
 def validate(folder, project=False):
     folder = Path(folder).resolve()
     text = (folder / "SKILL.md").read_text(encoding="utf-8")
@@ -80,11 +107,13 @@ def validate(folder, project=False):
     files = hashes(folder)
     for file in folder.rglob("*.md"):
         for link in re.findall(r"\]\(([^)]+)\)", file.read_text(encoding="utf-8")):
-            if "://" in link or link.startswith("#"):
+            # External URLs, anchors, and template placeholders such as (<URL>) are not files.
+            if "://" in link or link.startswith("#") or "<" in link:
                 continue
             target = inside(file.parent / link.split("#")[0], folder)
             if not target.is_file():
-                raise ValueError(f"Broken resource link: {link}")
+                raise ValueError(f"Broken resource link: {link} (links must point at an existing file; "
+                                 "for a folder, link a file in it such as its README.md)")
     if project:
         # Provenance is a plain sources.md: which documentation the instructions
         # came from. Bundle bytes are hashed per attempt, where it matters.
@@ -117,8 +146,8 @@ def propose(run, skill, candidate, evidence):
     if not (run / "run.json").is_file():
         raise ValueError("Initialize the run first")
     skill = inside(skill, ROOT)
-    if not any(skill.is_relative_to(ROOT / part) for part in ("skills", "solvers")):
-        raise ValueError("Canonical skill must live in skills/ or solvers/")
+    if not any(skill.is_relative_to(ROOT / part) for part in SKILL_ROOTS):
+        raise ValueError("Canonical skill must live in skills/, rosetta-skills/ or solvers/")
     candidate = Path(candidate).resolve()
     original = validate(skill, project=True)
     if validate(candidate, project=True)["name"] != original["name"]:
@@ -191,7 +220,7 @@ def check_proposal(path, checks_file):
 def apply(path):
     path, data = proposal_data(path)
     target = inside(ROOT / data["target"], ROOT)
-    if not any(target.is_relative_to(ROOT / part) for part in ("skills", "solvers")):
+    if not any(target.is_relative_to(ROOT / part) for part in SKILL_ROOTS):
         raise ValueError("Canonical target is outside skill locations")
     candidate = path / "candidate" / data["name"]
     if data["status"] != "validated" or not read(path / "checks.json")["passed"]:
@@ -226,11 +255,17 @@ def main():
     for field in ("run", "skill", "candidate", "evidence"): sub.add_argument("--" + field, required=True)
     sub = commands.add_parser("check"); sub.add_argument("proposal"); sub.add_argument("--checks", required=True)
     sub = commands.add_parser("apply"); sub.add_argument("proposal")
+    sub = commands.add_parser("rosetta-mentions", help="List lines of a skill that name this repository; exit 1 on any")
+    sub.add_argument("skill")
     args = parser.parse_args()
     try:
         if args.command == "validate": result = validate(args.skill, args.project)
         elif args.command == "propose": result = propose(args.run, args.skill, args.candidate, args.evidence)
         elif args.command == "check": result = check_proposal(args.proposal, args.checks)
+        elif args.command == "rosetta-mentions":
+            hits = rosetta_mentions(args.skill)
+            print("\n".join(hits) if hits else f"OK: {args.skill} names nothing of this repository")
+            return 1 if hits else 0
         else: result = apply(args.proposal)
         print(json.dumps(result, indent=2))
         return 1 if isinstance(result, dict) and result.get("status") == "rejected" else 0

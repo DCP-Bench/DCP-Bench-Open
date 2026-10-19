@@ -1,0 +1,13 @@
+language ESSENCE' 1.0
+$ Choose as few vertices as possible so that every edge has at least one chosen end.
+given n : int(1..100)
+given m : int(1..1000)
+given edges : matrix indexed by [int(1..m), int(1..2)] of int(1..n)
+find chosen : matrix indexed by [int(1..n)] of bool
+find size : int(0..n)
+minimising size
+such that
+$ size counts the chosen vertices
+size = sum(chosen),
+$ every edge has a chosen end
+forAll e : int(1..m) . chosen[edges[e, 1]] \/ chosen[edges[e, 2]]

@@ -85,11 +85,15 @@ The evaluation framework:
 | `runner/` | The protocol that runs inside those images. |
 | `tests/` | Unit tests, plus container tests behind `DCP_CONTAINER_TESTS=1`. |
 
-The model generation framework:
+The model generation framework. *Rosetta* names the collection of models (one per problem
+and framework, shown side by side in the catalogue) and the machinery here that writes and
+checks them: integrations, contracts, evaluator and campaign harness. A Rosetta-independent
+skill works outside this repository; a skill in `rosetta-skills/` works only inside it.
 
 | Path | What it holds |
 | --- | --- |
-| `skills/` | Instructions an agent follows: `model-generator` runs a "campaign", `solver-setup` adds a framework. |
+| `skills/` | Public, Rosetta-independent skills: `add-solver` writes a standalone skill for any solver. |
+| `rosetta-skills/` | Instructions an agent follows here: `model-generator` runs a "campaign", `solver-setup` adds a framework (on top of `add-solver`), `instance-curator` adds instances. |
 | `generation/` | The campaign harness — work queue, run ledger, readiness gate — and `runs/`, the record of past campaigns. See [generation/README.md](generation/README.md); its agent-facing contract is [generation/AGENTS.md](generation/AGENTS.md). |
 
 The source catalogue for the problems is documented in [SOURCES.md](SOURCES.md).
@@ -148,7 +152,7 @@ PASS csplib_007_all_interval     accepted
 The same problem modelled in many frameworks is more useful than the same
 problem modelled once, so this repository also contains the machinery to write and evaluate models.
 
-An agent follows `skills/model-generator`: it picks work from a queue ordered
+An agent follows `rosetta-skills/model-generator`: it picks work from a queue ordered
 so that problems with several instances come first (a model that hardcoded the
 example cannot survive a second instance), writes a model from the reference,
 and submits it to the evaluator. A model is kept only when the evaluator

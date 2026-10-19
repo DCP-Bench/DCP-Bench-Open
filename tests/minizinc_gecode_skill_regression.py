@@ -1,16 +1,18 @@
 """Regression for the minizinc-gecode skill's guidance on implied constraints.
 
 Takes a skill bundle path and checks both halves of the claim: that implied
-constraints decide whether Gecode finishes `csplib_049_number_partitioning`
-n = 20 at all, by running the two models through the container evaluator, and
+constraints decide whether Gecode finishes the largest
+`csplib_049_number_partitioning` instance at all, by running the two models through the container evaluator, and
 that the bundle says so. A bundle without the guidance fails, which is what
 makes this a check of the instructions rather than of the integration alone.
 
 Evidence behind it:
 `generation/runs/models-20260914-vamos/attempts/csplib_049_number_partitioning/minizinc_gecode/`,
 where attempt 001 reached `execution_timeout` on n = 16 and n = 20 and attempt
-002 was accepted on all four instances.
+002 was accepted on all four instances. The n = 20 instance has since been dropped
+from the dataset, so the largest instance left is used, found at run time.
 """
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -21,7 +23,6 @@ sys.path.insert(0, str(ROOT))
 from evaluation import evaluate  # noqa: E402
 
 PROBLEM = "csplib_049_number_partitioning"
-HARDEST = "json:3"
 BUDGET = 25
 
 DIRECT = '''include "globals.mzn";
@@ -48,10 +49,16 @@ constraint 12 * sum(i in 1..half) (x[i] * x[i]) = n * (n + 1) * (2 * n + 1);
 solve satisfy;''')
 
 
+def hardest():
+    """The ID of the instance with the largest n, so a dataset change cannot strand the test."""
+    rows = json.loads((ROOT / "dataset" / PROBLEM / f"{PROBLEM}.json").read_text(encoding="utf-8"))
+    return f"json:{max(range(len(rows)), key=lambda index: rows[index]['n'])}"
+
+
 def outcome(directory, name, source):
     path = Path(directory) / f"{name}.mzn"
     path.write_text(source, encoding="utf-8")
-    result = evaluate(path, PROBLEM, "minizinc_gecode", instance_ids=[HARDEST],
+    result = evaluate(path, PROBLEM, "minizinc_gecode", instance_ids=[hardest()],
                       execution_timeout=BUDGET)
     return result["accepted"], result["reason"]
 

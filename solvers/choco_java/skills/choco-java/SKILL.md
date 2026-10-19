@@ -1,35 +1,90 @@
 ---
 name: choco-java
-description: Write Choco 6.0.1 constraint models in Java that use its global constraints (allDifferent, globalCardinality/count/among/nValues, element, table/regular/costRegular, circuit/subCircuit/path/tree, cumulative with optional tasks, diffN, binPacking, knapsack, lex, value precedence, channelling, sets) with the right search strategy, restarts and, where it is safe, lazy clause generation. Also covers DCP-Bench Open submissions for the choco_java integration (public class Submission, static build).
-compatibility: Choco 6.0.1 (Maven Central choco-solver jar-with-dependencies), Java 21 (Temurin). DCP-Bench use needs the repository and the image dcp-eval/choco_java.
+description: Choco 6.0.1, a constraint solver for Java with integer and Boolean variables, global constraints (all different, cumulative, table, circuit, regular and more), search strategies, restarts and lazy clause generation, for finding, enumerating or optimising solutions. Use when writing, debugging or explaining Choco models in Java, or when the user has chosen Choco for a constraint or scheduling problem.
+license: Apache-2.0
+compatibility: Requires a JDK (tested with Java 21, single-file launch needs JDK 11+), the choco-solver 6.0.1 jar-with-dependencies (Maven Central, BSD-3-Clause) and, for JSON input, Gson 2.11.0 (Apache-2.0). No key or size limits.
+metadata:
+  domain: constraint-programming
+  solver: choco
+  paradigm: cp
 ---
 
-# Choco 6.0.1 models in Java
+# Choco 6.0.1 (Java)
 
-Choco is a propagation-based CP solver written in Java, with a large catalogue of global
+Choco is a propagation-based constraint solver written in Java, with a large catalogue of global
 constraints. A model is an `org.chocosolver.solver.Model`, which is also the factory for every
 variable and constraint. A factory call returns a `Constraint` that does nothing until you call
-`.post()` (or reify it).
+`.post()` (or reify it). **Model with the globals.** Choco's strength is its propagators: a
+decomposition into pairwise `arithm` or reified sums throws that away.
 
-**Model with the globals.** Choco's strength is its propagators: a decomposition into
-pairwise `arithm` or reified sums throws that away.
+Docs: [Choco documentation](https://choco-solver.org/docs/) (modelling, search, solving).
 
-Other files:
-- [references/constraints.md](references/constraints.md): every factory method, grouped.
-- [references/catalogue.java](references/catalogue.java): each global checked against brute force, with and without LCG, plus a compile check of every call named here.
-- [references/examples.md](references/examples.md).
-- [sources.md](sources.md).
+## Contents
+- [Install](#install) · [Quick start](#quick-start) · [Modelling](#modelling) · [Solving](#solving)
+- [All solutions](#all-solutions) · [All optimal solutions](#all-optimal-solutions) · [Optimisation](#optimisation)
+- [Common issues](#common-issues) · [Runnable examples](#runnable-examples) · [Further reading](#further-reading)
+- References: [constraints.md](references/constraints.md) (every factory method, grouped),
+  [catalogue.java](references/catalogue.java) (each global checked against brute force, with and without LCG),
+  [examples.md](references/examples.md) (two longer models: shift roster, machines with a crew), [sources.md](sources.md)
 
-## Constraint map: read the description, pick the global
+## Install
+
+```bash
+mkdir -p lib
+curl -fsSLo lib/choco-solver-6.0.1-jar-with-dependencies.jar https://repo1.maven.org/maven2/org/choco-solver/choco-solver/6.0.1/choco-solver-6.0.1-jar-with-dependencies.jar
+curl -fsSLo lib/gson-2.11.0.jar https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
+export CLASSPATH="$PWD/lib/choco-solver-6.0.1-jar-with-dependencies.jar:$PWD/lib/gson-2.11.0.jar"
+java -version
+```
+
+The examples run as single files with `java File.java`, which reads `CLASSPATH`. Only the JSON
+examples need Gson: Choco has no JSON reader. Choco logs SLF4J warnings on stderr; they are harmless.
+Details and downloads: [Choco documentation](https://choco-solver.org/docs/), Maven artifact
+[choco-solver 6.0.1](https://repo1.maven.org/maven2/org/choco-solver/choco-solver/6.0.1/). To compile
+a class with a `main` method instead: `javac -cp "$CLASSPATH" Main.java && java -cp "$CLASSPATH:." Main`.
+
+## Quick start
+
+```java
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.variables.IntVar;
+
+// Place 8 queens on a chessboard so that no two share a row, a column or a diagonal.
+public class Queens {
+    public static void main(String[] args) {
+        int n = 8;
+        Model m = new Model("queens");
+        IntVar[] q = m.intVarArray("q", n, 0, n - 1);   // q[i] = row of the queen in column i
+        IntVar[] up = new IntVar[n], down = new IntVar[n];
+        for (int i = 0; i < n; i++) {
+            up[i] = m.offset(q[i], i);      // q[i] + i: one value per up-diagonal
+            down[i] = m.offset(q[i], -i);   // q[i] - i: one value per down-diagonal
+        }
+        m.allDifferent(q, "AC").post();          // no two in the same row
+        m.allDifferent(up, "AC_REGIN").post();   // no two on the same up-diagonal
+        m.allDifferent(down, "AC_REGIN").post(); // no two on the same down-diagonal
+        if (m.getSolver().solve()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < n; i++) sb.append(q[i].getValue()).append(i < n - 1 ? " " : "");
+            System.out.println("rows by column: " + sb);
+        } else System.out.println("no solution");
+    }
+}
+```
+
+Run with `java Queens.java`; it prints `rows by column: 0 6 3 5 7 1 4 2`. The views on the diagonals
+need `"AC_REGIN"` or `"BC"` (see [Common issues](#common-issues)).
+
+## Modelling
 
 Write the model clause by clause, finding the row here for each sentence of the description. `m` is the
 `Model`. Arrays are `IntVar[]`, and constants are `int[]`. Semantics in brackets are verified in
-`catalogue.java`.
+[catalogue.java](references/catalogue.java); every method in [constraints.md](references/constraints.md).
 
 | The description says | Post |
 |---|---|
 | all different | `m.allDifferent(x, "AC").post()` (`"BC"` for wide domains) |
-| all different after shifts (queens diagonals) | `m.allDifferent(views, "AC_REGIN").post()`, `views[i] = m.offset(q[i], i)` (not `"AC"` or the default over views: see Pitfalls) |
+| all different after shifts (queens diagonals) | `m.allDifferent(views, "AC_REGIN").post()`, `views[i] = m.offset(q[i], i)` (not `"AC"` or the default over views: see Common issues) |
 | all different except 0 / except values | `m.allDifferentExcept0(x)`, `m.allDifferentExceptValues(x, vals...)` |
 | exactly k equal to v | `m.count(v, x, k)` [k = #{x_i = v}]; v or k may be an `IntVar` |
 | how many take a value in a set | `m.among(k, x, int[] values)` |
@@ -68,55 +123,32 @@ A decomposition is the right choice only when no row fits. Two globals on the sa
 `allDifferent` beside a `sum`), and redundant globals often pay: `globalCardinality` occurrences
 that sum to n, or a crew `cumulative` beside per-machine ones.
 
-## Program shape
+**Readable models.** Open the program with a `//` comment stating the problem, and start each constraint
+block with a `//` comment in the description's words, not the Choco call.
+
+**Imports** (each checked in [catalogue.java](references/catalogue.java)):
 
 ```java
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.SettingsBuilder;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.extension.Tuples;
+import org.chocosolver.solver.constraints.nary.automata.FA.FiniteAutomaton;
+import org.chocosolver.solver.constraints.nary.automata.FA.CostAutomaton;
+import org.chocosolver.solver.constraints.nary.cnf.LogOp;
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.limits.FailCounter;
+import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
+import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
-
-Model m = new Model("queens");
-int n = 8;
-IntVar[] q = m.intVarArray("q", n, 0, n - 1);
-IntVar[] up = new IntVar[n], down = new IntVar[n];
-for (int i = 0; i < n; i++) { up[i] = m.offset(q[i], i); down[i] = m.offset(q[i], -i); }
-// no two queens share a column or a diagonal
-m.allDifferent(q, "AC").post();
-m.allDifferent(up, "AC_REGIN").post();    // views: "AC_REGIN" or "BC", see Pitfalls
-m.allDifferent(down, "AC_REGIN").post();
-Solver s = m.getSolver();
-while (s.solve()) { /* read q[i].getValue() */ }
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.Task;
+import java.util.OptionalInt;
 ```
 
-- **Optimisation:** call `m.setObjective(Model.MINIMIZE, cost)` (or `MAXIMIZE`) on an IntVar. Each `s.solve()` then
-  returns a strictly better solution. The last one is optimal if `s.getSearchState()` is
-  `SearchState.TERMINATED` and not `STOPPED`.
-- **Limits:** `s.limitTime("10s")`, `limitFail`, `limitSolution`. `s.reset()` returns to the root and removes
-  the limits. Constraints may be posted after a reset (not under LCG).
-- **Imports** (each checked in `catalogue.java`):
-
-  ```java
-  import org.chocosolver.solver.Model;
-  import org.chocosolver.solver.Solver;
-  import org.chocosolver.solver.SettingsBuilder;
-  import org.chocosolver.solver.constraints.Constraint;
-  import org.chocosolver.solver.constraints.extension.Tuples;
-  import org.chocosolver.solver.constraints.nary.automata.FA.FiniteAutomaton;
-  import org.chocosolver.solver.constraints.nary.automata.FA.CostAutomaton;
-  import org.chocosolver.solver.constraints.nary.cnf.LogOp;
-  import org.chocosolver.solver.search.strategy.Search;
-  import org.chocosolver.solver.search.limits.FailCounter;
-  import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
-  import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
-  import org.chocosolver.solver.variables.BoolVar;
-  import org.chocosolver.solver.variables.IntVar;
-  import org.chocosolver.solver.variables.SetVar;
-  import org.chocosolver.solver.variables.Task;
-  import java.util.OptionalInt;
-  ```
-- **Classpath:** `choco-solver-6.0.1-jar-with-dependencies.jar`. It logs SLF4J warnings to stderr, which are harmless.
-
-## Variables, arrays, data
+### Variables and data
 
 - `m.intVar("x", lo, hi)` is an enumerated domain, `m.intVar("x", lo, hi, true)` is bounds only (use it for sums,
   times, objectives and anything wide), and `m.intVar("x", new int[]{1, 3, 7})` takes listed values.
@@ -128,12 +160,15 @@ while (s.solve()) { /* read q[i].getValue() */ }
   `m.isEq(x, v)`, `m.isLeq(x, v)`, and `b.not()`.
 - Bounds must fit in a Java `int`. When a product of two domains can overflow an `int`, `times`
   switches to a slower propagator, and under LCG it throws. Give intermediate variables tight bounds
-  from the data.
+  from the data. A number beyond the `int` range has to be written as digit variables (one `IntVar` in
+  0..9 per decimal digit, most significant first) and printed from its digits.
 - A column of a matrix is a new array: `IntVar[] col = new IntVar[rows]; for (...) col[r] = x[r][c];`.
 - Tight domains from the data. A result variable made by a factory takes its bounds from its
   inputs: `m.sum("total", x)`, `m.max("mx", x)`, `m.element("v", table, i)`, `e.intVar()`.
+- Take every size (item count, group count, days, the length of a list) from the input data, never from a
+  number copied out of one example.
 
-## Expressions and reification
+### Expressions and reification
 
 - Arithmetic expressions on any IntVar:
   - `add`, `sub`, `mul` (an int, an expression, or several), `div`, `mod`, `abs`, `sqr`, `pow`, `neg`, `dist`, `min` and `max`.
@@ -150,11 +185,20 @@ while (s.solve()) { /* read q[i].getValue() */ }
 - `m.ifThen`, `m.ifThenElse`, `m.ifOnlyIf` and the `reifyX..` methods post at once. Do not call `.post()` on them, since they return void.
 - `m.and(...)`, `m.or(...)` and `m.not(c)` return a Constraint to post. `m.not` is generic and weak on globals.
 
-## Search
+## Solving
 
-- `m.getSolver().setSearch(s1, s2, ...)` runs the strategies in order. Branch first on the few variables that
-  decide the structure. The driver below extends any strategy over all variables.
-- Strategies:
+Call `solve()` on the solver, `Solver s = m.getSolver()`. It returns `true` at the next solution and `false`
+when the search is exhausted. **Read the values inside the loop.** After the `false`, the search has
+backtracked, so `getValue()` on a variable read after the loop throws `is not instantiated`. Keep the
+best values in local variables as the loop runs (see the examples).
+
+- **Limits:** `s.limitTime("10s")`, `limitFail`, `limitSolution`. `s.reset()` returns to the root and removes
+  the limits. Constraints may be posted after a reset (not under LCG).
+- **Search state:** `s.getSearchState()` is `SearchState.TERMINATED` when the search was exhausted and
+  `STOPPED` when a limit was hit (`org.chocosolver.solver.search.SearchState`).
+- **Strategies:** `m.getSolver().setSearch(s1, s2, ...)` runs the strategies in order. Branch first on the few
+  variables that decide the structure. A search that must label every variable can extend a strategy over
+  all of them with `makeCompleteStrategy(true)`.
   - `Search.inputOrderLBSearch(x)` follows array order, smallest value first, and `inputOrderUBSearch` takes the largest first.
   - `Search.minDomLBSearch(x)` is first-fail.
   - Learning heuristics: `Search.domOverWDegSearch(x)`, `activityBasedSearch`, `conflictHistorySearch`, `failureRateBasedSearch`. Pair them with restarts.
@@ -162,7 +206,7 @@ while (s.solve()) { /* read q[i].getValue() */ }
   - Custom: `Search.intVarSearch(new FirstFail(m), new IntDomainMiddle(true), x)`. Value selectors also include `IntDomainMin`, `IntDomainMax`, `IntDomainMedian`, `IntDomainRandom(seed)` and `IntDomainBest`.
   - Wrappers: `Search.lastConflict(s)` and `Search.bestBound(s)`.
   - Scheduling: `m.setTimes(tasks)`.
-- Restarts: `solver.setLubyRestart(50, new FailCounter(m, 1), 10000)` or `setGeometricalRestart(10, 1.2, new FailCounter(m, 1), 10000)`.
+- **Restarts:** `solver.setLubyRestart(50, new FailCounter(m, 1), 10000)` or `setGeometricalRestart(10, 1.2, new FailCounter(m, 1), 10000)`.
   Add `setNoGoodRecordingFromRestarts()` to keep learnt no-goods.
 - With no strategy set, Choco picks a black-box default (`Search.defaultSearch(m)`). It is good on
   many models.
@@ -179,7 +223,7 @@ while (s.solve()) { /* read q[i].getValue() */ }
   (total demand / capacity, rounded up) or per-row partial sums. Implied constraints usually beat a
   change of heuristic.
 
-## Lazy clause generation (LCG)
+### Lazy clause generation (LCG)
 
 `new Model("m", SettingsBuilder.init().setLCG(true))` learns clauses from conflicts, and it can win
 large on scheduling and on models with weak propagation. In 6.0.1 it is not safe for every
@@ -191,125 +235,115 @@ constraint.
 - **Checked under LCG:** the arithmetic, sums, count/among/gcc/nValues, element, allDifferent, table, circuit/subCircuit/path, cumulative,
   diffN, binPacking, knapsack, lex, precedence, channelling and the expression API.
 - **Optimisation:** under LCG, Choco restarts the search after every solution.
+- **Rebuild, do not reset:** under LCG, constraints cannot be posted after a reset, so build the model again
+  in a method for every new search (see [All solutions](#all-solutions)).
 
 Turn LCG on only for a model whose constraints are all on the checked list, and compare its answer with a run without LCG.
+The LCG example, [lcg-machine](assets/lcg-machine/README.md), does this.
 
-## Pitfalls
+## All solutions
 
-- A constraint that is not posted is silently ignored: `m.allDifferent(x);` without `.post()`.
-  The exceptions are the void methods (`ifThen`, `ifThenElse`, `ifOnlyIf`, `reifyX..`, 2D `element`,
-  the `*Dec` decompositions and `addClauses*`), which post themselves.
-- `allDifferent(views, "AC")`, and the default consistency, over views (`m.offset`, `m.mul`, `m.neg`)
-  can throw `java.lang.Error: This element is not present in the in-list` in 6.0.1. It is a Choco bug,
-  reproduced on Langford-style positions, and it comes back as `execution_error`. Over views use
-  `"AC_REGIN"` or `"BC"`, or post the shifted values as their own IntVars. Plain variables are not affected.
-- `new Tuples(int[][], boolean)` does not exist in 6.0.1. Use `new Tuples(true)` and then
-  `t.add(int[]...)`.
-  - For a universal ("any") value use `new Tuples(tuples, true, OptionalInt.of(star))`.
-  - `setUniversalValue` called afterwards does nothing.
-  - An algorithm ending in `+` rejects forbidden tuples.
-- 2D `element(z, int[][] a, row, 0, col, 0)` lets `col` run past the row length into the next
-  row. Bound it.
-- `path`: `succ[e] = n`, not a node. `circuit` over n nodes needs domain 0..n−1 (plus the offset).
-- `boolsIntChanneling` forces exactly one Boolean true. For "none", give it its own index.
-- `distance(x, y, op, int c)` accepts only `"="`, `"!="`, `"<"` and `">"`; it throws on `">="`. Write
-  `distance(x, y, ">", 1)` for at least 2 apart, or use `x.dist(y).ge(2).post()`.
-- `div` truncates toward 0 and `mod` takes the sign of the dividend, as in Java.
-- `ift` exists only on relational expressions: write `b.eq(1).ift(x, y)`, not `b.ift(x, y)`.
-- `globalCardinality(..., closed = true)` forces every variable into the listed values.
-- `m.max(m, x)` takes the result first: `max(IntVar max, IntVar[] vars)`. `count` takes the value first:
-  `count(v, x, n)`.
-- Real variables (`realVar`) need Ibex, which the image does not have. Scale to integers.
-- Do not name your own class `Model`: it hides `org.chocosolver.solver.Model`.
+`while (solver.solve())` returns every distinct assignment of **every** variable in the model, auxiliary
+ones included: a free `aux` in 0..5 with `x` in 1..2 gives 12 solutions, and with `aux = x` it gives 2.
+Make each auxiliary a function of the outputs (fix it with a constraint such as a total), so that it cannot
+repeat a solution: [all-solutions-coins](assets/all-solutions-coins/README.md) does this with its amount.
 
-## DCP-Bench (`choco_java`)
-
-**Contract.** One `.java` file declaring `public class Submission` with
-`public static void build(Instance inst, Model m, Outputs out)`, with no `main` and nothing on stdout.
-Anything printed goes to stderr. The image compiles it against Choco 6.0.1, Gson 2.11.0 and the
-driver classes `dcp.Instance` and `dcp.Outputs`, then the driver calls `build` and solves.
+When an auxiliary cannot be fixed that way, keep the solutions distinct on the outputs with a **no-good**
+after each solution: reset the solver, then post "some output differs from its value in this solution",
+and continue the loop:
 
 ```java
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.variables.IntVar;
-import dcp.Instance;
-import dcp.Outputs;
-
-// Row seating: seat n guests in a row of n chairs so that no two enemies sit side
-// by side, and minimise the total distance from each guest's preferred chair.
-public class Submission {
-  public static void build(Instance inst, Model m, Outputs out) {
-    int n = inst.getInt("n");
-    int[] preferred = inst.getIntArray("preferred");
-    int[][] enemies = inst.getIntMatrix("enemies");
-    IntVar[] seat = m.intVarArray("seat", n, 0, n - 1);   // seat[g]: chair of guest g
-    IntVar[] guest = m.intVarArray("guest", n, 0, n - 1);  // guest[c]: guest on chair c
-
-    // every chair holds exactly one guest
-    m.inverseChanneling(seat, guest).post();
-
-    // enemies never sit side by side
-    for (int[] pair : enemies) m.distance(seat[pair[0]], seat[pair[1]], ">", 1).post();
-
-    // minimise the total distance from the preferred chairs
-    IntVar[] away = new IntVar[n];
-    for (int g = 0; g < n; g++) away[g] = seat[g].dist(preferred[g]).intVar();
-    IntVar total = m.sum("total", away);
-    m.setObjective(Model.MINIMIZE, total);
-
-    out.put("seat", seat);
-    out.put("total", total);
-  }
+Solver s = m.getSolver();
+int count = 0;
+while (s.solve()) {
+    count++;
+    int vx = x.getValue(), vy = y.getValue();     // the outputs of this solution
+    s.reset();                                     // back to the root; limits are removed
+    m.or(m.arithm(x, "!=", vx), m.arithm(y, "!=", vy)).post();   // no-good on the outputs
 }
 ```
 
-- **Data.** `Instance` reads the request JSON and names the field in its error message:
-  - Scalars: `getInt`, `getLong`, `getBool`, `getDouble`, `getString`.
-  - Lists: `getIntArray`, `getLongArray`, `getBoolArray`, `getStringArray`.
-  - Nested lists: `getIntMatrix` (rows may be ragged) and `getInt3`.
-  - `has(key)`, and `raw(key)` for any other shape as a Gson `JsonElement`.
-  - JSON Booleans read as 0/1 where an int is asked for.
-  - The brief's shapes are those of the example instance. Take every size, output lengths included, from the instance itself.
-- **Outputs.** Call `out.put("name", value)` once for each name the brief declares, and no others. An extra name,
-  such as the objective when it is not declared, is `invalid_output`.
-  - A value is an `IntVar`, a `BoolVar` (written as 0/1), an `int`/`long`/`boolean` constant, or any nesting of arrays and Lists of these: `IntVar[]`, `IntVar[][]`, `BoolVar[][]`, `List.of(row1, row2)`, `IntVar[][][]`.
-  - A number beyond the IntVar range goes through `out.putDigits("name", IntVar[] digits, 10)`, most significant digit first.
-  - A derived value (a sum, a count) is output through an IntVar: `m.sum("total", x)` or `e.intVar()`.
-- **Objective.** Call `m.setObjective(Model.MINIMIZE or Model.MAXIMIZE, v)` once, on an IntVar. Do not bound it
-  with a value known from elsewhere.
-- **Settings.** Optionally declare `public static SettingsBuilder settings()`. The driver passes its result
-  to `new Model(...)`. This is the only way to turn on LCG (see above).
-- **Search.** Set it in `build` with `m.getSolver().setSearch(...)` and restarts with `setLubyRestart`. Do
-  not call `solve()`, `limitTime()` or `reset()` yourself: the driver owns the search.
-- **Readability.** Open with a `//` line stating the problem, and start each constraint
-  block with a `//` comment taken from the description's words, not the Choco call.
+On the model `x <= y` with `x, y` in 0..2 and `z = x + y` the loop counts 6. Under LCG, constraints cannot
+be posted after a reset: rebuild the model in a method, post the no-goods on the fresh model, and solve again.
 
-**What the driver does.** It calls `build`, extends your search strategy over every variable
-(`makeCompleteStrategy`), and solves on one thread within the time limit.
+## All optimal solutions
 
-- **Satisfaction:** it collects solutions up to the solution limit, distinct on the outputs. After each one it
-  resets and posts a no-good on the declared outputs, so the next must also come quickly.
-- **Optimisation:** it runs branch and bound until the search ends without a stop, and emits nothing
-  before that. A stop before the proof is `timeout`. Then it rebuilds the model, fixes the objective
-  to the optimum, and enumerates further optimal outputs the same way.
-- **LCG:** under LCG every enumeration step rebuilds the model instead of resetting it.
+Optimise first, then enumerate every choice with the optimum. The optimising loop reports only strictly
+better solutions, so an equal-cost choice never appears there. Instead:
 
-An exception in `build`, or an `OutOfMemoryError`, comes back as `execution_error` with the Java message
-in `detail`.
+1. Run the optimising loop and check `TERMINATED` (see [Optimisation](#optimisation)); keep the optimum.
+2. Build the model again in a method, post `cost == optimum`, and loop `solve()` over it, reading the outputs.
 
-**Check.**
-1. Run `python -m generation.brief PROBLEM` for the description, output names and shapes,
-   objective direction and instance fields.
-2. Run `python -m evaluation.check MODEL.java --problem PROBLEM --solver choco_java
-   --instance-count 2 --solution-limit 2`. Each run compiles the model first.
-3. Act on the `reason`:
-   - `compilation_error`: fix the first javac error in stderr.
-   - `invalid_output`: a declared name is missing, or a shape is wrong.
-   - `invalid_solution`: a constraint is missing, wrong, or not posted.
-   - `suboptimal_solution`/`no_solution`: the direction is wrong, or the model is overconstrained.
-   - `execution_timeout`: use a global instead of a decomposition, `"AC"` on allDifferent, implied constraints, a better search, or restarts.
-   - `execution_error`: an exception; its message is in `detail`.
-4. "Declared outputs cannot extend to a reference solution" means the outputs break a
-   convention of the description (0- or 1-based, order, a fixed first element). Reread
-   the output sentence.
-5. A top-level `accepted` can hide skipped instances, so read the per-instance reasons.
+[all-optimal-pair](assets/all-optimal-pair/README.md) does exactly this: a `build()` method returns the
+model and its variables, and the second model posts `arithm(total, "=", best)`.
+
+## Optimisation
+
+- The objective must be an **IntVar**: `m.setObjective(Model.MINIMIZE, v)` or `Model.MAXIMIZE`, once,
+  on an IntVar with bounds wide enough for every attainable value (derive them from the data).
+  Make the objective from an expression with `m.sum("total", x)` or `m.scalar(x, w, "=", total)`, which
+  creates the IntVar and posts the equality.
+- Each `solve()` that returns `true` in an optimisation is strictly better than the one before.
+- **The last solution is optimal only if `getSearchState()` is `TERMINATED`, not `STOPPED`.**
+  A `STOPPED` search has a feasible best, not a proof. Report "not proven optimal" then.
+- Do not bound the objective with a value the model does not imply (an expected or remembered best). The
+  cut silently removes solutions, and the proof then covers the constraint rather than the model.
+- Examples: [maximise-production](assets/maximise-production/README.md) (maximise),
+  [minimise-transport](assets/minimise-transport/README.md) (minimise), [scheduling-project](assets/scheduling-project/README.md)
+  (makespan through `m.max`), [json-knapsack](assets/json-knapsack/README.md) (maximise, data from JSON).
+
+## Common issues
+
+| Problem | Likely cause | Fix |
+|---|---|---|
+| A constraint is silently ignored (`m.allDifferent(x);` alone) | Not `.post()`ed. The void methods (`ifThen`, `ifThenElse`, `ifOnlyIf`, `reifyX..`, 2D `element`, the `*Dec` decompositions and `addClauses*`) post themselves | Add `.post()`, or reify on purpose |
+| `java.lang.Error: This element is not present in the in-list` | `allDifferent(views, "AC")`, or the default consistency, over views (`m.offset`, `m.mul`, `m.neg`): a Choco 6.0.1 bug, reproduced on Langford-style positions | Over views use `"AC_REGIN"` or `"BC"`, or post the shifted values as their own IntVars. Plain variables are not affected |
+| `new Tuples(int[][], boolean)` does not compile | Not in 6.0.1 | `new Tuples(true)` then `t.add(int[]...)`. For a universal ("any") value: `new Tuples(tuples, true, OptionalInt.of(star))`; `setUniversalValue` called afterwards does nothing; an algorithm ending in `+` rejects forbidden tuples |
+| 2D `element(z, int[][] a, row, 0, col, 0)` reads across into the next row | `col` runs past the row length, since it indexes the flattening | Bound `col` yourself |
+| `path` or `circuit` fails at once | Wrong domain | `circuit` over n nodes: domain 0..n−1 (plus the offset); `path`: `succ[e] = n`, not a node |
+| `boolsIntChanneling` cannot express "none" | It forces exactly one Boolean true | Give "none" its own index |
+| `distance(x, y, op, c)` throws | Only `"="`, `"!="`, `"<"` and `">"` are accepted | `distance(x, y, ">", 1)` for at least 2 apart, or `x.dist(y).ge(2).post()` |
+| `div` or `mod` results look wrong for negatives | `div` truncates toward 0; `mod` takes the sign of the dividend, as in Java | Expect Java's behaviour |
+| `ift` does not compile on a Boolean | `ift` exists only on relational expressions | Write `b.eq(1).ift(x, y)`, not `b.ift(x, y)` |
+| `globalCardinality(..., closed = true)` makes the model infeasible or strange | `closed` forces every variable into the listed values | List every value the variables may take, or use `closed = false` |
+| `m.max` or `m.count` compile error or wrong result | Argument order: `max(IntVar max, IntVar[] vars)` takes the result first; `count(v, x, n)` takes the value first | Fix the order |
+| `realVar` fails | Real variables need Ibex, which is not in the jar used here | Scale to integers |
+| Compile errors about `Model` or `Solver` | A class of your own named `Model` hides `org.chocosolver.solver.Model` | Rename the class |
+| `times` is slow, or LCG throws "Multiplication constraint is not supported in LCG mode" | A product of two domains can overflow an `int` | Give intermediate variables tight bounds from the data |
+| `x.eq(1).add(...)` does not compile | Relations are not numbers | Sum `boolVar()`s, or use `count`/`among` |
+| Optimisation ignores the objective | The objective is not an IntVar | Post `scalar`/`sum` onto a fresh IntVar and pass it to `setObjective` |
+| The last optimisation solution is reported as optimal after a limit | `STOPPED`, not `TERMINATED` | Check `getSearchState() == TERMINATED` before calling it optimal |
+| `getValue()` throws `is not instantiated` after the loop | The search backtracked when `solve()` returned `false` | Keep the values in locals inside the loop |
+| Duplicate solutions in an enumeration | An auxiliary variable is free | Make it a function of the outputs, or no-good on the outputs ([All solutions](#all-solutions)) |
+| Constraints posted after a reset fail or are ignored under LCG | Posting after a reset is not allowed under LCG | Build the model again in a method |
+| LCG gives a wrong count (`not(allDifferent)` counted 0 instead of 21) | The constraint is not safe under LCG | Turn LCG off, or use only checked constraints ([LCG](#lazy-clause-generation-lcg)) |
+| LCG throws on `distance`, `sort`, `tree`, `regular`, a set constraint, or `addClauses*` | Not supported under LCG | Use a different encoding, or turn LCG off |
+| `java.lang.OutOfMemoryError` at posting or during search | A very wide enumerated domain, a table with too many tuples, or an `allDifferent` / `element` over large domains | Use bounds (`true`) for wide ranges, tighter bounds from the data, smaller tables, and decompose less; a bigger heap only hides the cause |
+| Slow, or no first solution / optimum not proven | Weak propagation or branching | Global instead of decomposition, `"AC"` where a stronger one fits, implied constraints, a better search, restarts ([Solving](#solving)) |
+| JSON boolean read as 0 or 1 fails | Gson's `getAsInt()` throws on a JSON boolean | `getAsBoolean() ? 1 : 0` ([json-knapsack](assets/json-knapsack/Knapsack.java)) |
+| JSON rows have different lengths and the model reads past the end | Ragged lists | Take each row's length with `size()` on that row |
+| A Java class does not run, or stdout is noisy | SLF4J warnings on stderr | Harmless; read stdout only |
+
+## Runnable examples
+
+Each folder is a standalone program: `java File.java` from inside it, with `CLASSPATH` set as in
+[Install](#install). `json-knapsack` takes `data.json` as argument.
+
+| Pattern | Folder |
+|---|---|
+| satisfy, `allDifferent` on rows, columns and boxes | [satisfy-sudoku](assets/satisfy-sudoku/README.md) |
+| all solutions, functional auxiliary | [all-solutions-coins](assets/all-solutions-coins/README.md) |
+| all optimal solutions | [all-optimal-pair](assets/all-optimal-pair/README.md) |
+| maximise | [maximise-production](assets/maximise-production/README.md), [json-knapsack](assets/json-knapsack/README.md) (data from JSON with Gson) |
+| minimise, grid of flows | [minimise-transport](assets/minimise-transport/README.md) |
+| infeasible | [infeasible-pigeonhole](assets/infeasible-pigeonhole/README.md) |
+| scheduling, `cumulative`, makespan | [scheduling-project](assets/scheduling-project/README.md) |
+| lazy clause generation on a checked model | [lcg-machine](assets/lcg-machine/README.md) |
+
+Two longer models, with their data inline, are in [examples.md](references/examples.md).
+
+## Further reading
+
+- Choco documentation (modelling, search strategies, restarts, solving): <https://choco-solver.org/docs/>
+- Choco source and releases: <https://github.com/chocoteam/choco-solver> (tag [v6.0.1](https://github.com/chocoteam/choco-solver/releases/tag/v6.0.1))
+- Maven artifact: <https://repo1.maven.org/maven2/org/choco-solver/choco-solver/6.0.1/>

@@ -1,132 +1,287 @@
 ---
 name: exact
-description: Write a DCP-Bench submission for the exact integration - one Python file defining build(instance) that returns an exact.Exact solver built with addVariable, addConstraint, addReification and setObjective. Use when generating or repairing a model for solver ID exact.
+description: Exact, a pseudo-Boolean and integer linear solver with Python bindings (import exact, class Exact) that builds models from named integer and 0/1 variables, linear constraints, reification and multiplication. Use when writing, debugging or explaining an integer linear or pseudo-Boolean model with Exact, or when the user asks for Exact's Python API.
+license: Apache-2.0
+compatibility: Requires Python 3.12 (tested) and the exact package (pip install exact; precompiled for x86_64 Linux and Windows). The package is AGPL-3.0-only.
+metadata:
+  domain: constraint-programming
+  solver: exact
+  paradigm: pb
 ---
 
-# Exact submissions
+# Exact (Python)
 
-A submission is one Python file defining `build(instance)`, written against
-Exact's own Python bindings:
+Exact is a pseudo-Boolean solver: it encodes integer variables as binaries internally, so
+a wide integer domain is cheap, but **every constraint must be linear**. A model is built
+by naming variables and adding constraints; there is no expression language, and nothing
+is solved until you call a solve method.
+
+## Contents
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Reading data](#reading-data)
+- [Modelling](#modelling)
+- [Patterns: indicators, all-different, scheduling](#patterns)
+- [Solving](#solving)
+- [Time limits](#time-limits)
+- [All solutions](#all-solutions)
+- [All optimal solutions](#all-optimal-solutions)
+- [Common issues](#common-issues)
+- [Examples](#examples)
+- [Further reading](#further-reading)
+
+## Install
+
+```bash
+pip install exact
+python3 -c "import exact; print(exact.Exact())"
+```
+
+Checked in a fresh virtual environment (Python 3.12, Linux x86_64): `pip install exact`
+installs Exact 2.2.1. The PyPI package is precompiled for x86_64 Linux and Windows.
+Elsewhere, compile the bindings from the repository (`pip install .` in its root, with
+Boost installed). Details:
+[README, Python interface](https://gitlab.com/nonfiction-software/exact#python-interface).
+The package is AGPL-3.0-only; check that licence before redistributing it.
+
+## Quick start
 
 ```python
 from exact import Exact
 
+solver = Exact()
+solver.addVariable("x", 0, 10)
+solver.addVariable("y", 0, 10)
+solver.addConstraint([(1, "x"), (1, "y")], True, 5)      # x + y >= 5
+solver.setObjective([(2, "x"), (3, "y")], minimize=True)
 
-def build(instance):
-    ...
-    return solver, outputs                                 # satisfaction
-    return solver, outputs, ("maximize", terms)            # optimisation
+state, value = solver.toOptimum()                         # ('SAT', 10) when proven
+print(state, value, solver.getLastSolutionFor(["x", "y"]))  # SAT 10 [5, 0]
 ```
 
-`terms` is the objective as `[(coefficient, variable_name), ...]`. The runner
-sets it, proves the optimum, and pins it before enumerating.
+## Reading data
+
+When the model takes its numbers from a file (JSON, for example), read each key the
+model needs by name:
 
 ```python
-from exact import Exact
+import json, sys
 
-
-def build(instance):
-    values = instance["values"]
-    weights = instance["weights"]
-    capacity = instance["capacity"]
-    n = len(values)
-
-    solver = Exact()
-    x = [f"x{j}" for j in range(n)]
-    for name in x:
-        solver.addVariable(name, 0, 1)
-    solver.addConstraint(list(zip(weights, x)), False, 0, True, capacity)
-    return solver, {"x": x}, ("maximize", list(zip(values, x)))
+data = json.load(open(sys.argv[1]))
+jobs = data["jobs"]          # bind the keys you use; leave the rest alone
 ```
 
-## Variables are names
+A data file may carry keys the model does not use, such as `name` or `note`. Leave them out of the model.
+Do not loop over the whole dictionary, do not unpack it into a call (`addVariable(**data)`),
+and do not copy every key into a variable. Reading `data["jobs"]` ignores everything else.
 
-Exact identifies a variable by the string you gave it. There are no variable
-objects, so a submission keeps its own lists of names and hands those back as
-`outputs`.
+## Modelling
+
+Variables and constraints are addressed by **name** (`str`). Full signatures:
+[Exact.hpp](https://gitlab.com/nonfiction-software/exact/-/blob/main/src/Exact.hpp) and
+[references/exact-api.md](references/exact-api.md).
+
+| Need | API |
+|---|---|
+| integer variable with bounds | `addVariable(name, lb, ub)` |
+| 0/1 variable | `addVariable(name, 0, 1)` (the default bounds) |
+| linear `sum >= k`, `sum <= k`, `lo <= sum <= hi` | `addConstraint(terms, use_lb, lb, use_ub, ub)`, one call with both bounds |
+| `sum == k` | `addConstraint(terms, True, k, True, k)`: equal lower and upper bounds |
+| `head <-> sum(terms) >= k` | `addReification(head, True, terms, k)` |
+| `head -> sum >= k` / `sum >= k -> head` | `addLeftReification` / `addRightReification` |
+| `z == a * b` (variable names as bounds) | `addMultiplication(["a", "b"], True, "z", True, "z")` |
+| fix a variable | `fix(name, value)` |
+| minimise / maximise a linear term list | `setObjective(terms, minimize=True/False, offset=0)` |
+
+`terms` is a list of `(integer coefficient, variable name)` pairs. **Drop zero
+coefficients** when you build the list from data: a `(0, name)` term is still a term, and
+`[(0, "a")] >= 1` is unsatisfiable. A bound that is not used is ignored, so
+`addConstraint(terms, False, 0, True, k)` is `sum <= k`.
+
+Reification in both directions, with a switch variable:
 
 ```python
-solver.addVariable(name, lower_bound=0, upper_bound=1, encoding="log")
+solver.addVariable("h", 0, 1)
+solver.addReification("h", True, [(1, "x")], 3)   # h == 1  <->  x >= 3
+solver.addConstraint([(1, "h")], True, 1, True, 1)  # force h = 1, so x >= 3
 ```
 
-**Integer variables are native**, declared by their bounds rather than encoded
-value by value. A domain running into the thousands costs nothing here, which
-is the main thing this integration can do that the SAT and MaxSAT ones cannot.
+**No global constraints.** There is no all-different, element, table, cumulative or
+no-overlap. Build them from indicators or reification (next section).
 
-Values come back as integers. The evaluator compares a 0/1 integer and a
-Boolean as equal, so a variable over 0..1 satisfies a Boolean output with no
-special handling.
+## Patterns
 
-## Constraints
+### Indicators for "takes value v"
+
+Exact reasons about linear constraints. Anything that talks about a variable *taking a
+particular value* needs one 0/1 variable per value, linked to the integer variable.
+
+| Want | Build |
+|---|---|
+| `y[v] == 1` exactly when `x == v` | `sum_v y[v] == 1` and `sum_v v*y[v] - x == 0` |
+| all different over a domain | for each value, the indicators of all variables for that value sum to `<= 1` (to `== 1` when every value must be used) |
+| count of variables taking `v` | linear sum of the indicators for `v` |
+| "colour k is used" | a 0/1 `used_k` with `x[v][k] - used_k <= 0` for every node `v`; the objective is the sum of the `used_k` |
+
+Build indicators only for the variables that need them, and keep their domains tight:
+this is the one place where a wide domain costs.
+
+Worked examples: [assets/assign-distinct](assets/assign-distinct/README.md) (all-different
+over a small domain), [assets/graph-colouring](assets/graph-colouring/README.md) (node by
+colour, used-colour objective), and [assets/cryptarithm](assets/cryptarithm/README.md)
+(one digit indicator per letter, all letters different, a sum written in place values).
+
+### No-overlap (scheduling)
+
+Two tasks on one machine must not overlap. For each pair, one of two orders holds; each
+order is a reified condition, and at least one must be true:
 
 ```python
-solver.addConstraint(terms, use_lower_bound, lower_bound,
-                     use_upper_bound, upper_bound)
+solver.addVariable(a_first, 0, 1)
+solver.addVariable(b_first, 0, 1)
+# a_first <-> start_b - start_a >= duration_a
+solver.addReification(a_first, True, [(1, start_b), (-1, start_a)], dur_a)
+# b_first <-> start_a - start_b >= duration_b
+solver.addReification(b_first, True, [(1, start_a), (-1, start_b)], dur_b)
+solver.addConstraint([(1, a_first), (1, b_first)], True, 1)        # one of the orders
 ```
 
-One call carries both bounds, so:
+Start times get bounds `0..horizon`, with the horizon set to the sum of all durations
+(a valid bound). Precedence inside a job is `start_next - start_prev >= duration_prev`. The
+makespan is one variable with `makespan - start_k >= duration_k` for every task, minimised.
+Full models: [assets/job-shop](assets/job-shop/README.md) (six jobs, six machines, the
+ft06 benchmark) and [assets/task-schedule](assets/task-schedule/README.md) (release times).
 
-| Meaning | Call |
-| --- | --- |
-| `sum >= k` | `addConstraint(terms, True, k)` |
-| `sum <= k` | `addConstraint(terms, False, 0, True, k)` |
-| `sum == k` | `addConstraint(terms, True, k, True, k)` |
-| `lo <= sum <= hi` | `addConstraint(terms, True, lo, True, hi)` |
+### Encodings
 
-A coefficient of zero should be dropped rather than passed.
+`addVariable(name, lb, ub, encoding)` takes `"log"` (default), `"order"` or `"onehot"`.
+Any other string raises `ValueError`. The encoding is a choice of internal representation
+of the same domain; measure on your model before changing it. For a wide domain with no
+per-value needs, keep the default.
 
-## Reification, and what it buys
+## Solving
+
+Status values come back as strings. Method reference:
+[Exact.hpp](https://gitlab.com/nonfiction-software/exact/-/blob/main/src/Exact.hpp).
+
+| Call | Returns | Use |
+|---|---|---|
+| `toOptimum(timeout=0)` | `(state, value)` | objective already set; `state` is `SAT` only when the optimum is proven |
+| `runFull(optimize=True, timeout=0)` | state string | solve (or enumerate with `optimize=False`) |
+| `runOnce(timeout=0)` | state string | stop at the first state reached |
+| `getLastSolutionFor(names)` | `list[int]` | values in the last solution, always integers (a 0..1 variable gives 0 or 1) |
+| `count(names, timeout=0)` | `(state, n)` | number of distinct projections onto `names` |
+
+| State | Meaning |
+|---|---|
+| `SAT` | a solution was found; with `toOptimum`, it is proven optimal |
+| `UNSAT` | no solution exists (after exhaustion, too) |
+| `TIMEOUT` | the limit stopped the search; not proven, and `value` is meaningless |
+
+Behaviours to keep in mind:
+
+- **`hasSolution()` is not the test.** It stays true after `TIMEOUT` and after an
+  exhausted enumeration. Read the returned state. A 400-item knapsack stopped at 0.001 s
+  still reported a solution.
+- **`getLastSolutionFor` on an infeasible model returns `[]`**, not an error. Test the
+  state first.
+- **Maximisation comes back negated.** Exact minimises internally, so `toOptimum` with
+  `minimize=False` returns `-optimum` (the offset is included in the negation). Flip the
+  sign before reporting it.
+
+Errors: a duplicate variable, an unknown name in a term, or a lower bound above the upper
+bound raise `ValueError` in Python (for example `No variable zz found.`). Infeasibility is
+never an exception.
+
+## Time limits
+
+`toOptimum(timeout=0)`, `runFull(timeout=0)` and the other solve calls have **no limit by
+default** (`timeout=0`). A hard model then runs until it finishes.
+
+- Pass `timeout` in seconds when the caller has a budget. Use the budget the task gives;
+  if there is none, time the model on the largest input you expect first and allow a margin.
+- On `TIMEOUT`, report that the answer is **not proven**. Do not report the value or a
+  schedule as optimal. Report the time limit and the state.
+- Measured in this build: the 6 x 6 job shop (ft06) proves makespan 55 in about 0.1 s,
+  including Python start-up. A 60-item knapsack proves in 0.07 s and a 200-item one with
+  8-digit values in 25 s (see [Common issues](#common-issues) for the table).
+
+## All solutions
+
+Enumerate with `runFull(optimize=False)`. After each `SAT`, block the solution
+**projected onto the variables you care about** with `invalidateLastSol(names)`. Auxiliary
+variables are then not counted twice. Stop when the state is `UNSAT`.
 
 ```python
-solver.addReification(head, True, terms, lower_bound)
-# head == 1  <->  sum(terms) >= lower_bound
+solutions = []
+while solver.runFull(optimize=False) == "SAT":
+    solutions.append(solver.getLastSolutionFor(names))
+    solver.invalidateLastSol(names)
 ```
 
-Verified in both directions. `addLeftReification` and `addRightReification`
-give the one-way forms. This is how a condition becomes a variable you can
-count, forbid or put in the objective.
+For a number only, `count(names)` returns `(state, n)`. Example:
+[assets/change-ways](assets/change-ways/README.md).
 
-`solver.addMultiplication(factors, True, low_name, True, high_name)` bounds a
-product by other variables: with `["a", "b"]` bounded below and above by `"z"`,
-it holds `z == a * b`.
+## All optimal solutions
 
-## Channelling, when you need it
+1. Set the objective and call `toOptimum()`; keep the value (negate it for a maximisation).
+2. Pin the objective at that value with `addConstraint(terms, True, best, True, best)`,
+   using the real objective terms, not the negated ones.
+3. Enumerate as above, projected onto the decision variables.
 
-Exact reasons about linear constraints. Anything that talks about a variable
-*taking a particular value* — all-different, counting occurrences, indexing an
-array — needs 0/1 indicators, which cost one variable per value:
+Example: [assets/pick-items](assets/pick-items/README.md).
 
-```python
-# y[v] == 1 exactly when x == v
-y = [f"x_is_{v}" for v in range(lo, hi + 1)]
-for name in y:
-    solver.addVariable(name, 0, 1)
-solver.addConstraint([(1, name) for name in y], True, 1, True, 1)
-solver.addConstraint([(v, y[v - lo]) for v in range(lo, hi + 1)] + [(-1, "x")],
-                     True, 0, True, 0)
-```
+## Common issues
 
-With those, all-different is "at most one variable takes each value", and a
-count is a linear constraint over the indicators. **Build them only for the
-variables that need them**, and keep those variables' domains tight: this is
-the one place where a wide domain does cost, and it is worth saying in the
-reasoning why the bound you chose is the right one.
+| Problem | Likely cause | Fix |
+|---|---|---|
+| Model fails or misreads data when the data file has extra keys (`name`, `note`) | All keys were read or passed in | Read only the keys the model uses, by name ([Reading data](#reading-data)) |
+| Run never ends, or hits an external limit with no answer | `timeout=0` (no limit) | Pass a `timeout` in seconds; on `TIMEOUT` report "not proven" ([Time limits](#time-limits)) |
+| Reported a solution after a timeout, and the value is wrong | `hasSolution()` read instead of the state | Accept only `SAT` from `toOptimum` or `runFull` as an answer |
+| Reported a schedule as optimal after a timeout | Read the value without checking `toOptimum`'s state | Use the value only when the state is `SAT` |
+| Maximum shows as a negative number | Exact minimises internally | Negate `toOptimum`'s value for `minimize=False` |
+| Enumeration gives duplicates | Enumerated over auxiliary variables | `invalidateLastSol(names)` over the decision variables only |
+| An equality is off by one side, or only half enforced | Written as a one-sided bound | `addConstraint(terms, True, k, True, k)` for `sum == k` |
+| Model is unsatisfiable on a zero coefficient | A `(0, name)` term was added from data | Drop zero coefficients when building the term list |
+| Two letters or two nodes share a digit or colour | Indicators per letter but no all-different across letters | For each value, sum the indicators over all variables and bound the sum by 1 |
+| No-overlap model is slow or wrong at 6 x 6 | No horizon, or orders not reified in both directions | Use the reified pair pattern with the horizon set to the sum of durations ([No-overlap](#no-overlap-scheduling)) |
+| `ValueError: No variable ... found` | Term or name used before `addVariable`, or misspelt | Declare every variable first; check the spelling |
+| `ValueError: Unknown encoding ...` | Encoding not in `log`, `order`, `onehot` | Use one of the three |
+| `ValueError: Upper bound ... smaller than lower bound` | Bounds swapped in `addVariable` | Check the order `(name, lb, ub)` |
+| Model is slow with many indicators | One-hot indicators on a wide domain | Tighten the domain; indicate only the variables that need values |
+| Global constraint not found (`all_different`, `element`) | Exact has none | Build from indicators or reification ([Patterns](#patterns)) |
+| Installation fails on macOS or ARM | No precompiled wheel | Build from source, see [Install](#install) |
 
-## What the runner does
+Timing reference (this build, Exact 2.2.1, Python 3.12): a knapsack with 60 items of 6 digits
+proves its optimum in 0.07 s, 120 items of 7 digits in 2.6 s, 200 items of 8 digits in 25 s.
+Pigeonhole-style infeasibility is not hard for Exact. For no-overlap, the ft06 job shop solved
+in 0.1 s with the reified pair pattern, and also with a big-M order constraint with M from 100
+to 10^8, so no time-out was seen for either; measure both on your own model before choosing.
+Source: [sources.md](sources.md).
 
-1. Imports the submission and calls `build(instance)`.
-2. With an objective, calls `setObjective` then `toOptimum` with the remaining
-   budget. **`"SAT"` there means the optimum was proven** — there is no
-   `"OPTIMAL"`. `"TIMEOUT"` means it was not, and Exact still holds a solution
-   in that case, so only `"SAT"` is treated as an answer.
-3. Pins the objective at the proven optimum. Exact minimises internally, so a
-   maximisation's optimum comes back negated and is flipped before pinning.
-4. Calls `runFull` for each further solution and blocks with
-   `invalidateLastSol(names)`, projected onto the **declared outputs**.
-5. Ends with one status: `limit`, `complete`, `unsat`, `timeout` or `error`.
+## Examples
 
-## Reasoning to record
+Each folder under `assets/` is a standalone model with a README (problem, what it shows, run
+command, expected output). Run one with `python3 model.py` inside its folder.
 
-Say where each variable's bounds come from in the instance. If you built
-indicators, say for which variables and why their domains are small enough to
-afford it.
+| Example | Pattern | Output |
+|---|---|---|
+| [assign-distinct](assets/assign-distinct/README.md) | one-hot indicators, all-different, satisfy | `status: SAT` |
+| [budget-infeasible](assets/budget-infeasible/README.md) | reading `UNSAT` as the answer | `status: UNSAT` |
+| [change-making](assets/change-making/README.md) | minimise a sum of variables | `Minimum coins: 5` |
+| [change-ways](assets/change-ways/README.md) | enumerate, projected onto the decision variables | `Solutions: 13` |
+| [cryptarithm](assets/cryptarithm/README.md) | letters as digits, all-different, place values | `9567 + 1085 = 10652` |
+| [either-or](assets/either-or/README.md) | reification, disjunction, minimise | `x = 8 minimum: 8` |
+| [graph-colouring](assets/graph-colouring/README.md) | node by colour, used-colour objective | `colours used: 3` |
+| [job-shop](assets/job-shop/README.md) | reified no-overlap, makespan | `makespan: 55` |
+| [pick-items](assets/pick-items/README.md) | all optimal solutions, pinned objective | `Optimal solutions: 3` |
+| [production-plan](assets/production-plan/README.md) | maximise, sign flipped back | `Optimal profit: 20` |
+| [task-schedule](assets/task-schedule/README.md) | release times, reified no-overlap | `Makespan: 11` |
+
+## Further reading
+
+- Repository and README (install, Python interface): <https://gitlab.com/nonfiction-software/exact>
+- Python bindings, every method and its doc string: <https://gitlab.com/nonfiction-software/exact/-/blob/main/src/Exact.hpp>
+- Input formats for the command line: <https://gitlab.com/nonfiction-software/exact/-/blob/main/InputFormats.md>
+- Examples: <https://gitlab.com/nonfiction-software/exact/-/blob/main/python_examples>; start with `knapsack_tutorial`, which is commented and ends with advanced features
+- Package: <https://pypi.org/project/exact/>

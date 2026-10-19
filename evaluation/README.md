@@ -79,12 +79,13 @@ startup and compilation, so it is not comparable to the runner's
 
 ## Submitting a model
 
-Pick an integration: `cpmpy_python`, `ortools_cp_sat_python`,
-`ortools_cp_sat_cpp`, `minizinc_gecode`, `z3_python`, `clingo_asp`,
-`swipl_clpfd` or `pulp_cbc`. Read its
-modelling skill first, at `solvers/<id>/skills/<name>/SKILL.md`. Each
-`solvers/<id>/` holds `metadata.yaml`, `run.py`, a `Dockerfile`, the
-`readiness_test.py` that certifies it, and that skill.
+Pick an integration: any `solvers/<id>/` with a `metadata.yaml`. What a model
+must do, for every integration, is the submission contract
+[solvers/CONTRACT.md](../solvers/CONTRACT.md); how a given integration takes it
+(file, entrypoint, instance, outputs, objective) is its `solvers/<id>/CONTRACT.md`.
+Each `solvers/<id>/` holds `metadata.yaml`, `run.py`, a `Dockerfile`, the
+`readiness_test.py` that certifies it, that contract, and a standalone skill for
+the solver under `solvers/<id>/skills/` (released copies go to the top-level `skills/solvers/`).
 
 Models are instance-agnostic. Python implements `build(instance)`, C++
 implements `Build(instance, model, outputs)`, MiniZinc declares matching data
@@ -140,7 +141,8 @@ optimality itself and never trusts a claimed objective.
 
 ## Adding an integration
 
-Add a `solvers/<id>/` directory implementing the protocol, plus smoke tests.
+Add a `solvers/<id>/` directory implementing the protocol, plus smoke tests, and
+a `CONTRACT.md` documenting how it realises [solvers/CONTRACT.md](../solvers/CONTRACT.md).
 The evaluator dispatches on integration ID, never on language name. Metadata
 declares `id`, `image`, `extension`, `enumeration`, descriptive
 language/framework/solver fields, and optionally `compilation: true` to

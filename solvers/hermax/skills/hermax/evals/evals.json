@@ -1,67 +1,28 @@
-{
-  "schema_version": 1,
-  "skill_name": "hermax",
-  "evals": [
-    {
-      "id": "objective-as-soft-clauses",
-      "prompt": "Using this skill, write a hermax submission for a problem whose reference has an objective, such as assignment_costs, and confirm the evaluator agrees the optimum was reached.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
-      "assertions": [
-        "The objective is written as soft clauses on model.obj, with the polarity chosen for the direction: ~lit to pay for using something, the bare literal to pay for leaving it behind.",
-        "No auxiliary integer variable is tied to a weighted sum with == purely to carry the objective.",
-        "build returns exactly two values; the objective is on the model rather than in the return.",
-        "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result, including the runner status."
-    },
-    {
-      "id": "written-against-hermax-model",
-      "prompt": "Using this skill, write a hermax submission for any listed problem and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The submission imports from hermax.model and uses Model directly; it does not import any repository-local helper module.",
-        "Constraints are posted with model &= constraint, and structure goes through the framework's own helpers (exactly_one, at_most_one, all_different, increasing, cumulative) rather than being expanded into clauses by hand.",
-        "Declared outputs are hermax variables or containers, handed over whole where the brief declares a vector or a matrix."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
-    },
-    {
-      "id": "boolean-versus-integer-outputs",
-      "prompt": "Using this skill, write a hermax submission for a problem whose brief declares a boolean output and one whose brief declares 0/1 integers, and check both with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
-      "expected_output": "Two accepted models, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The boolean output uses m.bool or m.bool_vector so it renders as true/false, and the integer output uses m.int(name, 0, 1) so it renders as 0/1, matching what generation.brief declares in each case.",
-        "Neither run reports invalid_output."
-      ],
-      "evidence_required": "Both submission sources and both evaluator JSON results."
-    },
-    {
-      "id": "domains-bounded-by-the-instance",
-      "prompt": "Using this skill, write a hermax submission for a problem with integer decision variables over a wide range, such as one where a count or a total runs into the thousands, and check it across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker naming the encoding cost that caused it.",
-      "assertions": [
-        "Every integer variable is bounded by what the instance can actually reach, and the reasoning says where each bound comes from.",
-        "Every instance-dependent quantity comes from the instance argument, and the evaluator accepts every listed instance rather than only the example.",
-        "If the model was abandoned, the recorded blocker says which constraint's encoding was too large, with the observed time or memory."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for every instance."
-    },
-    {
-      "id": "wide-output-as-sum",
-      "prompt": "Using this skill, write a hermax submission for divisible_by_1_through_9, whose declared output is a ten-digit number, and check it with the repository evaluator across every listed instance with solution_limit 2.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/hermax:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The ten-digit output is returned as a linear expression such as sum(10 ** (9 - i) * digit[i]) over 0..9 IntVars or sum(2 ** k * bit[k]) over Booleans, not as one IntVar over the ten-digit range.",
-        "The expression sums only Booleans and IntVars with integer coefficients; no DivExpr from // sits inside the output.",
-        "Divisibility is stated with linear equalities against multiples, not with %.",
-        "The evaluator reports accepted rather than memory_limit or execution_error."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
-    }
-  ]
-}
+{"skill_name": "hermax", "evals": [
+  {"id": 1, "prompt": "Write a hermax model in Python for a 0/1 knapsack with values 6, 5, 8, 9 and weights 2, 3, 6, 7 and capacity 9. Print the chosen items and the best value.", "expected_skill": "hermax",
+   "expected_output": "Proven-optimal selection with value 15, using soft clauses on the items left out",
+   "assertions": ["Uses hermax.model.Model and posts the capacity with m &= ...", "Maximises by m.obj[value] += take[j] (pays for items left out)", "Reports the value as the total minus r.cost, or checks r.status == 'optimum'"]},
+  {"id": 2, "prompt": "Using hermax in Python, find every minimum vertex cover of a 6-vertex graph and print them all.", "expected_skill": "hermax",
+   "expected_output": "Every optimal cover printed once, loop stopping when the cost rises",
+   "assertions": ["Enumerates by blocking clauses over the decision variables", "Stops when the status is not optimum or the cost exceeds the optimum", "Does not print duplicates from auxiliary variables"]},
+  {"id": 3, "prompt": "Write a hermax model that colours a small graph with the fewest colours, minimising the number of colours used.", "expected_skill": "hermax",
+   "expected_output": "Minimum colour count with a proven optimum",
+   "assertions": ["Objective written as soft clauses on model.obj, not as a tied integer variable", "Checks the status is optimum before reporting"]},
+  {"id": 4, "prompt": "Model the SEND + MORE = MONEY cryptarithm in hermax and print the digit assignment, or report that none exists.", "expected_skill": "hermax",
+   "expected_output": "The unique assignment, or an unsat status reported explicitly",
+   "assertions": ["Uses all_different on integer variables", "Reads infeasibility from r.status == 'unsat' rather than an exception"]},
+  {"id": 5, "prompt": "Schedule four jobs on one machine of capacity 2 with precedences in hermax and minimise the makespan.", "expected_skill": "hermax",
+   "expected_output": "Minimum makespan with start times printed",
+   "assertions": ["Uses m.cumulative without wrapping it in m &=", "Models the makespan as an integer with m.obj += makespan or as soft clauses"]},
+  {"id": 6, "prompt": "Write a hermax program that prints the first ten solutions of a satisfaction problem and stops when there are none left.", "expected_skill": "hermax",
+   "expected_output": "Enumeration loop over decision variables with an unsat exit",
+   "assertions": ["Blocks exactly the decision variables", "Exits on a status other than sat"]},
+  {"id": 7, "prompt": "Write a MiniZinc model for n-queens and check it with the minizinc solver.", "expected_skill": null,
+   "expected_output": "The hermax skill is not used",
+   "assertions": ["The hermax skill is not loaded", "The answer uses MiniZinc syntax"]},
+  {"id": 8, "prompt": "Explain what a MaxSAT solver is in general terms, without writing code.", "expected_skill": null,
+   "expected_output": "A conceptual answer without the hermax API",
+   "assertions": ["The hermax skill is not loaded", "No hermax.model calls appear in the answer"]},
+  {"id": 9, "prompt": "Write a Choco model in Java for a job-shop schedule.", "expected_skill": null,
+   "expected_output": "The hermax skill is not used",
+   "assertions": ["The hermax skill is not loaded", "The answer targets Choco, not hermax"]}]}

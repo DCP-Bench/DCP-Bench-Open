@@ -1,247 +1,200 @@
 ---
 name: idp-z3
-description: Write instance-agnostic FO(.) knowledge bases for the DCP-Bench idp_z3 integration (IDP-Z3 0.12.1), covering how instance data is bound into the vocabulary, the ${...} placeholder for type ranges, the minimize/maximize objective convention, FO(.) syntax that differs from every other modelling language, and the arithmetic and parsing traps that make a submission fail.
+description: IDP-Z3, a reasoning engine for FO(.) ("FO-dot") knowledge bases (vocabulary, theory, structure) built on Z3; pip package idp-engine, Python module idp_engine, command idp-engine. Use when writing, debugging or explaining FO(.) models, model expansion or optimisation with IDP-Z3, or when the user has chosen IDP-Z3 for a constraint, configuration or scheduling problem.
+license: Apache-2.0
+compatibility: Requires Python 3.11+ on x86_64 Linux with glibc 2.28+ (the sli-lib dependency ships only as a manylinux_2_28 wheel) and pip install idp-engine; tested with idp-engine 0.12.1, which pins z3-solver 4.11.2.0. LGPL-3.0, no licence key or size limit.
+metadata:
+  domain: constraint-programming
+  solver: idp-z3
+  paradigm: smt
 ---
 
-# FO(.) knowledge bases for `idp_z3`
+# IDP-Z3 (FO(.))
 
-A submission is a plain FO(.) ("FO-dot") file — a `vocabulary` and a `theory`,
-nothing else needed. It is **not a program**: you never call anything, and the
-runner never executes code from your file (a `procedure` block is ignored).
-The runner binds the instance into your vocabulary, asks IDP-Z3 for models, and
-prints them.
+IDP-Z3 reasons over a **knowledge base** written in FO(.), typed first-order logic with
+aggregates and inductive definitions: a `vocabulary` declares types and symbols, a
+`theory` states sentences, a `structure` gives the data. It is not a program: you ask the
+engine for models (model expansion), an optimum, or consequences, from Python
+(`idp_engine`) or from a `procedure main()` run by the `idp-engine` command. The one idea
+to keep in mind: **type ranges are integer literals**, so the data, sizes included, goes
+into a structure that your program writes.
 
-Image: idp-engine 0.12.1 (which pins z3-solver 4.11.2.0) on Python 3.12.
+## Contents
+- [Install](#install) · [Quick start](#quick-start) · [Knowledge base](#knowledge-base) · [FO(.) syntax](#fo-syntax)
+- [Solving](#solving) · [All solutions](#all-solutions) · [Common issues](#common-issues) · [Further reading](#further-reading)
+- References: [FO(.) gotchas and modelling lessons](references/gotchas.md), [engine behaviour, driving z3 directly, timings](references/engine.md)
+- Examples:
 
-## The contract
+| Example | Pattern | Run |
+|---|---|---|
+| [queens-cli](assets/queens-cli/README.md) | satisfy and all solutions, `idp-engine` command | `idp-engine --no-timing queens.idp` |
+| [subset-sum-all](assets/subset-sum-all/README.md) | all solutions, Python API, auxiliary symbol | `python model.py` |
+| [assignment-all-optimal](assets/assignment-all-optimal/README.md) | all optimal solutions | `python model.py` |
+| [project-selection-json](assets/project-selection-json/README.md) | maximise, data from a JSON file, ragged list | `python model.py data.json` |
+| [coins-minimise](assets/coins-minimise/README.md) | minimise, `idp-engine` command | `idp-engine --no-timing coins.idp` |
+| [infeasible-roster](assets/infeasible-roster/README.md) | infeasible | `python model.py` |
+| [schedule-makespan](assets/schedule-makespan/README.md) | scheduling, optimum under a time limit | `python model.py` |
 
-```
-vocabulary {
-    type Row := {1..${n}}          // ${n} is replaced by the instance's integer n
-    queens: Row -> Row             // a declared output: one value per Row
-}
-theory {
-    ! r1, r2 in Row: r1 ~= r2 => queens(r1) ~= queens(r2).
-    ! r1, r2 in Row: r1 ~= r2 => queens(r1) - r1 ~= queens(r2) - r2.
-    ! r1, r2 in Row: r1 ~= r2 => queens(r1) + r1 ~= queens(r2) + r2.
-}
-```
+## Install
 
-- **Declared outputs are symbols with exactly the reference's output names.**
-  `queens: Row -> Row` is read back as a list ordered by `Row` ascending; a
-  two-argument symbol becomes a list of lists (first argument outermost); a
-  nullary `z: () -> Int` or `p: () -> Bool` becomes a scalar. A `-> Bool`
-  symbol reads back as `true`/`false`, an integer one as an integer. Every
-  output must be total over its argument types.
-- **Optimization**: declare a nullary integer `minimize: () -> Int` *or*
-  `maximize: () -> Int` and define it in the theory
-  (`minimize() = sum{{ cost(t, p) | t in Task, p in Person: x(t, p) }}.`).
-  No such symbol means a satisfaction problem. The runner proves the optimum
-  itself and reports an unbounded objective as an error, never as a value.
-- Name extra symbols however you like — auxiliary symbols are fine, and do not
-  multiply the solutions the runner enumerates (it compares declared outputs
-  only).
-
-**Take every quantity from the instance.** A model that hardcodes the numbers of
-the example is the one failure this benchmark exists to catch, and it will be
-rejected the moment a second instance is checked.
-
-## How the instance gets in
-
-FO(.) type ranges must be integer *literals* — `type Row := {1..n()}` is a
-parse error — so the runner provides two mechanisms:
-
-1. **`${name}`** anywhere in the file is replaced by the instance's integer
-   scalar field `name` before parsing. Use it for type ranges:
-   `type Row := {1..${n}}`, `type Day := {0..${days}}`. Only integer scalars;
-   anything else is an error naming the field.
-2. **Declare a symbol with the same name as an instance field and the runner
-   interprets it** in a generated structure:
-
-   | Instance field | Declare | Runner writes |
-   | --- | --- | --- |
-   | `n: 5` | `n: () -> Int` | `n := 5.` |
-   | `w: [7, 8]` | `type I <: Int` and `w: I -> Int` | `w := {0->7, 1->8}.` and `I := {0..1}.` |
-   | `cost: [[..],[..]]` (2x3) | `cost: Task * Person -> Int` | `cost := {(0,0)->.., ...}.`, `Task := {0..1}.`, `Person := {0..2}.` |
-   | `flag: [true, false]` | `flag: I -> Bool` | `flag := {0}.` (the set of true indices) |
-   | `p: true` | `p: () -> Bool` | `p := true.` |
-   | `F: [[1, 2, 3], [4]]` (ragged rows) | `type I <: Int`, `type J <: Int`, `F: I * J -> Int`, `F_len: I -> Int` | `F := {(0,0)->1, ..., (1,0)->4, (1,1)->0, (1,2)->0}`, `J := {0..2}`, `F_len := {0->3, 1->1}` (`F_len` only if declared) |
-   | `R: [[7, [1, 1], [1, 2]], [9, [2, 2]]]` (rows of `[target, cells...]`) | `R_1: I -> Int`, `R_2: I * J * K -> Int`, `R_2_len: I -> Int` | `R_1 := {0->7, 1->9}`; `R_2` holds the padded cells, `R` itself is not bound |
-
-   A ragged list of rows pads with 0 (false for Booleans), so the model reads
-   `F(i, j)` only for `j` below `F_len(i)`. Mixed rows split into `F_1`, `F_2`, ...
-   by column when all rows have one length, or into a scalar head and a ragged tail
-   otherwise. Only the names the model declares are bound; strings and floats are
-   refused only in a declared field.
-
-   Array indices are **0-based**, like the JSON. An argument type is sized
-   from the data only when you declare it `type T <: Int` with no range of
-   your own; if two fields would size the same type differently, that is an
-   error. A field you do not declare is ignored. String fields cannot be bound.
-
-The two compose: size the index type from data, and use `${n}` for ranges that
-come from a scalar.
-
-```
-vocabulary {
-    type I <: Int                  // sized from npv's length
-    budget: () -> Int
-    npv: I -> Int
-    cash_flow: I -> Int
-    x: I -> Bool                   // declared output
-    z: () -> Int                   // declared output
-    maximize: () -> Int
-}
-theory {
-    sum{{ cash_flow(i) | i in I: x(i) }} =< budget().
-    z() = sum{{ npv(i) | i in I: x(i) }}.
-    maximize() = z().
-}
+```bash
+pip install idp-engine
+idp-engine --version          # 0.12.1
 ```
 
-## FO(.) syntax — what differs from everything else
+It installs its own z3-solver (4.11.2.0 for idp-engine 0.12.1, older than the current
+z3), so use a virtual environment if another package needs a newer z3. Details:
+[IDP-Z3 documentation](https://docs.idp-z3.be/en/stable/IDP-Z3.html)
+
+## Quick start
+
+```python
+from idp_engine import IDP, Theory
+
+n = 8
+kb = IDP.from_str("""
+vocabulary V {
+    type Row <: Int
+    queen: Row -> Row                       // queen(r) = column of the queen in row r
+}
+theory T: V {
+    // different columns and diagonals
+    ! r1, r2 in Row: r1 < r2 => queen(r1) ~= queen(r2).
+    ! r1, r2 in Row: r1 < r2 => queen(r1) - r1 ~= queen(r2) - r2.
+    ! r1, r2 in Row: r1 < r2 => queen(r1) + r1 ~= queen(r2) + r2.
+}
+structure S: V {
+    Row := {1..%d}.
+}
+""" % n)
+theory = Theory(*kb.get_blocks("T, S"))
+for model in theory.expand(max=1, timeout_seconds=10):
+    if isinstance(model, str):
+        print(model.strip())        # "No models." when infeasible
+    else:
+        print([int(str(model[f"queen({r})"].value)) for r in range(1, n + 1)])
+```
+
+## Knowledge base
+
+Language reference: [FO(.)](https://docs.idp-z3.be/en/stable/FO-dot.html) · [syntax summary](https://docs.idp-z3.be/en/stable/summary.html)
+
+| Need | Write |
+|---|---|
+| index type sized by data | vocabulary `type Item <: Int`, structure `Item := {0..4}.` (`{}` when empty) |
+| fixed small range | `type Digit := {0..9}` in the vocabulary: a literal range is numeric, so `d() + 1 = 3` works. Literals only: `{1..n()}` is a parse error |
+| integer decision | function into a finite type, `val: Letter -> Digit` |
+| yes/no decision | predicate, `queen: Row * Col -> Bool` (never `Row -> Col -> Bool`) |
+| constant | `n: () -> Int`, used as `n()` (always applied) |
+| 1-D / 2-D data | `w := {0->7, 1->8}.` / `cost := {(0,0)->1, (0,1)->2}.` (tuple parentheses required) |
+| predicate data | the set of true tuples, `edge := {(0,1), (1,2)}.` or `{}` |
+| proposition data | `p := true.` |
+| definition (closed world) | `{ ! x in T: reach(x) <- start(x). ! x in T: reach(x) <- ? y in T: reach(y) & edge(y, x). }` |
+| count of a defined predicate | `{ ! c in Colour: used(c) <- ? v in Node: colour(v) = c. }` then `n() = #{ c in Colour: used(c) }.` |
+| objective | a nullary `total: () -> Int` fixed by `total() = sum{{ ... }}.` |
+
+Write the knowledge base as a plain string and **append a structure generated from your
+data** ([project-selection-json](assets/project-selection-json/README.md)): sizes become
+range literals, lists become `{i->v}` maps, ragged lists become predicates or a padded
+map with a length function. Compute any constant the theory needs (a magic sum, a bound)
+in the program and put it in the structure. Several structure blocks merge into one
+`Theory`. Arrays you write 0-based stay 0-based; shift 1-based data in the constraint
+(`r + 1 = pos(k)`). Comment each block of sentences with the requirement it encodes.
+
+## FO(.) syntax
 
 | Meaning | Write | Not |
-| --- | --- | --- |
-| less-or-equal | `=<` | `<=` (that is reverse implication) |
+|---|---|---|
+| less-or-equal | `=<` | `<=` (reverse implication) |
 | not equal / equal | `~=` / `=` | `!=` / `==` (parse errors) |
 | and / or / not | `&` `\|` `~` (or `and` `or` `not`) | |
 | implies / iff | `=>` / `<=>` | |
-| for all / exists | `! a, b in T:` / `? a in T:` | `! a b in T:` (the comma is required) |
+| for all / exists | `! a, b in T:` / `? a in T:` | `! a b in T:` (comma required) |
 | exactly / at most / at least k | `?=1 v in T: p(v).` `?=<2 ...` `?>=2 ...` | |
 | count | `#{ v in T: p(v) }` | |
-| sum | `sum{{ e(v) \| v in T: guard(v) }}` — **double** braces | `sum{ ... }`, `sum(v in T)(e)` |
+| sum | `sum{{ e(v) \| v in T: guard(v) }}` (**double** braces) | `sum{ ... }`, `sum(v in T)(e)` |
 | min / max | `max{ e(v) \| v in T: guard(v) }` | |
 | conditional term | `if c then a else b` | |
 | definition | `{ ! v in T: even(v) <- v % 2 = 0. }` | |
-| constant | `n()` — always applied | bare `n` |
 
-- **Every sentence ends with `.`** — a missing period is a parse error.
-- **Comment each block of sentences** with a `//` line taken from the problem
-  description (e.g. `// every row holds different values`), so the theory can be
-  read against the statement.
-- Declarations are `name: Arg1 * Arg2 -> Result`; there is no `pred`/`var`
-  keyword. Integer decisions are functions (`val: Letter -> Digit`), yes/no
-  facts are predicates (`queen: Row * Col -> Bool`).
-- The parser's useful line is the last one, `Expected ... at position (l, c)
-  => '... *token ...'`; the `*` marks where it stopped. Ignore the stack above.
+**Every sentence ends with `.`**. Declarations are `name: A * B -> Result`; there is no
+`var`/`pred` keyword. The parser's useful line is the **last** one,
+`Expected ... at position (l, c) => '... *token ...'`, where `*` marks where it stopped.
+**Precedence**, loosest to tightest: quantifiers, `<=`, `<=>`, `=>`, `|`, `&`, comparisons,
+`+ -`, `* / %`, unary `- ~`. So `a & b => c` means `(a & b) => c`, and `p | q & r` means
+`p | (q & r)` (both checked). Parenthesise any sentence that mixes `&`, `|` and `=>`, and
+any chain of `=>`, so the reader does not have to apply the table.
 
-## Gotchas, all verified against IDP-Z3 0.12.1
+The full list of traps, each verified: [references/gotchas.md](references/gotchas.md).
 
-- **Integer division and modulo are not consistent.** IDP-Z3 folds constants —
-  including instance data, which arrives as constants — in Python, but sends
-  anything involving a decision symbol to z3. They disagree for a **negative
-  divisor**: `7 / -2 = -4` and `7 % -2 = -1`, yet with `x() = 7`,
-  `x() / -2 = -3` and `x() % -2 = 1`. For positive divisors both agree
-  (`-7 / 2 = -4`). Avoid negative divisors, or constrain quotient and
-  remainder yourself.
-- **Dividing by a symbol needs a guard IDP-Z3 can see statically**: `x() / y()`
-  fails with "Domain error: ¬(y() = 0) is not a tautology" even if the theory
-  says `y() = 2`. Write `y() ~= 0 => c() = x() / y().`, use
-  `if y() ~= 0 then x() / y() else 0`, or give `y` a type without 0.
-- **A type with no range is not numeric.** `type T` (no `<: Int`) cannot take
-  part in arithmetic even if it is interpreted with integers; write
-  `type T <: Int` for an index type the runner should size.
-- **`abs` is a built-in symbol** and cannot be redeclared (it fails with an
-  unhelpful `IndexError`). Other names are permissive: `a`, `S`, `T`, `V`,
-  `min`, `sum`, uppercase names all work as symbols.
-- **`${...}` takes an integer expression over the instance**: an integer scalar
-  field, literals, `+ - * //`, `/` (exact, refused unless it divides evenly),
-  parentheses, and `sum`, `len`, `max`, `min` of a one-dimensional integer array
-  field. `type Slot := {1..${2*k}}` sizes by a product, and
-  `type Job := {1..${sum(demand)}}` by a total.
-- **`${...}` also takes `**` with a non-negative integer exponent (result at most
-  10^7), and `sum`, `len`, `max`, `min` of a 2-D or ragged integer field**: `len` is
-  the row count and the others run over every entry, so `{1..${max(edges)}}` sizes
-  by the largest node in a list of pairs. Anything else (calls, attributes,
-  names that are not fields) is refused with "a placeholder takes ...".
-  **Wrap the whole expression**: `{0..${2*n+1}}`, not `{0..2*${n}+1}` (that
-  becomes `2**8+1` and fails to parse). `${...}` works in the theory too, e.g.
-  `sum{{ ... }} = ${n*(n*n+1)//2}.`; outside `${...}`, `//` starts a comment and
-  integer division in a theory is `/`.
-- **`?=n x in T:` under an implication or parentheses crashes idp-engine 0.12.1**
-  (an internal `TypeError` in annotation, reported as an `error` status). Write
-  the quantifier at the top of a sentence, or use `#{x in T: ...}` counts.
-- **Interpreting a data symbol yourself (in your own `structure`) stops the
-  runner from binding it** — the instance value is then ignored, which is
-  exactly the hardcoding the evaluator rejects on the next instance.
-- **Nonlinear integer arithmetic** (a product of two decision symbols) can make
-  z3 run until the budget is spent, or fail to prove an optimum. Rewrite a
-  product linearly: for ±1 values count equal pairs instead of multiplying; for
-  `p * x` with `x` in a small type write `sum{{ (if x = k then k * p else 0) | k in K }}`
-  or a table of ground implications (`x() = k => y() = k * k`).
-- **An unbounded `-> Int` decision makes hard cases time out.** Ten pairwise
-  different values in 1..9 declared `-> Int` with bound constraints ran into the
-  60 s limit as `unknown`; the same with `type Val := {1..9}` proved
-  unsatisfiable in 3.5 s. Give each decision a finite type.
-- **Parenthesise a compound term inside an aggregate** (a product, or a sum such as
-  `(start(j) + dur(j))` in `max{ }`): `sum{{ a(x) * b(x) | x in T }}` fails
-  with "Expected 'is\s+enumerated' or 'in|∈' or ',' or '}}' or '|'"; write
-  `sum{{ (a(x) * b(x)) | x in T }}`, or define `c(x) = a(x) * b(x)` and sum `c`.
-- **Mind the element count of a range**: `{0..${n}}` has n+1 elements and
-  `{1..${n}}` has n; a 0-based output of n elements is `{0..${n-1}}`.
-- **Bound every output, cheaply.** An unbounded `-> Int` output admits values the
-  description rules out (negative ages, entries above n), and the evaluator
-  rejects them with "Declared outputs cannot extend to a reference solution".
-  Use a small range type (up to a few hundred values) or explicit bounds in the
-  theory on a `-> Int` output (`0 =< x() & x() =< ${max_val}.`). Large range
-  types (thousands of values) and range types on the objective or on values
-  fixed by equations make z3 slow or run out of memory; keep those `-> Int`.
-- **An output the brief shows as `int` must not be `-> Bool`**: the evaluator
-  says "Expected integer at x[0][0]". Use `type Bit := {0..1}`.
-- **Ground facts in a theory do not close a predicate**: `knows(0,3).` leaves
-  every unlisted pair free. State facts inside a definition, `{ knows(0,3). ... }`,
-  so everything else is false.
-- **Write a two-argument symbol as `A * B -> Bool`**; `A -> B -> Bool` does not parse.
-- **`?=<k` takes one variable**; for pairs write `#{ i, j in T: i < j & p(i, j) } =< k`.
-- **Counts and sums over several variables parse** (`#{ i, j in T: ... }`), but an
-  `if ... then ... else` directly inside a two-variable `sum{{ }}` does not; define
-  it as a helper symbol and sum that.
-- **`min{ }`/`max{ }` over a set that depends on decisions** makes optimum proofs
-  slow; use Boolean presence predicates (`started(p, s) <=> ? t in T: t =< s & plays(p, t)`).
-- **A symbol name must be unique**: "Duplicate declaration of D" when an output
-  and a helper share a name.
-- **String fields cannot be bound**: declaring one fails with "instance values of
-  type str cannot be bound"; an undeclared string field or column is ignored, so
-  bind only the integer columns of a mixed row (`movies_2`, `movies_3`). Padding
-  of ragged rows is 0, so compare 1-based ids or guard with `F_len`.
-- **A data field holding 0/1 integers binds as `-> Int`**; compare it with `= 1`.
-  Declared `-> Bool` it fails with "Declared outputs cannot extend ..." without
-  naming the field.
-- **Large quantifier spans ground to huge theories.** Pairwise sentences over 1000
-  elements ran out of memory; quantify over adjacent pairs (`! p in Adj: ... p + 1`)
-  over a type one shorter, which also avoids "Domain error ... is not a tautology"
-  on `p - 1`. A successor rule as an existential (`x(c) ~= last => ? c2: x(c2) =
-  x(c) + 1 & adjacent(c, c2)`) or an inverse map from values to cells is much
-  faster than a four-variable universal implication.
-- **`%` or comparisons between two decision sums are slow**: compare each sum
-  with a constant computed in `${...}`, and fold `%` over data into counts.
-- **Two-variable quantifiers under an implication** (`!` or `?`) fail with "set
-  expected at most 1 argument"; nest them (`! r in R: ! c in C: ...`). A quantified
-  variable may not reuse a declared symbol's name. Definitions need a
-  head quantifier: `{ ! x, y in T: rel(x, y) <- ... }`.
-- **Instance coordinates may be 1-based** while arrays bind 0-based; shift in
-  the constraint (`r + 1 = lt(k, 0)`) rather than in the data.
+## Solving
 
-## Check your own model before submitting
+API: [IDP-Z3 Python API and procedures](https://docs.idp-z3.be/en/stable/IDP-Z3.html)
 
-```sh
-python -m evaluation.check MODEL.idp --problem PROBLEM --solver idp_z3 --instance-count 99
-```
+| Call | Does |
+|---|---|
+| `IDP.from_str(text)` / `IDP.from_file(path)` | parse; uninterpreted `<: Int` types are fine until `Theory()` |
+| `kb.get_blocks("T, S")` | the named blocks (default names `V`, `T`, `S`) |
+| `Theory(*blocks)` | ground; "Expected an interpretation for type X" if a type is unsized |
+| `theory.expand(max=10, timeout_seconds=10, complete=False)` | yields models (`Assignments`), then **one message string**; `max=0`, `timeout_seconds=0` mean unlimited |
+| `theory.optimize("total()", minimize=True)` | fixes `total()` to its optimum; chain `.expand()` for the models |
+| `model["queen(3)"].value` | an Expression; keys look like `"cost(0, 1)"`, `"total()"` |
 
-`--instance-count 99` checks every instance the problem has, which is what
-catches a model that fitted the example. `python -m generation.brief PROBLEM`
-lists the declared output names and every instance field with its shape.
+Messages: `"No models."` (infeasible), `"\nNo more models."` (enumeration complete),
+`"\nMore models may be available.  Change the max argument to see them."`, the
+`timeout_seconds` variants, and `"\nNo model found in N seconds. ..."`.
 
-Read `reason` and `detail` on failure. `execution_error` covers everything the
-runner rejects before solving: a parse or type error (the detail names the line
-and column), a declared output that is not a symbol ("Declared output huey is
-not a symbol of the vocabulary"), a bad `${...}`, or data that does not fit its
-declaration. `invalid_solution` means the reference rejects a solution your
-theory allows, `suboptimal_solution` means the objective is wrong,
-`invalid_output` means an output came back with the wrong shape or type, and
-`execution_timeout` usually means nonlinear arithmetic or a type left far
-larger than the problem needs.
+- **Read values by text**: `int(str(v.value))`; a Boolean is `str(v.value) == "true"`.
+  `bool(v.value)` is always `True`, even for `false`. With `complete=False` (the default) an
+  unconstrained term's value can be `None` and is not enumerated; pass `complete=True` when
+  every symbol needs a value ([gotchas](references/gotchas.md#procedures-and-the-python-side)).
+- `optimize` raises `AssertionError("Optimization requires satisfiable specification")` for
+  an infeasible theory **and** when z3 gives up, has **no time limit**, and returns a wrong
+  optimum for an unbounded objective. Give the objective's ingredients finite types, or
+  drive the z3 `Optimize` yourself ([schedule-makespan](assets/schedule-makespan/README.md),
+  [references/engine.md](references/engine.md)).
+- **Command line**: `idp-engine file.idp` runs `procedure main()` (without one: `KeyError:
+  'main'`), with `pretty_print(model_expand(T, S, max=0, timeout_seconds=0))`,
+  `pretty_print(minimize(T, S, term="total()"))` (one optimal model; `maximize` likewise),
+  `model_check(T, S)` (`sat`/`unsat`), `model_propagate(T, S)`. `--no-timing` drops the
+  timing line. A procedure cannot import modules, so read JSON data from Python.
+- Errors are exceptions with a traceback (the CLI exits 1); the last line is the useful one.
 
-Repair the model from the reported reason. Never change the reference, the
-dataset, or the evaluator to make a submission pass.
+## All solutions
+
+`theory.expand(max=0, timeout_seconds=0)` enumerates until `"\nNo more models."`
+([subset-sum-all](assets/subset-sum-all/README.md)). It blocks on **every** unknown term,
+so a free auxiliary symbol multiplies the models (a free `aux: () -> V` turned 3
+solutions into 9; a leading `_` does not help): fix each auxiliary symbol by an equation
+or a definition. **All optimal**: `theory.optimize(...)` then `theory.expand(max=0, ...)`
+enumerates only optimal models ([assignment-all-optimal](assets/assignment-all-optimal/README.md));
+with the z3 route, add `term == best` to `theory.solver` and block the output terms
+yourself ([references/engine.md](references/engine.md)).
+
+## Common issues
+
+| Problem | Likely cause | Fix |
+|---|---|---|
+| `Expected IDPFLOAT or INT` at a type range | `{1..n()}` or `{1..n}` | write the literal from your program ([Knowledge base](#knowledge-base)) |
+| `Expected '{{' ...` after `sum{` | an f-string turned `{{` into `{` | keep FO(.) in a plain string; format only the structure |
+| `𝔹 value expected (ℤ found: 2)` | `x() <= 2` is reverse implication | `=<` |
+| `ℤ value expected (Row found: ...)` | `type Row` with no range and no `<: Int` | `type Row <: Int`, or a literal range `type Row := {1..9}` |
+| `Domain error: ¬(y() = 0) is not a tautology` | division by a symbol | guard it ([gotchas](references/gotchas.md#arithmetic)) |
+| `IndexError: list index out of range` at parse | redeclared `abs` | rename it |
+| `Duplicate declaration of D` | two symbols named alike | rename one |
+| `set expected at most 1 argument` | two-variable quantifier under an implication | nest the quantifiers |
+| `TypeError` in annotation | `?=n` under an implication or parentheses | put it at the top of a sentence, or use `#{ }` |
+| `Can't use function enumeration for predicates` | `p := {0->true}.` | `p := {0}.` |
+| every Boolean reads as true | `bool(value)` | `str(value) == "true"` |
+| models repeat with the same decisions | a free auxiliary symbol | fix it by an equation or definition |
+| an output reads back `None`, or models differ only in an unconstrained symbol | `expand` with the default `complete=False` | `complete=True`, or constrain the symbol ([engine](references/engine.md)) |
+| a sentence with `&`, `\|` and `=>` means something other than intended | precedence: `&` binds tighter than `\|`, which binds tighter than `=>` | parenthesise the parts ([FO(.) syntax](#fo-syntax)) |
+| slow or `unknown`, out of memory | nonlinear product, unbounded `-> Int`, huge quantifier span | [performance lessons](references/gotchas.md#performance) |
+| unlisted facts are free | ground facts written in a theory | put them in a definition `{ ... }` or a structure |
+| wrong "optimum" | unbounded objective | bound it; check `lower == upper` ([engine](references/engine.md)) |
+
+## Further reading
+
+- Documentation: <https://docs.idp-z3.be/en/stable/> (FO(.) reference, summary, Python API)
+- Package: <https://pypi.org/project/idp-engine/>
+- Source of truth for engine behaviour: `idp_engine/Theory.py` and the grammar `idp_engine/Idp.tx` in the installed package

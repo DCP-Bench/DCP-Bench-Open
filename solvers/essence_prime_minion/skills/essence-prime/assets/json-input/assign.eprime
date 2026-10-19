@@ -1,0 +1,20 @@
+language ESSENCE' 1.0
+$ Give every person one slot from their own wish list, within the slot capacities, so that as many people as possible get their first wish.
+given n_people, n_slots, max_wishes : int(1..)
+given capacity : matrix indexed by [int(1..n_slots)] of int(0..)
+$ wishes[p, k] is the k-th wish of person p; padded with 0 after wishes_len[p]
+given wishes : matrix indexed by [int(1..n_people), int(1..max_wishes)] of int(0..n_slots)
+given wishes_len : matrix indexed by [int(1..n_people)] of int(1..max_wishes)
+$ choice[p] is the position in p's wish list that p gets
+find choice : matrix indexed by [int(1..n_people)] of int(1..max_wishes)
+find slot : matrix indexed by [int(1..n_people)] of int(1..n_slots)
+find first_wishes : int(0..n_people)
+maximising first_wishes
+such that
+$ a person only gets a slot from their own list
+forAll p : int(1..n_people) . choice[p] <= wishes_len[p],
+forAll p : int(1..n_people) . slot[p] = wishes[p, choice[p]],
+$ no slot holds more people than its capacity
+atmost(slot, capacity, [s | s : int(1..n_slots)]),
+$ count the people who get their first wish
+first_wishes = (sum p : int(1..n_people) . toInt(choice[p] = 1))

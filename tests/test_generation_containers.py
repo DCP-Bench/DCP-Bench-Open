@@ -23,6 +23,9 @@ class GenerationContainerTests(unittest.TestCase):
                 skill = root / "skills/test-solver"
                 skill.mkdir(parents=True)
                 (skill / "SKILL.md").write_text("---\nname: test-solver\ndescription: Test CPMpy submissions.\n---\nUse build(instance).\n")
+                (root / "solvers/cpmpy_python").mkdir(parents=True)
+                (root / "solvers/CONTRACT.md").write_text("# Contract\n", encoding="utf-8")
+                (root / "solvers/cpmpy_python/CONTRACT.md").write_text("# cpmpy_python\n", encoding="utf-8")
                 config = root / "config.json"
                 config.write_text(json.dumps({"agent": "deterministic test fixture", "profile": {"solution_limit": 2}}))
                 manage.init("repair", str(config))

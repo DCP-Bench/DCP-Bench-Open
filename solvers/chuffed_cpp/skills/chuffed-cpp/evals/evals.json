@@ -1,105 +1,24 @@
-{
-  "schema_version": 1,
-  "skill_name": "chuffed-cpp",
-  "evals": [
-    {
-      "id": "dcp-satisfaction-from-description",
-      "prompt": "Using this skill, write a chuffed_cpp submission for a satisfaction problem such as csplib_054_n_queens, starting from `python -m generation.brief`, and check it with the repository evaluator across the listed instances.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/chuffed_cpp built"
-      ],
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The file includes dcp.h, defines Build(const json&, json&), defines no main, and writes nothing to standard output.",
-        "Every instance-dependent quantity is read from the instance argument and the evaluator accepts every checked instance.",
-        "Output leaves are the integers returned by dcp::out, so the evaluator does not report invalid_output.",
-        "The file opens with a comment stating what the problem is, and each group of constraints starts with a comment worded as in the problem statement (for example 'all rows must have different values'), not naming the Chuffed function used.",
-        "The model declares branch(...) on a named vec of its main decision variables."
-      ],
-      "evidence_required": [
-        "the submitted .cpp file",
-        "the evaluator JSON result"
-      ]
-    },
-    {
-      "id": "dcp-optimization-with-arrays",
-      "prompt": "Using this skill, write a chuffed_cpp submission for an optimization problem whose instance holds arrays and a scalar, such as knapsack, and confirm the evaluator accepts the optimum.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/chuffed_cpp built"
-      ],
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
-      "assertions": [
-        "optimize(var, OPT_MIN or OPT_MAX) is called once on a single IntVar, with the direction of the problem, and no bound is taken from a known answer.",
-        "Weighted sums are posted with int_linear over named vec<int> and vec<IntVar*> and a result IntVar, with no operators applied to IntVar pointers.",
-        "If the objective value is a declared output it is exported through the objective variable itself or an IntVar constrained equal to it.",
-        "The evaluator reports accepted and not suboptimal_solution or execution_timeout.",
-        "Each constraint group, including the objective definition, carries a comment in the problem's own words."
-      ],
-      "evidence_required": [
-        "the submitted .cpp file",
-        "the evaluator JSON result"
-      ]
-    },
-    {
-      "id": "dcp-repair-vec-temporary",
-      "prompt": "Using this skill, repair this chuffed_cpp submission that fails with compilation_error: it calls int_linear(coefs, {x, y}, IRT_LE, 10) and all_different(vec<IntVar*>{a, b}) and writes x + y inside a constraint. Rerun the evaluator after the repair.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/chuffed_cpp built",
-        "a failing submission as described"
-      ],
-      "expected_output": "A compiling model with the same meaning, accepted by the evaluator.",
-      "assertions": [
-        "Every vec argument is a named non-const lvalue built with push, with no initializer lists or temporaries.",
-        "Any expression such as x + y is replaced by an auxiliary IntVar and a constraint (int_linear or int_plus), not by operators.",
-        "The repair does not drop or weaken a constraint to get the file to compile, and the evaluator reports accepted."
-      ],
-      "evidence_required": [
-        "the repaired .cpp file",
-        "the evaluator JSON result"
-      ]
-    },
-    {
-      "id": "dcp-boolean-output",
-      "prompt": "Using this skill, write a chuffed_cpp submission for a problem whose declared outputs include a Boolean array (for example an include/exclude choice reified from a comparison) and check it with the repository evaluator.",
-      "prerequisites": [
-        "Docker running",
-        "image dcp-eval/chuffed_cpp built"
-      ],
-      "expected_output": "An accepted model that exports Booleans as 0/1 integers, or a recorded blocker.",
-      "assertions": [
-        "Each exported Boolean is a 0..1 IntVar linked to its BoolView with bool2int, or created directly as a 0..1 IntVar; no BoolView is passed to dcp::out.",
-        "Any negation ~b is applied to a named BoolView lvalue.",
-        "The evaluator reports accepted and not invalid_output."
-      ],
-      "evidence_required": [
-        "the submitted .cpp file",
-        "the evaluator JSON result"
-      ]
-    },
-    {
-      "id": "standalone-program-from-description",
-      "prompt": "Using this skill and no other repository scaffolding, write a standalone Chuffed C++ program (own main, CMakeLists.txt) that solves a small problem given in words, such as 'assign 6 jobs with given durations to 2 machines to minimize the finishing time', then compile it against an installed Chuffed 0.14.0 and run it.",
-      "prerequisites": [
-        "an installed Chuffed 0.14.0 (CMAKE_PREFIX_PATH set), or the Docker image dcp-eval/chuffed_cpp:v1",
-        "CMake and a C++17 compiler"
-      ],
-      "expected_output": "A program that compiles, runs, and prints a correct optimal solution, or a recorded blocker with the compiler or runtime output.",
-      "assertions": [
-        "The program defines a Problem subclass that posts the model in its constructor, overrides print(std::ostream&), and calls engine.solve(new P(...)) from main.",
-        "CMake uses find_package(chuffed CONFIG REQUIRED) and links chuffed chuffed_fzn chuffed and Threads.",
-        "It declares branch(...) on a named flat vec<IntVar*>, and for optimization calls optimize once on a single IntVar.",
-        "Values are read with getVal() only inside print or a solution callback.",
-        "It does not use operators on IntVar pointers, std::vector or initializer lists as constraint arguments, int_mod, or parseOptions on its own arguments.",
-        "Each constraint block has a comment in the problem's words, and the file opens with a comment stating the problem.",
-        "The run output shows the optimum and the answer is checked by hand or against a second computation."
-      ],
-      "evidence_required": [
-        "the .cpp and CMakeLists.txt",
-        "the build and run output"
-      ]
-    }
-  ]
-}
+{"skill_name": "chuffed-cpp", "evals": [
+  {"id": 1, "prompt": "Write a C++ program with Chuffed's native API that completes a 4x4 Latin square from a few given cells, prints the grid, and builds with CMake.", "expected_skill": "chuffed-cpp",
+   "expected_output": "A Problem subclass posting all_different per row and column, the clues as int_rel equalities, a branch on the flattened grid, and a CMake project linking Chuffed", "assertions": ["Defines a Problem subclass that posts the model in its constructor and overrides print(std::ostream&)", "Uses find_package(chuffed CONFIG REQUIRED) and links chuffed chuffed_fzn chuffed and Threads::Threads", "Passes named vec<IntVar*> lvalues (built with push or flatten) to all_different and branch, never std::vector or initializer lists", "Reads values with getVal() only inside print or a solution callback"]},
+  {"id": 2, "prompt": "Using Chuffed from C++, list every solution of the 6-queens problem and print how many there are.", "expected_skill": "chuffed-cpp",
+   "expected_output": "Four solutions enumerated with output_vars and so.nof_solutions = 0", "assertions": ["Declares output_vars on the queen variables", "Sets so.nof_solutions = 0", "Prints engine.solutions after a search that ended complete (not RES_SAT or RES_UNK)"]},
+  {"id": 3, "prompt": "With Chuffed's C++ API, find the minimum number of coins to pay 10 with coins 2, 3, 4, 5, 6, 7, then list every way to pay with that minimum.", "expected_skill": "chuffed-cpp",
+   "expected_output": "Optimum 2, then the three optimal ways (3+7, 4+6, 5+5)", "assertions": ["Solves for the optimum in a separate process (fork or a second run), because Chuffed's globals cannot be reset", "Builds the model again with the objective fixed to the optimum, no optimize call, output_vars on the decisions and so.nof_solutions = 0"]},
+  {"id": 4, "prompt": "Write a Chuffed C++ model for a 0/1 knapsack that maximises total value within a capacity and reports whether the optimum was proven.", "expected_skill": "chuffed-cpp",
+   "expected_output": "A maximise model with int_linear for weight and value and optimize(profit, OPT_MAX)", "assertions": ["Defines the objective as an IntVar through int_linear(values, take, IRT_EQ, profit)", "Calls optimize once on that IntVar with OPT_MAX", "Treats RES_UNK as a time out with an unproven best and reads the optimum from engine.best_sol otherwise"]},
+  {"id": 5, "prompt": "Schedule six tasks with durations, worker demands and precedences on 3 workers using Chuffed in C++, minimising the makespan.", "expected_skill": "chuffed-cpp",
+   "expected_output": "A cumulative model with start variables, precedences via int_rel with an offset, and optimize(makespan, OPT_MIN)", "assertions": ["Posts cumulative(start, duration, demand, capacity) with vec arguments", "Bounds each task end by the makespan with int_rel(start[i], IRT_LE, makespan, -duration[i]) or an equivalent constraint", "Branches on the start variables"]},
+  {"id": 6, "prompt": "My Chuffed C++ program should report 'no solution' for an infeasible instance, but it prints =====UNSATISFIABLE===== and exits with code 0 before my status code runs. Fix it.", "expected_skill": "chuffed-cpp",
+   "expected_output": "An explanation that a root failure calls exit(0) inside Chuffed, and an atexit handler with a flag set after engine.solve", "assertions": ["Explains that engine.solve does not return on a root failure", "Detects it with std::atexit and a flag, not with engine.status", "Keeps the normal 0-solutions check for infeasibility proven by search"]},
+  {"id": 7, "prompt": "Write a Chuffed C++ program that reads a graph from a JSON file given on the command line (a list of neighbour lists per node) and colours it with as few colours as possible.", "expected_skill": "chuffed-cpp",
+   "expected_output": "A program that parses argv[1] with nlohmann/json, takes every size from the data, and minimises the highest colour", "assertions": ["Reads the path from argv[1] and parses it with nlohmann/json, linking nlohmann_json::nlohmann_json", "Handles neighbour lists of different lengths and ignores keys it does not use", "Copies the data into vec containers before posting constraints"]},
+  {"id": 8, "prompt": "This Chuffed model crashes with 'double free or corruption' and another one aborts with 'arithmetic.cpp:691: Not yet supported'. What is wrong?", "expected_skill": "chuffed-cpp",
+   "expected_output": "The vec copy and int_mod pitfalls, with fixes", "assertions": ["Identifies the shallow vec copy (assignment or pushing a local vec into a vec<vec<>>) and builds rows in place", "Replaces int_mod with x = q*y + r, 0 <= r < y via int_linear"]},
+  {"id": 9, "prompt": "Write a MiniZinc model for 8-queens and solve it with the chuffed solver from the MiniZinc command line.", "expected_skill": null,
+   "expected_output": "The chuffed-cpp skill is not used: the request is MiniZinc, not Chuffed's C++ API", "assertions": ["chuffed-cpp is not loaded"]},
+  {"id": 10, "prompt": "Solve a Latin square with Gecode in C++.", "expected_skill": null,
+   "expected_output": "The chuffed-cpp skill is not used: another solver is named", "assertions": ["chuffed-cpp is not loaded"]},
+  {"id": 11, "prompt": "Explain the history of lazy clause generation research.", "expected_skill": null,
+   "expected_output": "The chuffed-cpp skill is not used: no modelling task", "assertions": ["chuffed-cpp is not loaded"]}
+]}

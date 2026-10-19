@@ -1,5 +1,11 @@
 # Sources for `pumpkin-rust`
 
+Tested with pumpkin-solver 0.5.0, Rust 1.98.1 (in a container image), Linux with Docker.
+
+Existing skills: none recorded. This skill was refactored from an earlier integration skill, which is not a public skill.
+
+Examples verified inside the same image.
+
 Documentation this skill's instructions were written from. Add an entry whenever
 a claim here comes from a specific page or version.
 
@@ -10,74 +16,106 @@ a claim here comes from a specific page or version.
 - <https://docs.rs/pumpkin-solver/0.5.0/pumpkin_solver/> — the crate-level
   documentation, whose worked examples are the source for `Solver::satisfy`,
   `Solver::optimise` with `LinearSatUnsat`, and `get_solution_iterator`.
-  **This is also the style reference for a submission**: variables from
-  `new_bounded_integer`, a tag from `new_constraint_tag`, and constraints
-  posted as `solver.add_constraint(<constructor>(vars, .., tag)).post()`.
+  Constraints are posted as `solver.add_constraint(<constructor>(vars, .., tag)).post()`.
 - <https://docs.rs/pumpkin-solver/0.5.0/pumpkin_solver/core/proof/struct.ConstraintTag.html>
   — what a constraint tag is for.
+- <https://github.com/consol-lab/pumpkin> — repository, licence (MIT OR Apache-2.0) and changelog.
 - The vendored crate sources of `pumpkin-solver`, `pumpkin-core`,
-  `pumpkin-constraints` and `pumpkin-conflict-resolvers` 0.5.0, read inside the
-  build container. These are authoritative over the rendered documentation, and
-  every signature in this skill was taken from them.
-- `solvers/pumpkin_rust/rust/driver/src/lib.rs`, `run.py` and `Dockerfile` in
-  this repository — the harness contract this skill describes. The driver
-  wraps no part of Pumpkin's modelling API: a submission is handed
-  `pumpkin_solver::Solver` itself and posts constraints with Pumpkin's own
-  constructors. What the driver supplies is the JSON instance reader, the
-  declared-output map, and the runner protocol, none of which Pumpkin has.
+  `pumpkin-constraints` and `pumpkin-conflict-resolvers` 0.5.0 (the crates.io
+  packages, fetched with `cargo vendor` inside the image). These are authoritative
+  over the rendered documentation, and every signature in this skill was taken from them.
+- The `run` loop of an earlier Pumpkin driver program (unpublished, outside the upstream
+  repository) — the reference for the satisfy, optimise, blocking-clause and
+  `OptimisationResult` handling used in the examples.
 
 Every claim below was checked by compiling and running it inside the
-integration image during the run recorded at
-`generation/runs/20260918T0000Z-pumpkin-a7f3`, not taken from documentation
-alone.
+integration image, not taken from documentation alone.
 
 - `pumpkin_solver::element` indexes **0-based**: a table `[10, 20, 30, 40]` at
   index 1 yields 20.
 - `pumpkin_solver::division` truncates toward zero: `-7 / 2` is `-3`, not `-4`.
 - The modulo decomposition `a == k*q + r` with `0 <= r < k` reproduces
-  `23 mod 7 == 2`. Pumpkin has no modulo constraint of its own; the constraint
-  list in `pumpkin-constraints/src/constraints/` is the whole vocabulary.
-- `.reify(flag)` on a posted constraint pins an indicator in both directions,
-  through `NegatableConstraint::reify`; `.implied_by(flag)` alone is
-  half-reification and leaves the indicator free.
+  `23 mod 7 == 2`. Pumpkin has no modulo constraint of its own; the constructor
+  list in `pumpkin-constraints/src/` is the whole vocabulary.
+- `.reify(flag)` on a posted constraint pins an indicator in both directions
+  (3 solutions over `x in 0..2` and the flag), `.implied_by(flag)` alone is
+  one-way (4 solutions).
 - `all_different` in `pumpkin-constraints/src/constraints/all_different.rs`
   expands to pairwise `binary_not_equals`, so it carries no dedicated
   propagator. That is read off the source; the consequence for solving time is
   an expectation, not something benchmarked here.
-- `Literal` is a 0/1 `AffineView<DomainId>`, which is why a `Lit` enters a
-  linear constraint through `.scaled(1)` and negates with `!`.
-- `pumpkin-solver`'s build script shells out to `git` and, without
-  `NO_CHECKERS=true`, compiles proof checkers from a `tests/` directory the
-  published crate does not ship. Both are handled in the Dockerfile.
-- A zero coefficient in a linear constraint panics inside Pumpkin with "attempt
-  to divide by zero" at `pumpkin-core/src/math/num_ext.rs`. `AffineView::new`
-  asserts `scale != 0`, but `AffineView::scaled` multiplies the existing scale
-  without rechecking, so a zero-scaled view escapes that assert; Pumpkin's own
-  `boolean_less_than_or_equals` and `boolean_equals` scale by their weights and
-  reach the same path. Observed on the `three_sum` instance, whose `nums`
-  contains a zero; absorbed in the driver and guarded by the `zero_coefficients`
-  check in `readiness_test.py`.
-- Proc-macro dependencies build to `.so` rather than `.rlib`, so an image that
-  copies only `*.rlib` out of the Cargo target directory fails at link time with
-  a misleading "can't find crate" for the driver itself.
+- `Literal::scaled` returns `AffineView<Literal>`, which does not mix with
+  `AffineView<DomainId>` terms in one `vec!` (E0308). `Literal::get_integer_variable()`
+  returns the 0/1 `AffineView<DomainId>`, which does. `!lit` negates.
+- `pumpkin-solver`'s build script runs `git rev-parse HEAD` and panics when git
+  is not on PATH (`Failed to execute git command`). Without `NO_CHECKERS=true`
+  it compiles proof checkers from a `tests/` directory the published crate does
+  not ship, and fails with `No such file or directory`.
+- `DomainId::scaled(0)` and `Literal::scaled(0)` panic at once with
+  `Multiplication by zero is not invertable` (`AffineView::new` asserts the scale).
+  `scaled` on a view that is already scaled multiplies the scale without that
+  check, so `x.scaled(2).scaled(0)` builds, and the constraint then panics during
+  search with `attempt to divide by zero` at `pumpkin-core/src/math/num_ext.rs`.
+- `TransformableVariable` has to be imported for `x.scaled(k)` (`no method named
+  'scaled' found for struct 'DomainId'`); `PredicateConstructor` for
+  `disequality_predicate` on an integer variable.
+- The linear constraints accept a plain `Vec<DomainId>` where every coefficient is
+  1: `equals(vec![x, y], 3, tag)` solves with 3 solutions.
+- `greater_than_or_equals`, `greater_than`, `less_than` and `plus` exist in
+  `pumpkin-constraints` 0.5.0 and behave as named (2, 2 and 2 solutions, and 3
+  solutions of `a + b == 2`). An earlier version of this skill said there was no
+  `greater_than_or_equals`; that was wrong for 0.5.0.
+- A `SatisfactionResult` borrows the solver and the resolver: matching on it at the
+  end of `main` or while calling `add_clause` fails to compile (E0597, E0499).
+  Binding it with `let` first, and adding the blocking clause after the match, compiles.
+- Enumeration by blocking the printed variables gives every distinct answer once:
+  10 coin-change solutions, and 2 optimal selections after posting the optimum.
+- `cumulative` with capacity 1 and unit demands gives a non-overlapping schedule:
+  durations 3, 2, 2 with a precedence give makespan 7.
+- The optimum of the production example is 12 (`x = 4, y = 0`); the optimum of the
+  partition example is 6, with the heavier group of weight 6.
+- `[[bin]] path = "models/<problem>.rs"` with no `src/main.rs` builds and runs, with
+  `serde_json = "=1.0.151"` as the instance reader (graph colouring from `instances/petersen.json`).
+- The instance reader (`read_instance` with `serde_json::from_str`) compiles and reads the
+  JSON, and `serde_json::json!` prints the answer.
+- `maximum(colours, top, tag)` with `LinearSatUnsat::Minimise` on `top` proves the Petersen
+  graph needs 3 colours (`top` optimum 2, colours start at 0): the `minimise-colours` example.
+- Timing, `jobshop` from the toy problems, release build: ft06 (optimum 55) and small (optimum 11)
+  each finished in about 1.7 s wall time, including `cargo run` with the binary already built.
+- The git requirement is read from `pumpkin-solver/build.rs`: `Command::new("git").args(["rev-parse", "HEAD"])`
+  with `.expect`. Only stdout is read, so a git outside a repository works (the exit status is not
+  checked). A stub that exits 0 with no output also built in verification, leaving `GIT_SHA` empty.
+- Offline build: `cargo vendor` run in the image with network, then `CARGO_HOME` holding a config that
+  replaces crates-io with the vendored directory, and `--network none`. The project-level `.cargo/config.toml`
+  form is standard cargo behaviour and was not run in this environment.
 
-Checked again when this integration was rebuilt on Pumpkin's own API, in the run
-recorded at `generation/runs/20260922T0700Z-pumpkin-native`:
+## Independent toy-problem test (round 1)
 
-- **The linear constraints accept a plain `Vec<Var>`** where every coefficient
-  is 1, so `all_different(queens, tag)` compiles with no `scaled` mapping. Only
-  a mixed or weighted list has to be widened to `Vec<Term>`.
-- `TransformableVariable` has to be in scope for `x.scaled(k)`; without it the
-  compiler says `no method named 'scaled' found for struct 'DomainId'`. The
-  prelude exports it, so a submission does not import it.
-- The driver's own modelling wrapper was removed here. It had grown to 1126
-  lines wrapping `pumpkin_solver`'s constructors one for one, which meant no
-  model in this repository ever named the framework it was written in.
+An independent agent solved the `add-solver` toy problems from this skill alone, using only
+`problem.md` and `instances/`, with `scripts/run_toy_tests.py` as the checker. The agent had to add
+the offline mounts and a git shim to build (see the Install section), so the result counts the skill
+as tested with those harness steps. Result: **18/18 instances passed**, zero model repairs.
 
-- **A `ConstraintTag` is proof bookkeeping, not solving.** Its documentation:
-  "An identifier for constraints, which is used to relate constraints from the
-  model to steps in the proof." Nothing requires one per constraint, and one
-  tag shared by three constraints compiled, solved and enumerated correctly.
-  The crate's own examples take a fresh tag per constraint, but their examples
-  post one or two constraints; a loop posting a hundred of the same shape is
-  better served by one named tag for the group.
+| Problem | Instance | Result |
+|---|---|---|
+| cryptarithm | ab-ab-aaa | PASS, infeasibility reported |
+| cryptarithm | send-more-money | PASS, feasible solution |
+| cryptarithm | two-two-four | PASS, feasible solution |
+| graph-colouring | cycle6 | PASS, optimal (2) |
+| graph-colouring | k4-tail | PASS, optimal (4) |
+| graph-colouring | petersen | PASS, optimal (3) |
+| jobshop | ft06 | PASS, optimal (55) |
+| jobshop | small | PASS, optimal (11) |
+| knapsack | p01 | PASS, optimal (309) |
+| knapsack | small | PASS, optimal (15) |
+| knapsack-all-optimal | fourteen | PASS, all 9 optimal solutions |
+| knapsack-all-optimal | ties | PASS, all 5 optimal solutions |
+| knapsack-all-optimal | unique | PASS, all 1 optimal solutions |
+| n-queens | n3 | PASS, infeasibility reported |
+| n-queens | n4 | PASS, feasible solution |
+| n-queens | n8 | PASS, feasible solution |
+| n-queens-all | n6 | PASS, all 4 solutions |
+| n-queens-all | n8 | PASS, all 92 solutions |
+
+Totals: 18/18 passed.
+The tester's findings (install without network, no git in the image, no JSON reading, one model file outside `src/`, graph colouring count, time budget) are each addressed in SKILL.md: [Install](SKILL.md#install), [Offline builds](SKILL.md#offline-builds), [Modelling](SKILL.md#modelling), [Solving](SKILL.md#solving) and [Common issues](SKILL.md#common-issues).

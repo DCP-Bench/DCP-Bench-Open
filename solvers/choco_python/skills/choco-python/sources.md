@@ -1,56 +1,63 @@
 # Sources for `choco-python`
 
-Documentation this skill's instructions were written from. Add an entry whenever
-a claim here comes from a specific page or version.
+Tested with pychoco 0.2.1 and 0.4.0 (Choco bundled in each wheel), Python 3.12.11, inside a Linux
+container image. Every example passes on both versions; 0.4.0 was installed into a
+scratch directory in the same image for the comparison.
 
-- <https://pychoco.readthedocs.io/en/latest/> — pychoco reference, accessed
-  2026-09-16
-- <https://pypi.org/project/pychoco/0.2.1/> — the exact wheel this image
-  installs; it bundles the Choco native library, so the image needs no JVM
-- <https://choco-solver.org/docs/> — Choco 4 solver documentation, for the
-  meaning of the constraints pychoco exposes
-- `solvers/choco_python/run.py` and `Dockerfile` in this repository — the
-  submission contract this skill describes
+Refactored from an earlier integration skill; examples verified inside the same image.
 
-Every call in the API tables was exercised inside the built image during the
-setup recorded at `generation/runs/20260916T091550-4d71/setup/choco_python/`,
-not taken from documentation alone. A probe posted each one on a throwaway model
-and reported which raised.
+- <https://pychoco.readthedocs.io/en/latest/> — pychoco reference, accessed 2026-09-16
+- <https://pypi.org/project/pychoco/> — the wheels tested (0.2.1, 0.4.0); each bundles the Choco native library, so no JVM is needed
+- <https://choco-solver.org/docs/> — Choco 4 solver documentation, for the meaning of the constraints pychoco exposes
+- <https://github.com/chocoteam/pychoco> — pychoco source
 
-- Confirmed present and postable: `arithm` in both its three- and five-argument
-  forms, `sum`, `scalar`, `all_different`, `all_different_except_0`,
-  `all_equal`, `element` over both integer tables and variable tables, `count`,
-  `global_cardinality`, `among`, `absolute`, `distance`, `div`, `mod`, `times`,
-  `square`, `pow`, `min`, `max`, `sort`, `circuit`, `table`, `lex_less`,
-  `lex_less_eq`, `increasing`, `decreasing`, `diff_n`, `cumulative`, `not_`,
-  `and_`, `or_`, and both `Constraint.reify()` and `Constraint.reify_with(b)`.
-- **Corrected against a first draft of this skill**: the methods are `sum`,
-  `min` and `max`, not `sum_`, `min_` and `max_`. The trailing underscore
-  belongs only to `and_`, `or_` and `not_`, which would otherwise shadow Python
-  builtins. The first three raised `AttributeError` when probed.
-- `element` takes the value first and the index third:
-  `element(value, table, index, offset=0)`.
-- `min` and `max` take the result variable first:
-  `min(result, vars)`.
-- `intvar` accepts either `(lb, ub)` or an explicit list of values.
-- A `BoolVar` reads back through `get_value()` as a Python `bool`; an `IntVar`
-  reads back as `int`. The runner relies on this and rejects anything else.
-- `solver.limit_time("...ms")` stops the search at the limit: a probe that
-  enumerated a deliberately huge space returned after 2.00s against a `"2s"`
-  limit, having emitted 918489 solutions.
-- pychoco 0.2.1 exposes no "search exhausted" or "stop criterion met" flag on
-  the solver — the public surface is `solve`, `find_solution`,
-  `find_all_solutions`, `find_optimal_solution`, `find_all_optimal_solutions`,
-  `get_solution_count`, `limit_time` and the search-strategy setters. That is
-  why `run.py` distinguishes exhaustion from a timeout by elapsed time, and why
-  the skill warns that a model finishing right at the budget is reported as a
-  timeout.
-- `find_optimal_solution(variable, maximize=...)` returns a `Solution` whose
-  value is read with `get_int_val(variable)`. Because Choco establishes
-  optimality only by completing its branch and bound, `run.py` treats a run that
-  consumed its whole budget as unproven rather than optimal.
-- Choco enumerates distinct assignments of every variable, so a free auxiliary
-  variable yields several solutions that share their declared outputs. The
-  integration's readiness check pins this: a model with an unconstrained
-  auxiliary variable, asked for ten solutions on an instance with three distinct
-  outputs, is accepted with exactly three checked.
+## Independent toy-problem test
+
+An independent agent wrote one program per toy problem from this skill alone (no access to the
+examples or the solver source), Python 3.12.11 with pychoco 0.2.1 in the image.
+
+| Problem | Instances | Passed |
+|---|---|---|
+| cryptarithm | 3 (ab-ab-aaa, send-more-money, two-two-four) | 3/3 |
+| graph-colouring | 3 (cycle6, k4-tail, petersen) | 3/3 |
+| jobshop | 2 (ft06, small) | 2/2 |
+| knapsack | 2 (p01, small) | 2/2 |
+| knapsack-all-optimal | 3 (fourteen, ties, unique) | 3/3 |
+| n-queens | 3 (n3, n4, n8) | 3/3 |
+| n-queens-all | 2 (n6, n8) | 2/2 |
+| **Total** | **18** | **18/18** |
+
+All 18 passed on the first run, so no repair was needed. The gaps the tester reported (JSON I/O,
+distinct-value counting, no-overlap, `arithm` forms, `scalar` with repeated variables, `Solution` access)
+are now covered in SKILL.md. The tester did not execute the skill's example files; those are checked separately.
+
+## Verified by running (inside the image)
+
+- Method names: `sum`, `min`, `max` exist; `sum_`, `min_` do not; `and_`, `or_`, `not_` exist.
+- `element(value, table, index)` gave pairs (5,0), (7,1), (9,2) for table [5, 7, 9]; `max(r, [a, b])` gives the maximum.
+- `find_solution` and `find_optimal_solution` return `None` when infeasible; `find_all_solutions` and
+  `find_all_optimal_solutions` return `[]`; `solve()` returns `False`.
+- A second solve on one model after an infeasible result (any `get_solver()`) ends the process with a JVM
+  "Fatal error", exit code 99; a new `Model` for the second solve works.
+- `find_all_optimal_solutions` returns both optima of a tie (choose-two example).
+- A posted vs. unposted constraint: with `x + y >= 1` posted and `arithm(x, "=", 2)` left unposted, 15
+  solutions; Choco prints `ARITHM ([x = 2]) is free` on stdout.
+- Free auxiliary variables multiply enumerated solutions: 12 for 2 outputs with a free `aux` in 0..5, 2 when
+  `aux = x`.
+- `limit_time`: `"0.5s"` honoured (0.80 s on a 10^6-solution enumeration); `"300ms"` ignored (2.87 s, full run);
+  `"2s"` stopped the enumeration around 2.6 s. (Earlier measurement: a 10 million enumeration with `"300ms"`
+  ran to completion, 40 s.)
+- Operators: `x + y == 3` returns a BoolVar with no `post` method; `model.arithm(x + y, "=", 3)` gives 4 solutions for x, y in 0..3.
+- `arithm(q, "+", 2, "=", up)` (int middle value) gives the correct pairs; `arithm(2, "<=", q)` raises
+  `AttributeError` (an int on the left).
+- `cumulative` with int heights or capacity raises `AttributeError`; with IntVars it works.
+- No-overlap: three tasks of length 2 on one unit-capacity `cumulative` gave 6 solutions, none overlapping.
+- `scalar` with a repeated variable (`[x, x]`, `[1, 2]`, `= 3`) and with mixed signs matches a brute-force count (15 solutions).
+- `Solution`: `get_int_val` and `get_set_val` exist, `get_value` does not; a `Solution` keeps its values after a
+  later solve; `var.get_value()` after `find_all_solutions` raises `AssertionError: ... not instantiated`.
+- Scheduling: `model.task(start, duration, end)` and `model.cumulative(tasks, heights, capacity)` gave makespan 9,
+  matching an independent brute force, on both 0.2.1 and 0.4.0 without any extra call.
+- `ensure_bound_consistency()` exists on `Task` in 0.2.1 and is absent in 0.4.0; no example calls it.
+- Transport and production optima (240, 17) checked against an independent brute force and by hand.
+- Distinct-value count: the 5-node graph with a triangle gives 3 colours (distinct-count example).
+- Knapsack instance in `json-io` (weights 3, 4, 2, 5; values 7, 9, 4, 8; capacity 9) gives profit 20 (items 0, 1, 2).

@@ -53,20 +53,13 @@ class SkillWorkflowTests(unittest.TestCase):
         (self.bundle / "SKILL.md").write_text(self.text + "[escape](../../missing.md)")
         with self.assertRaises(ValueError): skills.validate(self.bundle)
 
-    def test_shared_references_stay_in_sync_across_bundles(self):
-        """A skill bundle may not link outside itself, so shared guidance is copied.
-
-        validate() refuses an outside link and hashes() covers the whole bundle,
-        which together make a skill's instructions exactly the bytes an attempt
-        records. Copies are the price of that, so the copies must not drift.
-        """
-        root = Path(__file__).resolve().parents[1] / "skills"
-        copies = sorted(root.glob("*/references/skill-standard.md"))
-        self.assertGreater(len(copies), 1, "expected the standard in several bundles")
-        contents = {path.read_bytes() for path in copies}
-        self.assertEqual(len(contents), 1,
-                         "skill-standard.md has drifted between bundles: " +
-                         ", ".join(str(p.relative_to(root)) for p in copies))
+    def test_placeholder_links_are_not_files_but_missing_files_are_reported(self):
+        """A template's [<install guide>](<URL>) is not a link; a link to a missing file is."""
+        (self.bundle / "SKILL.md").write_text(self.text + "[<guide>](<URL>) [<example>](assets/<example>/README.md)")
+        self.assertEqual(skills.validate(self.bundle)["name"], "test-skill")
+        (self.bundle / "SKILL.md").write_text(self.text + "[examples](assets/)")
+        with self.assertRaisesRegex(ValueError, "link a file in it"):
+            skills.validate(self.bundle)
 
     def test_bundle_hashes_cover_every_file(self):
         """Attempt snapshots rely on these hashes, so nothing may be skipped."""
@@ -92,6 +85,24 @@ class SkillWorkflowTests(unittest.TestCase):
         skills.apply(proposal)
         self.assertIn("Correction", (self.bundle / "SKILL.md").read_text())
         self.assertTrue((Path(proposal) / "previous-live-bundle/SKILL.md").is_file())
+
+    def test_rosetta_skills_can_be_improved_through_proposals(self):
+        """model-generator and solver-setup live in rosetta-skills/ and change by proposal."""
+        import shutil
+        moved = self.root / "rosetta-skills/test-skill"
+        moved.parent.mkdir()
+        shutil.move(self.bundle, moved)
+        self.bundle = moved
+        proposal = skills.propose("run", moved, self.candidate(), "API correction reproducer")
+        checks = self.checks("import pathlib,sys; assert (pathlib.Path(sys.argv[1])/'SKILL.md').is_file()")
+        self.assertEqual(skills.check_proposal(proposal, checks)["status"], "validated")
+        skills.apply(proposal)
+        self.assertIn("Correction", (moved / "SKILL.md").read_text())
+        outside = self.root / "elsewhere/test-skill"
+        shutil.copytree(moved, outside)
+        shutil.rmtree(self.root / "working")
+        with self.assertRaisesRegex(ValueError, "rosetta-skills"):
+            skills.propose("run", outside, self.candidate("Again"), "evidence")
 
     def test_prepared_is_not_passed_and_evidence_required(self):
         output = self.root / "trial"

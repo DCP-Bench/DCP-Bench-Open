@@ -1,50 +1,52 @@
 # Sources for `picat`
 
-Documentation this skill's instructions were written from. Add an entry whenever
-a claim here comes from a specific page or version.
+Tested with Picat 3.9#12 (`picat --version`), Linux x86-64, inside a container image (Python 3.12.11 on Debian bookworm).
 
-- <https://picat-lang.org/download.html> — Picat 3.9#12, released 2026-08-28, the build this integration installs, accessed 2026-09-29
+Refactored from an earlier integration skill; examples verified inside the same image.
+
+Existing skills: none found for Picat when this skill was first written.
+
+- <https://picat-lang.org/download.html> — Picat 3.9#12 download page, released 2026-08-28, the Linux archive used by the install step
+- <https://picat-lang.org/download/picat_guide_html/picat_guide.html> — Picat guide, HTML: solving options (common, cp, sat), constraints, findall and solve
+- <https://picat-lang.org/download/picat_guide.pdf> — Picat guide, PDF, same content
+- <https://picat-lang.org/modules.html> — library modules, including the `sys` predicate `time_out/3`
 - `Picat/doc/constraints.tex` in `picat39_12_linux64.tar.gz` — the Constraints chapter of the Picat guide: domain variables, table, arithmetic, Boolean and global constraints, and the solving options of the cp and sat modules
 - `Picat/doc/module.tex` in the same archive — static binding of calls, and the run-time search that call/N performs over the loaded modules
 - `Picat/doc/all.tex` in the same archive — maps (`get/2`, `put/3`), `vars/1`, `read_term/1`, `findall/2`, loops and `if` statements
 - `Picat/LICENSE` in the same archive — Picat is free for any purpose; its C sources are under the Mozilla Public License 2.0
+- `/opt/picat/lib/cp.pi`, `sat.pi`, `sys.pi` in the image — the signatures of `solve/1`, `solve/2`, `solve_all/1`, `time_out/3` and the `$report`/`$label` options
 
-Every constraint in the table and every trap in this skill was checked by
-running a submission through the `dcp-eval/picat:v1` image, with `import cp.`
-and again with `import sat.`, and comparing the solutions with a brute-force
-enumeration where the count was not obvious:
+Verified by running: every example under `assets/` and the Quick start, in the image, with `picat model.pi`. Also verified by running inside the image:
 
-- Instance data: `Data.get(key)` on lowercase, capitalised (`'NUM_CELLS'`) and
-  underscore (`'_SHIP'`) keys; lists of lists indexed as `Grid[2, 1]`; strings;
-  a JSON Boolean arriving as 1; a nested object arriving as a map.
-  `Data.n` raises an existence error, and `Data.get(xs)[1]` is a syntax error.
-- Outputs: integers, 0/1, strings (including an escaped quote), lists, and a
-  two-dimensional array written as a list of rows.
-- Constraints: `::` with a range and a value list, `notin`, the arithmetic
-  operators and functions in the table, `#~ #/\ #\/ #^ #=> #<=>`, reified sums,
-  `count/2` in an expression, `count/4`, `global_cardinality/2` with `$`-pairs,
-  `nvalue/2`, `all_different/1`, `all_distinct/1`, `all_different_except_0/1`,
-  `element/3`, `element0/3`, `matrix_element/4` over a list of lists and over an
-  array, `table_in/2`, `table_notin/2`, `regular/6`, `increasing/1`,
-  `increasing_strict/1`, `decreasing/1`, `lex_le/2`, `lex_lt/2`, `circuit/1`,
-  `subcircuit/1`, `cumulative/4`, `serialized/2`, `diffn/1`, `cond/3`, and
-  `util`'s `transpose/1`.
-- Traps: `X + Y` in an output value, and `[X2 + 5, Y2 + 7]` as a global
-  constraint's argument, raise `instantiation_error`; so does
-  `[W[I] * X[I] : I in 1..N]` bound to a variable or given to
-  `all_different/1`, while the same comprehension inside `sum(...) #= 5` or
-  inside `$max(sum(...))` is kept as a term and solves; `L[I]` with `I` a domain
-  variable raises `type_error(integer, ...)`; `X = X + 1` makes the model fail;
-  a variable introduced inside a `foreach` body takes a different value in each
-  iteration; a global constraint under `#\/` raises `invalid_constraint_exp`;
-  an output left without a domain raises `dvar_expected` under cp and
-  `free_var_not_allowed` under sat.
-- Objectives: `$min(...)` and `$max(...)` over a variable and over an
-  expression, under both modules, reach the optimum the reference reports.
-- The `sat` defect: two variables over 0..3 under `all_different/1`, each
-  equal to `2 * A + B` over its own two 0/1 variables, give 192 solutions under
-  `sat` against the correct 12 under `cp`, whether `all_different/1` is posted
-  before or after the equalities; pairwise `#!=` gives 12 under both.
-  `tests/picat_skill_regression.py` in the repository reproduces it through the
-  evaluator, where the `all_different/1` version is rejected as
-  `invalid_solution` and the pairwise one is accepted.
+- `solve(Options, Vars)` order: `solve([$max(X)], [X])` optimises; `solve([X], [$max(X)])` labels the options list and silently returns a non-optimal value.
+- `findall(Vars, solve(Vars))` enumerates all solutions of `Vars` (cp and sat).
+- `time_out(solve(Vars), Millis, Res)` returns `Res = success` or `time_out`.
+- A constraint whose posting fails inside `main` stops the program with `error(failed, main/0)`; an `if (...)` condition catches it.
+- Map access with `M.get(n)`, `M.get('NUM_CELLS')`, `M.get('_SHIP')`; `Grid[2,1]` indexes both `new_array` arrays and lists of lists (`L = [[1,2],[3,4]]`, `L[2,1]` is `3`). Chained `L[1][2]` is a syntax error (`wrong expression`).
+- `main(Args)` with `picat file.pi instance.json`: `Args` is a list of strings, so `Args[1]` is the file name as a list of characters; `read_file_chars/1` reads it.
+- Operators: `10**2` is `100`, `10^2` is `8` (XOR); `Z #= 2 ** X` with `X :: 0..3` posts and solves in `cp`; `Z #= X*10^2` raises `invalid_constraint_expression`.
+- Characters: `$a` is `a`; `$0` is the integer 0; `C >= '0'` and `$'5' >= $'0'` fail with `Wrong function in expression`, so comparisons use `ord/1`.
+- Heads: `sk(Cs, Cs) => true.` called with an unbound second argument fails; `:-` unifies its head.
+- Comprehension comparisons such as `[K == 4 : K in 1..2]` print as terms (`[1 == 4,2 == 4]`), not booleans; `if IsLast[2] == 1` works on a 0/1 list.
+- Picat 3.9#12 has no JSON library (`json_decode`, `parse_json` undefined); `assets/read-json-instance/` reads a JSON file with a plain-Picat reader.
+- Syntax errors print `*** SYNTAX ERROR *** (line-range)` on stderr with exit code 1.
+- The `sat` defect: two variables over 0..3 under `all_different/1`, each equal to `2 * A + B` over its own two 0/1 variables, give 192 solutions under `sat` against the correct 12 under `cp` or with pairwise `#!=` under `sat`.
+- The assignment example optimum 13 agrees with a brute-force enumeration of all 24 permutations.
+
+## Independent toy test
+
+An independent tester solved the add-solver toy problems from this skill alone, running each model in the same image. All 18 instances passed.
+
+| Problem | Instances | Passed |
+|---|---|---|
+| cryptarithm | 3 | 3/3 |
+| graph-colouring | 3 | 3/3 |
+| jobshop | 2 | 2/2 |
+| knapsack | 2 | 2/2 |
+| knapsack-all-optimal | 3 | 3/3 |
+| n-queens | 3 | 3/3 |
+| n-queens-all | 2 | 2/2 |
+| **Total** | **18** | **18/18** |
+
+Five problems passed after a harness fix only (the import must come first). Cryptarithm and jobshop needed repairs beyond the budget of two, all from Picat behaviour that is now in this skill: `^` as XOR, `**` as power, character literals, chained indexing, index used as a goal, comprehension booleans, and `=>` head matching.
+

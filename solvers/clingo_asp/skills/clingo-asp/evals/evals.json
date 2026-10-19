@@ -1,35 +1,109 @@
 {
-  "skill_name": "clingo-asp",
-  "evals": [
-    {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a clingo_asp submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Reads the instance from the generated facts rather than hardcoding sizes, so every listed instance is accepted.",
-        "Shows exactly one predicate per declared output, named after the reference's output key, with 0-based contiguous indices before the value.",
-        "Domains are constrained in rule bodies so grounding stays within the memory bound."
-      ]
-    },
-    {
-      "id": "optimization-contract",
-      "prompt": "Using this skill, write a clingo_asp submission for a problem whose reference has an objective, and confirm the evaluator agrees the optimum was reached.",
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
-      "assertions": [
-        "Uses #minimize or #maximize matching the reference's direction.",
-        "The evaluator reports accepted rather than execution_timeout, meaning clingo proved the optimum inside the budget.",
-        "The result is not suboptimal_solution, confirming the objective expression matches the reference's."
-      ]
-    },
-    {
-      "id": "string-and-underscore-fields",
-      "prompt": "Using this skill, write a clingo_asp submission for a problem whose instance has a string field, a list of strings, and a field whose name starts with an underscore and a capital (such as _SHIP), and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model that reads the strings through the _char facts and the underscore field through its lowered predicate, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Reads each character through field_char(index, ..., position, \"c\") facts rather than an embedded script or hardcoded letters.",
-        "Refers to a field such as _SHIP by the predicate _sHIP, with the first character after the leading underscores lowered.",
-        "Derives string lengths with #count over the character positions instead of assuming a fixed word length, so every listed instance is accepted."
-      ]
-    }
-  ]
+ "skill_name": "clingo-asp",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Write a clingo program in Python that colours a small graph with three colours, with adjacent nodes differing, and print one valid colouring.",
+   "expected_skill": "clingo-asp",
+   "expected_output": "A runnable Python script using clingo.Control, a choice rule with exactly-one bounds, an integrity constraint, and a solve loop that prints the colouring.",
+   "assertions": [
+    "Uses clingo.Control with ctl.add, ctl.ground and ctl.solve(yield_=True)",
+    "Writes the colour choice as a bounded choice rule, not one rule per colour",
+    "Checks the result with SolveResult.satisfiable"
+   ]
+  },
+  {
+   "id": 2,
+   "prompt": "Enumerate every subset of 1..6 that sums to 7 with clingo, reporting each subset once.",
+   "expected_skill": "clingo-asp",
+   "expected_output": "Four subsets, with projection so that auxiliary atoms do not repeat answers.",
+   "assertions": [
+    "Sets models = 0 to enumerate all models",
+    "Sets project = \"show\" or otherwise removes duplicates from auxiliary atoms",
+    "Reports exhaustion through SolveResult.exhausted"
+   ]
+  },
+  {
+   "id": 3,
+   "prompt": "Find the minimum vertex cover of a 6-vertex graph with clingo, and list every minimum cover.",
+   "expected_skill": "clingo-asp",
+   "expected_output": "The minimum size and each minimum cover, found with optN and filtered by optimality_proven.",
+   "assertions": [
+    "Uses #minimize with a unit weight",
+    "Sets opt_mode = \"optN\" and keeps only models with optimality_proven",
+    "Does not treat the first yielded model as optimal"
+   ]
+  },
+  {
+   "id": 4,
+   "prompt": "Schedule four tasks with durations and two precedence pairs on one machine with clingo, minimising the makespan.",
+   "expected_skill": "clingo-asp",
+   "expected_output": "A schedule with the optimal makespan, using a start-time choice, a non-overlap constraint and a #minimize over the makespan.",
+   "assertions": [
+    "Uses a bounded choice over a time domain for each start",
+    "Constrains overlap with an integrity constraint over both durations",
+    "Derives the makespan with #max and minimises it"
+   ]
+  },
+  {
+   "id": 5,
+   "prompt": "Write a Python function that takes a list of numbers and returns their sum, with no logic programming involved.",
+   "expected_skill": null,
+   "expected_output": "The skill is not used",
+   "assertions": [
+    "clingo-asp is not loaded"
+   ]
+  },
+  {
+   "id": 6,
+   "prompt": "Model a 0/1 knapsack in MiniZinc for me.",
+   "expected_skill": null,
+   "expected_output": "The skill is not used; MiniZinc is another solver",
+   "assertions": [
+    "clingo-asp is not loaded"
+   ]
+  },
+  {
+   "id": 7,
+   "prompt": "Why does my clingo program fail with 'parsing failed' when I name a predicate _SHIP?",
+   "expected_skill": "clingo-asp",
+   "expected_output": "The capital letter after leading underscores makes _SHIP a variable; rename the predicate to lowercase.",
+   "assertions": [
+    "Explains that a leading capital (after underscores) starts a variable",
+    "Suggests a lowercase predicate name such as _ship"
+   ]
+  },
+  {
+   "id": 8,
+   "prompt": "In clingo, I sum the values of b(I,V) with #sum { V : b(I,V) } but the total is too small when two items have the same value. Why, and how do I fix it?",
+   "expected_skill": "clingo-asp",
+   "expected_output": "Aggregate elements are sets of tuples, so equal values count once; add a distinguishing term such as the index: #sum { V,I : b(I,V) }.",
+   "assertions": [
+    "Explains that elements with the same tuple are counted once",
+    "Fixes the aggregate by adding the index I to the tuple"
+   ]
+  },
+  {
+   "id": 9,
+   "prompt": "My clingo job-shop model finds a schedule but never finishes proving the makespan is optimal, and with the objective it enumerates many schedules. Use clingo to get one proven optimum.",
+   "expected_skill": "clingo-asp",
+   "expected_output": "Set opt_mode = \"optN\" with the default models = 1, keep the last model, and check optimality_proven; models = 0 is only for enumerating all optima.",
+   "assertions": [
+    "Sets opt_mode = \"optN\" and does not set models = 0 for a single optimum",
+    "Checks optimality_proven on the last model",
+    "Explains that models = 0 enumerates every optimal model and is slow"
+   ]
+  },
+  {
+   "id": 10,
+   "prompt": "Write a clingo program that solves SEND + MORE = MONEY with each letter a distinct digit, and print the digit for each letter.",
+   "expected_skill": "clingo-asp",
+   "expected_output": "Uppercase letters written as string constants, a weighted #sum with negative weights compared with != 0, and one model read from the solve loop.",
+   "assertions": [
+    "Writes the letters as double-quoted string constants rather than capitalised names",
+    "Expresses the equation as a #sum with negative weights compared with != 0",
+    "Reads the digits from the single model returned by the solve loop"
+   ]
+  }
+ ]
 }

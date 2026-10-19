@@ -9,6 +9,7 @@ on:
       - 'runner/**'
       - 'generation/**'
       - 'skills/**'
+      - 'rosetta-skills/**'
       - 'tests/**'
       - 'dataset/**'
       - 'eval.py'
@@ -26,9 +27,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements.txt
-      - run: python -m unittest tests.test_evaluation tests.test_generation tests.test_skill_workflow tests.test_readiness -v
-      - run: python -m generation.skills validate skills/model-generator --project
-      - run: python -m generation.skills validate skills/solver-setup --project
+      - run: python -m unittest tests.test_evaluation tests.test_generation tests.test_skill_workflow tests.test_readiness tests.test_release -v
+      - run: python -m generation.skills validate rosetta-skills/model-generator --project
+      - run: python -m generation.skills validate rosetta-skills/solver-setup --project
+      - run: python -m generation.release status --strict
       - run: python -m generation.next_work --limit 1
       - run: python -m evaluation.build
       - run: python -m unittest tests.test_solvers tests.test_generation_containers -v
