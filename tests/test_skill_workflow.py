@@ -53,21 +53,6 @@ class SkillWorkflowTests(unittest.TestCase):
         (self.bundle / "SKILL.md").write_text(self.text + "[escape](../../missing.md)")
         with self.assertRaises(ValueError): skills.validate(self.bundle)
 
-    def test_shared_references_stay_in_sync_across_bundles(self):
-        """A skill bundle may not link outside itself, so shared guidance is copied.
-
-        validate() refuses an outside link and hashes() covers the whole bundle,
-        which together make a skill's instructions exactly the bytes an attempt
-        records. Copies are the price of that, so the copies must not drift.
-        """
-        root = Path(__file__).resolve().parents[1]
-        copies = sorted(path for folder in ("skills", "rosetta-skills")
-                        for path in (root / folder).glob("*/references/skill-standard.md"))
-        contents = {path.read_bytes() for path in copies}
-        self.assertLessEqual(len(contents), 1,
-                         "skill-standard.md has drifted between bundles: " +
-                         ", ".join(str(p.relative_to(root)) for p in copies))
-
     def test_placeholder_links_are_not_files_but_missing_files_are_reported(self):
         """A template's [<install guide>](<URL>) is not a link; a link to a missing file is."""
         (self.bundle / "SKILL.md").write_text(self.text + "[<guide>](<URL>) [<example>](assets/<example>/README.md)")

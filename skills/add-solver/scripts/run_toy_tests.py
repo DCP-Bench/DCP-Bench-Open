@@ -20,12 +20,14 @@ DIR mounted (at the same path) and never sees the answer keys:
       -v /tmp/toy:/tmp/toy:ro -v "$PWD/models":/m:ro IMAGE python3 /m/{problem}.py {instance}'
 
 Each run gets --timeout seconds (default 120); a run that takes longer is a FAIL.
-Prints one line per instance with its wall time and a summary; on a failure the line
-holds the exit code, the first error line and the last lines of stderr. --logs DIR
-keeps every run's full stdout and stderr in DIR/<problem>/<instance>.log. The exit
-code is 0 only if every run passed.
+Prints its own command line first, then one line per instance with its wall time and a
+summary; on a failure the line holds the exit code, the first error line and the last
+lines of stderr. --logs DIR keeps the command line in DIR/command.txt and every run's
+full stdout and stderr in DIR/<problem>/<instance>.log. The exit code is 0 only if every
+run passed.
 """
 import argparse
+import os
 import re
 import shlex
 import shutil
@@ -79,6 +81,11 @@ def diagnosis(stdout, stderr, width=400):
     return "(no output)"
 
 
+def quote(argument):
+    """Quote one argument for the shell that subprocess uses with shell=True (cmd.exe on Windows)."""
+    return subprocess.list2cmdline([argument]) if os.name == "nt" else shlex.quote(argument)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--export", metavar="DIR", help="write the tester-visible copy to DIR and exit")
@@ -108,11 +115,18 @@ def main():
             sys.exit(f"unknown problem(s): {', '.join(sorted(unknown))}; choose from {', '.join(problems)}")
         problems = wanted
 
+    # Record the exact invocation, so a later run can repeat it.
+    invocation = " ".join(quote(argument) for argument in [Path(sys.argv[0]).name, *sys.argv[1:]])
+    print(f"$ {invocation}", flush=True)
+    if args.logs:
+        Path(args.logs).mkdir(parents=True, exist_ok=True)
+        (Path(args.logs) / "command.txt").write_text(invocation + "\n", encoding="utf-8")
+
     results = []
     for problem in problems:
         for instance in sorted((instances_root / problem / "instances").glob("*.json")):
             # str.replace, not str.format: a command may contain literal braces.
-            cmd = args.cmd.replace("{problem}", problem).replace("{instance}", shlex.quote(str(instance)))
+            cmd = args.cmd.replace("{problem}", problem).replace("{instance}", quote(str(instance)))
             start = time.monotonic()
             stdout = stderr = ""
             try:

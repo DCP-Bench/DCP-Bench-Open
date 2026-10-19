@@ -111,7 +111,11 @@ def check_dockerfile(solver_id, folder):
     text = (folder / "Dockerfile").read_text(encoding="utf-8")
     bases = re.findall(r"^\s*FROM\s+(\S+)", text, re.M | re.I)
     check("Dockerfile: has a FROM", bool(bases))
-    unpinned = [base for base in bases if "@sha256:" not in base]
+    # A base may come from an ARG default (FROM ${PYTHON_BASE}) or name an earlier stage.
+    defaults = dict(re.findall(r"^\s*ARG\s+(\w+)=(\S+)", text, re.M | re.I))
+    stages = {name.lower() for name in re.findall(r"^\s*FROM\s+\S+\s+AS\s+(\S+)", text, re.M | re.I)}
+    bases = [re.sub(r"\$\{(\w+)\}|\$(\w+)", lambda m: defaults.get(m[1] or m[2], m[0]), base) for base in bases]
+    unpinned = [base for base in bases if "@sha256:" not in base and base.lower() not in stages]
     check("Dockerfile: base images pinned by digest", not unpinned, f"unpinned {unpinned}")
     check("Dockerfile: copies its run.py", f"solvers/{solver_id}/run.py" in text,
           f"COPY solvers/{solver_id}/run.py into the image")
@@ -139,7 +143,6 @@ def check_scripts(root, folder, metadata):
             report("PASS", f"{name}: compiles")
         except SyntaxError as error:
             report("FAIL", f"{name}: compiles", f"line {error.lineno}: {error.msg}")
-    sys.path.insert(0, str(root))
     from generation.readiness import _required
     text = (folder / "readiness_test.py").read_text(encoding="utf-8")
     missing = sorted(name for name in _required(metadata) if f'"{name}"' not in text and f"'{name}'" not in text)
@@ -211,6 +214,7 @@ def main():
     root = Path(args.repo).resolve()
     if not (root / "generation/readiness.py").is_file():
         sys.exit(f"{root} is not a DCP-Bench Open checkout; run from its root or pass --repo")
+    sys.path.insert(0, str(root))  # the skill and readiness checks import generation.*
     folder = root / "solvers" / args.solver_id
     present = [check(f"files: {name}", (folder / name).is_file(), f"missing solvers/{args.solver_id}/{name}")
                for name in FILES]
