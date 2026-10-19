@@ -80,7 +80,7 @@ def next_version(current, bump=None, explicit=None):
 
 def stamp_version(skill_md, version):
     """Set metadata.version in the frontmatter, leaving every other line as it was."""
-    text = skill_md.read_text(encoding="utf-8")
+    text = skill_md.read_bytes().decode("utf-8")  # read_text would turn CRLF into LF
     newline = "\r\n" if "\r\n" in text else "\n"
     match = re.match(r"\A---\r?\n(.*?\r?\n)---(\r?\n|$)", text, re.S)
     if not match:
@@ -99,7 +99,7 @@ def stamp_version(skill_md, version):
     else:
         lines += ["metadata:", line]
     front = newline.join(lines) + newline
-    skill_md.write_text(text[:match.start(1)] + front + text[match.end(1):], encoding="utf-8")
+    skill_md.write_text(text[:match.start(1)] + front + text[match.end(1):], encoding="utf-8", newline="")
 
 
 def frontmatter(folder):
@@ -148,7 +148,7 @@ def skill_for(solver_id, root=None):
 
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 def source_skill(solver_id, name=None):
@@ -219,7 +219,7 @@ def regenerate_listings(ledger):
                                         "`python -m generation.release`; history in "
                                         "[versions.json](versions.json) and [CHANGELOG.md](CHANGELOG.md).\n\n"
                                         + block + "\n")
-        catalog.write_text(text, encoding="utf-8")
+        catalog.write_text(text, encoding="utf-8", newline="\n")
     marketplace = ROOT / MARKETPLACE
     if not marketplace.is_file():
         print(f"warning: {MARKETPLACE} not found; marketplace not updated", file=sys.stderr)
@@ -244,7 +244,7 @@ def add_changelog(entry):
     text = path.read_text(encoding="utf-8") if path.is_file() else CHANGELOG_HEADER
     head, _, rest = text.partition("\n## ")
     body = f"\n{entry.rstrip()}\n" + (f"\n## {rest}" if rest else "")
-    path.write_text(head.rstrip("\n") + "\n" + body, encoding="utf-8")
+    path.write_text(head.rstrip("\n") + "\n" + body, encoding="utf-8", newline="\n")
 
 
 def source_digest(solver_id, name=None):
@@ -338,20 +338,26 @@ def publish(solver_id, message, name=None, bump=None, version=None, allow_dirty=
             print(json.dumps(entry, indent=2))
             print(f"\nDry run: would write {', '.join(changed)}")
             return entry
+        # Copy beside the target and swap, so a failed copy leaves the old release in place.
+        target.parent.mkdir(parents=True, exist_ok=True)
+        incoming = target.with_name(f".{name}.incoming")
+        if incoming.exists():
+            shutil.rmtree(incoming)
+        shutil.copytree(staged, incoming)
         if target.exists():
             shutil.rmtree(target)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(staged, target)
+        incoming.rename(target)
     history = []
     if previous:
         history = [{key: value for key, value in previous.items() if key != "history"},
                    *previous.get("history", [])]
     ledger["skills"][name] = {**entry, "history": history}
-    write_json(ROOT / LEDGER, ledger)
+    # The ledger goes last: if a listing fails, a rerun still sees the release as pending.
     regenerate_listings(ledger)
     note = "" if not dirty else " (with uncommitted changes)"
     add_changelog(f"## {name} {new} — {entry['released_at'][:10]}\n\n{message.strip()}\n\n"
                   f"Source: `{relative}` at `{commit[:12]}`{note}.")
+    write_json(ROOT / LEDGER, ledger)
     if entry["evidence"]["readiness"] is None:
         print(f"warning: solvers/{solver_id}/readiness.json not found; released without integration evidence",
               file=sys.stderr)
@@ -372,9 +378,9 @@ def withdraw(name, message):
         shutil.rmtree(target)
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     entry.update(status="withdrawn", withdrawn_at=now, withdrawn_because=message)
-    write_json(ROOT / LEDGER, ledger)
     regenerate_listings(ledger)
     add_changelog(f"## {name} withdrawn — {now[:10]}\n\n{message.strip()}")
+    write_json(ROOT / LEDGER, ledger)
     print(f"Withdrew {name} {entry['version']}; wrote {PUBLISHED}/{name}/ (removed), {LEDGER}, "
           f"{CATALOG}, {MARKETPLACE}, {CHANGELOG}")
 
@@ -410,8 +416,13 @@ def status():
         rows.append(f"{name:28} {version:9} {', '.join(notes)}")
     folder = ROOT / PUBLISHED
     for path in sorted(folder.iterdir()) if folder.is_dir() else []:
-        if path.is_dir() and path.name not in ledger:
+        if not path.is_dir() or path.name.startswith("."):
+            continue
+        if path.name not in ledger:
             rows.append(f"{path.name:28} {'-':9} published but not in {LEDGER}")
+            problems.append(path.name)
+        elif ledger[path.name].get("status") != "released":
+            rows.append(f"{path.name:28} {ledger[path.name]['version']:9} published but withdrawn in {LEDGER}")
             problems.append(path.name)
     print("\n".join(rows) if rows else "No solver skills found.")
     return problems

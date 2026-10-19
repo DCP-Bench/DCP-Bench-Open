@@ -3,6 +3,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -42,7 +43,7 @@ class ReleaseTests(unittest.TestCase):
     def write(self, relative, text):
         path = self.source / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text, encoding="utf-8")
+        path.write_text(text, encoding="utf-8", newline="\n")
 
     def commit(self):
         self.git("add", "-A")
@@ -169,6 +170,52 @@ class ReleaseTests(unittest.TestCase):
             self.publish()
         self.assertFalse((self.root / release.LEDGER).exists())
         self.assertFalse((self.root / "skills/solvers").exists())
+
+    def test_sources_and_evals_are_checked_too(self):
+        self.write("sources.md", SOURCES + "\nChecked in the dcp-eval/demo:1 image.\n")
+        self.commit()
+        with self.assertRaisesRegex(release.ReleaseError, "sources.md:7: dcp-eval"):
+            self.publish()
+        self.write("sources.md", SOURCES)
+        self.write("evals/files/brief.txt", "Graded against dcp-bench answers.\n")
+        self.commit()
+        with self.assertRaisesRegex(release.ReleaseError, "evals/files/brief.txt:1: dcp-bench"):
+            self.publish()
+
+    def test_upstream_urls_are_not_repository_paths(self):
+        self.write("SKILL.md", SKILL + "\nSee <https://example.org/docs/solvers/gecode/> for options.\n")
+        self.assertEqual(release.skills.rosetta_mentions(self.source), [])
+        self.write("SKILL.md", SKILL + "\nCompare with solvers/demo_python/run.py.\n")
+        self.assertEqual(len(release.skills.rosetta_mentions(self.source)), 1)
+
+    def test_a_failed_listing_leaves_the_release_pending(self):
+        marketplace = self.root / release.MARKETPLACE
+        marketplace.write_text('{"plugins": [],}')
+        with self.assertRaises(ValueError):
+            self.publish()
+        self.assertFalse((self.root / release.LEDGER).exists())
+        marketplace.write_text(json.dumps({"name": "m", "plugins": []}))
+        self.publish()
+        self.assertEqual(self.ledger()["version"], "0.1.0")
+        self.assertIn("## demo-python 0.1.0", (self.root / release.CHANGELOG).read_text())
+
+    def test_release_files_are_written_with_lf(self):
+        self.publish()
+        for relative in (release.LEDGER, release.CHANGELOG, release.MARKETPLACE, "skills/solvers/demo-python/SKILL.md"):
+            self.assertNotIn(b"\r\n", (self.root / relative).read_bytes(), relative)
+
+    def test_status_flags_a_withdrawn_skill_published_again(self):
+        self.publish()
+        published = self.root / "skills/solvers/demo-python"
+        kept = self.root / "kept"
+        shutil.copytree(published, kept)
+        with redirect_stdout(io.StringIO()):
+            release.withdraw("demo-python", "Superseded")
+        self.assertEqual(self.status()[1], [])
+        shutil.copytree(kept, published)
+        output, problems = self.status()
+        self.assertIn("published but withdrawn", output)
+        self.assertEqual(problems, ["demo-python"])
 
     def test_versions_bump_and_unchanged_content_is_a_no_op(self):
         self.publish()

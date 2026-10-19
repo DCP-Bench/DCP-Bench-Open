@@ -55,13 +55,15 @@ def hashes(folder):
 
 
 # Text that ties a skill to this repository. A solver skill under solvers/<id>/skills/
-# must work outside it; sources.md and evals/ may still name the project. This catches
-# names only; whether a skill teaches a submission harness or the runner's behaviour is
-# judged by the standalone review (rosetta-skills/solver-setup/references/standalone-review.md).
+# must work outside it, and a release ships every file in the bundle, sources.md and
+# evals/ included, so all of them are checked. This catches names only; whether a skill
+# teaches a submission harness or the runner's behaviour is judged by the standalone
+# review (rosetta-skills/solver-setup/references/standalone-review.md). A repository path
+# such as solvers/<id>/ counts only where it starts a path, not inside an upstream URL.
 ROSETTA_TEXT = re.compile(
-    r"DCP[- ]?Bench|Rosetta|dcp-eval|generation[./]\w+|readiness_test|readiness\.json"
-    r"|/input/|request\.json|\bbuild\(instance\)|\bsolvers/[a-z0-9_]+/|CONTRACT\.md|\brun\.py\b"
-    r"|--instance-count")
+    r"(?i:DCP[-_ ]?Bench|Rosetta|dcp-eval|\bscratchpad\b)|generation[./]\w+|readiness_test|readiness\.json"
+    r"|/input/|request\.json|\bbuild\(instance\)|(?<![\w./-])solvers/[a-z0-9_]+/|CONTRACT\.md"
+    r"|\brun\.py\b|--instance-count|generated_models/|/home/[\w.-]+/|[A-Za-z]:[\\/]Users[\\/]")
 
 
 def rosetta_mentions(folder):
@@ -70,12 +72,9 @@ def rosetta_mentions(folder):
     hits = []
     for path in sorted(folder.rglob("*")):
         relative = path.relative_to(folder)
-        if not path.is_file() or relative.name == "sources.md" or relative.parts[0] == "evals":
+        if not path.is_file():
             continue
-        try:
-            lines = path.read_text(encoding="utf-8").splitlines()
-        except UnicodeDecodeError:
-            continue
+        lines = path.read_bytes().decode("utf-8", errors="replace").splitlines()
         hits += [f"{relative.as_posix()}:{number}: {match.group(0)}" for number, line in enumerate(lines, 1)
                  for match in [ROSETTA_TEXT.search(line)] if match]
     return hits
