@@ -1,230 +1,301 @@
 ---
 name: docplex
-description: Write instance-agnostic DOcplex (docplex.mp) models for the DCP-Bench docplex_cplex integration, covering the build(instance) contract, what the runner does with the model, the size limits of the CPLEX Community Edition, the logical and functional constraints docplex offers, the encodings of the constraints this benchmark's references use with what each costs, and the mistakes that make a submission fail.
+description: DOcplex (docplex.mp), the Python modelling API of IBM CPLEX, for mixed-integer linear models with integer, binary and continuous variables, linear, indicator and logical constraints, optimisation and enumeration of solutions. Use when writing, debugging or explaining a model with docplex or CPLEX in Python, or when a problem such as assignment, scheduling, packing or selection should be modelled with docplex.
+license: Apache-2.0
+compatibility: Requires Python 3 with the docplex and cplex packages (tested with docplex 2.32.264, cplex 22.2.0.1, Python 3.12). The pip cplex package is the CPLEX Community Edition, limited to 1000 variables and 1000 constraints per model; no key or network is needed
+metadata:
+  domain: constraint-programming
+  solver: CPLEX
+  paradigm: mip
 ---
 
-# DOcplex models for `docplex_cplex`
+# DOcplex (Python, CPLEX)
 
-Write one Python file that builds a `docplex.mp` model from instance data. The
-runner solves it with CPLEX inside a container; you never solve, print, or
-read values yourself.
+DOcplex is the Python modelling API of IBM CPLEX. You build a `docplex.mp` `Model` from
+variables and constraints, then `solve()` hands it to CPLEX, which proves optimality for
+mixed-integer programs. The one idea to keep: the model must be **linear**. A product of two
+variables, a division or a remainder of a variable is refused by CPLEX or by Python, and
+[encodings](references/encodings.md) show the linear forms that do the same job.
 
-Image: Python 3.12 with docplex 2.32.264 and the cplex 22.2.0.1 wheel, which is
-the CPLEX 22.2 Community Edition. Available imports are `docplex` and the Python
-standard library; NumPy is not installed. There is no network and no licence
-file: the model runs under the Community Edition's limits, described below.
+This skill covers the `docplex.mp` modelling API. It does not cover the native `cplex` Python
+API, the C++ or Java APIs, or CP Optimizer (`docplex.cp`).
 
-## The contract
+## Contents
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Program shape](#program-shape)
+- [Modelling](#modelling)
+- [Solving](#solving)
+- [All solutions](#all-solutions)
+- [Speed](#speed)
+- [Common issues](#common-issues)
+- [Further reading](#further-reading)
+- Runnable examples: `assets/`, one folder per pattern, each with a README and `model.py`
+
+## Install
+
+```bash
+pip install docplex cplex
+python3 -c "from docplex.mp.model import Model; m = Model(); x = m.integer_var(0, 3); m.maximize(x); print(m.solve().objective_value)"
+```
+
+The second command prints `3.0`. The PyPI `cplex` package is the **Community Edition**: no key,
+but at most 1000 variables and 1000 constraints per model (indicators count as constraints); more
+raises `DOcplexLimitsExceeded` (code 1016). A licensed CPLEX installation lifts this; its setup is outside
+this skill. Details: [getting started](https://ibmdecisionoptimization.github.io/docplex-doc/getting_started_python.html).
+
+Tested with Python 3.12, docplex 2.32.264 and the pip package cplex 22.2.0.1, whose engine
+reports itself as 22.2.0.0 (`cplex.__version__`).
+
+## Quick start
 
 ```python
 from docplex.mp.model import Model
 
+m = Model(name="quick")
+x = m.integer_var(0, 10, name="x")
+y = m.integer_var(0, 10, name="y")
+m.add_constraint(x + 2 * y >= 8, ctname="cover")
+m.minimize(3 * x + 2 * y)
 
-def build(instance):
-    n = instance["n"]
-    model = Model()
-    x = model.integer_var(0, n, name="x")
-    y = model.integer_var(0, n, name="y")
-    model.add_constraint(x + y >= n)
-    model.minimize(x + y)
-    return model, {"x": x, "y": y}
+sol = m.solve()
+if sol is None:
+    print("no solution:", m.solve_details.status)
+else:
+    print(m.solve_details.status, sol.objective_value, sol[x], sol[y])
 ```
 
-- `build(instance)` takes the instance as a plain dict parsed from JSON and
-  returns `(model, outputs)`, where `model` is a `docplex.mp.model.Model`.
-- `outputs` maps **exactly** the problem's declared output names to variables,
-  linear expressions, integers, or nested lists of these. Extra or missing keys
-  are rejected, and shapes must match the reference exactly: a 2-D output is a
-  list of lists. `binary_var_matrix` and the other `*_var_matrix` / `*_var_dict`
-  constructors return dicts keyed by tuples, so turn them into lists yourself,
-  `[[x[i, j] for j in cols] for i in rows]`.
-- **The model's objective says whether this is an optimization.** A model that
-  never calls `minimize` or `maximize` (or gives it a constant) is a
-  satisfaction problem; `model.has_objective()` is what the runner reads.
-- Every declared output must be **integer valued**. Declare output variables
-  with `integer_var` or `binary_var`; a continuous output is accepted only if
-  it is within 1e-6 of an integer, and enumeration refuses it outright.
-- A Boolean output of the reference is a `binary_var`; the runner returns 0/1,
-  which the evaluator accepts for a Boolean.
-- Prefer variables and linear expressions as outputs. The value of a functional
-  expression such as `model.abs(e)` is read from the continuous variable docplex
-  creates for it, so return `d` from `model.add(d == model.abs(e))` instead.
-- Auxiliary variables need not appear in `outputs`, and may be continuous.
+Prints `integer optimal solution 8.0 0 4.0`. Run it as `python3 quick.py`.
 
-**Take every quantity from `instance`.** A model that hardcodes the numbers of
-the example is the one failure this benchmark exists to catch, and it will be
-rejected the moment a second instance is checked.
+## Program shape
 
-Do not call `model.solve()`, read `solution_value`, `print()`, or read files.
-The runner owns solving, optimality, enumeration and serialisation.
-
-## What the runner does with it
-
-- It sets `parameters.threads = 1`, `parameters.mip.tolerances.mipgap = 0` and
-  `parameters.timelimit` to the remaining budget, over anything you set. The gap
-  matters: CPLEX's default of 1e-4 reports "integer optimal, tolerance" for a
-  solution that is not optimal, which the evaluator would reject as
-  `suboptimal_solution`. Other parameters you set stay as you set them.
-- It rounds every integer variable to the nearest integer (CPLEX returns them
-  within `mip.tolerances.integrality` = 1e-5) and evaluates a declared linear
-  expression over the rounded values.
-- An optimum it did not prove within the time limit is a `timeout`, never a
-  result. An "infeasible or unbounded" status is re-solved without dual
-  presolve reductions to tell the two apart.
-- For a second solution it pins the objective to the proven optimum and adds a
-  no-good over the integer variables your outputs are built from: one linear
-  constraint over binaries, and for each general integer two binaries with
-  indicator constraints. No bound is needed for that.
-
-## The Community Edition caps the model size
-
-The cplex wheel is the Community Edition. Measured in this image, it refuses a
-model with more than **1000 variables** or more than **1000 constraints**, and
-indicator constraints count as constraints. A model over the limit fails at
-solve time with `DOcplexLimitsExceeded` (CPLEX code 1016); the runner reports
-it as `unsupported` naming the Community Edition, which the evaluator records
-as `unsupported_capability`. That fails the pair, because every instance is
-checked. So:
-
-- Count before you write, for the largest instance in
-  `dataset/<problem>/<problem>.json`, not only the example: `n * n * n` one-hot
-  binaries for an `n`-by-`n` grid of values `1..n` is 729 at `n = 9`, 4096 at 16.
-- Docplex's logical and functional helpers add variables and constraints of
-  their own. Measured, with the variable on the left counted:
-
-  | Posting | Adds variables | Adds constraints |
-  | --- | --- | --- |
-  | `model.add(a != b)` | 1 | 2 |
-  | `model.add(d == model.abs(a - b))` | 5 | 4 |
-  | `model.add(y == model.max(a, b))` | 4 | 6 |
-  | `model.add_equivalence(c, a == b)` | 1 | 1 |
-  | `model.add_indicator(c, a <= b)` | 1 | 1 |
-  | `model.add_if_then(a >= 3, b == 0)` | 1 | 2 |
-
-  When a problem posts one of these per pair of items, the pairs are what fill
-  the budget; an assignment matrix is often smaller.
-- Leave headroom for enumeration: a second solution adds 1 range for the
-  pinned objective, 1 constraint for the no-good, and for each general-integer
-  output variable up to 2 binaries and 2 indicators. Declaring an output as the
-  expression `model.sum(v * b[i, v] for v in values)` over one-hot binaries
-  makes the no-good a single linear constraint instead.
-- **Never multiply two variables.** CPLEX rejects `x * y == 12` as a non-convex
-  quadratic constraint. A product of a binary and a bounded integer has a
-  linear encoding (below).
-- If the smallest honest formulation of the largest instance does not fit, the
-  pair cannot pass on this edition; record it as a blocker rather than
-  shrinking the model into a wrong one.
-
-## The API you need
-
-| You want | You write |
-| --- | --- |
-| a variable | `model.integer_var(lb, ub, name="x")`, `model.binary_var()`, `model.continuous_var(lb, ub)`; `lb` defaults to 0 |
-| many variables | `model.integer_var_list(n, lb, ub, name="x")` returns a list; `model.binary_var_matrix(rows, cols)` a dict keyed by `(i, j)` |
-| a sum | `model.sum(...)`; `model.dot(variables, coefficients)` for a weighted sum |
-| a constraint | `model.add_constraint(e <= f)` or `model.add(...)`; `model.add_constraints([...])` for many |
-| the objective | `model.minimize(e)` or `model.maximize(e)` |
-| `a != b` | `model.add(a != b)` |
-| `d = |e|`, `max`, `min` | `model.add(d == model.abs(e))`, `model.max(a, b, 0)`, `model.min(a, b)`; they take expressions |
-| `z = a and b`, `a or b` | `model.add(z == model.logical_and(a, b))`, `model.logical_or(a, b)`; binaries only |
-| `c == 1 → constraint` | `model.add_indicator(c, x + y <= 3)`; `active_value=0` for `c == 0` |
-| `c == 1 ↔ constraint` | `model.add_equivalence(c, a == b)` |
-| constraint → constraint | `model.add_if_then(x >= 3, y == 0)` |
-
-`model.infinity` is the unbounded bound: `model.integer_var(0, model.infinity)`.
-Negative domains need an explicit `lb`.
-
-What raises, measured in this image:
-
-- `if x == 1:` or `bool(x <= y)` raises `TypeError: Cannot convert linear
-  constraint to a boolean value`. Python control flow cannot branch on a
-  decision; branch on data only.
-- `x // 2` and `x % 2` raise `TypeError`; encode them as below.
-- `x * y` over two variables is accepted by docplex and then refused by CPLEX
-  as a non-convex quadratic constraint.
-
-## Encoding the constraints the references use
-
-Indicators need no big-M, so prefer them, or docplex's own `!=`, over a big-M.
-Where you do use `M`, derive it from the instance bounds and keep it as small as
-the data allows; with `integrality` at 1e-5 a loose big-M lets a "zero" binary
-carry `M * 1e-5` through the constraint.
+A model is usually a script that reads its data, solves, and prints the answer. Here the data
+file is a JSON file named on the command line (`python3 knapsack.py data.json`); any format your
+own program can read works the same way:
 
 ```python
-# all-different over values 1..m: an assignment matrix, and x reads it back
-pick = model.binary_var_matrix(range(n), range(1, m + 1))
-for i in range(n):
-    model.add(model.sum(pick[i, v] for v in range(1, m + 1)) == 1)
-for v in range(1, m + 1):
-    model.add(model.sum(pick[i, v] for i in range(n)) <= 1)
-x = [model.sum(v * pick[i, v] for v in range(1, m + 1)) for i in range(n)]
+import json
+import sys
 
-# a != b, for a single pair
-model.add(a != b)
+from docplex.mp.model import Model
 
-# a disjunction of linear constraints: one indicator per branch, at least one on
-branch = model.binary_var_list(len(parts))
-for k, (left, right) in enumerate(parts):          # each branch is left <= right
-    model.add_indicator(branch[k], left <= right)
-model.add(model.sum(branch) >= 1)
+with open(sys.argv[1]) as f:                  # data file named on the command line
+    data = json.load(f)
+weights, values, capacity = data["weights"], data["values"], data["capacity"]
 
-# d = |a - b|
-model.add(d == model.abs(a - b))
+m = Model(name="knapsack")
+m.parameters.mip.tolerances.mipgap = 0        # exact optimum, see Solving
+take = m.binary_var_list(len(weights), name="take")
+m.add_constraint(m.scal_prod(take, weights) <= capacity, ctname="capacity")
+m.maximize(m.scal_prod(take, values))
 
-# reified equality: c == 1 exactly when a == b
-model.add_equivalence(c, a == b)
-
-# element: value == table[index], index a decision variable in 0..len(table)-1
-choose = model.binary_var_list(len(table))
-model.add(model.sum(choose) == 1)
-model.add(index == model.sum(j * choose[j] for j in range(len(table))))
-model.add(value == model.sum(table[j] * choose[j] for j in range(len(table))))
-
-# counting: how many of the xs equal v, through the assignment binaries
-model.add(count == model.sum(pick[i, v] for i in range(n)))
-
-# product of a binary b and an integer a in lo..hi: p == b * a, linearly
-model.add(p <= hi * b)
-model.add(p >= lo * b)
-model.add(p <= a - lo * (1 - b))
-model.add(p >= a - hi * (1 - b))
-
-# q = a // k and r = a % k for a constant k > 0 and a in 0..hi
-q = model.integer_var(0, hi // k)
-r = model.integer_var(0, k - 1)
-model.add(a == k * q + r)
+sol = m.solve()
+status = m.solve_details.status
+if sol is None:
+    if status == "integer infeasible":
+        print("No selection fits: the model is infeasible")
+    else:
+        raise SystemExit(f"no answer: {status}")         # never print a guess
+elif status != "integer optimal solution":
+    raise SystemExit(f"optimum not proven: {status}")
+else:
+    chosen = [i for i, t in enumerate(take) if round(sol[t]) == 1]
+    print(f"Best value {round(sol.objective_value)}: take items {chosen}")
 ```
 
-Problems whose references are already linear — assignment, covering, knapsack,
-blending, facility location, scheduling with fixed charges — need none of this
-and translate directly.
+Three rules this shape follows:
 
-## Check your own model before submitting
+- Read the status string after `solve()`, never only `None`. `None` covers infeasible, unbounded
+  and stopped-without-a-solution.
+- Report a solution as the answer only when its status is `integer optimal solution`. A feasible
+  model with no objective also reports that status, so one check covers optimisation and
+  satisfaction.
+- Exit non-zero (`SystemExit` with a message) for every other case, so no guess is printed.
 
-```sh
-python -m generation.brief PROBLEM
-python -m evaluation.check MODEL.py --problem PROBLEM --solver docplex_cplex --instance-count 99
+[Product mix](assets/product-mix/model.py) and [set cover](assets/set-cover/model.py) show
+the optimisation side, and [infeasible staffing](assets/infeasible-staffing/model.py) shows reading
+the infeasible status without an exception.
+
+## Modelling
+
+Full API: [`Model`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html)
+
+| Need | API |
+|---|---|
+| integer variable | [`integer_var(lb, ub, name=)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.integer_var); `lb` defaults to 0, `ub` to `m.infinity` (1e20) |
+| binary, continuous | [`binary_var(name=)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.binary_var), [`continuous_var(lb, ub)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.continuous_var) |
+| lists of variables | [`integer_var_list(n, lb, ub)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.integer_var_list), [`binary_var_list(n)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.binary_var_list) |
+| indexed variables | [`binary_var_matrix(rows, cols)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.binary_var_matrix) and [`binary_var_dict(keys)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.binary_var_dict): dicts keyed by tuples or names |
+| sums | [`m.sum(...)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.sum); [`m.scal_prod(vars, coefs)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.scal_prod) for weighted sums |
+| constraint | [`m.add_constraint(e <= f, ctname=)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.add_constraint); many at once: [`add_constraints(list)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.add_constraints) |
+| not equal | `m.add_constraint(a != b)` |
+| minimise / maximise | [`m.minimize(e)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.minimize), [`m.maximize(e)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.maximize) |
+| indicator: `c == 1` forces a constraint | [`add_indicator(c, e <= f)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.add_indicator); `active_value=0` for `c == 0` |
+| reified equality | [`add_equivalence(c, a == b)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.add_equivalence) |
+| constraint implies constraint | [`add_if_then(e <= f, g == h)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.add_if_then) |
+| absolute value, max, min | [`m.abs(e)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.abs), [`m.max(a, b)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.max), [`m.min(a, b)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.min), used as `m.add(d == m.abs(e))` |
+| and, or of binaries | [`m.logical_and(a, b)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.logical_and), [`m.logical_or(a, b)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.logical_or), used as `m.add(z == ...)` |
+
+Patterns the table does not show (all-different, element, counting, binary times integer,
+division, disjunctions): [references/encodings.md](references/encodings.md). Each block there
+is a complete fragment that defines its own variables.
+
+**Helper cost.** Each helper adds variables and constraints of its own, which count against
+the Community Edition limit. Measured on integer variables in 0..9, counting the result
+variable or indicator binary that the helper is posted with:
+
+| Posting | Adds variables | Adds constraints |
+|---|---|---|
+| `m.add_constraint(a != b)` | 1 | 2 |
+| `m.add(d == m.abs(a - b))` | 5 | 4 |
+| `m.add(y == m.max(a, b))` | 4 | 6 |
+| `m.add_equivalence(c, a == b)` | 1 | 1 |
+| `m.add_indicator(c, a <= b)` | 1 | 1 |
+| `m.add_if_then(a >= 3, b == 0)` | 1 | 2 |
+
+Helpers posted once per pair of items multiply quickly; an assignment matrix is often smaller.
+
+Read sizes and coefficients from your data, not from one example. Python can branch on data
+only: `if x == 1:` raises `TypeError`, because `x == 1` is a constraint.
+
+## Solving
+
+Status values: [`solve_details`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.solve_details). `solve()` returns a solution object, or `None` when there is no solution to report.
+The strings below are the exact values of `m.solve_details.status`, as measured.
+
+| `solve_details.status` | code | `solve()` returns | Meaning |
+|---|---|---|---|
+| `integer optimal solution` | 101 | solution | proven optimal (or, with no objective, feasible) |
+| `integer optimal, tolerance` | 102 | solution | optimal within `mipgap`; not exact, see [Common issues](#common-issues) |
+| `time limit exceeded` | 107 | solution | stopped by the time limit with an incumbent; not proven optimal; check `m.solve_details.mip_relative_gap` |
+| `time limit exceeded, no integer solution` | 107 | `None` | stopped by the time limit before any solution was found |
+| `integer infeasible` | 103 | `None` | proven: no solution |
+| `integer unbounded` | 118 | `None` | the objective is unbounded |
+| `integer infeasible or unbounded` | 119 | `None` | presolve could not tell which; see [Common issues](#common-issues) |
+| `Non-convex QCP` | | `None` | CPLEX refused a product of variables; its message is printed to stdout |
+| `populate solution limit exceeded` | | pool | `populate()` stopped at `mip.limits.populate`; see [All solutions](#all-solutions) |
+
+Accept a result as an answer only when its status is `integer optimal solution`. Any other
+status means that the value may be a guess, so a script exits non-zero instead of printing it:
+
+```python
+if m.solve_details.status != "integer optimal solution":
+    raise SystemExit(f"not proven optimal: {m.solve_details.status}")
 ```
 
-`--instance-count 99` checks every instance the problem has, which is what
-catches a model that fitted the example.
+Reading values: `sol[x]`, `sol.get_value(x)` or `x.solution_value`; `sol.get_value(expr)` for an
+expression; `sol.objective_value`. Integer values come back as near-integer floats: round them.
 
-Read `reason` and `detail` on failure:
+Parameters are set on the model, before `solve()`:
 
-- `invalid_solution`: the reference rejects a solution your model allows. With
-  a big-M encoding, suspect an `M` too small to be inactive when its indicator
-  is off.
-- `suboptimal_solution`: your objective, or its direction, is wrong.
-- `invalid_output`: the declared outputs have the wrong keys, shapes, or types;
-  a `*_var_matrix` dict returned as an output is the usual cause.
-- `unsupported_capability` naming the Community Edition: the instance is too
-  large under the limits above. Reformulate smaller if an honest smaller
-  formulation exists; otherwise block the pair.
-- `execution_timeout` on an optimization: CPLEX never proved the optimum,
-  which a tighter formulation, a smaller `M`, or symmetry you remove from the
-  formulation (never from the reference) may fix.
-- `execution_error`: read `stderr` in the instance record for the traceback;
-  the API mistakes listed above are the usual cause.
+| Setting | Call | Note |
+|---|---|---|
+| time limit | [`m.set_time_limit(seconds)`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html#docplex.mp.model.Model.set_time_limit) | values under 1 second are raised to 1 with a warning |
+| relative gap | `m.parameters.mip.tolerances.mipgap = 0` | default 1e-4; 0 proves the exact optimum |
+| threads | `m.parameters.threads = 1` | default is chosen by CPLEX |
+| random seed | `m.parameters.randomseed = 42` | |
+| presolve | `m.parameters.preprocessing.presolve = 0` | 0 turns presolve off |
+| solver log | `m.solve(log_output=True)` | prints the CPLEX log |
 
-Never change the reference, the dataset, or the evaluator to make a submission
-pass.
+Errors: Python raises while the model is built (`TypeError`) or solved (`DOcplexLimitsExceeded`).
+CPLEX refusals such as `Model has non-convex quadratic constraint` are printed, and `solve()` returns `None`
+with the status `Non-convex QCP`. A script that must not print a guess treats `None` with any status
+other than `integer infeasible` as a failure, as in the [program shape](#program-shape).
+
+## All solutions
+
+DOcplex has no separate call to list every solution, but `populate()` fills a solution
+pool, and a loop of no-good cuts works without any pool settings. Both are complete for
+integer and binary decision variables.
+
+**Solution pool** (use this for more than a few dozen solutions; see [Speed](#speed)):
+
+```python
+m.parameters.mip.pool.intensity = 4       # enumerate all solutions
+m.parameters.mip.pool.relgap = 1e75       # 1e75 = every feasible solution; 0 = optimal only
+m.parameters.mip.pool.absgap = 1e75
+m.parameters.mip.limits.populate = 1000000  # the default is 20 and stops early
+pool = m.populate()                       # None if no solution
+for s in pool:
+    values = [round(s[t]) for t in take]
+```
+
+The status reads `all reachable solutions enumerated, integer optimal` when the pool is complete.
+It reads `populate solution limit exceeded` when a limit stopped it: with the default limit of 20,
+the 92 solutions of 8-queens stopped at 24 with that status, so raise `mip.limits.populate` first.
+Auxiliary variables multiply solutions: two assignments that differ only in an auxiliary variable
+count twice, so enumerate over decision variables and drop duplicates.
+
+**No-good loop** ([example](assets/subset-sum-all/model.py)). Solve, read the decisions, forbid that
+assignment, repeat until `solve()` returns `None`. It needs no pool settings, but it solves one
+MIP per solution, so it is slow for many solutions. Use it for a few solutions or as a fallback:
+
+```python
+found = []
+while True:
+    sol = m.solve()
+    if sol is None:
+        break                      # m.solve_details.status: 'integer infeasible' means exhausted
+    values = [round(sol[t]) for t in take]
+    found.append(values)
+    m.add_constraint(m.sum(1 - take[i] for i in range(n) if values[i] == 1)
+                     + m.sum(take[i] for i in range(n) if values[i] == 0) >= 1)
+```
+
+A loop that ends with `None` and a status other than `integer infeasible` is incomplete. Raise an
+error in that case rather than reporting the list as complete.
+
+**All optimal solutions** ([example](assets/assignment-all-optimal/model.py)). Solve for the
+optimum, post `cost == optimum` as a constraint, then enumerate as above. With the pool,
+set `relgap` and `absgap` to 0 instead, and the pool holds only optimal solutions.
+
+## Speed
+
+Measured on one CPU, wall time of the whole script (Python start-up, model build, all solves),
+on small textbook instances:
+
+| Model | Size | Time |
+|---|---|---|
+| cryptarithm | SEND+MORE=MONEY, TWO+TWO=FOUR, an infeasible AB+AB=AAA | 0.1 to 0.6 s each |
+| minimum graph colouring | a 6-cycle, a 4-clique with a pendant vertex, the Petersen graph | 0.1 to 0.5 s each |
+| 0/1 knapsack | 5 and 10 items | 0.1 s each |
+| job shop, indicator encoding | 3 jobs; Fisher-Thompson ft06 (6 jobs by 6 machines) | 1.0 s, 0.5 s |
+| n-queens, one solution | n = 3, 4, 8 | 0.1 s each |
+| n-queens, all solutions, no-good loop | n = 8, 92 solutions | 21 s |
+| n-queens, all solutions, `populate()` alone | n = 8, 92 solutions | 0.7 s |
+
+The job shop timings are for those two instances only. The skill makes no claim about larger job
+shops: time one on your data before relying on this encoding. When a time limit is set, a run that
+hits it may return a solution that is not proven optimal, so check the status (see [Solving](#solving)).
+
+## Common issues
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `TypeError: Cannot convert linear constraint to a boolean value` | `if x == 1:` or `bool(...)` on a constraint | branch on data, or use `add_indicator` |
+| `TypeError: unsupported operand type(s) for //` or `%` | integer division or remainder of a variable | `a == k*q + r` with integer `q`, `r`; see [encodings](references/encodings.md) |
+| `Model has non-convex quadratic constraint`, status `Non-convex QCP` | product of two variables | a binary times a bounded integer has a linear form in [encodings](references/encodings.md) |
+| `DOcplexLimitsExceeded`, `CPLEX code=1016` | Community Edition limit of 1000 variables or constraints | reduce the formulation; enumeration adds rows of its own |
+| status `integer optimal, tolerance` (102), maximum below the true optimum | default `mipgap` 1e-4. Measured: a 40-item knapsack (weights random 1..1000 with seed 27, values weight + 100, capacity half the total weight) gave 12860 with status 102 by default and 12861 with status 101 at `mipgap = 0` | set `m.parameters.mip.tolerances.mipgap = 0` before `solve()` |
+| status `integer infeasible or unbounded` (119) | presolve cannot decide | `m.parameters.preprocessing.presolve = 0` and solve again: gives 103 or 118 |
+| `has_objective()` is true after `m.minimize(5)` | any expression is an objective, even a constant | only no call, or `minimize(0)`, leaves a satisfaction model |
+| `solve()` returns `None` | infeasible, unbounded, time limit with no solution, or refused by CPLEX | read `m.solve_details.status`, not only `None`; exit non-zero unless it is `integer infeasible` |
+| script prints a solution although the status is `time limit exceeded` or `integer optimal, tolerance` | the answer is not proven optimal | print only on `integer optimal solution`; raise the time limit or accept the gap explicitly |
+| `time limit exceeded, no integer solution`, `solve()` returns `None` | the limit ran out before the first solution | raise `set_time_limit`, or tighten the formulation |
+| enumeration takes tens of seconds for a few dozen solutions | the no-good loop solves one MIP per solution | use the solution pool; see [Speed](#speed) |
+| `populate()` returns about 20 solutions, status `populate solution limit exceeded` | `mip.limits.populate` is at its default of 20 | set `m.parameters.mip.limits.populate` to a larger value |
+| `Time limit too small: 0.5 - using 1 instead` | `set_time_limit` below one second | use at least 1 |
+| `integer_var(0, name=)` has upper bound `1e20` | the default upper bound is `m.infinity` | give bounds explicitly |
+| `binary_var_matrix` loop gives keys, not variables | it returns a dict keyed by `(i, j)` | index with `x[i, j]`, or build lists: `[[x[i, j] for j in cols] for i in rows]` |
+| enumeration reports the same assignment twice | auxiliary variables differ between solutions | enumerate over decision variables only, or de-duplicate them |
+| a loose big-M lets a binary at 0 carry `M` x 1e-5 through a constraint | integrality tolerance 1e-5 | derive M from the data bounds, or use indicators |
+| `1.99999` instead of `2` | integer values are within the integrality tolerance (1e-5) | `round()` every integer value you read |
+| `NameError` when a snippet from [encodings](references/encodings.md) is pasted alone | the snippet is a fragment that expects `m` and its own variables | paste it after the preamble at the top of that file |
+| `ModuleNotFoundError: docplex` or `cplex` | the packages are not installed | run the [install](#install) step in the environment that runs the model |
+
+## Further reading
+
+- Documentation for agents: no `llms.txt` is published (checked: 404); start from the API reference.
+- API reference: [`Model`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html), [`Solution`](https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.solution.html)
+- Modelling guide: [docplex.mp index](https://ibmdecisionoptimization.github.io/docplex-doc/mp/index.html)
+- Examples: [docplex-examples `examples/mp`](https://github.com/IBMDecisionOptimization/docplex-examples/tree/master/examples/mp)

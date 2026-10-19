@@ -1,25 +1,26 @@
-{
-  "skill_name": "z3-python",
-  "evals": [
-    {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a z3_python submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Defines build(instance) returning constraints and a dict of exactly the declared output names, with no check(), model() or print().",
-        "Every instance-dependent quantity is read from the instance argument, and the evaluator accepts all six listed instances.",
-        "Uses Distinct rather than a missing AllDifferent, gives every integer variable explicit bounds, and avoids the Python built-ins that raise on Z3 expressions."
-      ]
-    },
-    {
-      "id": "optimization-contract",
-      "prompt": "Using this skill, write a z3_python submission for a problem whose reference has an objective, and confirm the evaluator agrees the optimum was reached.",
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
-      "assertions": [
-        "Returns the objective as a third element ('minimize'|'maximize', expression) instead of building a z3.Optimize itself.",
-        "The objective expression is bounded by the model's constraints, so it is not reported as a non-finite objective.",
-        "The evaluator reports accepted rather than suboptimal_solution, confirming the direction and encoding match the reference."
-      ]
-    }
-  ]
-}
+{"skill_name": "z3-python", "evals": [
+  {"id": 1, "prompt": "Use Z3 from Python to find a 3x3 magic square with the numbers 1 to 9.", "expected_skill": "z3-python",
+   "expected_output": "A Solver model using Distinct and line sums, reading values with model.eval", "assertions": ["Uses z3.Distinct and bounds every cell", "Checks the status against z3.sat before reading the model"]},
+  {"id": 2, "prompt": "With Z3 in Python, list every subset of 2, 3, 4, 5, 6 that sums to 9.", "expected_skill": "z3-python",
+   "expected_output": "Three subsets, found by repeated check() with a blocking clause", "assertions": ["Blocks only the declared Boolean variables", "Does not report duplicate subsets caused by auxiliary variables"]},
+  {"id": 3, "prompt": "Using Z3's Python API, split jobs 3, 1, 4, 2, 2 over two machines with the smallest makespan and list every optimal split.", "expected_skill": "z3-python",
+   "expected_output": "Optimal makespan 6 and four optimal assignments", "assertions": ["Proves the optimum with Optimize upper and lower bounds", "Enumerates optimal solutions on a Solver with the objective pinned"]},
+  {"id": 4, "prompt": "Maximise profit of chairs and tables with Z3 in Python, given wood and labour limits.", "expected_skill": "z3-python",
+   "expected_output": "An Optimize model with the maximum profit and a proven-optimal check", "assertions": ["Uses Optimize.maximize, not a hand-written search", "Checks lower equals upper before reporting the optimum"]},
+  {"id": 5, "prompt": "Minimise the cost of renting vans and minibuses for 10 people with Z3 in Python.", "expected_skill": "z3-python",
+   "expected_output": "An Optimize model with the minimum cost", "assertions": ["Uses Optimize.minimize", "Bounds the integer counts from below"]},
+  {"id": 6, "prompt": "Show with Z3 in Python that three people working 0 to 3 hours each cannot total 10 hours.", "expected_skill": "z3-python",
+   "expected_output": "Status unsat reported without an exception", "assertions": ["Reads the status from check() rather than from model()", "Does not call model() after an unsat result"]},
+  {"id": 7, "prompt": "Schedule four tasks on one machine in Z3 Python, with release times and two precedences, minimising the makespan.", "expected_skill": "z3-python",
+   "expected_output": "A makespan of 11 with pairwise no-overlap constraints", "assertions": ["Encodes no-overlap with z3.Or over pairs, since Z3 has no NoOverlap", "Minimises makespan with Optimize"]},
+  {"id": 11, "prompt": "Colour the nodes of a graph with Z3 in Python, using as few colours as possible; read the graph from a JSON file given as argv[1] and print the colouring as one JSON object.", "expected_skill": "z3-python",
+   "expected_output": "An Optimize model that minimises the number of used values, with a JSON line on stdout", "assertions": ["Counts distinct colours with one used flag per value, not the largest colour", "Reads only the keys it needs from the JSON file and prints JSON on stdout"]},
+  {"id": 12, "prompt": "Write a Z3 Python program for a job-shop schedule with no overlap on each machine and minimal makespan; the instance JSON may contain extra keys such as name.", "expected_skill": "z3-python",
+   "expected_output": "Pairwise z3.Or no-overlap with Optimize.minimize and a proven-optimal check", "assertions": ["Uses pairwise z3.Or for no-overlap, not a big-M constant", "Compares lower and upper bounds before reporting the schedule"]},
+  {"id": 8, "prompt": "Write a MiniZinc model for 8-queens and solve it with Gecode.", "expected_skill": null,
+   "expected_output": "The z3-python skill is not used", "assertions": ["The z3-python skill is not loaded"]},
+  {"id": 9, "prompt": "Write a CPMpy model that schedules jobs on machines and print the optimal makespan.", "expected_skill": null,
+   "expected_output": "The z3-python skill is not used", "assertions": ["The z3-python skill is not loaded"]},
+  {"id": 10, "prompt": "Explain in two sentences what an SMT solver is, without writing any code.", "expected_skill": null,
+   "expected_output": "The z3-python skill is not used", "assertions": ["No Z3 API is written or quoted"]}
+]}

@@ -2,8 +2,9 @@
 
 Signatures are copied from the 0.14.0 headers (tag `0.14.0`, commit
 `f698d562`). **(header only)**: never compiled by us; **(tested)**: compiled and
-run (see [examples.md](examples.md)). Everything is in global scope; include
-the headers listed in SKILL.md. Pitfalls are in SKILL.md and not repeated here.
+run, most of them in the skill's runnable examples (`assets/`). Everything is in global
+scope; include the headers listed in SKILL.md. Pitfalls are in SKILL.md's *Common
+issues* and not repeated here.
 
 Conventions: `x`, `y`, `z` are `IntVar*`; `b`, `r` are `BoolView`; `a`, `c`
 are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
@@ -20,10 +21,10 @@ are `int`; `vec<T>&` arguments are non-const lvalues (no temporaries, no
 - `BoolView newBoolVar(int min = 0, int max = 1)` - one Boolean.
 - `IntVar* getConstant(int v)` - a fixed variable for `v`, cached per value.
 - `bv_true`, `bv_false` - constant BoolViews; `~b` negates a named BoolView lvalue.
-- `void bool2int(BoolView b, IntVar* y)` - `y = b` (0/1); `y` needs domain within 0..1. Use it to export Booleans.
+- `void bool2int(BoolView b, IntVar* y)` - `y = b` (0/1); `y` needs domain within 0..1. Use it to branch on, print or sum Booleans as integers.
 - An `IntVar*` does not convert to `BoolView`: `BoolView r = x;` and `BoolView r(x);` fail
   with "conversion from 'IntVar*' to non-scalar type 'BoolView'". To get a Boolean tied to a
-  0..1 output IntVar, create the Boolean and link it (tested):
+  0..1 IntVar, create the Boolean and link it (tested):
   `BoolView r = newBoolVar(); bool2int(r, x);`. Then reify onto `r`, e.g.
   `int_rel_reif(bins[i], IRT_EQ, b, r);`. (The header also defines `IntVar::operator BoolView()`
   on the dereferenced object, `BoolView r = *x;`, for a 0..1 variable; header only, untested.)
@@ -111,7 +112,7 @@ Indexing is `y = a[x - offset]`.
 | `regular(vec<IntVar*>& x, int q, int s, vec<vec<int>>& d, int q0, vec<int>& f)` | DFA with states `1..q`, symbols `1..s`, `d[state-1][symbol-1]` is the next state (0 rejects), start `q0`, accepting list `f` **(tested)** |
 | `circuit(vec<IntVar*>& x, int offset = 0)` | successor array forms one Hamiltonian circuit **(tested)** |
 | `subcircuit(vec<IntVar*>& x, int offset = 0)` | circuit on a subset, others point to themselves (header only) |
-| `lex(vec<IntVar*>& x, vec<IntVar*>& y, bool strict)` | `x <=lex y` (or `<lex` with `strict`). Tested on ordinary integer rows; it crashed (signal 11) on rows of eager 0/1 variables, so avoid it there and only add it when the description allows the ordering |
+| `lex(vec<IntVar*>& x, vec<IntVar*>& y, bool strict)` | `x <=lex y` (or `<lex` with `strict`). Tested on ordinary integer rows; it crashed (signal 11) on rows of eager 0/1 variables, so avoid it there, and add it only when the problem allows that ordering |
 | `value_precede_int(int s, int t, vec<IntVar*>& x)` | `s` occurs before `t` in `x` (header only) |
 | `disjunctive(vec<IntVar*>& s, vec<int>& d)` | tasks with starts `s` and constant durations `d` do not overlap **(tested)** |
 | `cumulative(vec<IntVar*>& s, vec<int>& d, vec<int>& r, int limit)` | constant durations, demands and capacity **(tested)** |
@@ -125,18 +126,20 @@ examples here. Read `globals.h` before using one.
 ## Branching and objective (`branching/branching.h`, `core/engine.h`)
 
 - `void branch(vec<Branching*> x, VarBranch var, ValBranch val)` - search these variables first. Pass a named, flat `vec<IntVar*>`; it converts element-wise. Flatten a `vec<vec<IntVar*>>` grid first with `flatten(grid, flat)`. A `vec<BoolView>` does not compile ("cannot convert 'BoolView' to 'Branching*'"): branch on the 0/1 IntVars linked with `bool2int` instead (tested).
+- Leftover variables: whatever no `branch` reaches stays unfixed in the reported solution. To hand the remaining literals to the SAT solver's activity search, add after your `branch` calls `so.vsids = true; engine.branching->add(&sat);` (`#include <chuffed/core/sat.h>`; tested on unbranched BoolViews, which `so.vsids` alone leaves unfixed).
 - `VarBranch`: `VAR_DEFAULT`, `VAR_INORDER`, `VAR_SIZE_MIN`, `VAR_SIZE_MAX`, `VAR_MIN_MIN`, `VAR_MIN_MAX`, `VAR_MAX_MIN`, `VAR_MAX_MAX`, `VAR_DEGREE_MIN`, `VAR_DEGREE_MAX`, `VAR_REGRET_MIN_MAX`, `VAR_REGRET_MAX_MIN`, `VAR_ACTIVITY`, `VAR_RANDOM`.
 - `ValBranch`: `VAL_DEFAULT`, `VAL_MIN`, `VAL_MAX`, `VAL_MIDDLE`, `VAL_MEDIAN`, `VAL_SPLIT_MIN`, `VAL_SPLIT_MAX`. `VAL_RANDOM` aborts at run time ("value selection branching is not yet supported").
 - `void optimize(IntVar* v, int t)` - `t` is `OPT_MIN` or `OPT_MAX`; call once.
-- `void output_vars(vec<IntVar*>& v)` / `output_var(Branching*)`: variables that distinguish solutions when enumerating; also used to print.
+- `void output_vars(vec<IntVar*>& v)` / `output_var(Branching*)`: variables that distinguish solutions when enumerating (without it, search stops after the first solution); also used to print.
 
 ## Search options (global `so`)
 
-Set them before `engine.solve` (in DCP Build, before posting or branching).
+Set them before `engine.solve` ([core/options.h](https://github.com/chuffed/chuffed/blob/0.14.0/chuffed/core/options.h)).
 
+- Solutions and output: `so.nof_solutions` (default 1, 0 = all; ignored by optimisation, which runs to the proven optimum), `so.print_sol` (call `print` per solution), `so.time_out = std::chrono::milliseconds(ms)`.
+- Search: `so.vsids` (activity-based search on the SAT literals).
 - Restarts: library defaults have no restarts (`restart_scale` is effectively infinite). For hard or heavy-tailed search: `so.restart_type = LUBY; so.restart_scale = 1000;`. Scales of 100 to 600 left single instances unsolved on one car-sequencing set; 1000 solved all.
-- Phase and activity: `so.toggle_vsids = true; so.sat_polarity = 2;` (anti-polarity). `so.branch_random` exists for randomised restarts. The DCP driver only overrides `so.vsids` after your Build.
-- Driver note: in DCP, set these in Build; the driver forks per phase and keeps them.
+- Phase and activity: `so.toggle_vsids = true; so.sat_polarity = 2;` (anti-polarity). `so.branch_random` exists for randomised restarts. More in [performance.md](performance.md).
 
 ## Recipes
 
@@ -216,6 +219,24 @@ Fixed value and exclusion: `int_rel(x, IRT_EQ, 3)`, `int_rel(x, IRT_NE, 3)`.
 Index arithmetic over 2-D variable grids: keep a `vec<vec<IntVar*>>` from
 `createVars(grid, rows, cols, lo, hi)`; flatten with `flatten(grid, flat)` into
 an empty `vec<IntVar*>`; take columns with `transpose(grid, cols)`.
+
+Print only the optimum (`so.print_sol = false`; the callback runs for each improving
+solution during `optimize`, so the last values copied are the optimum; tested on a copy of
+[knapsack-maximise](../assets/knapsack-maximise/README.md) with this change; `model` is the
+`Knapsack*` made with `new`):
+
+```cpp
+std::vector<int> best;                              // values at the last improving solution
+engine.setSolutionCallback([&] (Problem*) {
+  best.clear();
+  for (int i = 0; i < model->n; ++i) best.push_back(model->take[i]->getVal());
+});
+so.print_sol = false;
+engine.solve(model);                                // model: the Knapsack* built with new
+std::cout << "profit " << engine.best_sol << " take";
+for (int b : best) std::cout << ' ' << b;
+std::cout << "\n";
+```
 
 ## Tips
 

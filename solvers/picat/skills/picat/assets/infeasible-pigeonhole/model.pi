@@ -1,0 +1,15 @@
+% Infeasible: four pigeons cannot each have their own hole among three.
+import cp.
+
+main =>
+    Pigeons = 4,
+    Holes = 3,
+    Hole = new_list(Pigeons),
+    % Posting the constraints and searching sit in the condition, so a
+    % failure of either takes the else branch instead of stopping the program.
+    if (Hole :: 1..Holes, all_different(Hole), solve(Hole)) then
+        println("Placed: " ++ to_string(Hole))
+    else
+        println("Infeasible: no placement of " ++ to_string(Pigeons) ++
+                " pigeons in " ++ to_string(Holes) ++ " holes")
+    end.

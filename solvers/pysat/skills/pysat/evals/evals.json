@@ -1,55 +1,104 @@
 {
-  "schema_version": 1,
   "skill_name": "pysat",
   "evals": [
     {
-      "id": "written-against-pysat",
-      "prompt": "Using this skill, write a pysat submission for any listed satisfaction problem and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 1,
+      "prompt": "Write a PySAT model in Python that picks three of six people for a committee, with two pairs that may not serve together. Print the committee.",
+      "expected_skill": "pysat",
+      "expected_output": "A standalone Python program using IDPool, CardEnc and a Glucose solver that prints a committee satisfying the conflicts.",
       "assertions": [
-        "The submission imports from pysat and builds its clauses with IDPool, CardEnc, PBEnc or pysat.integer; it does not import any repository-local helper module.",
-        "build returns a pysat.formula.CNF as its first value.",
-        "Every encoder call is given the same IDPool, so auxiliary variables cannot collide."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
+        "Uses pysat's IDPool and CardEnc.equals with a shared vpool",
+        "Solves with Solver(name='glucose42') or an equivalent pysat solver and checks the solve result",
+        "Prints a committee of size three that respects both conflicts"
+      ]
     },
     {
-      "id": "objective-as-soft-clauses",
-      "prompt": "Using this skill, write a pysat submission for a problem whose reference has an objective, such as knapsack, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 2,
+      "prompt": "Using PySAT, enumerate every minimum-cost set cover of six elements with five named sets, where some covers tie.",
+      "expected_skill": "pysat",
+      "expected_output": "A program that uses RC2 (RC2Stratified) with soft clauses for the set costs and enumerates every optimal cover, stopping at the first higher cost.",
       "assertions": [
-        "build returns a pysat.formula.WCNF whose hard clauses are the constraints, added with extend or append without a weight, never through CNF.weighted().",
-        "The objective is stated only as soft clauses with positive integer weights; a maximised quantity is written as a minimised shortfall from a stated upper bound.",
-        "No objective is returned as a third value."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
+        "Hard clauses state that each element is covered, added without a weight",
+        "Each set's cost is a soft clause with its cost as the weight",
+        "Enumeration blocks the chosen sets with add_clause and stops when rc2.cost exceeds the optimum",
+        "The program does not treat cnf.weighted() as the objective"
+      ]
     },
     {
-      "id": "integer-variables-through-pysat-integer",
-      "prompt": "Using this skill, write a pysat submission for a problem with finite-domain integer variables, such as csplib_054_n_queens, and check it across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 3,
+      "prompt": "Model a single machine with four jobs, release times and one precedence in PySAT, minimising the makespan with integer start times.",
+      "expected_skill": "pysat",
+      "expected_output": "A program with Integer start times, reified no-overlap constraints and a makespan objective solved by RC2.",
       "assertions": [
-        "Integer variables come from pysat.integer.Integer with a shared vpool, and structure goes through engine.add_alldifferent or engine.add_linear rather than being expanded into clauses by hand.",
-        "Expressions are passed to add_linear, and only Integer objects to add_alldifferent, add_equal and add_not_equal.",
-        "The chosen domain encoding is stated, with the domain bounded by what the instance can reach.",
-        "Every instance-dependent quantity comes from the instance argument, and the evaluator accepts every listed instance rather than only the example."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for every instance."
+        "Start times are pysat.integer.Integer variables sharing one IDPool, with lower bounds from the release times",
+        "No-overlap uses add_linear(..., reified=True) selector literals combined in a clause",
+        "Decoding pads the RC2 model to the pool's top variable before Integer.decode",
+        "The makespan is minimised by soft clauses on its threshold literals (for example [-makespan.ge(t)] with weight 1) or equals literals with weights, and the program reads the optimum from rc2.cost or the decoded makespan"
+      ]
     },
     {
-      "id": "boolean-versus-integer-outputs",
-      "prompt": "Using this skill, write a pysat submission for a problem whose brief declares a boolean output and one whose brief declares 0/1 integers, and check both with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pysat:v1 image and a running Docker Linux engine.",
-      "expected_output": "Two accepted models, or an explicit blocker with the evaluator output that caused it.",
+      "id": 4,
+      "prompt": "Use PySAT to show that four pigeons cannot fit into three holes, and report the solver status.",
+      "expected_skill": "pysat",
+      "expected_output": "A program that reports UNSATISFIABLE from the solver and shows that RC2 returns None for the same hard clauses.",
       "assertions": [
-        "The boolean output is a literal so it renders as true/false, and the integer output is an Integer with domain 0..1 so it renders as 0/1, matching what generation.brief declares in each case.",
-        "Neither run reports invalid_output.",
-        "No declared output is a value computed in Python rather than read from the solver."
-      ],
-      "evidence_required": "Both submission sources and both evaluator JSON results."
+        "Each pigeon uses CardEnc.equals and each hole uses CardEnc.atmost with the same IDPool",
+        "The program checks the result of solve() and reports UNSATISFIABLE"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Install PySAT in a fresh Python environment and show that the installation works, including pseudo-Boolean encodings.",
+      "expected_skill": "pysat",
+      "expected_output": "The pip command with the pblib extra and a verification command that imports pysat and PBEnc.",
+      "assertions": [
+        "Installs python-sat with the pblib extra, not a bare python-sat, for PBEnc",
+        "Verifies with a command that prints the pysat version"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Write an Or-Tools CP-SAT model in Python for the same committee problem.",
+      "expected_skill": null,
+      "expected_output": "The pysat skill is not used; the response uses CP-SAT.",
+      "assertions": [
+        "The pysat skill is not loaded",
+        "The model uses ortools, not pysat"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Write a MiniZinc model for a 6-queens puzzle.",
+      "expected_skill": null,
+      "expected_output": "The pysat skill is not used.",
+      "assertions": [
+        "The pysat skill is not loaded",
+        "The answer is MiniZinc, not PySAT"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Using PySAT, colour the nodes of a 5-node graph with the fewest colours, so that adjacent nodes differ. Print the colouring and the number of colours.",
+      "expected_skill": "pysat",
+      "expected_output": "A program that uses one-hot node colours, hard clauses for adjacent nodes, and a weight-1 soft clause per colour class, solved with RC2Stratified.",
+      "assertions": [
+        "Each node has exactly one colour, stated as hard clauses (for example CardEnc.equals with a shared vpool)",
+        "Adjacent nodes get hard clauses that forbid the same colour",
+        "The number of used colours is stated with a y_k literal implied by each node's colour, and a soft clause [-y_k] with weight 1",
+        "The program prints rc2.cost as the colour count and the colouring it decodes"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Model a job shop with six jobs and six machines (Fisher and Thompson ft06) in PySAT and minimise the makespan. Keep the model fast enough to finish in a minute.",
+      "expected_skill": "pysat",
+      "expected_output": "A program with a horizon from a feasible schedule, head and tail bounds on the start Integers, reified no-overlap constraints, and a unit-weight makespan objective, printing 55.",
+      "assertions": [
+        "The horizon is not the sum of all durations: it comes from a feasible schedule or another valid bound",
+        "Start Integers get lower and upper bounds from the job's head and tail durations",
+        "Reified no-overlap selectors that come back None are skipped, not added to a clause",
+        "The makespan objective uses unit-weight soft clauses on makespan.ge thresholds, and the program reports the optimum 55"
+      ]
     }
   ]
 }

@@ -1,51 +1,79 @@
 {
-  "schema_version": 1,
-  "skill_name": "gurobipy",
-  "evals": [
-    {
-      "id": "linear-optimization",
-      "prompt": "Using this skill, write a gurobipy_python submission for a linear optimization problem in the dataset, such as knapsack or diet, and check it with the repository evaluator across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/gurobipy_python:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Defines build(instance) returning a gurobipy.Model and a dict of exactly the declared output names, and never calls model.optimize() or reads .X.",
-        "The objective is set once with setObjective and the sense matching the reference's direction, and the evaluator reports accepted rather than suboptimal_solution.",
-        "Every instance-dependent quantity is read from the instance argument, and every listed instance is accepted."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for every instance."
-    },
-    {
-      "id": "non-linear-pattern-encoded",
-      "prompt": "Using this skill, write a gurobipy_python submission for a problem whose reference uses a constraint Gurobi cannot state directly, such as an all-different, a != or a disjunction, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/gurobipy_python:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The constraint is encoded with indicator constraints, general constraints or an assignment matrix; the submission never passes != to addConstr and never multiplies two variables.",
-        "Any big-M constant is derived from the instance's own bounds, and the evaluator does not report invalid_solution."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
-    },
-    {
-      "id": "size-limit-planned",
-      "prompt": "Using this skill, write a gurobipy_python submission for a problem whose largest instance is large, such as a 9-by-9 or larger grid puzzle, and check it across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/gurobipy_python:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or a blocker citing the size-limited licence with the variable and constraint counts of the largest instance.",
-      "assertions": [
-        "Before writing the model, the reasoning counts the variables and constraints the formulation needs on the largest listed instance and compares them with 2000 each.",
-        "If the evaluator reports unsupported_capability for the licence, the pair is recorded as blocked with that evidence rather than retried with a formulation that drops constraints."
-      ],
-      "evidence_required": "The reasoning with the counts, the submission source, and the evaluator JSON result."
-    },
-    {
-      "id": "enumerable-outputs",
-      "prompt": "Using this skill, write a gurobipy_python submission for a satisfaction problem and confirm the evaluator accepts two distinct solutions.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/gurobipy_python:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model checked with solution_limit above one, or a recorded blocker.",
-      "assertions": [
-        "Declared output variables are GRB.INTEGER or GRB.BINARY, so no output is rejected as fractional or refused for enumeration.",
-        "Outputs are returned as nested lists matching the reference's shapes, not as tupledicts."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result with solution_limit 2."
-    }
-  ]
+ "skill_name": "gurobipy",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Write a Gurobi model in Python that picks whole batches of two products to maximise profit under a machine-hours limit and a labour limit, then print the optimal profit.",
+   "expected_skill": "gurobipy",
+   "expected_output": "A gurobipy maximise model with GRB.INTEGER variables that checks Status == GRB.OPTIMAL before printing ObjVal.",
+   "assertions": [
+    "Uses setObjective with GRB.MAXIMIZE",
+    "Checks model.Status against GRB.OPTIMAL before reading values",
+    "Rounds integer variable values before printing"
+   ]
+  },
+  {
+   "id": 2,
+   "prompt": "Write a Python Gurobi program that lists every set of 3 distinct numbers from 1 to 6 whose sum is 10.",
+   "expected_skill": "gurobipy",
+   "expected_output": "A program that enumerates all feasible solutions with the solution pool and removes duplicates.",
+   "assertions": [
+    "Sets PoolSearchMode to 2 and a large PoolSolutions",
+    "Reads each pool solution with SolutionNumber and Xn",
+    "Does not loop over model.optimize() with manual no-good cuts unless the pool cannot be used",
+    "Checks SolCount is strictly below PoolSolutions before treating the list as complete"
+   ]
+  },
+  {
+   "id": 3,
+   "prompt": "Write a Gurobi model in Python that finds the minimum-cost assignment of 3 workers to 3 jobs and then every assignment with that same cost.",
+   "expected_skill": "gurobipy",
+   "expected_output": "A minimise model that sets MIPGap to 0 and enumerates all optimal solutions with PoolGap 0.",
+   "assertions": [
+    "Sets MIPGap to 0 before enumerating optimal solutions",
+    "Keeps the objective and sets PoolGap to 0 for the enumeration",
+    "Uses binary variables for the assignment"
+   ]
+  },
+  {
+   "id": 4,
+   "prompt": "My gurobipy model says it is infeasible. How do I find which constraints conflict?",
+   "expected_skill": "gurobipy",
+   "expected_output": "Advice to call computeIIS after checking Status == GRB.INFEASIBLE, and to read IISConstr flags.",
+   "assertions": [
+    "Checks Status against GRB.INFEASIBLE first",
+    "Calls computeIIS before reading constraint names"
+   ]
+  },
+  {
+   "id": 5,
+   "prompt": "Write a constraint that says two integer variables must differ, using Gurobi's Python API.",
+   "expected_skill": "gurobipy",
+   "expected_output": "An indicator-based encoding of a != b, since addConstr does not accept !=.",
+   "assertions": [
+    "Does not pass != to addConstr",
+    "Uses two indicator constraints on a binary variable"
+   ]
+  },
+  {
+   "id": 6,
+   "prompt": "Write a CP-SAT model in Python with OR-Tools for the same assignment problem.",
+   "expected_skill": null,
+   "expected_output": "The gurobipy skill is not used; the answer uses OR-Tools CP-SAT.",
+   "assertions": [
+    "The gurobipy skill is not loaded",
+    "The model uses ortools, not gurobipy"
+   ]
+  },
+  {
+   "id": 7,
+   "prompt": "Write a MiniZinc model for the 8-queens problem.",
+   "expected_skill": null,
+   "expected_output": "The gurobipy skill is not used.",
+   "assertions": [
+    "The gurobipy skill is not loaded",
+    "No gurobipy import appears in the answer"
+   ]
+  }
+ ]
 }

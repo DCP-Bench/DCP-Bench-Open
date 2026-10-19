@@ -1,0 +1,335 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-002",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/mip_cbc/CONTRACT.md": "5a56dcc5a35d08e6f1a3f30cd23567c5671824435de3ba7d0ad0821a1ebd1d05"
+    },
+    "created_at": 1792226496.9002855,
+    "problem_id": "flip_rows_cols",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "5ae9ab4074ac987a9a44291afa94940e41ec837d04f5de498df31cd374950465",
+    "run_id": "20261017-mip-python-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "c28976b6a6068ee148a3ff089d371ca6526c0663",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "c28976b6a6068ee148a3ff089d371ca6526c0663",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "0d660ce738c652610d40b242268c404dbd3f182a70659d8a9c4a7c6cdc16ae88",
+        "source": "solvers/mip_cbc/skills/mip-python",
+        "version": {
+          "commit": "c28976b6a6068ee148a3ff089d371ca6526c0663",
+          "modified": false,
+          "path": "solvers/mip_cbc/skills/mip-python"
+        }
+      }
+    ],
+    "solver_id": "mip_cbc"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:caa711493645997b683bf6a6462d84c307cc25b48281c803da0230a46a87e84f",
+      "tag": "dcp-eval/mip_cbc:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.25551024405285716,
+        "execution_wall_seconds": 7.882263218052685,
+        "first_solution": {
+          "col_signs": [
+            1,
+            1,
+            -1,
+            1,
+            1,
+            -1,
+            1,
+            -1,
+            -1
+          ],
+          "row_signs": [
+            1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            1,
+            1,
+            -1,
+            -1,
+            -1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "id": "example",
+        "instance_hash": "285c1c0bd5318eb68cecba87545812ee21b19ec57ccd0a85cd099bcc64972895",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 812,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 10.777478791074827,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.016706377966329455,
+        "execution_wall_seconds": 0.9505227060290053,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            1,
+            -1
+          ],
+          "row_signs": [
+            1,
+            1,
+            1
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "c8ca361dacce9a6579216aa6e7e5896f29ed081f4826219ebb3fe26ed1dcebb0",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 52,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.6957631980767474,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.03408968402072787,
+        "execution_wall_seconds": 1.1349517039489,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            1,
+            -1,
+            -1,
+            -1
+          ],
+          "row_signs": [
+            -1,
+            1,
+            -1,
+            -1,
+            1
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "66b6712b59b544df4339198d36cbe7937bbf9894e51dac747d2377ccd86486c2",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 149,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.8129787739599124,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.04674710799008608,
+        "execution_wall_seconds": 1.3328421839978546,
+        "first_solution": {
+          "col_signs": [
+            -1,
+            -1,
+            1,
+            1,
+            -1,
+            -1,
+            -1,
+            1
+          ],
+          "row_signs": [
+            1,
+            1,
+            -1,
+            1
+          ]
+        },
+        "id": "json:3",
+        "instance_hash": "00bc5cdae99677cc6c0e0fc34118baab21c3646ae4c15794b686844bb0b56171",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 119,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.7914876310387626,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.03033750702161342,
+        "execution_wall_seconds": 0.7322819919791073,
+        "first_solution": {
+          "col_signs": [
+            1,
+            1,
+            -1
+          ],
+          "row_signs": [
+            -1,
+            1,
+            1,
+            -1,
+            1,
+            1,
+            -1,
+            1,
+            1,
+            1
+          ]
+        },
+        "id": "json:4",
+        "instance_hash": "881f1bd2cf753309a3fd40171f142b3682193b8dcf9c28710fffbe37e65aa48a",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 192,
+        "outputs": [
+          "row_signs",
+          "col_signs"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.0403316209558398,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "fdfe6319726beab72a5f2a9b65fd1b8b50ca44a4727eebf7738a8527ca8b8e64",
+    "problem_id": "flip_rows_cols",
+    "reason": "accepted",
+    "reference_hash": "86f958a3301e2da946d853fc510b207add942683c8c71d7a276b0875966588a3",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 10,
+    "solver_id": "mip_cbc",
+    "total_wall_seconds": 27.02453511802014,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.py",
+  "problem": "flip_rows_cols",
+  "schema": 2,
+  "solver": "mip_cbc",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

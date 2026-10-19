@@ -80,6 +80,21 @@ class ReadinessTests(unittest.TestCase):
                     "isolation", "missing_image", "unsupported_optimization", "unsupported_enumeration", "compilation_error"}
         readiness.check("demo", self.write_report(self.report(required)), self.root / "record.json")
 
+    def test_readiness_level_2_adds_the_bug_class_checks(self):
+        base = {"satisfaction", "changed_instances", "malformed_output", "empty_output", "timeout_cleanup",
+                "isolation", "missing_image", "minimization", "maximization", "enumeration"}
+        bug_classes = {"output_shapes", "instance_shapes", "error_detail", "stray_stdout", "large_model",
+                       "optimization_timeout", "minimization_step_one", "optimum_enumeration",
+                       "auxiliary_free_distinct"}
+        metadata = {"id": "demo", "image": "demo:image", "enumeration": True}
+        self.assertEqual(readiness._required(metadata), base)
+        self.assertEqual(readiness._required({**metadata, "readiness_level": 2}), base | bug_classes)
+        # Checks a capability cannot have are not asked for.
+        limited = readiness._required({**metadata, "readiness_level": 2, "enumeration": False, "optimization": False})
+        self.assertFalse(limited & {"optimization_timeout", "minimization_step_one", "optimum_enumeration",
+                                    "auxiliary_free_distinct"})
+        self.assertTrue(set(readiness.BUG_CLASS_CHECKS) <= limited)
+
     def test_verify_detects_changed_evidence_and_runner(self):
         record_path = self.root / "record.json"
         readiness.check("demo", self.write_report(self.report()), record_path)

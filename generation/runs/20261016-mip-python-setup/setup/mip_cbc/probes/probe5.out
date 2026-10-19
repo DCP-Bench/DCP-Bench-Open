@@ -1,0 +1,26 @@
+== 1. objective introspection
+no objective: expr {} const 0.0 objective_const 0.0
+0*ex objective: expr 0 const 0.0
+objective with const -7: expr {'ex': 2.0, 'ey': -1.0} const -7.0 objective_const -7.0
+LinExpr.expr type dict
+== 2. satisfaction (no objective): status for feasible and infeasible
+feasible, no objective: OptimizationStatus.OPTIMAL 1.0 0.0 objective_value 0.0 bound 0.0
+infeasible, no objective: OptimizationStatus.INFEASIBLE
+== 3. unconstrained output variable
+uy unconstrained: OptimizationStatus.OPTIMAL 1.0 2.0
+== 4. Var attributes
+lb/ub/type: 0.0 5.0 I 2.0 5.0 I 0.0 1.0 B
+name ux var_by_name uy num vars 2
+== 5. empty model warning stream
+empty model: OptimizationStatus.OTHER
+== 6. enumeration by no-goods on 4 binaries, sum==2, all 6 assignments
+stop: OptimizationStatus.INFEASIBLE
+solutions 6 [(0, 0, 1, 1), (0, 1, 0, 1), (0, 1, 1, 0), (1, 0, 0, 1), (1, 0, 1, 0), (1, 1, 0, 0)]
+== 7. pin the objective, then enumerate optima
+best OptimizationStatus.OPTIMAL 4.0
+pinned objective expr: {'p0': 1.0, 'p1': 1.0, 'p2': 1.0, 'p3': 1.0, 'p4': 1.0, 'p5': 1.0} const 0.0
+stop pinned: OptimizationStatus.INFEASIBLE
+optimal assignments found: 1
+sorted [(0, 1, 1, 0, 1, 1)]
+== 8. constant-only objective with pinning (const included?)
+OptimizationStatus.OPTIMAL 11.0 1.0

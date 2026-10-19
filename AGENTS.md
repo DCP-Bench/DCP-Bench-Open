@@ -10,12 +10,13 @@
 
 ## Writing models for this benchmark
 
-Follow `skills/model-generator`, which runs a
-campaign end to end, and `skills/solver-setup` for adding a framework/solver.
-Follow `skills/instance-curator` to add instances to existing problems. A generated model should be kept only when the evaluator accepts it.
+Follow `rosetta-skills/model-generator`, which runs a
+campaign end to end, and `rosetta-skills/solver-setup` for adding a framework/solver.
+Follow `rosetta-skills/instance-curator` to add instances to existing problems. A generated model should be kept only when the evaluator accepts it.
 
-`python -m generation.brief PROBLEM` prints what a model has to satisfy: the declared
-output names with their shapes, the objective direction, and every instance field with
-its shape. `python -m generation.next_work` says what is left, and withholds pairs whose
+`python -m generation.brief PROBLEM` prints what a model has to satisfy: the problem
+description, the declared output names with their shapes, the objective direction, and
+every instance field with its shape. Modelling starts blind, from the brief, the
+contracts and the solver skill, without the reference (see `rosetta-skills/model-generator`). `python -m generation.next_work` says what is left, and withholds pairs whose
 instance shape an integration cannot bind at all.
 

@@ -1,0 +1,134 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/mip_cbc/CONTRACT.md": "5a56dcc5a35d08e6f1a3f30cd23567c5671824435de3ba7d0ad0821a1ebd1d05"
+    },
+    "created_at": 1792237116.1548553,
+    "problem_id": "who_killed_agatha",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "5ae9ab4074ac987a9a44291afa94940e41ec837d04f5de498df31cd374950465",
+    "run_id": "20261017-mip-python-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "6e51f4fb868b1c36eafef7ed369105cc812b12af",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "6e51f4fb868b1c36eafef7ed369105cc812b12af",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "0d660ce738c652610d40b242268c404dbd3f182a70659d8a9c4a7c6cdc16ae88",
+        "source": "solvers/mip_cbc/skills/mip-python",
+        "version": {
+          "commit": "6e51f4fb868b1c36eafef7ed369105cc812b12af",
+          "modified": false,
+          "path": "solvers/mip_cbc/skills/mip-python"
+        }
+      }
+    ],
+    "solver_id": "mip_cbc"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:caa711493645997b683bf6a6462d84c307cc25b48281c803da0230a46a87e84f",
+      "tag": "dcp-eval/mip_cbc:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.004507148987613618,
+        "execution_wall_seconds": 0.7322257870109752,
+        "first_solution": {
+          "killer": 0
+        },
+        "id": "example",
+        "instance_hash": "73395f2420e967be57aa2782ac0a36707cc9a68b665e3837be234154e6a58d5f",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "killer"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.5831456810701638,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "4a8bb880a34c80d8745b2ca7d1c83cb1922394d6affe6319a4025fc2c2cb56a6",
+    "problem_id": "who_killed_agatha",
+    "reason": "accepted",
+    "reference_hash": "20f11e0d10cce4c0f01b727ecafc4ee4ea447395947cf32cd1331705e7402379",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "mip_cbc",
+    "total_wall_seconds": 1.4494312249589711,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": false,
+  "model_file": "model.py",
+  "problem": "who_killed_agatha",
+  "schema": 2,
+  "solver": "mip_cbc",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}

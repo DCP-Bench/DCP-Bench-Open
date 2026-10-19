@@ -3,7 +3,9 @@
 // Gecode has no process-wide state, so every search runs in this process on
 // a single thread. The search engines are given the time left before the
 // deadline through a TimeStop. Protocol records match the chuffed driver:
-// one "solution" line per solution, then one "status" line.
+// one "solution" line per solution, then one "status" line. They go to a
+// private copy of stdout; the process's own stdout is pointed at stderr, so
+// whatever a model prints cannot reach the protocol.
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -13,11 +15,21 @@
 #include <string>
 #include <vector>
 
+#include <unistd.h>
+
 #include "dcp.h"
 
 namespace {
 
 using Clock = std::chrono::steady_clock;
+
+// The protocol stream, set up in main before anything else runs.
+FILE* g_protocol = nullptr;
+
+void Record(const json& record) {
+  std::fputs((record.dump() + "\n").c_str(), g_protocol);
+  std::fflush(g_protocol);
+}
 
 enum class Outcome { Limit, Exhausted, Timeout };
 
@@ -36,12 +48,11 @@ long long Millis(Clock::time_point deadline) {
 }
 
 void Status(const std::string& status, double seconds, const std::string& detail = "") {
-  std::cout << json({{"type", "status"}, {"status", status}, {"solve_seconds", seconds}, {"detail", detail}}).dump()
-            << std::endl;
+  Record({{"type", "status"}, {"status", status}, {"solve_seconds", seconds}, {"detail", detail}});
 }
 
 void Solution(const json& values) {
-  std::cout << json({{"type", "solution"}, {"values", values}}).dump() << std::endl;
+  Record({{"type", "solution"}, {"values", values}});
 }
 
 // Outputs and the objective are assigned by values() and by the fallback
@@ -101,6 +112,9 @@ void Finish(Outcome outcome, const Pool& pool, double seconds) {
 
 int main() {
   auto start = Clock::now();
+  g_protocol = fdopen(dup(1), "w");
+  if (g_protocol == nullptr) return 1;
+  dup2(2, 1);
   try {
     json request;
     std::cin >> request;

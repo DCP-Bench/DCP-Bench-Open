@@ -1,51 +1,13 @@
-{
-  "schema_version": 1,
-  "skill_name": "docplex",
-  "evals": [
-    {
-      "id": "linear-optimization",
-      "prompt": "Using this skill, write a docplex_cplex submission for a linear optimization problem in the dataset, such as knapsack or diet, and check it with the repository evaluator across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Defines build(instance) returning a docplex.mp.model.Model and a dict of exactly the declared output names, and never calls model.solve() or reads solution_value.",
-        "The objective is set once with minimize or maximize, matching the reference's direction, and the evaluator reports accepted rather than suboptimal_solution.",
-        "Every instance-dependent quantity is read from the instance argument, and every listed instance is accepted."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for every instance."
-    },
-    {
-      "id": "non-linear-pattern-encoded",
-      "prompt": "Using this skill, write a docplex_cplex submission for a problem whose reference uses a constraint MIP cannot state directly, such as an all-different or a disjunction, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The constraint is encoded with indicators, docplex's logical constraints or an assignment matrix, and the submission never multiplies two variables.",
-        "Any big-M constant is derived from the instance's own bounds, and the evaluator does not report invalid_solution."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
-    },
-    {
-      "id": "size-limit-planned",
-      "prompt": "Using this skill, write a docplex_cplex submission for a problem whose largest instance is large, such as a 9-by-9 or larger grid puzzle, and check it across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or a blocker citing the Community Edition's size limits with the variable and constraint counts of the largest instance.",
-      "assertions": [
-        "Before writing the model, the reasoning counts the variables and constraints the formulation needs on the largest listed instance and compares them with 1000 each.",
-        "If the evaluator reports unsupported_capability for the Community Edition, the pair is recorded as blocked with that evidence rather than retried with a formulation that drops constraints."
-      ],
-      "evidence_required": "The reasoning with the counts, the submission source, and the evaluator JSON result."
-    },
-    {
-      "id": "enumerable-outputs",
-      "prompt": "Using this skill, write a docplex_cplex submission for a satisfaction problem and confirm the evaluator accepts two distinct solutions.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/docplex_cplex:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model checked with solution_limit above one, or a recorded blocker.",
-      "assertions": [
-        "Declared output variables are integer_var or binary_var, so no output is rejected as fractional or refused for enumeration.",
-        "Outputs are returned as nested lists matching the reference's shapes, not as the dicts *_var_matrix returns."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result with solution_limit 2."
-    }
-  ]
-}
+{"skill_name": "docplex", "evals": [
+  {"id": 1, "prompt": "Write a DOcplex model in Python for a 0/1 knapsack with weights [4, 3, 5, 2, 6], values [10, 7, 12, 4, 13] and capacity 10, and print the best total value.", "expected_skill": "docplex", "expected_output": "Proven-optimal selection with its total value", "assertions": ["Uses binary decision variables and Model.maximize", "Checks that the status is integer optimal solution before printing the value"]},
+  {"id": 2, "prompt": "With DOcplex in Python, list every optimal selection of a small 0/1 knapsack where several subsets reach the best value, each listed once.", "expected_skill": "docplex", "expected_output": "Every optimal selection, each once", "assertions": ["Solves for the optimum first and then fixes the objective to that optimum", "Enumerates solutions with no-good cuts or populate and does not print a non-optimal selection"]},
+  {"id": 3, "prompt": "Use DOcplex in Python to colour the 6-cycle graph with the fewest colours, and print the number of colours.", "expected_skill": "docplex", "expected_output": "2 colours for an even cycle", "assertions": ["Uses a binary variable per vertex and colour, with one colour per vertex", "Uses Model.minimize on the number of colours used"]},
+  {"id": 4, "prompt": "Model SEND + MORE = MONEY in DOcplex for Python, with each letter a different digit and no leading zero.", "expected_skill": "docplex", "expected_output": "The unique assignment 9567 + 1085 = 10652", "assertions": ["Makes the letters different with != constraints or an assignment matrix", "Reads the values from the solution and does not hard-code the answer"]},
+  {"id": 5, "prompt": "Write a DOcplex model that schedules a 3-job by 2-machine job shop and minimises the makespan, without a big-M that is larger than the data needs.", "expected_skill": "docplex", "expected_output": "A schedule with its makespan, proven optimal", "assertions": ["Forbids overlap on each machine with indicator constraints or a derived big-M", "Derives any big-M from the sum of durations, not from a guessed constant"]},
+  {"id": 6, "prompt": "In Python with DOcplex, find one placement of 8 queens on a chessboard so no two attack each other.", "expected_skill": "docplex", "expected_output": "A valid placement of 8 queens", "assertions": ["Uses an all-different encoding for rows, columns and diagonals", "Reports infeasibility from the solve status when no placement exists"]},
+  {"id": 7, "prompt": "Write a DOcplex model that needs 6 places filled from 5 people with one place each, and show what the solver reports.", "expected_skill": "docplex", "expected_output": "No solution, with the status integer infeasible", "assertions": ["Reads m.solve_details.status instead of expecting an exception", "States that the model is infeasible rather than printing an empty solution"]},
+  {"id": 8, "prompt": "Write a DOcplex model with 1200 binary variables and check that it solves on the pip-installed CPLEX.", "expected_skill": "docplex", "expected_output": "A report that the Community Edition limit of 1000 variables is exceeded, with the count", "assertions": ["Names the Community Edition limit of 1000 variables and 1000 constraints", "Reports DOcplexLimitsExceeded rather than hiding the limit"]},
+  {"id": 9, "prompt": "Write a MiniZinc model for n-queens.", "expected_skill": null, "expected_output": "The skill is not used", "assertions": ["The docplex skill is not loaded"]},
+  {"id": 10, "prompt": "Write a Google OR-Tools CP-SAT model for the 0/1 knapsack problem.", "expected_skill": null, "expected_output": "The skill is not used", "assertions": ["The docplex skill is not loaded"]},
+  {"id": 11, "prompt": "Summarise the history of the simplex method in two paragraphs.", "expected_skill": null, "expected_output": "The skill is not used", "assertions": ["The docplex skill is not loaded"]}
+]}

@@ -1,0 +1,66 @@
+== A. feasible-but-unproven with exact gap (max_mip_gap=0, abs=0), 150 items
+seed 1: OptimizationStatus.OPTIMAL elapsed 0.03 obj 251590992.0 bound 251590992.0 gap 0.0 solutions 1 x0 0.0
+seed 2: OptimizationStatus.OPTIMAL elapsed 0.01 obj 254404737.0 bound 254404737.0 gap 0.0 solutions 1 x0 1.0
+== B. same with default gaps, 5 s
+default gap: OptimizationStatus.OPTIMAL elapsed 0.02 obj 254404737.0 bound 254404737.0 gap 0.0
+== C. float noise in integral values
+opt: OptimizationStatus.OPTIMAL x 30.0 c 3.0 round c 3
+Empty problem - 0 rows, 0 columns and 0 elements
+Optimal - objective value 1
+Optimal objective 1 - 0 iterations time 0.002, Presolve 0.00
+third: OptimizationStatus.OPTIMAL ['1.0', '2.0', '0.0']
+== D. big-M numerics: indicator with M from bounds
+bigM: OptimizationStatus.OPTIMAL 1000000.0 0.0
+== E. the 1e-6 tolerance: a fractional-looking value after scaling
+tiny coef: OptimizationStatus.OPTIMAL 5000000.0
+== F. objective constant and negatives, minimise and maximise
+MIN OptimizationStatus.OPTIMAL obj -28.0 x -4.0 y 3.0 objective_const -11.0
+MAX OptimizationStatus.OPTIMAL obj 2.0 x 2.0 y -3.0 objective_const -11.0
+== G. strict inequality on integers: x < 5 written as x <= 4
+strict: OptimizationStatus.OPTIMAL 4.0
+== H. unbounded MIP and infeasible with exact gap settings
+unbounded: OptimizationStatus.UNBOUNDED None
+infeasible via bounds: OptimizationStatus.INFEASIBLE None
+== I. verbose=1 stdout check at fd level
+
+▶ Problem loading
+
+  |Rows| = 0   |Cols| = 1   |NZ| = 0
+  Variables: 0 binary, 1 integer, 0 continuous
+
+✔ Problem loaded — 0 rows, 1 cols, 0 NZ, 1 integer
+
+▶ Non-default parameters
+
+  allowableGap  1e-12 → 1e-10
+  ratioGap  0 → 0.0001
+  lpTimeFreq  5 → 0
+
+▶ Root LP relaxation
+
+  Bound tightening: 0 bounds tightened (0 fixed) in 0.000 s.
+  Clique strengthening: no changes (0.00s)
+  Coefficient strengthening: no changes (0.00s)
+  Row reductions: no changes (0.00s)
+  LP auto: recommended primal_sprint
+
+▶ Preprocessing
+
+
+  Processed model: 0 rows, 0 cols, 0 NZ
+
+  Clique strengthening: extended 0, dominated 0
+
+✔ Preprocessing complete — Time: 0.000s
+
+▶ Postprocessing
+
+✔ Postprocessing complete — Time: 1.69e-05s
+
+Result - Optimal solution found
+Objective value:                0
+Enumerated nodes:               0
+Total iterations:               0
+Time (B&C, Wallclock seconds):  0.000200033
+Total time (Wallclock seconds): 0.00033617   (CPU seconds):             0
+after verbose run

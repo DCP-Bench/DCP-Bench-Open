@@ -1,0 +1,74 @@
+
+▶ Problem loading
+
+  |Rows| = 0   |Cols| = 1   |NZ| = 0
+  Variables: 0 binary, 1 integer, 0 continuous
+
+✔ Problem loaded — 0 rows, 1 cols, 0 NZ, 1 integer
+
+▶ Non-default parameters
+
+  allowableGap  1e-12 → 1e-10
+  ratioGap  0 → 0.0001
+  lpTimeFreq  5 → 0
+
+▶ Root LP relaxation
+
+  Bound tightening: 0 bounds tightened (0 fixed) in 0.000 s.
+  Clique strengthening: no changes (0.00s)
+  Coefficient strengthening: no changes (0.00s)
+  Row reductions: no changes (0.00s)
+  LP auto: recommended primal_sprint
+
+▶ Preprocessing
+
+
+  Processed model: 0 rows, 0 cols, 0 NZ
+
+  Clique strengthening: extended 0, dominated 0
+
+✔ Preprocessing complete — Time: 0.000s
+
+▶ Postprocessing
+
+✔ Postprocessing complete — Time: 1.6e-05s
+
+Result - Optimal solution found
+Objective value:                0
+Enumerated nodes:               0
+Total iterations:               0
+Time (B&C, Wallclock seconds):  0.000188828
+Total time (Wallclock seconds): 0.000321865   (CPU seconds):             0.000322
+== 1. gap tolerance: OPTIMAL with a loose gap?
+seed 0: exact OptimizationStatus.OPTIMAL obj 211572205.0 bound 211572205.0 gap 0.0 | loose gap=0.5: OptimizationStatus.OPTIMAL obj 211572205.0 bound 212914418.85758784 gap 0.0063439990030252046
+seed 1: exact OptimizationStatus.OPTIMAL obj 183207707.0 bound 183207707.0 gap 0.0 | loose gap=0.5: OptimizationStatus.OPTIMAL obj 183207707.0 bound 183363665.79941243 gap 0.000851267678452137
+seed 2: exact OptimizationStatus.OPTIMAL obj 218054006.0 bound 218054006.0 gap 0.0 | loose gap=0.5: OptimizationStatus.OPTIMAL obj 218054006.0 bound 219239019.0543122 gap 0.005434493390193433
+== 2. timeout with incumbent: 150-item knapsack, 3 s
+status OptimizationStatus.OPTIMAL elapsed 0.03 obj 195360778.0 bound 195369640.00000003 gap 4.536222721241314e-05 num_solutions 1 x0 1.0
+== 3. integer infeasible with feasible LP relaxation
+2z=1: OptimizationStatus.INFEASIBLE z.x None
+== 4. solution pool on ties (4 binaries, exactly 2 chosen, no objective)
+ties: OptimizationStatus.OPTIMAL num_solutions 1 obj 2.0
+  pool 0 [1.0, 1.0, 0.0, 0.0] 
+== 5. operators
+xsum([3,4]): LinExpr + 7.0
+xsum([]): LinExpr 
+sum of vars (python sum): LinExpr + ox + oy 
+xsum of expr terms: LinExpr + 2ox + oy + 5.0
+ox*oy: raises TypeError: Can not multiply with type <class 'mip.entities.Var'>
+ox/2: LinExpr + 0.5ox 
+ox/0: raises ZeroDivisionError: Variable division by zero
+2 <= 3 constraint: bool True
+ox <= oy: LinExpr + ox - oy  <= - 0.0
+ox == 3 bool: bool True
+o += ox raises TypeError type <class 'mip.entities.Var'> not supported
+o += (2<=3) raises TypeError type <class 'bool'> not supported
+empty constraint accepted
+== 6. big numbers
+big: OptimizationStatus.OPTIMAL 549755813889.0 True
+coef 1e3, 1e9 ub: OptimizationStatus.OPTIMAL 1000000.0 1000000000.0 1000000000000.0
+== 7. negative-zero and rounding
+nz: OptimizationStatus.OPTIMAL 3.0 3 3
+neg value min: OptimizationStatus.OPTIMAL -3.0
+== 8. verbose default: does CBC write to stdout?
+verbose default done 1

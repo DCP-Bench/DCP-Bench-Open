@@ -36,7 +36,7 @@ neither counted as coverage, and both have been removed.
 
 Problems judged unable to take another instance, one line each as
 `` - `problem`: reason ``. `python -m generation.instances status` reads this
-list and stops offering them. See `skills/instance-curator`.
+list and stops offering them. See `rosetta-skills/instance-curator`.
 
 - `session2_color_simple`: the description names the six countries, so geography fixes the graph.
 - `who_killed_agatha`: the description fixes the whole scenario, and the reference never reads its only field.

@@ -1,0 +1,294 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/mip_cbc/CONTRACT.md": "5a56dcc5a35d08e6f1a3f30cd23567c5671824435de3ba7d0ad0821a1ebd1d05"
+    },
+    "created_at": 1792226764.7953713,
+    "problem_id": "session2_movie_scheduling",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "5ae9ab4074ac987a9a44291afa94940e41ec837d04f5de498df31cd374950465",
+    "run_id": "20261017-mip-python-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "c28976b6a6068ee148a3ff089d371ca6526c0663",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "c28976b6a6068ee148a3ff089d371ca6526c0663",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "0d660ce738c652610d40b242268c404dbd3f182a70659d8a9c4a7c6cdc16ae88",
+        "source": "solvers/mip_cbc/skills/mip-python",
+        "version": {
+          "commit": "c28976b6a6068ee148a3ff089d371ca6526c0663",
+          "modified": false,
+          "path": "solvers/mip_cbc/skills/mip-python"
+        }
+      }
+    ],
+    "solver_id": "mip_cbc"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:caa711493645997b683bf6a6462d84c307cc25b48281c803da0230a46a87e84f",
+      "tag": "dcp-eval/mip_cbc:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.02124713803641498,
+        "execution_wall_seconds": 0.9342102550435811,
+        "first_solution": {
+          "selected_movies": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "id": "example",
+        "instance_hash": "c63f2604ca46c4ef39e0bce4b08278b51fffa7aab5afe5d606c067b304a4f65a",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 4,
+        "outputs": [
+          "selected_movies"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.7894711550325155,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.009317137999460101,
+        "execution_wall_seconds": 0.8318771331105381,
+        "first_solution": {
+          "selected_movies": [
+            true,
+            false,
+            true,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "04f1898508f4a50c2bfba57b91a7081ff3a825d00601067d19a9a0a4829ac98c",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 4,
+        "outputs": [
+          "selected_movies"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.878047401085496,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.006887514959089458,
+        "execution_wall_seconds": 1.0344830299727619,
+        "first_solution": {
+          "selected_movies": [
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "3f57efec9da8d38622fca9fb1650ea74b3d65af6a1f8b66fffac489d8cec2a52",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 6,
+        "outputs": [
+          "selected_movies"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.8542395959375426,
+        "runner_status": {
+          "detail": "",
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.017688198946416378,
+        "execution_wall_seconds": 0.9576762809883803,
+        "first_solution": {
+          "selected_movies": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "id": "json:3",
+        "instance_hash": "c1e542bd06340d90a89e43c534ab976e60725b8b821afef32e862749d2849b42",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 4,
+        "outputs": [
+          "selected_movies"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.8294850629754364,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.027198652969673276,
+        "execution_wall_seconds": 0.9833343089558184,
+        "first_solution": {
+          "selected_movies": [
+            false,
+            false,
+            false,
+            true,
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        "id": "json:4",
+        "instance_hash": "570c4f9d69f17b80f741a52364dba8592aecac4cd8f38d4591fe99baa74382ee",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 4,
+        "outputs": [
+          "selected_movies"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.7205258680041879,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "[cbcbox] CBCBOX_BUILD=generic\n[cbcbox]   binary  : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/bin/cbc\n[cbcbox]   lib dir : /usr/local/lib/python3.12/site-packages/cbcbox/cbc_dist/lib\n[cbcbox]   libs    : libCbc.so, libCbc.so.0, libCbc.so.0.0.0, libClp.so, libClp.so.0, libClp.so.0.0.0, libopenblas.so, libopenblas.so.0, libopenblasp-r0.3.31.so\n"
+      }
+    ],
+    "instances_available": 5,
+    "instances_checked": 5,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "22ad4e661ab334d35be673038158bf938fe3e86b681899bc7b914c7d8a08a577",
+    "problem_id": "session2_movie_scheduling",
+    "reason": "accepted",
+    "reference_hash": "eb02bc105582c59cb4f25137b0b809721e386cbaab2b7b27be60dbe019e7022f",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 8,
+    "solver_id": "mip_cbc",
+    "total_wall_seconds": 9.482973709004,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.py",
+  "problem": "session2_movie_scheduling",
+  "schema": 2,
+  "solver": "mip_cbc",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}
