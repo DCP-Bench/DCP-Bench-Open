@@ -2,31 +2,120 @@
   "skill_name": "pulp-cbc",
   "evals": [
     {
-      "id": "instance-agnostic-optimization",
-      "prompt": "Using this skill, write a pulp_cbc submission for a linear optimization problem in the dataset, such as knapsack or diet, and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 1,
+      "prompt": "Write a PuLP model in Python that picks items for a 0/1 knapsack with values and weights given in a data file, maximising total value under the capacity, and print the proven optimum.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "A model with binary variables, one capacity constraint, a maximise objective, and a check that sol_status is optimal before printing.",
       "assertions": [
-        "Defines build(instance) returning a pulp.LpProblem and a dict of exactly the declared output names, and never calls problem.solve() or pulp.value().",
-        "The objective is one bare expression added to a problem whose sense matches the reference's direction, and the evaluator reports accepted rather than suboptimal_solution.",
-        "Every instance-dependent quantity is read from the instance argument, and every listed instance is accepted."
+        "Uses prob.add_variable or add_variable_dicts with cat=\"Binary\"",
+        "Creates the problem with pulp.LpMaximize and adds one bare expression as the objective",
+        "Checks prob.sol_status == pulp.LpSolutionOptimal before reading values"
       ]
     },
     {
-      "id": "nonlinear-pattern-encoded",
-      "prompt": "Using this skill, write a pulp_cbc submission for a problem whose reference uses a constraint PuLP cannot express directly, such as an all-different or a disjunction, and check it with the repository evaluator.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 2,
+      "prompt": "Using PuLP, list every way to choose 4 of 8 projects so that the total profit is as large as possible, when several selections tie for the best profit.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "Solve for the optimum, pin the objective to it, then enumerate with no-good cuts over the binaries until infeasible.",
       "assertions": [
-        "The constraint is encoded with indicator binaries or an assignment matrix rather than attempted directly; no expression multiplies two variables.",
-        "Every big-M constant is derived from the instance's own bounds, and the evaluator does not report invalid_solution, which is what a too-small M would cause."
+        "Adds a named constraint fixing the objective to the proven optimum before enumerating",
+        "Adds a no-good cut over the decision binaries after each solution, not over auxiliary variables",
+        "Stops when the status is no longer Optimal"
       ]
     },
     {
-      "id": "integral-bounded-outputs",
-      "prompt": "Using this skill, write a pulp_cbc submission and confirm the evaluator accepts two distinct solutions for a satisfaction problem.",
-      "expected_output": "An accepted model checked with solution_limit above one, or a recorded blocker.",
+      "id": 3,
+      "prompt": "Model n-queens in PuLP for a given board size, one binary per square, and print one placement.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "A satisfaction model with no objective, one queen per row, column and diagonal at most, and a status check.",
       "assertions": [
-        "Declared output variables are Integer or Binary, so no output is rejected as fractional.",
-        "Declared output variables carry finite bounds, so the runner can add the no-good cut instead of reporting unsupported."
+        "Adds no objective, so the problem is a satisfaction model",
+        "Expresses each diagonal as a linear sum, not with a product of variables",
+        "Reports the status before printing the board"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Write a PuLP model that colours a graph with the fewest colours. Each vertex takes one colour, adjacent vertices must differ, and the number of colours is minimised.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "A minimisation model that encodes adjacent-different with indicator binaries and no product of variables.",
+      "assertions": [
+        "Encodes the not-equal constraint on each edge with binaries and big-M, never with !=",
+        "Uses pulp.LpMinimize and a single bare objective expression",
+        "Derives the big-M constant from the number of colours, not from a fixed number"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Write a PuLP model that schedules jobs with known durations on one machine so that no two overlap, minimising the makespan. Check that the model is proven optimal.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "Start variables, a binary per pair of jobs for the order, a big-M from the sum of durations, and a minimise objective.",
+      "assertions": [
+        "Uses a big-M derived from the sum of durations",
+        "Adds one binary per pair of jobs and both ordering constraints",
+        "Checks sol_status is optimal, not only the status"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Write a PuLP model that fills a cryptarithm where each letter stands for a distinct digit, and state clearly when no assignment exists.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "An encoding of all-different with assignment binaries, and a report of the Infeasible status without reading values.",
+      "assertions": [
+        "Encodes all-different with assignment binaries, not with a product of variables",
+        "Reports the Infeasible status and does not read variable values in that case"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Write a PuLP model that assigns jobs to one of several machines so that the total cost is minimised, with the cost of each assignment read from a data file.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "Binary assignment variables, one machine per job, capacity constraints, and a minimise objective read from data.",
+      "assertions": [
+        "Reads costs and capacities from the data file, not from literals",
+        "Uses an equality constraint so each job is assigned exactly once",
+        "Declares the objective with pulp.LpMinimize"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Write a constraint model in Google OR-Tools CP-SAT for the knapsack problem.",
+      "expected_skill": null,
+      "expected_output": "The pulp-cbc skill is not used; the answer uses CP-SAT.",
+      "assertions": [
+        "The pulp-cbc skill is not loaded",
+        "The model is written with the CP-SAT API"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Write a MiniZinc model for n-queens.",
+      "expected_skill": null,
+      "expected_output": "The pulp-cbc skill is not used; the answer is MiniZinc.",
+      "assertions": [
+        "The pulp-cbc skill is not loaded"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Explain the difference between the primal and dual of a linear program, with a small example on paper.",
+      "expected_skill": null,
+      "expected_output": "A general LP explanation, not a PuLP program.",
+      "assertions": [
+        "The pulp-cbc skill is not loaded",
+        "No PuLP code is written"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Write a PuLP model in Python for a job shop: three jobs, each with its own machine order and durations, no two operations on the same machine at once, minimising the makespan. Print the proven optimum.",
+      "expected_skill": "pulp-cbc",
+      "expected_output": "A model with start variables per operation, precedence rows along each job, one no-overlap binary per pair of operations on the same machine, a makespan variable and a sol_status check before printing.",
+      "assertions": [
+        "Adds precedence constraints along each job's operations, not between jobs",
+        "Uses one binary per pair of operations that share a machine, with a big-M from the total duration",
+        "Minimises a makespan variable that is at least the end of every job's last operation",
+        "Checks prob.sol_status == pulp.LpSolutionOptimal before printing the makespan"
       ]
     }
   ]

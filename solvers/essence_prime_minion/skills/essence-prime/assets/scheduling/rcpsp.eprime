@@ -1,0 +1,22 @@
+language ESSENCE' 1.0
+$ Schedule tasks that share one renewable resource and respect precedences, finishing as early as possible.
+given n_tasks, n_prec : int(1..)
+given capacity : int(1..)
+given dur, demand : matrix indexed by [int(1..n_tasks)] of int(0..)
+given prec : matrix indexed by [int(1..n_prec), int(1..2)] of int(1..n_tasks)
+$ no schedule needs longer than all tasks one after another
+letting horizon = sum(dur)
+find start : matrix indexed by [int(1..n_tasks)] of int(0..horizon)
+find makespan : int(0..horizon)
+branching on [start]
+heuristic sdf
+minimising makespan
+such that
+$ every task ends by the makespan
+forAll t : int(1..n_tasks) . start[t] + dur[t] <= makespan,
+$ a task starts only after each of its predecessors has finished
+forAll k : int(1..n_prec) . start[prec[k, 1]] + dur[prec[k, 1]] <= start[prec[k, 2]],
+$ at no time do running tasks use more than the capacity
+cumulative(start, dur, demand, capacity),
+$ implied: the work must fit under the capacity before the makespan
+makespan * capacity >= (sum t : int(1..n_tasks) . dur[t] * demand[t])

@@ -1,25 +1,87 @@
 {
-  "skill_name": "cpmpy-python",
-  "evals": [
-    {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a cpmpy_python submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Defines build(instance) returning a CPMpy Model and a dict of exactly the declared output names; does not solve, print, or read values.",
-        "Every instance-dependent quantity is read from the instance argument, and the evaluator accepts all six listed instances.",
-        "Uses CPMpy aggregations rather than the Python built-ins that raise on expressions, and no float constants."
-      ]
-    },
-    {
-      "id": "repair-from-reason",
-      "prompt": "Using this skill, repair a cpmpy_python submission the evaluator rejected. Diagnose from the reported reason and detail rather than by guessing.",
-      "expected_output": "A repaired accepted model, or a recorded blocker, with both versions preserved.",
-      "assertions": [
-        "The change addresses the reported reason: invalid_solution as an over-permissive model, suboptimal_solution as a wrong objective, invalid_output as wrong output keys, shapes, or types.",
-        "The reference, dataset and evaluator are unchanged, and coverage was not reduced to obtain the pass.",
-        "The rejected candidate and its evaluation remain available alongside the repaired one."
-      ]
-    }
-  ]
+ "skill_name": "cpmpy-python",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Write a CPMpy model in Python that picks three of six talks, at most 120 minutes in total, maximising the summed rating, and list every choice that reaches the best total.",
+   "expected_skill": "cpmpy-python",
+   "expected_output": "Proven optimum, then every optimal choice enumerated over the decision variables",
+   "assertions": [
+    "Proves the optimum with maximize and status OPTIMAL before enumerating",
+    "Posts the optimum as a constraint on a model without an objective before calling solveAll",
+    "Enumerates over the decision variables only, so auxiliary variables do not duplicate solutions"
+   ]
+  },
+  {
+   "id": 2,
+   "prompt": "Using CPMpy, model a production plan with three products and two machine-hour limits in Python, and find the maximum profit in whole units.",
+   "expected_skill": "cpmpy-python",
+   "expected_output": "An integer model that maximises profit and reports whether the result is proven optimal",
+   "assertions": [
+    "Uses cp.intvar with bounds and maximize",
+    "Reads results with value() and objective_value() only after solve() returned True",
+    "Uses cp.sum, cp.max or cp.min on expressions rather than the Python built-ins max or min (the built-in sum is acceptable)"
+   ]
+  },
+  {
+   "id": 3,
+   "prompt": "Write a CPMpy program that assigns four tasks to four workers, one each, minimising cost from a cost matrix, and indexes the cost list by the assignment variable.",
+   "expected_skill": "cpmpy-python",
+   "expected_output": "A permutation model with a minimise objective",
+   "assertions": [
+    "Uses AllDifferent for the one-task-per-worker constraint",
+    "Wraps the Python list in cp.cpm_array before indexing it by a variable",
+    "Keeps costs as integers"
+   ]
+  },
+  {
+   "id": 4,
+   "prompt": "A CPMpy model for four pigeons and three holes reports no solution. How do I tell infeasibility from a time limit, and what should the code print?",
+   "expected_skill": "cpmpy-python",
+   "expected_output": "Read the status: UNSATISFIABLE is a proof, UNKNOWN means a limit was reached",
+   "assertions": [
+    "Uses model.status().exitstatus rather than assuming any False result is infeasible",
+    "Mentions that a time limit without a solution gives UNKNOWN"
+   ]
+  },
+  {
+   "id": 5,
+   "prompt": "Schedule six tasks with precedences on a shared resource of capacity 2 in CPMpy, minimising the makespan.",
+   "expected_skill": "cpmpy-python",
+   "expected_output": "A Cumulative model with end variables and a minimise objective on the makespan",
+   "assertions": [
+    "Uses cp.Cumulative with start, duration, end, demand and capacity",
+    "Expresses precedences as linear constraints on start and end variables",
+    "Minimises a makespan variable bounded below by every end variable"
+   ]
+  },
+  {
+   "id": 6,
+   "prompt": "Solve a 0/1 knapsack in OR-Tools CP-SAT directly, using the ortools Python API without CPMpy.",
+   "expected_skill": null,
+   "expected_output": "The skill is not used, since the user chose OR-Tools directly",
+   "assertions": [
+    "cpmpy-python is not loaded",
+    "The answer uses the OR-Tools API"
+   ]
+  },
+  {
+   "id": 7,
+   "prompt": "Write a MiniZinc model for n-queens.",
+   "expected_skill": null,
+   "expected_output": "The skill is not used, since another modelling language was named",
+   "assertions": [
+    "cpmpy-python is not loaded"
+   ]
+  },
+  {
+   "id": 8,
+   "prompt": "Explain how to set up a Python virtual environment with a specific version of pip.",
+   "expected_skill": null,
+   "expected_output": "The skill is not used, since the request is not about modelling with CPMpy",
+   "assertions": [
+    "cpmpy-python is not loaded"
+   ]
+  }
+ ]
 }

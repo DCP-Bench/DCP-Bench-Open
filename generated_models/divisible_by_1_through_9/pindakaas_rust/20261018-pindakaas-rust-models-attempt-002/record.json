@@ -1,0 +1,135 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-002",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/pindakaas_rust/CONTRACT.md": "da5999477bf5813b0d7f4c7c6f60b7dc4f50f36ce8bc812e8c4f2e45353f374f"
+    },
+    "created_at": 1792387352.9389791,
+    "problem_id": "divisible_by_1_through_9",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "97ba18f9cde43a6be2c1c7381861c63bb423a391210eb442f26b291aeb75df84",
+    "run_id": "20261018-pindakaas-rust-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "0dc90a689602d1ffd85e7e3107950a77cf0ef8c6",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "0dc90a689602d1ffd85e7e3107950a77cf0ef8c6",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "d40ca34ab8e7da246929fed33ec677fa39799018061bba1fd5ad2b43a6dc6ba7",
+        "source": "solvers/pindakaas_rust/skills/pindakaas-rust",
+        "version": {
+          "commit": "0dc90a689602d1ffd85e7e3107950a77cf0ef8c6",
+          "modified": false,
+          "path": "solvers/pindakaas_rust/skills/pindakaas-rust"
+        }
+      }
+    ],
+    "solver_id": "pindakaas_rust"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:26f35beed4948d76cb87947e6c4aca00d6ac68d5f345c481fac62019291afef0",
+      "tag": "dcp-eval/pindakaas_rust:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.009296044008806348,
+        "execution_wall_seconds": 0.5491770500084385,
+        "first_solution": {
+          "number": 3816547290
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "number"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.4645937499590218,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.099636445,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.164s\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "9078c55c43a516e34df3d13dce7a30fd5095ec2c7bcdbe2e5c58e2cfde519f1b",
+    "problem_id": "divisible_by_1_through_9",
+    "reason": "accepted",
+    "reference_hash": "ab7db19ec6cd969de02c1edbe609c91dfc340c82b2700c3997e4c953932f3698",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "pindakaas_rust",
+    "total_wall_seconds": 1.1033076990861446,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": false,
+  "model_file": "model.rs",
+  "problem": "divisible_by_1_through_9",
+  "schema": 2,
+  "solver": "pindakaas_rust",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}

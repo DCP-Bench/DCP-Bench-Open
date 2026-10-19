@@ -1,31 +1,33 @@
 # PyCSP3 2.6.1 reference (tested)
 
-Every construct here was run through the `pycsp3_ace` image (pycsp3 2.6.1, ACE 2.6) with a
-harness that runs one solve round, or through `evaluation.check` on a benchmark problem.
-Items under "Dropped" failed; do not use them. Examples with code are in
-[examples.md](examples.md).
+Every construct here was run with pycsp3 2.6.1 and its bundled ACE 2.6, by a script that
+builds the model and calls `solve()`. Items under "Dropped" failed; do not use them.
+Examples with code are in [examples.md](examples.md).
 
 ## Model file
-
-Outputs: `x`.
 
 ```python
 from pycsp3 import *
 
 x = VarArray(size=4, dom=range(4))
 satisfy(AllDifferent(x))
+if solve() is SAT:
+    print(values(x))
 ```
 
-- `from pycsp3 import *` at the top. Module-level code runs once per solve round.
+- `from pycsp3 import *` at the top. A script that never calls `solve()` is still compiled
+  to an XCSP3 file when it exits (pycsp3's compile-only use): `model.xml`, or
+  `model-<data>.xml` with `-data=<data>.json`.
 - One declaration per line. `a, b = Var(dom=range(3)), Var(dom=range(3))` fails with
   `AssertionError: Every simple declaration must be on its own line`.
 - The variable name comes from the Python name on the declaration line.
-- `solve()` is not allowed in a model. The runner calls it and raises if the model does.
+- `solve()` compiles and runs ACE; `clear()` empties the model so one script can build and
+  solve several in turn.
 
 ## Variables and domains
 
 - `Var(dom=range(lo, hi))` (exclusive upper bound, as Python `range`). A list `[10, 20, 30]`
-  or a set `{0, 1}` also works. Booleans: `dom={0, 1}`, reported as 0/1.
+  or a set `{0, 1}` also works. Booleans: `dom={0, 1}`, read back as 0/1.
 - `VarArray(size=n, dom=...)` gives a list of n variables.
 - `VarArray(size=[r, c], dom=...)` gives a nested list: `grid[i][j]`. `grid[:, j]` is column j.
 - Declare variables at module level, as one `VarArray` where possible. A `Var` without `id=`
@@ -36,8 +38,8 @@ satisfy(AllDifferent(x))
   (`[Var(range(3), id=f"z{i}") for i in range(2)]`), a dict entry (`id="d0"`) and a helper
   (`id=name`).
 - Identifiers (the `id`, or the Python name when no `id` is given) must not be an XCSP or
-  ACE keyword. ACE stops with `Fatal Error: The id E is a keyword, and so cannot be used.`.
-  Probed in the image, these 58 are reserved: `E` and the 57 words
+  ACE keyword. ACE stops with `Fatal Error: The id E is a keyword, and so cannot be used.`
+  (in its log; `solve()` returns `UNKNOWN`). Probed one by one, these 58 are reserved: `E` and the 57 words
   `abs`, `acos`, `add`, `and`, `asin`, `atan`, `card`, `convex`, `cos`, `cosh`, `diff`, `dist`, `div`, `djoint`, `eq`, `exp`, `fdiv`, `fmod`, `ge`, `gt`, `hull`, `if`, `iff`, `imp`, `in`, `inter`, `le`, `ln`, `log`, `lt`, `max`, `min`, `mod`, `mul`, `ne`, `neg`, `not`, `nroot`, `or`, `others`, `PI`, `pow`, `sdiff`, `set`, `sin`, `sinh`, `sqr`, `sqrt`, `sub`, `subseq`, `subset`, `supseq`, `supset`, `tan`, `tanh`, `union`, `xor`.
   Probed and accepted: `A`..`Z` except `E`, `a`..`z`, `instance`, `variables`, `var`, `array`, `domain`, `args`, `objective`, `minimize`,
   `maximize`, `static`, `decision`, `ALL`, `STAR`, `TIMES`, `cst`, `ok`, `x_1`.
@@ -48,10 +50,21 @@ satisfy(AllDifferent(x))
   must stay under about 3e7: four variables with `range(0, 10**7)` solved, five and six ran out
   of heap (`java.lang.OutOfMemoryError: Java heap space`). One `range(0, 10**9)` also ran out of
   heap. A domain such as `range(0, 10**7)` is fine on its own.
-- A variable that no constraint mentions is not reported by ACE, and the runner refuses the
-  output. A whole output with no constraint raises `ValueError: declared output 'z' has a
-  variable that no constraint mentions`. A single element of an array raises `ValueError: a
-  declared output has no determined value in the solution`. Constrain every element.
+- A variable that no constraint mentions is left out of the XCSP3 file, so ACE gives it no
+  value. An element of an array reads back as `*` (`ANY`) in `values(x)`; a lone `Var` makes
+  `value(z)` raise a bare `AssertionError`. Constrain every variable you read back.
+
+## Reading data
+
+- Plain `json` from the standard library: `d = json.load(open(path))`, sizes from `d`,
+  ragged lists stay Python lists, unused keys are never read.
+- PyCSP3's own `python model.py -data=file.json` binds `data` after `from pycsp3 import *`
+  and converts objects to named tuples and lists to pycsp3's `ListInt` (`data.n`, `data.rows[i]`). A key starting with `_`
+  fails at import: `ValueError: Field names cannot start with an underscore: '_SHIP'`. A file
+  with one key binds `data` to the bare value (`{"n": 3}` gives `data == 3`, and `data.n`
+  raises `AttributeError: 'int' object has no attribute 'n'`).
+- A plain positional argument is left in `sys.argv` for the
+  script (`python model.py data.json` works with `sys.argv[1]`).
 
 ## Relations and arithmetic
 
@@ -92,8 +105,8 @@ satisfy(AllDifferent(x))
   single block of two ones in five binary variables, with `Sum(x) == 2`). For a line of cells
   with block runs (nonograms), one automaton per line: the transitions read the cell values
   and the final states close each run.
-- `Product(list) == K` (verified for three variables). Four or more variables: see the
-  `Product` note in SKILL.md.
+- `Product(list) == K` (verified for three variables). Four or more variables: ACE 2.6 can
+  report wrong tuples; split into binary products ([examples.md](examples.md#product-of-four-variables-split-into-binary-products)).
 - `BinPacking(b, sizes=w, limits=[4, 3])`: bin i has capacity `limits[i]`.
 - `Knapsack(x, weights=w, wlimit=c, profits=p) >= 6`.
 - `Hamming(x, y) == 2`: positions where x and y differ.
@@ -116,6 +129,9 @@ satisfy(AllDifferent(x))
 - `minimize(term)` or `maximize(term)`, at most one. The term is a variable or an expression:
   `minimize(Sum(x[i] * (i + 1) for i in range(3)))`, `maximize(Sum(x))`.
 - A generator with a filter inside `Sum` works: `Sum(w[i] * x[i] for i in range(n) if w[i] > 0)`.
+- `minimize(NValues(c))` over colours works: proven optima of 2 (6-cycle), 4 (K4), 3 (Petersen)
+  and 4 (wheel, the [asset](../assets/colouring-min-colours/README.md)); `NValues` is not a
+  constraint you must bound first.
 
 ## Dropped (failed in 2.6.1)
 
@@ -123,7 +139,6 @@ satisfy(AllDifferent(x))
 |---|---|
 | `Not(c)`, also `Not(AllDifferent(x))`, `Not(x[0] == 0)` | `TypeError: bad operand type for unary ~: 'list'`. Write the negated relation (`!=`, `>=`) instead |
 | `(x[0], x[1]) notin {(0, 0)}` | `SyntaxError: invalid syntax` |
-| `solve()` in the model | `RuntimeError: the model must not call solve(); the runner solves it` |
 | `a, b = Var(...), Var(...)` on one line | `AssertionError: Every simple declaration must be on its own line` |
 | Float in an expression | `ValueError: Problem: bad form of predicate 0.5` |
 | `Var` without `id=` in a loop, comprehension, helper or dict | `The identifier z is used twice`, `The variable identifier None / [ / d[0] is not valid` |
@@ -131,7 +146,9 @@ satisfy(AllDifferent(x))
 | Python list indexed by a variable | `TypeError: list indices must be integers or slices, not VariableInteger` |
 | `min(..., key=...)` after `from pycsp3 import *` | `TypeError: min() got an unexpected keyword argument 'key'`. Use `builtins.min` |
 | `Product(x[0]) == 2` (one value) | `AssertionError: Problem: Bad arity for node MUL. It is 1 but it should be between 2 and inf` |
-| An XCSP keyword as an identifier, e.g. `E` | `Fatal Error: The id E is a keyword` (ACE, reported by the runner as `error`) |
+| An XCSP keyword as an identifier, e.g. `E` | `Fatal Error: The id E is a keyword` (ACE's log; `solve()` returns `UNKNOWN`) |
+| A value at or above about 2.1e9 | `Fatal Error: Too big integer value 2147483640` (ACE's log; `UNKNOWN`) |
+| `MaximumArg(x, rank='first')` | `TypeError: Wrong type for first`. Use `rank=TypeRank.FIRST` |
 
 ## Not run
 
@@ -141,10 +158,24 @@ lambda, `Decreasing`, `Automaton` beyond the example above. If one is needed, ru
 
 ## Other things measured
 
-- `data._SHIP` and `data["_SHIP"]` both read a field whose name starts with an underscore.
-- Ragged input lists (`data.rows[i]` of different lengths) are plain Python lists.
 - `import builtins` then `builtins.min([3, 1, 2], key=lambda v: -v)` works in a model that
   also does `from pycsp3 import *`.
-- ACE output is checked by the runner, not trusted. Some tuples ACE reports for `Product`
-  over four variables are invalid (`[100, 50, 1, 1]` for `Product == 5040`). Avoid such
+- ACE output is not always right. Some tuples ACE 2.6 reports for `Product` over four
+  variables are invalid (`[100, 50, 1, 1]` for `Product == 5040`, product 5000). The XCSP3
+  `SolutionChecker` in `ACE-2.6.jar` (`org.xcsp.parser.callbacks.SolutionChecker model.xml
+  sol.xml`) prints `INVALID Solution!` and the violated constraint for it. Avoid such
   products rather than relying on the check.
+- `n_solutions()` parses ACE's `d FOUND SOLUTIONS 1,500` as 500 (it reads the digits after
+  the last comma); the stored solutions (`len(x[0].values)`) are all there.
+- With `sols=ALL` the status is `SAT` both when the search finished and when the time limit
+  cut it; ACE's log says `d COMPLETE EXPLORATION` or `d INCOMPLETE EXPLORATION`.
+- An optimisation stopped by `-t` returns `SAT` with the incumbent in `bound()` (a 12-mark
+  Golomb ruler: `SAT`, bound 100, after 2 s); a satisfaction stopped before any solution
+  returns `UNKNOWN`.
+- A tiny model takes about 2 s wall from `python` start to result (compilation plus a Java
+  start), measured twice.
+- `solve(sols=ALL)` on an infeasible model: status `UNSAT`, `values(x)` of the first variable
+  is `[]`, and `n_solutions()` is `None`; no exception.
+- The compiled XML and `solver_*.log` go to the process's current working directory, not the
+  script's directory (a script in `sub/` run from `other/` writes into `other/`). A read-only
+  working directory raises `OSError: [Errno 30] Read-only file system` from `solve()`.

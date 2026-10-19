@@ -1,43 +1,65 @@
-{
-  "schema_version": 1,
-  "skill_name": "choco-java",
-  "evals": [
-    {
-      "id": "dcp-satisfaction-with-globals",
-      "prompt": "Using this skill, write a choco_java submission for a satisfaction puzzle such as sudoku, starting from `python -m generation.brief`, and check it with the repository evaluator across the listed instances.",
-      "prerequisites": ["Docker running", "image dcp-eval/choco_java built"],
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "The file declares public class Submission with public static void build(Instance inst, Model m, Outputs out) and declares every output the brief lists, and no others.",
-        "Every instance-dependent quantity is read through Instance and the evaluator accepts every checked instance.",
-        "All-different requirements are posted with allDifferent, not with pairwise arithm, and every constraint returned by a factory is posted.",
-        "The file opens with a comment stating the problem, and each group of constraints starts with a comment worded as in the problem statement."
-      ],
-      "evidence_required": ["the submitted .java file", "the evaluator JSON result"]
-    },
-    {
-      "id": "dcp-scheduling-optimization",
-      "prompt": "Using this skill, write a choco_java submission for a scheduling problem with an objective, such as jobshop, and confirm the evaluator accepts the optimum.",
-      "prerequisites": ["Docker running", "image dcp-eval/choco_java built"],
-      "expected_output": "An accepted model whose solutions are reported optimal, or a blocker with the evaluator output.",
-      "assertions": [
-        "Machine and resource rules use cumulative (or taskVar with optional tasks), not pairwise disjunctions.",
-        "The objective is set once with m.setObjective on an IntVar with bounds from the data.",
-        "The model sets a search strategy over the start times or uses restarts, and does not call solve, limitTime or reset itself.",
-        "If LCG is turned on through settings(), every constraint in the model is on the skill's list of constraints checked under LCG."
-      ],
-      "evidence_required": ["the submitted .java file", "the evaluator JSON result"]
-    },
-    {
-      "id": "standalone-choco-model",
-      "prompt": "Using this skill, write a standalone Java program with Choco 6.0.1 that finds a tour of minimum cost through n cities given a cost matrix, and prints the tour.",
-      "prerequisites": ["Java 17 or later", "choco-solver-6.0.1-jar-with-dependencies.jar"],
-      "expected_output": "A Java program that compiles against the Choco jar and prints an optimal tour.",
-      "assertions": [
-        "The tour uses circuit over successor variables, with per-node costs through element and a sum for the total.",
-        "The program checks getSearchState() for TERMINATED before calling the last solution optimal."
-      ],
-      "evidence_required": ["the .java file", "its output on a small instance"]
-    }
-  ]
-}
+{"skill_name": "choco-java", "evals": [
+  {"id": 1,
+   "prompt": "Write a Java program with Choco 6.0.1 that places 8 queens on a chessboard so that none attack each other, and prints one placement.",
+   "expected_skill": "choco-java",
+   "expected_output": "A Choco model with allDifferent on the columns and on the shifted diagonal views, which prints one solution",
+   "assertions": [
+    "Uses Model, intVarArray and allDifferent, with every constraint posted with .post()",
+    "Diagonal allDifferent over m.offset views uses \"AC_REGIN\" or \"BC\", not the default or \"AC\"",
+    "Prints one solution read with getValue() inside the solve branch"
+   ]},
+  {"id": 2,
+   "prompt": "Using Choco in Java, list every way to pay 12 with coins of 1, 3 and 4 and count them.",
+   "expected_skill": "choco-java",
+   "expected_output": "Every solution enumerated with a solve() loop, with no duplicate solutions from auxiliary variables",
+   "assertions": [
+    "Loops over solve() until it returns false",
+    "Auxiliary variables are functions of the coin counts, or duplicates are removed with a no-good on the outputs after reset()",
+    "Reads values inside the loop, not after it"
+   ]},
+  {"id": 3,
+   "prompt": "Choose 3 of 6 tasks with given costs using Choco in Java so the total cost is smallest, and list every selection that achieves that minimum.",
+   "expected_skill": "choco-java",
+   "expected_output": "The optimum proven with TERMINATED, then every optimal selection enumerated on a fresh model with the cost fixed",
+   "assertions": [
+    "The objective is an IntVar passed to setObjective(Model.MINIMIZE, ...)",
+    "Checks getSearchState() == TERMINATED before calling the last solution optimal",
+    "Enumerates the optimal selections on a second model built in a method, with the total fixed to the optimum"
+   ]},
+  {"id": 4,
+   "prompt": "Read a JSON file of items with weights, values and a required flag, and pick the most valuable set that fits a capacity, using Choco in Java with Gson.",
+   "expected_skill": "choco-java",
+   "expected_output": "A program that reads the file given as argument with Gson, takes every size from the data and maximises the value",
+   "assertions": [
+    "Reads the item count and the lists from the JSON, not from a literal in the model",
+    "Converts JSON booleans to 0 and 1 with getAsBoolean() ? 1 : 0, not getAsInt()",
+    "Maximises with setObjective(Model.MAXIMIZE, v) on an IntVar"
+   ]},
+  {"id": 5,
+   "prompt": "Schedule 3 tasks on one machine with Choco in Java to minimise the makespan, and turn on lazy clause generation to speed it up.",
+   "expected_skill": "choco-java",
+   "expected_output": "A model with cumulative and an LCG setting, with only constraints that are on the LCG-checked list",
+   "assertions": [
+    "Turns LCG on with new Model(name, SettingsBuilder.init().setLCG(true))",
+    "Uses only cumulative, arithm and max (or other checked constraints), and does not post set or regular constraints",
+    "Does not post constraints after a reset, or rebuilds the model instead"
+   ]},
+  {"id": 6,
+   "prompt": "Write a Choco model in Java for a tour through 5 cities with a cost matrix, and print the cheapest tour.",
+   "expected_skill": "choco-java",
+   "expected_output": "A program using circuit over successor variables, element for per-node costs and a sum for the total, with the optimum read after TERMINATED",
+   "assertions": [
+    "The tour uses circuit over successor variables, with per-node costs through element and a sum for the total",
+    "The program checks getSearchState() for TERMINATED before calling the last solution optimal"
+   ]},
+  {"id": 7,
+   "prompt": "Write a Python program with pychoco that finds the minimum cost of a shipping plan.",
+   "expected_skill": null,
+   "expected_output": "The skill is not used: the request names Python, not Java",
+   "assertions": ["The choco-java skill is not loaded"]},
+  {"id": 8,
+   "prompt": "Write a MiniZinc model for n-queens.",
+   "expected_skill": null,
+   "expected_output": "The skill is not used",
+   "assertions": ["The choco-java skill is not loaded"]}
+]}

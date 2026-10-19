@@ -1,87 +1,106 @@
 {
-  "schema_version": 1,
   "skill_name": "pumpkin-rust",
   "evals": [
     {
-      "id": "written-against-pumpkin",
-      "prompt": "Using this skill, write a pumpkin_rust submission for any listed problem and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 1,
+      "prompt": "Using Pumpkin in Rust, list every way to make 10 from coins of 1, 2 and 5 cents.",
+      "expected_skill": "pumpkin-rust",
+      "expected_output": "A Cargo program that enumerates all 10 solutions with satisfy and blocking clauses",
       "assertions": [
-        "Variables come from solver.new_bounded_integer, solver.new_sparse_integer or solver.new_literal, and every constraint is posted as solver.add_constraint(pumpkin_solver::NAME(..., tag)).post().",
-        "The submission names no helper of this repository beyond Instance, Model and the inst accessors, which exist because Pumpkin has no JSON instance reader or declared-output map.",
-        "A fresh tag comes from solver.new_constraint_tag() for each constraint."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result."
+        "Uses solver.satisfy in a loop and posts a blocking clause with add_clause after each solution",
+        "Blocks only the printed variables, and ends the loop on Unsatisfiable",
+        "Imports TransformableVariable before calling scaled"
+      ]
     },
     {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a pumpkin_rust submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 2,
+      "prompt": "Write a Pumpkin Rust model that maximises profit 3x + 2y under x + y <= 4 and x + 3y <= 6 for whole numbers.",
+      "expected_skill": "pumpkin-rust",
+      "expected_output": "A program that calls optimise with LinearSatUnsat in the Maximise direction and reports only the Optimal result",
       "assertions": [
-        "The submission defines exactly one `build` with the documented signature, defines no `main`, calls no solve method, and contains no `println!`.",
-        "Every instance-dependent quantity comes from the `inst` argument, and the evaluator accepts every listed instance rather than only the example.",
-        "The declared output names match those `generation.brief` prints, and the evaluator does not report invalid_output."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for the run."
+        "Uses OptimisationDirection::Maximise with a single objective variable",
+        "Reports the value only for OptimisationResult::Optimal",
+        "Ties the objective to the terms with an equals constraint"
+      ]
     },
     {
-      "id": "widening-into-linear-constraints",
-      "prompt": "Using this skill, write a pumpkin_rust submission for a problem that sums Boolean choices and integer variables in the same constraint, such as knapsack or a set-covering problem, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 3,
+      "prompt": "Schedule three tasks of lengths 3, 2 and 2 on one machine in Pumpkin, minimising the makespan.",
+      "expected_skill": "pumpkin-rust",
+      "expected_output": "A cumulative model with capacity 1 and a minimised makespan variable",
       "assertions": [
-        "Boolean and integer variables entering one linear constraint are widened with `scaled(...)`, `c(...)`, `scaled(...)` or `scaled(...)`, so the submission compiles without a type error and the evaluator does not report compilation_error.",
-        "Where the right-hand side is a variable rather than a constant, the submission uses the `sum_*` family or `bool_sum_eq` rather than passing a variable where an i32 is required."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result, including any first-attempt compilation diagnostics."
+        "Uses cumulative with capacity 1 and unit demands",
+        "Bounds each start plus duration by the makespan",
+        "Minimises the makespan with LinearSatUnsat"
+      ]
     },
     {
-      "id": "reified-counting",
-      "prompt": "Using this skill, write a pumpkin_rust submission for a problem whose reference counts how many variables take a given value, such as among or csplib_019_magic_squares_and_sequences, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 4,
+      "prompt": "In Pumpkin, a constraint must hold exactly when a Boolean flag is true, in both directions. Write it.",
+      "expected_skill": "pumpkin-rust",
+      "expected_output": "Use of reify for the two-way condition, not implied_by",
       "assertions": [
-        "Each counting indicator is pinned in both directions, through `is` or an `iff_*` call rather than a `when_*` call, so no indicator is free to be false while its condition holds; the evaluator does not report invalid_solution.",
-        "The count is tied to a variable with `bool_sum_eq` or `sum_eq` rather than through a global cardinality constraint, which Pumpkin does not have."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for the run."
+        "Uses .reify(flag) so the flag is pinned in both directions",
+        "Explains that implied_by is one-way"
+      ]
     },
     {
-      "id": "optimisation-contract",
-      "prompt": "Using this skill, write a pumpkin_rust submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
+      "id": 5,
+      "prompt": "Pumpkin rejects my model with 'Multiplication by zero is not invertable' when one weight is 0. What is wrong?",
+      "expected_skill": "pumpkin-rust",
+      "expected_output": "Zero coefficients are filtered out before scaled is called",
       "assertions": [
-        "`minimise` or `maximise` is called with one variable, built with `sum` or constrained equal to the objective expression, and the objective is never bounded by a value taken from a known answer.",
-        "The evaluator reports accepted rather than suboptimal_solution, confirming the direction matches the reference.",
-        "Where the solver cannot prove the optimum inside the budget, the result is execution_timeout and no solution record is emitted, rather than an unproven solution being reported as optimal."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result, including the runner status."
+        "Explains that scaled(0) on a plain variable panics at once",
+        "Filters zero weights before building terms, and posts over a constant when none remain"
+      ]
     },
     {
-      "id": "modelling-around-a-missing-constraint",
-      "prompt": "Using this skill, write a pumpkin_rust submission for a problem whose reference uses modulo arithmetic, and check it with the repository evaluator.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 6,
+      "prompt": "Count the Boolean vectors of length 4 with at most two true values, using Pumpkin in Rust.",
+      "expected_skill": "pumpkin-rust",
+      "expected_output": "A model using boolean_less_than_or_equals with unit weights, enumerated with blocking clauses",
       "assertions": [
-        "Modulo is decomposed as `a == k*q + r` with the remainder bounded to `0..k-1`, rather than through a modulo call the API does not provide.",
-        "The quotient variable is given finite bounds derived from the instance, not an arbitrary wide range that the solver has to search."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for the run."
+        "Uses boolean_less_than_or_equals with unit weights over the literals",
+        "Does not use a cardinality constraint, which Pumpkin does not provide"
+      ]
     },
     {
-      "id": "zero-coefficients-from-the-instance",
-      "prompt": "Using this skill, write a pumpkin_rust submission for a problem whose instance data can contain a zero weight, such as three_sum, and check it across every listed instance.",
-      "prerequisites": "A checkout of DCP-Bench Open with a built dcp-eval/pumpkin_rust:v1 image and a running Docker Linux engine.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 7,
+      "prompt": "Write a MiniZinc model for n-queens.",
+      "expected_skill": null,
+      "expected_output": "The skill is not used",
       "assertions": [
-        "Zero coefficients are filtered out before scaled is called, and the reasoning says why: Pumpkin's AffineView::scaled bypasses the non-zero assertion and divides by zero inside a propagator later.",
-        "If filtering can empty a term list, the model posts over a constant zero variable instead of an empty list.",
-        "The evaluator accepts every listed instance, including the one carrying the zero."
-      ],
-      "evidence_required": "The submission source and the evaluator JSON result for every instance."
+        "pumpkin-rust is not loaded"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Write an OR-Tools CP-SAT model in Python that solves a 0/1 knapsack.",
+      "expected_skill": null,
+      "expected_output": "The skill is not used",
+      "assertions": [
+        "pumpkin-rust is not loaded"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Write a Rust HTTP server that returns the current time as JSON.",
+      "expected_skill": null,
+      "expected_output": "The skill is not used, because the task is not constraint modelling",
+      "assertions": [
+        "pumpkin-rust is not loaded"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Using Pumpkin in Rust, find the fewest colours needed to colour the Petersen graph so that adjacent vertices differ.",
+      "expected_skill": "pumpkin-rust",
+      "expected_output": "A model that minimises the largest colour index with maximum and LinearSatUnsat, and reports optimum + 1 as the colour count",
+      "assertions": [
+        "Uses maximum over the colour variables and minimises the bound with LinearSatUnsat",
+        "Reports the count as the optimum plus 1, because colours start at 0",
+        "Does not claim a count-distinct or cardinality constraint exists"
+      ]
     }
   ]
 }

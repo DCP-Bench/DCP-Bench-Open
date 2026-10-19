@@ -1,0 +1,149 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-001",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/pindakaas_rust/CONTRACT.md": "4fce910ae311643830b70ddc420fd7212d921b0999b818aedb7e2a4826f3c4e4"
+    },
+    "created_at": 1792353118.8307562,
+    "problem_id": "allergy",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "a35352baa3cca2c2659024b3a7ac740fe46b779e566e4bce4aadf53b7f088101",
+    "run_id": "20261018-pindakaas-rust-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "0775f513d3204b85d3a1a95cbdc88565a9f8d575",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "0775f513d3204b85d3a1a95cbdc88565a9f8d575",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "7cc80a71be539343d2048f67d2cba4e798b2a695e6702c6e64d99447f6dac946",
+        "source": "solvers/pindakaas_rust/skills/pindakaas-rust",
+        "version": {
+          "commit": "0775f513d3204b85d3a1a95cbdc88565a9f8d575",
+          "modified": false,
+          "path": "solvers/pindakaas_rust/skills/pindakaas-rust"
+        }
+      }
+    ],
+    "solver_id": "pindakaas_rust"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:7cbdd25ff77b22071082741b405e3fa611cc72daa1036862218308b2feab55d8",
+      "tag": "dcp-eval/pindakaas_rust:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.00284146994818002,
+        "execution_wall_seconds": 0.9401816600002348,
+        "first_solution": {
+          "baxter": 3,
+          "eggs": 3,
+          "fleet": 1,
+          "lemon": 0,
+          "malone": 2,
+          "mold": 2,
+          "nuts": 1,
+          "ragweed": 0
+        },
+        "id": "example",
+        "instance_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "eggs",
+          "mold",
+          "nuts",
+          "ragweed",
+          "baxter",
+          "lemon",
+          "malone",
+          "fleet"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.1489080840256065,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.00085268,
+          "status": "complete",
+          "type": "status"
+        },
+        "solutions_checked": 1,
+        "solutions_received": 1,
+        "stderr": "Compilation: 0.415s\n"
+      }
+    ],
+    "instances_available": 1,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "93af7d2abd9f9d563cd1a9e8813ac3e4a85026fa89c6df5d9abbb98480cd9197",
+    "problem_id": "allergy",
+    "reason": "accepted",
+    "reference_hash": "29265e5c0af511db0700470c7ee942c8d6d1f744453265d58569624c52f46ce9",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 1,
+    "solver_id": "pindakaas_rust",
+    "total_wall_seconds": 2.322563071968034,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": false,
+  "model_file": "model.rs",
+  "problem": "allergy",
+  "schema": 2,
+  "solver": "pindakaas_rust",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}

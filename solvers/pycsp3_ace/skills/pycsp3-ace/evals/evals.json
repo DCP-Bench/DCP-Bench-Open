@@ -1,40 +1,140 @@
 {
-  "schema_version": 1,
   "skill_name": "pycsp3-ace",
   "evals": [
     {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a pycsp3_ace model for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "prerequisites": ["pycsp3_ace image built", "readiness record current"],
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
+      "id": 1,
+      "prompt": "Write a PyCSP3 program in Python that solves n-queens for n given on the command line and prints the column of each queen, counted from 1.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "A satisfiable model solved with solve() and the columns printed with values()",
       "assertions": [
-        "Reads the board size from data (data.n), with no embedded numeric size.",
-        "Declares the output as a module-level name equal to the output name, and does not call solve().",
-        "The evaluator accepts every listed instance."
-      ],
-      "evidence_required": ["evaluator JSON result", "the submitted model.py"]
+        "Declares the queens as one VarArray with dom=range(1, n + 1)",
+        "Uses AllDifferent on the columns and on the two diagonal expressions",
+        "Checks that solve() returned SAT before reading values()"
+      ]
     },
     {
-      "id": "unconstrained-output",
-      "prompt": "Using this skill, write a pycsp3_ace model that declares an output named z which no constraint mentions, and check it.",
-      "prerequisites": ["pycsp3_ace image built"],
-      "expected_output": "A model that constrains z, or a report that the runner rejects an unconstrained output and why.",
+      "id": 2,
+      "prompt": "Using PyCSP3 with ACE, count every 4 x 4 Latin square and say whether the search finished.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "solve(sols=ALL) with the count taken from the stored solutions and completeness from ACE's log",
       "assertions": [
-        "Does not return an accepted model in which z is left unconstrained.",
-        "Explains that ACE reports only variables that a constraint mentions, and adds a constraint such as satisfy(z >= 0) or reports the error."
-      ],
-      "evidence_required": ["evaluator JSON result or runner status detail"]
+        "Uses solve(sols=ALL)",
+        "Does not trust n_solutions() for counts of 1000 or more; counts the stored values",
+        "Reads d COMPLETE EXPLORATION from solver().last_log rather than inferring completeness from SAT"
+      ]
     },
     {
-      "id": "repair-from-reason",
-      "prompt": "Using this skill, repair a pycsp3_ace submission the evaluator rejected. Diagnose from the reported reason and detail rather than by guessing.",
-      "prerequisites": ["a rejected pycsp3_ace submission and its evaluator output"],
-      "expected_output": "A repaired accepted model, or a recorded blocker, with both versions preserved.",
+      "id": 3,
+      "prompt": "With pycsp3, pick three of six talks within 120 minutes maximising the total rating, then list every choice that reaches the best total.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "Proven optimum, then every optimal choice enumerated",
       "assertions": [
-        "The change addresses the reported reason: no_solution as an over-constrained model, suboptimal_solution as a wrong objective, invalid_output as wrong output names or shapes.",
-        "The reference, dataset and evaluator are unchanged, and coverage was not reduced to obtain the pass."
-      ],
-      "evidence_required": ["before and after model.py", "evaluator JSON results"]
+        "Requires OPTIMUM and reads the optimum with bound()",
+        "Calls clear(), rebuilds the model without an objective and posts the optimum as a constraint",
+        "Enumerates with sols=ALL"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Solve a 0/1 knapsack in PyCSP3 and report whether the value is proven optimal.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "A maximise model whose status distinguishes OPTIMUM from SAT",
+      "assertions": [
+        "Uses Boolean variables with dom={0, 1} and maximize(Sum(...))",
+        "Treats SAT as feasible but not proven optimal",
+        "Does not name a data list values, which would hide pycsp3's values()"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Model a three-machine job shop in PyCSP3 and minimise the makespan within a 30 second limit.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "NoOverlap per machine, precedences, minimize, and a time limit passed to ACE",
+      "assertions": [
+        "Uses NoOverlap(origins=..., lengths=...) per machine",
+        "Passes options=\"-t=30s\" with the s suffix, since a bare number is milliseconds",
+        "Declares the start times as a VarArray rather than Var in a loop without id="
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "My PyCSP3 model reads its instance from a JSON file whose keys start with an underscore and has ragged lists. Write it so it runs.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "A model that reads the file with the json module from sys.argv and sizes everything from the data",
+      "assertions": [
+        "Uses json.load rather than -data=, which fails on keys starting with _",
+        "Takes every size from the data and handles the ragged lists",
+        "Does not index a Python list by a variable; uses a VarArray or a Table"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "PyCSP3 returns UNKNOWN immediately for my model with a variable called E. Why?",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "Explains that E is a reserved XCSP identifier and that ACE's error is in the solver log",
+      "assertions": [
+        "Names the Fatal Error: The id E is a keyword message",
+        "Points to the solver_*.log file or verbose=1 to see ACE's error",
+        "Renames the variable"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Show that four pigeons cannot fit in three holes with PyCSP3.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "A model that reports proven infeasibility",
+      "assertions": [
+        "Checks for UNSAT and distinguishes it from UNKNOWN"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Write a MiniZinc model for n-queens.",
+      "expected_skill": null,
+      "expected_output": "The skill is not used",
+      "assertions": [
+        "pycsp3-ace is not loaded"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Solve this knapsack with CPMpy and OR-Tools in Python.",
+      "expected_skill": null,
+      "expected_output": "The skill is not used",
+      "assertions": [
+        "pycsp3-ace is not loaded"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "How do I convert an XCSP3 file to FlatZinc for Gecode?",
+      "expected_skill": null,
+      "expected_output": "The skill is not used",
+      "assertions": [
+        "pycsp3-ace is not loaded"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Colour the nodes of a graph with PyCSP3 using as few colours as possible, and say whether the count is proven minimal.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "A model that minimises the number of distinct colours and reports the optimum only after OPTIMUM",
+      "assertions": [
+        "Minimises NValues over the colours, or a Maximum-index objective",
+        "Reads the optimum with bound() after the OPTIMUM status",
+        "Does not present SAT as a proven minimum"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Enumerate all solutions of a PyCSP3 model that has none, and print how many there are.",
+      "expected_skill": "pycsp3-ace",
+      "expected_output": "Prints 0 after the enumeration reports UNSAT, without an error",
+      "assertions": [
+        "Uses solve(sols=ALL) and treats UNSAT as zero solutions",
+        "Does not take the count from n_solutions()",
+        "Does not report an error for an infeasible model"
+      ]
     }
   ]
 }

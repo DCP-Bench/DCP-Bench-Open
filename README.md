@@ -89,7 +89,8 @@ The model generation framework:
 
 | Path | What it holds |
 | --- | --- |
-| `skills/` | Instructions an agent follows: `model-generator` runs a "campaign", `solver-setup` adds a framework. |
+| `skills/` | Public, Rosetta-independent skills: `add-solver` writes a standalone skill for any solver. |
+| `rosetta-skills/` | Instructions an agent follows here: `model-generator` runs a "campaign", `solver-setup` adds a framework (on top of `add-solver`), `instance-curator` adds instances. |
 | `generation/` | The campaign harness — work queue, run ledger, readiness gate — and `runs/`, the record of past campaigns. See [generation/README.md](generation/README.md); its agent-facing contract is [generation/AGENTS.md](generation/AGENTS.md). |
 
 The source catalogue for the problems is documented in [SOURCES.md](SOURCES.md).
@@ -97,7 +98,7 @@ The source catalogue for the problems is documented in [SOURCES.md](SOURCES.md).
 
 ## Evaluation framework
 
-The container-based [evaluation package](evaluation/README.md) provides a Python API, a JSON CLI and configurable instance/solution counts. The certified integrations are CPMpy (Python), OR-Tools CP-SAT (Python), OR-Tools CP-SAT (C++), Chuffed (C++), Gecode (C++), MiniZinc, Z3 (Python), clingo, SWI-Prolog, PuLP (Python), Choco (Python), Choco (Java), PyCSP3 (Python), Pumpkin (Rust), PySAT (Python), Paramita (Python), hermax (Python), Exact (Python), Gurobi (Python), CPLEX (Python), SCIP (Python), Picat, JuMP (Julia), Essence' and FO(·), named here as the catalogue names them. Build their images explicitly with `python -m evaluation.build`. That is all the evaluator needs; the model-generation workflow additionally wants `python -m generation.readiness check` once per integration after a build, because a readiness record is tied to the exact image it was checked against.
+The container-based [evaluation package](evaluation/README.md) provides a Python API, a JSON CLI and configurable instance/solution counts. The certified integrations are CPMpy (Python), OR-Tools CP-SAT (Python), OR-Tools CP-SAT (C++), Chuffed (C++), Gecode (C++), MiniZinc, Z3 (Python), clingo, SWI-Prolog, PuLP (Python), Choco (Python), Choco (Java), PyCSP3 (Python), Pumpkin (Rust), Pindakaas (Rust), PySAT (Python), Paramita (Python), hermax (Python), Exact (Python), Gurobi (Python), CPLEX (Python), SCIP (Python), Picat, JuMP (Julia), Essence' and FO(·), named here as the catalogue names them. Build their images explicitly with `python -m evaluation.build`. That is all the evaluator needs; the model-generation workflow additionally wants `python -m generation.readiness check` once per integration after a build, because a readiness record is tied to the exact image it was checked against.
 
 A model is accepted by falsification rather than by comparison: the evaluator enumerates the candidate's solutions and looks for one the reference rejects. Finding none within the budget is what acceptance means, so a larger solution limit is a stronger test.
 
@@ -148,7 +149,7 @@ PASS csplib_007_all_interval     accepted
 The same problem modelled in many frameworks is more useful than the same
 problem modelled once, so this repository also contains the machinery to write and evaluate models.
 
-An agent follows `skills/model-generator`: it picks work from a queue ordered
+An agent follows `rosetta-skills/model-generator`: it picks work from a queue ordered
 so that problems with several instances come first (a model that hardcoded the
 example cannot survive a second instance), writes a model from the reference,
 and submits it to the evaluator. A model is kept only when the evaluator

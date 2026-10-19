@@ -1,12 +1,16 @@
 # Tested examples
 
-Each block was run in the `pycsp3_ace` image. "Outputs" names the declared outputs; the
-harness runs one solve round on instance `{"n": 3}`. Blocks that read `data` are DCP models,
-checked with `evaluation.check` (see [dcp-contract.md](dcp-contract.md)).
+Each block is a complete model; every one was run with pycsp3 2.6.1 and ACE 2.6. To run one,
+append a solve and a print of the variables it declares, for example:
+
+```python
+if solve() in (SAT, OPTIMUM):
+    print(values(x))
+```
+
+Complete programs that solve and print are in the skill's `assets/` folder.
 
 ## Permutation with an intension constraint
-
-Outputs: `x`.
 
 ```python
 from pycsp3 import *
@@ -24,8 +28,6 @@ satisfy(
 
 ## Tables with a wildcard
 
-Outputs: `x`.
-
 ```python
 from pycsp3 import *
 
@@ -36,7 +38,7 @@ satisfy(
 )
 ```
 
-Explicit form, with `Table(scope=..., supports=...)`. Outputs: `x`.
+Explicit form, with `Table(scope=..., supports=...)`.
 
 ```python
 from pycsp3 import *
@@ -48,7 +50,7 @@ satisfy(
 )
 ```
 
-Forbidden pairs, with `conflicts`. Outputs: `x`.
+Forbidden pairs, with `conflicts`.
 
 ```python
 from pycsp3 import *
@@ -62,8 +64,6 @@ satisfy(
 
 ## Counting
 
-Outputs: `x`.
-
 ```python
 from pycsp3 import *
 
@@ -76,7 +76,7 @@ satisfy(
 )
 ```
 
-Cardinality with per-value ranges, and an Exist. Outputs: `x`.
+Cardinality with per-value ranges, and an Exist.
 
 ```python
 from pycsp3 import *
@@ -91,8 +91,6 @@ satisfy(
 ```
 
 ## Element through a variable index
-
-Outputs: `v`, `t`, `idx`.
 
 ```python
 from pycsp3 import *
@@ -110,8 +108,6 @@ satisfy(
 
 ## Scheduling: Cumulative and NoOverlap
 
-Outputs: `s`.
-
 ```python
 from pycsp3 import *
 
@@ -124,7 +120,7 @@ satisfy(
 )
 ```
 
-Two tasks that must not overlap. Outputs: `s`.
+Two tasks that must not overlap.
 
 ```python
 from pycsp3 import *
@@ -140,8 +136,6 @@ satisfy(
 
 ## Circuit and Channel
 
-Outputs: `x`.
-
 ```python
 from pycsp3 import *
 
@@ -153,8 +147,6 @@ satisfy(
     [x[i] != i for i in range(4)],
 )
 ```
-
-Outputs: `x`, `y`.
 
 ```python
 from pycsp3 import *
@@ -173,8 +165,6 @@ satisfy(
 
 ## Symmetry breaking with LexIncreasing
 
-Outputs: `x`, `y`.
-
 ```python
 from pycsp3 import *
 
@@ -189,8 +179,6 @@ satisfy(
 ```
 
 ## Minimum and Maximum
-
-Outputs: `x`, `lo`, `hi`.
 
 ```python
 from pycsp3 import *
@@ -210,8 +198,6 @@ satisfy(
 
 ## Conditional constraints
 
-Outputs: `x`, `b`.
-
 ```python
 from pycsp3 import *
 
@@ -229,8 +215,6 @@ satisfy(
 )
 ```
 
-Outputs: `x`.
-
 ```python
 from pycsp3 import *
 
@@ -243,7 +227,7 @@ satisfy(
 )
 ```
 
-Connectives over constraints. Outputs: `x`.
+Connectives over constraints.
 
 ```python
 from pycsp3 import *
@@ -261,7 +245,7 @@ satisfy(
 
 ## Two-dimensional arrays
 
-A Latin square row and column constraints. Outputs: `grid`.
+A Latin square row and column constraints.
 
 ```python
 from pycsp3 import *
@@ -278,7 +262,7 @@ satisfy(
 )
 ```
 
-A column slice with `grid[:, 0]`. Outputs: `grid`.
+A column slice with `grid[:, 0]`.
 
 ```python
 from pycsp3 import *
@@ -287,7 +271,7 @@ grid = VarArray(size=[2, 3], dom=range(3))
 satisfy(
     # column 0 holds distinct values
     AllDifferent(grid[:, 0]),
-    # every cell is constrained, so ACE reports it
+    # every cell is constrained, so ACE gives it a value
     [grid[i][j] >= 0 for i in range(2) for j in range(3)],
     # the bottom-right cell is 2
     grid[1][2] == 2,
@@ -295,8 +279,6 @@ satisfy(
 ```
 
 ## Booleans and coefficients
-
-Outputs: `b`.
 
 ```python
 from pycsp3 import *
@@ -309,8 +291,6 @@ satisfy(
     b[0] == 0,
 )
 ```
-
-Outputs: `x`.
 
 ```python
 from pycsp3 import *
@@ -326,7 +306,7 @@ satisfy(
 
 ## Objectives
 
-Minimise a weighted sum with a generator. Outputs: `x`.
+Minimise a weighted sum with a generator.
 
 ```python
 from pycsp3 import *
@@ -339,7 +319,7 @@ satisfy(x[i] != x[i + 1] for i in range(3))
 minimize(Sum(w[i] * x[i] for i in range(4) if w[i] > 0))
 ```
 
-Maximise a sum over a permutation. Outputs: `x`.
+Maximise a sum over a permutation.
 
 ```python
 from pycsp3 import *
@@ -351,9 +331,25 @@ satisfy(AllDifferent(x))
 maximize(Sum(x))
 ```
 
+Fewest distinct colours, with `NValues` as the objective (the complete program is
+[assets/colouring-min-colours](../assets/colouring-min-colours/README.md)).
+
+```python
+from pycsp3 import *
+
+# three nodes, each pair adjacent: three colours needed
+c = VarArray(size=3, dom=range(3), id="c")
+satisfy(
+    # adjacent nodes get different colours
+    c[0] != c[1], c[1] != c[2], c[0] != c[2],
+)
+# fewer distinct colours is better
+minimize(NValues(c))
+```
+
 ## Less common globals
 
-Regular with an automaton. Outputs: `x`.
+Regular with an automaton.
 
 ```python
 from pycsp3 import *
@@ -365,7 +361,7 @@ auto = Automaton(start="q0", transitions=[("q0", 0, "q0"), ("q0", 1, "q1"),
 satisfy(Regular(scope=x, automaton=auto))
 ```
 
-Bin packing with bin capacities. Outputs: `b`.
+Bin packing with bin capacities.
 
 ```python
 from pycsp3 import *
@@ -375,7 +371,7 @@ b = VarArray(size=3, dom=range(2))
 satisfy(BinPacking(b, sizes=[2, 3, 2], limits=[4, 3]))
 ```
 
-Knapsack as a constraint. Outputs: `x`.
+Knapsack as a constraint.
 
 ```python
 from pycsp3 import *
@@ -385,7 +381,7 @@ x = VarArray(size=3, dom={0, 1})
 satisfy(Knapsack(x, weights=[2, 3, 4], wlimit=5, profits=[3, 4, 5]) >= 6)
 ```
 
-Hamming distance. Outputs: `x`, `y`.
+Hamming distance.
 
 ```python
 from pycsp3 import *
@@ -396,7 +392,7 @@ y = VarArray(size=3, dom=range(2))
 satisfy(Hamming(x, y) == 2, x[0] == 1)
 ```
 
-Index of the maximum. Outputs: `x`, `i`.
+Index of the maximum.
 
 ```python
 from pycsp3 import *
@@ -409,8 +405,8 @@ satisfy(MaximumArg(x, rank=TypeRank.FIRST) == i, x[2] == 3, x[0] < 3, x[1] < 3)
 
 ## Grid symmetry with LexIncreasing (transpose)
 
-Outputs: `x`. Breaks the transpose symmetry of a square grid: the row-major reading is not
-after the column-major reading. Verified in the image.
+Breaks the transpose symmetry of a square grid: the row-major reading is not
+after the column-major reading. Verified.
 
 ```python
 from pycsp3 import *
@@ -428,7 +424,7 @@ satisfy(
 
 ## A Regular automaton for a line of cells
 
-Outputs: `x`. Five binary cells holding one block of two ones (a nonogram line with a single
+Five binary cells holding one block of two ones (a nonogram line with a single
 run). The automaton reads one cell per step; the final states accept a line that ends after the
 block.
 
@@ -451,7 +447,7 @@ satisfy(
 
 ## Channel with a Table on consecutive pairs
 
-Outputs: `x`. `y` is the inverse of the permutation `x`; each consecutive pair of `y` must not be
+`y` is the inverse of the permutation `x`; each consecutive pair of `y` must not be
 equal (a Table of conflicts per pair).
 
 ```python
@@ -471,9 +467,8 @@ satisfy(
 
 ## Product of four variables split into binary products
 
-Outputs: `x`. Two auxiliary products, then one product of them. Use this instead of
-`Product(x) == K` over four variables, where ACE 2.6 can accept invalid tuples. Verified in the
-image: the three solutions reported all multiply to 5040.
+Two auxiliary products, then one product of them. Use this instead of
+`Product(x) == K` over four variables, where ACE 2.6 can accept invalid tuples. Verified: the three solutions reported all multiply to 5040.
 
 ```python
 from pycsp3 import *
@@ -492,8 +487,6 @@ satisfy(
 
 ## Element through a VarArray index
 
-Outputs: `x`. `y` is a VarArray, so `y[x[0]]` is an element constraint.
-
 ```python
 from pycsp3 import *
 
@@ -509,10 +502,10 @@ satisfy(
 
 ## Boolean indicators instead of NValues
 
-Outputs: `x`. One Boolean per (node, colour) pair. The indicators are linked to `x` by
-reification, and the counting constraints are plain sums. In campaign runs this beat
+One Boolean per (node, colour) pair. The indicators are linked to `x` by
+reification, and the counting constraints are plain sums. Across many models this beat
 `NValues` over integer colours on Schur-type constraints; that timing is not re-measured here.
-Verified in the image (two solutions reported).
+Verified (two solutions reported).
 
 ```python
 from pycsp3 import *
@@ -528,8 +521,3 @@ satisfy(
     Sum(ind[i][0] for i in range(3)) <= 2,
 )
 ```
-
-## DCP-Bench models
-
-The complete `model.py` for `csplib_054_n_queens` and `knapsack` is in
-[dcp-contract.md](dcp-contract.md#complete-models).
