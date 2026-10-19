@@ -200,6 +200,298 @@ NATIVE = '''fn build(inst: &Instance, solver: &mut Solver) -> Model {
 '''
 
 
+# ---------------------------------------------------------------------------
+# Bug-class checks (readiness level 2). The trusted references below are the
+# cpmpy_python ones, copied verbatim; each submission is this integration's own
+# Rust form of the same model.
+
+EASY_MIN = """
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 10, name="x")
+model = cp.Model(x >= n)
+model.minimize(x)
+model.solve()
+solution = {"x": int(x.value())}
+print(json.dumps(solution))
+"""
+
+STEP_REF = EASY_MIN.replace("x >= n", "x >= n - 1")
+
+SUM_REF = """
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 2, shape=4, name="x")
+model = cp.Model(cp.sum(x) >= n)
+model.minimize(cp.sum(x))
+model.solve()
+solution = {"x": x.value().tolist()}
+print(json.dumps(solution))
+"""
+
+SHAPES_REF = """
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+cube = cp.intvar(0, 10, shape=(2, 2, 2), name="cube")
+grid = cp.boolvar(shape=(2, 2), name="grid")
+big = cp.intvar(0, 40000000000, name="big")
+model = cp.Model([cube[i, j, k] == i + j + k + n for i in range(2) for j in range(2) for k in range(2)],
+                 [grid[i, j] == (i == j) for i in range(2) for j in range(2)],
+                 big == 30000000000 + n)
+model.solve()
+solution = {"cube": cube.value().tolist(), "grid": grid.value().tolist(), "big": int(big.value())}
+print(json.dumps(solution))
+"""
+
+SHAPED_REF = """
+# Data
+n = 2
+rows = [[1], [2, 3]]
+mixed = [[1, "a"], [2, "b"]]
+label = "first"
+# End of data
+import cpmpy as cp
+import json
+total = cp.intvar(0, 1000, name="total")
+key = cp.intvar(0, 1000, name="key")
+model = cp.Model(total == n + sum(sum(row) for row in rows), key == sum(row[0] for row in mixed))
+model.solve()
+solution = {"total": int(total.value()), "key": int(key.value())}
+print(json.dumps(solution))
+"""
+
+SHAPED_INSTANCE = {"n": 3, "rows": [[4, 5, 6], [], [1]], "mixed": [[3, "c"]], "label": "second",
+                   "name": "readiness", "note": "ragged rows, mixed rows, an unused string"}
+
+LARGE_REF = """
+# Data
+n = 1500
+# End of data
+import cpmpy as cp
+import json
+b = cp.boolvar(shape=3000, name="b")
+count = cp.intvar(0, 3000, name="count")
+model = cp.Model(count == cp.sum(b), count == n)
+model.solve()
+solution = {"b": b.value().tolist(), "count": int(count.value())}
+print(json.dumps(solution))
+"""
+
+# optimization_timeout: the submission adds an unrelated Golomb ruler (11 marks) to its
+# objective, so Pumpkin finds a solution at once but cannot prove the optimum in 3 s.
+UNPROVABLE = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let n = inst.int("n");
+    let x = solver.new_bounded_integer(0, 10);
+    let marks: Vec<Var> = (0..11).map(|_| solver.new_bounded_integer(0, 200)).collect();
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::less_than_or_equals(vec![x.scaled(-1)], -n, tag)).post();
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![marks[0].scaled(1)], 0, tag)).post();
+    for i in 0..10 {
+        let tag = solver.new_constraint_tag();
+        solver.add_constraint(pumpkin_solver::less_than_or_equals(
+            vec![marks[i].scaled(1), marks[i + 1].scaled(-1)], -1, tag)).post();
+    }
+    let mut diffs: Vec<Var> = Vec::new();
+    for i in 0..11 {
+        for j in (i + 1)..11 {
+            let d = solver.new_bounded_integer(1, 200);
+            let tag = solver.new_constraint_tag();
+            solver.add_constraint(pumpkin_solver::equals(
+                vec![marks[j].scaled(1), marks[i].scaled(-1), d.scaled(-1)], 0, tag)).post();
+            diffs.push(d);
+        }
+    }
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::all_different(diffs, tag)).post();
+    let total = solver.new_bounded_integer(0, 10200);
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(
+        vec![x.scaled(1000), marks[10].scaled(1), total.scaled(-1)], 0, tag)).post();
+    let mut m = Model::new();
+    m.put("x", x);
+    m.minimise(total);
+    m
+}
+"""
+
+# minimization_step_one: x = n - 1 is the optimum, and x = n is one above it. The helper
+# h = n - x is created after x, and Pumpkin's default search tries h = 0 first, which puts
+# x = n as the first improving solution (checked: objectives 2, then the optimum 1).
+# A runner that stopped at its first solution would emit n and fail.
+STEP_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let n = inst.int("n");
+    let x = solver.new_bounded_integer(n - 1, n);
+    let h = solver.new_bounded_integer(0, 1);
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![x.scaled(1), h.scaled(1)], n, tag)).post();
+    let mut m = Model::new();
+    m.put("x", x);
+    m.minimise(x);
+    m
+}
+"""
+
+# optimum_enumeration: four values in 0..2 with a sum of at least n; ten optimal tuples.
+SUM_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let n = inst.int("n");
+    let x: Vec<Var> = (0..4).map(|_| solver.new_bounded_integer(0, 2)).collect();
+    let total = solver.new_bounded_integer(0, 8);
+    let tag = solver.new_constraint_tag();
+    let lower: Vec<Term> = x.iter().map(|&v| v.scaled(-1)).collect();
+    solver.add_constraint(pumpkin_solver::less_than_or_equals(lower, -n, tag)).post();
+    let tag = solver.new_constraint_tag();
+    let mut defining: Vec<Term> = x.iter().map(|&v| v.scaled(1)).collect();
+    defining.push(total.scaled(-1));
+    solver.add_constraint(pumpkin_solver::equals(defining, 0, tag)).post();
+    let mut m = Model::new();
+    m.put("x", x);
+    m.minimise(total);
+    m
+}
+"""
+
+# output_shapes: a 2x2x2 integer cube and a 2x2 Boolean grid are carried; the
+# 30000000002 scalar is beyond Pumpkin's i32 domains and no shape can split it, so build
+# refuses it. CONTRACT.md documents the i32 limit.
+SHAPES_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let n = inst.int("n");
+    let mut cube: Vec<Vec<Vec<Var>>> = Vec::new();
+    for _ in 0..2 {
+        let mut plane = Vec::new();
+        for _ in 0..2 {
+            let mut row = Vec::new();
+            for _ in 0..2 {
+                row.push(solver.new_bounded_integer(0, 10));
+            }
+            plane.push(row);
+        }
+        cube.push(plane);
+    }
+    let mut grid: Vec<Vec<Lit>> = Vec::new();
+    for _ in 0..2 {
+        let mut row = Vec::new();
+        for _ in 0..2 {
+            row.push(solver.new_literal());
+        }
+        grid.push(row);
+    }
+    for i in 0..2usize {
+        for j in 0..2usize {
+            for k in 0..2usize {
+                let rhs = (i + j + k) as i32 + n;
+                let tag = solver.new_constraint_tag();
+                solver.add_constraint(pumpkin_solver::equals(vec![cube[i][j][k].scaled(1)], rhs, tag)).post();
+            }
+        }
+    }
+    for i in 0..2usize {
+        for j in 0..2usize {
+            let predicate = if i == j { grid[i][j].get_true_predicate() } else { grid[i][j].get_false_predicate() };
+            let tag = solver.new_constraint_tag();
+            solver.add_clause(vec![predicate], tag);
+        }
+    }
+    let mut m = Model::new();
+    m.put("cube", cube);
+    m.put("grid", grid);
+    drop(m);
+    panic!("output 'big' needs 30000000002, beyond the 32-bit (i32) range of Pumpkin domains")
+}
+"""
+
+# instance_shapes: ragged rows, rows of mixed types (only the integer column is read) and
+# string fields the model never reads.
+SHAPED_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let n = inst.int("n");
+    let rows = inst.matrix("rows");
+    let pairs = inst.get("mixed").as_array().expect("mixed is an array");
+    let row_total: i32 = rows.iter().map(|row| row.iter().sum::<i32>()).sum();
+    let key_total: i32 = pairs.iter().map(|row| row[0].as_i64().expect("integer") as i32).sum();
+    let total = solver.new_bounded_integer(0, 1000);
+    let key = solver.new_bounded_integer(0, 1000);
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![total.scaled(1)], n + row_total, tag)).post();
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![key.scaled(1)], key_total, tag)).post();
+    let mut m = Model::new();
+    m.put("total", total);
+    m.put("key", key);
+    m
+}
+"""
+
+# error_detail: the instance's optimize field is a Boolean, read as an integer. The
+# accessor panics, and the panic names the field.
+FAILING_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let bound = inst.int("optimize");
+    let x = solver.new_bounded_integer(0, bound);
+    let mut m = Model::new();
+    m.put("x", x);
+    m
+}
+"""
+
+# stray_stdout: the submission logs to stderr. Stdout is the protocol stream, so a
+# println! there is the malformed_output case, not this one.
+CHATTY_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    eprintln!("loading the model");
+    let n = inst.int("n");
+    eprintln!("building for n = {}", n);
+    let x = solver.new_bounded_integer(0, n);
+    let y = solver.new_bounded_integer(0, n);
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![x.scaled(1), y.scaled(1)], n, tag)).post();
+    let mut m = Model::new();
+    m.put("x", x);
+    m.put("y", y);
+    m
+}
+"""
+
+# auxiliary_free_distinct: a free variable that no declared output mentions.
+AUXILIARY_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let n = inst.int("n");
+    let x = solver.new_bounded_integer(0, n);
+    let y = solver.new_bounded_integer(0, n);
+    let _spare = solver.new_bounded_integer(0, 5);
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![x.scaled(1), y.scaled(1)], n, tag)).post();
+    let mut m = Model::new();
+    m.put("x", x);
+    m.put("y", y);
+    m
+}
+"""
+
+# large_model: 3000 0/1 integers in one sum, reported as an output.
+LARGE_RS = """fn build(inst: &Instance, solver: &mut Solver) -> Model {
+    let n = inst.int("n");
+    let b: Vec<Var> = (0..3000).map(|_| solver.new_bounded_integer(0, 1)).collect();
+    let count = solver.new_bounded_integer(0, 3000);
+    let mut terms: Vec<Term> = b.iter().map(|&v| v.scaled(1)).collect();
+    terms.push(count.scaled(-1));
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(terms, 0, tag)).post();
+    let tag = solver.new_constraint_tag();
+    solver.add_constraint(pumpkin_solver::equals(vec![count.scaled(1)], n, tag)).post();
+    let mut m = Model::new();
+    m.put("b", b);
+    m.put("count", count);
+    m
+}
+"""
+
+
 def main():
     results = {}
     with tempfile.TemporaryDirectory(prefix="dcp_readiness_") as directory:
@@ -229,6 +521,29 @@ def main():
         check("timeout_cleanup", SLOW, expected={"execution_timeout"}, execution_timeout=2)
         check("compilation_error", UNCOMPILABLE, expected={"compilation_error"})
         check("zero_coefficients", ZERO_COEFFICIENTS)
+
+        # Bug-class checks (readiness level 2).
+        result = evaluate(candidate("optimization_timeout", UNPROVABLE), "readiness", SOLVER,
+                          reference_source=EASY_MIN, execution_timeout=3)
+        results["optimization_timeout"] = (result["reason"] == "execution_timeout"
+                                           and all(item.get("solutions_received", 0) == 0
+                                                   for item in result["instances"]))
+        check("minimization_step_one", STEP_RS, reference=STEP_REF)
+        result = check("optimum_enumeration", SUM_RS, reference=SUM_REF, solution_limit=3)
+        results["optimum_enumeration"] = result["accepted"] and result["solutions_checked"] == 3
+        # The i32 refusal is the documented limit, raised by build as an execution_error.
+        result = evaluate(candidate("output_shapes", SHAPES_RS), "readiness", SOLVER,
+                          reference_source=SHAPES_REF)
+        results["output_shapes"] = (result["reason"] == "execution_error"
+                                    and "32-bit" in json.dumps(result))
+        check("instance_shapes", SHAPED_RS, reference=SHAPED_REF, instances=[SHAPED_INSTANCE], instance_count=2)
+        result = evaluate(candidate("error_detail", FAILING_RS), "readiness", SOLVER, reference_source=REFERENCE)
+        results["error_detail"] = (result["reason"] == "execution_error"
+                                   and "instance field optimize" in json.dumps(result))
+        check("stray_stdout", CHATTY_RS)
+        result = check("auxiliary_free_distinct", AUXILIARY_RS, solution_limit=3)
+        results["auxiliary_free_distinct"] = result["accepted"] and result["solutions_checked"] == 3
+        check("large_model", LARGE_RS, reference=LARGE_REF, execution_timeout=120, reference_timeout=120)
 
     try:
         image_identity({"id": SOLVER, "image": "dcp-eval/definitely-absent:readiness"})

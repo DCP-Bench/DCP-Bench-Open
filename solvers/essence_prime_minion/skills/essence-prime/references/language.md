@@ -1,6 +1,6 @@
 # Essence' language reference (Savile Row 1.11.1)
 
-Checked against the Savile Row manual (section numbers in [sources.md](../sources.md)); constructs marked (run) were also executed in the image.
+Checked against the Savile Row manual (section numbers in [sources.md](../sources.md)); constructs marked (run) were also executed with Savile Row 1.11.1.
 
 ## Declarations
 
@@ -8,7 +8,7 @@ Checked against the Savile Row manual (section numbers in [sources.md](../source
 - `letting c = 10`, `letting d = c*n`, `letting IDX be domain int(1..n)`, `letting T = [ [a,b] | a : int(1..3), b : int(1..3), a < b ]` (comprehension). Define before use. Values are ints, bools or matrices, never decision expressions.
 - `find x, y : int(1..10)`, `find s : bool`, `find M : matrix indexed by [int(1..n), IDX] of int(0..1)`. Decision domains must be finite.
 - Domains: `int(1..3, 5, 7..20)`, `bool`, `intersect`, `union`, `-`. A bound may be a sum over a given 1-D matrix, `int(0..sum(v))` or `int(0..sum i : int(1..n) . npv[i])` (both run). A restriction by `in` in a find domain does not parse (`find p : int(2..10000) in int(2,3,5)` fails); list the values instead: `find p : int(2,3,5,7)` (run).
-- Reserved words: forall, forAll, exists, sum, such, that, letting, given, where, find, language, int, bool, matrix, union, intersect, in, false, true. Identifiers: letters, digits and `_` (`MAX_STEPS`, `my_var_2` run); a `.` does not parse.
+- Reserved words: forall, forAll, exists, sum, such, that, letting, given, where, find, language, int, bool, matrix, union, intersect, in, false, true. Also rejected as a `find` name (run): `min`, `max` and `table` (`ERROR: Parsed keyword 'max'`); the keyword words fail with `ERROR: Parsed 'find' keyword.`. Accepted as names (run): `E`, `abs`, `element`, `allDiff`, `flatten`, `toInt`, `on`, `of`, `by`, `be`, `domain`, `heuristic`, `branching`, `indexed`, `minimising`, but avoid them for readability. Rename a clashing name with a suffix (`max_`, `where_`). Identifiers: letters, digits and `_` (`MAX_STEPS`, `my_var_2` run); a `.` does not parse.
 
 ## Expressions
 

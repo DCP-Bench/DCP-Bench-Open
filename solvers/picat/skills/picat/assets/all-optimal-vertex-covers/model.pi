@@ -1,0 +1,28 @@
+% All optimal solutions: every minimum vertex cover of a 5-cycle.
+import cp.
+
+main =>
+    N = 5,
+    Edges = [(1,2), (2,3), (3,4), (4,5), (5,1)],
+    % Pass 1: prove the optimum. The model is built afresh for each pass.
+    cover_model(N, Edges, X1, Size1),
+    solve([$min(Size1)], X1),
+    Opt = Size1,
+    % Pass 2: rebuild, fix the size to the optimum, enumerate the covers.
+    cover_model(N, Edges, X, Size),
+    Size #= Opt,
+    Covers = findall(X, solve(X)),
+    println("Optimal size: " ++ to_string(Opt)),
+    println("Optimal covers: " ++ to_string(len(Covers))),
+    foreach (C in Covers)
+        println(C)
+    end.
+
+% A vertex is 1 when it is in the cover. Every edge needs an endpoint in it.
+cover_model(N, Edges, X, Size) =>
+    X = new_list(N),
+    X :: 0..1,
+    foreach ((A, B) in Edges)
+        X[A] + X[B] #>= 1
+    end,
+    Size #= sum(X).

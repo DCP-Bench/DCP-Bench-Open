@@ -1,45 +1,125 @@
 {
-  "skill_name": "choco-python",
-  "evals": [
-    {
-      "id": "instance-agnostic-model",
-      "prompt": "Using this skill, write a choco_python submission for csplib_054_n_queens and check it with the repository evaluator across every listed instance.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Defines build(instance) returning a pychoco Model and a dictionary holding exactly the declared output names, and never calls get_solver, solve or print.",
-        "Every instance-dependent quantity is read from the instance dict, and the evaluator accepts all six listed instances.",
-        "Every constraint the model states is posted with .post(); the evaluator does not report invalid_solution for a constraint that is visible in the source but absent from the model."
-      ]
-    },
-    {
-      "id": "no-operator-overloading",
-      "prompt": "Using this skill, write a choco_python submission for a problem whose reference states linear constraints over several variables, such as knapsack or diet, and check it with the repository evaluator.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Linear relations are stated with model.arithm, model.sum or model.scalar rather than with Python operators, which Choco never sees.",
-        "The method names carry no trailing underscore for sum, min and max, and do carry one for and_, or_ and not_.",
-        "The evaluator does not report execution_error for an AttributeError on a method name."
-      ]
-    },
-    {
-      "id": "objective-is-a-variable",
-      "prompt": "Using this skill, write a choco_python submission for a problem whose reference has an objective, such as knapsack, and confirm the evaluator agrees the optimum was reached.",
-      "expected_output": "An accepted model whose objective direction matches the reference, or a recorded blocker.",
-      "assertions": [
-        "The third returned element is (\"minimize\", variable) or (\"maximize\", variable) where the variable is an IntVar bounded widely enough to hold every attainable objective value.",
-        "The objective variable is tied to the expression with a posted scalar or sum equality rather than being passed as an expression.",
-        "No bound is placed on the objective using a value the submission expects, and the evaluator reports accepted rather than suboptimal_solution."
-      ]
-    },
-    {
-      "id": "enumeration-over-declared-outputs",
-      "prompt": "Using this skill, write a choco_python submission for a satisfaction problem and check it with the repository evaluator at a solution limit above one.",
-      "expected_output": "An accepted model, or an explicit blocker with the evaluator output that caused it.",
-      "assertions": [
-        "Auxiliary variables are given tight bounds and functional definitions, so that fixing the declared outputs fixes them too and the search does not spend its budget on solutions that repeat the same declared outputs.",
-        "The submission does not attempt to enumerate or to block solutions itself; the runner owns that.",
-        "The evaluator reports accepted with solutions_checked equal to the requested limit, or fewer with the search exhausted."
-      ]
-    }
-  ]
+ "skill_name": "choco-python",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Write a Python program using pychoco that places 8 queens on a chessboard so that none attack each other, and print one placement.",
+   "expected_skill": "choco-python",
+   "expected_output": "A pychoco model with all_different constraints on rows and diagonals that prints one solution",
+   "assertions": [
+    "Uses pychoco's Model, intvar and all_different",
+    "Constraints are posted with .post()",
+    "Prints one solution from find_solution"
+   ]
+  },
+  {
+   "id": 2,
+   "prompt": "Using Choco in Python, list every way to pay 12 with coins of 1, 3 and 4 and count them.",
+   "expected_skill": "choco-python",
+   "expected_output": "Every solution enumerated with find_all_solutions, with no duplicate solutions from auxiliary variables",
+   "assertions": [
+    "Uses find_all_solutions",
+    "Auxiliary variables are tied to the counts or the answers are deduplicated on the declared outputs"
+   ]
+  },
+  {
+   "id": 3,
+   "prompt": "Choose 3 of 6 tasks with given costs using Choco in Python so the total cost is smallest, and list every selection that achieves that minimum.",
+   "expected_skill": "choco-python",
+   "expected_output": "All optimal selections via find_all_optimal_solutions",
+   "assertions": [
+    "Uses find_all_optimal_solutions, not only find_optimal_solution",
+    "The cost is an IntVar posted with scalar or sum"
+   ]
+  },
+  {
+   "id": 4,
+   "prompt": "With Choco for Python, maximise the profit of making integer quantities of three products under two resource limits.",
+   "expected_skill": "choco-python",
+   "expected_output": "Maximum profit with find_optimal_solution and maximize set to True",
+   "assertions": [
+    "The objective is an IntVar, not an expression",
+    "The model passes the maximize flag as True"
+   ]
+  },
+  {
+   "id": 5,
+   "prompt": "Use Choco from Python to route shipments from 2 depots to 3 customers at minimum total cost, given supplies, demands and a cost table.",
+   "expected_skill": "choco-python",
+   "expected_output": "Minimum cost with find_optimal_solution and maximize set to False",
+   "assertions": [
+    "Supply and demand limits use sum constraints",
+    "The objective is an IntVar tied by scalar"
+   ]
+  },
+  {
+   "id": 6,
+   "prompt": "Show, with Choco in Python, that assigning 5 jobs to 4 distinct machines is impossible.",
+   "expected_skill": "choco-python",
+   "expected_output": "A program that reports infeasibility because find_solution returns None",
+   "assertions": [
+    "Uses all_different",
+    "Treats a None result as infeasible without claiming a solution"
+   ]
+  },
+  {
+   "id": 7,
+   "prompt": "Schedule 5 tasks with durations, resource demands, a resource capacity and precedence rules using Choco in Python, minimising the makespan.",
+   "expected_skill": "choco-python",
+   "expected_output": "A minimum-makespan schedule using model.task, cumulative and max",
+   "assertions": [
+    "Uses model.task for each task and model.cumulative with IntVar heights and capacity",
+    "Minimises the makespan with a max over the end times and find_optimal_solution"
+   ]
+  },
+  {
+   "id": 8,
+   "prompt": "Write a MiniZinc model for 8 queens and run it with the minizinc command.",
+   "expected_skill": null,
+   "expected_output": "The choco-python skill is not used",
+   "assertions": [
+    "The choco-python skill is not loaded",
+    "The answer uses MiniZinc syntax, not pychoco"
+   ]
+  },
+  {
+   "id": 9,
+   "prompt": "Explain in general terms what a Boolean satisfiability solver does.",
+   "expected_skill": null,
+   "expected_output": "The choco-python skill is not used",
+   "assertions": [
+    "The choco-python skill is not loaded"
+   ]
+  },
+  {
+   "id": 10,
+   "prompt": "Write a Gurobi model in Python for a knapsack problem.",
+   "expected_skill": null,
+   "expected_output": "The choco-python skill is not used",
+   "assertions": [
+    "The choco-python skill is not loaded",
+    "The answer uses gurobipy, not pychoco"
+   ]
+  },
+  {
+   "id": 11,
+   "prompt": "Using Choco in Python, colour the nodes of a small graph with as few colours as possible, and report how many colours it uses.",
+   "expected_skill": "choco-python",
+   "expected_output": "A minimum colouring that counts distinct colours with one Boolean per colour, not by counting colour variables",
+   "assertions": [
+    "Uses reify with if_then to link node colours to a Boolean per colour",
+    "The objective is the sum of the colour Booleans, passed as an IntVar to find_optimal_solution"
+   ]
+  },
+  {
+   "id": 12,
+   "prompt": "Write a Python program that reads a scheduling instance from a JSON file given on the command line and prints the solution as JSON, using Choco.",
+   "expected_skill": "choco-python",
+   "expected_output": "A program that reads sys.argv[1] with json and prints one JSON object, with a status for infeasible instances",
+   "assertions": [
+    "Reads the instance path from sys.argv and does not hardcode the data",
+    "Prints JSON, including a status for an infeasible result"
+   ]
+  }
+ ]
 }

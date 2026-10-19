@@ -1,0 +1,975 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-002",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/highs_cpp/CONTRACT.md": "087f16723d9c563406c57964425e7ce721e8f3fcd6d3167a3f6bd5b90b549636"
+    },
+    "created_at": 1792218998.1904898,
+    "problem_id": "csplib_013_progressive_party_problem",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "7a2b79785df349bef7e211cae4c0dbb5037f1d81a810672b015a9a613cc04d41",
+    "run_id": "20261016-highs-cpp-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "dec566341fa9c62a9ac0140853dc0beb326b63a7",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "dec566341fa9c62a9ac0140853dc0beb326b63a7",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "ac7e2c5c62143010f9d864b20582df7156a0187de63c4db2a02c53ad2dc54b52",
+        "source": "solvers/highs_cpp/skills/highs-cpp",
+        "version": {
+          "commit": "dec566341fa9c62a9ac0140853dc0beb326b63a7",
+          "modified": false,
+          "path": "solvers/highs_cpp/skills/highs-cpp"
+        }
+      }
+    ],
+    "solver_id": "highs_cpp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:19628eb4a90a7a24564ca00a799ef83af74f38afe6cb78d4d294799dbed0d29b",
+      "tag": "dcp-eval/highs_cpp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.05627097305841744,
+        "execution_wall_seconds": 14.287325146025978,
+        "first_solution": {
+          "is_host": [
+            true,
+            true,
+            true,
+            false,
+            true
+          ],
+          "visits": [
+            [
+              0,
+              1,
+              2,
+              2,
+              4
+            ],
+            [
+              0,
+              1,
+              2,
+              0,
+              4
+            ],
+            [
+              0,
+              1,
+              2,
+              4,
+              4
+            ],
+            [
+              0,
+              1,
+              2,
+              1,
+              4
+            ]
+          ]
+        },
+        "id": "example",
+        "instance_hash": "00720cdfd6b954265248dd7bf17c2bac0bfcc8f547e55f0f3ed89bdf79d68beb",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 4,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.6675281759817153,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.140995396,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 13.564s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.11863952793646604,
+        "execution_wall_seconds": 11.676892769988626,
+        "first_solution": {
+          "is_host": [
+            true,
+            false,
+            true,
+            true,
+            true,
+            true
+          ],
+          "visits": [
+            [
+              0,
+              4,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              0,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              3,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              5,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              2,
+              2,
+              3,
+              4,
+              5
+            ]
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "317d9307253c82bb1662cb0c836cab36df9a9aab171139bb9b65424e7e18cfc3",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 5,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.5511542860185727,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.265721068,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 10.806s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.19561908394098282,
+        "execution_wall_seconds": 17.196252891910262,
+        "first_solution": {
+          "is_host": [
+            true,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "visits": [
+            [
+              0,
+              0,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              6,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              3,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              5,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              4,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              2,
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          ]
+        },
+        "id": "json:2",
+        "instance_hash": "80d5d9e03cab90d18634f534347666f2e6327f0385a79c45a999d76c7f336efb",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 6,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.7782415649853647,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 1.2780291,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 15.326s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.26545053196605295,
+        "execution_wall_seconds": 15.689907097024843,
+        "first_solution": {
+          "is_host": [
+            true,
+            false,
+            true,
+            true,
+            true,
+            true,
+            false,
+            true
+          ],
+          "visits": [
+            [
+              0,
+              2,
+              2,
+              3,
+              4,
+              5,
+              4,
+              7
+            ],
+            [
+              0,
+              3,
+              2,
+              3,
+              4,
+              5,
+              5,
+              7
+            ],
+            [
+              0,
+              7,
+              2,
+              3,
+              4,
+              5,
+              7,
+              7
+            ],
+            [
+              0,
+              4,
+              2,
+              3,
+              4,
+              5,
+              2,
+              7
+            ],
+            [
+              0,
+              0,
+              2,
+              3,
+              4,
+              5,
+              3,
+              7
+            ],
+            [
+              0,
+              5,
+              2,
+              3,
+              4,
+              5,
+              0,
+              7
+            ]
+          ]
+        },
+        "id": "json:3",
+        "instance_hash": "b5040897ca942d8de20e59de6fc86f68859cf1ace94d64d6140e36f945c4d307",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 6,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.9606207660399377,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 2.639878916,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 12.513s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.2071732630720362,
+        "execution_wall_seconds": 18.0975228829775,
+        "first_solution": {
+          "is_host": [
+            false,
+            true,
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            false
+          ],
+          "visits": [
+            [
+              3,
+              1,
+              2,
+              3,
+              2,
+              3,
+              6,
+              7,
+              7
+            ],
+            [
+              7,
+              1,
+              2,
+              3,
+              1,
+              6,
+              6,
+              7,
+              3
+            ],
+            [
+              2,
+              1,
+              2,
+              3,
+              6,
+              1,
+              6,
+              7,
+              6
+            ],
+            [
+              1,
+              1,
+              2,
+              3,
+              3,
+              7,
+              6,
+              7,
+              1
+            ],
+            [
+              6,
+              1,
+              2,
+              3,
+              7,
+              2,
+              6,
+              7,
+              2
+            ]
+          ]
+        },
+        "id": "json:4",
+        "instance_hash": "0351002b88d6347b54a4888cf20546edc96611874caaa33450a4ae510f0b22ab",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 5,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.3952118318993598,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 4.494354473,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 12.964s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.32085899403318763,
+        "execution_wall_seconds": 20.602688846061938,
+        "first_solution": {
+          "is_host": [
+            true,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+            true,
+            true,
+            false
+          ],
+          "visits": [
+            [
+              0,
+              8,
+              2,
+              0,
+              6,
+              7,
+              6,
+              7,
+              8,
+              2
+            ],
+            [
+              0,
+              7,
+              2,
+              2,
+              2,
+              8,
+              6,
+              7,
+              8,
+              0
+            ],
+            [
+              0,
+              6,
+              2,
+              6,
+              0,
+              6,
+              6,
+              7,
+              8,
+              8
+            ],
+            [
+              0,
+              0,
+              2,
+              7,
+              8,
+              2,
+              6,
+              7,
+              8,
+              6
+            ],
+            [
+              0,
+              2,
+              2,
+              8,
+              7,
+              0,
+              6,
+              7,
+              8,
+              7
+            ]
+          ]
+        },
+        "id": "json:5",
+        "instance_hash": "f80175e54af4a3765e58dad2f95003faa39adf315ff141653dc0ad790d64c709",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 5,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.3821756149409339,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 6.91784346,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 13.062s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.2852628040127456,
+        "execution_wall_seconds": 25.011760681052692,
+        "first_solution": {
+          "is_host": [
+            true,
+            true,
+            true,
+            false,
+            true,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "visits": [
+            [
+              0,
+              1,
+              2,
+              4,
+              4,
+              5,
+              1,
+              4,
+              0,
+              1,
+              4
+            ],
+            [
+              0,
+              1,
+              2,
+              1,
+              4,
+              5,
+              4,
+              0,
+              4,
+              2,
+              2
+            ],
+            [
+              0,
+              1,
+              2,
+              5,
+              4,
+              5,
+              0,
+              2,
+              5,
+              4,
+              1
+            ],
+            [
+              0,
+              1,
+              2,
+              0,
+              4,
+              5,
+              5,
+              1,
+              2,
+              0,
+              5
+            ],
+            [
+              0,
+              1,
+              2,
+              2,
+              4,
+              5,
+              2,
+              5,
+              1,
+              5,
+              0
+            ]
+          ]
+        },
+        "id": "json:6",
+        "instance_hash": "b9ac631af6fc7c779550175eb402aef29af889d11d2fa33262f91d21b2407824",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 5,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.4744969659950584,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 11.122653102,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 13.312s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.35542597400490195,
+        "execution_wall_seconds": 26.92353536793962,
+        "first_solution": {
+          "is_host": [
+            false,
+            false,
+            true,
+            false,
+            false,
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            false
+          ],
+          "visits": [
+            [
+              9,
+              2,
+              2,
+              5,
+              10,
+              5,
+              6,
+              6,
+              2,
+              9,
+              10,
+              6
+            ],
+            [
+              10,
+              10,
+              2,
+              2,
+              6,
+              5,
+              6,
+              2,
+              5,
+              9,
+              10,
+              9
+            ],
+            [
+              2,
+              5,
+              2,
+              6,
+              9,
+              5,
+              6,
+              10,
+              9,
+              9,
+              10,
+              5
+            ],
+            [
+              6,
+              9,
+              2,
+              9,
+              5,
+              5,
+              6,
+              5,
+              6,
+              9,
+              10,
+              2
+            ],
+            [
+              5,
+              6,
+              2,
+              10,
+              2,
+              5,
+              6,
+              9,
+              10,
+              9,
+              10,
+              10
+            ]
+          ]
+        },
+        "id": "json:7",
+        "instance_hash": "0d1c6dbb95d8a3c0dc4b69c2c0c3e558b7888157f091953acb0f7f359e9ce4f7",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 5,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.962111806962639,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 13.533070664,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 12.816s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.40352870302740484,
+        "execution_wall_seconds": 55.490107240038924,
+        "first_solution": {
+          "is_host": [
+            false,
+            true,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+            false,
+            true,
+            true,
+            false,
+            false
+          ],
+          "visits": [
+            [
+              10,
+              1,
+              7,
+              3,
+              1,
+              10,
+              9,
+              7,
+              3,
+              9,
+              10,
+              9,
+              3
+            ],
+            [
+              7,
+              1,
+              3,
+              3,
+              9,
+              1,
+              10,
+              7,
+              1,
+              9,
+              10,
+              3,
+              7
+            ],
+            [
+              1,
+              1,
+              9,
+              3,
+              10,
+              3,
+              7,
+              7,
+              7,
+              9,
+              10,
+              1,
+              9
+            ],
+            [
+              3,
+              1,
+              10,
+              3,
+              3,
+              9,
+              3,
+              7,
+              10,
+              9,
+              10,
+              7,
+              1
+            ],
+            [
+              9,
+              1,
+              1,
+              3,
+              7,
+              7,
+              1,
+              7,
+              9,
+              9,
+              10,
+              10,
+              10
+            ]
+          ]
+        },
+        "id": "json:8",
+        "instance_hash": "2106b2867bb48e0cf7ac10e69965588f2ee61aef8875cd4d8bf063dd73618160",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 5,
+        "outputs": [
+          "visits",
+          "is_host"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 2.0304009220562875,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 42.549369992,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 12.411s\n"
+      }
+    ],
+    "instances_available": 9,
+    "instances_checked": 9,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "7ad00dfd4289df9bf16194e5f53daec25c3f0971389ffdbfb2cd6b122ba88dd7",
+    "problem_id": "csplib_013_progressive_party_problem",
+    "reason": "accepted",
+    "reference_hash": "4515c7a73120b62ff3d9c97292b5b93482355551bb6bda7d8476606feb489e64",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 18,
+    "solver_id": "highs_cpp",
+    "total_wall_seconds": 218.86366635700688,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.cpp",
+  "problem": "csplib_013_progressive_party_problem",
+  "schema": 2,
+  "solver": "highs_cpp",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

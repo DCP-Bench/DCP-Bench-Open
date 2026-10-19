@@ -83,8 +83,8 @@ MALFORMED = (HEAD + "    m &= (x + y == n)\n"
              "    os.write(1, b'this is not a protocol record\\n')\n" + EXPORT)
 UNSATISFIABLE = HEAD + "    m &= (x == 0)\n    m &= (x == 1)\n" + EXPORT
 # A pigeonhole big enough that the solver cannot refute it in two seconds.
-# EvalMaxSAT is much faster at this than the SAT integration's Glucose: it
-# refutes 13 into 12 in under a second, where 16 into 15 runs past a minute.
+# The model has no soft clauses, so hermax hands it to Glucose 4.1 through PySAT,
+# which refutes 13 into 12 in under a second, where 16 into 15 runs past a minute.
 SLOW = (HEAD + "    m &= (x + y == n)\n"
         '    birds = m.int_vector("birds", 16, 1, 15)\n'
         "    m &= birds.all_different()\n" + EXPORT)

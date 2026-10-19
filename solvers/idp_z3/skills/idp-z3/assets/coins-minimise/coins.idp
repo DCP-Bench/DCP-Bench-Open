@@ -1,0 +1,27 @@
+// Pay 63 cents with as few coins as possible (coins of 1, 5, 10 and 25 cents).
+vocabulary V {
+    type Coin <: Int
+    type Count <: Int                // a finite range for every decision keeps z3 fast
+    face: Coin -> Int
+    amount: () -> Int
+    used: Coin -> Count
+    coins: () -> Int                 // the objective is left -> Int
+}
+
+theory T: V {
+    // the coins add up to the amount
+    sum{{ (used(c) * face(c)) | c in Coin }} = amount().
+    // the objective: the number of coins
+    coins() = sum{{ used(c) | c in Coin }}.
+}
+
+structure S: V {
+    Coin := {0..3}.
+    Count := {0..63}.
+    face := {0->1, 1->5, 2->10, 3->25}.
+    amount := 63.
+}
+
+procedure main() {
+    pretty_print(minimize(T, S, term="coins()"))
+}

@@ -1,0 +1,247 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-002",
+    "contracts": {
+      "solvers/CONTRACT.md": "177cc9b9640c5000d4632ee86bfd0a434e3c399403805e9fa8d521aa5f0d1155",
+      "solvers/highs_cpp/CONTRACT.md": "76831755074180248610d2f477d05a725867151c438d21f73c9e1d79ec7b10c4"
+    },
+    "created_at": 1792183087.8643322,
+    "problem_id": "calvin_puzzle",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "7a2b79785df349bef7e211cae4c0dbb5037f1d81a810672b015a9a613cc04d41",
+    "run_id": "20261016-highs-cpp-models",
+    "schema": 3,
+    "skill_bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+    "skill_source": "rosetta-skills/model-generator",
+    "skill_version": {
+      "commit": "4bd1e692b3e4c90e89f14c377cfd26eb2296a920",
+      "modified": false,
+      "path": "rosetta-skills/model-generator"
+    },
+    "skills": [
+      {
+        "bundle_hash": "ae6b8d1ae09cc1aeb0428028840a69592d9c8fad0359b0feb72651fd3cf7c287",
+        "source": "rosetta-skills/model-generator",
+        "version": {
+          "commit": "4bd1e692b3e4c90e89f14c377cfd26eb2296a920",
+          "modified": false,
+          "path": "rosetta-skills/model-generator"
+        }
+      },
+      {
+        "bundle_hash": "ac7e2c5c62143010f9d864b20582df7156a0187de63c4db2a02c53ad2dc54b52",
+        "source": "solvers/highs_cpp/skills/highs-cpp",
+        "version": {
+          "commit": "4bd1e692b3e4c90e89f14c377cfd26eb2296a920",
+          "modified": false,
+          "path": "solvers/highs_cpp/skills/highs-cpp"
+        }
+      }
+    ],
+    "solver_id": "highs_cpp"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:19628eb4a90a7a24564ca00a799ef83af74f38afe6cb78d4d294799dbed0d29b",
+      "tag": "dcp-eval/highs_cpp:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.07657507597468793,
+        "execution_wall_seconds": 21.127224043011665,
+        "first_solution": {
+          "x": [
+            [
+              2,
+              21,
+              15,
+              3,
+              20
+            ],
+            [
+              8,
+              5,
+              18,
+              23,
+              6
+            ],
+            [
+              14,
+              25,
+              10,
+              13,
+              16
+            ],
+            [
+              1,
+              22,
+              7,
+              4,
+              19
+            ],
+            [
+              9,
+              12,
+              17,
+              24,
+              11
+            ]
+          ]
+        },
+        "id": "example",
+        "instance_hash": "11d0a8967009cbcdf468f09e5b09e73e7119b528c35a0e0b23f2ae052786b8fa",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 1.537909065023996,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 0.640548058,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 19.844s\n"
+      },
+      {
+        "accepted": true,
+        "checking_seconds": 0.09829455090221018,
+        "execution_wall_seconds": 31.639629411045462,
+        "first_solution": {
+          "x": [
+            [
+              28,
+              35,
+              2,
+              29,
+              34,
+              3
+            ],
+            [
+              18,
+              9,
+              26,
+              19,
+              8,
+              11
+            ],
+            [
+              1,
+              21,
+              16,
+              13,
+              24,
+              30
+            ],
+            [
+              27,
+              36,
+              7,
+              10,
+              33,
+              4
+            ],
+            [
+              17,
+              14,
+              25,
+              20,
+              15,
+              12
+            ],
+            [
+              6,
+              22,
+              32,
+              5,
+              23,
+              31
+            ]
+          ]
+        },
+        "id": "json:1",
+        "instance_hash": "93d5f19e245cca4858f1f1b8db5acf06c5af3547bd543e81f4a8b45805a36f84",
+        "is_optimization": false,
+        "oom_killed": false,
+        "optimum": null,
+        "outputs": [
+          "x"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 8.40271066094283,
+        "runner_status": {
+          "detail": "",
+          "solve_seconds": 14.989184072,
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": "-- The CXX compiler identification is GNU 12.2.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Found nlohmann_json: /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found version \"3.11.2\") \n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE  \n-- Configuring done\n-- Generating done\n-- Build files have been written to: /tmp/build\n[ 33%] Building CXX object CMakeFiles/candidate.dir/driver.cpp.o\n[ 66%] Building CXX object CMakeFiles/candidate.dir/tmp/model.cpp.o\n[100%] Linking CXX executable candidate\n[100%] Built target candidate\nCompilation: 15.939s\n"
+      }
+    ],
+    "instances_available": 2,
+    "instances_checked": 2,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "6f647b30897f0b57bc1a71a01fb5699d0b8706bb3403017c951e0fad154dea96",
+    "problem_id": "calvin_puzzle",
+    "reason": "accepted",
+    "reference_hash": "01afa38ec02b6613b107799f192fadd1c28d89767931e20b913ac618b7d7ca2e",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.5.4",
+      "ortools": "9.15.6755",
+      "python": "3.13.5"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [],
+    "solutions_checked": 4,
+    "solver_id": "highs_cpp",
+    "total_wall_seconds": 63.07119256397709,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": false,
+  "model_file": "model.cpp",
+  "problem": "calvin_puzzle",
+  "schema": 2,
+  "solver": "highs_cpp",
+  "verdict": {
+    "badge": "solution_valid",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "not_applicable"
+  },
+  "verdict_source": "container_evaluator"
+}

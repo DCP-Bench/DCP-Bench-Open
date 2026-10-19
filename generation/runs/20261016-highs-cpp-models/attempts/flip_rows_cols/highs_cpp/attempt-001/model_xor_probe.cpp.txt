@@ -1,0 +1,61 @@
+// Flip the sign of whole rows and whole columns of an integer array so that every row and
+// every column sums to a positive number (or zero), and the overall sum is as small as possible.
+// Outputs: row_signs and col_signs, each entry -1 (flipped) or 1 (kept).
+#include "dcp.h"
+
+void build(const json& instance, Highs& h, dcp::Outputs& out) {
+  std::vector<std::vector<int>> a = instance.at("input_matrix").get<std::vector<std::vector<int>>>();
+  const int R = static_cast<int>(a.size());
+  const int C = static_cast<int>(a[0].size());
+
+  // y[i] = 1 when row i is flipped, z[j] = 1 when column j is flipped.
+  std::vector<dcp::Lin> y, z;
+  for (int i = 0; i < R; ++i) y.push_back(dcp::new_var(h, 0, 1));
+  for (int j = 0; j < C; ++j) z.push_back(dcp::new_var(h, 0, 1));
+
+  // p[i][j] = 1 when the entry at (i, j) changes sign, that is exactly one of row i and column j
+  // is flipped (p = y xor z).
+  std::vector<std::vector<dcp::Lin>> p(R, std::vector<dcp::Lin>(C));
+  // The sign of entry (i, j) after flipping is 1 - 2 p[i][j] times its original value.
+  // Entry value after flipping, as an expression of p.
+  std::vector<std::vector<dcp::Lin>> v(R, std::vector<dcp::Lin>(C));
+  for (int i = 0; i < R; ++i) {
+    for (int j = 0; j < C; ++j) {
+      p[i][j] = dcp::new_var(h, 0, 1);
+      // p is the exclusive or of y[i] and z[j]
+      // p >= y - z, p >= z - y, p <= y + z, p <= 2 - y - z
+      dcp::add_row(h, p[i][j] - y[i] + z[j], 0, kHighsInf);
+      dcp::add_row(h, p[i][j] + y[i] - z[j], 0, kHighsInf);
+      dcp::add_row(h, p[i][j] - y[i] - z[j], -kHighsInf, 0);
+      dcp::add_row(h, p[i][j] + y[i] + z[j], -kHighsInf, 2);
+      v[i][j] = dcp::Lin(static_cast<double>(a[i][j])) + (-2.0 * a[i][j]) * p[i][j];
+    }
+  }
+
+  // every row sums to a positive number or zero
+  for (int i = 0; i < R; ++i) {
+    dcp::Lin row_sum(0);
+    for (int j = 0; j < C; ++j) row_sum = row_sum + v[i][j];
+    dcp::add_row(h, row_sum, 0, kHighsInf);
+  }
+
+  // every column sums to a positive number or zero
+  for (int j = 0; j < C; ++j) {
+    dcp::Lin col_sum(0);
+    for (int i = 0; i < R; ++i) col_sum = col_sum + v[i][j];
+    dcp::add_row(h, col_sum, 0, kHighsInf);
+  }
+
+  // the overall sum of the array is minimised
+  dcp::Lin total(0);
+  for (int i = 0; i < R; ++i)
+    for (int j = 0; j < C; ++j) total = total + v[i][j];
+  out.minimize(total);
+
+  // signs: -1 for a flipped row or column, 1 otherwise
+  std::vector<dcp::Lin> row_signs, col_signs;
+  for (int i = 0; i < R; ++i) row_signs.push_back(dcp::Lin(1.0) + (-2.0) * y[i]);
+  for (int j = 0; j < C; ++j) col_signs.push_back(dcp::Lin(1.0) + (-2.0) * z[j]);
+  out.add("row_signs", row_signs);
+  out.add("col_signs", col_signs);
+}

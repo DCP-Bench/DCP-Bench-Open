@@ -1,0 +1,24 @@
+Round 1: programs written by a fresh subagent from the skill alone (model: haiku); run once by the coordinator.
+Command: run_toy_tests.py --public toy --logs round-1/logs --cmd 'docker run --rm --network none ... dcp-eval/highs_cpp:v1 /r.sh {problem} {instance}'
+(r.sh compiles models/{problem}.cpp against /opt/highs and runs it on the instance.)
+
+PASS  cryptarithm/ab-ab-aaa [2.9s]: infeasibility reported
+PASS  cryptarithm/send-more-money [2.9s]: feasible solution
+PASS  cryptarithm/two-two-four [3.0s]: feasible solution
+PASS  graph-colouring/cycle6 [2.9s]: optimal (2)
+PASS  graph-colouring/k4-tail [2.7s]: optimal (4)
+PASS  graph-colouring/petersen [2.7s]: optimal (3)
+PASS  jobshop/ft06 [3.0s]: optimal (55)
+PASS  jobshop/small [2.8s]: optimal (11)
+PASS  knapsack/p01 [2.6s]: optimal (309)
+PASS  knapsack/small [2.6s]: optimal (15)
+PASS  knapsack-all-optimal/fourteen [2.8s]: all 9 optimal solutions
+PASS  knapsack-all-optimal/ties [2.7s]: all 5 optimal solutions
+PASS  knapsack-all-optimal/unique [2.8s]: all 1 optimal solutions
+PASS  n-queens/n3 [2.5s]: infeasibility reported
+PASS  n-queens/n4 [2.5s]: feasible solution
+PASS  n-queens/n8 [2.7s]: feasible solution
+PASS  n-queens-all/n6 [3.0s]: all 4 solutions
+PASS  n-queens-all/n8 [23.9s]: all 92 solutions
+
+18/18 passed

@@ -200,6 +200,38 @@ def _skill_version(bundle: Path) -> dict[str, Any]:
     return version
 
 
+def _skills(skills: str | list[str]) -> list[dict[str, Any]]:
+    """Cite every skill an attempt is written from: path as supplied, git version, hash."""
+    cited = []
+    for skill in [skills] if isinstance(skills, str) else skills:
+        supplied, bundle = _skill_bundle(skill)
+        cited.append({"source": supplied.relative_to(REPO_ROOT).as_posix(),
+                      "version": _skill_version(bundle), "bundle_hash": _skill_hash(bundle)})
+    if not cited:
+        raise ManagementError("Cite at least one skill")
+    if len({item["source"] for item in cited}) != len(cited):
+        raise ManagementError("A skill is cited twice")
+    return cited
+
+
+def _contracts(solver_id: str) -> dict[str, str]:
+    """Hashes of the generic submission contract and the integration's own contract."""
+    hashes = {}
+    for relative in ("solvers/CONTRACT.md", f"solvers/{solver_id}/CONTRACT.md"):
+        path = REPO_ROOT / relative
+        if not path.is_file():
+            raise ManagementError(f"Integration contract missing: {relative} (solver-setup writes it)")
+        hashes[relative] = _sha256(path)
+    return hashes
+
+
+def _legacy_skill_fields(cited: list[dict[str, Any]]) -> dict[str, Any]:
+    """Schema-2 fields, kept for readers of older records: they name the first skill."""
+    first = cited[0]
+    return {"skill_source": first["source"], "skill_version": first["version"],
+            "skill_bundle_hash": first["bundle_hash"]}
+
+
 def _readiness(solver_id: str, record: Path | None = None) -> dict[str, Any]:
     from .readiness import verify
     path = record or REPO_ROOT / "solvers" / solver_id / "readiness.json"
@@ -228,13 +260,15 @@ def _writer(agent: str) -> str:
     return agent.strip()
 
 
-def attempt(run_id: str, problem_id: str, solver_id: str, skill: str, agent: str) -> Path:
+def attempt(run_id: str, problem_id: str, solver_id: str, skill: str | list[str], agent: str) -> Path:
+    """Open a numbered attempt citing every skill it is written from, both contracts and its writer."""
     run_folder, run = _run(run_id)
     _identifier(problem_id, "problem ID")
     _identifier(solver_id, "solver ID")
     agent = _writer(agent)
     readiness = _readiness(solver_id)
-    supplied, bundle = _skill_bundle(skill)
+    cited = _skills(skill)
+    contracts = _contracts(solver_id)
     attempts = run_folder / "attempts" / problem_id / solver_id
     attempts.mkdir(parents=True, exist_ok=True)
     numbers = [int(x.name.split("-", 1)[1]) for x in attempts.iterdir()
@@ -242,11 +276,9 @@ def attempt(run_id: str, problem_id: str, solver_id: str, skill: str, agent: str
     folder = attempts / f"attempt-{max(numbers, default=0) + 1:03d}"
     folder.mkdir()
     _write_new(folder / "readiness.json", readiness)
-    record = {"schema": 2, "run_id": run_id, "problem_id": problem_id, "solver_id": solver_id,
+    record = {"schema": 3, "run_id": run_id, "problem_id": problem_id, "solver_id": solver_id,
               "attempt_id": folder.name, "created_at": time.time(),
-              "skill_source": str(supplied.relative_to(REPO_ROOT)),
-              "skill_version": _skill_version(bundle),
-              "skill_bundle_hash": _skill_hash(bundle),
+              "skills": cited, **_legacy_skill_fields(cited), "contracts": contracts,
               "profile": run["profile"], "agent": agent,
               "readiness_hash": _sha256(folder / "readiness.json")}
     _write_new(folder / "attempt.json", record)
@@ -256,22 +288,20 @@ def attempt(run_id: str, problem_id: str, solver_id: str, skill: str, agent: str
     return folder
 
 
-def setup_attempt(run_id: str, solver_id: str, skill: str) -> Path:
+def setup_attempt(run_id: str, solver_id: str, skill: str | list[str]) -> Path:
     """Create a frozen, numbered setup-work directory for one integration."""
     run_folder, run = _run(run_id)
     _identifier(solver_id, "solver ID")
-    supplied, bundle = _skill_bundle(skill)
+    cited = _skills(skill)
     attempts = run_folder / "setup" / solver_id
     attempts.mkdir(parents=True, exist_ok=True)
     numbers = [int(item.name.split("-", 1)[1]) for item in attempts.iterdir()
                if item.is_dir() and re.fullmatch(r"setup-\d{3}", item.name)]
     folder = attempts / f"setup-{max(numbers, default=0) + 1:03d}"
     folder.mkdir()
-    record = {"schema": 2, "run_id": run_id, "solver_id": solver_id, "setup_id": folder.name,
+    record = {"schema": 3, "run_id": run_id, "solver_id": solver_id, "setup_id": folder.name,
               "created_at": time.time(), "agent": run.get("agent", "unknown"),
-              "profile": run["profile"], "skill_source": str(supplied.relative_to(REPO_ROOT)),
-              "skill_version": _skill_version(bundle),
-              "skill_bundle_hash": _skill_hash(bundle)}
+              "profile": run["profile"], "skills": cited, **_legacy_skill_fields(cited)}
     _write_new(folder / "setup.json", record)
     _append_event(run_folder, "setup_attempt_created", {"setup": str(folder.relative_to(run_folder)),
                                                            "solver_id": solver_id, "agent": record["agent"]})
@@ -292,11 +322,19 @@ def _attempt(path: str | Path) -> tuple[Path, Path, dict[str, Any], dict[str, An
     expected_folder = run_folder / "attempts" / record["problem_id"] / record["solver_id"] / record["attempt_id"]
     if folder != expected_folder.resolve():
         raise ManagementError("Attempt record does not match its canonical path")
-    # The skill is not copied, so the live bundle is what gets re-hashed. That
-    # is the stronger check: editing the skill mid-attempt is what must not pass.
-    _, bundle = _skill_bundle(str(REPO_ROOT / record["skill_source"]))
-    if _skill_hash(bundle) != record["skill_bundle_hash"]:
-        raise ManagementError("Skill bundle changed since the attempt was created")
+    # Skills are not copied, so the live bundles are what get re-hashed. That is the
+    # stronger check: editing a skill or a contract mid-attempt is what must not pass.
+    # Schema-2 records cite one skill through the legacy fields and no contracts.
+    cited = record.get("skills") or [{"source": record["skill_source"],
+                                      "bundle_hash": record["skill_bundle_hash"]}]
+    for item in cited:
+        _, bundle = _skill_bundle(str(REPO_ROOT / item["source"]))
+        if _skill_hash(bundle) != item["bundle_hash"]:
+            raise ManagementError(f"Skill bundle changed since the attempt was created: {item['source']}")
+    for relative, expected in record.get("contracts", {}).items():
+        path = REPO_ROOT / relative
+        if not path.is_file() or _sha256(path) != expected:
+            raise ManagementError(f"Contract changed since the attempt was created: {relative}")
     if record.get("readiness_hash") != _sha256(folder / "readiness.json"):
         raise ManagementError("Frozen readiness record changed")
     _readiness(record["solver_id"], folder / "readiness.json")
@@ -514,13 +552,16 @@ def main(argv: list[str] | None = None) -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     init_p = commands.add_parser("init", help="create a run")
     init_p.add_argument("--run", required=True); init_p.add_argument("--config")
-    attempt_p = commands.add_parser("attempt", help="freeze a solver skill for one pair")
+    attempt_p = commands.add_parser("attempt", help="cite the skills and contracts for one pair")
     attempt_p.add_argument("--run", required=True); attempt_p.add_argument("--problem", required=True)
-    attempt_p.add_argument("--solver", required=True); attempt_p.add_argument("--skill", required=True)
-    attempt_p.add_argument("--agent", required=True, help="the model that writes this attempt")
-    setup_p = commands.add_parser("setup-attempt", help="freeze a solver-setup skill")
+    attempt_p.add_argument("--solver", required=True)
+    attempt_p.add_argument("--skill", required=True, action="append",
+                           help="a skill the model is written from; repeat for each (model-generator, solver skill)")
+    attempt_p.add_argument("--agent", required=True, help="the model that writes this attempt, as TOOL (MODEL-ID)")
+    setup_p = commands.add_parser("setup-attempt", help="cite the skills for one setup attempt")
     setup_p.add_argument("--run", required=True); setup_p.add_argument("--solver", required=True)
-    setup_p.add_argument("--skill", required=True)
+    setup_p.add_argument("--skill", required=True, action="append",
+                         help="a skill the setup follows; repeat for each (solver-setup, add-solver)")
     eval_p = commands.add_parser("evaluate", help="evaluate a preserved candidate")
     eval_p.add_argument("--attempt", required=True); eval_p.add_argument("--model", required=True)
     retain_p = commands.add_parser("retain", help="persist an accepted immutable attempt")

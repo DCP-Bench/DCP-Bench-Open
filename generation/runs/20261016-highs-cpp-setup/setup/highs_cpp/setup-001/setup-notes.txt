@@ -1,0 +1,39 @@
+highs_cpp setup, attempt 001 (run 20261016-highs-cpp-setup)
+
+Result: READY. Readiness record solvers/highs_cpp/readiness.json, accepted, image dcp-eval/highs_cpp:v1 sha256:19628eb4a90a7a24564ca00a799ef83af74f38afe6cb78d4d294799dbed0d29b.
+
+Solver: HiGHS 1.15.1 (latest release, tag v1.15.1, commit 04024d701f79feb8e2f18bc3df0dffc04ef05088), built from source with CMake in the Dockerfile's build stage, installed to /opt/highs, static library.
+Base image: python:3.12.11-slim-bookworm, digest sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7.
+Packages: g++ 4:12.2.0-3, make 4.3-4.1, cmake 3.25.1-1, git 1:2.39.5-0+deb12u2 (build stage), nlohmann-json3-dev 3.11.2-2 (runtime).
+
+Submission form: model.cpp defines void build(const json& instance, Highs& h, dcp::Outputs& out). dcp.h gives Lin (affine expression over HighsInt columns), new_var, add_row, out.add (numbers, Lin, nested vectors), out.minimize/maximize. The driver (cpp/driver.cpp) sets the options after build (output_flag off, threads 1, mip_rel_gap 0, mip_abs_gap 0, random_seed 0, time_limit per solve), applies the declared objective, maps HighsModelStatus to the protocol, and enumerates: optimal enumeration pins the objective within 1e-5, and each further solution gets big-M binary no-goods over the integer columns of the outputs. Reason for the form: HiGHS has no modelling layer and no solution pool; raw rows keep the API native.
+
+Capabilities declared: satisfaction, optimisation (minimise and maximise), enumeration (by driver no-goods; HiGHS itself has no solution pool).
+
+Fixes made during the attempt:
+- Driver: HiGHS returns kNotset on a short time limit; now mapped to timeout at the deadline, not error (found by probe).
+- Driver: options re-applied after build so a submission cannot change them.
+- Readiness fixtures: first run had 3 failures (fixture bugs and an invalid timeout fixture; a pigeonhole model is proven infeasible by HiGHS within 3 s). Replaced by a Golomb feasibility problem; the failing checks were the test's own, fixed, and the rerun passed.
+
+Commands and outputs (abbreviated; full outputs in the readiness logs):
+1. generation.manage init --run 20261016-highs-cpp-setup; setup-attempt --solver highs_cpp (setup-001).
+2. docker build --target highs-build ... ; full image build ok (HiGHS installed, git commit check passed).
+3. Probes (add-solver-workspace/probes): API defaults, statuses, error capture, Quick start; all in the image.
+4. skills validate: project_checked true (entrypoint_lines 185).
+5. skills rosetta-mentions: "OK: solvers/highs_cpp/skills/highs-cpp names nothing of this repository".
+6. check_integration --static: 40 passed, 0 failed.
+7. evaluation.build highs_cpp: image built, sha256:19628eb4a...
+8. check_assets (8 examples) in the image: 8/8 passed.
+9. Toy tests (add-solver step 4): round-1/results.txt, 18/18 passed. Fresh subagent wrote the programs from the skill alone; its own docker runs were refused by the worktree guard, so the programs were first executed by the coordinator here.
+10. readiness check: readiness.json accepted; all required and level-2 checks passed (see readiness-result.json).
+11. check_integration (no --static): 45 passed, exit 0.
+12. unittest tests.test_solvers.MetadataTests: 8 tests OK.
+
+Not done: the standalone review by a fresh agent (skipped by request; the coordinator runs it). Releasing the skill to skills/ is the user's call: python -m generation.release publish highs-cpp -m "First release" --review <review.json>.
+
+Limitations for modellers:
+- HiGHS's own log lines are not captured; an error comes back as its status name.
+- Values are doubles: integers up to about 2^53 are exact; outputs must be within 1e-5 of an integer.
+- kTimeLimit never proves optimality; the driver reports timeout.
+- Enumeration needs integer, bounded output columns; otherwise unsupported.
+- The driver forces all costs from out.minimize/maximize; raw changeColCost on h has no effect.

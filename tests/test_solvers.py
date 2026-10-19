@@ -21,6 +21,7 @@ PILOTS = {"cpmpy_python": "model_cpmpy.py", "ortools_cp_sat_python": "model_cp_s
           "essence_prime_minion": "model_essence.eprime",
           "pycsp3_ace": "model_pycsp3.py",
           "gecode_cpp": "model_gecode.cpp",
+          "highs_cpp": "model_highs_cpp.cpp",
           "scip_python": "model_scip.py",
           "idp_z3": "model_idp.idp",
           "choco_java": "model_choco_java.java"}
@@ -57,6 +58,7 @@ MAXIMIZATION_SWAPS = {"cpmpy_python": ("minimize", "maximize"), "ortools_cp_sat_
                       "essence_prime_minion": ("minimising", "maximising"),
                       "pycsp3_ace": ("minimize", "maximize"),
                       "gecode_cpp": ("minimize(", "maximize("),
+                      "highs_cpp": ("minimize(", "maximize("),
                       "choco_java": ("Model.MINIMIZE", "Model.MAXIMIZE"),
                       "paramita_python": ("minimize", "maximize"),
                       "scip_python": ("minimize", "maximize"),
@@ -137,6 +139,21 @@ class MetadataTests(unittest.TestCase):
                 self.assertCountEqual(paradigms, set(paradigms), "repeated paradigm")
                 for tag in paradigms:
                     self.assertIn(tag, known, f"add {tag!r} to solvers/paradigms.json first")
+
+    def test_every_integration_has_a_contract(self):
+        """A modeller reads solvers/<id>/CONTRACT.md to know how this integration takes a
+        model, and an attempt refuses an integration without one. It answers the mapping
+        checklist of solvers/CONTRACT.md, heading by heading."""
+        generic = (ROOT / "solvers/CONTRACT.md").read_text(encoding="utf-8")
+        headings = re.findall(r"^\| `## (.+?)` \|", generic, re.M)
+        self.assertIn("Entrypoint", headings, "the mapping checklist lists the required headings")
+        for solver in self.integrations:
+            with self.subTest(solver=solver):
+                path = ROOT / "solvers" / solver / "CONTRACT.md"
+                self.assertTrue(path.is_file(), f"write solvers/{solver}/CONTRACT.md")
+                present = re.findall(r"^## (.+?)\s*$", path.read_text(encoding="utf-8"), re.M)
+                self.assertEqual([h for h in present if h in headings], headings,
+                                 "use every checklist heading, in order")
 
     def test_every_language_has_a_website_row(self):
         """`language` picks the label and the grammar above every model of an
