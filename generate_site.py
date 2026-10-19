@@ -36,8 +36,8 @@ ASSET_VERSION = "catalogue-v54"
 # Set by main() from the content of data.js.
 DATA_VERSION = ""
 SUBTITLE = (
-    "A growing collection of <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
-    "<strong>P</strong>roblems, with models for a wide range of solvers and paradigms."
+    "A growing collection of natural language <strong>D</strong>iscrete <strong>C</strong>ombinatorial "
+    "<strong>P</strong>roblems, <br>with executable models for a wide range of solvers and paradigms."
 )
 # The same sentence where markup cannot go: meta tags and link previews.
 SUBTITLE_TEXT = re.sub(r"<[^>]+>", "", SUBTITLE)
