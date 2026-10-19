@@ -3,7 +3,7 @@
 Satisfaction problems only. Pindakaas 0.6.0 has no optimiser, no enumeration and no global
 constraints, so the integration (`solvers/pindakaas_rust`, metadata `optimization: false`)
 drives CaDiCaL, enumerates with blocking clauses and offers tested decompositions as helpers.
-111 of the 112 satisfaction problems are retained, each accepted with at least 80 percent of the
+All 112 satisfaction problems are retained, each accepted with at least 80 percent of the
 available instances checked (profile: up to 99 instances, 2 solutions, 180 s per instance,
 `tolerate_inconclusive`). Written by Haiku agents blind (brief, instance JSON, contracts and the
 solver skill only). About 105 were retained on the first attempt.
@@ -13,9 +13,12 @@ solver skill only). About 105 were retained on the first attempt.
 - 119 problems were queued from the reference scan. Seven of them declare an objective in the brief
   and were dropped (blockers recorded): cmo_2012, coin3_application, covering_opl, diet,
   fancy_dress, flip_rows_cols, knapsack. best_host matched the text filter but is a
-  satisfaction problem and is retained. That leaves 112 satisfaction problems.
-- Not retained: hanging_weights (the diagram does not determine the bar tree; recorded in
-  `generation/blockers.json`, retry only after a specification fix). 111 of 112 are retained.
+  satisfaction problem and is retained. That leaves 112 satisfaction problems, all retained.
+- hanging_weights was first blocked by the modeller (the ASCII diagram does not determine the bar
+  tree). An Opus supervisor recovered the tree from the other solvers' accepted models and the
+  reference (all agree), wrote a formulation hint, and a Haiku retry retained it. The model adds
+  all-different over the 13 weights, which the description does not state; it does not change the
+  solution set (one solution with or without it).
 
 ## Changes made during the campaign
 
