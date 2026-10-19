@@ -46,3 +46,15 @@ Every claim below was checked by compiling and running it, not from documentatio
   and `!a`, `from_*_encoding` with a wrong number of literals.
 - Timings, one machine under load: 8-queens all 92 solutions in 28 ms, 12-queens all 14,200 in
   14 s, order-3 magic squares all 8 in 11 ms, Golomb ruler of 8 marks proven optimal in 3.4 s.
+- A `Linear` over an `IntVar` lists every value of its domain, with MixedRadix or the `AdderEncoder`
+  alike, and also for `IntVar::from_binary_encoding`: a domain of 0..=10^10 aborts at once with
+  "memory allocation of 80000000000 bytes failed". Dense `3x + 7y = n` with both as outputs: n = 10^4
+  and 10^5 take 83 MB, 10^6 takes 436 MB (0.9 s), 10^7 takes 1912 MB (2.7 s), 10^8 aborts.
+- A pseudo-Boolean sum over bit literals with 2^i coefficients, encoded with the `AdderEncoder`,
+  is cheap at any width: `3x + 7y = 10^15` over 0..=10^15 takes 0.4 s and 83 MB, and the answers
+  are correct. `IntVar::from_binary_encoding` without `constrain` lets the bits pass the top of the
+  range (17179869183 for a 0..=9999999999 variable), so bits need an explicit upper cut.
+- Two `from_binary_encoding` variables in one adder `Linear` abort with "Rust cannot catch foreign
+  exceptions".
+- A sparse domain (`RangeList::from_iter(values.iter().map(|&v| v..=v))`) costs by the number of
+  values, not the range.

@@ -236,6 +236,35 @@ solution = {"x": int(x.value()), "y": int(y.value()), "b": bool(b.value())}
 print(json.dumps(solution))
 """
 
+
+WIDE_REF = """
+# Data
+n = 1
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(0, 10**12, name="x")
+y = cp.intvar(0, 10**12, name="y")
+model = cp.Model(3 * x + 7 * y == 10**12 + n - 1)
+model.solve()
+solution = {"x": int(x.value()), "y": int(y.value())}
+print(json.dumps(solution))
+"""
+
+LIT_REF_REF = """
+# Data
+n = 2
+# End of data
+import cpmpy as cp
+import json
+b = cp.boolvar(name="b")
+x = cp.intvar(0, n, name="x")
+model = cp.Model(b == (x >= 1))
+model.solve()
+solution = {"b": bool(b.value()), "x": int(x.value())}
+print(json.dumps(solution))
+"""
+
 # output_shapes: a 2x2x2 integer cube, a 2x2 Boolean grid and a value beyond 32 bits.
 SHAPES_RS = """fn build(inst: &Instance, s: &mut Cadical) -> Res<Out> {
     let n = inst.int("n");
@@ -377,6 +406,35 @@ OVERFLOW_RS = (HEAD + DECLARE
                + RETURN_XY + TAIL)
 
 
+
+# wide_output: two numbers of 10^12 held in bits and declared as outputs; an IntVar of that
+# domain aborts the process. 3x + 7y = 10^12 has many solutions, three are enumerated.
+WIDE_RS = """fn build(inst: &Instance, s: &mut Cadical) -> Res<Out> {
+    let n = inst.int("n");
+    let x = wide_int(s, 0, 1_000_000_000_000)?;
+    let y = wide_int(s, 0, 1_000_000_000_000)?;
+    post_wide(s, x.exp() * 3 + y.exp() * 7, Comparator::Equal, 1_000_000_000_000 + n - 1)?;
+    let mut out = Out::new();
+    out.put("x", &x).put("y", &y);
+    Ok(out)
+}
+"""
+
+# lit_by_reference: a Boolean output handed over as `&Lit`, next to an integer.
+LIT_REF_RS = """fn build(inst: &Instance, s: &mut Cadical) -> Res<Out> {
+    let n = inst.int("n");
+    let x = IntVar::new(0..=n);
+    let b = reify_le(s, iv(&x), 0)?;
+    let big = s.new_lit();
+    s.add_clause([big, b])?;
+    s.add_clause([!big, !b])?;
+    let mut out = Out::new();
+    out.put("b", &big).put("x", &x);
+    Ok(out)
+}
+"""
+
+
 def main():
     results = {}
     with tempfile.TemporaryDirectory(prefix="dcp_readiness_") as directory:
@@ -428,6 +486,11 @@ def main():
         results["alldiff_helper"] = result["accepted"] and result["solutions_checked"] == 24
         result = check("implied_helper", IMPLIED_RS, reference=IMPLIED_REF, solution_limit=60)
         results["implied_helper"] = result["accepted"] and result["solutions_checked"] == 51
+        result = check("wide_output", WIDE_RS, reference=WIDE_REF, solution_limit=3,
+                       execution_timeout=120, reference_timeout=120)
+        results["wide_output"] = result["accepted"] and result["solutions_checked"] == 3
+        result = check("lit_by_reference", LIT_REF_RS, reference=LIT_REF_REF, solution_limit=5)
+        results["lit_by_reference"] = result["accepted"] and result["solutions_checked"] == 3
         result = evaluate(candidate("overflow_guard", OVERFLOW_RS), "readiness", SOLVER, reference_source=REFERENCE)
         results["overflow_guard"] = (result["reason"] == "execution_error"
                                      and "too wide" in json.dumps(result))

@@ -152,6 +152,30 @@ fn define(s: &mut Cadical, e: LinExp) -> Result<IntVar, Unsatisfiable> {
 the other helpers as tested code; `assets/conditional-constraints` shows all 51 solutions of
 `b -> x + y <= 4` surviving.
 
+### Wide integers and sparse domains
+
+Every linear constraint over an `IntVar` enumerates its domain values, whichever encoder you
+pick (MixedRadix by default, the `AdderEncoder` too). Measured on `3x + 7y = n` with dense
+domains `0..=n`: `10^5` needs about 83 MB, `10^6` about 0.4 GB, `10^7` about 1.9 GB, and `10^8`
+aborts allocating 8 bytes per value. An `IntVar` of a few thousand values that nothing has
+encoded already costs a lot when read, because the equality view is a direct encoding with a
+quadratic at-most-one. Two ways around it:
+
+- **Sparse domain.** A variable that takes few values spread over a wide range gets only those:
+  `IntVar::new(RangeList::from_iter(values.iter().map(|&v| v..=v)))` (`RangeList` is
+  `pindakaas::RangeList`). The cost follows the number of values, not the range.
+- **Bits.** Hold the value as literals `b_i`, worth `lo + sum 2^i b_i`, and post constraints as
+  sums over them with `LinearEncoder::new(AdderEncoder::default())`. Ten- and fifteen-digit
+  values encode in under a second and 100 MB. Cut the top with `sum 2^i b_i <= hi - lo`,
+  because the bits alone reach the next power of two. Small `IntVar` terms may share the
+  constraint. Read the value from the bits, and exclude a value with a clause that negates its
+  bit pattern. Do not wrap the bits in `IntVar::from_binary_encoding` and post linear
+  constraints on it: that path still enumerates the domain and aborts. The adder propagates
+  weakly, so use it for the wide arithmetic only. `assets/wide-integers` is a runnable example.
+
+`x.with_binary_encoding(..)` followed by `x.constrain(..)` gives an `IntVar` that no linear
+constraint touches a readable binary view instead of an equality view.
+
 ## Solving
 
 - **Solve:** `s.solve()` returns `SolveResult::Satisfied(sol)`, `Unsatisfiable(_)` or
@@ -189,7 +213,9 @@ the other helpers as tested code; `assets/conditional-constraints` shows all 51 
 | Panic "attempt to divide by zero" | a zero coefficient on an integer term; leave the term out |
 | Panic on `IntVar::new(5..=3)` or on `CardinalityOne` with `a` and `!a` | an empty domain or a trivially contradictory call; guard it |
 | Wrong answers after reusing a variable in a second solver | an integer variable belongs to the first solver that encodes it; rebuild fresh variables for a new solver |
-| Out of memory or a C++ `bad_alloc` abort | a wide domain: order and equality views grow with the domain (`3x + 7y = 10^7` needs millions of variables, `10^9` aborts). Keep domains small, derive tight bounds from the data, avoid `at_least`, `at_most` and `equals` on wide variables |
+| Out of memory or a C++ `bad_alloc` abort | a wide domain: a linear constraint lists every value of an `IntVar` (about 1.9 GB at `10^7`, abort at `10^8`), and order and equality views grow with the domain too. Keep domains small, derive tight bounds from the data, avoid `at_least`, `at_most` and `equals` on wide variables; see Wide integers and sparse domains (sparse `RangeList` domain, or bits with the adder encoder) |
+| A grid of integer variables behaves as one variable | `IntVar` is `Clone` and a clone is the same variable: `vec![x.clone(); n]` repeats one variable; call `IntVar::new` for each |
+| `E0499` borrowing the solver twice | two uses of `s` in one expression, such as `f(s, x.equals(s, v)?)`; bind `x.equals(s, v)?` to a local first |
 | An encoding runs past the deadline | encoding does not poll the terminate callback; keep weights and domains small |
 | Compile error on `3 * x`, on `sum()`, or "borrowed" on `x.equals(..)` | write `x.clone() * 3`, accumulate with `+=`, and read `sol` values into plain integers before calling the solver again |
 | `no method solve_assuming` or `set_terminate_callback` | import the traits `Assumptions` and `TerminateCallback` |
@@ -202,4 +228,5 @@ the other helpers as tested code; `assets/conditional-constraints` shows all 51 
 - API reference: <https://docs.rs/pindakaas/0.6.0/pindakaas/>
 - Repository and changelog: <https://github.com/pindakaashq/pindakaas>
 - Examples in `assets/`: `queens-enumeration`, `conditional-constraints`, `element-table-minmax`,
-  `magic-square`, `infeasible-and-deadline`. Each is a cargo project that checks its own results.
+  `magic-square`, `infeasible-and-deadline`, `wide-integers`. Each is a cargo project that checks
+  its own results.

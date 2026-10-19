@@ -24,8 +24,8 @@ fn main() { dcp_pindakaas::run(build); }
 so the file is a list of items (functions, structs, consts, `use` declarations) in the
 root of a binary crate that has already glob-imported the prelude. The prelude gives:
 `Instance`, `Out`, `Node`, `IntoNode`, `Res`, `Cadical`, `IntVar`, `Lit`, `BoolVal`,
-`LinExp`, `Linear`, `Comparator`, `LinearEncoder`, `StaticLinEncoder`, `Formula`,
-`TseitinEncoder`, `Unsatisfiable`, the traits `ClauseDatabase` and `ClauseDatabaseTools`,
+`LinExp`, `Linear`, `Comparator`, `LinearEncoder`, `StaticLinEncoder`, `AdderEncoder`,
+`RangeList`, `Wide`, `Formula`, `TseitinEncoder`, `Unsatisfiable`, the traits `ClauseDatabase` and `ClauseDatabaseTools`,
 the harness helpers listed under Helpers, the `pindakaas` crate itself, and `serde_json`'s
 `Value` and `json!`. Anything else comes from `std` or from `dcp_pindakaas::pindakaas::...`;
 no other crate is linked. Do not define `fn main`, do not write `#![...]` crate attributes
@@ -71,18 +71,22 @@ out.put("x", &x).put("flags", &flags).put("k", 42i64);
 Ok(out)
 ```
 
-`put` takes an `IntVar` or `&IntVar` (an integer), a `Lit` or a `BoolVal` (a Boolean), an
-`i64` or `bool` constant, or a `Vec`, `&[T]` or `&Vec<T>` of these, which gives nested
-arrays. A repeated name panics. The harness does not compare names with the brief: a
+`put` takes an `IntVar` or `&IntVar` (an integer), a `Lit`, `&Lit` or a `BoolVal` (a Boolean),
+an `i64` or `bool` constant, a `Wide` or `&Wide` (an integer held in bits, see Wide integers),
+or a `Vec`, `&[T]` or `&Vec<T>` of these, which gives nested arrays.
+`out.put_bits(name, bits, offset)` declares `offset + sum 2^i * bits[i]` from raw literals
+(least significant first, at most 62 bits). A repeated name panics. The harness does not compare names with the brief: a
 missing or extra name is rejected by the evaluator. An `Out` with no outputs is an `error`.
 Constants are reported verbatim. Leaves are integers and Booleans only: a Boolean is
-written `true`/`false`. Integer outputs carry the full 64-bit range, but see the trap on
-wide integer variables: a constant such as `30000000002i64` is fine, a variable with that
-domain is not.
+written `true`/`false`. Integer outputs carry the full 64-bit range: a constant such as
+`30000000002i64` is fine, and so is a `Wide` of that size. An `IntVar` with such a domain is
+not (see Wide integers).
 
-Before solving, the harness gives every integer output a view (an equality literal for its
-minimum), because `IntVar::value` of a variable that has none returns the domain minimum
-whatever the model says.
+Before solving, the harness gives every integer output a view, because `IntVar::value` of
+a variable that has none returns the domain minimum whatever the model says. The view is an
+equality literal for the minimum, except for an `IntVar` output of more than 1024 values
+that no constraint has encoded: that one is read and blocked through a binary encoding
+(fresh bits), and so is every `Wide` or `put_bits` output, with no equality view.
 
 ## Objective
 
@@ -133,16 +137,40 @@ takes the solver first and returns `Res`:
 | `define(s, expr) -> IntVar` | a fresh `z == expr`, domain = bounds of `expr`; `expr` has no constant |
 | `post_if(s, &conds, expr, cmp, k)` | `conds -> expr <cmp> k`, in the safe form (see Traps) |
 | `reify_le(s, expr, k) -> Lit` / `reify_eq(s, expr, k) -> Lit` | `b <-> expr <= k` / `b <-> expr == k` |
-| `lit_of(s, boolval) -> Lit` | a literal for a literal-or-constant `BoolVal` |
+| `lit_of(s, boolval) -> Res<Lit>` | a literal for a literal-or-constant `BoolVal`; write `lit_of(s, b)?`, and bind `x.equals(s, v)?` to a local first (two uses of `s` in one expression do not borrow-check) |
+| `wide_int(s, lo, hi) -> Res<Wide>` | a fresh integer of up to 62 bits held as literals (`w.bits`, `w.lo`, `w.exp()`); see Wide integers |
+| `post_wide(s, expr, cmp, k)` | like `post`, with an adder network; use it for every constraint that touches a `Wide` |
 | `all_different(s, &xs)` | at most one variable per value |
 | `count_eq(s, &xs, v, &c)` | `c == #{i : xs[i] == v}` |
 | `element_const(s, &idx, &arr, &r)` / `element_var(s, &idx, &xs, &r)` | `r == arr[idx]` / `r == xs[idx]`, 0-based |
 | `table(s, &xs, &rows)` | `xs` is one of the rows |
 | `minimum(s, &xs, &m)` / `maximum(s, &xs, &m)` | `m == min(xs)` / `m == max(xs)` |
-| `times(s, &x, &y, &z)` | `z == x * y`, cases on `x`'s values (small domain) |
+| `times(s, &x, &y, &z)` | `z == x * y`, one case per value of `x` over the whole of `x`'s domain, each defining a sum over `z`: memory grows with cases times the domain of `z`, so it fails (2 GB) for domains of a few hundred with products above about 10^5; use a table or literal-based products there |
 | `mod_const(s, &x, k, &r)` | `r == x mod k`, `x >= 0`, `k > 0` constant |
 | `abs_eq(s, &x, &a)` | `a == |x|` |
 | `iv(&x)`, `bx(boolval)`, `scaled(&x, c)` | integer variable, `BoolVal` or `c * x` as a `LinExp` term |
+
+## Wide integers
+
+An `IntVar` whose domain passes about 10^7 values cannot appear in any linear constraint:
+Pindakaas lists every domain value while encoding, and at 10^8 the process aborts. For a value
+of that size (a ten-digit number, a sum of millions) hold it in bits:
+
+```rust
+let w = wide_int(s, 0, 9_999_999_999)?;           // bits w.bits, value lo + sum 2^i * bits[i]
+post_wide(s, w.exp() - digits_expr, Comparator::Equal, 0)?;   // constrain it through w.exp()
+out.put("number", &w);
+```
+
+`post_wide` encodes with an adder network: cheap at any width up to 2^62 (two numbers of 10^15
+with `3x + 7y = 10^15` take 0.4 s and 83 MB), weak in propagation, so keep small-domain
+constraints on `post`. Other `Wide`s, literals and small `IntVar`s may share the expression.
+Divisibility: `x = k*q + r` with `q` a `Wide` and `0 <= r < k`. A condition on a wide value
+(`x <= t`): a literal `b` with `x + M*b <= t + M` and `x + (t+1)*b >= t+1` in `post_wide`
+(`M` the largest value minus `t`). Never call `at_least`, `at_most` or `equals` on a wide
+value, and do not wrap bits in `IntVar::from_binary_encoding` and post linear constraints on
+it: that path still enumerates the domain and aborts. Single bits are `w.bits[i]`; a
+`wide_int` over a range that is not a power of two adds one cut so the top is not reachable.
 
 ## Traps
 
@@ -166,11 +194,20 @@ wrong answers.
 - **Domains are `IntVar::new(a..=b)`.** An empty range (`5..=3`) panics, later. A zero
   coefficient on an integer term panics ("attempt to divide by zero"); use `scaled`, or
   leave the term out. Coefficients on literals may be zero.
-- **Big domains are expensive.** An integer variable has order and equality views that grow
-  with its domain: `3x + 7y = 10^7` on domains of that size needs millions of variables,
-  and `10^9` aborts the process with a C++ `bad_alloc` (status `error`). Keep domains small,
-  derive tight bounds from the instance, and keep `x.at_least(..)`, `at_most` and `equals` off
-  wide variables.
+- **Big domains are expensive.** Every linear constraint over an `IntVar` lists each value
+  of its domain, whichever encoder it uses, and order and equality views grow with the domain
+  as well. Measured on `3x + 7y = n` with both as outputs: `n = 10^4` and `10^5` take 83 MB,
+  `10^6` 0.4 GB, `10^7` 1.9 GB (near the 2 GB limit), `10^8` aborts the process with a C++
+  `bad_alloc` (status `error`). An output `IntVar` of a few thousand values that nothing
+  encodes already runs out of memory in the equality view. Keep domains small and derive
+  tight bounds from the instance; a variable that takes a few values spread over a wide range
+  gets a sparse domain, `IntVar::new(RangeList::from_iter(values.iter().map(|&v| v..=v)))`
+  (`RangeList` is in the prelude); a value that is genuinely wide uses a `Wide`. Keep
+  `x.at_least(..)`, `at_most` and `equals` off wide variables.
+- **`IntVar` is `Clone` and a clone is the same variable.** Building a grid with
+  `vec![x.clone(); n]` makes every cell one variable; create each with `IntVar::new`.
+- **Standard types need a path or a `use`.** The prelude does not import `HashMap`,
+  `BTreeMap` and the like: write `std::collections::BTreeMap` or add a `use` line.
 - **Encoding ignores the time budget.** A cardinality or pseudo-Boolean constraint with
   large coefficients (a Totalizer over weights of about 10^6) can take seconds to encode
   and does not stop at the deadline.

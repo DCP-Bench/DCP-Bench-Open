@@ -29,7 +29,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
-use pindakaas::constraint::linear::{Comparator, LinExp, Linear, LinearEncoder};
+use pindakaas::constraint::linear::{AdderEncoder, Comparator, LinExp, Linear, LinearEncoder};
 use pindakaas::decision::integer::IntVar;
 use pindakaas::solver::cadical::Cadical;
 use pindakaas::solver::{SolveResult, Solver, TermSignal, TerminateCallback};
@@ -233,6 +233,15 @@ pub enum Node {
     ConstInt(i64),
     ConstBool(bool),
     List(Vec<Node>),
+    /// `offset + sum 2^i * bits[i]`, least significant bit first.
+    Bits(Vec<Lit>, i64),
+}
+
+/// A literal handed by reference, as in `out.put("b", &lit)`.
+impl IntoNode for &Lit {
+    fn node(self) -> Node {
+        Node::Bool(*self)
+    }
 }
 
 /// Anything a submission can hand to [`Out::put`].
@@ -333,6 +342,76 @@ impl Out {
         self.outputs.push((name.to_string(), value.node()));
         self
     }
+
+    /// Declare an integer output held in bits: `offset + sum 2^i * bits[i]`, least
+    /// significant first. The model constrains the bits itself.
+    pub fn put_bits(&mut self, name: &str, bits: Vec<Lit>, offset: i64) -> &mut Out {
+        assert!(bits.len() <= 62, "output {name}: {} bits overflow i64", bits.len());
+        self.put(name, Node::Bits(bits, offset))
+    }
+}
+
+/// Number of bits that hold `0..=span`.
+fn bits_for(span: i64) -> usize {
+    (64 - (span as u64).leading_zeros()) as usize
+}
+
+/// A wide integer: `lo + sum 2^i * bits[i]`, least significant bit first. It is not an
+/// `IntVar`: a Pindakaas linear constraint over an `IntVar` lists every value of its
+/// domain, which aborts past about 10^8 values. Constrain it through [`Wide::exp`] and
+/// [`post_wide`], and declare it as an output with `out.put(name, &w)`.
+#[derive(Clone, Debug)]
+pub struct Wide {
+    pub bits: Vec<Lit>,
+    pub lo: i64,
+}
+
+impl Wide {
+    /// The value as a linear expression over the bits (constant `lo` included).
+    pub fn exp(&self) -> LinExp {
+        let mut e = LinExp::from(self.lo);
+        for (i, &b) in self.bits.iter().enumerate() {
+            e += LinExp::from(b) * (1i64 << i);
+        }
+        e
+    }
+}
+
+/// A fresh wide integer over `lo..=hi`: `bits_for(hi - lo)` literals, with the top of the
+/// range cut by one adder constraint.
+pub fn wide_int(s: &mut Cadical, lo: i64, hi: i64) -> Res<Wide> {
+    assert!(lo < hi, "wide_int({lo}, {hi}): empty or single-valued range");
+    let w = Wide { bits: (0..bits_for(hi - lo)).map(|_| s.new_lit()).collect(), lo };
+    if hi - lo + 1 != 1i64 << w.bits.len() {
+        post_wide(s, w.exp(), Comparator::LessEq, hi)?;
+    }
+    Ok(w)
+}
+
+impl IntoNode for &Wide {
+    fn node(self) -> Node {
+        assert!(self.bits.len() <= 62, "a wide output of {} bits overflows i64", self.bits.len());
+        Node::Bits(self.bits.clone(), self.lo)
+    }
+}
+
+impl IntoNode for Wide {
+    fn node(self) -> Node {
+        (&self).node()
+    }
+}
+
+/// Outputs with more values than this, and no encoding yet, are read and blocked
+/// through bits rather than an equality view (a direct encoding, one literal per value).
+const WIDE_OUTPUT: usize = 1024;
+
+/// Bits that read an output `x` no constraint has encoded: they become its binary encoding.
+fn wide_view(s: &mut Cadical, x: &IntVar) -> Res<Vec<Lit>> {
+    let bits: Vec<Lit> = (0..bits_for(x.max() - x.min())).map(|_| s.new_lit()).collect();
+    let bv: Vec<BoolVal> = bits.iter().map(|&l| BoolVal::Lit(l)).collect();
+    x.with_binary_encoding(s, &bv, x.min(), None)?;
+    x.constrain(s)?;
+    Ok(bits)
 }
 
 // ---------------------------------------------------------------------------
@@ -368,6 +447,22 @@ pub fn scaled(x: &IntVar, c: i64) -> LinExp {
 /// Panics when the coefficients times the variable ranges can reach 2^62: Pindakaas
 /// overflows `i64` silently there and drops or accepts constraints it should not.
 pub fn post(s: &mut Cadical, e: LinExp, cmp: Comparator, k: i64) -> Res {
+    let n = checked(e, k);
+    s.encode(&Linear::new(n, cmp, k), &enc())
+}
+
+/// Posts `expr <cmp> k` with an adder network. Integer terms enter through their binary
+/// encoding (a `wide_int`'s bits), so the cost grows with the logarithm of the ranges,
+/// where [`post`] enumerates every value of every integer term. Use it for every
+/// constraint that touches a `wide_int`. It propagates weakly, so keep small-domain
+/// reasoning on [`post`].
+pub fn post_wide(s: &mut Cadical, e: LinExp, cmp: Comparator, k: i64) -> Res {
+    let n = checked(e, k);
+    s.encode(&Linear::new(n, cmp, k), &LinearEncoder::new(AdderEncoder::default()))
+}
+
+/// `e` as one expression, after checking it stays clear of `i64` overflow.
+fn checked(e: LinExp, k: i64) -> LinExp {
     let mut n = LinExp::default();
     n += e;
     let mut reach: i128 = (k as i128).abs();
@@ -382,7 +477,7 @@ pub fn post(s: &mut Cadical, e: LinExp, cmp: Comparator, k: i64) -> Res {
         reach < (1i128 << 62),
         "linear constraint too wide: coefficients times ranges reach {reach}, over 2^62"
     );
-    s.encode(&Linear::new(n, cmp, k), &enc())
+    n
 }
 
 /// A fresh integer variable `z` with `z == e`, its domain the bounds of `e`. `e` must
@@ -639,9 +734,25 @@ pub fn run(build: fn(&Instance, &mut Cadical) -> Res<Out>) {
 
     // `value()` of an integer variable with no encoding is its domain minimum, whatever the
     // model says. Giving each output an equality literal makes it a real, readable variable.
+    // A wide output without a direct encoding is read through bits instead: an equality
+    // view on it would cost one literal per value and a quadratic at-most-one.
+    let mut bits: Vec<Option<(Vec<Lit>, i64)>> = Vec::new();
     for leaf in &flat {
-        if let Node::Int(x) = leaf {
-            if x.card() > 1 && x.equals(&mut s, x.min()).is_err() {
+        let view = match leaf {
+            Node::Bits(b, offset) => Ok(Some((b.clone(), *offset))),
+            Node::Int(x)
+                if x.card() > WIDE_OUTPUT
+                    && !x.has_direct_encoding()
+                    && !x.has_order_encoding()
+                    && !x.has_binary_encoding() => {
+                wide_view(&mut s, x).map(|b| Some((b, x.min())))
+            }
+            Node::Int(x) if x.card() > 1 => x.equals(&mut s, x.min()).map(|_| None),
+            _ => Ok(None),
+        };
+        match view {
+            Ok(v) => bits.push(v),
+            Err(_) => {
                 return status("unsat", "the formula is unsatisfiable while the outputs are encoded", elapsed());
             }
         }
@@ -667,12 +778,19 @@ pub fn run(build: fn(&Instance, &mut Cadical) -> Res<Out>) {
         let row: Result<Option<Vec<Json>>, ()> = match s.solve() {
             SolveResult::Satisfied(sol) => Ok(Some(
                 flat.iter()
-                    .map(|leaf| match leaf {
+                    .zip(&bits)
+                    .map(|(leaf, view)| match (leaf, view) {
+                        (_, Some((b, offset))) => json!(
+                            b.iter().enumerate().fold(*offset, |acc, (i, l)| acc
+                                + if sol.value(*l) { 1i64 << i } else { 0 })
+                        ),
+                        (leaf, None) => match leaf {
                         Node::Int(x) => json!(x.value(&sol)),
                         Node::Bool(b) => json!(sol.value(*b)),
                         Node::ConstInt(c) => json!(c),
                         Node::ConstBool(c) => json!(c),
-                        Node::List(_) => unreachable!("lists are flattened"),
+                        Node::Bits(..) | Node::List(_) => unreachable!("bits have a view; lists are flattened"),
+                        },
                     })
                     .collect(),
             )),
@@ -687,8 +805,15 @@ pub fn run(build: fn(&Instance, &mut Cadical) -> Res<Out>) {
 
         // Block this assignment of the declared outputs (constants carry no information).
         let mut block: Vec<BoolVal> = Vec::new();
-        for (leaf, value) in flat.iter().zip(&values) {
+        for ((leaf, value), view) in flat.iter().zip(&values).zip(&bits) {
             match leaf {
+                _ if view.is_some() => {
+                    let (b, offset) = view.as_ref().unwrap();
+                    let v = value.as_i64().expect("integer value") - offset;
+                    for (i, l) in b.iter().enumerate() {
+                        block.push(BoolVal::Lit(if (v >> i) & 1 == 1 { !*l } else { *l }));
+                    }
+                }
                 Node::Int(x) if x.card() > 1 => {
                     let v = value.as_i64().expect("integer value");
                     block.push(!x.equals(&mut s, v).expect("the value is in the domain"));
@@ -716,11 +841,12 @@ pub fn run(build: fn(&Instance, &mut Cadical) -> Res<Out>) {
 pub mod prelude {
     pub use crate::{
         Instance, IntoNode, Node, Out, Res, abs_eq, all_different, bx, count_eq, define, element_const,
-        element_var, iv, lit_of, maximum, minimum, mod_const, post, post_if, reify_eq, reify_le, scaled,
-        table, times,
+        element_var, iv, lit_of, maximum, minimum, mod_const, post, post_if, post_wide, reify_eq, reify_le, scaled,
+        table, times, wide_int, Wide,
     };
     pub use pindakaas;
-    pub use pindakaas::constraint::linear::{Comparator, LinExp, Linear, LinearEncoder, StaticLinEncoder};
+    pub use pindakaas::RangeList;
+    pub use pindakaas::constraint::linear::{AdderEncoder, Comparator, LinExp, Linear, LinearEncoder, StaticLinEncoder};
     pub use pindakaas::constraint::propositional_logic::{Formula, TseitinEncoder};
     pub use pindakaas::decision::integer::IntVar;
     pub use pindakaas::solver::cadical::Cadical;
