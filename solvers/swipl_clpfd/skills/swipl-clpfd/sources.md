@@ -1,8 +1,8 @@
 # Sources for `swipl-clpfd`
 
-Tested with SWI-Prolog 9.2.9 (`swipl --version` in the `dcp-eval/swipl_clpfd:v1` image, x86_64 Linux, Python 3.11 in the same image), with library(clpfd) and library(time) bundled.
+Tested with SWI-Prolog 9.2.9 (`swipl --version` in a container built from `swipl:9.2.9`, x86_64 Linux, Python 3.11 in the same container), with library(clpfd) and library(time) bundled.
 
-Refactored from the earlier integration skill for this solver; examples verified inside the dcp-eval/swipl_clpfd:v1 image.
+Refactored from the earlier integration skill for this solver; examples verified inside that container.
 
 Existing skills: none found for SWI-Prolog CLP(FD) when this skill was written.
 
@@ -15,7 +15,7 @@ Documentation this skill's instructions were written from. Add an entry whenever
 - <https://www.swi-prolog.org/build/Debian.md> — install routes: PPA for current releases, distribution packages may lag, checked 2026-10-15
 - <https://hub.docker.com/_/swipl> — `swipl:9.2.9`, the image the tested runtime was built from
 
-Every constraint in the API tables and every idiom in this skill was checked by running SWI-Prolog 9.2.9 inside the dcp-eval/swipl_clpfd:v1 image, not taken from documentation alone:
+Every constraint in the API tables and every idiom in this skill was checked by running SWI-Prolog 9.2.9 inside that container, not taken from documentation alone:
 
 - `all_distinct/1`, `all_different/1`, `sum/3`, `scalar_product/4`,
   `element/3`, `global_cardinality/2`, `circuit/1`, `tuples_in/2`,
@@ -54,7 +54,7 @@ Every constraint in the API tables and every idiom in this skill was checked by 
 ## Independent toy test (add-solver)
 
 An independent tester solved the add-solver toy problems from this skill alone, in the
-dcp-eval/swipl_clpfd:v1 image (read-only mount, `--network none`), with the runner's timeout raised to
+same container (read-only mount, `--network none`), with the runner's timeout raised to
 400 s for the final run. Result: **18/18 passed** with the final models, with one caveat: jobshop/ft06
 needs about 300 s with the plain `labeling([min(Mk)], ...)` and fails at the runner's default 120 s
 timeout; it passes at 400 s and, with the bounded descent in SKILL.md, reaches 55 within 15 s.

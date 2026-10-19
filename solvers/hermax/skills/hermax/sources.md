@@ -45,7 +45,7 @@ Verified by running (inside the image):
   or `optimum`). The status stays in the table because `SolveResult.ok` covers it.
 
 Independent toy test (add-solver toy problems, solved by a tester from this skill only,
-dcp-eval/hermax:v1): 18/18 passed after one repair round. First run 13/18: all five
+in the same image): 18/18 passed after one repair round. First run 13/18: all five
 failures were knapsack variants with the minimise sign used for a maximisation (the Common
 issues sign row was then added). Per-problem results:
 
@@ -75,4 +75,4 @@ Tester total: **18/18 passed** (final run, after one repair round).
 The README cross-cutting failures ("only instances with name/note keys fail", "exit code with
 no useful message") did not occur in the tester's runs; the tester read only the named keys.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/hermax:v1 image.
+Refactored from an earlier integration skill; examples verified inside the same image.

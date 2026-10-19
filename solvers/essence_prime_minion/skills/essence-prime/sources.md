@@ -2,7 +2,7 @@
 
 Tested with Savile Row 1.11.1 (bundled Minion), OpenJDK 17, Python 3.10, Ubuntu 22.04 (container).
 
-Refactored from the DCP-Bench integration skill; examples verified with Savile Row 1.11.1.
+Refactored from an earlier integration skill; examples verified with Savile Row 1.11.1.
 The integration-specific rules that skill carried (how a benchmark runner binds instance
 fields, enumerates and reports) now live in the integration's contract, not here.
 
@@ -21,10 +21,9 @@ Existing skills: none found for Essence' / Savile Row when the integration skill
   in `references/language.md` (2.1 expressions, 2.1.9 division, 2.1.16 quantifiers, 2.1.19
   table, 2.2 declarations, 2.3 where, App. B precedence).
 - Nightingale and Rendl, "Essence' Description", arXiv:1601.02865 - cross-check of the language.
-- `solvers/essence_prime_minion/run.py` and `readiness_test.py` in the DCP-Bench Open repository -
-  the integration's submission contract (now in `solvers/essence_prime_minion/CONTRACT.md`);
+- The submission contract of an earlier Savile Row integration;
   the padding-plus-row-length treatment of ragged data in the JSON example follows it.
-- `rosetta-skills/model-generator/references/acceptance.md` (DCP-Bench Open) - the comment
+- A model-acceptance checklist for generated models - the comment
   convention kept in Modelling rules (problem line, statement-worded comment per block).
 - Lessons in Modelling rules, Pitfalls and Search and performance come from the campaign runs
   of this integration (Essence' models checked by its evaluator).

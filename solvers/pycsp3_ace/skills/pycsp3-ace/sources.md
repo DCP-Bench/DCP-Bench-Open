@@ -5,7 +5,7 @@ Python 3.12.11, OpenJDK 17.0.20, Debian 12 (in a container, no network).
 
 Existing skills: none found for PyCSP3 or ACE (not searched on skills.sh).
 
-- <https://pypi.org/project/pycsp3/2.6.1/>: pycsp3 2.6.1 wheel (sha256 06e86b0b8aaed3a2f72acf9d5cca32f0b7ef86a45fa0d30a2308871883dbf4d5), read from the extracted package: `__init__.py` (data binding, `solve`, `minimize`, `status`, `bound`, `n_solutions`, `solver`, `clear`), `compiler.py` (`-data`, `-output`, one-key data, named-tuple conversion), `functions.py` (`value`, `values`), `solvers/solver.py` (result extraction, solver log, the `d FOUND SOLUTIONS` parsing), `solvers/ace/ace.py`
+- <https://pypi.org/project/pycsp3/2.6.1/>: pycsp3 2.6.1 wheel (sha256 06e86b0b8aaed3a2f72acf9d5cca32f0b7ef86a45fa0d30a2308871883dbf4d5), read from the extracted package: `__init__.py` (data binding, `solve`, `minimize`, `status`, `bound`, `n_solutions`, `solver`, `clear`), `compiler.py` (`-data`, `-output`, one-key data, named-tuple conversion), `functions.py` (`value`, `values`), `solvers/solver.py` (result extraction, solver log, the `d FOUND SOLUTIONS` parsing), `pycsp3/solvers/ace/ace.py`
 - <https://pycsp.org/>: PyCSP3 documentation, for the modelling API (`Var`, `VarArray`, `satisfy`, `minimize`, global constraints); installation page <http://pycsp.org/documentation/installation>; models <http://pycsp.org/models/>
 - <https://github.com/xcsp3team/pycsp3>: source; `docs/optionsSolvers.pdf` for solver options (named in `solve()`'s docstring)
 - <https://www.cril.univ-artois.fr/~lecoutre/ace/>: ACE solver, bundled as ACE-2.6.jar in pycsp3 2.6.1; its option list from `java -jar ACE-2.6.jar` (`-t`, `-s`, `-seed`, `-v`, `-ev`)

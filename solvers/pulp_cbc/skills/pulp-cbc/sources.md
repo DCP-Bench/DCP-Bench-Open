@@ -1,8 +1,8 @@
 # Sources for `pulp-cbc`
 
-Tested with PuLP 3.3.2 (which bundles CBC 2.10.3), Python 3.12.11, on Linux x86_64, inside the image `dcp-eval/pulp_cbc:v1`.
+Tested with PuLP 3.3.2 (which bundles CBC 2.10.3), Python 3.12.11, on Linux x86_64, inside a container image.
 
-Existing skills: none searched for this version; the skill was refactored from the repository's DCP-Bench integration skill, which holds the API facts below.
+Existing skills: none searched for this version; the skill was refactored from an earlier integration skill, which holds the API facts below.
 
 - <https://coin-or.github.io/pulp/technical/pulp.html> — PuLP API reference (accessed 2026-09-14, and the variable, problem and solve calls checked in 2026-10-15)
 - <https://coin-or.github.io/pulp/> — PuLP user guide (accessed 2026-09-14)
@@ -14,7 +14,7 @@ Existing skills: none searched for this version; the skill was refactored from t
 
 Verified by running (inside the image): `x*y`, `x*x`, `abs(x)`, `x/y` and `x%2` raise `TypeError`, while `x/2` is linear; `x != y` adds no constraint and raises no error; a second bare objective overwrites the first with a `UserWarning`; a `Binary` reports `Integer` with bounds 0 and 1, and an unbounded `Integer` reports `None`; a satisfaction problem with no objective solves with status 1 and `objective` `None`; `add_variable_dicts` with two index sets gives `x[i][j]`, and `x[i, j]` raises `KeyError`; a 200-item, 10-constraint knapsack under `timeLimit=2` gives status `Optimal` with `sol_status` 2; a 60-item equality subset-sum under `timeLimit=2` gives status 0 with no values; an infeasible model gives status -1 and an unbounded one -2; the satisfaction snippet in SKILL.md gives "satisfiable" (`Optimal`, `sol_status` 1), "unsatisfiable" (`Infeasible`, -1) and "unknown" (`Not Solved`, 0, under a time limit); `PULP_CBC_CMD().available()` returns the bundled binary's path; `COIN_CMD` without a path fails to find `cbc`; `PULP_CBC_CMD(path=...)` raises `PulpSolverError` (use `COIN_CMD(path=...)`); `msg=True` prints CBC's log to stdout, `logPath` writes a file, and `writeLP` works; `sum()` takes 0.28 s and `pulp.lpSum` 0.001 s on 3,000 variables; the AND, all-different and disjunction encodings solve to the expected values; every program in `assets/` prints its README's expected output; the job-shop example (`assets/job-shop-makespan`) gives makespan 11, matching a brute-force search over machine orders.
 
-Independent toy-problem test (a fresh agent given only SKILL.md and `assets/`, before this revision; the add-solver runner in `dcp-eval/pulp_cbc:v1`): 18/18 passed, with 0 repair attempts used.
+Independent toy-problem test (a fresh agent given only SKILL.md and `assets/`, before this revision; the add-solver runner in the same image): 18/18 passed, with 0 repair attempts used.
 
 | Problem / instance | Result |
 |---|---|
@@ -39,4 +39,4 @@ Independent toy-problem test (a fresh agent given only SKILL.md and `assets/`, b
 
 Total: 18/18 passed. The tester's gaps (job shop, `!=` big-M rule, `msg=True` on parsed stdout, satisfaction status, pinned objective, unverified 4.0 claims) were closed in SKILL.md and `assets/job-shop-makespan`; the toy-test rerun against this revision is not yet done.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/pulp_cbc:v1 image.
+Refactored from that earlier integration skill; examples verified inside the same image.

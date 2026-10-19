@@ -1,8 +1,8 @@
 # Sources for `pysat`
 
-Tested with python-sat 1.9.dev15 (the `1.9.dev15` build installed in `dcp-eval/pysat:v1`), Python 3.12.11, a Linux container.
+Tested with python-sat 1.9.dev15, Python 3.12.11, a Linux container.
 
-Existing skills: not searched in this refactor (the refactor brief did not ask for it). The text was rewritten from this repository's earlier pysat skill, and its claims were re-run.
+Existing skills: not searched in this refactor (the refactor brief did not ask for it). The text was rewritten from an earlier pysat skill, and its claims were re-run.
 
 - <https://pysathq.github.io/> — PySAT home page and documentation entry point
 - <https://pysathq.github.io/installation/> — installation, `pblib` extra
@@ -15,7 +15,7 @@ Existing skills: not searched in this refactor (the refactor brief did not ask f
 - <https://github.com/pysathq/pysat/tree/master/examples> — upstream examples (the examples here are written from scratch)
 - Licence: python-sat is MIT-licensed (package metadata in the image)
 
-Verified by running inside `dcp-eval/pysat:v1`:
+Verified by running inside that container:
 
 - **Every example in `assets/` runs and prints its expected output**; the Quick start and the all-solutions snippet in `SKILL.md` were run as written.
 - **Brute-force cross-checks** in the examples agree: all-solutions (9 solutions), all-optimal (2 optimal covers), minimise (cost 7), maximise (profit 24), scheduling (makespan 11).
@@ -52,4 +52,4 @@ Independent toy test (add-solver toy problems, solved from the skill alone by a 
 
 Run order: the first run scored 17/18 (jobshop/ft06 timed out after 120 s with horizon 197). One repair round on jobshop only brought it to 18/18 (75 s). That run used the skill before this round's changes; a fresh tester has not yet run the updated skill.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/pysat:v1 image.
+Refactored from an earlier integration skill; examples verified inside the same container.

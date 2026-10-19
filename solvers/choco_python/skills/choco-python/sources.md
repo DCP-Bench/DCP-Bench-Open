@@ -1,10 +1,10 @@
 # Sources for `choco-python`
 
-Tested with pychoco 0.2.1 and 0.4.0 (Choco bundled in each wheel), Python 3.12.11, inside the Linux
-image `dcp-eval/choco_python:v1`. Every example passes on both versions; 0.4.0 was installed into a
+Tested with pychoco 0.2.1 and 0.4.0 (Choco bundled in each wheel), Python 3.12.11, inside a Linux
+container image. Every example passes on both versions; 0.4.0 was installed into a
 scratch directory in the same image for the comparison.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/choco_python:v1 image.
+Refactored from an earlier integration skill; examples verified inside the same image.
 
 - <https://pychoco.readthedocs.io/en/latest/> — pychoco reference, accessed 2026-09-16
 - <https://pypi.org/project/pychoco/> — the wheels tested (0.2.1, 0.4.0); each bundles the Choco native library, so no JVM is needed
@@ -14,8 +14,7 @@ Refactored from the DCP-Bench integration skill; examples verified inside the dc
 ## Independent toy-problem test
 
 An independent agent wrote one program per toy problem from this skill alone (no access to the
-examples or the solver source), Python 3.12.11 with pychoco 0.2.1 in the image. Runner output:
-`scratchpad/skill-refactor/choco_python/test/results.txt` (during the refactor).
+examples or the solver source), Python 3.12.11 with pychoco 0.2.1 in the image.
 
 | Problem | Instances | Passed |
 |---|---|---|

@@ -1,8 +1,8 @@
 # Sources for `picat`
 
-Tested with Picat 3.9#12 (`picat --version`), Linux x86-64, inside the `dcp-eval/picat:v1` image (Python 3.12.11 on Debian bookworm).
+Tested with Picat 3.9#12 (`picat --version`), Linux x86-64, inside a container image (Python 3.12.11 on Debian bookworm).
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/picat:v1 image.
+Refactored from an earlier integration skill; examples verified inside the same image.
 
 Existing skills: none found for Picat when this skill was first written.
 
@@ -35,7 +35,7 @@ Verified by running: every example under `assets/` and the Quick start, in the i
 
 ## Independent toy test
 
-An independent tester solved the add-solver toy problems from this skill alone, running each model in `dcp-eval/picat:v1`. All 18 instances passed.
+An independent tester solved the add-solver toy problems from this skill alone, running each model in the same image. All 18 instances passed.
 
 | Problem | Instances | Passed |
 |---|---|---|

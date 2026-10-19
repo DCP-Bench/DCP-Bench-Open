@@ -3,11 +3,11 @@
 Documentation this skill's instructions were written from. Add an entry whenever
 a claim here comes from a specific page or version.
 
-Tested with gurobipy 13.0.3 (Gurobi Optimizer 13.0.3), Python 3.12.11, NumPy 2.4.6 and SciPy 1.18.1, inside the image `dcp-eval/gurobipy_python:v1` (Debian 12, Linux, no network).
+Tested with gurobipy 13.0.3 (Gurobi Optimizer 13.0.3), Python 3.12.11, NumPy 2.4.6 and SciPy 1.18.1, inside a container image (Debian 12, Linux, no network).
 
 Existing skills: not searched in this refactor; the content is carried over from the integration's earlier skill.
 
-Independent toy-problem test (add-solver step 4, fresh agent, skill only): 18/18 instances passed, zero repair attempts. Results file: scratchpad skill-refactor/gurobipy_python/test/results.txt.
+Independent toy-problem test (add-solver step 4, fresh agent, skill only): 18/18 instances passed, zero repair attempts.
 
 | Problem | Instances | Passed |
 |---|---|---|
@@ -20,7 +20,7 @@ Independent toy-problem test (add-solver step 4, fresh agent, skill only): 18/18
 | n-queens-all | n6, n8 | 2/2 |
 | **Total** | | **18/18** |
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/gurobipy_python:v1 image.
+Refactored from an earlier integration skill; examples verified inside the same image.
 
 - <https://pypi.org/project/gurobipy/> — gurobipy 13.0.3 wheel: Gurobi Optimizer shipped with a size-limited licence; wheels for CPython 3.10 to 3.13 on manylinux2014 x86_64. Accessed 2026-09-28.
 - <https://docs.gurobi.com/projects/optimizer/en/current/reference/python.html> — Python API reference; `Model.addVar`, `addVars`, `addMVar`, `addConstr`, `computeIIS` on <https://docs.gurobi.com/projects/optimizer/en/current/reference/python/model.html>; `quicksum` on `func_global.html`; `abs_`, `max_`, `min_`, `and_`, `or_` on `func_utility.html`. The `>>` indicator syntax is in the Model reference. Accessed 2026-09-28.
@@ -30,7 +30,7 @@ Refactored from the DCP-Bench integration skill; examples verified inside the dc
 - <https://docs.gurobi.com/projects/optimizer/en/13.0/features/solutionpool.html> — Solution Pool guide (13.0): `PoolSearchMode` 2 keeps searching for the n best, `PoolSolutions` caps how many are stored, `PoolGap`; cited for the pool section. Accessed 2026-10-15 (the earlier 404 was on a different URL).
 - <https://support.gurobi.com/hc/en-us/articles/13210193318033> and <https://support.gurobi.com/hc/en-us/articles/360037221732> — why the pip licence is the only one usable in a networkless container: an Academic Named-User licence cannot run in a container, and an Academic WLS licence needs internet while it runs. Accessed 2026-09-28.
 
-Verified by running (inside `dcp-eval/gurobipy_python:v1`):
+Verified by running (inside that image):
 
 - Licence banner `Restricted license - for non-production use only - expires 2027-11-29` on the first model; `gp.gurobi.version()` is `(13, 0, 3)`.
 - A model over 2000 variables, or over 2000 constraints counting linear and general constraints together, raises `GurobiError` 10010 at `optimize()`. With one quadratic constraint, 199 variables solve and 201 fail; `addGenConstrNL` and `addGenConstrPow` fail at 300 variables.

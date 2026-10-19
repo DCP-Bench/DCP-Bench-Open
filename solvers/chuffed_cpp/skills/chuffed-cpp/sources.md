@@ -39,20 +39,17 @@ Raw files are served at `https://raw.githubusercontent.com/chuffed/chuffed/0.14.
 - <https://github.com/nlohmann/json> - the JSON library of the `graph-colouring-json`
   example (`json::parse`, `.at`, `.get<T>()`, `.value(key, default)`, CMake target
   `nlohmann_json::nlohmann_json`)
-- `solvers/chuffed_cpp/cpp/dcp.h` and `solvers/chuffed_cpp/cpp/driver.cpp` in the
-  DCP-Bench Open repository - the integration this skill was first written for (its
-  submission contract now lives in that integration's `CONTRACT.md`)
-- `rosetta-skills/model-generator/references/acceptance.md` in that repository - the
+- A model-acceptance checklist for generated models - the
   rule that a model opens with a problem line and comments every constraint
   group in the problem's own words (kept here as the *Style* rule)
 
-Earlier verification (kept as provenance): the DCP-format versions of the queens,
-knapsack and recipe programs and the calls marked **(tested)** in the cheat sheet were
-run through the DCP-Bench Open repository evaluator against the `dcp-eval/chuffed_cpp:v1`
+Earlier verification (kept as provenance): earlier versions of the queens, knapsack and
+recipe programs, written for an evaluator's driver interface, and the calls marked
+**(tested)** in the cheat sheet were run against a Chuffed 0.14.0 Linux container
 image on 2026-10-13. Calls marked **(header only)** come from the header text and were not
 compiled.
 
-Added for the standalone (non-DCP) usage:
+Added for standalone use:
 
 - `chuffed/core/engine.h`, `chuffed/core/options.h` (0.14.0, installed headers) - `Problem`,
   `so.nof_solutions`, `so.time_out`, `so.print_sol`, `engine.status`, `RES_*`,
@@ -60,25 +57,25 @@ Added for the standalone (non-DCP) usage:
 - `chuffed/examples/template.cpp` and `queens.cpp` (0.14.0) - standalone program shape
   (`Problem` subclass, `output_vars`, `parseOptions`, `engine.solve(new P(...))`); the
   `queens` example is based on `queens.cpp`
-- `solvers/chuffed_cpp/Dockerfile` and `cpp/CMakeLists.txt` in the DCP-Bench Open
-  repository - verified source build (release tarball, `cmake -DCMAKE_BUILD_TYPE=Release`,
+- A Debian 12 `Dockerfile` and a `CMakeLists.txt` for Chuffed 0.14.0 (not part of this
+  skill) - verified source build (release tarball, `cmake -DCMAKE_BUILD_TYPE=Release`,
   `cmake --install`), install prefix and link line (`find_package(chuffed CONFIG REQUIRED)`,
   `chuffed chuffed_fzn chuffed`, Threads)
 - `standalone_queens.cpp` and `standalone_knapsack.cpp` (now `assets/queens/model.cpp` and
   `assets/knapsack-maximise/model.cpp`) were compiled and run in the image on 2026-10-13:
   `queens 8`, `queens 6 0` (4 solutions), `queens 3 5` (unsatisfiable), `knapsack`
   (optimum 51). Without `output_vars`, enumeration stops after the first solution.
-- `solvers/chuffed_cpp/cpp/dcp.h` and `driver.cpp` - where the two-phase all-optimal pattern
+- An earlier integration driver for Chuffed - where the two-phase all-optimal pattern
   (optimum in a forked child, then a fresh build with the objective fixed) and the
   per-phase `fork()` around Chuffed's non-resettable globals were first worked out.
 - The search and performance lessons in `references/performance.md` and the pitfalls in
-  *Common issues* come from campaigns of several hundred generated Chuffed models (the
-  DCP-Bench Open model-generation runs); timings were measured there.
+  *Common issues* come from campaigns of several hundred generated Chuffed models;
+  timings were measured there.
 
-Refactored from the DCP-Bench integration skill; examples verified with Chuffed 0.14.0
+Refactored from an earlier integration skill; examples verified with Chuffed 0.14.0
 (g++ 12.2, CMake 3.25.1, nlohmann/json 3.11.2, Debian 12, 2026-10-16).
 
-Verified by running (2026-10-16, in the `dcp-eval/chuffed_cpp:v1` image):
+Verified by running (2026-10-16, in a Debian 12 container with Chuffed 0.14.0):
 
 - every example in `assets/` with `check_assets.py` (8/8 pass) and the Quick start;
 - optimisation ends with `RES_LUN` and ignores `so.nof_solutions = 1`; a complete

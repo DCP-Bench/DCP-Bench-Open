@@ -1,8 +1,8 @@
 # Sources for `z3-python`
 
-Tested with z3-solver 5.1.0.0 (package version; `z3.get_version_string()` prints the Z3 core version 5.1.0), Python 3.12.11, Linux (Docker image `dcp-eval/z3_python:v1`). The install is unpinned; PyPI's latest was 5.3.0.0 at the time of this round and was not re-tested.
+Tested with z3-solver 5.1.0.0 (package version; `z3.get_version_string()` prints the Z3 core version 5.1.0), Python 3.12.11, Linux (Docker image). The install is unpinned; PyPI's latest was 5.3.0.0 at the time of this round and was not re-tested.
 
-Existing skills: not searched in this refactor; the skill was refactored from the DCP-Bench integration skill.
+Existing skills: not searched in this refactor; the skill was refactored from an earlier integration skill.
 
 - <https://z3prover.github.io/api/html/namespacez3py.html> — Z3 Python API reference
 - <https://z3prover.github.io/api/html/classz3py_1_1_solver.html> and <https://z3prover.github.io/api/html/classz3py_1_1_optimize.html> — `Solver` and `Optimize` methods
@@ -27,7 +27,7 @@ Verified by running (inside the image, Z3 5.1.0):
 - Big-M no-overlap on the 6x6 job-shop (ft06, 36 tasks): `Implies` form, linear form with `M = sum of durations`, and fixed `M = 10**6` each reached makespan 55 in 0.3 to 0.4 s; the pairwise `z3.Or` form reached 55 in about 0.5 s. The add-solver toy README reports naive big-M timing out on ft06; this could not be reproduced with these variants, so the skill does not repeat that claim.
 - Program interface: a model reading `n_nodes` and `edges` by name from a file that also carries `name` and `note` keys runs and prints one JSON line (exit 0).
 
-Independent toy test (add-solver, fresh agent, skill only; models in `<workspace>/round-1/models/`, results in `round-1/results.txt`). Round 1 ran on the previous version of this skill and passed 18/18 at first attempt, with no repairs. The gaps it reported (program interface, distinct-value minimisation, big-M and pairwise scheduling, optimum reading, version mismatch, JSON output) were closed in this revision, and the examples and evals now cover them. Re-test this revision with a fresh agent before shipping:
+Independent toy test (add-solver, fresh agent, skill only). Round 1 ran on the previous version of this skill and passed 18/18 at first attempt, with no repairs. The gaps it reported (program interface, distinct-value minimisation, big-M and pairwise scheduling, optimum reading, version mismatch, JSON output) were closed in this revision, and the examples and evals now cover them. This revision has not yet been re-tested by a fresh agent. Round 1 results:
 
 | Problem | Instance | Result |
 |---|---|---|
@@ -52,4 +52,4 @@ Independent toy test (add-solver, fresh agent, skill only; models in `<workspace
 
 Independent toy test result: **18/18 passed** (runner exit code 0, z3 5.1.0, first attempt).
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/z3_python:v1 image.
+Refactored from that earlier integration skill; examples verified inside the same Docker image.

@@ -16,7 +16,7 @@ Existing skills: none found for JuMP with HiGHS at the time of writing; the skil
 - <https://github.com/JuliaIO/JSON.jl> — JSON.jl: `JSON.parsefile`, arrays parsed as vectors (`Vector{Any}` for lists of mixed values)
 - <https://docs.julialang.org/en/v1/manual/variables-and-scoping/> — soft scope: assignments to a global inside a top-level loop need `global`
 
-Verified by running: every claim about what works was checked by running Julia inside the `dcp-eval/jump_highs:v1` image with HiGHS attached:
+Verified by running: every claim about what works was checked by running Julia inside that container with HiGHS attached:
 
 - `MOI.AllDifferent`, `MOI.Table` (with a `Float64` tuple matrix), `MOI.Circuit`, `MOI.CountDistinct`, `MOI.CountBelongs`, `SOS1`, `MOI.AllDifferent(2)` on bounded variables, and indicator constraints `b --> {...}` and `!b --> {...}` solve to OPTIMAL with the expected values.
 - `MOI.AllDifferent` over affine expressions (`[q[i] + i for i in 1:n] in MOI.AllDifferent(n)`) with bounded variables is enforced: n-queens with the expression form is OPTIMAL for n = 4 and 8 with valid placements, and INFEASIBLE for n = 3.
@@ -44,4 +44,4 @@ Independent toy-test result (a tester that had only the skill, with no access to
 
 The first run was 17/18: the jobshop model assumed equal operation counts per job, which the skill then did not warn about. The skill now covers ragged input, JSON reading, output formatting, the top-level scoping trap and all-different over expressions, the points the tester raised.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/jump_highs:v1 image.
+Refactored from an earlier integration skill; examples verified inside the same container.

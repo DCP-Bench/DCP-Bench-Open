@@ -46,4 +46,4 @@ Independent toy test: 18/18.
   `engine.statistics()` and `VariableSymmetry` compile and run (probe).
 - The modelling and search lessons (branching styles, implied prefix bounds, partial
   sums over grids, products, restarts against in-order search, timings) come from
-  campaigns of a few hundred Gecode models written in this repository.
+  a few hundred Gecode models written for a benchmark of constraint problems.

@@ -4,7 +4,7 @@ Tested with docplex 2.32.264 and cplex 22.2.0.1 (CPLEX Community Edition), Pytho
 
 Existing skills: not searched in this refactor (the skill predates it). `llms.txt` at the docs root returned 404 when checked.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/docplex_cplex:v1 image.
+Refactored from an earlier integration skill; examples verified inside the same container.
 
 Documentation this skill was written from. Add an entry whenever a claim here comes from a specific page or version.
 
@@ -13,7 +13,6 @@ Documentation this skill was written from. Add an entry whenever a claim here co
 - <https://github.com/IBMDecisionOptimization/docplex>: the DOcplex repository, which gives the Community Edition limit as 1000 variables and 1000 constraints. Accessed 2026-09-28.
 - <https://ibmdecisionoptimization.github.io/docplex-doc/getting_started_python.html>: installation with pip and conda. Accessed 2026-10-15.
 - <https://ibmdecisionoptimization.github.io/docplex-doc/mp/docplex.mp.model.html> and `docplex.mp.solution.html`: the `Model` and solution API, `populate` and `SolutionPool`, `add_indicator`, `add_equivalence`, `add_if_then`. Accessed 2026-10-15.
-- `solvers/docplex_cplex/run.py` and `Dockerfile` in this repository: the integration this skill was originally written for (not a public source; the skill does not depend on them).
 
 Verified by running (in the image, Python 3.12 with docplex 2.32.264 and cplex 22.2.0.1):
 
@@ -43,7 +42,7 @@ Verified by running (in the image, Python 3.12 with docplex 2.32.264 and cplex 2
 - The helper cost table in SKILL.md was measured with `number_of_variables` and `number_of_constraints` before and after each posting.
 - The Quick start, the program template in SKILL.md (run on the knapsack small instance and on a negative-capacity instance that prints the unsatisfiable line), and the seven example programs run inside the image and print their Expected lines.
 
-Independent toy test: an agent that read only this skill (the refactor did not write any of the test models) solved the add-solver toy problems. Each model was run as `python3 <model> <instance.json>` in `dcp-eval/docplex_cplex:v1` and checked with the toy-problem checker.
+Independent toy test: an agent that read only this skill (the refactor did not write any of the test models) solved the add-solver toy problems. Each model was run as `python3 <model> <instance.json>` in the same container and checked with the toy-problem checker.
 
 | Problem | Instance | Result |
 |---|---|---|

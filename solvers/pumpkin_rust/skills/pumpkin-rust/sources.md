@@ -1,10 +1,10 @@
 # Sources for `pumpkin-rust`
 
-Tested with pumpkin-solver 0.5.0, Rust 1.98.1 (image `dcp-eval/pumpkin_rust:v1`), Linux with Docker.
+Tested with pumpkin-solver 0.5.0, Rust 1.98.1 (in a container image), Linux with Docker.
 
-Existing skills: none recorded. This skill was refactored from the DCP-Bench integration skill, which is not a public skill.
+Existing skills: none recorded. This skill was refactored from an earlier integration skill, which is not a public skill.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/pumpkin_rust:v1 image.
+Examples verified inside the same image.
 
 Documentation this skill's instructions were written from. Add an entry whenever
 a claim here comes from a specific page or version.
@@ -24,7 +24,7 @@ a claim here comes from a specific page or version.
   `pumpkin-constraints` and `pumpkin-conflict-resolvers` 0.5.0 (the crates.io
   packages, fetched with `cargo vendor` inside the image). These are authoritative
   over the rendered documentation, and every signature in this skill was taken from them.
-- The DCP-Bench driver's `run` loop (`solvers/pumpkin_rust/rust/driver/src/lib.rs` in the
+- The `run` loop of an earlier Pumpkin driver program (unpublished, outside the upstream
   repository) — the reference for the satisfy, optimise, blocking-clause and
   `OptimisationResult` handling used in the examples.
 
@@ -117,5 +117,5 @@ as tested with those harness steps. Result: **18/18 instances passed**, zero mod
 | n-queens-all | n6 | PASS, all 4 solutions |
 | n-queens-all | n8 | PASS, all 92 solutions |
 
-Totals: 18/18 passed. Tester's models: `scratchpad/skill-refactor/pumpkin_rust/test/models/`; results: `scratchpad/skill-refactor/pumpkin_rust/test/results.txt`.
+Totals: 18/18 passed.
 The tester's findings (install without network, no git in the image, no JSON reading, one model file outside `src/`, graph colouring count, time budget) are each addressed in SKILL.md: [Install](SKILL.md#install), [Offline builds](SKILL.md#offline-builds), [Modelling](SKILL.md#modelling), [Solving](SKILL.md#solving) and [Common issues](SKILL.md#common-issues).

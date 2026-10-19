@@ -1,6 +1,6 @@
 # Sources for `minizinc-gecode`
 
-Tested with MiniZinc 2.9.3 (bundled Gecode 6.3.0), minizinc-python 0.10.0, Python 3.12.11, Debian GNU/Linux 12 (bookworm), inside the container `dcp-eval/minizinc_gecode:v1`. The skill itself is unpinned.
+Tested with MiniZinc 2.9.3 (bundled Gecode 6.3.0), minizinc-python 0.10.0, Python 3.12.11, Debian GNU/Linux 12 (bookworm), inside a container. The skill itself is unpinned.
 
 Existing skills: none found for MiniZinc with Gecode. The earlier integration skill this one was refactored from is the only prior text, and its solver facts are carried over here.
 
@@ -8,7 +8,7 @@ Existing skills: none found for MiniZinc with Gecode. The earlier integration sk
 - <https://www.gecode.org/doc-latest/MPG.pdf> — Gecode, *Modeling and Programming with Gecode*
 - <https://python.minizinc.dev/en/latest/> — minizinc-python: getting started and API reference (`Instance`, `Result`, `Status`)
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/minizinc_gecode:v1 image.
+Refactored from that earlier integration skill; examples verified inside the same container.
 
 Verified by running (MiniZinc 2.9.3 and minizinc-python 0.10.0 in the image):
 
@@ -20,7 +20,7 @@ Verified by running (MiniZinc 2.9.3 and minizinc-python 0.10.0 in the image):
 - A ragged Python list raises `TypeError: cannot determine coercion`.
 - `show` flattens a 2-D array; `showJSON` nests it.
 - Example outputs in `assets/` match the checks in their READMEs (nine examples now, including `assets/jobshop` and `assets/python-all-solutions`). The equal-sum split has 8 solutions and the production optimum is profit 260, both confirmed by brute force outside MiniZinc.
-- The one-sided bound behaviour and the implied-constraint speed-up are the earlier integration's measured claims; the flattening regression of the repository confirms the first, and a direct-versus-implied run on csplib_049 json:2 confirms the second (direct model times out at 25 s, implied accepted).
+- The one-sided bound behaviour and the implied-constraint speed-up are the earlier integration's measured claims; a flattening regression test confirms the first, and a direct-versus-implied run on a CSPLib 049 (number partitioning) instance confirms the second (direct model times out at 25 s, implied accepted).
 - `all_solutions=True` returns a list of `Solution` objects, one per solution; with no solution it is `[]` and the status is `UNSATISFIABLE`. A plain `solve` with no solution gives `result.solution` `None`.
 - `result["objective"]` is present when the objective variable is named `value`; `result["value"]` raises `KeyError` when `value` is defined with `=` in its declaration.
 - A `where` comprehension that selects nothing raises `EvaluationError: lower bound of empty array undefined` (a machine count above the machines in use); a guard `where exists(t in 1..T)(mach[t] = m)` removes it.

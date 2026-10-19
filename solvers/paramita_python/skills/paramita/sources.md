@@ -11,7 +11,7 @@ Existing skills: none found in the earlier integration work.
   `a9c15a0bbaca86e89eaa1cff5d4d62a4218596cb`: the Cadical300, EvalMaxSAT2022, pblib and pysat
   encoder plugins; the CMake build recipe in the Install section.
 
-Refactored from the DCP-Bench integration skill; examples verified with Paramita 1.2.0 (CaDiCaL 3.0.0, EvalMaxSAT2022).
+Refactored from an earlier integration skill; examples verified with Paramita 1.2.0 (CaDiCaL 3.0.0, EvalMaxSAT2022).
 
 Independent toy test: 18/18.
 

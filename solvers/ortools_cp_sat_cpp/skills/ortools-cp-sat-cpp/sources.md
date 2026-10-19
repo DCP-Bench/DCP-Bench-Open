@@ -1,8 +1,8 @@
 # Sources for `ortools-cp-sat-cpp`
 
-Tested with OR-Tools 9.15.6755 (C++ binary archive for Debian 12, x86_64), g++ 12.2.0, CMake 3.25.1, inside `dcp-eval/ortools_cp_sat_cpp:v1`.
+Tested with OR-Tools 9.15.6755 (C++ binary archive for Debian 12, x86_64), g++ 12.2.0, CMake 3.25.1, inside a Linux container image.
 
-Existing skills: not searched in this refactor; this skill was refactored from the DCP-Bench integration skill it replaces.
+Existing skills: not searched in this refactor; this skill was refactored from an earlier integration skill it replaces.
 
 ## Documentation
 
@@ -25,7 +25,7 @@ Every signature in this skill was checked by compiling it inside the integration
 Checked in the image, with the evidence a reader can rerun:
 
 - `assets/no-overlap-jobshop` prints `Makespan: 11`, which matches a brute-force search over every operation order on each machine (done in Python during the refactor). Putting all intervals into one `AddNoOverlap` call instead gives `Makespan: 23`; the Common issues row cites this.
-- `AddElement` overloads are `(LinearExpr, absl::Span<const LinearExpr>, LinearExpr)` and `(LinearExpr, absl::Span<const int64_t>, LinearExpr)`. A `std::vector<IntVar>` converts to neither. `tests/ortools_cp_sat_cpp_skill_regression.py` reproduces the compile failure through the evaluator and checks that the skill documents the fix.
+- `AddElement` overloads are `(LinearExpr, absl::Span<const LinearExpr>, LinearExpr)` and `(LinearExpr, absl::Span<const int64_t>, LinearExpr)`. A `std::vector<IntVar>` converts to neither. A regression test reproduces the compile failure and checks that this skill documents the fix.
 - `AddNoOverlap(std::vector<IntervalVar>)` and `AddCumulative` with `AddDemand` build and give the expected values in `no-overlap-jobshop` and `scheduling-cumulative`.
 - Reading instance data: `nlohmann::json::parse` on a file given as `argv[1]`, linked with `find_package(nlohmann_json CONFIG REQUIRED)` and `nlohmann_json::nlohmann_json`, prints `Value: 10` for the instance in [Reading instance data](#reading-instance-data).
 - Several programs from one CMake project with `foreach` and `RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin` build and run.
@@ -41,7 +41,7 @@ Open: the Install section has been run only in the image (Debian 12 archive). Th
 
 ## Independent toy-test result
 
-An independent tester solved the add-solver toy problems from this skill alone, with no other reference. The runner was `skills/add-solver/scripts/run_toy_tests.py` inside `dcp-eval/ortools_cp_sat_cpp:v1`, called with `--cmd '/w/models/{problem} {instance}'`. Every build and run was inside the container.
+An independent tester solved the add-solver toy problems from this skill alone, with no other reference. The runner was the add-solver `scripts/run_toy_tests.py` inside the same image, called with `--cmd '/w/models/{problem} {instance}'`. Every build and run was inside the container.
 
 | Problem | Instances | Passed |
 |---|---|---|

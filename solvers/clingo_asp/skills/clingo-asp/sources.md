@@ -1,8 +1,8 @@
 # Sources for `clingo-asp`
 
-Tested with clingo 5.8.2 (pip wheel, MIT licence), Python 3.12.11, Linux, inside the image `dcp-eval/clingo_asp:v1`. The skill itself is unpinned.
+Tested with clingo 5.8.2 (pip wheel, MIT licence), Python 3.12.11, Linux, inside a container image. The skill itself is unpinned.
 
-Existing skills: the previous DCP-Bench integration skill for clingo_asp, which this version replaces. No external skill was searched for in this refactor.
+Existing skills: an earlier integration skill for clingo, which this version replaces. No external skill was searched for in this refactor.
 
 - <https://potassco.org/clingo/> — installation (`pip install clingo`), links to the Python API and the guide
 - <https://docs.potassco.org/clingo/python-api/current/> — `Control`, `SolveResult`, `Model`, `Symbol`, solve handles and `cancel`/`wait`
@@ -12,7 +12,7 @@ Existing skills: the previous DCP-Bench integration skill for clingo_asp, which 
 
 Verified by running in the image: `#show` arity filtering and `#show.`; `project = "show"` removing projection duplicates (20 to 4 in the subset example); `opt_mode = "optN"` with `optimality_proven` marking the optima (two tied optima); `#maximize` reporting a negated cost (-3 for value 3); `/` truncating toward zero and modulo `\`; `#const` and `-c n=5` working, and `-c N=5` failing; `#script(python)` refused with "python support not available"; tab and `\uXXXX` string escapes refused, and `\"`, `\\`, `\n` accepted; capital-initial fact `_SHIP(1).` refused; `#sum` compared to `#sum` refused; `#max` over an empty set printing `info: tuple ignored: #inf@0`, and the unconditional element `0,none ;` removing it; `handle.wait` plus `handle.cancel` giving `interrupted`; `#count`, `#min`, `#max` on integers; errors raised as `RuntimeError` with messages on stderr; an interpreter exit code 139 when a configuration value is read from a temporary `Control`. The Quick start and every example in `assets/` were run in the image and their output checked by hand or by a second enumeration.
 
-Refactored from the DCP-Bench integration skill; examples verified inside the dcp-eval/clingo_asp:v1 image.
+Refactored from that earlier integration skill; examples verified inside the same image.
 
 Round 2 (fixes from the independent toy test): verified in the image with clingo 5.8.2. Aggregate elements are sets of tuples: `#sum { V : b(I,V) }` over `b(1,5). b(2,5). b(3,7).` gives 12, `#sum { V,I : ... }` gives 17, `#count { V : ... }` gives 2, and `#sum { 1 : a(X) }` over `a(1). a(2).` gives 1. `opt_mode = "optN"` with the default `models = 1` yields an unproven model and then a proven optimum as the last model (cost -4 on a 4-way tie), while `models = 0` yields every optimal model. Without `opt_mode` the single model is unproven. Strings: `letter("S")`, `atom.arguments[0].string`, and `<` on strings in the cryptarithm example, with `#sum` over negative weights compared with `!= 0`.
 
