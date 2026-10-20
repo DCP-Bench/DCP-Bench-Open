@@ -117,6 +117,16 @@ by reading the installed library's source. Each entry says which.
   `f?"(\.|[^"])*"` matches a literal dot, not a backslash escape, so a string can
   never contain `"`; `print('x')` and `print("{\"a\"}")` are parse errors.
 
+- Partial functions, `diffs: Range_n -> Int (domain: gap)` with `gap` defined from
+  `n()`, work on 0.12.1, but the well-definedness check does not use the definition:
+  each sentence applying `diffs` needs `gap(i)` in its guard, and `x(i + 1)` needs
+  `i < n()` as well. `theory.assignments` still holds every `diffs(i)` over `Range_n`,
+  so the runner filters an output by its domain predicate in each model.
+- `Theory()` folds a sentence over data symbols to a number before any solving:
+  `Pos_size() = sum{{ demand(i) | i in I }} + 2 * k()` appears in `theory.constraints`
+  as `Pos_size() = 10`, even with `Pos := {}` interpreted provisionally and other
+  sentences quantifying over `Pos`. That is how the runner sizes a `T_size` type.
+
 ## Arithmetic (each value observed directly)
 
 - Constants are folded in Python, symbols go to z3, and the two disagree for a

@@ -98,6 +98,62 @@ theory {
 # Range_m names no instance field, and ${k} is not FO(.) syntax: both are errors.
 RANGE_UNKNOWN = RANGE_TYPE.replace("Range_k", "Range_m")
 PLACEHOLDER = RANGE_TYPE.replace("type Range_k <: Int", "type Range_k := {1..${k}}")
+# A type S with S_size: () -> Int is {1..v}, v being what the theory gives S_size
+# from the data: here k + 2 entries, exactly one of them 1.
+REFERENCE_SIZED = '''
+# Data
+k = 2
+# End of data
+import cpmpy as cp
+import json
+s = cp.intvar(0, 1, shape=k + 2, name="s")
+model = cp.Model(cp.sum(s) == 1)
+model.solve()
+solution = {"s": [int(v) for v in s.value()]}
+print(json.dumps(solution))
+'''
+SIZED_TYPE = """vocabulary {
+    k: () -> Int
+    type S <: Int
+    S_size: () -> Int
+    s: S -> Int
+}
+theory {
+    S_size() = k() + 2.
+    ! i in S: 0 =< s(i) & s(i) =< 1.
+    sum{{ s(i) | i in S }} = 1.
+}
+"""
+# An output declared (domain: gap) is read only where gap holds: all-interval series,
+# x a permutation of 1..n and diffs its n-1 distinct successive differences.
+REFERENCE_PARTIAL = '''
+# Data
+n = 3
+# End of data
+import cpmpy as cp
+import json
+x = cp.intvar(1, n, shape=n, name="x")
+diffs = cp.intvar(1, n - 1, shape=n - 1, name="diffs")
+model = cp.Model(cp.AllDifferent(x), cp.AllDifferent(diffs),
+                 [diffs[i] == cp.abs(x[i + 1] - x[i]) for i in range(n - 1)])
+model.solve()
+solution = {"x": [int(v) for v in x.value()], "diffs": [int(v) for v in diffs.value()]}
+print(json.dumps(solution))
+'''
+PARTIAL_OUTPUT = """vocabulary {
+    type Range_n <: Int
+    n: () -> Int
+    gap: Range_n -> Bool
+    x: Range_n -> Range_n
+    diffs: Range_n -> Int (domain: gap)
+}
+theory {
+    { ! i in Range_n: gap(i) <- i < n(). }
+    ! i, j in Range_n: i ~= j => x(i) ~= x(j).
+    ! i in Range_n: gap(i) & i < n() => diffs(i) = abs(x(i + 1) - x(i)).
+    ! i in Range_n: ! j in Range_n: gap(i) & gap(j) & i ~= j => diffs(i) ~= diffs(j).
+}
+"""
 # A ground sentence whose argument is a data-defined function application.
 GROUND_OUTPUT = """vocabulary {
     type Idx := {0..3}
@@ -264,6 +320,10 @@ def main():
         results["range_type_refused"] = (
             refused("range_unknown", RANGE_UNKNOWN, "m is not an integer scalar field")
             and refused("placeholder", PLACEHOLDER, "Expected IDPFLOAT or INT"))
+        check("sized_type", SIZED_TYPE, reference=REFERENCE_SIZED, instances=[{"k": 4}],
+              instance_count=2, solution_limit=7)
+        check("partial_output", PARTIAL_OUTPUT, reference=REFERENCE_PARTIAL, instances=[{"n": 5}],
+              instance_count=2, solution_limit=3)
         check("ground_output_sentence", GROUND_OUTPUT, reference=REFERENCE_GROUND,
               instances=[{"pos": [2, 0, 1, 3]}], instance_count=2)
         check("engine_error_reported", ENGINE_ERROR, expected={"execution_error"},

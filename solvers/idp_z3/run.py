@@ -14,6 +14,14 @@ interprets the types the data sizes:
   -> Int` and a 4x5 `cost` gives `Task := {0..3}. Person := {0..4}.`
 - A type `Range_f` declared `<: Int` and interpreted nowhere, for an integer scalar
   field `f`, is `{1..f}`: `type Range_n <: Int` with `n: 8` gives `Range_n := {1..8}.`
+- Any other such type `T` with a declared constant `T_size: () -> Int` is `{1..v}`,
+  where `v` is the value the theory gives `T_size` from the data
+  (`T_size() = 2 * k().`). The runner reads it from IDP-Z3's own simplification of
+  the theory, with `T` provisionally empty, before solving.
+
+An output declared as a partial function, `diffs: Range_n -> Int (domain: gap)`, is
+read only on the argument tuples where its domain predicate holds, so its length can
+be shorter than its argument type.
 - A ragged list of rows `F` binds padded with 0 (false) to the longest row, as a
   rectangular `F`, plus `F_len` with each row's real length. A list of mixed rows
   such as `[target, [cells...]]` binds one piece per column, `F_1`, `F_2`, ... (see
@@ -32,6 +40,7 @@ blocked, and `unknown` is always reported as a timeout, never as exhaustion.
 import contextlib
 import json
 from pathlib import Path
+import re
 import signal
 import sys
 import time
@@ -63,6 +72,7 @@ def finish(status, detail="", **metadata):
 INPUT = Path("/input")
 DIRECTIONS = ("minimize", "maximize")
 RANGE = "Range_"
+SIZE = "_size"
 INT_SET = "ℤ"
 BOOL_SET = "𝔹"
 
@@ -283,6 +293,59 @@ def bind(idp, instance):
     return f"structure _dcp_instance:{vocab_name} {{\n" + "\n".join(lines) + "\n}\n"
 
 
+def sized(idp, source, structure):
+    """`structure` plus `T := {1..v}.` for each open type T sized by a `T_size` constant."""
+    _, vocab = vocabulary(idp)
+    taken = interpreted_by_model(idp)
+    pending = [sort for sort in vocab.symbol_decls
+               if open_type(vocab, taken, sort) and not sort.startswith(RANGE)
+               and sort + SIZE in vocab.symbol_decls
+               and not re.search(rf"^{re.escape(sort)} := ", structure, re.M)]
+    if not pending:
+        return structure
+    probe = structure.replace("\n}\n", "".join(f"\n{sort} := {{}}." for sort in pending) + "\n}\n")
+    full = IDP.from_str(source + "\n" + probe)
+    theory = Theory(*full.theories.values(), *full.structures.values())
+    found = {}
+    for sentence in theory.constraints:
+        if type(sentence).__name__ != "AComparison" or len(sentence.sub_exprs) != 2:
+            continue
+        if [str(op) for op in getattr(sentence, "operator", [])] != ["="]:
+            continue
+        for symbol, value in (sentence.sub_exprs, sentence.sub_exprs[::-1]):
+            if (type(symbol).__name__ == "AppliedSymbol" and not symbol.sub_exprs
+                    and type(getattr(value, "py_value", None)) is int):
+                found.setdefault(symbol.decl.name, value.py_value)
+    for assignment in theory.assignments.values():
+        sentence, value = assignment.sentence, assignment.value
+        if (type(sentence).__name__ == "AppliedSymbol" and not sentence.sub_exprs
+                and type(getattr(value, "py_value", None)) is int):
+            found.setdefault(sentence.decl.name, value.py_value)
+    lines = []
+    for sort in pending:
+        size = found.get(sort + SIZE)
+        if size is None:
+            raise ValueError(f"type {sort} is sized by {sort}{SIZE}, which the theory must define "
+                             f"from instance data alone, as `{sort}{SIZE}() = <expression>.`")
+        lines.append(f"{sort} := {{1..{size}}}." if size >= 1 else f"{sort} := {{}}.")
+    return structure.replace("\n}\n", "".join("\n" + line for line in lines) + "\n}\n")
+
+
+def domain_tests(theory, vocab, name):
+    """For an output declared `(domain: p)`, a function from argument tuple to the ground
+    atoms that must hold for the tuple to be part of the output; None for a total output."""
+    decl = vocab.symbol_decls[name]
+    domains, sorts = [str(domain) for domain in decl.domains], [str(sort) for sort in decl.sorts]
+    if domains == sorts:
+        return None
+    if len(domains) == len(sorts):
+        atoms = [None if domain == sort else output_terms(theory, domain)
+                 for domain, sort in zip(domains, sorts)]
+        return lambda index: [atom[(item,)] for atom, item in zip(atoms, index) if atom is not None]
+    atoms = output_terms(theory, domains[0])
+    return lambda index: [atoms[index]]
+
+
 def objective(vocab):
     found = [(name, vocab.symbol_decls[name]) for name in DIRECTIONS if name in vocab.symbol_decls]
     if not found:
@@ -335,6 +398,8 @@ def output_terms(theory, name):
 
 def nest(values):
     """{(i, j): v} with a rectangular index set -> nested lists in ascending order."""
+    if not values:
+        return []
     arity = len(next(iter(values)))
     if arity == 0:
         return values[()]
@@ -380,16 +445,17 @@ def load(request):
     instance = request["instance"]
     with contextlib.redirect_stdout(sys.stderr):
         idp = IDP.from_str(source)
-        full = IDP.from_str(source + "\n" + bind(idp, instance))
+        full = IDP.from_str(source + "\n" + sized(idp, source, bind(idp, instance)))
         _, vocab = vocabulary(full)
         theory = Theory(*full.theories.values(), *full.structures.values())
-    return theory, objective(vocab)
+    return theory, vocab, objective(vocab)
 
 
 def solve(request):
     deadline = time.monotonic() + request["execution_timeout"]
-    theory, goal = load(request)
+    theory, vocab, goal = load(request)
     outputs = {name: output_terms(theory, name) for name in request["outputs"]}
+    domains = {name: domain_tests(theory, vocab, name) for name in request["outputs"]}
     solver = theory.solver
     solver.push()
     theory._add_assignment(solver)
@@ -418,7 +484,6 @@ def solve(request):
         # Enumerate only assignments achieving the proven optimum.
         solver.add(target == best)
 
-    terms = [term for values in outputs.values() for term in values.values()]
     count = 0
     while count < request["solution_limit"]:
         status = check(solver, deadline)
@@ -427,9 +492,16 @@ def solve(request):
         if status != z3.sat:
             return finish("timeout")
         model = solver.model()
+
+        def holds(atom):
+            return z3.is_true(model.eval(atom, model_completion=True))
+        shown = {name: {index: term for index, term in terms_.items()
+                        if domains[name] is None or all(map(holds, domains[name](index)))}
+                 for name, terms_ in outputs.items()}
         values = {name: nest({index: python(model.eval(term, model_completion=True))
                               for index, term in terms_.items()})
-                  for name, terms_ in outputs.items()}
+                  for name, terms_ in shown.items()}
+        terms = [term for terms_ in shown.values() for term in terms_.values()]
         emit({"type": "solution", "values": values})
         count += 1
         if count == request["solution_limit"]:

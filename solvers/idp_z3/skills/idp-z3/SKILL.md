@@ -53,7 +53,7 @@ write it: the runner generates one per instance, `structure _dcp_instance:V { ..
 interpreting the symbols and types your vocabulary declares. The instance JSON
 never appears in your file. FO(.) type ranges must be integer literals
 (`type Row := {1..n()}` is a parse error), which is why the structure also
-interprets the types the data sizes. Three rules:
+interprets the types the data sizes:
 
 1. **A symbol with the same name as an instance field is interpreted from it.**
 
@@ -83,6 +83,36 @@ interprets the types the data sizes. Three rules:
    `type Range_days <: Int` is `{1..days}`. A `Range_` type naming a field that is
    not an integer scalar is an error, and a `Range_` type cannot index an instance
    array (arrays index from 0; declare a separate `type I <: Int` for that).
+
+4. **`type T <: Int` with `T_size: () -> Int` is `{1..v}`**, where `v` is the
+   value your theory gives `T_size` from the instance data alone:
+
+   ```
+   type Pos <: Int
+   Pos_size: () -> Int
+   ...
+   Pos_size() = sum{{ demand(i) | i in Car }}.    // in the theory
+   ```
+
+   Use it for a length that is no single field: `n() + 2`, `2 * k()`,
+   `n_groups() * group_size()`, a total over an array. The definition must be an
+   equation over data symbols only; anything else is an error naming the type.
+
+**An output shorter than its argument type is a partial function.** Declare it
+with a domain predicate that you define from the data, and the runner reads the
+output only where the predicate holds:
+
+```
+gap: Range_n -> Bool
+diffs: Range_n -> Int (domain: gap)               // n-1 entries
+...
+{ ! i in Range_n: gap(i) <- i < n(). }            // in the theory
+! i in Range_n: gap(i) & i < n() => diffs(i) = abs(x(i + 1) - x(i)).
+```
+
+Every sentence that applies `diffs` needs `gap(...)` in its guard, and a term such
+as `x(i + 1)` needs a guard that keeps `i + 1` inside the type (`i < n()`); without
+them IDP-Z3 stops with "Domain error: ... is not a tautology".
 
 Values derived from the data belong in the theory, written with the data
 constants: `n() * (n() * n() + 1) / 2`, `2 * k()`. IDP-Z3 folds these before
@@ -156,9 +186,12 @@ theory {
     array type when one exists (`type I <: Int` with `w: I -> Int` is `{0..len-1}`).
   - `0..n` (a count that may be 0): declare `-> Int` and bound it in the theory,
     `0 =< c(i) & c(i) =< n().`
-  - `1..2*k`, `1..n*n`, `1..sum(demand)`: use pairs of smaller types
-    (`cell: Range_n * Range_n -> Bool` for an n x n grid), or `-> Int` with bounds
-    from the data (`0 =< start(j) & start(j) =< sum{{ demand(i) | i in I }}.`).
+  - A list whose length is computed (`2*k`, `n+2`, `sum(demand)`): a type with a
+    `T_size` constant (rule 4).
+  - n-1 entries, or any length shorter than an existing type: a partial output
+    with a `(domain: p)` predicate.
+  - A value range such as `0..n*n` or `0..sum(durations)`: `-> Int` with bounds in
+    the theory (`0 =< start(j) & start(j) =< sum{{ dur(i) | i in I }}.`).
 - Integer division in a theory is `/`; `//` starts a comment.
 - **`?=n x in T:` under an implication or parentheses crashes idp-engine 0.12.1**
   (an internal `TypeError` in annotation, reported as an `error` status). Write
