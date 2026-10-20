@@ -1,25 +1,19 @@
 """Runner protocol for the idp_z3 integration. Runs inside the image only.
 
 A submission is a plain FO(.) knowledge base (`vocabulary` + `theory`, optionally
-its own `structure`), not a program. The runner binds the instance into it:
+its own `structure`), not a program, and is parsed as written. All instance data
+arrives in a `structure` the runner generates, which is how FO(.) hands data to a
+knowledge base. FO(.) type ranges must be integer literals, so that structure also
+interprets the types the data sizes:
 
-- Every `${...}` in the source is replaced by the integer value of an expression
-  over the instance: an integer scalar field `n`, integer literals, `+ - * //`
-  and `/` (exact division, refused unless it divides evenly), `**` with a
-  non-negative integer exponent (results above 10^7 are refused), parentheses,
-  and `sum(F)`, `len(F)`, `max(F)`, `min(F)` for an integer array field `F` of
-  any depth: `len` is the number of top-level rows, and `sum`, `max`, `min` run
-  over every integer entry, so `max(edges)` over a list of [u, v] pairs works. FO(.) type ranges must be integer literals, so this is the only way
-  to write `type Row := {1..${n}}` or `type Slot := {1..${2*k}}`. The expression
-  is parsed with `ast` and evaluated by a whitelist, never by `eval`. `$` is
-  otherwise only legal in FO(.) directly before `(`, so the marker cannot collide
-  with real syntax.
-- Every instance field whose name matches a declared symbol is interpreted in a
-  generated `structure`: a scalar as `n := 5.`, an array as `cost := {(0,0)->1, ...}.`
-  with 0-based indices, a Boolean array as the set of its true tuples.
+- Every instance field whose name matches a declared symbol is interpreted: a
+  scalar as `n := 5.`, an array as `cost := {(0,0)->1, ...}.` with 0-based
+  indices, a Boolean array as the set of its true tuples.
 - An argument type of such a symbol that is declared `<: Int` and interpreted
   nowhere is sized from the array: `type Task <: Int` with `cost: Task * Person
   -> Int` and a 4x5 `cost` gives `Task := {0..3}. Person := {0..4}.`
+- A type `Range_f` declared `<: Int` and interpreted nowhere, for an integer scalar
+  field `f`, is `{1..f}`: `type Range_n <: Int` with `n: 8` gives `Range_n := {1..8}.`
 - A ragged list of rows `F` binds padded with 0 (false) to the longest row, as a
   rectangular `F`, plus `F_len` with each row's real length. A list of mixed rows
   such as `[target, [cells...]]` binds one piece per column, `F_1`, `F_2`, ... (see
@@ -35,12 +29,9 @@ and treats a z3 `unknown` like `unsat`; `optimize` raises the same AssertionErro
 for an unsatisfiable theory and for a timeout. Here only the declared outputs are
 blocked, and `unknown` is always reported as a timeout, never as exhaustion.
 """
-import ast
 import contextlib
 import json
-import operator
 from pathlib import Path
-import re
 import signal
 import sys
 import time
@@ -70,110 +61,14 @@ def finish(status, detail="", **metadata):
     emit({"type": "status", "status": status, "detail": detail, **metadata})
 
 INPUT = Path("/input")
-TEMPLATE = re.compile(r"\$\{([^{}]*)\}")
-SIZE_FORM = ("an integer expression over instance fields: integer literals, + - * // / ** and "
-             "parentheses, and sum, len, max or min of an integer array field")
-SIZE_FUNCTIONS = {"sum": sum, "len": len, "max": max, "min": min}
-SIZE_OPERATORS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
-                  ast.FloorDiv: operator.floordiv}
-POWER_LIMIT = 10 ** 7
 DIRECTIONS = ("minimize", "maximize")
+RANGE = "Range_"
 INT_SET = "ℤ"
 BOOL_SET = "𝔹"
 
 
 class Unsupported(Exception):
     pass
-
-
-def flatten(value):
-    """Every leaf of a possibly nested, possibly ragged list."""
-    if isinstance(value, list):
-        for item in value:
-            yield from flatten(item)
-    else:
-        yield value
-
-
-def size_expression(body, instance):
-    """The integer that a placeholder body denotes, evaluated over the instance fields."""
-    label = "${" + body + "}"
-
-    def refuse(reason):
-        return ValueError(f"{label}: a placeholder takes {SIZE_FORM}; {reason}")
-
-    def scalar(name):
-        if name not in instance:
-            raise refuse(f"{name} is not an instance field")
-        value = instance[name]
-        if isinstance(value, bool) or not isinstance(value, int):
-            raise refuse(f"{name} is not an integer scalar field")
-        return value
-
-    def array(name):
-        if name not in instance:
-            raise refuse(f"{name} is not an instance field")
-        value = instance[name]
-        if not isinstance(value, list):
-            raise refuse(f"{name} is not an integer array field")
-        leaves = list(flatten(value))
-        if any(isinstance(item, bool) or not isinstance(item, int) for item in leaves):
-            raise refuse(f"{name} is not an integer array field")
-        return value, leaves
-
-    def evaluate(node):
-        if isinstance(node, ast.Constant) and type(node.value) is int:
-            return node.value
-        if isinstance(node, ast.Name):
-            return scalar(node.id)
-        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
-            value = evaluate(node.operand)
-            return value if isinstance(node.op, ast.UAdd) else -value
-        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Pow):
-            base, exponent = evaluate(node.left), evaluate(node.right)
-            if exponent < 0:
-                raise refuse(f"{exponent} is a negative exponent")
-            if abs(base) >= 2 and exponent >= POWER_LIMIT.bit_length():
-                raise refuse(f"{base}**{exponent} exceeds {POWER_LIMIT}")
-            result = base ** exponent
-            if abs(result) > POWER_LIMIT:
-                raise refuse(f"{base}**{exponent} exceeds {POWER_LIMIT}")
-            return result
-        if isinstance(node, ast.BinOp) and (type(node.op) in SIZE_OPERATORS or isinstance(node.op, ast.Div)):
-            left, right = evaluate(node.left), evaluate(node.right)
-            if right == 0:
-                raise refuse("it divides by zero")
-            if isinstance(node.op, ast.Div):
-                if left % right:
-                    raise refuse(f"{left} / {right} is not an integer")
-                return left // right
-            return SIZE_OPERATORS[type(node.op)](left, right)
-        if isinstance(node, ast.Call):
-            if not (isinstance(node.func, ast.Name) and node.func.id in SIZE_FUNCTIONS
-                    and len(node.args) == 1 and not node.keywords and isinstance(node.args[0], ast.Name)):
-                raise refuse("calls are limited to sum, len, max and min of one array field")
-            rows, leaves = array(node.args[0].id)
-            if node.func.id == "len":
-                return len(rows)
-            if not leaves and node.func.id in ("max", "min"):
-                raise refuse(f"{node.func.id} of an empty array is undefined")
-            return SIZE_FUNCTIONS[node.func.id](leaves)
-        raise refuse(f"{type(node).__name__} is not allowed here")
-
-    try:
-        tree = ast.parse(body.strip(), mode="eval")
-    except (SyntaxError, ValueError):
-        raise refuse("it does not parse")
-    return evaluate(tree.body)
-
-
-def substitute(source, instance):
-    def replace(match):
-        return str(size_expression(match.group(1), instance))
-    result = TEMPLATE.sub(replace, source)
-    if re.search(r"\$\{", result):
-        raise ValueError(f"${{...}}: a placeholder takes {SIZE_FORM}")
-    return result
 
 
 def shape(value):
@@ -322,6 +217,13 @@ def bound_symbol(vocab, taken, name):
     return decl is not None and name not in taken and type(decl).__name__ == "SymbolDeclaration"
 
 
+def open_type(vocab, taken, sort):
+    """A type declared `<: Int` that neither the vocabulary nor a model structure interprets."""
+    decl = vocab.symbol_decls.get(sort)
+    return (decl is not None and type(decl).__name__ == "TypeDeclaration" and decl.interpretation is None
+            and sort not in taken and str(decl.super_set) == INT_SET)
+
+
 def bind(idp, instance):
     """The generated structure interpreting declared data symbols and index types. Only
     the pieces a model declares are bound: an undeclared field is never refused."""
@@ -353,9 +255,10 @@ def bind(idp, instance):
             raise ValueError(f"{name} is declared with {len(sorts)} arguments but the instance "
                              f"field has {len(dims)} dimensions")
         for sort, size in zip(sorts, dims):
-            sort_decl = vocab.symbol_decls.get(sort)
-            if (sort_decl is not None and sort_decl.interpretation is None and sort not in taken
-                    and str(sort_decl.super_set) == INT_SET):
+            if open_type(vocab, taken, sort):
+                if sort.startswith(RANGE):
+                    raise ValueError(f"type {sort} is {{1..{sort[len(RANGE):]}}}, so it cannot index "
+                                     f"the instance array {name}, whose indices start at 0")
                 if sizes.setdefault(sort, size) != size:
                     raise ValueError(f"type {sort} would be sized both {sizes[sort]} and {size}")
         boolean = str(decl.codomain) == BOOL_SET
@@ -369,6 +272,14 @@ def bind(idp, instance):
             lines.append(f"{name} := {{{', '.join(pairs)}}}.")
     for sort, size in sizes.items():
         lines.append(f"{sort} := {{0..{size - 1}}}." if size else f"{sort} := {{}}.")
+    for sort in vocab.symbol_decls:
+        if sort.startswith(RANGE) and open_type(vocab, taken, sort):
+            field = sort[len(RANGE):]
+            bound = instance.get(field)
+            if isinstance(bound, bool) or not isinstance(bound, int):
+                raise ValueError(f"type {sort} is {{1..{field}}}, but {field} is not an integer "
+                                 "scalar field of the instance")
+            lines.append(f"{sort} := {{1..{bound}}}." if bound >= 1 else f"{sort} := {{}}.")
     return f"structure _dcp_instance:{vocab_name} {{\n" + "\n".join(lines) + "\n}\n"
 
 
@@ -468,7 +379,6 @@ def load(request):
     source = (INPUT / "model.idp").read_text()
     instance = request["instance"]
     with contextlib.redirect_stdout(sys.stderr):
-        source = substitute(source, instance)
         idp = IDP.from_str(source)
         full = IDP.from_str(source + "\n" + bind(idp, instance))
         _, vocab = vocabulary(full)

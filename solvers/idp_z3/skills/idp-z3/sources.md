@@ -12,7 +12,16 @@ by reading the installed library's source. Each entry says which.
   read directly for type declarations, the `$( )` construct and procedure strings
 - `idp_engine/Theory.py` in the same wheel — the source of `Theory.expand`,
   `Theory.optimize` and `Theory._add_assignment`, read directly
-- <https://pypi.org/project/idp-engine/0.12.1/> — the version pinned in the image
+- <https://pypi.org/project/idp-engine/0.12.1/> — the version pinned in the image, and
+  still the latest release on 2026-10-20
+- <https://gitlab.com/krr/IDP-Z3> at a8b9d55 (2026-10-16): `idp_engine/Idp.tx`
+  (`RangeElement: fromI=Number ('..' toI=Number)?`, so a range bound is a literal in a
+  vocabulary and in a structure alike), `docs/IDPLanguage/structure.inc`, and the
+  examples, which hand data to a theory in a `structure` block that also interprets the
+  data-sized types: `tests/124 FO{Core, Sugar, Int}/minesweeper.idp` declares
+  `type Range <: Int` and `max: () -> Int` and gives `Range := {0..2}. max := 2.` in
+  `structure S:V`; `tests/Benchmark/nqueens_mx_*.idp` write one file per size. The
+  runner generates that structure per instance, which is why models carry no data
 - `prototype/solvers/kb/idp-z3/docs/notes.md` in this repository's prototype — earlier
   findings (Assignment values are always truthy; quantified variables need commas;
   interpolate with `%`, not f-strings), re-checked where this skill relies on them
@@ -78,15 +87,17 @@ by reading the installed library's source. Each entry says which.
   `x() > 0`. It now requires `lower(handle)` and `upper(handle)` to be finite and
   equal, and reports "The objective is unbounded: between oo and oo" (or
   `-1*oo`) as an error.
-- `${n-1}` was originally left in the text and produced an FO(.) parse error that
-  never mentioned the placeholder; the runner now rejects any leftover `${...}`
-  with its own message.
+- The first runner substituted `${...}` expressions into the model text before
+  parsing. The IDP-Z3 lead developer had never seen this: FO(.) users hand data in
+  through a structure. It was replaced by the generated structure's `Range_f` types
+  (2026-10-20); a leftover `${n}` is now an ordinary FO(.) parse error, "Expected
+  IDPFLOAT or INT".
 
 ## FO(.) syntax (each checked on 0.12.1)
 
 - Type ranges must be integer literals: `type Row := {1..n()}` in a vocabulary and
   `Row := {1..n}.` in a structure are both "Expected IDPFLOAT or INT". This is why
-  the runner provides `${name}` and data-sized types.
+  the generated structure interprets data-sized types, `Range_f` among them.
 - A bare `type Row` (no `<: Int`) is not numeric even when the structure gives it
   integers: arithmetic on it fails with "ℤ value expected (Row found: queens(r1))".
   `type Row <: Int` interpreted later as `Row := {1..6}.` works.
@@ -102,8 +113,6 @@ by reading the installed library's source. Each entry says which.
   `if c then a else b`, definitions with `<-`, Python's `and`/`or`/`not` and
   `abs()` work; `sum{{ cost(t, p) | t in Task, p in Person: x(t, p) }}` over two
   variables works.
-- `$` is already FO(.) syntax, but only as `$( expr )` (a symbol computed from an
-  expression) — so `${name}` cannot collide with anything valid.
 - Procedure strings are double-quoted with no escapes: the grammar's
   `f?"(\.|[^"])*"` matches a literal dot, not a backslash escape, so a string can
   never contain `"`; `print('x')` and `print("{\"a\"}")` are parse errors.
@@ -130,7 +139,7 @@ by reading the installed library's source. Each entry says which.
 
 - `assignment_costs` (data-sized `Task`/`Person`, minimize): all 5 instances accepted,
   about 0.9s each.
-- `csplib_054_n_queens` (`${n}`-sized `Row`, function output): all 6 instances
+- `csplib_054_n_queens` (`Range_n`, function output): all 6 instances
   accepted with 3 solutions each, about 1.1s each.
 - `capital_budget` (1-D arrays and a scalar, maximize): all 5 instances accepted.
 - `huey_dewey_louie` (three propositions as Boolean outputs): accepted.

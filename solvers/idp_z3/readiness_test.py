@@ -46,84 +46,58 @@ OPTIMIZING = REFERENCE.replace("optimize = False", "optimize = True")
 MAXIMIZING = OPTIMIZING.replace("model.minimize", "model.maximize")
 
 GOOD = """vocabulary {
-    type V := {0..${n}}
     n: () -> Int
-    x: () -> V
-    y: () -> V
+    x: () -> Int
+    y: () -> Int
 }
 theory {
+    0 =< x() & x() =< n().
+    0 =< y() & y() =< n().
     x() + y() = n().
 }
 """
 OPTIMAL = """vocabulary {
-    type V := {0..${n}}
     n: () -> Int
-    x: () -> V
-    y: () -> V
+    x: () -> Int
+    y: () -> Int
     DIRECTION: () -> Int
 }
 theory {
+    0 =< x() & x() =< n().
+    0 =< y() & y() =< n().
     x() + y() >= n().
     DIRECTION() = x() + y().
 }
 """
 MALFORMED = "this is not FO(.) {{{\n"
-# A placeholder takes an integer expression over the instance; here 2*k sizes a
-# type, and the reference below computes the same solutions for k=2 and k=3.
-REFERENCE_SIZE = '''
+# A type Range_k declared <: Int is interpreted as {1..k} from the scalar field k.
+# The reference has k solutions; it is checked for k=2 and k=4.
+REFERENCE_RANGE = '''
 # Data
 k = 2
 # End of data
 import cpmpy as cp
 import json
-x = cp.intvar(0, 2 * k, name="x")
-y = cp.intvar(0, 2 * k, name="y")
-model = cp.Model(x + y == 2 * k)
+x = cp.intvar(1, k, name="x")
+y = cp.intvar(1, k, name="y")
+model = cp.Model(x + y == k + 1)
 model.solve()
 solution = {"x": int(x.value()), "y": int(y.value())}
 print(json.dumps(solution))
 '''
-SIZE_EXPRESSION = """vocabulary {
+RANGE_TYPE = """vocabulary {
+    type Range_k <: Int
     k: () -> Int
-    type V := {0..${2*k}}
-    x: () -> V
-    y: () -> V
+    x: () -> Range_k
+    y: () -> Range_k
 }
 theory {
-    x() + y() = 2 * k().
+    x() + y() = k() + 1.
 }
 """
-SIZE_IMPORT = SIZE_EXPRESSION.replace("${2*k}", "${__import__}")
-SIZE_ATTRIBUTE = SIZE_EXPRESSION.replace("${2*k}", "${k.real}")
-# k**2 in a placeholder, with the reference's 2 * k written as k * k.
-SIZE_POWER = (SIZE_EXPRESSION.replace("${2*k}", "${k**2}")
-              .replace("x() + y() = 2 * k().", "x() + y() = k() * k()."))
-REFERENCE_POWER = REFERENCE_SIZE.replace("2 * k", "k * k")
-# max over a list of pairs, sized from the flattened entries of a 2-D field.
-SIZE_EDGES = """vocabulary {
-    k: () -> Int
-    type V := {0..${max(edges)}}
-    x: () -> V
-    y: () -> V
-}
-theory {
-    x() + y() = k().
-}
-"""
-REFERENCE_EDGES = '''
-# Data
-k = 2
-edges = [[0, 1], [1, 2]]
-# End of data
-import cpmpy as cp
-import json
-x = cp.intvar(0, k, name="x")
-y = cp.intvar(0, k, name="y")
-model = cp.Model(x + y == k)
-model.solve()
-solution = {"x": int(x.value()), "y": int(y.value())}
-print(json.dumps(solution))
-'''
+# Range_m names no instance field, and ${k} is not FO(.) syntax: both are errors.
+RANGE_UNKNOWN = RANGE_TYPE.replace("Range_k", "Range_m")
+PLACEHOLDER = RANGE_TYPE.replace("type Range_k <: Int", "type Range_k := {1..${k}}")
 # A ground sentence whose argument is a data-defined function application.
 GROUND_OUTPUT = """vocabulary {
     type Idx := {0..3}
@@ -160,12 +134,13 @@ theory {
 }
 """
 UNSATISFIABLE = """vocabulary {
-    type V := {0..${n}}
     n: () -> Int
-    x: () -> V
-    y: () -> V
+    x: () -> Int
+    y: () -> Int
 }
 theory {
+    0 =< x() & x() =< n().
+    0 =< y() & y() =< n().
     x() + y() > 2 * n().
 }
 """
@@ -275,7 +250,7 @@ def main():
 
         def refused(name, source, text):
             result = evaluate(candidate(f"{name}.idp", source), "readiness", SOLVER,
-                              reference_source=REFERENCE_SIZE)
+                              reference_source=REFERENCE_RANGE)
             return (not result["accepted"] and result["reason"] in {"execution_error", "invalid_output"}
                     and text in result.get("detail", ""))
 
@@ -284,15 +259,11 @@ def main():
         check("enumeration", GOOD, solution_limit=3)
         check("minimization", OPTIMAL.replace("DIRECTION", "minimize"), reference=OPTIMIZING)
         check("maximization", OPTIMAL.replace("DIRECTION", "maximize"), reference=MAXIMIZING)
-        check("size_expression", SIZE_EXPRESSION, reference=REFERENCE_SIZE, instances=[{"k": 3}],
-              instance_count=2)
-        results["size_expression_refused"] = (
-            refused("size_import", SIZE_IMPORT, "__import__ is not an instance field")
-            and refused("size_attribute", SIZE_ATTRIBUTE, "Attribute is not allowed here"))
-        check("size_expression_power", SIZE_POWER, reference=REFERENCE_POWER, instances=[{"k": 3}],
-              instance_count=2)
-        check("size_expression_2d", SIZE_EDGES, reference=REFERENCE_EDGES,
-              instances=[{"k": 3, "edges": [[0, 2], [2, 3], [1, 3]]}], instance_count=2)
+        check("range_type", RANGE_TYPE, reference=REFERENCE_RANGE, instances=[{"k": 4}],
+              instance_count=2, solution_limit=5)
+        results["range_type_refused"] = (
+            refused("range_unknown", RANGE_UNKNOWN, "m is not an integer scalar field")
+            and refused("placeholder", PLACEHOLDER, "Expected IDPFLOAT or INT"))
         check("ground_output_sentence", GROUND_OUTPUT, reference=REFERENCE_GROUND,
               instances=[{"pos": [2, 0, 1, 3]}], instance_count=2)
         check("engine_error_reported", ENGINE_ERROR, expected={"execution_error"},

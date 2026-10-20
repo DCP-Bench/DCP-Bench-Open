@@ -1,6 +1,6 @@
 ---
 name: idp-z3
-description: Write instance-agnostic FO(.) knowledge bases for the DCP-Bench idp_z3 integration (IDP-Z3 0.12.1), covering how instance data is bound into the vocabulary, the ${...} placeholder for type ranges, the minimize/maximize objective convention, FO(.) syntax that differs from every other modelling language, and the arithmetic and parsing traps that make a submission fail.
+description: Write instance-agnostic FO(.) knowledge bases for the DCP-Bench idp_z3 integration (IDP-Z3 0.12.1), covering how instance data reaches the knowledge base through a generated structure (including types sized by a scalar field), the minimize/maximize objective convention, FO(.) syntax that differs from every other modelling language, and the arithmetic and parsing traps that make a submission fail.
 ---
 
 # FO(.) knowledge bases for `idp_z3`
@@ -8,8 +8,8 @@ description: Write instance-agnostic FO(.) knowledge bases for the DCP-Bench idp
 A submission is a plain FO(.) ("FO-dot") file — a `vocabulary` and a `theory`,
 nothing else needed. It is **not a program**: you never call anything, and the
 runner never executes code from your file (a `procedure` block is ignored).
-The runner binds the instance into your vocabulary, asks IDP-Z3 for models, and
-prints them.
+IDP-Z3 parses the file exactly as written. The runner hands the instance in as a
+`structure` over your vocabulary, asks IDP-Z3 for models, and prints them.
 
 Image: idp-engine 0.12.1 (which pins z3-solver 4.11.2.0) on Python 3.12.
 
@@ -17,13 +17,13 @@ Image: idp-engine 0.12.1 (which pins z3-solver 4.11.2.0) on Python 3.12.
 
 ```
 vocabulary {
-    type Row := {1..${n}}          // ${n} is replaced by the instance's integer n
-    queens: Row -> Row             // a declared output: one value per Row
+    type Range_n <: Int            // the runner interprets it as {1..n}
+    queens: Range_n -> Range_n     // a declared output: one value per row
 }
 theory {
-    ! r1, r2 in Row: r1 ~= r2 => queens(r1) ~= queens(r2).
-    ! r1, r2 in Row: r1 ~= r2 => queens(r1) - r1 ~= queens(r2) - r2.
-    ! r1, r2 in Row: r1 ~= r2 => queens(r1) + r1 ~= queens(r2) + r2.
+    ! r1, r2 in Range_n: r1 ~= r2 => queens(r1) ~= queens(r2).
+    ! r1, r2 in Range_n: r1 ~= r2 => queens(r1) - r1 ~= queens(r2) - r2.
+    ! r1, r2 in Range_n: r1 ~= r2 => queens(r1) + r1 ~= queens(r2) + r2.
 }
 ```
 
@@ -48,15 +48,14 @@ rejected the moment a second instance is checked.
 
 ## How the instance gets in
 
-FO(.) type ranges must be integer *literals* — `type Row := {1..n()}` is a
-parse error — so the runner provides two mechanisms:
+In FO(.), data is handed to a knowledge base in a `structure` block. You do not
+write it: the runner generates one per instance, `structure _dcp_instance:V { ... }`,
+interpreting the symbols and types your vocabulary declares. The instance JSON
+never appears in your file. FO(.) type ranges must be integer literals
+(`type Row := {1..n()}` is a parse error), which is why the structure also
+interprets the types the data sizes. Three rules:
 
-1. **`${name}`** anywhere in the file is replaced by the instance's integer
-   scalar field `name` before parsing. Use it for type ranges:
-   `type Row := {1..${n}}`, `type Day := {0..${days}}`. Only integer scalars;
-   anything else is an error naming the field.
-2. **Declare a symbol with the same name as an instance field and the runner
-   interprets it** in a generated structure:
+1. **A symbol with the same name as an instance field is interpreted from it.**
 
    | Instance field | Declare | Runner writes |
    | --- | --- | --- |
@@ -74,13 +73,20 @@ parse error — so the runner provides two mechanisms:
    otherwise. Only the names the model declares are bound; strings and floats are
    refused only in a declared field.
 
-   Array indices are **0-based**, like the JSON. An argument type is sized
-   from the data only when you declare it `type T <: Int` with no range of
-   your own; if two fields would size the same type differently, that is an
-   error. A field you do not declare is ignored. String fields cannot be bound.
+2. **An array sizes its index types.** Array indices are **0-based**, like the
+   JSON. An argument type is sized from the data only when you declare it
+   `type T <: Int` with no range of your own; if two fields would size the same
+   type differently, that is an error. A field you do not declare is ignored.
 
-The two compose: size the index type from data, and use `${n}` for ranges that
-come from a scalar.
+3. **`type Range_f <: Int` is `{1..f}` for an integer scalar field `f`.** With
+   `n: 8`, `type Range_n <: Int` becomes `Range_n := {1..8}.`, and
+   `type Range_days <: Int` is `{1..days}`. A `Range_` type naming a field that is
+   not an integer scalar is an error, and a `Range_` type cannot index an instance
+   array (arrays index from 0; declare a separate `type I <: Int` for that).
+
+Values derived from the data belong in the theory, written with the data
+constants: `n() * (n() * n() + 1) / 2`, `2 * k()`. IDP-Z3 folds these before
+solving, so they cost nothing.
 
 ```
 vocabulary {
@@ -145,20 +151,15 @@ theory {
 - **`abs` is a built-in symbol** and cannot be redeclared (it fails with an
   unhelpful `IndexError`). Other names are permissive: `a`, `S`, `T`, `V`,
   `min`, `sum`, uppercase names all work as symbols.
-- **`${...}` takes an integer expression over the instance**: an integer scalar
-  field, literals, `+ - * //`, `/` (exact, refused unless it divides evenly),
-  parentheses, and `sum`, `len`, `max`, `min` of a one-dimensional integer array
-  field. `type Slot := {1..${2*k}}` sizes by a product, and
-  `type Job := {1..${sum(demand)}}` by a total.
-- **`${...}` also takes `**` with a non-negative integer exponent (result at most
-  10^7), and `sum`, `len`, `max`, `min` of a 2-D or ragged integer field**: `len` is
-  the row count and the others run over every entry, so `{1..${max(edges)}}` sizes
-  by the largest node in a list of pairs. Anything else (calls, attributes,
-  names that are not fields) is refused with "a placeholder takes ...".
-  **Wrap the whole expression**: `{0..${2*n+1}}`, not `{0..2*${n}+1}` (that
-  becomes `2**8+1` and fails to parse). `${...}` works in the theory too, e.g.
-  `sum{{ ... }} = ${n*(n*n+1)//2}.`; outside `${...}`, `//` starts a comment and
-  integer division in a theory is `/`.
+- **Other ranges are built from `Range_f` and array index types in FO(.):**
+  - `0..n-1`: quantify over `Range_n` and write `r - 1`, or index by a 0-based
+    array type when one exists (`type I <: Int` with `w: I -> Int` is `{0..len-1}`).
+  - `0..n` (a count that may be 0): declare `-> Int` and bound it in the theory,
+    `0 =< c(i) & c(i) =< n().`
+  - `1..2*k`, `1..n*n`, `1..sum(demand)`: use pairs of smaller types
+    (`cell: Range_n * Range_n -> Bool` for an n x n grid), or `-> Int` with bounds
+    from the data (`0 =< start(j) & start(j) =< sum{{ demand(i) | i in I }}.`).
+- Integer division in a theory is `/`; `//` starts a comment.
 - **`?=n x in T:` under an implication or parentheses crashes idp-engine 0.12.1**
   (an internal `TypeError` in annotation, reported as an `error` status). Write
   the quantifier at the top of a sentence, or use `#{x in T: ...}` counts.
@@ -178,13 +179,13 @@ theory {
   `(start(j) + dur(j))` in `max{ }`): `sum{{ a(x) * b(x) | x in T }}` fails
   with "Expected 'is\s+enumerated' or 'in|∈' or ',' or '}}' or '|'"; write
   `sum{{ (a(x) * b(x)) | x in T }}`, or define `c(x) = a(x) * b(x)` and sum `c`.
-- **Mind the element count of a range**: `{0..${n}}` has n+1 elements and
-  `{1..${n}}` has n; a 0-based output of n elements is `{0..${n-1}}`.
+- **An output's argument type sets its length**: a list of n values is a symbol
+  over `Range_n`, or over an array's index type when the list follows an array.
 - **Bound every output, cheaply.** An unbounded `-> Int` output admits values the
   description rules out (negative ages, entries above n), and the evaluator
   rejects them with "Declared outputs cannot extend to a reference solution".
   Use a small range type (up to a few hundred values) or explicit bounds in the
-  theory on a `-> Int` output (`0 =< x() & x() =< ${max_val}.`). Large range
+  theory on a `-> Int` output (`0 =< x() & x() =< max_val().`). Large range
   types (thousands of values) and range types on the objective or on values
   fixed by equations make z3 slow or run out of memory; keep those `-> Int`.
 - **An output the brief shows as `int` must not be `-> Bool`**: the evaluator
@@ -215,7 +216,7 @@ theory {
   x(c) + 1 & adjacent(c, c2)`) or an inverse map from values to cells is much
   faster than a four-variable universal implication.
 - **`%` or comparisons between two decision sums are slow**: compare each sum
-  with a constant computed in `${...}`, and fold `%` over data into counts.
+  with a constant written from data symbols, and fold `%` over data into counts.
 - **Two-variable quantifiers under an implication** (`!` or `?`) fail with "set
   expected at most 1 argument"; nest them (`! r in R: ! c in C: ...`). A quantified
   variable may not reuse a declared symbol's name. Definitions need a
@@ -236,7 +237,7 @@ lists the declared output names and every instance field with its shape.
 Read `reason` and `detail` on failure. `execution_error` covers everything the
 runner rejects before solving: a parse or type error (the detail names the line
 and column), a declared output that is not a symbol ("Declared output huey is
-not a symbol of the vocabulary"), a bad `${...}`, or data that does not fit its
+not a symbol of the vocabulary"), a `Range_` type with no matching field, or data that does not fit its
 declaration. `invalid_solution` means the reference rejects a solution your
 theory allows, `suboptimal_solution` means the objective is wrong,
 `invalid_output` means an output came back with the wrong shape or type, and
