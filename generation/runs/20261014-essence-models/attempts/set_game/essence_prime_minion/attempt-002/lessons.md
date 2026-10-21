@@ -1,1 +1,0 @@
-- set_game: the first version declared cards_data as [12][4] and failed on the 9- and 3-card instances (index domains do not match). Declaring cards_data_dim1 and cards_data_dim2 and winning_cards over 0..cards_data_dim1-1 fixed it.

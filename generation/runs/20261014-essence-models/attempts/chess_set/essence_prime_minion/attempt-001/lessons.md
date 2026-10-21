@@ -1,1 +1,0 @@
-- Plain linear model with a maximising output variable and one equality for the profit solved first time.

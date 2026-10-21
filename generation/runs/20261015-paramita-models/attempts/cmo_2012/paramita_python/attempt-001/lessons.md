@@ -1,4 +1,0 @@
-- Weighted PB equality over a binary product (sum of 2^(i+j) partial products, both sides, 14-bit operands) exhausts 2048 MB in the default encoder (memory_limit, no output).
-- A column-by-column multiplier (partial products summed per column with unary carries, result bits compared with Iff) keeps every PB weight small and is accepted quickly.
-- A one-hot prime choice with a weighted sum over all primes is a large BDD; a binary p with If(P_q, p == q) per prime avoids it.
-- Or/And take two operands or one list; an `If` used in a model needs importing explicitly.

@@ -1,2 +1,0 @@
-- One-hot cell encoding (n^2 binaries per cell) is fast for n<=5 but the n=6 instance (1296 binaries) hit the 180 s execution timeout; cause not isolated.
-- Evaluation: 4 of 5 instances checked (n=1,3,5 and example); n=6 is execution_timeout. Retained with that limit noted.

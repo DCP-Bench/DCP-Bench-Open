@@ -1,3 +1,0 @@
-- Nullary `name: () -> Bool` declared outputs read back as scalar true/false; a problem with no instance fields needs no data binding and no `${...}`.
-- Counting Booleans without a set quantifier works with `(if p() then 1 else 0) + ... =< 2`, with the total in a derived `-> Int` helper.
-- When a statement is "guilty iff statement false", write the definition as `x() <=> ~(statement)`; a slip in polarity (`~` on the wrong side) gave `no_solution` at the quick check, found by hand-checking one candidate.

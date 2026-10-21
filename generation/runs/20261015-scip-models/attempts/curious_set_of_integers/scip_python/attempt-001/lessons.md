@@ -1,2 +1,0 @@
-- Integer square-root equalities `a * x + 1 == s * s` with a bounded root `s` (ub from math.isqrt) solve at once with SCIP's nonlinear handling; no objective needed for a satisfaction problem.
-- The statement's "larger than or equal to 0" admits 0 trivially (1 is a square), so the first solution can be 0; the evaluator accepted it.

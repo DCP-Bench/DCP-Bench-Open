@@ -1,3 +1,0 @@
-- Ages and counts are declared `Int` outputs, but the chain values need a finite type (`type Age := {0..1000}`). With `{-10..1000}` the solver returned negative-age solutions that the reference does not contain, and the evaluator reported "Declared outputs cannot extend to a reference solution".
-- Explicit intermediate-value chains (`from_me(s) = from_me(s-1) + 2`, indexed by a step type) work. Exact division is written as `a = 8 * b` rather than `a / 8`, which avoids the division guard and integrality trouble.
-- The problem has two valid solutions, (m, h) = (48, 53) and (53, 48), because the statement is symmetric in the two ages. Both are accepted with solution-limit 2.

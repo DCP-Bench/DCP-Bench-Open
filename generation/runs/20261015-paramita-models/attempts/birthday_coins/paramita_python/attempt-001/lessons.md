@@ -1,2 +1,0 @@
-- One-hot integers over 0..N with a linear sum (`sum(v * b)`) work directly in PB comparisons such as `30 * h + 12 * s + 6 * k == 306`.
-- The puzzle's answer is unique only if each coin type occurs at least once; zero counts give 3 solutions here.

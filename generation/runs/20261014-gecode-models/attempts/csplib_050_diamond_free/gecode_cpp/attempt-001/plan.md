@@ -1,7 +1,0 @@
-Graph on N vertices, adjacency matrix symmetric, no loops -> bool matrix adj with adj[i][j] == adj[j][i], adj[i][i] = 0 (rel on BoolVar equality / MiniModel)
-each vertex degree > 0 and degree modulo 3 (degree in {3,6,9,...}) -> deg[i] in IntSet of multiples of 3 in 0..N-1, deg[i] == sum of row i via linear(row, IRT_EQ, deg[i])
-degree sequence d_1 >= d_2 >= ... >= d_N -> rel(deg[i] >= deg[i+1])
-sum of degrees modulo 12 -> total = sum(deg) == 12 * k with k an IntVar (0 .. N*(N-1)/12)
-no diamond: every 4 vertices have at most 4 edges between them (no induced K4 minus fewer than two edges) -> for each 4-subset, linear(six pair bools, IRT_LQ, 4) (decomposition is the only option for a count over all 4-subsets of the graph; a single linear per subset is the map row "at most k of a set of bools")
-branching: degrees first (small domains, structure), then the adjacency bools (BOOL_VAR_NONE)
-objective: none (satisfaction)

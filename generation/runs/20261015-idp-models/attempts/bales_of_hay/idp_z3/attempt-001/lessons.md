@@ -1,3 +1,0 @@
-- Multi-variable counts and quantifiers work on IDP-Z3 0.12.1: `#{i, j in Bale: i < j & bales(i) + bales(j) = w}` and `! i, j in Bale: i < j => ...` both check.
-- A multiset of pair sums is written as: for each weight value, the count of that value in the list equals the count of pairs with that sum; plus an existence check for each pair, so no pair sum is missing from the list.
-- `max{ weights(k) | k in Pair: k >= 0 }` bounds the decisions from data without a `${...}` expression. The guard is needed in the set-builder form used here.

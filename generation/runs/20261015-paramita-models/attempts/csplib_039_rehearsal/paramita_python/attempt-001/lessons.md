@@ -1,1 +1,0 @@
-- Accepted 5/5 instances. Product of a Bool (waiting) with a per-piece duration: one Iff aux per (player, slot, piece) with weight duration[j]; fine at 9 pieces x 5 players.

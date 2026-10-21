@@ -1,3 +1,0 @@
-- `m.intVarArray(name, n, int[] values)` builds an enumerated array directly, for "each is 3, 4 or 5".
-- `m.sum(IntVar[], "=", total)` posts a linear sum with a constant total; no need for a derived variable.
-- The instance has no fields, so the only data is the 18 and 72 in the statement.

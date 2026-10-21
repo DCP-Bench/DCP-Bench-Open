@@ -1,2 +1,0 @@
-- Nontransitive dice: a reified count of face pairs (36 BoolVars, linear GQ 19) has no global; it propagates weakly. Without symmetry breaking the satisfaction search ran past 60 s on the quick check.
-- Sorting each die's faces (rel <=) removed that symmetry: 2 solutions in about 4 s. Restarts with AFC alone did not help.

@@ -1,3 +1,0 @@
-- The domain bound for a position-indexed Golomb model matters a lot: 2^(m-1)-1 made the size-10 instance time out at 60 s, while the Erdos-Turan ruler length (202 for m=10) finished the optimum proof in about 80 s.
-- Unary "at least k marks in 0..p" with a recurrence (G_p,k <-> G_p-1,k or (b_p and G_p-1,k-1)) gives the k-th mark as one PB sum: a_k = (L+1) - sum_p G_p,k.
-- Distinct differences: an aux q per pair (p,d) only needs b_p and b_p+d -> q (one direction), then sum_p q_p,d <= 1 per d.

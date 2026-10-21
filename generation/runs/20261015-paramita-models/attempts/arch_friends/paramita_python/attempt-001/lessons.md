@@ -1,1 +1,0 @@
-Puzzle with no instance fields: the single example is the only instance, so it is checked once. Two one-hot blocks (shoes, stores) over stops 1..4 with the same stop index link shoe and store; integer equality and "+ 2 ==" are PB over the stop sums.

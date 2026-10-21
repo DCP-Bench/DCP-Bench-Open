@@ -1,2 +1,0 @@
-- Step-sequence models: a position chain pos[k+1] = pos[k] + steps[k] (sum), plus steps[k] = 0 iff pos[k] = n (iff on relational expressions), handles "stop once at the top" without a table.
-- The brief declares steps as [20], but the evaluator checks the output length against the instance n (json:1 with n=10 gave invalid_output "Wrong shape at steps" when the list was 20 long). Size the output by the instance field.

@@ -1,3 +1,0 @@
-- Fixed row-by-row Boolean branching (BOOL_VAR_NONE, BOOL_VAL_MAX) timed out at 180 s on the n=13 instance: the pair-cover and column sums did not prune early enough.
-- Switching to BOOL_VAR_AFC_MAX with restarts(100), same propagation, solved all four instances in under 3 s.
-- The redundant pair-cover and column-count constraints are cheap and implied by counting; they are posted as separate blocks so the reader sees them as redundant.

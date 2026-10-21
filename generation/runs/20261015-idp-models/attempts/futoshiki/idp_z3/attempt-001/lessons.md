@@ -1,2 +1,0 @@
-- No instance field has the symbol dimension, so the digit range cannot be sized from data; use Int-valued grid with N = `#{ r in Row: r = r }` and all-different written pairwise over rows and columns.
-- Clue coordinates in lt are 1-based while the grid indices are 0-based; the model shifts with `r1 + 1 = lt(k, 0)`. Accepted on all 5 instances (6x6 and 7x7 included); the 7x7 instance took about 20s to check.

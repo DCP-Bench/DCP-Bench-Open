@@ -1,3 +1,0 @@
-- Outside-grid cells can be handled without padding the type: the ring rows and columns are quantified by restricting the neighbour count with `p =< 1` (only row 1 is in Row) or `n() =< p`, so corners need no constraint (at most one live neighbour).
-- `abs(p - i) =< 1` works on variables of a `type Row := {1..${n}}` range type; arithmetic on it did not need `<: Int`.
-- A `#{ p in T, q in U: ... }` count over two variables with a neighbourhood guard evaluated fine on 3 instances, so a separate aux `nb: Row * Col -> Int` keeps the rules readable.

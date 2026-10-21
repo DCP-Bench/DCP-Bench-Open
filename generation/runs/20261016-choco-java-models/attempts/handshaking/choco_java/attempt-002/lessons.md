@@ -1,4 +1,0 @@
-- Pigeonhole implied sums (all-different answers over a fixed range sum to a known total) and symmetry breaking on interchangeable couples cut the refutation of the second solution from timeout to under 1 s.
-- Satisfaction driver: after one solution the no-good on the output blocks that value, so a model with a unique output must be refuted over all others. Test with --solution-limit 2 on the largest instance.
-- domOverWDeg with Luby restarts on the handshake booleans: 40 s to 1 s for the first solution on 8 couples. Branching on the degree variables first found no solution in 170 s.
-- LCG did not help this model.

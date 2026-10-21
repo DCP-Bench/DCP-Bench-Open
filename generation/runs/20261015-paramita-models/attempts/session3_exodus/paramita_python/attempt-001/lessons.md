@@ -1,2 +1,0 @@
-- Paramita takes `If(bool_expr, PB comparison)` directly, so "X is three years older than Y" is one line per child with an integer age expression built as sum(years[v] * one-hot_v).
-- Association puzzles: one-hot per child for each attribute, and output each value-indexed list as the sum of (child number * one-hot). The child numbers in the outputs must be consistent across lists; the evaluator accepted the identity child numbering 1..5.

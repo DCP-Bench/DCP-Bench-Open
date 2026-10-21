@@ -1,1 +1,0 @@
-Bowl positions in the output were 0-based in the first try and failed with invalid_solution (Declared outputs cannot extend to a reference solution). The reference uses 1..n; 1-based passed all 5 instances.

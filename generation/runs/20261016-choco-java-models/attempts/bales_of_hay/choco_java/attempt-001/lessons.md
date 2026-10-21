@@ -1,2 +1,0 @@
-- The reference lists bales sorted, so the model posts bales nondecreasing; the comment says so, since the description does not.
-- sort(pairSums, sorted) plus sorted[p] = weights[p] is a direct encoding of the multiset equality, and it accepted all five instances.

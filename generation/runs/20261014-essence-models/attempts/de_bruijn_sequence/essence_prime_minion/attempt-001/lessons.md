@@ -1,1 +1,0 @@
-de Bruijn: the length-n windows are read cyclically with ((i + j - 2) % len) + 1 indexing, and the windows are encoded as base-digit numbers inside one allDiff over a comprehension. Symbols are output 0-based (0..base-1). Accepted on the first full evaluation (5 instances).

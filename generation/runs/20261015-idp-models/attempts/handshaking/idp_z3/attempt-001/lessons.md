@@ -1,3 +1,0 @@
-- `${2*num_couples}` works inside a range type. Written as `2*${num_couples}` (in a theory or a range), the runner produces `2**8` and a parse error.
-- With a single solution requested, the pigeonhole line `! v in H: #{ ... } = 1.` cut the search from timeout to about 3 s. The evaluator then asks for a second solution, which needs an unsat proof that no other graph gives a different Hilary count. That proof times out at 180 s even with a (C x S) person encoding that removes modulo.
-- Attempt-001 was accepted on 3 of 5 instances; the example (8 couples) and json:4 (6 couples) hit execution_timeout, so the attempt was not retained under the 80% rule.

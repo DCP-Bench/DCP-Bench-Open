@@ -1,3 +1,0 @@
-- SCIP general constraints are not needed here: the Fibonacci sequence is linear equalities; parity via 2h+p with a binary p, and the product of a binary with an integer term is linearised with three big-M constraints.
-- The skill's 'addConsAnd' with binary operands worked directly for the chosen = within AND even flag.
-- Indicator constraints with activeone=False worked for the inclusion side of the limit.

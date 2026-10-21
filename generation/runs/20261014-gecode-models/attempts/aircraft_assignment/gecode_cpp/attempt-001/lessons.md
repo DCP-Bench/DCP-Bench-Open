@@ -1,2 +1,0 @@
-- Integer programs with a cost and capacity rows map directly to linear(IntArgs, IntVarArgs, rel, c, IPL_BND); no decomposition needed.
-- For an objective that is a weighted sum, post an IntVar total with linear(..., IRT_EQ, total) and minimize it.

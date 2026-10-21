@@ -1,4 +1,0 @@
-- A 2-D data field `graph: [m][2]` binds as `graph: E * Two -> Int` with `type E <: Int` and `type Two <: Int`; index with literals 0 and 1.
-- Applying a declared output to a data value (`colors(graph(e,0))`) is a domain error; quantify over the type and link the data through a helper predicate (`edge(a,b) <- ? e in E: ...`).
-- `${max(graph)}` sizes a node type from a 2-D field whose values are 1-based node ids.
-- Minimizing the largest colour number equals minimizing colours used when colours start at 1.

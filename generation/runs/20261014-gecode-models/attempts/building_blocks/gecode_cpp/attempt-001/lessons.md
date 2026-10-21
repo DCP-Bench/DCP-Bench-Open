@@ -1,3 +1,0 @@
-- Block-to-letter assignment with fixed face counts maps cleanly onto `count(IRT_EQ)` per block plus one `distinct(IPL_DOM)` per word over the word's letter variables. No decomposition was needed.
-- The brief's example instance is the only one the skill's examples match closely, so a model that reads the alphabet string and word list from the instance needs no special handling for words shorter than the block count.
-- Symmetry (interchangeable blocks) was left unbroken; the 24-variable search solved every instance in well under a second, so no `precede` was needed.

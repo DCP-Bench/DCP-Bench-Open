@@ -1,2 +1,0 @@
-- Satisfaction problem with no setObjective call: the runner enumerated 2 solutions without error.
-- Both file-level size constants (13 people, 4 males) come from the problem statement, since the instance list is empty; the comment says so.

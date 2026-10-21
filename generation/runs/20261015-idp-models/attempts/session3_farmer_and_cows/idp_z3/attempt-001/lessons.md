@@ -1,3 +1,0 @@
-- A `${...}` placeholder accepts parentheses and `//`, so a derived total such as `${(num_cows*(num_cows+1)//2)//num_sons}` works in the theory.
-- `sum{{ (if x(k) = s then k else 0) | k in Cow }}` per son stayed fast on 81 cows; `sum{{ k | k in Cow: x(k) = s }}` compared between sons timed out at 60 s (quick check) on the 81-cow instance.
-- Quick check with `--instance-ids json:1` isolates a slow instance; the 60 s check timeout was reproducible, then the variant passed all 5 instances.

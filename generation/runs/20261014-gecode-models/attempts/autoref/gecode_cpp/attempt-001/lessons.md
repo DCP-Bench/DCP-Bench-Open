@@ -1,2 +1,0 @@
-- The problem's "every term counted" is implicit: with terms in 0..n+2, (4,0,0,0,0) for n=3, m=0 passes the count constraints but is rejected by the reference. Bound the terms to 0..n and add the redundant sum of the n+1 counts = n+2.
-- The brief's "only solution" notes can be wrong: the evaluator's second solution for n=3, m=0 was the one above, so trust the evaluator over the note.

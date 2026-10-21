@@ -1,4 +1,0 @@
-- Knapsack-style maximize over 0/1 choices timed out ("Candidate optimum was not proven", 60 s) with nested per-group sums over Bool guards (attempts 1 and 2 in this run).
-- A flat type of 26 players with a single `sum{{ (if buy(p) then price(p) else 0) | p in Pl }}` proved the optimum 29999 quickly.
-- Declaring the objective and z as `-> Cost` (range {0..30000}) timed out again; leaving them `-> Int` was accepted, so a range on the optimised value can slow the proof.
-- Guards `#{ p in Pl: isDef(p) & buy(p) } >= 2` and `?=1 p in Pl: isGk(p) & buy(p).` parsed fine at the top of a sentence.

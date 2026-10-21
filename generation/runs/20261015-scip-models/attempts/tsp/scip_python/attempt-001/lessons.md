@@ -1,2 +1,0 @@
-- Subtour elimination: MTZ with integer position variables is enough for the instance sizes here; no lazy constraints are needed because the runner solves in one call.
-- The evaluator accepted attempt-001 on all 5 instances; the slowest (20 cities, berlin52_first20 subset) took about 54 s wall, inside the 180 s limit.

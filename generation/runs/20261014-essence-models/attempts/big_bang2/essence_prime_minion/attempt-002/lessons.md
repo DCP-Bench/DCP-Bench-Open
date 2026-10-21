@@ -1,2 +1,0 @@
-- attempt-001 (dice faces free, toInt sums over 6x6 pairs, 10 beats constraints) timed out in Minion at 60 s; sdf and conflict heuristics did not help.
-- Ordering the faces of each die non-decreasing (symmetry breaking, removes only face permutations) made it solve in under 60 s.

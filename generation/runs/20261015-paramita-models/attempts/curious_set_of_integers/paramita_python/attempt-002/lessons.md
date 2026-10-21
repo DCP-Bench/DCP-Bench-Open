@@ -1,2 +1,0 @@
-- A one-hot integer whose value is multiplied into a weighted PB (c*c over ~1000 values) can exhaust 2 GB; hold the product in binary bits linked per value.
-- Binary bits for x with a constant multiple a*x in PB: weights a*2^k stayed fine for a up to 120 and 14 bits.

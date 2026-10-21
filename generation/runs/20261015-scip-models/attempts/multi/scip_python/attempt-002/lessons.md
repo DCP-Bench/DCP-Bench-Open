@@ -1,2 +1,0 @@
-- The runner's optimum check enumerates a second solution after the optimum is proven. With a bare linear objective (`setObjective(expr)`), attempt-001 of `multi` proved the optimum in 1.6 s but timed out in the second-solution search (`solution-limit 2`) on one instance.
-- Holding the objective in a bounded integer variable (`total == expr`, `ub` from the data, `setObjective(total)`) removed that timeout.

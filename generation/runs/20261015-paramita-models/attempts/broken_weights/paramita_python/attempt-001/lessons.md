@@ -1,3 +1,0 @@
-- `Or` takes one sequence (`Or(list)`) or two operands; `Or(*xs)` with three or more raises a TypeError in `execution_error`. Write `Or(xs)`.
-- Layer-wise reach over signed sums works: one Bool per (layer, sum), implication to the previous layer, and the empty sum fixed as a unit clause. Five pieces, m=80 evaluated in about 13 s.
-- Check output prints a long Python traceback in `detail`; read `stderr` and the first line of `detail` only.

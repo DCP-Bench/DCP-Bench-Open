@@ -1,2 +1,0 @@
-- Clue 5 ("person 0, the chef, and the police officer went golfing together") read as three different people. The reading that all three are the same person was rejected by the reference with `invalid_solution: Declared outputs cannot extend to a reference solution`. The distinct-people reading was accepted.
-- `gcc(list_of_decision_vars, [0,1,2,3], [2,2,2,2])` with a list literal of named `find` variables compiled and solved; no `matrix` wrapper was needed.

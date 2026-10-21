@@ -1,3 +1,0 @@
-- The instance field "problem" is listed as unbindable, but Instance.raw("problem") gives the Gson JsonArray, and the cages parse from it directly.
-- With no operation given per cage, a cage is a disjunction of Booleans: m.sum(options, ">=", 1).post(). Each option is reified with reifyWith (no post) or a relational .boolVar().
-- Expression product chains need .intVar() after each mul, and eq(target).boolVar() on the last one.

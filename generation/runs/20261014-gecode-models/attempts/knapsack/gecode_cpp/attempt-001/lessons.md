@@ -1,3 +1,0 @@
-- A 0-1 knapsack needs no decomposition: `linear(*this, IntArgs(w), BoolVarArray, IRT_LQ, cap)` takes the weight row directly, and the value sum is an `IntVar` tied by `linear(..., IRT_EQ, total)`.
-- Declaring the decisions as a `BoolVarArray` and outputting it directly passes the `[n]bool` output without conversion.
-- `IntVar` with bounds from the data (0..sum of values) keeps the objective domain tight and needs no extra constraint.

@@ -1,2 +1,0 @@
-- The brief's description for added_corners elides the figure legend ("..."). The letters C and F were read as circle and square; the evaluator accepted that reading.
-- Paramita: one-hot integers as `sum(v * x[v])` and PB comparisons over those expressions (`value[s] == value[c1] + value[c2]`) work directly; no extra auxiliaries were needed for an 8-cell permutation.

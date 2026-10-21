@@ -1,2 +1,0 @@
-- Existential choices per amount go into an auxiliary `y: Amt * I -> Count` with `y(v, i) =< x(i)` and `y(v, i) = 0` for `v >= max`; the sum uses `(denominations(i) * y(v, i))` parenthesised inside `sum{{ ... }}`.
-- Accepted on all 5 instances, but the optimum proof took 58-133 s on four of them (2 s on the smallest), so the 180 s limit is close.

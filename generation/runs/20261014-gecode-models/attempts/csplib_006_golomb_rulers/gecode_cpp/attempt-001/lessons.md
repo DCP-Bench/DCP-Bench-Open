@@ -1,3 +1,0 @@
-- The brief shows marks as [10]int, but the instances vary in size (5 to 10). Sizing the output array from the instance field worked; no fixed shape was needed.
-- A Gecode domain bound for the marks has to come from a derivation. Here the Erdos-Turan bound (prime p in [m, 2m], length below 2p^2 <= 8m^2) was used and noted in a comment.
-- Pairwise differences as `expr(*this, marks[j] - marks[i])` with `distinct(..., IPL_DOM)` solved the largest instance (size 10, optimum 55) in about 6 s.

@@ -1,1 +1,0 @@
-- Same encoding with restarts(100) and INT_VAR_AFC_SIZE_MAX(0.99): worse, 6 of 22 instances checked before tolerated timeouts. AFC with restarts does not fix the large car-sequencing instances; the bottleneck is the encoding or a stronger implied constraint, not the variable order.

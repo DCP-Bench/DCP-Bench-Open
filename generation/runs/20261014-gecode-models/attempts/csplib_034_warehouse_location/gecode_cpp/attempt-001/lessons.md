@@ -1,3 +1,0 @@
-- Opening link: rel(y[s][w], IRT_LQ, open[w]) on BoolVars is the cleanest "supplied only by an open warehouse" form.
-- Per-store one-hot: channel(BoolVarArgs row, IntVar assign) gives the supplier and the y row together.
-- Tight-capacity instance (6 warehouses, 12 stores, total capacity = stores) hit execution_timeout at 180 s; the capacity rows are linear over y, not a count, so propagation is weak there.

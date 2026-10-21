@@ -1,3 +1,0 @@
-- allergy has no instance fields (dataset/allergy/allergy.json is []); all constants come from the statement, so the model reads no data and says so in a comment.
-- Friend numbers are problem constants (Debra=0 ... Rick=3), mirrored as named ints with a comment.
-- Two distinct globals with IPL_DOM and IRT_EQ/IRT_NQ relations on scalar IntVars were enough; no decomposition needed.

@@ -1,2 +1,0 @@
-- A square test a*x+1 = r*r fits as `rel(*this, r * r == t)` with `t = expr(*this, a*x+1)`; the root's bound comes from sqrt(max product + 1).
-- Accepted on the first evaluated attempt; the instance (n=5, max_val=10000) has one example only, so the bounds come from the instance fields and the given set is problem data.

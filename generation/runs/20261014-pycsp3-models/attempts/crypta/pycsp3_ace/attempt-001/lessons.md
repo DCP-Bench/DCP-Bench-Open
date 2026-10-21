@@ -1,2 +1,0 @@
-- Upper-case single-letter Python names for Var (A = Var(...)) gave execution_timeout after about 2 s, with no solution, even for a bare AllDifferent over ten variables named A..J. The same model with lowercase names (a = Var(...)) and aliases (A, B, ... = a, b, ...) was accepted. Output names stay as the module-level names.
-- Reason shown: runner status "timeout", detail "The search stopped before it was exhausted", stderr empty. Looks like ACE returned no solution, not a real time limit.

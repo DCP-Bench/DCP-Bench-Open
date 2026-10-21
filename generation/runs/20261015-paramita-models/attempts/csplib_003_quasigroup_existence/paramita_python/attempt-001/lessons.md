@@ -1,1 +1,0 @@
-- Quasigroup QG3 for paramita: the (a*b)*(b*a)=a identity is m^4 clauses over one-hot Bools (If(And(x[a][b][c], x[b][a][d]), x[c][d][a])); no symmetry breaking needed for orders up to 9.

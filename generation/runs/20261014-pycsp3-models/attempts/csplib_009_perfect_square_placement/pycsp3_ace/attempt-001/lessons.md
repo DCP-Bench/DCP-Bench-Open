@@ -1,1 +1,0 @@
-- Only the redundant Cumulative version (attempt-002) was retained. Attempt-001 (pairwise Or only) accepted 5 of 6 instances; base 112 with 21 squares returned execution_timeout, which tolerate_inconclusive skipped.

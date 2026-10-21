@@ -1,5 +1,0 @@
-vertex i is in the clique (c[i] is 1 when vertex i is in the clique) -> BoolVarArray c(*this, n) (domain 0..1)
-every two distinct vertices in the subset are adjacent: for each non-adjacent pair i, j, not both in the clique -> linear(*this, {c[i], c[j]}, IRT_LQ, 1) (row: pairs meet at most once, linear over Booleans; a pairwise bound, the only form the clique condition has)
-the clique has the largest possible size (maximum clique) -> size = expr(*this, sum(c)); maximize(size) (row: how many are true, linear sum)
-branching: vertices with more non-neighbours (more constraints) first would be wrong for a clique; try vertices by descending adjacency degree, include first -> branch(*this, order, BOOL_VAR_NONE(), BOOL_VAL_MAX()) with order sorted by adjacency degree (heuristic, no propagation row fits)
-output c as bools -> output("c", c)

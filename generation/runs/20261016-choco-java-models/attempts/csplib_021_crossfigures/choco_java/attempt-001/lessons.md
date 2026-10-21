@@ -1,2 +1,0 @@
-- The clue grid is problem data with no instance fields; each entry is a scalar over digit cells, and each clue is one linear or times constraint.
-- Numbers with a set domain (primes, squares, constants) use an enumerated IntVar, which keeps the digit link unchanged.

@@ -1,1 +1,0 @@
-- Five floors: the puzzle has no instance fields, so the floors are 1..5 and every clue is a constant in the model. The "not adjacent" clues use m.distance(x, y, "!=", 1), which is accepted here.

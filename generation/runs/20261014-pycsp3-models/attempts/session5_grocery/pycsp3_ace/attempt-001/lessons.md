@@ -1,2 +1,0 @@
-- Product(prices) over a plain range domain (1..711, four items) returned invalid_solution: Declared outputs cannot extend to a reference solution, although a fixed copy of the same values was accepted. Restricting each variable to the divisors of the product (as a set) gave the correct accepted model.
-- The grocery product is the total times 100 for each item after the first (the note's sample sums and products agree in that scale).

@@ -1,7 +1,0 @@
-- If the New York warehouse is opened, then the Los Angeles warehouse must also be opened -> If(open[ny], open[la])
-- No more than three warehouses can be operational -> sum(open) <= 3
-- Either the Atlanta or the Los Angeles warehouse must be opened -> Or([open[atl], open[la]])
-- Every region's demand is met by the shipments -> binary ships, sum_i ships[i][j] == demands[j]; each cell bounded by min(max_shipping, demand_j)
-- A warehouse ships at most max_shipping, nothing when closed -> sum_j ships[i][j] <= cap*open[i]; cell <= ub*open[i] (redundant, propagates closure)
-- Redundant: total capacity of open warehouses covers total demand -> sum(cap*open) >= sum(demands)
-- Objective: minimise fixed costs + shipping cost; shipping cost rewritten as sum_j d_j*min_i c_ij + sum reduced cost (c_ij - min_i c_ij) * ships, so the cheapest source per region has weight 0 and weights are smaller

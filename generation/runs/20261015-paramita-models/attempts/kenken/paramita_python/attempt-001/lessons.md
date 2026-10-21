@@ -1,2 +1,0 @@
-- Paramita kenken: the instance gives only the cage target, so each cage needs a reified flag per candidate operation, with an Or over the flags.
-- Paramita: product, difference and quotient cages use allowed-tuple tables (one Bool per tuple); the sum uses a weighted PB over one-hot digits.

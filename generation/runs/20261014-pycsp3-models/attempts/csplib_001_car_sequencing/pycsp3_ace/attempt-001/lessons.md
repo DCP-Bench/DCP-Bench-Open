@@ -1,3 +1,0 @@
-- One Table(scope=[sequence[p], has[p][o]]) per option and slot is slow: json:2 timed out at 60 s. One Table per slot over the car type and all its option bits is much faster.
-- Attempt-001 hit execution_timeout on json:9, 10, 11, 18 at 180 s (skipped under tolerance).
-- Attempt-002 adds the redundant constraint Sum(has[p][o] over all p) == sum of demand[c] * requires[c][o]; it solves those four in 12 to 52 s, but json:4 and json:9 still timed out in the full run.

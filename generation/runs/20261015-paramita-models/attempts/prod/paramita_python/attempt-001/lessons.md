@@ -1,2 +1,0 @@
-- Fractional coefficients (1/a[j]) become integers by multiplying the constraint by lcm(a); the PB stays exact.
-- Unary bits make a bounded integer with a weighted-sum constraint and objective in one line each; no extra auxiliaries were needed.

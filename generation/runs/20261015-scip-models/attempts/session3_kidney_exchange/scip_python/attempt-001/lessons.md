@@ -1,3 +1,0 @@
-- Plain Python int 0 inside a nested output list (for absent kidney pairs) was accepted by the runner; no fixed variable was needed.
-- The kidney instance field compatible is ragged, which the brief marks unbindable, yet the pair was attemptable and passed all 5 instances; the ragged list is read directly from instance["compatible"].
-- Satisfaction problems with no objective call: the runner enumerated 2 solutions without any setObjective.

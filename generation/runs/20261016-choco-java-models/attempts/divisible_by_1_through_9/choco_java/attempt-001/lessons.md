@@ -1,3 +1,0 @@
-- Prefix values of a 10-digit number exceed the ±21474836 bound limit, so divisibility of prefixes was written as a digit-by-digit remainder chain with `m.mod(x, n, r).post()` on small IntVars.
-- `m.mod(x, int, z)` takes an IntVar result and needs `.post()`; `r.mul(10).add(d).intVar()` gives the shifted value as an IntVar.
-- `out.putDigits("number", d, 10)` writes the 10-digit number from its digit array.

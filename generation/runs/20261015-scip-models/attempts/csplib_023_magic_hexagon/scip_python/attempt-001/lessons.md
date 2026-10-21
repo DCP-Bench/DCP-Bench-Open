@@ -1,2 +1,0 @@
-- One-hot binaries with all-different per value solved the magic hexagon, but the first two solutions took about 35 s of SCIP search on one instance.
-- The skill's one-hot advice works for permutation puzzles; the time goes to search, not to the model size (361 binaries).

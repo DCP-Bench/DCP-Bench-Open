@@ -1,6 +1,0 @@
-Belgium, Denmark, France, Germany, Netherlands and Luxembourg get a colour; neighbouring countries differ -> per edge of the graph field: rel(*this, colors[a] != colors[b]) (pairwise decomposition: no map row covers an arbitrary edge list; each edge is a two-variable all-different, so a pairwise != is the same thing)
-Colours are integers starting from 1, colors[i] in 1..6 -> IntVarArray(*this, 6, 1, 6)
-Interchangeable colours: the labels are symmetric -> precede(*this, colors, IntArgs({1,2,3,4,5,6})) (value v+1 appears only after v)
-Minimise the number of colours used -> ncolors = expr(*this, max(colors)); minimize(ncolors)
-Branching: colors in order, smallest value first -> branch(*this, colors, INT_VAR_NONE(), INT_VAL_MIN())
-Output: colors (the 6 colours, 1-based)

@@ -1,2 +1,0 @@
-- Template design, binary sheet counts with one aux per (copies value, bit): the example is accepted, json:2 times out with "the optimum was not proven" at 180 s. Adding redundant cuts (total copies at most n_slots times the sheets, sheets times n_slots at least total demand) did not help the proof within 170 s.
-- Next step for this problem is a different optimisation encoding, not a variant of this one.

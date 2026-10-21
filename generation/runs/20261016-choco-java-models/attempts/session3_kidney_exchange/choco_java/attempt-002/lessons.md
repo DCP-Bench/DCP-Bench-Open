@@ -1,2 +1,0 @@
-- Kidney exchange (directed donation graph, maximise receivers): default search timed out (180 s) on the 20-person dense instance. domOverWDeg over all donation cells with Luby restarts (50 fails) solved all 5 instances in about 1 s.
-- The brief marks the ragged `compatible` field as unbindable, but next_work lists the pair as bindable for choco_java and getIntMatrix reads the ragged rows; the model binds it.

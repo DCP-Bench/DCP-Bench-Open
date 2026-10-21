@@ -1,2 +1,0 @@
-- A count of reified wins needs only one direction: binary g with addConsIndicator(x - y >= 1, binvar=g) and sum(g) >= k is sound when the description asks for at least k winning pairs.
-- The example instance for big_bang2 is an empty dict, so the model takes no data; faces 1..12 and six faces per die come from the description.

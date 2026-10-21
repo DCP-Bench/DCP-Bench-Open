@@ -1,2 +1,0 @@
-- A nested list of binary variables is accepted directly for a [4][5]bool output; no conversion needed.
-- The instance cost matrix sets both sizes (len(cost), len(cost[0])), so one build handles 4x4 to 4x10 instances.

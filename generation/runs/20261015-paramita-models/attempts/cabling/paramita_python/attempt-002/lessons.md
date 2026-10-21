@@ -1,1 +1,0 @@
-One-hot distance per cable (n^2 implications per cable) timed out at 10 devices; a unary length per cable with two PB difference constraints (pos_a - pos_b <= t, pos_b - pos_a <= t) solved all 5 instances (max 16.5 s).

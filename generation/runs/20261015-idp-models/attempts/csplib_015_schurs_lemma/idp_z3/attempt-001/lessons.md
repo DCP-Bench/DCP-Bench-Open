@@ -1,1 +1,0 @@
-- A ball-to-box function over `Ball := {1..${n}}` with `Box := {1..${c}}` and one universal sentence over x, y, z with `x + y = z` is accepted on all five instances; the output list reads back as the balls in order.

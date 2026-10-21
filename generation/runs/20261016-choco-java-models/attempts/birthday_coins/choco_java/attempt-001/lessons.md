@@ -1,2 +1,0 @@
-- birthday_coins has no instance fields; the totals (15 coins, 306 pence) are fixed by the description and typed as constants.
-- The description does not say each coin kind appears; with only the two equations there are three solutions (h=7,8,9). Requiring at least one of each gives 8.

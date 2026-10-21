@@ -1,2 +1,0 @@
-- A Bool output over an instance-sized index type (in_S, in_T) with nonemptiness as existential sentences passed all 5 instances on the first attempt.
-- Sums over a data-sized index type, with parenthesised terms, work; no range type was needed for this satisfaction problem.

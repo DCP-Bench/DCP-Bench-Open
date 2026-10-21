@@ -1,1 +1,0 @@
-Runner binds every instance key, including name and note, so any named instance with string values fails with execution_error. Knapsack instances also vary in length (5, 10, 15, 22 items) while the given has a fixed size.

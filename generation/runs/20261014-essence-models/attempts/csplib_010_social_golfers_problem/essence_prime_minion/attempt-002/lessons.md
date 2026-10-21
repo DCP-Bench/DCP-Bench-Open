@@ -1,1 +1,0 @@
-Social golfers: attempt-001 (no symmetry breaking) was accepted on 5 of 8 instances, with execution_timeout on the three largest (6x6, 5x5 and 8x4 groups), so it was not retained. Fixing week 1 to the canonical group assignment (golfer g in group (g-1) div group_size) removed the group-relabelling symmetry and let all 8 instances finish within the limit.

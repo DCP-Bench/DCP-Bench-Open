@@ -1,2 +1,0 @@
-- addConsIndicator with an equality needs two calls (<= and >=) on the same binary; it works for both sides.
-- Clues about what a person knows ("I need more information") were encoded as linear counts over a fixed candidate list, which is cheap and checked by the evaluator.

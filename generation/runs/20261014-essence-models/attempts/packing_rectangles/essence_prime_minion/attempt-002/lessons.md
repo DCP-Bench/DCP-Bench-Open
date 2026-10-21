@@ -1,3 +1,0 @@
-- Instances vary in item count (4 to 9), so `given heights_dim1` with `letting n = heights_dim1` binds the sizes; no fixed [4] shape.
-- Area objective `total_x * total_y` with a redundant `total_x * total_y >= sum of item areas` did not let Minion prove the optimum on the 8-square instance (optimum 210) within 175 s; the 4-item and 5-item instances solve in seconds.
-- Reproduced: `heuristic sdf` placed between `branching on` and `minimising` parses; the skill's position before `such that` is the one to use.

@@ -1,2 +1,0 @@
-- The brief declares `number` as int, and the only solution of the 10-digit problem (3816547290) is above 2^31-1. The 32-bit output limit in the skill blocks it: the reference solution cannot extend to a model output (reason `invalid_solution`, "Declared outputs cannot extend to a reference solution"), whatever the encoding.
-- The prefix-divisibility encoding works without large numbers: replace 10^(k-p) by 10^(k-p) mod k, then `sum c_p d_p == k * t` with a small one-hot t.

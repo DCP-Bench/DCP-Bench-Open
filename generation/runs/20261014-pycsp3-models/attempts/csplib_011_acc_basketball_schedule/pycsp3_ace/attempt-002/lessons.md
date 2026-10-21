@@ -1,3 +1,0 @@
-- Attempt-001 (plays[d][i][j] booleans, mirror as equality of plays) timed out at 170 s with no solution.
-- Attempt-002 with equal rows for mirrored dates and Count over all 18 dates: no_solution in about 2 s. Ablation pointed at the Count block. Count over a list holding the same Var twice (shared rows) appeared to give the wrong answer; not isolated further.
-- Counting only the base dates (Count == 1) and writing the 'meets UNC or Duke' constraint as Or(...) over dates gave an accepted model in about 52 s (2 solutions).

@@ -1,2 +1,0 @@
-- An output declared as int (0/1 in a grid) must be an integer expression: a bare Bool gives `invalid_output` "Expected integer at x[0][0]". Wrap each cell as `1 * b`.
-- The brief's shape decides the output type even when the description says booleans.

@@ -1,2 +1,0 @@
-- element with IntArgs(vector) as a table indexed by a cell number worked directly in rel(row[v] == element(IntArgs(t), y[v])); no IntSharedArray needed.
-- channel(x, 1, y, 1) with 1-based cell numbers and values gave a clean Hidato model; abs-based adjacency on row/col was enough for all 5 instances in under 11 s each.

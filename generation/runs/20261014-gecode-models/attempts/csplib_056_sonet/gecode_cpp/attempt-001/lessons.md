@@ -1,3 +1,0 @@
-- Pairwise sharing with BoolVar matrices: expr(*this, on[a] && on[b]) per ring, then linear(IRT_GQ, 1), works and needed no global.
-- Ring capacities from the instance (capacity_nodes) are per ring, so each ring gets its own linear(IRT_LQ) row.
-- Output ring_config as std::vector<BoolVarArgs> (one row per ring) matches [r][n] directly.

@@ -1,1 +1,0 @@
-- Output constants: an integer variable with lb == ub serves as a fixed output entry (used for the exodus children numbering). Plain Python ints were not tried.

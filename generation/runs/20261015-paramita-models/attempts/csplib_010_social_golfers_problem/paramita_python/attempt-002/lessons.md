@@ -1,2 +1,0 @@
-- Attempt 1 (one-directional meet, at most one meeting per pair) timed out on 10 golfers / 8 weeks / groups of 2.
-- Exact meetings (meet implies shared group) plus "each golfer meets group_size - 1 others per week" closed the gap in 36 s total.

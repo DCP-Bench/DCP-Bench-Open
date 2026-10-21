@@ -1,3 +1,0 @@
-- Choco 6.0.1: `relational.imp(relational).post()` works for host-conditional constraints; `m.reifyXeqY` returns void and needs no `.post()`.
-- Scalar load with a host-only term: `present[h] = isHost[h]` with weight crew[h] gives a zero load for non-hosts, so one `load <= capacity` covers all boats.
-- Host visits itself in each period (visits[p][h] = h). Meetings are counted as equal visit values, which also covers the revisit rule.

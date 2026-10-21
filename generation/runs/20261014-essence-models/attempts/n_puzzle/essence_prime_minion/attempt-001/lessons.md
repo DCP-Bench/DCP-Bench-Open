@@ -1,1 +1,0 @@
-- Sliding-tile state encoded with blank-position aux finds (br, bc) and a per-step move rule; a 2-D instance grid binds with puzzle_start_dim1/dim2 and the same dims on puzzle_end. Accepted first try on 2x2, 3x3 and 4x4 boards.

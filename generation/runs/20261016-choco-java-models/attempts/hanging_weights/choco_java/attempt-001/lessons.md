@@ -1,2 +1,0 @@
-- Hanging-weights style puzzles: a bar balance is one `m.scalar(vars, coeffs, "=", 0)` with the distances as coefficients; sub-bar totals go through `m.sum(name, ...)` so a parent bar can use them.
-- The ASCII diagram in the description has stems off by one column from the bar grid. Snap each stem to the nearest plus of the bar it enters, and check the result against the description's own equations (3*G = 2*(C+D), 5*C = D).

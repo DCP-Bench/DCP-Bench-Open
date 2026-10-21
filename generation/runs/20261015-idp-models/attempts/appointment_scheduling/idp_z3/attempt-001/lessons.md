@@ -1,1 +1,0 @@
-- Two data-sized index types from one matrix (`type P <: Int`, `type S <: Int`, `m: P * S -> Int`) and a Bool output `x: P * S -> Bool` read back as a 4x4 list of booleans; `?=1 s in S: x(p, s)` per row and column gave the assignment constraints.

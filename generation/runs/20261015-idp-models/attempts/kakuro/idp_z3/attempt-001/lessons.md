@@ -1,4 +1,0 @@
-- A mixed row [clue, cell, cell, ...] binds as problem_1: Seg -> Int (clue), problem_2: Seg * Cell * Coord -> Int (cells) and problem_2_len: Seg -> Int; the clue split works without declaring the raw field.
-- The blanks field lists the black cells (clue cells included), not the white ones: x is 0 exactly there.
-- Cell coordinates are 1-based, so Row and Col were declared as {1..${n}} and x is indexed directly; no shift was needed.
-- Membership as a definition (inseg) keeps the entry sums and digit counts short; the per-digit count #{...} =< 1 needed no 2-variable existential.

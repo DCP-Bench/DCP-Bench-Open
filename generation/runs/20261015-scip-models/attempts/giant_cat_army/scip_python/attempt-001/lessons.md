@@ -1,3 +1,0 @@
-- The square-root step has no indicator form (indicators take linear terms only), so it is a big-M quadratic pair, M = 60^2.
-- One-hot value encoding for the list gives distinctness as one sum per value; 'a 10 only after a 2' is a prefix sum.
-- The evaluator accepted the model on one instance (empty instance dict); no instance field is read.

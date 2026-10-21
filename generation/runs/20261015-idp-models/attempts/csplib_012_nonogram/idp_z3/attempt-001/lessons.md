@@ -1,4 +1,0 @@
-- Block rules over a grid: one start variable per block plus a cover equivalence per cell, with a `? c in Col` existential as the fit check, works and is accepted.
-- Row and column rule arrays need separate index types (RK, CK), each sized from its own array.
-- Rule slots with 0 padding are skipped by guarding every block constraint with `rules(r,k) > 0`.
-- Largest instance (turing, 45x35) times out at 60 s; the model is correct but z3 cannot close it within the limit.

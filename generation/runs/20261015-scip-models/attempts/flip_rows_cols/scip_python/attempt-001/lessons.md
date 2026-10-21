@@ -1,2 +1,0 @@
-- addConsXor([row_flip, col_flip, cell_flip], False) gives cell_flip = row_flip XOR col_flip, and 1 - 2*flip is then the sign, so the signed cell value a*(1-2f) stays linear.
-- Sign flips over a grid need one xor per cell; no big-M is needed.

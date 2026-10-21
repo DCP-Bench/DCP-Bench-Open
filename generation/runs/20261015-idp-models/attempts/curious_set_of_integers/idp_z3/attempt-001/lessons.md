@@ -1,3 +1,0 @@
-- With `? r in Root: r * r = a * x + 1`, the first solution appears at once but the search for a second solution timed out at 60 s when Root had 10001 values; Root sized `max_val // 9 + 1` (1112) took 2.5 s. Size quantifier domains to the bound the math needs, not to the instance max.
-- Declaring the output `-> Int` and bounding it in the theory (`0 =< number() & number() =< ${max_val}.`) was much faster than `number: () -> Num` with `Num := {0..${max_val}}` (59 s vs 2.5 s) on the same constraints.
-- The bound `max_val // 9 + 1` for roots is only valid for max_val near 10000; a generic bound needs another derivation.

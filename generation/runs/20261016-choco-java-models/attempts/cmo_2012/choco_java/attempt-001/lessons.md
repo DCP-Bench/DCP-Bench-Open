@@ -1,3 +1,0 @@
-- a * b = n * n is posted as two times() constraints sharing one "square" variable, with bounds max_val * max_val (1e8 at max_val 10000). This is inside the int range, though above the skill's conservative 21474836 margin, and the evaluator accepted it.
-- The prime condition on a - b uses an IntVar p whose domain is the list of primes up to max_val (a sieve), so no prime check is posted.
-- The evaluation of 5 instances took about 25 s in total.

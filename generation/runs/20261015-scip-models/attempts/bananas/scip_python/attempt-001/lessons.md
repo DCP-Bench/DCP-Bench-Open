@@ -1,2 +1,0 @@
-- Accepted first try. Bananas is a pure linear problem; scaling the dollar prices by 315 (LCM of 5, 7, 9, 3) gives integer coefficients, so no fractions reach SCIP.
-- The example instance has no fields, so build() ignores its argument; the instance-size rule has nothing to read.

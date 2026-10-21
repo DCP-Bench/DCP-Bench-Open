@@ -1,2 +1,0 @@
-- 1-based numbers 1..n^2 with a free start square were accepted on n=5 and n=6; 0-based numbers were rejected as "cannot extend to a reference solution".
-- Channel with inverse(cell, pos, 1, 0) for 1-based values, then one table per consecutive pair of positions (8 move tuples); n=6 solves in about 10 s.

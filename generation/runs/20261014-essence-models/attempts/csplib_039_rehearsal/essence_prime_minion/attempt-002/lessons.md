@@ -1,2 +1,0 @@
-- Essence' Savile Row: an objective that is a nested sum must be wrapped in parentheses in `minimising (...)`. Unwrapped, the runner's `= optimum` constraint gets absorbed by the last quantifier body and fails with "'And' contains something other than a relation".
-- Decision-valued index into a given matrix (`duration[rehearsal_order[s]+1]`, `rehearsal[p, rehearsal_order[s]+1]`) works in constraints and objectives.

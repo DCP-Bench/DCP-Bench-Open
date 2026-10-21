@@ -1,3 +1,0 @@
-- `Or` takes a single list argument (`Or([...])`), not varargs; varargs raise a TypeError in the runner.
-- A one-hot position per k-th item, with strict ordering on the linear sums `sum(i * pos[k][i])`, gives sorted outputs and distinct positions without a separate all-different constraint.
-- The brief declares `x: [9]int` while the instance's m varies; the model emits m values, and the evaluator accepted m = 4, 8, 9, 12.

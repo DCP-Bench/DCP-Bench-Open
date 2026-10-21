@@ -1,4 +1,0 @@
-- The driver rejects any output that is not a declared name: `output("total", ...)` for an objective variable gave invalid_output. Register only the declared outputs; the objective goes through minimize().
-- `element` over a constant row takes an IntSharedArray; `IntSharedArray(IntArgs(row))` compiled fine.
-- A one-hot Boolean row per task with `channel(*this, x_row, person_i, 0, IPL_DOM)` plus `distinct` on the persons gives the assignment; both lists of outputs come from the same Boolean rows.
-- Plan.md was written after the first draft of the model in this attempt, against the workflow order. The model was not changed for that reason.

@@ -1,2 +1,0 @@
-- Real-valued auxiliary (`time: Product -> Real`, `a(j) * time(j) = x(j)`) avoids rational division by a data field; accepted 5/5 with exact optimum (35 on the 4-product instance).
-- Range types sized from data work: `type Qty := {0..${max(u)}}` bounds the outputs; a named type is used rather than an inline range.

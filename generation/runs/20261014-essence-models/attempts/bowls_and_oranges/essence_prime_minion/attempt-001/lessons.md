@@ -1,1 +1,0 @@
-Harness: bind() refuses every instance field with a string value, including the metadata keys name and note that most instances carry; the brief lists only m and n. Named instances fail with execution_error, so the model cannot reach full coverage.

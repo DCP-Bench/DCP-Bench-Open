@@ -1,3 +1,0 @@
-- Each attribute is one-hot over (value, house); the house of a value is the int expression sum(h * H), so "same house" is P_a == P_b and "next to" is Or(P_a + 1 == P_b, P_b + 1 == P_a).
-- The puzzle has no instance data; the model takes the instance argument and does not read it.
-- Accepted on the first real evaluation (1 instance, 2 solutions checked).

@@ -1,2 +1,0 @@
-- The 'at most one task per person' rule is not in the statement's wording, but the instance note (one cheap person may take only one task) confirms it; the model enforces it with ?=<1, and all five instances were accepted.
-- Data-sized Task and Person types from a 2-D cost field worked with the ?=1 and ?=<1 quantifiers; no skill gap hit.

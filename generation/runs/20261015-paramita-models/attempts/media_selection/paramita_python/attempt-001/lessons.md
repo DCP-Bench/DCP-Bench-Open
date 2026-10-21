@@ -1,1 +1,0 @@
-Unary-free: one Bool per medium (binary selection), one covering clause per audience; no integer encoding beyond the cost sum.

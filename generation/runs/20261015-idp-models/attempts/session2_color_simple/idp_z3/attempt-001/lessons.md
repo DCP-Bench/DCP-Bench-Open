@@ -1,2 +1,0 @@
-- A `minimize() = #{ k in Color: ? c in Country: colors(c) = k }` count objective returned a suboptimal result on the example (reference optimum 4); `max{ colors(c) | c in Country }` with colours numbered 1..k proved the optimum.
-- Node ids in the instance are 1-based while the edge array is 0-based; with edges as `Edge * Pos -> Int` the values compare directly to `Country := {1..6}` without shifting.

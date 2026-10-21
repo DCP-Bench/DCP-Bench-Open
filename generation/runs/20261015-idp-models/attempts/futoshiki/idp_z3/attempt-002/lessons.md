@@ -1,3 +1,0 @@
-- The grid size is not a scalar field here, so the digit range cannot be a `${...}` type. The model bounds cells by `order() = #{ i in Row: i >= 0 }` instead.
-- The `lt` field of shape [k][4] binds as `Ineq * Field -> Int`, and the 1-based clue coordinates are matched with `r + 1 = lt(k, 0)` rather than by applying a symbol to a computed Int argument.
-- The inequality block quantifies over all cell pairs per clue, so cost grows with clues times cells squared. The 7x7 instance took about 30 s of the 60 s limit.

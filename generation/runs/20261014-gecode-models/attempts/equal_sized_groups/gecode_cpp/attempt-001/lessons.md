@@ -1,2 +1,0 @@
-- Breaks that may not split equal values fit a domain restriction (`dom` with an `IntSet` of allowed split points), not a propagator.
-- Group sizes as `abs(right - left - ideal)` with constant end points 0 and N give a clean objective without auxiliary sizes.

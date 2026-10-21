@@ -1,1 +1,0 @@
-The reading of "no apples left" matters: the apple given to the girl is the last number (1), not 0. The reference is unique only with an even count before each gate; a rounded-down bribe admits many solutions and fails with "Declared outputs cannot extend to a reference solution".

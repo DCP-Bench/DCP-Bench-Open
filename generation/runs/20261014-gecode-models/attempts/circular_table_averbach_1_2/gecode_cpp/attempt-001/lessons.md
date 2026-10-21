@@ -1,2 +1,0 @@
-- Seat arithmetic mod 3 with a fixed table is cleanly expressed as `element(IntArgs(table), var, result)`; no `%` expression needed.
-- The description admits three seat assignments (x,y,z = 0,2,1 / 1,0,2 / 2,1,0) under the stated clues. The evaluator checked only the first two solutions, so this model does not pin down a unique answer.

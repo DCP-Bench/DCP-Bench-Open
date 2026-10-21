@@ -1,3 +1,0 @@
-- Quantities that define the schedule (periods, boats, crews, capacities) are read from the instance; the one-hot target per period keeps the host/guest and meeting constraints as plain PB and implications.
-- Host capacity is one PB per host and period; the host's own crew enters with weight crew_size times host flag.
-- Guest meetings need one auxiliary per pair and period, forced true by the two visits; the at-most-one bound is then a single PB per pair.

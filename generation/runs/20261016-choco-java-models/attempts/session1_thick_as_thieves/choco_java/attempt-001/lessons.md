@@ -1,2 +1,0 @@
-- Truth-teller/liar puzzles: each statement becomes a BoolVar with 'truth != guilty' (a statement is true exactly when its speaker is innocent).
-- Relational expressions give BoolVars directly: x.eq(1).imp(y.eq(1)).boolVar(), x.ne(1).boolVar(), a.eq(1).and(b.eq(1)).boolVar(). No skill change needed; these were used as documented.

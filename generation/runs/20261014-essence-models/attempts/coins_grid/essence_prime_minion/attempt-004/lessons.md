@@ -1,2 +1,0 @@
-- Output x is declared int (the reference prints 0/1), so x is int(0..1), not bool: bool gives invalid_output 'Expected integer at x[0][0]'.
-- Coin costs use x directly; rowcost[i] >= min over windows of c columns is a valid per-row lower bound, and it did not prove the 10x10 example optimum (200) within 90 s.

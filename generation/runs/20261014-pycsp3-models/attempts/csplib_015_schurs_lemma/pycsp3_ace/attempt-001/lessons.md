@@ -1,2 +1,0 @@
-- Triple constraints as NValues(...) >= 2 over integer colours timed out (execution_timeout, n=13, 3 boxes, check run with 40 s). Boolean box indicators with Sum(...) <= 2 per triple and box, plus Sum(row) == 1, solved all instances.
-- Breaking the box symmetry with inbox[0][0] == 1 (ball 1 in box 1) kept the instances accepted.

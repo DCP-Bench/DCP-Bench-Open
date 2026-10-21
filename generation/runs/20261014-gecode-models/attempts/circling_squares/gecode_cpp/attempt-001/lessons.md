@@ -1,3 +1,0 @@
-- Domain choice matters for the DCP check: a -99..99 domain gave solutions with negative numbers and the evaluator answered "Declared outputs cannot extend to a reference solution". 0..99 was accepted.
-- Squares as members (sq[i] == sqr(v[i]) via rel) keep each equation readable in the description's terms.
-- Opposite-pair equations on a ring of 10 are duplicated (i and i+5), so five equations suffice.

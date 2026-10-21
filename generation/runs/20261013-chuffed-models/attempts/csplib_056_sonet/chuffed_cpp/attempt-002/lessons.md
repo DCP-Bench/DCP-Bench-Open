@@ -1,1 +1,0 @@
-- Demand is symmetric in the data; the pair constraint checks demand[i][j]+demand[j][i] so either direction counts. Node-on-ring booleans with the ADM count as an IntVar sum gave fast optimum proofs (0.4 s on the example).

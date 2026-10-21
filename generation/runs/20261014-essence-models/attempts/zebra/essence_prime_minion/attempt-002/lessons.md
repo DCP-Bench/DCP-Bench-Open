@@ -1,1 +1,0 @@
-- Explicit disjunction `(a + 1 = b \/ b + 1 = a)` replaces `abs(a - b) = 1`, which failed to parse in attempt-001.

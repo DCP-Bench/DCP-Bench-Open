@@ -1,2 +1,0 @@
-- ACE returns UNKNOWN in about 2 s (runner status `timeout`) for any integer domain value above 2^31-1: `number = Var(dom=range(3 * 10**9, 3 * 10**9 + 10)); number == 3000000007` gave no solution (verified). The only valid 10-digit answer is above that bound, so the declared `number` cannot be reported by ACE as it stands.
-- Modulo constraints on separate prefixes (`Sum(...) % n == 0`) solve fast one at a time; the combined digit model with the 10-digit `number` equation did not.

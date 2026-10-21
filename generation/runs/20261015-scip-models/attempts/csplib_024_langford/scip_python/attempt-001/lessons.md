@@ -1,2 +1,0 @@
-- Langford: one binary per (number, first position) and one exact-cover constraint per position. Each output cell is a linear expression over these binaries, so no indicators or big-M are needed.
-- Solved all five instances (k up to 20) in under 3 s each.

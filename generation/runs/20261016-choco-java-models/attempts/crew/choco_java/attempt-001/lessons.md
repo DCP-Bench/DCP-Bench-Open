@@ -1,3 +1,0 @@
-- Crew: the instance's `required_crew` columns are {total, stewards, hostesses, French, Spanish, German} and `attributes` columns are {steward, hostess, French, Spanish, German}. Those orders come from the instance notes, not from the description, and the brief gives only shapes.
-- Role and language counts are "at least" in the instance notes; the flight crew size is exact.
-- Two-flights-off rule is pairwise `arithm(x + y <= 1)` at gaps 1 and 2; no global fits it.

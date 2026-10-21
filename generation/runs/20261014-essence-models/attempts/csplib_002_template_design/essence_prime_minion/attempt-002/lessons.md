@@ -1,3 +1,0 @@
-- `heuristic sdf` placed between `minimising` and `such that` fails with "Failed when parsing rest of structure"; put it right after `branching on`.
-- Template design (2 templates, 9 slots, demand sum 3665): the json:2 optimum 408 equals ceil(sum demand / n_slots). Branching on production then layout (with `heuristic conflict` or `sdf`) did not reach a 408 solution in 500 s.
-- Adding `sum(layout[t]) = n_slots` and sorting templates by production did not change that.

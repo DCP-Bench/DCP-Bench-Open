@@ -1,2 +1,0 @@
-- A nullary entry over a finite range (`X: () -> Val` with `type Val := {0..9999}`) made the grounder enumerate every value: 36 such symbols timed out at 60 s. Declaring them `() -> Int`, with the digit equations fixing them, solved in 2.6 s.
-- Case-splitting the products of two unknowns (`! p in TwoDigit: A23() = p => A13() = p * D26().`) and writing constants as literals did not fix the timeout on their own. Only the Int change did, so the finite-range symbols were the cost.

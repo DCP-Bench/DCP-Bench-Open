@@ -1,2 +1,0 @@
-- Values in {-1, +1} use m.intVar(name, new int[]{-1, 1}); products of two such entries are posted with m.times(x, y, p) and a result IntVar with the same domain, then summed.
-- Periodic indexing (i + s) mod l is done in Java when building the product list, so no view or table is needed.

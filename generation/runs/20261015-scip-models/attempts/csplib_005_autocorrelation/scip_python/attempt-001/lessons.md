@@ -1,2 +1,0 @@
-- The SCIP periodic autocorrelation model needs C_k bounds of +-n (the periodic sum has n terms), not n-k; a wrong bound gave status unsat with no_solution.
-- addConsXor([b_i, b_j, x], False) encodes x = b_i XOR b_j cleanly; C_k^2 via z_k >= C_k**2 with a linear objective works.

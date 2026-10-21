@@ -1,3 +1,0 @@
-- Mixed rows `[sum, [[r, c], ...]]` bind as `problem_1: Cage -> Int` (scalars), `problem_2: Cage * Cell * Coord -> Int` (padded cell pairs) and `problem_2_len: Cage -> Int`; coordinates use 0 and 1 as Coord indices. Accepted on all 5 instances.
-- Cell coordinates in the data are 1-based, so they match `Row := {1..${n}}` directly without shifting.
-- Nonet rule `(r1 - 1) / 3 = (r2 - 1) / 3` over quantified variables evaluated without a domain error; `sum{{ x(r,c) | ...: in_cage(i,r,c) }}` works for the cage sums.

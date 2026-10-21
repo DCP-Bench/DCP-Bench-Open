@@ -1,2 +1,0 @@
-- Zebra's dataset file is `[]` (no instance fields). The model takes `instance` and ignores it; the puzzle's data is in the description, so this is the only possible binding.
-- Clue "X is Y" between two item kinds is an equality of house numbers: `rel(jobs[painter] == pets[horse])`. Neighbour clues use `abs(a - b) == 1`; "either A, B or C" uses `member` over the three house variables.

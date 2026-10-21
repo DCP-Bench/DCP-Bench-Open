@@ -1,2 +1,0 @@
-- Forcing the leading letter of each word to be non-zero made the model unsatisfiable (`no_solution`). The reference solution has S = 0 (SHEEP starts with S), so the description allows a zero leading digit here. Read the description literally before adding leading-digit rules.
-- Output aliases on lowercase letter variables worked (see the n_fractions lessons).

@@ -1,2 +1,0 @@
-- The harness `bind()` in solvers/essence_prime_minion/run.py binds every instance field, including string metadata (`name`, `note`), and refuses strings with `execution_error`. `generation.brief` hides these fields, so the model cannot avoid them. Any non-example instance with a `name` or `note` is unbindable.
-- A flat list instance field (`numbers`) of varying length cannot bind to one fixed `given` domain. The 3-element instance needs a 3-long matrix while the model declares `int(1..4)`.

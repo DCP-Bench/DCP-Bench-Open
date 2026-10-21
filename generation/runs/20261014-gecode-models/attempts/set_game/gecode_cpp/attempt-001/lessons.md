@@ -1,2 +1,0 @@
-- A per-feature TupleSet of the valid triples (all same or all different) with element lookups of the chosen cards is a compact, domain-consistent encoding; no decomposition needed.
-- element(*this, IntArgs(column), idx, val) takes a std::vector-built IntArgs directly; it compiled first time.

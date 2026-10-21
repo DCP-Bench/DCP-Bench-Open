@@ -1,2 +1,0 @@
-- The n=20 instance (json:4) hit execution_timeout at 180 s with idp_z3 in all three attempts: abs() or an if-then-else form for the differences, with or without reversal symmetry x(1) < x(n). The other four instances were accepted, so the retained model is 4/5 checked; the n=20 case is a recorded solver performance limit.
-- Type sizes `Pos := {1..${n}}` and `Gap := {2..${n}}` give n positions and n-1 interval slots, and `x(g - 1)` with a Gap variable checked without a sort error.

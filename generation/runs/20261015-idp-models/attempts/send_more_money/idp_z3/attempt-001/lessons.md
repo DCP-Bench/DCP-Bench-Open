@@ -1,2 +1,0 @@
-- A problem with an empty instance list (`[]`) binds nothing; the model needs no instance fields and the runner accepts it.
-- `s: () -> Int` with explicit `0 =< s() & s() =< 9` on each output was accepted and read back as integers. Finite bounds on the outputs are enough; no range type was needed.

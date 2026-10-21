@@ -1,3 +1,0 @@
-Attempt 1 (branch INT_VAR_MIN_MIN/INT_VAL_MIN, no restarts) and attempt 2 (restarts(100), INT_VAR_AFC_SIZE_MAX(0.99), INT_VAL_SPLIT_MIN) both end after one solution with solve_seconds about 0.001 and reason suboptimal_solution, detail "Declared outputs cannot achieve the reference optimum".
-Adding a root bound makespan <= optimum makes the same model accepted on ft06 and the example, so the formulation is not the cause. The search stops early after the first solution.
-Attempt 2 is accepted on example, ft06, la01 and gen_3x5_ragged. It fails on gen_6x3 (optimum 35) with the same signature, under both the max() and the rel-based makespan.

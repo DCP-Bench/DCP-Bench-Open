@@ -1,2 +1,0 @@
-- Epistemic "I need more information" statements become existence of a second candidate (one-hot selector over the candidate table, same sum, different triple); "I got it" becomes: every unique-oldest candidate with the same sum is the real one.
-- Or takes one sequence argument: Or([...]) works, Or(*xs) raises TypeError for a single Bool, which the skill's examples do not mention.

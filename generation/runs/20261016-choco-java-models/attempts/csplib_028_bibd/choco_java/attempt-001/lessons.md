@@ -1,2 +1,0 @@
-- BIBD: the pair condition uses one Boolean per (row pair, block) from addClausesBoolAndArrayEqVar, then sum = lambda. Plain sums and no global are needed. The 13x13 instance solves in about 6 s.
-- Row sums (= r), column sums (= k) and pair products (= lambda) come straight from the instance fields. No symmetry breaking is posted.

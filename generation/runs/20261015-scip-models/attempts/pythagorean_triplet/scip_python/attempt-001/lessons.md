@@ -1,2 +1,0 @@
-- Nonlinear equality a*a + b*b == c*c with integer bounds solved to the single triplet with no extra encoding (1/1 instance, 1 solution, under 1 s).
-- The pythagorean_triplet dataset file is an empty list; the brief still reports one example, so the model reads no instance fields.

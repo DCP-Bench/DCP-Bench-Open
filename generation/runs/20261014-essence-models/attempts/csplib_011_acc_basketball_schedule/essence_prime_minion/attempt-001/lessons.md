@@ -1,2 +1,0 @@
-- Basketball (9 teams, 18 dates): the opponent/where matrix model with mirror, pattern and weekend constraints compiles and runs, but Minion gave no solution in 120-170 s with branching on [opp, where_], [where_, opp] or with heuristic sdf. Unknown whether the model is overconstrained (unsat search) or only slow; the output value convention for bye and team numbers was not confirmed.
-- Parse notes: `n_days div 2` does not parse, use `n_days / 2`; `forAll i : D1, j : D2` with different domains does not parse (use nested forAll).

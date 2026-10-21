@@ -1,2 +1,0 @@
-- Index expressions on VarArrays work: `slot_age[stories[3] - 1]` posts an element constraint (verified). Slot numbers 1 to 5 are shifted to 0-based indices.
-- `imply(ages[a] == k + 1, slot_age[k] == AGES[a])` channels a constant table into a variable array (verified).

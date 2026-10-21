@@ -1,2 +1,0 @@
-- Water bucket: one Table per step over (state, next state) with the legal pours, plus (goal, padding) and (padding, padding) tuples. The padding value is data.PADDING_VALUE and the domain must include it (range(min(PAD, 0), max(caps) + 1)).
-- The brief does not say whether row 0 is the initial state. The model takes row 0 as the initial state; the evaluator accepted it.

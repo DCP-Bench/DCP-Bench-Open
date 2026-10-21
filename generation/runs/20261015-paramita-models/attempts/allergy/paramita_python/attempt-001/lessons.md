@@ -1,1 +1,0 @@
-- Paramita: a one-hot "which friend has this food" grid with sum-over-friends outputs gives the friend index directly; Iff(Y, X) links two categories of the same people.

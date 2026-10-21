@@ -1,2 +1,0 @@
-- Nullary `x: () -> Int` outputs with bounds in the theory (`0 =< a() & a() =< 9.`) were accepted first time; no range type was needed.
-- Linear constraints with `~=` and `+ 1` / `- 1` on Int symbols parsed and solved in under 1 s, so `abs` was not needed for adjacency.

@@ -1,3 +1,0 @@
-- idp_z3 Golomb (size 9 and 10 marks): z3 finds the optimum (55 for size 10) but does not prove it within 180 s. "Candidate optimum was not proven" persists with an unbounded Int, a bounded Pos := {0..100}, reflection symmetry breaking, and a C(i,2) lower bound on marks.
-- A per-difference "at most one pair" count works as sum{{ 1 | i in Mark, j in Mark: i < j & marks(j) - marks(i) = d }} =< 1; `?=<1` takes a single quantified variable and fails to parse with two.
-- Expressions such as `marks(${size} - 1)` parse inside arguments.

@@ -1,2 +1,0 @@
-- Flow-style transportation: one bounded IntVar per (origin, destination, product), sum() per supply, demand and lane limit, and a scalar() on total_cost, worked directly with no decomposition.
-- Default search with no strategy set proves the optimum in seconds on the small instances, but the 3-origin, 4-destination, 3-product instance (json:4, optimum 536) was not proven in 180 s. A stronger search or a lower-bound implied constraint is the next step if this needs to close.

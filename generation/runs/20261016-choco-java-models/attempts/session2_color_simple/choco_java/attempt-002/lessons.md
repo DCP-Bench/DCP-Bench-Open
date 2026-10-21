@@ -1,1 +1,0 @@
-Choco: a min-colours objective on colours numbered 1..k is the max of the colour vars. m.nValues(colors, nb) as the objective gave suboptimal_solution (reference optimum 4, outputs could not reach it) on attempt-001; max gave the optimum. Accepted on the one instance.

@@ -1,3 +1,0 @@
-- Quadratic terms `a * a` in a linear-sum equality are accepted directly by SCIP; no linearisation needed for a 1..100 domain.
-- The instance file is an empty list, so this problem has no instance fields; the model reads nothing from the instance.
-- A pairwise `!=` helper (one binary with two indicators) covers all six pairs without trouble.

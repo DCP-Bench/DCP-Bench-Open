@@ -1,3 +1,0 @@
-- 'dist' is an XCSP keyword: ACE prints 'Fatal Error: The id dist is a keyword' and the harness reports SystemExit: 1. Rename variables that clash with XCSP keywords.
-- A dict of VarArrays keyed by cell tuples fails at compile time with 'The variable identifier {p: is not valid'. Use one flat VarArray and index it.
-- Pipe connectivity via parent booleans and a depth variable (depth[p] == depth[q] + 1 when q is the parent, depth 0 at roots) plus degree counts: accepted.

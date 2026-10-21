@@ -1,3 +1,0 @@
-- Gecode: a "at least k of the group" count over Booleans is `linear(*this, bools, IRT_GQ, k)` with the group built per row; the Boolean output needs `std::vector<BoolVarArgs>` (one list per flight).
-- A "at most one per window of q" rule is `linear(*this, window, IRT_LQ, 1)` per window; windows near the end of the horizon are cut to the remaining variables.
-- Satisfaction with 200 Booleans and linear counts solved every instance with `BOOL_VAR_NONE` and `BOOL_VAL_MIN` in about 8 s per instance, so no search change was needed.

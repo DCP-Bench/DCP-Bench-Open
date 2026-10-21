@@ -1,1 +1,0 @@
-- Paramita: a triple product of three one-hot values is a single And Bool per value triple; a set-membership matrix with pairwise "at most one common element" over aux And Bools solved at once (n up to 13 in well under a second).

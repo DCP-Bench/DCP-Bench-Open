@@ -1,2 +1,0 @@
-- Adding a cumulative on each axis beside nooverlap (the box height/width as capacity) cut the 8-square instance from a 60 s timeout to about 2 ms.
-- cumulative(*this, cap, starts, IntArgs(durations), IntArgs(usages)) takes the IntVar capacity first; the axis projection is the redundant constraint.

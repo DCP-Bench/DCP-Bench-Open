@@ -1,3 +1,0 @@
-- The brief marked `compatible` as unbindable (ragged), but the runner bound it: declare `compatible: Row * Slot -> Int` with `type Row <: Int`, `type Slot <: Int`, and no `_len` symbol when padding 0 never matches a valid value.
-- Ragged list rows are 0-based, but the person ids inside them are 1-based (value n occurs in every instance). Map row r to person r+1 in the theory.
-- Padding with 0 makes `compatible(r, s) = t + 1` safe without a length field.

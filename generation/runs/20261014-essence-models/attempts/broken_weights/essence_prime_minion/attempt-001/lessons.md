@@ -1,2 +1,0 @@
-- Harness: rows 2 to 5 carry `name` and `note` strings (string field), so only the example binds.
-- The example (m = 40, n = 4) is accepted with weights [1, 3, 9, 27].

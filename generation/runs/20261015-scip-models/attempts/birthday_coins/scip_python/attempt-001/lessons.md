@@ -1,3 +1,0 @@
-- The puzzle has three solutions for half-crowns (7, 8, 9) unless each coin kind must occur at least once. The reference answer is 8, so the model reads "each kind at least once" from the list of kinds in the statement.
-- Instances with no fields: the dataset file was an empty list, and the example instance has no fields. `build` ignores its argument and all constants come from the statement.
-- Plain linear equalities with integer variables are enough for a satisfaction puzzle; no general constraints were needed.

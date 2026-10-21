@@ -1,2 +1,0 @@
-- Column-wise addition needs no auxiliaries: letter values are integer expressions over one-hot Bools, and each column is one PB equality `a + b + carry_in == r + 10 * carry_out` with carry Bools.
-- The `build` of a puzzle with no instance fields still reads nothing from `instance`; the puzzle text is the problem's own data and is stated in the comments.

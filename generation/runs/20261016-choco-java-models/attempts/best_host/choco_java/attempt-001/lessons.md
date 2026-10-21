@@ -1,2 +1,0 @@
-- best_host brief says satisfaction though the text asks to minimise conflict; the neighbour graph is a 6-cycle, so zero conflicts is reachable and hard table constraints give the optimum.
-- A 2-regular allowed graph on a round table is posted as one table per seat pair (x[s], x[(s+1)%6]) with symmetric tuples.

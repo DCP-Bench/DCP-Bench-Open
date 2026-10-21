@@ -1,3 +1,0 @@
-- cumulative(IntVar[] starts, int[] dur, int[] heights, int capacity) takes an int capacity; an IntVar here fails to compile.
-- Precedence as arithm(succ, "-", pred, ">=", dur_pred) reads close to the description.
-- Plain inputOrderLBSearch with Luby restarts solves 4 of 5 instances in under 4 s; the j30 instance json:3 (32 jobs) hits the 180 s limit.

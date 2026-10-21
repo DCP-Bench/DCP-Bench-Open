@@ -1,2 +1,0 @@
-- A pipe is connected when each cell has a hop distance from its start endpoint and a same-colour neighbour one step closer. Witness BoolVars with `m.reifyXeqYC(dist_j, dist_i, -1, step)` and `m.ifThen(w, ...)` express it without `and` on constraints.
-- `m.ifThen(BoolVar, Constraint)` takes a sum constraint directly, so per-cell degree rules fit in one line each.

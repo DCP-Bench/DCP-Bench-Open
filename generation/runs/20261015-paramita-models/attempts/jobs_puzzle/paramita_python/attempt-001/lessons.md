@@ -1,2 +1,0 @@
-- Clue 5 ("person 0, the chef and the police officer went golfing together") was read as three distinct people; the evaluator accepted it.
-- An instance-less problem still gets `build(instance)`; the one-hot model read nothing from it and was accepted.

@@ -1,3 +1,0 @@
-- A state as tile-per-cell plus its inverse (cell-per-tile), joined by channel with distinct on each, gave the blank position without an extra variable; the slide constraint then reads the blank positions only.
-- The grid side is read from puzzle_start: the brief shows a 3x3 shape but the instances include 2x2 and 4x4 grids.
-- The per-step Manhattan bound (one slide changes the total tile distance by exactly 1) was posted but its search effect was not measured.

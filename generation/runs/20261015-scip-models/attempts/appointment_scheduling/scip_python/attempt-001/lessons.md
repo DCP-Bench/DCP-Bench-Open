@@ -1,1 +1,0 @@
-Mapped person-by-slot binaries; availability encoded as variable upper bounds from m; one-slot-per-person and at-most-one-person-per-slot as linear constraints. Accepted on first try, all 5 instances.

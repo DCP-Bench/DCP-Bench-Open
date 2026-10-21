@@ -1,2 +1,0 @@
-- Unary bits with order implications, and PB comparisons over integer sums (`x[i] >= x[i+1] + 1`), need no auxiliaries; the minimise objective solved every instance in under 1 s.
-- Bounding each child at n candies is safe for the minimum: an optimum gives each child at most its longest monotone chain.

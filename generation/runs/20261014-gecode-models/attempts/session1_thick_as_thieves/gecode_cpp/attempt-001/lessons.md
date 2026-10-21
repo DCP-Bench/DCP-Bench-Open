@@ -1,2 +1,0 @@
-- Boolean puzzles with truth-teller/liar rules: guilty[k] == !statement_k works directly with BoolVar and BoolExpr in rel(); no reification helper needed.
-- sum(BoolVarArray) with expr(..., IPL_DEF) gives an IntVar usable in comparisons (n_guilty == 2) inside Boolean expressions.

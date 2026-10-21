@@ -9,7 +9,7 @@ import sys
 
 from cpmpy.solvers.solver_interface import ExitStatus
 
-from evaluation.reference import SOLVER_OPTIONS, parse_source
+from dcp_bench.reference import SOLVER_OPTIONS, parse_source
 
 
 # --- Configuration ---

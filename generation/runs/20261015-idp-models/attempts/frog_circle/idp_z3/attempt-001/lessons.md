@@ -1,2 +1,0 @@
-- A theory sentence that is a ground equation on an output with a non-literal argument, such as `x(pos(0)) = 1.`, makes the runner crash with `AttributeError: 'AppliedSymbol' object has no attribute 'py_value'` (output_terms reads every sentence with the output's symbol). Wrap it in a quantifier: `! p in Pos: p = 0 => x(p) = 1.`
-- A cyclic arrangement has n rotations, so an unfixed start admits solutions the reference does not contain: `Declared outputs cannot extend to a reference solution`. Fix the rotation (card 1 at position 0) when the statement's circle is symmetric.
