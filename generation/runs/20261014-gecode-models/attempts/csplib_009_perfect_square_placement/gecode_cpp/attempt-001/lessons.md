@@ -1,3 +1,0 @@
-- nooverlap(IPL_DOM) plus cumulative on each axis with capacity base is accepted on 5 of 6 instances.
-- The largest instance (last listed, execution_timeout at 180 s) is a performance limit: no symmetry breaking was added, so the search does not finish.
-- Square sizes come from the instance (sides.size()), not from the example's 9 squares in the brief.

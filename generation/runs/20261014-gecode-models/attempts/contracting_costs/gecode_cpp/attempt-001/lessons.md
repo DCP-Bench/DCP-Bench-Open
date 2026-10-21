@@ -1,2 +1,0 @@
-- Problems with only linear pair sums and no search need no global; linear with IPL_DOM on two variables is the row, and the map has no row for weighted pair sums.
-- The skill's example uses dcp::Space and IntVarArray members; members assigned in the constructor body (charge = IntVarArray(*this, 6, 0, 5300)) compile without issue.

@@ -1,2 +1,0 @@
-- Maximal independent set is a direct encoding: one Bool per node, one clause per edge (~(x_i & x_j)) and one Or per node over itself and its neighbours. No integers needed, so no encoding choice.
-- The example and all four JSON instances solved in under 4 s total; no timeouts, no solver-size concerns.

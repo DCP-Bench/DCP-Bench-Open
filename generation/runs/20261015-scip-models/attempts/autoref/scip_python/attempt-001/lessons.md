@@ -1,2 +1,0 @@
-- A counting variable that is a count over 0..n must have its domain bounded by n: with ub n+2 the solver admitted (4,0,0,0,0) for n=3, which the reference rejects (Declared outputs cannot extend to a reference solution).
-- Counting with one-hot binaries b[j,v] plus s[i] == sum_j b[j,i] is direct and accepted on all instances; the solver's second-solution enumeration exposes any extra solutions, so check n=3-type small instances first.

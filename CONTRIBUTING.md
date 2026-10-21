@@ -15,7 +15,7 @@ The process for adding a new problem is straightforward. Please follow these ste
 5.  **Run the dataset audit**, which is what CI enforces:
 
     ```bash
-    python -m unittest tests.test_evaluation
+    python -m unittest tests.test_dataset
     ```
 
     It checks that every reference loads, that the first entry of the `.json` matches the embedded example exactly, that every listed instance builds the model, and that instances carry no extra keys beyond `name` and `note`.
@@ -82,7 +82,7 @@ Please follow the structure of existing problems. We use `dataset/csplib_054_n_q
 *   Remember, the first instance in this file must match the default instance in the `.py` file.
 *   Besides those parameters, only `name` and `note` are allowed as extra keys.
 *   Every instance must be satisfiable (for now).
-*   To add instances to an existing problem, put the candidates in a separate JSON list, each with a `note` saying where it comes from, and run `python -m generation.instances check PROBLEM candidates.json --append`. It checks the fields and their shapes, that the instance is new, and that the reference solves it (or proves its optimum) within 10 seconds, then appends the ones that pass. `skills/instance-curator` has the full procedure.
+*   To add instances to an existing problem, put the candidates in a separate JSON list, each with a `note` saying where it comes from, and run `python -m generation.instances check PROBLEM candidates.json --append` from a [DCP Rosetta](https://github.com/DCP-Bench/DCP-Rosetta) checkout, where this repository is the `bench/` submodule. It checks the fields and their shapes, that the instance is new, and that the reference solves it (or proves its optimum) within 10 seconds, then appends the ones that pass. DCP Rosetta's `skills/instance-curator` has the full procedure, including rechecking the models already generated for the problem.
 
 Example for `csplib_054_n_queens.json`:
 ```json

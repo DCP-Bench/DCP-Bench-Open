@@ -1,2 +1,0 @@
-- Sizing an index type with `type I <: Int` from a 5-item example worked unchanged on all 5 instances (5 to 22 items); the largest checked in about 4s.
-- Non-numeric `name` fields in the instance JSON are ignored by the runner; no workaround needed.

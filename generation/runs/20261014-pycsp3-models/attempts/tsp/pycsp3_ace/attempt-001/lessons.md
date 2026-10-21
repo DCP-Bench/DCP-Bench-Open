@@ -1,2 +1,0 @@
-Circuit with a Table per city linking succ[i] to a leg-length variable, plus a nearest-neighbour upper bound and a shortest-leg lower bound on travel_distance, proves the optimum within 180 s on the 20-city berlin52 subset (60 s was not enough).
-A constant list indexed by a Var (dist[i][succ[i]]) fails with 'list indices must be integers or slices, not VariableInteger'. After 'from pycsp3 import *', min() takes no key= argument (TypeError); call builtins.min.

@@ -1,1 +1,0 @@
-- Equal-sum partitions with 81 weighted cow numbers (weights up to 81, nine sons) exceeded the 180 s budget under one-hot x[i][s] and pairwise milk equalities; the other four instances solved in under 4 s.

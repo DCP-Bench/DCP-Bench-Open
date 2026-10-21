@@ -1,2 +1,0 @@
-- A placeholder-sized range in a declared output type works: `puzzle: Row * Col -> Val` with `type Val := {1..${N}}` passed, and comparing that output to the Int-valued `start` field with `=` was accepted.
-- Row and Col were both sized from the `start` grid with `type X <: Int`, which gave 0-based indices and matched the instance shape for all five instances.

@@ -1,2 +1,0 @@
-- Paramita: one-hot Bools per item with a weighted PB capacity per bin solved in under 1 s on all five instances; no encoding change needed.
-- Symmetry breaking by first-item order (`~x[i][b]` for b > i) is a valid canonical form for interchangeable bins.

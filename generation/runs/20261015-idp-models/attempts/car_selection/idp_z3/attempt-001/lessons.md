@@ -1,2 +1,0 @@
-- Two sort-of-parallel dimensions (participants and cars) were each sized with their own `<: Int` type from the same matrix; the sizes differ per instance (5x5, 3x3, 4x6, 7x4, 4x4) and all bound without change.
-- `#{ c in C: assignments(p, c) } =< 1` inside a `!` quantifier passed the evaluator on the first real evaluation.

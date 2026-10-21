@@ -1,1 +1,0 @@
-- Subset-sum membership: one IntVar per nonempty mask (chosen via a loop over bitmasks), then reified arithm "=" against each target and m.sum(hits, ">=", 1).post(). Works for a ragged instance length by looping over numbers.length.

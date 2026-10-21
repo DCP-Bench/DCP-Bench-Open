@@ -1,2 +1,0 @@
-- Unbounded-length sequences: model a fixed prefix of n terms and let a per-term bool (term <= limit) exclude the terms past the limit; the domain must hold the last term (here 200000000 for term 40 = 165580141).
-- Relations inside expr work with % and &&: `expr(*this, (term[k] % 2) == 0)` and `expr(*this, a && b)` posted cleanly, and `term[k] * boolvar` mixed with IntVar in expr.

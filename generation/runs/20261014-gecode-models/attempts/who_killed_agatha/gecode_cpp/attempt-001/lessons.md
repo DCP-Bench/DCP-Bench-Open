@@ -1,3 +1,0 @@
-- branch() on a single IntVar takes only the value selector: branch(*this, v, INT_VAL_MIN()). The four-argument form needs an IntVarArgs or array; a single IntVar with INT_VAR_NONE() fails to compile.
-- Clause literals: clause(*this, BOT_OR, pos, neg, 1) reads as (OR of pos) or (OR of not neg). Implications a -> b are pos={b}, neg={a}; "not both" is neg={a,b}.
-- A one-hot kill selector: channel(*this, is_killer_bools, killer) fixes the Booleans from the IntVar.

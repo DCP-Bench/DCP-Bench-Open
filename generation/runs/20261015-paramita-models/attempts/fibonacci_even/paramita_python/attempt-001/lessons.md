@@ -1,2 +1,0 @@
-- Binary integers with 2**k weights (22 bits) and a PB equality per Fibonacci step solved in about 0.2 s; no unary or one-hot needed for a sum of 32 terms.
-- Sum over even terms: one auxiliary Iff(g, bit_k & ~bit_0) per term and bit, then res = sum(2**k * g); the solver handled ~700 auxiliaries at once.

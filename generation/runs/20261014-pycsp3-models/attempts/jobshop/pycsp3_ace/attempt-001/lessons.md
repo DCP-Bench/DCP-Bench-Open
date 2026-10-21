@@ -1,2 +1,0 @@
-- A Python list of Var objects built in a comprehension (`[Var(dom=...) for ...]`) makes the child exit with `SystemExit: 1` (execution_error, empty stderr in the record). Reproduced on a 2-variable model.
-- A flat VarArray with an offset per job (start[offset[j] + k]) works for ragged job lists and NoOverlap per machine.

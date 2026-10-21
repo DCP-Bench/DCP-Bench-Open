@@ -1,2 +1,0 @@
-- One-hot binaries per entry with an integer expression over them model 'x[i] in v' cleanly: in_v[i] = sum of value[i,k] for k in v.
-- Deduplicate the instance list (set) before summing binaries over it; a repeated value would count the same binary twice and break the 0/1 meaning.

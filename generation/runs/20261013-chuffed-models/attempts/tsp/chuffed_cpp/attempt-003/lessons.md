@@ -1,3 +1,0 @@
-- Euclidean TSP with 20 cities timed out on every plain succ/circuit/element model: the cost bound is too weak. Held-Karp node penalties (subgradient on the 1-tree bound, computed in Build) added to the arc costs, plus a table on (succ, pred, pair cost) per city, closed berlin52_first20 in 8 s.
-- Objective-first branching with VAL_MIN finds no first solution on wide cost ranges. Branch on the leg cost variables with VAR_MIN_MIN instead.
-- A small harness (own main + dcp.h, compiled in the image) shows first-solution time and progress that evaluation.check hides.

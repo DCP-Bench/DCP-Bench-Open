@@ -1,2 +1,0 @@
-- "Print another number" means the example value must be excluded. The first attempt returned 48 and the evaluator rejected it with `invalid_solution`, "Declared outputs cannot extend to a reference solution". Exclude the example with a binary indicator pair (`addConsIndicator(p >= 49, binvar=b)` and `addConsIndicator(p <= 47, binvar=b, activeone=False)`).
-- Parity for a half is encoded as `p == 2 * h`, and `h + 1 == t * t` with integer roots works with bounded integer variables.

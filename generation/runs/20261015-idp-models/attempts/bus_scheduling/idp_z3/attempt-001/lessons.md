@@ -1,2 +1,0 @@
-- Successor and wrap-around: quantify over pairs (i, j) with a guard `i = j + 1 | (i = 0 & ~(? k in I: k = j + 1))` instead of applying x to i+1 or i-1, which can fall outside the sized type.
-- An `I <: Int` type sized from the array field followed the instance length for all five instances (6 slots each), so no ${...} was needed.

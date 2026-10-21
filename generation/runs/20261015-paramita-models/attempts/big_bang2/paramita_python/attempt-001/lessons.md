@@ -1,3 +1,0 @@
-- Paramita 1.2.0: `Or(a, b, ...)` with several positional arguments raises TypeError; pass a list, `Or([...])`.
-- Comparing two integer expressions in a reified constraint is slow with one-hot values (quick check timed out at 60 s); an order (unary) encoding of the face values made `a > b` a disjunction of two literals and the check ran in 4 s.
-- Reify only the direction needed: `If(gt, larger)` suffices when `gt` is only counted with `>=`.

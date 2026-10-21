@@ -1,2 +1,0 @@
-- `addConsXor` takes a list of binary variables and a Python bool rhs. `addConsXor([a, b, c], False)` gives a XOR b XOR c = 0, so a state update with a flip variable needs no big-M or product.
-- Accepted on the first real evaluation; the solver reports `limit` for the enumeration of further optima, which the runner handles without affecting acceptance.

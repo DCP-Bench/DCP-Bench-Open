@@ -1,2 +1,0 @@
-- Perfect squares bind cleanly with `type Sq <: Int` sized from sides, and `type Coord := {0..${base}}` for the coordinates. Arithmetic on the range type works, so `x_coords(s) + sides(s) =< ${base}` needs no extra type.
-- Pairwise non-overlap as a four-way disjunction on the coordinates is accepted on all instances except base 112 (21 squares), which hits the 60 s execution limit.

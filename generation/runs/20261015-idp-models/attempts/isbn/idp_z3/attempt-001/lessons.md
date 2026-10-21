@@ -1,3 +1,0 @@
-- A `% 2` test on a quantified index variable of a `<: Int` type works inside sum guards (`i % 2 = 0 & i =< 11`); no helper symbol needed for alternating weights.
-- The check digit `isbn(12) = (10 - total() % 10) % 10.` is accepted when `total()` is bounded by an explicit `0 =< total() & total() =< 216.` (derivation in a comment).
-- Output digits as `Digit := {0..9}` in the vocabulary, and the given digits bound through `isbn_init: I -> Int` with `I <: Int`, passed all 5 instances in one attempt.

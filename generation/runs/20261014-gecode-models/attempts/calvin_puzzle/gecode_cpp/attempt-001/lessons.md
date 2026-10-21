@@ -1,3 +1,0 @@
-- Grid-path puzzles: channel(grid, pos) plus one extensional table over consecutive (pos[k], pos[k+1]) pairs, with the table built from the move rules in a loop over the instance size, was accepted at first try for n=5 and n=6.
-- Branching on the position sequence with INT_VAR_AFC_SIZE_MAX(0.99) and restarts(100) was fast enough; no timeouts on n=6.
-- The skill's channel row is not explicit that channel(x, y) needs 0-based domains on both sides; a grid value k is stored as k-1 and shifted back with rel for output.

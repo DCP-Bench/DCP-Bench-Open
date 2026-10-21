@@ -1,2 +1,0 @@
-- `BoolVarArray(*this, n)` without bounds crashes the driver (C++ process exited -11, no compile error). Use `BoolVarArray(*this, n, 0, 1)`.
-- A subset-sum with 0/1 weights is one `linear` over `BoolVarArgs` with `IntArgs(values)`; `IPL_DOM` is cheap at this size.

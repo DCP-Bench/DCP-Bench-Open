@@ -1,2 +1,0 @@
-- Paramita: the brief declares x as [7]int, but instances have n = 5, 7, 10, 12 entries; the evaluator accepted output lists sized by n. Size outputs from the instance, not from the brief's example shape.
-- Paramita: a one-hot entry per position plus a sum of membership indicators over a value set gives an exact count with one PB constraint.

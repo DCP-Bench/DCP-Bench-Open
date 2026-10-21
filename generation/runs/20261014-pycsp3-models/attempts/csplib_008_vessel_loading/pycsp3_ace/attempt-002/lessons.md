@@ -1,2 +1,0 @@
-- The vessel_loading description does not state the edge or axis convention. Right-exclusive, top-above-bottom with fixed orientation gave invalid_solution (Declared outputs cannot extend to a reference solution) on the example, and no_solution on json:1. Accepted only with top = bottom + extent (bottom is the lower y) and containers turned by 90 degrees; the reference rotates.
-- Or with four comparison disjuncts posted fine in pycsp3 2.6.1; min_gap as a precomputed list avoids repeating the separation index.

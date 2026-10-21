@@ -1,2 +1,0 @@
-- Seat geometry on a circle is a table over (seat, neighbour seat) with `Tuples(true)`; `m.table(new IntVar[]{a, b}, t).post()`.
-- The clues as written admit three assignments (x=0, x=1, x=2 each with a consistent y); the evaluator accepted the first two it enumerated.

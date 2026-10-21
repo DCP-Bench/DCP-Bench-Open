@@ -1,1 +1,0 @@
-- A system of pairwise payments is a set of `m.sum(new IntVar[]{a, b}, "=", k)` posts; the system has one solution here, so the evaluator reports one solution.

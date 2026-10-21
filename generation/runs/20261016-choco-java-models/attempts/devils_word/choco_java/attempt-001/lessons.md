@@ -1,1 +1,0 @@
-- Signed-value outputs: an IntVar with domain {-a, a} per element (m.intVar(name, new int[]{-a, a})) plus m.sum(result, "=", total) is a compact encoding; guard a == 0 separately.

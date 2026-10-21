@@ -1,2 +1,0 @@
-- Counting a Bool helper with `#{ i in I: inV(i) } = m().` and an existential membership test `inV(i) <=> (? k in K: v(k) = x(i))` worked with `type K <: Int` sized from the array v; the 5 instances passed first time.
-- An index range built as `type I := {1..${n}}` sizes the output list to n with no shift in the data.

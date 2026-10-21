@@ -1,2 +1,0 @@
-- Essence' Minion: a grid path with rowOf/colOf branching and a 4-column table timed out at n=6 (reference solves it). Encoding each number's square as one index `cell[k]` with allDiff(cell), a table on (cell[k], cell[k+1]) and `branching on [cell]` solved n=6 in seconds.
-- Savile Row table: the tuple set can be a letting comprehension over the given n, with cell indices computed as (r-1)*n+c.

@@ -1,3 +1,0 @@
-- The shift lists are ragged, but binding is 'any' for scip_python: indexing instance["shifts"] directly worked on all 5 instances.
-- Set partitioning as one binary per shift and one equality per work piece is the direct form; no skill-specific encoding was needed.
-- Status 'limit' with accepted results appeared at the solution limit of 2, not at a timeout; the per-instance wall time was about 1 s.

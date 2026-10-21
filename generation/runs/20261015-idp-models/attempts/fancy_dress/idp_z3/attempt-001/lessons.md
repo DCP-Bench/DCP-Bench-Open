@@ -1,3 +1,0 @@
-- Nullary Bool propositions (t: () -> Bool) and their use in a Int cost via (if t() then 10 else 0) worked for an optimisation with no instance fields.
-- Costs taken from the description are problem constants, not instance data; the model comments say so.
-- The owned shirt was left free with zero cost, so r=0,t=1 and r=1,t=1 tie at cost 10; the evaluator accepted the first solution.

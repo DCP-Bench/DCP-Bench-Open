@@ -1,2 +1,0 @@
-- delta is indexed [package][leg] in every instance, not [leg][package]. The brief's shape is the example's, and the matrix dimensions come from the instance.
-- A linear objective is one m.scalar(vars, coeffs, "=", total) plus setObjective; the total's upper bound is the sum of price times demand, read from the data.

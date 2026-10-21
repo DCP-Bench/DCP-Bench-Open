@@ -1,4 +1,0 @@
-- Encoding the grid as a 0/1 Bit-typed function (not Bool) is required: a Bool-valued declared output fails with "Expected integer at x[0][0]".
-- A Bool-cell grid with #{} counts and a guarded sum runs past 180 s on the 12x12 instance; placing c coins per row as ordered column positions (pos: Row * Idx -> Col, Idx sized by ${c}) brings it to about 100 s.
-- Parenthesise products inside sum{{ }}: "sum{{ sq(r,k) * x(r,k) | ... }}" fails to parse; "sum{{ (sq(r,k) * x(r,k)) | ... }}" works.
-- evaluation.check defaults to a 60 s execution limit, but the evaluate record used 180 s; check timing against the record's limits.

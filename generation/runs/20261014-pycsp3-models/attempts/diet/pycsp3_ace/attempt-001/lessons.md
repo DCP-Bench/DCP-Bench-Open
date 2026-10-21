@@ -1,1 +1,0 @@
-First version read chocolate and fat as maxima. evaluation.check (quick, not recorded) gave invalid_solution: 'Declared outputs cannot extend to a reference solution'. The 'no chocolate needed' instance (limit 0) shows all four limits are minima. Changing the two inequalities to >= passed 5 of 5; that version is the one evaluated and retained.

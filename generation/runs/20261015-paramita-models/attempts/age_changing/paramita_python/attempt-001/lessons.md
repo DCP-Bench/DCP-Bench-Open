@@ -1,2 +1,0 @@
-- Operations that are not linear (/8, *7) can be encoded as a fixed chain per order: for each order and each one-hot value v of the input, If(order & input_v, output_w), and forbid v when a step is invalid (non-exact division, negative).
-- The domain bound (1..150 here) is an assumption; the problem states none.

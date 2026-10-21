@@ -1,2 +1,0 @@
-- A prime test `forAll k : int(2..max_val) . (k < p) -> p % k != 0` with p up to 10000 and a*b = n*n exhausted 2048 MB (memory_limit on the example) before the optimum was proven.
-- Fix in attempt-002: take p from a fixed list of primes up to 10000 as its domain, `find p : int(2,3,5,...)`, which removes the mod loop.

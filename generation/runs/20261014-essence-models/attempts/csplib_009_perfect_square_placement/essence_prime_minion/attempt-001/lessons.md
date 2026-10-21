@@ -1,2 +1,0 @@
-- Perfect square placement base 13 with 11 squares timed out (60 s) with a plain branching on [x, y]; adding heuristic sdf after branching solved it. Redundant cumulative on x and y (sides as durations and heights) helped the search too.
-- Instance base 112 with 21 squares (problem7) still times out at 180 s; left as an inconclusive instance, not repaired further in this session.

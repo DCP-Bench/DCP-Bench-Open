@@ -1,1 +1,0 @@
-- Boolean outputs (knapsack x: [n]bool) accept binary variables directly; the evaluator reads them as 0/1.

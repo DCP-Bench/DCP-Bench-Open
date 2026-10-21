@@ -1,2 +1,0 @@
-- Wide integer ranges (charges up to 5300) as 13 binary bits: PB equalities over 2^k-weighted bits solve the linear system directly, with no one-hot blowup.
-- contracting_costs has no instance fields (brief: instance_fields {}); build() ignores its instance argument and the constants come from the description.

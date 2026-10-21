@@ -1,1 +1,0 @@
-- Sequence per option (IPL_DOM, window per_slots, at most at_most) plus count per type, slots in order with hardest type first, plus prefix linear bounds: accepted on 9 of 22 instances; 13 tolerated execution_timeouts at 180 s (all the larger demand totals). Coverage is 41%, below the 80% retain bar.

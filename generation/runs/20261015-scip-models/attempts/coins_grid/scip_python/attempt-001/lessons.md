@@ -1,2 +1,0 @@
-- Binary x[r,col] with row and column sums == c, and a linear objective z == sum of (col - r)^2 * x, was accepted by SCIP on all 5 instances with no general constraints.
-- The objective is linear in the binaries, so no auxiliary product variables are needed; z is kept as a named integer to match the declared output.

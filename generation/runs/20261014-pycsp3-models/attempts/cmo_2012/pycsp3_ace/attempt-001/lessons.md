@@ -1,2 +1,0 @@
-- The square-domain restriction is a derived fact: with a*b a square and a-b prime, a=u^2, b=v^2, u=v+1 (verified on the examples).
-- The plain product a*b==n*n timed out on the example (execution_timeout) and the square domains gave a fast solve.

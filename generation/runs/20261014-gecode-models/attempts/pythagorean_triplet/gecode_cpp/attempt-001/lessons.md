@@ -1,2 +1,0 @@
-- Gecode `branch(*this, IntVar, ...)` does not compile for a single IntVar; wrap it as `IntVarArgs({a, b, c})` in one call.
-- The description's "exactly one triplet" needs the a < b < c convention; without it the model has two solutions.

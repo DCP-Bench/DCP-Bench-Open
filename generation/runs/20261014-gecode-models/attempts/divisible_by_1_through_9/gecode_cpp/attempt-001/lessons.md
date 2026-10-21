@@ -1,3 +1,0 @@
-- An IntVar cannot hold values beyond ±(2^31 − 2). A linear sum over those bounds (here 10-digit place values) makes the space fail silently: the solver reports `unsat` / `no_solution`, not an overflow error.
-- dcp::Space outputs are `int` only (the `output` overloads and `values()` return int), so a 10-digit answer above 2^31 cannot be declared as an output at all.
-- The prefix divisibility chain itself is fine for n <= 9 (values below 10^9); the trouble starts at the full number.

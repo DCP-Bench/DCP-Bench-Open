@@ -1,2 +1,0 @@
-- The product condition is in dollars: prod(prices in cents) == total * 100**(n-1). The literal product of cents gives no solution for the example (711 with 4 items), and the evaluator returned `unsat` on json:1.
-- A product over a list is a chain of `prod[i] == prod[i-1] * price[i]` with integer bounds from the full product; SCIP accepted this on all instances with products up to 7e8.

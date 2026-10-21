@@ -1,2 +1,0 @@
-- circling_squares: no instance fields; the four given values are fixed by the description and typed as constants.
-- Choco 6 m.square takes (x, result), so squares are written as p[i].mul(p[i]).intVar() instead.

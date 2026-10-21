@@ -1,2 +1,0 @@
-- LCG rejects the times constraint ("Multiplication constraint is not supported in LCG mode"), so product models cannot use LCG.
-- For a product-equals-constant constraint on bounded domains, branching on the leading n-1 variables in input order was faster than dom/wdeg with Luby restarts (64 s against a 711-cent instance over two solutions, where dom/wdeg timed out at 180 s).

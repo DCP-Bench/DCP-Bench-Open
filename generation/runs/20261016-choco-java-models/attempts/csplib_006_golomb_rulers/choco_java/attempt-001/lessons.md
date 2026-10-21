@@ -1,3 +1,0 @@
-- Default search with the objective did not prove the size-10 optimum in 60 s. domOverWDeg with Luby restarts (50 fails) proved it in about 50 s.
-- A valid ruler with known length (marks 0,1,3,7,...; length 2^(n-1)-1) gives a domain bound without using the answer.
-- Reflection symmetry break a_2 < a_m - a_{m-1} is a plain arithm line.

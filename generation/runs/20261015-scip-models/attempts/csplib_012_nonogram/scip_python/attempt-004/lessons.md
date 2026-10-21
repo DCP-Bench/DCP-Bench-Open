@@ -1,3 +1,0 @@
-- Clue runs: zeros in a clue are padding, so the blocks are the nonzero entries in order; a per-block one-hot start with earliest/latest bounds keeps the model small.
-- Forcing overlap squares as fixed constraints (attempt-005) did not help: it dropped from 12 to 11 of 13 instances checked within 180 s.
-- json:2 (p200, 25x25) still times out at 180 s; the line encoding is the likely limit.

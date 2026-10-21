@@ -1,2 +1,0 @@
-- Seating round a table: one-hot seat/guest binaries plus exact pair binaries p[i,g,h] (sum over h equals b[i,g], sum over g equals b[i+1,h]) give a linear conflict count.
-- The brief says satisfaction, but a minimise objective is safe here: the compatibility graph is a hexagon, so 0 conflicts is attainable. The evaluator reported is_optimization false and accepted it.

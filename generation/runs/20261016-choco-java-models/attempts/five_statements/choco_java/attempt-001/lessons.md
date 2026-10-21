@@ -1,2 +1,0 @@
-- A relational expression becomes a BoolVar with .boolVar(); m.arithm(b, "=", r).post() then links it to a Boolean array element.
-- m.sum(bools, "=", cnt).post() with an IntVar cnt was accepted; no reify() needed.

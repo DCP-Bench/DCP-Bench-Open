@@ -1,2 +1,0 @@
-- addConsCumulative(start, durations, demands, capacity) per resource accepted on 5/5 instances; no big-M needed.
-- Precedence as start[i] + d[i] <= start[j] and makespan >= start[j] + d[j] gave optimal values matching the reference (21, 43, 53, 79, 11).

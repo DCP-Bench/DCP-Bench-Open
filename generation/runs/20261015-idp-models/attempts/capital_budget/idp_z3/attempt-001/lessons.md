@@ -1,2 +1,0 @@
-- The brief's `[4]bool` shape comes from the example instance only; the other instances have 3, 8 and 12 items. Sizing `I <: Int` from `npv` bound all five instances with no change.
-- The first check run accepted the model; I then reworded the comments to the description's wording and the 5-instance evaluation accepted it again.

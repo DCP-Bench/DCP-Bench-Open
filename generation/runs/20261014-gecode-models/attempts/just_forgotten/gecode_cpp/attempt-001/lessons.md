@@ -1,2 +1,0 @@
-- Sets of permutation matches: one reified `expr(x[i] == c)` per position, summed with `linear(IRT_EQ, k)`. No map row covers "exactly k positions agree with a fixed array".
-- n is not in the instance field; take it from the length of a set, as the sets are permutations of 0..n-1.

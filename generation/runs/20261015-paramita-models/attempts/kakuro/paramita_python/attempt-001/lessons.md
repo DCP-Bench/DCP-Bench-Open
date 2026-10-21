@@ -1,2 +1,0 @@
-- Paramita: a 1-based grid can list only some cells; here the instance gives the black cells (blanks), so white cells are the complement in the n x n grid. Read the dataset note before deciding what a list means.
-- Paramita: Or over a one-element list was not tested yet; one-hot digits with weighted segment sums solved all 5 kakuro instances in the evaluator.

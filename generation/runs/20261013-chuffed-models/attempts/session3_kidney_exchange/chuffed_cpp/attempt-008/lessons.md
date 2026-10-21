@@ -1,2 +1,0 @@
-- Kidney exchange as a permutation: to[i] = receiver of i's kidney, to[i] = i for non-donors, all_different(CL_DOM). Max cycle cover is an assignment problem.
-- Counting gifts with a linear sum over gift booleans left the solver to search 60 s for the all-20 solution. Counting the to[i] != i literals directly (keep[i] + received = n) lets the objective bound propagate into to[i] and the all_different matching finds it at once.

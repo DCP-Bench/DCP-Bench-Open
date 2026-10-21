@@ -1,2 +1,0 @@
-- Binary times integer (piece on a pan times its weight) was linearised with two McCormick bounds per product; it was accepted, so no nonlinear expression was needed.
-- Signed balance sums need the pan sides named in the comment exactly: the attempt-001 comment had them swapped, and it was caught only on the readability pass.

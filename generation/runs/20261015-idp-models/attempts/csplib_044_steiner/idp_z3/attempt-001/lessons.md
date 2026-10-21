@@ -1,4 +1,0 @@
-- The output sets is [n(n-1)/6][n] bool, and FO(.) type ranges take only a literal or ${scalar}. The row count cannot be written from n, so `type Triple := {1..${n}}` gives n rows, which matches only n=7.
-- Write a binary predicate as `sets: Triple * Elem -> Bool`; `Triple -> Elem -> Bool` is a parse error here.
-- The `?=1 t in T: p(t).` form failed to parse in this integration ("Expected ... '~= e2 => ?*=1"). `#{ t in T: p(t) } = 1` parsed and worked.
-- Only the n=7 instance was accepted. The n=9 and n=13 instances timed out and n=3 was unsat, so the shape limit blocks this problem for every other size.

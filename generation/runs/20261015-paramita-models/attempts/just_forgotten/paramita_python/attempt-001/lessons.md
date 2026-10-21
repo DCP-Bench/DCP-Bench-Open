@@ -1,1 +1,0 @@
-- One-hot positions with exactly-one per position and per digit, plus sum(xv[i][s[i]]) == k per set, is enough for the satisfaction problem; all five instances were accepted.

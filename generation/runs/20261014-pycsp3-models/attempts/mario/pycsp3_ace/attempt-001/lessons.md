@@ -1,2 +1,0 @@
-- Routes as successor variables: AllDifferent on successors, a visited flag, and an order variable (order[succ[i]] == order[i] + 1 except on the closing arc to Mario) avoid subtours without Circuit.
-- Road fuel by Table on (successor, fuel) with the self-loop support (i, 0), since a constant list indexed by a variable is not verified in pycsp3 2.6.1.

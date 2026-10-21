@@ -1,2 +1,0 @@
-- SCIP one-hot binaries with a shared stop index solved the permutation puzzle directly; no general constraints were needed.
-- Position of an item is an expression sum(k * x[item, k]), which works as an output without extra variables.

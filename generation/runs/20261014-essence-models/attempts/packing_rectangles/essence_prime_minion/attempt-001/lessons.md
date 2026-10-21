@@ -1,1 +1,0 @@
-Attempt 001 (packing_rectangles): nonlinear area objective (total_x*total_y) with 4 rectangles is not proven within 170 s on json:1, even with tight domains, a sum-of-areas lower bound, total-first branching, no exists clauses, and heuristic sdf/conflict. Not evaluated for real.

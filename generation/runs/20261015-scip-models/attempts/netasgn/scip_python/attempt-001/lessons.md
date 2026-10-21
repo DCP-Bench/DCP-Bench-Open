@@ -1,2 +1,0 @@
-- Plain linear constraints with integer bounds from the instance were accepted on the first evaluation; no SCIP general constraints were needed.
-- Bounds per cell (min of limit, supply, demand) keep the integer domains tight.

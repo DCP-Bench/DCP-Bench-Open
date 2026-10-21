@@ -1,2 +1,0 @@
-- One-hot letter-to-block with `sum(...) <= 1` per word and block is a complete model of word spelling when a word's letters are distinct; the solver found solutions in 0.5 s per instance.
-- Output `dice` is indexed by alphabet position, so the model builds the list from `instance["alphabet"]` instead of hardcoding letters.

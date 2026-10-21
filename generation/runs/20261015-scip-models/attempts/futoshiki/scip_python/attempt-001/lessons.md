@@ -1,3 +1,0 @@
-- One-hot binaries per square plus an integer copy of the digit give a linear strict-inequality encoding: `grid[a] + 1 <= grid[b]`.
-- The instance's `lt` entries are 1-based `[r1, c1, r2, c2]` and mean the first square is smaller; the evaluator accepted this reading on all 5 instances.
-- Givens are fixed with `b[i, j, v] == 1` only where the value is nonzero.

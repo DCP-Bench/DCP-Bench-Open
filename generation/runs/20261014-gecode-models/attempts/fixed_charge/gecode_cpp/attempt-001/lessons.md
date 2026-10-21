@@ -1,3 +1,0 @@
-- linear() with IntArgs({1, -M}) over {x, b} is the standard way to link a bounded quantity to a 0/1 switch; IPL_BND is enough.
-- Objective with several weighted terms: build one IntVar z with bounds from the data, post linear(..., IRT_EQ, 0) over the terms and z, then maximize(z).
-- The instance layout here packs fields into rows (product[p] = [profit, machine]); the brief does not say this, so read the instance JSON and check against the notes in the instances.

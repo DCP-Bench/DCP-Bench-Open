@@ -1,1 +1,0 @@
-- Essence' Minion: knight's tour with `branching on [cell]` (move order) timed out at 8x8 with static, sdf and conflict heuristics. Branching on the board x with `heuristic sdf` (a redundant channel cell[x[r,c]+1] and allDiff(flatten(x)) added) solved all sizes up to 10x10 in the evaluator.

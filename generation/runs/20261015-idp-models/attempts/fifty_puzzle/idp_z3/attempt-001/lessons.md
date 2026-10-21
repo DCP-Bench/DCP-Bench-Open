@@ -1,2 +1,0 @@
-- The brief's shape for dummies and values (10 entries) comes from the example only; the other instances have 5, 15 and 20 values. Declaring `type Dummy <: Int` with `values: Dummy -> Int` and `dummies: Dummy -> Bool` sized the model from the data and passed all five instances on the first evaluation.
-- Summing the knocked-down values with `sum{{ values(d) | d in Dummy: dummies(d) }}` needed no workaround in idp-z3 0.12.1.

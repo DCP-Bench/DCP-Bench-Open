@@ -1,2 +1,0 @@
-- Puzzle with no instance fields: the problem's own numbers (100 people, 100 bushels) may stay as named constants with a comment saying the problem fixes them.
-- Halves: scale the corn equation to integer coefficients (6, 4, 1 = 200) rather than using a real variable.

@@ -1,2 +1,0 @@
-- Puzzle leading-zero rules are not uniform: the general_store sign has S = 0 as its only solution (leading S of SHEEP), so only letters that lead a word with no zero allowed were constrained. Check the evaluator's first_solution before adding a `~= 0` leading rule.
-- Nonzero leading letters are safe to state for the other words; a wrong guess shows up as unsat from the quick check, not as a timeout.

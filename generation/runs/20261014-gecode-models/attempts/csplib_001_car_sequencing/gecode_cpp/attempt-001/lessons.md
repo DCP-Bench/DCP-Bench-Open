@@ -1,3 +1,0 @@
-- IntSet(v) with a non-const std::vector<int> lvalue fails to compile (the IntSetInit template is picked). Use IntSet(v.data(), (int) v.size()).
-- sequence per option plus count per type solves the 10-car example in well under a second, but the 200-car instances found no solution in 180 s.
-- Tried for the 200-car instances, none found a first solution in 60 s: AFC branching with restarts(100), INT_VAR_SIZE_MIN with INT_VAL_RND, INT_VAR_SIZE_MIN with INT_VAL_SPLIT_MIN, IPL_DOM on sequence, and a channelled Boolean encoding with linear window sums added.

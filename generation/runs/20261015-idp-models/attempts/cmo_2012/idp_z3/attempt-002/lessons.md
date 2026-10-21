@@ -1,3 +1,0 @@
-- `a * b = n * n` over `Val = {1..max_val}` with `minimize() = a()` is not proven within the limit even on the small instances; the square part alone is slow for IDP-Z3.
-- Writing a = s * s, b = (s - 1) * (s - 1) (only solution form when a - b is prime) keeps the optimum but still times out with the `! d in Val` prime test: that test grounds one `%` atom per value of max_val, and at max_val 1200 and above the proof does not finish in 180 s.
-- Table-style `! k in Val: s() = k => (a() = k * k & ...)` avoids symbolic products (48 s on the example without the prime test) but does not fix the prime test.

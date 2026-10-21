@@ -1,2 +1,0 @@
-- Set-membership per feature: forbid exactly two of three with Or(count <= 1, count >= 3); with the one-card-per-slot constraints this leaves only all-same or all-different.
-- Slot-based one-hot (one per output position) gives the indices directly as integer expressions for a [3]int output.

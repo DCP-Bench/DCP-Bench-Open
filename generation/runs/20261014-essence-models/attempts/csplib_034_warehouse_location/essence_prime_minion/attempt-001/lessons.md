@@ -1,1 +1,0 @@
-Attempt 001 (csplib_034): default branching on [open_warehouses, supplier_assignment] times out (optimum not proven in 60 s) on the 15-store, 8-supplier instance. Branching on supplier_assignment first fixes it (attempt 002, accepted on all 5 instances).

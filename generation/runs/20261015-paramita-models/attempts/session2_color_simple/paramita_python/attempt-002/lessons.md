@@ -1,2 +1,0 @@
-- An objective built from auxiliary Bools (used_c with If(x_i_c, used_c)) was rejected with suboptimal_solution ("Declared outputs cannot achieve the reference optimum"), even though the optimum 4 was reachable.
-- The same objective written directly over the colour indicators, sum over c of Or(x_i_c for all i), was accepted. Keep objective terms as expressions over the decision Bools.

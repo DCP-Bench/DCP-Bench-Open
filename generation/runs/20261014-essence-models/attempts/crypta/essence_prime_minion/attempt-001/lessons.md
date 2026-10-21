@@ -1,1 +1,0 @@
-- Long cryptarithms: a column-wise encoding with a carry matrix `carry[1..n+1]` (`carry[1] = 0`, `carry[n+1] = 0`) avoids building 20-digit weighted sums. This was accepted first try; weighted sums were not tested.

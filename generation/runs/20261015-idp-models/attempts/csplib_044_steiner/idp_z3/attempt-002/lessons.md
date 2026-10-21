@@ -1,3 +1,0 @@
-- The row count of a 0-based or 1-based output can be sized from the instance with a placeholder expression: `type Triple := {1..${n*(n-1)/6}}` (exact division is refused when it does not divide evenly, which is the right signal).
-- Use `#{ t in T: p(t) } = 1` for "exactly one", not `?=1 t in T:`, when the quantifier sits under an implication; the `?=1` form did not parse here.
-- The n=3 instance (one triple) is accepted with a single solution, so the one-triple edge case binds.

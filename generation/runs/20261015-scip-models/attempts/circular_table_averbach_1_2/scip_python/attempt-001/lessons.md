@@ -1,2 +1,0 @@
-- Seat-indicator binaries with implications (yb[s] <= nat[American, s+1]) express the 'right of' rules as plain linear constraints.
-- The puzzle has three rotational solutions; no symmetry breaking was added, since the reference's symmetry constraints are not part of the contract.

@@ -1,2 +1,0 @@
-- A type sized from data (type Pos <: Int, from sets' second dimension) can serve as both the index and the value type of a permutation output, so no literal range is needed.
-- Permutation output: injectivity over Pos suffices (same size as the domain), and sets(g, p) can be compared to x(p) directly with Int-valued data.

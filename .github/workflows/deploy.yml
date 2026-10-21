@@ -1,4 +1,7 @@
-name: Deploy site to GitHub Pages
+name: Deploy redirect to DCP Rosetta
+
+# The catalogue moved to https://dcp-bench.github.io/DCP-Rosetta/. This site
+# keeps the old links working: every page forwards to the same path there.
 
 on:
   push:
@@ -22,19 +25,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Cache generated dataset jsonl
-        id: cache-jsonl
-        uses: actions/cache@v4
-        with:
-          path: dcp-bench-open.jsonl
-          key: jsonl-${{ hashFiles('dataset/**', 'jsonl_convert.py', 'requirements.txt') }}
-      - name: Generate dataset jsonl
-        if: steps.cache-jsonl.outputs.cache-hit != 'true'
-        run: python jsonl_convert.py
-      - name: Generate website
-        run: python generate_site.py
+      - name: Generate redirect pages
+        run: python .github/redirect_site.py dataset site
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

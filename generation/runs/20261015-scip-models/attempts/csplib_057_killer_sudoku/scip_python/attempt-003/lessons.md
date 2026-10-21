@@ -1,2 +1,0 @@
-- The brief lists the killer sudoku instance field 'problem' as unbindable (ragged cage lists), but the harness passed it through and the model reads cages directly from instance['problem'].
-- Cage cells are 1-based in the data; convert to 0-based when indexing.

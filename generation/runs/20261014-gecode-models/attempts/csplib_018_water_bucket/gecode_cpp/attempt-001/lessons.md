@@ -1,3 +1,0 @@
-- A transition relation (state, move, next state) as one TupleSet with extensional gives a complete, domain-consistent model of a small state machine; the table is built from the capacities in the constructor.
-- Padding after a goal: add tuples (goal, NONE, pad) and (pad, NONE, pad), and a last-state table on {goal, pad} so the goal must be reached within MAX_STEPS.
-- The skill's sequence output for a std::vector<IntVarArgs> works for [N][3] shapes; sequence[0] is the initial state here (the evaluator accepted that convention).

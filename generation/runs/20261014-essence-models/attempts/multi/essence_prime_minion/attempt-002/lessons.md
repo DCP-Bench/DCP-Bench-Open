@@ -1,3 +1,0 @@
-- Attempt-001 was retained at 4 of 5 instances: json:4 (3 origins, 4 destinations, 3 products) hit execution_timeout (optimum 536 found, not proven in 90 s). Retention accepted it; acceptance.md says a model-caused timeout is a repair signal.
-- Tightening demand to equality, adding ship <= supply/demand bounds, branching on ship and heuristic sdf did not make the json:4 proof finish in 90 s.
-- `max(X)` in a find domain needs a 1-D matrix; a 2-D given must be bounded with a literal domain (int(0..100000)).

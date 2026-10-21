@@ -1,1 +1,0 @@
-- Default search (row-major branching) timed out at 200 s on the 6x6 instance. Adding heuristic sdf after branching on [square] solved all five instances (6x6 in 2 s). Corner symmetry breaking with sdf was slower (41 s).

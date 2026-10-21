@@ -1,3 +1,0 @@
-- Prices with fractional unit costs (1/5 dollar, 5/7, 7/9) become integers by scaling with the lcm of the denominators (315). Post one `linear` with the scaled coefficients.
-- Instance data for bananas is empty (`[]`), so every constant comes from the description; the model comments say so where the prices appear.
-- `IntVar` members used in the copy constructor need `update` even when they are assigned in the body.

@@ -1,2 +1,0 @@
-- frog_circle: the frog's trajectory is not a Hamiltonian cycle. The first n jumps must be distinct, and the frog may get stuck on the last card, so `circuit` is too strict. n=4 has only (1,2,4,3), which is such a rho shape.
-- Modelling the trajectory as an explicit visit-order array p with `element(succ, p[j], p[j+1])` and `distinct(p)` worked first time.

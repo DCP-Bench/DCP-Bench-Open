@@ -1,3 +1,0 @@
-- Satisfaction problem with boolean relations: `addConsIndicator` with `binvar` expressed "richer than Agatha" both ways from a wealth integer, and the butler's "hates everyone not richer" became an equality with `1 - richer[j]`.
-- `killed[i] <= hates[i, victim]` (linear) is enough for "killer hates victim"; the indicator was needed only for the wealth comparison.
-- The model's answer is index 0 (Agatha herself), which matches the known answer to this puzzle; the evaluator accepted it on the only instance.

@@ -1,2 +1,0 @@
-- A zero leading digit is allowed in cryptarithms unless the statement says otherwise. Forcing leading letters to 1-9 made general_store unsat; check the statement before adding such a rule.
-- One-hot digits with per-column carries (integer, bounded) worked for the cryptarithm; the all-different rule is one sum per digit.

@@ -1,4 +1,0 @@
-- Pairwise quantifiers over a 1000-element list (`! p, q in Pos`) ground to about 1M terms and hit the 2048 MB limit; quantify over adjacent pairs with `p + 1` on a type of size N-1 instead.
-- A group-index encoding with `2 * k() * ideal() =< ...` did not prove the optimum (execution_timeout). Encoding each break as a position where the value changes, with group sizes linear in the boundaries, was proven at once.
-- `${(2*len(a)+k)//(2*k)}` computes round(N/K) from the instance inside a formula; `//`, `len` and `k` are all accepted in placeholders.
-- `! p in T: a(p - 1)` with `T := {0..N-1}` fails with "Domain error: Pos(p) and Pos(p - 1) is not a tautology"; shift the quantifier (`p + 1` over `{0..N-2}`) instead.

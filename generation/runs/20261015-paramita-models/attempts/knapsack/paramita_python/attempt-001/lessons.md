@@ -1,2 +1,0 @@
-- Knapsack: plain PB capacity over item Bools; the instance-length output list is built from len(values).
-- Haiku-written models passed on the first attempt when the plan was written first.

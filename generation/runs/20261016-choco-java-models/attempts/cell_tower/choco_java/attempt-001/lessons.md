@@ -1,2 +1,0 @@
-- Sites, regions, costs, populations and budget all come from the instance; no value is typed in.
-- Coverage is posted as covered_r <= sum of covering builds, plus build_s <= covered_r for each covering site; the population total is a scalar view of the covered Booleans.

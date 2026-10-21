@@ -1,3 +1,0 @@
-- Minimising a sum over production with product terms `production[t] * layout[t,j]` left the example's proof open for 120 s. Adding the implied bound `(sum production) * n_slots >= sum demand`, branching on layout first, and `int(0..max(demand))` for production made the 2-template example prove in about 3 s (this file's model).
-- The 3-template instance (catfood3, optimum 408 = the implied bound) still gave execution_timeout at 120 s. Variants tried with it: an explicit copies[t,j] aux, a lex order on (production, layout) for templates, and a linear form of the implied bound. None proved it.
-- `max(X)` in a domain works only on a 1-D matrix (`max(demand)`), not on a 2-D given.

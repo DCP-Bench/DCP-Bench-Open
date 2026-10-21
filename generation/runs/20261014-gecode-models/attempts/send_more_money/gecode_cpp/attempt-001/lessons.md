@@ -1,3 +1,0 @@
-- Constant weights (1000, 91, -90, ...) are the puzzle's own coefficients after collecting letters; the instance has no fields, so nothing is read from it.
-- static constexpr letter indices make l[S] readable; no Gecode name clash.
-- Quick check and real evaluation both accepted on the single example instance (s=9 e=5 n=6 d=7 m=1 o=0 r=8 y=2).

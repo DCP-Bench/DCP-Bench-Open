@@ -1,2 +1,0 @@
-- The skill's distinct/linear rows covered this model fully: distinct over the cells (IPL_DOM), linear sums with IRT_EQ into IntVars bounded by the smallest and largest n-term totals, and distinct over the 2n+2 sums (IPL_DOM).
-- Output shape depends on n: a std::vector<IntVarArgs> with one list per row fits a square of any order.

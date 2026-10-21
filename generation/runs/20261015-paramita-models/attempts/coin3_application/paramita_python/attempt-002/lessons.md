@@ -1,1 +1,0 @@
-- Weighted PB sums per amount (sum d*p == a over many Bools, one per amount and coin count) ran out of memory (2048 MB) on 3 of 5 instances and timed out on a fourth. A clause-level reachability DP (one Iff per value and denomination, And with unary x >= k) was accepted on all 5 instances in under 4 s each.

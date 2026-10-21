@@ -1,3 +1,0 @@
-- The vessel separation table is 0-based in the class index: class c is row c-1, and classes are 1-based in the data. Bind it as `separation: Cls * Cls -> Int` with `type Cls <: Int`, and select entries with a sum over Cls x Cls guarded by `classes(b1) = c1 + 1`.
-- Edge convention accepted by the evaluator: right = left + extent_x and top = bottom + extent_y, with exclusive far edges. The variant bottom = top + extent_y was rejected with "Declared outputs cannot extend to a reference solution" even on the 5x5 example, while the other convention passed all five instances.
-- Rotation (extent_x/extent_y swapped by a free Bool) is needed for tiling_rotation; the free Bool does not multiply the declared-output solutions.

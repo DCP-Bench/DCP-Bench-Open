@@ -1,1 +1,0 @@
-Movie scheduling: the movies field is ragged with a string column, so it cannot bind as one field. Binding the two integer columns as movies_2 and movies_3 (declared with movies_2_dim1) worked: the evaluator bound the equal-length mixed rows column by column and ignored the undeclared name column. Overlap uses closed intervals. Accepted on the full evaluation (5 instances).

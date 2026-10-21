@@ -1,5 +1,0 @@
-- each cell gets one number from 1 to 19 (NUM_CELLS) -> one-hot Bools per (cell, value), `sum(xv) == 1` per cell
-- each number from 1 to 19 is used in exactly one cell -> `sum over cells == 1` per value (permutation)
-- cell value -> integer expression `sum(v * xv[v])`, used in the line sums and in the output LD
-- each of the 15 lines (rows, diagonals) sums to the magic constant 38 (MAGIC_SUM) -> `sum(cell values on line) == MAGIC_SUM`, 5 lines per direction, lines from the hexagon coordinates
-- objective: none (satisfaction), outputs LD = list of the 19 cell value expressions in order A..S

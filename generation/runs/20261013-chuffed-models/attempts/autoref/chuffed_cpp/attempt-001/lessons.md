@@ -1,1 +1,0 @@
-- Literal reading of autoref allowed terms up to n+1 (e.g. (4,0,0,0,0) for n=3, m=0); reference rejects it. Bounding all terms to 0..n (the counted values) fixed it, found by the second solution in the 2-instance check.

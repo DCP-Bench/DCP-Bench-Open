@@ -1,3 +1,0 @@
-- A step of a sequence model with variable length: a table over (state[t], state[t+1]) with the legal pours, plus (goal, PAD) and (PAD, PAD), keeps padding after the goal without any extra booleans.
-- The table tuples can contain the padding value (-1) when the state domain's lower bound is the padding value.
-- The minimum-transfer count is the sum of reified "not padding" booleans over the states after the first, minimised with setObjective.

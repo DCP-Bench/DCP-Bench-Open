@@ -1,3 +1,0 @@
-- A shared position type (`Pos := {1..5}`) linked by equal values across four permutations makes "same person" clues one-line implications over `Age` quantifiers, with no inverse functions needed.
-- Age and Pos constants can be stated as ground equations in the theory (`agev(0) = 3.`), since the instance has no fields.
-- Output lists use the `Pos` values 1..5 directly, so the readback matched the expected 1-based list.

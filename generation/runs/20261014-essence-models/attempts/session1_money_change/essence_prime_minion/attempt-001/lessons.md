@@ -1,1 +1,0 @@
-Attempt 001 (session1_money_change): none beyond the dimension rule. Instances differ in the length of types_of_coins, so the sizes come from types_of_coins_dim1, not from a given named after the field coin.

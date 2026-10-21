@@ -1,3 +1,0 @@
-- Schur triples: the logic row (x != y) || (y != z) expresses not-all-equal with no global; propagation is weak but n <= 13 solves in ms.
-- precede over 1..c with IntArgs gives box symmetry breaking directly; no LDSB needed.
-- The skill's constraint map covered every requirement; no gap hit.

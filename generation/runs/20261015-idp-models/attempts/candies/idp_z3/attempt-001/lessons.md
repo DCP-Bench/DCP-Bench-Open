@@ -1,2 +1,0 @@
-- Quantify pairs (i, j) with `j = i + 1 =>` for neighbour constraints; comparisons of data ratings inside the implication need no guard.
-- Bounding unbounded Int decisions helped: `x(i) =< #{ k in I: true }` is a derivable bound (n candies at most) and the model was accepted on all 5 instances.

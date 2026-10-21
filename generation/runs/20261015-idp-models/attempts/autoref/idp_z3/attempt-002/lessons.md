@@ -1,3 +1,0 @@
-- The value type of a counting series must be bounded (`type Val := {0..${n}}`); unbounded `-> Int` outputs made the n=40 instance run past 180 s.
-- An entry value above n is not in the reference's solution set even though the counts still hold, so the output type must cap values at n. Without it, a second, non-reference solution (4,0,0,0,0) for n=3 gave "Declared outputs cannot extend to a reference solution".
-- Redundant sum: the entries sum to n+2+m, which speeds the search; the sum of the first n+1 entries alone is n+2, not the sum of all entries.

@@ -1,2 +1,0 @@
-- Minimodel accepts `rel(*this, x != y + c)` and `rel(*this, x == y + c)` directly; the four-argument `rel(home, x, irt, y, c)` form does not exist in Gecode 6.2.0 (the 5th argument is an IntPropLevel), so use expressions.
-- DCP_MODEL requires `explicit M(const json&)`, even when the puzzle has no instance data; cast the argument to void.

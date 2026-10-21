@@ -1,2 +1,0 @@
-- Digits of arithmetic puzzles: one-hot digits with weighted sums (10^k * v) timed out at 180 s even with one solution; 4 binary Bools per digit (sum 2^k*bit <= 9) solved in about 26 s.
-- A clue that multiplies two unknowns, with one factor a small set (two-digit primes), is written as one If per value of that factor: If(digits == p, C == p * X).

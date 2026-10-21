@@ -1,2 +1,0 @@
-- A range placeholder takes one field name, so `{0..${num_bins}}` has num_bins+1 values; exclude the extra value with a guard (`bins(i) < num_bins()`) rather than an expression in the range.
-- Data-sized `<: Int` types (Item from weights) bind cleanly; a declared output over a range type reads back as plain integers.

@@ -1,3 +1,0 @@
-- Heavy-tailed search: the first DFS (INT_VAR_SIZE_MIN, then INT_VAR_NONE over week-major slots) timed out at 60 s on the 8-team example. AFC_SIZE_MAX(0.99) with restarts(100) solved it in about 10 s.
-- Fixing one week with rel(sl[s] == s) is sound under team renaming and cut the search, but alone it did not solve the 8-team example in 60 s.
-- Round-robin pairing: element(partner-slot table) then element(slots, pslot) links slots to opponents; add the mutual check element(opps, opp) == t to tighten it.

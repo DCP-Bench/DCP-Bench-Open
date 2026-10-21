@@ -1,1 +1,0 @@
-- A variable-length list of moves with 0 as "no move" fits one-hot over {0} + [m1..m2] per position, with If(x[i][0], x[i+1][0]) for the zero suffix; the total is one PB equality.

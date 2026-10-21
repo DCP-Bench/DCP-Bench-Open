@@ -1,2 +1,0 @@
-- The search range (max_val) is read from the instance; the given set and the 120 bound are problem-level constants and are commented as such.
-- Squares are posted as root*root = a*number+1 with a bounded root variable, so no table of squares is needed.

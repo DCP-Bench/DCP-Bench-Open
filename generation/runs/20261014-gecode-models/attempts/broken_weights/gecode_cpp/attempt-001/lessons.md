@@ -1,2 +1,0 @@
-- Gecode 6.2.0 `mult` takes IntVar only; a BoolVar argument does not convert. Declare 0/1 arrays as IntVarArray when they feed `mult` or `linear` with IntVarArgs.
-- Balance-weighing covering (every k in 1..m weighable) with per-weighing pan booleans and `mult` products was accepted on all 5 instances, n up to 5 and m up to 80, with no timeouts.

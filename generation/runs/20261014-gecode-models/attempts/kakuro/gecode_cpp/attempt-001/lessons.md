@@ -1,3 +1,0 @@
-- The kakuro instance field "problem" is listed as unbindable, but the gecode_cpp driver passes the whole instance JSON, so the clues read directly with instance.at("problem").
-- In this dataset "blanks" are the non-white cells (they hold 0 in the output); all other cells are white and must take 1..9.
-- Per-clue distinct(IPL_DOM) with linear IRT_EQ solved all five instances in about 9 s each, with plain size-min branching and no restarts.

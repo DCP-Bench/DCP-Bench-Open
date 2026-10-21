@@ -1,3 +1,0 @@
-- Word values as integer variables tied to digit cells by a positional sum; clue operations (times, divided by, plus) are linear or one product, so nonlinear products went through SCIP's general constraints without trouble.
-- A square answer needs a root variable (s*s); a 2-digit prime needs k*q + r with 1<=r<=k-1 for k in 2..9, because the skill has no prime constraint.
-- The example evaluated with a 0 digit inside a word (cell 3 of across 1). Zero is a valid digit inside a word, so 0 in the output does not mean blank for white cells.

@@ -1,2 +1,0 @@
-- Time-indexed order bits over the horizon H = sum of durations solved all 5 instances with proven optima (max about 11 s per instance).
-- The quick check on the example already exercises the optimisation path; no timeouts appeared at this size.

@@ -1,2 +1,0 @@
-- csplib_041: the digit-monomial expansion (about 14k triple Bools, weights up to 1000) and a bit-level product encoding (7-bit two-digit numbers, about 1.8k And Bools, weights up to 2^12) both time out at 180 s with paramita_python; the bit-level one fails in the real evaluation with execution_timeout, not in encoding.
-- The product of three quantities over a permutation is hard for CaDiCaL when all arithmetic is in PB sums; a constant-propagating encoding would need a different idea.

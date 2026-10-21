@@ -1,1 +1,0 @@
-- Accepted 5/5 instances. One-hot position per piece and per slot; the objective is a PB over one-hot-times-Bool aux terms, which solved in under 5 s on every instance.

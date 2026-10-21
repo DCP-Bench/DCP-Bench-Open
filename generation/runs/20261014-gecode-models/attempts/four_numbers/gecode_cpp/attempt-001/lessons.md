@@ -1,3 +1,0 @@
-- member(*this, sums, IntVar(r, r), IPL_DOM) posts "r is one of the subset sums" cleanly; no reification needed.
-- expr(*this, sum(IntVarArgs)) builds each subset sum; the seven subset sums need no extra propagation level.
-- Evaluator reported 5 of 5 instances checked; the solver's first solution per instance was not unique, so the evaluator's solution-limit 2 is met quickly.

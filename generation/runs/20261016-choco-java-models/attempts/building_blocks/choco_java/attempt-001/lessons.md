@@ -1,2 +1,0 @@
-- Letter-to-block as one IntVar per letter: globalCardinality with constant occurrence IntVars (m.intVar(numSides)) gives the exact block sizes, closed true.
-- A word is spellable when its letters' blocks are pairwise distinct: allDifferent over views dice[letter] per word; alphabet.indexOf maps the letter to its die index.

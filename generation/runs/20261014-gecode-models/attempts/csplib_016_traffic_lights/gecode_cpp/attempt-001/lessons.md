@@ -1,2 +1,0 @@
-- Tuple constraints over (V_i, P_i, V_i+1, P_i+1) map directly to one `extensional` with a finalized `TupleSet`; no decomposition needed.
-- Domains per light category (vehicle 0..3, pedestrian 0..1) are set by bounding a single 0..3 array with `rel(lights[i] <= 1)`, since the skill has no per-element domain call on arrays.

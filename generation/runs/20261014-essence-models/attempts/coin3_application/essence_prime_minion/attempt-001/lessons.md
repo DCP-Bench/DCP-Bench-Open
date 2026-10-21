@@ -1,1 +1,0 @@
-Lesson: a 1-D instance list whose length varies per instance (denominations: 6, 7 and 3 items) binds with a declared <field>_dim1 and the matrix indexed by int(1..<field>_dim1); the output x takes the same index and was accepted on all 5 instances.

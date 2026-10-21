@@ -1,3 +1,0 @@
-- Chuffed's library defaults have no restarts (restart_scale 1e9). Setting so.restart_type = LUBY, so.restart_scale = 600 and so.toggle_vsids = true inside Build took car sequencing (200 cars) from 10 timeouts to all instances solved in under 30 s. The driver only overrides so.vsids afterwards.
-- Heavy-tailed instances: restart scale 100 and 2000 were both worse than 250 to 1000; also added prefix/suffix capacity bounds per option.
-- Branching on a rank variable mapped to the car type with array_int_element gives a value order (most loaded options first).

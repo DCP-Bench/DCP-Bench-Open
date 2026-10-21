@@ -1,3 +1,0 @@
-- Demand as exact equality made the example unsat (reference optimum 418 needs at-least demand); at-least is what the evaluator accepts.
-- Implied bound ceil(total demand / n_slots) on total sheets closes the optimum on the 3-template instance, given a solution at that bound is found.
-- Branching on the layout by dom/wdeg with Luby restarts found the 408 solution in ~14 s; branching on production first timed out at 60 s.

@@ -1,2 +1,0 @@
-- `#{ v in S: ~p(v) } = k` with a literal k works over an enumerated type `type S := {1..5}`; no `<: Int` needed when there is no instance data.
-- Statements about counts of other statements are a fixed problem: no instance fields, one instance, so the model needs no `${}` placeholder.

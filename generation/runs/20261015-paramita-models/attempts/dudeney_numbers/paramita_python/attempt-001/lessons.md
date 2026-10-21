@@ -1,2 +1,0 @@
-- Cube and digit-sum conditions share one one-hot root r: value == sum r^3 R[r] and digit sum == sum r R[r]. Digits one-hot per position, weights 10^p stay within 32 bits for n up to 9 digits.
-- Quick check and full evaluation both passed on the first attempt (instances 2/2).

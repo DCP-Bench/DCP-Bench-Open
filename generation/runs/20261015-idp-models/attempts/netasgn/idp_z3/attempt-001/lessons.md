@@ -1,3 +1,0 @@
-- Two-argument Int data fields sized with `type Person <: Int` / `type Project <: Int` bound cleanly; no `${...}` needed.
-- A bounded value type `type Hours := {0..10}` on a decision avoided the unbounded-Int slowness; accepted on all 5 instances in under 1 s each.
-- Parenthesised products inside `sum{{ }}` (`(cost(i,j) * assign(i,j))`) parsed as the skill says.

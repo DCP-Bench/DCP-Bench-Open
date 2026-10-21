@@ -1,3 +1,0 @@
-- Killer sudoku needs no decomposition: row, column and nonet `distinct` with IPL_DOM, cage `linear` IRT_EQ with IPL_DOM and a cage `distinct`, found every instance in well under a second.
-- Cage cells in the instance JSON are 1-based [row, col]; the model subtracts 1.
-- The `problem` field is ragged (cage sizes vary), which the brief lists as unbindable. Reading it through nlohmann JSON in the constructor worked and the evaluator accepted all 5 instances.

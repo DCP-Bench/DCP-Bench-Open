@@ -1,2 +1,0 @@
-- A host boat visits itself (`visits(p,b) = b` for hosts), so the capacity sum over `visits(p,g) = h` includes the host crew and the pairwise meeting count over all boats needs no host special case.
-- Periods are sized by `${n_periods}` as `{1..n}`; the output list still reads in period order.

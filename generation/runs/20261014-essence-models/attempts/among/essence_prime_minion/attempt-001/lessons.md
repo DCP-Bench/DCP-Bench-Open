@@ -1,3 +1,0 @@
-- Harness: the runner binds every instance field, so the `name` and `note` metadata strings in rows 2 to 5 make `execution_error` (Unbindable string field). Only the example and rows without metadata are reachable.
-- `v` varies in length across instances (lengths 4, 2, 4, 7), which a fixed `given` domain cannot bind.
-- The model itself (`toInt(x[i] in toSet(v))` count = m) is accepted on the example.

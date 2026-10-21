@@ -1,3 +1,0 @@
-- Path connectivity without cycles: give each non-end cell a distance one less than a same-colour neighbour, with pipe ends at distance 0; degree 2 plus this chain rules out detached loops.
-- A range type cannot be sized from a 2-D instance field: `${...}` takes only 1-D integer arrays and an unsized `type C <: Int` fails with "Expected an interpretation for type C", so colour and distance ranges are literals taken from the statement.
-- The 2-D board binds through `board: Pos * Pos -> Int` with `type Pos <: Int`; `#{ r2, c2 in Pos: adj(...) & ... } = k` counts neighbours and parses.

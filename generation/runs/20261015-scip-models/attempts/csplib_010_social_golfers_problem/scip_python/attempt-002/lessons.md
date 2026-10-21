@@ -1,3 +1,0 @@
-- Fixing week 0 (golfer p in group p // group_size) and golfer 0's group in each later week removed the timeouts: the same model without them failed 2 of 8 instances at 180 s, with them all 8 pass (slowest 130 s).
-- Symmetry breaking via fixed assignments is safe here because group labels are interchangeable per week and golfers are interchangeable within a group.
-- One-hot play[p, w, k] with a per-pair "together" binary (t >= play_p + play_q - 1, sum <= 1) is accepted by SCIP without any big-M.

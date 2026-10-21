@@ -1,2 +1,0 @@
-- Diet: the nutrient table is problem data, not instance data; mirror it as a comment-marked constant and read n, price and limits from the instance.
-- A per-food upper bound ceil(limit/content) is valid when prices are non-negative: removing a surplus unit keeps every requirement. Post it as IntVar domains plus rel, which keeps the cost expression bounded.

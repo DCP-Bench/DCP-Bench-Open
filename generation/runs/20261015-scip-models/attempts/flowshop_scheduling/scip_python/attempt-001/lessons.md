@@ -1,2 +1,0 @@
-- Permutation flow shop: a one-hot job-to-slot binary matrix plus continuous completion times C[p,k] with precedence constraints built from the linear expression sum_i pt[i][k] * x[i,p] works first time; no indicators or big-M needed.
-- The skill's `quicksum` over `pt[i][k] * x[i, p]` terms is accepted as a linear coefficient for a slot's processing time.

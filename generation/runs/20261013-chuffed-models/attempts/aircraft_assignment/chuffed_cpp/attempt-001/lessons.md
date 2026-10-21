@@ -1,1 +1,0 @@
-Chuffed vec<T> copies are shallow: pushing a local vec<IntVar*> or vec<int> row into a vec<vec<..>> and letting it go out of scope gives "double free or corruption (out)" (signal 6). Use m.push(); m.last().push(x) or createVars(m.last(), ...). The skill example only shows this for tuples.

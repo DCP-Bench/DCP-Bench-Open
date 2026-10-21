@@ -1,2 +1,0 @@
-- A count-plus-sum pair (`#{i in Idx: sel(i)} = m()` and `sum{{ nums(i) | i in Idx: sel(i) }} = 0`) is enough for "select m elements summing to zero"; the index type `Idx <: Int` sized from `nums` covered all five instances, including m=2 and m=4, with no literal sizes.
-- The instance field `m` binds to a nullary `m: () -> Int` with no placeholder, so counts can use it directly.

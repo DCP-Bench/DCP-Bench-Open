@@ -1,2 +1,0 @@
-- Squares of decision symbols: a quantified table `sq: Num -> Int` with `! n in Num: sq(n) = n * n.` (Num := {0..99}) avoided nonlinear products and was accepted; nullary outputs typed `-> Num` read back as plain integers.
-- Quantified `(p + 1) % 3` over a small Seat type and a function composition `right(right(x()))` both parsed and solved.

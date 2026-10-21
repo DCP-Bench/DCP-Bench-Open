@@ -1,2 +1,0 @@
-Vessel loading: the 16x16 instance has container areas summing to exactly the deck area, so a model without 90-degree rotation is unsatisfiable there; the description's "parallel to the sides" was read as allowing rotation (one Bool per non-square container).
-Separation and non-overlap share one four-alternative disjunction per pair (right/left or top/bottom, with the gap s), which keeps the encoding small.

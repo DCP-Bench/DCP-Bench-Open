@@ -1,2 +1,0 @@
-- Template design: unary sheet counts up to the largest demand plus capped unary products (about 15k cover bits) do not prove the optimum in 180 s. A binary sheet count with one aux per (copies value, bit) proves the example.
-- Paramita: an equality with a large PB expression on both sides (attempt 3) exits the runner with code 139 in under 4 s; the Python detail is empty.

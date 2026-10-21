@@ -1,1 +1,0 @@
-- Qualified is ragged: read it through the json (instance.at("Qualified").at(t)) with 1-based worker ids. Evaluator maps 0/1 IntVar exports to booleans.

@@ -1,2 +1,0 @@
-- A pure satisfaction puzzle with no instance fields needs no ${...} or data-sized types; fixed stop numbers are problem constants and can be written as literals in the type.
-- Each clue became one sentence, and the all-different constraints were written pairwise with ~=, since the skill has no all-different form.

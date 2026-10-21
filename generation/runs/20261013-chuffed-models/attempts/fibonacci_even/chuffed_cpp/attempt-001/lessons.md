@@ -1,2 +1,0 @@
-- int_mod(x, two, r) compiles but aborts the solver at run time ("arithmetic.cpp:691: Not yet supported", signal 6). Parity via f = 2*h + r with r in 0..1, then int_rel_reif(r, IRT_EQ, 0, b), works.
-- Use the list of terms as a fixed-length chain of IntVars (f[k] = f[k-1] + f[k-2]); the bound on the terms fixes the length.

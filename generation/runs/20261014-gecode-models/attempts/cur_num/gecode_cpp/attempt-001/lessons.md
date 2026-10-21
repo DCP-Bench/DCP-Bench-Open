@@ -1,2 +1,0 @@
-- `branch(*this, x, VAR, VAL)` does not compile for a single `IntVar`; the single-variable form is `branch(*this, x, INT_VAL_MIN())`. Group several variables in an `IntVarArgs` to use a variable-selection heuristic.
-- The only peculiar numbers up to 10000 are 48 and 1680 (x+1 = a^2 and x/2+1 = b^2), so "another number" means 1680 and the model needs `peculiar != 48`.

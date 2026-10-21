@@ -1,1 +1,0 @@
-- The adjacency_list of this problem uses node numbers from 1, so the model reads neighbour j as nodes[j - 1]. Check the data's numbering before indexing.

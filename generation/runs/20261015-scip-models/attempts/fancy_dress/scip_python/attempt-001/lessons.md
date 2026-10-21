@@ -1,2 +1,0 @@
-- Rules with a conditional "if X then Y or fee" were encoded as linear constraints with the fee binary n as an escape term (for example t <= r + n); minimisation keeps n at 0 when the rule holds.
-- The fancy_dress dataset has one embedded instance and no instance fields, so the build function reads nothing from the instance argument.

@@ -1,1 +1,0 @@
-- Successor-list routes (mario): index i as 1-based node, the house number is value-1; a position variable ord forbids separate loops. Allowed by the instance check.

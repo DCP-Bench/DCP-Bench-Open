@@ -1,2 +1,0 @@
-- max_shipping in facility_location is a total capacity per warehouse (sum over regions), not a per-route cap; a per-route cap accepted the example and json:1 but failed json:2 (invalid_solution, "Declared outputs cannot extend to a reference solution").
-- Judge the capacity reading against the instances where the optimum differs, not only the example: a wrong reading can still pass the cheap instances.

@@ -1,1 +1,0 @@
-- Langford: the sequence-variable model (gcc plus exists over the pair distance) times out at k=15 within 60 s; the position model (pos[v,1..2], allDiff(flatten(pos)), branching on pos) solves k=12 and k=15 at once.

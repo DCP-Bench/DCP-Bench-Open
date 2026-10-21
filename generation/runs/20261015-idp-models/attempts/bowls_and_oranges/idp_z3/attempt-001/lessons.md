@@ -1,3 +1,0 @@
-- An instance-sized index type is `type Orange := {1..${m}}`; a second range `{1..${n}}` gives the values. Bowl numbers 1..n were accepted for a `[m]int` output.
-- "Ascending order" needs no sorting: `i < j => x(i) < x(j)` on the index type pins the output order.
-- Three-term progression: `(a < b & b < c) => x(a) + x(c) ~= 2 * x(b)`. Evaluated on all 5 instances, 2 solutions each.

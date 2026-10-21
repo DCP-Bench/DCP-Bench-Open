@@ -1,2 +1,0 @@
-- Candies needs no global: each adjacent pair is one precedence whose direction the data fixes, so a plain `rel(x[i], IRT_GR/IRT_LE, x[i+1])` chosen at construction time is the natural encoding. The constraint map has no row for chains of precedences, and none was needed.
-- The upper bound n on each child's count comes from the instance size, not from the description. Choosing it as a domain bound is safe because the strictly increasing case realises it.

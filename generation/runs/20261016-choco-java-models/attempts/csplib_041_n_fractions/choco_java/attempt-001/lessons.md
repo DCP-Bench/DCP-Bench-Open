@@ -1,2 +1,0 @@
-- Multiplying the three fractions through by BC*EF*HI keeps the equation in integers; the products go through times() with bounded result variables.
-- Two-digit numbers are scalar views over their digits (10 and 1 weights), so no digit-by-digit table is needed.

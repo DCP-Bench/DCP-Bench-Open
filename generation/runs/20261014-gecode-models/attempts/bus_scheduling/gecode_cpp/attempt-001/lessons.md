@@ -1,2 +1,0 @@
-- Cyclic shift covering (a shift covers slots i and i+1, the day wraps) is one `linear` per slot over `x[i-1]` and `x[i]` with `IRT_GQ` and `IPL_BND`; no globals fit, so the plain linear is the map row.
-- `dcp.h` compiled and accepted the model with no changes; the quick check and the full evaluation agreed (5 of 5 instances, optima 26/24/22/26/15).

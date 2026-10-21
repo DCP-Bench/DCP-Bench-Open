@@ -1,2 +1,0 @@
-- branch() does not accept vec<BoolView> (compile error: cannot convert 'BoolView' to 'Branching*'); branch on 0/1 IntVars made with bool2int.
-- Without symmetry breaking, the flag model times out at n = 13 (180 s) with either value order and with VSIDS; a pair-cover model with the same search also timed out.

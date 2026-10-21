@@ -1,1 +1,0 @@
-- Permutation pair: value[p] and pos[v] with m.inverseChanneling(value, pos), then consecutive numbers via one table over (pos[v], pos[v+1]) of touching cell indices. Clue cells are pos[v-1] = p.

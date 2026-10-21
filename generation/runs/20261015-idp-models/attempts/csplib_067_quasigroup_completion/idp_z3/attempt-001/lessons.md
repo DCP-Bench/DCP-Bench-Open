@@ -1,2 +1,0 @@
-- Row and column types sized from the start grid (`type Row <: Int`) and a symbol type from `${N}` (`type Val := {1..${N}}`) worked together; no data-sized type was needed for the symbols.
-- The brief printed no problem description, so the comments were written from the problem name and the instance notes.

@@ -1,3 +1,0 @@
-- Variable `%` by a symbol or a large quantified range makes the optimum proof time out, even when the optimum is found at once. Constant-folded `%` inside a table over a small root type proves in about 20 s on the example.
-- Products `a() = x() * x()` proved in 82 s without a prime test; adding `! d in Val: ... p() % d` broke the proof. A table over `Root` with a constant-folded divisor count avoids both.
-- A type sized by an expression that bounds sqrt(M) for all M (`M // 100 + 26`) works as a sound root range; the comment must give the reason for the bound.

@@ -1,3 +1,0 @@
-- A quantified definition needs its variables declared: `{ bridge(x, y) <- ... }` gives "Symbol not in vocabulary: x"; write `{ ! x, y in Pos: bridge(x, y) <- ... }`.
-- Closed definitions by ground facts, `{ dueSouth(2, 0). dueSouth(3, 1). }`, worked for a 2x2 map relation, and `|` works as disjunction in a definition body.
-- Position-valued outputs (`island: Isl -> Pos`) with range types read back as [4]int without issue.

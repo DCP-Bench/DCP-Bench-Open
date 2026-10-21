@@ -1,2 +1,0 @@
-- Prefix-count pattern: IntVar F_k with m.sum(Arrays.copyOf(b, k+1), "=", F_k).post() works for ratio constraints over prefixes.
-- Ratio a:b between two counts with a fixed total reduces to one linear inequality on the count (3F <= 7M with M = n - F gives 10F <= 7n); the expression API `F.mul(10).le(c).post()` expresses it directly.

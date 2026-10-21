@@ -1,2 +1,0 @@
-FO(.) closed world: a predicate with only ground facts in the theory is free on every unlisted tuple. Use a definition block { ... } so unlisted pairs are false, or the solver chooses them (here it gave ring-invalid seatings the evaluator rejected as 'Declared outputs cannot extend to a reference solution').
-The error text does not name the cause. Probe the evaluator with fixed outputs (x(0)=..) to tell a wrong encoding from a wrong reading.

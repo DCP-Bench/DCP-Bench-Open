@@ -1,1 +1,0 @@
-- One-hot binaries per value with a count constraint per value, as the skill suggests, solved n = 12..20 in about 1 s each with no tuning.

@@ -1,2 +1,0 @@
-- Harness: instances 4 and 5 carry `name` and `note` strings and fail to bind (string field). Instances 1 to 3 (n = 12, 13, 14) are accepted.
-- The model (allDiff on x, disjunctive |x[i+1]-x[i]| for diffs, allDiff on diffs) solved every bound instance.

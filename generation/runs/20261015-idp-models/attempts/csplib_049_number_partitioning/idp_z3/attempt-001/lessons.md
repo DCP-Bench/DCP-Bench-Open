@@ -1,2 +1,0 @@
-- Number partitioning: `Half := {1..${n/2}}` sizes both sets from the data; an exact division placeholder is accepted (n = 8, 12, 16 all even).
-- Listing each set in ascending order (`i < j => A(i) < A(j)`) gives a canonical output per partition and does not change which partitions are allowed; the disjointness `A(i) ~= B(j)` with equal cardinality already forces A and B to cover 1..n.

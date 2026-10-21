@@ -1,2 +1,0 @@
-- An instance field the brief lists as unbindable (rows mixing str and int, e.g. movies) still binds: read it with inst.raw(key).getAsJsonArray() and take each element with get(i).getAsInt().
-- Interval overlap as a clique cover: for each start day, post sum(selected covering that day) <= 1 with m.sum(bools, "<=", 1); exact for interval graphs.

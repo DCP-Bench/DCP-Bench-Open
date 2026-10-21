@@ -1,3 +1,0 @@
-- Declaring the outputs directly as single capital letters (`A = Var(dom=range(1, 10))`) with AllDifferent alone gave `execution_timeout` after 2 s with 0 solutions (runner status `timeout`, ACE returned no SAT line). The same model with lowercase names (`a = Var(...)`) and `A, B, ... = a, b, ...` aliases solved at once (verified).
-- Products of two or three variables in one intension (`A * ef * hi + ...`) made the search stop with no solution in 120 s. Splitting the products into binary auxiliary product variables (`ef_hi == ef * hi`) solved in about 2 s (verified).
-- Table(scope=[b, c, bc], supports=pairs) linking digits to a two-digit number worked well.

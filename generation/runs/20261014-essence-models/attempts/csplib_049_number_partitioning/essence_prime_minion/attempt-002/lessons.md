@@ -1,1 +1,0 @@
-Attempt-001 (plain sum-of-squares model) timed out on json:2 (n=16) at the 120 s check limit. Adding ordered entries within A and B (removes only permutations inside each set) and the implied half-sums of 1..n and of squares fixed it: all instances accepted.

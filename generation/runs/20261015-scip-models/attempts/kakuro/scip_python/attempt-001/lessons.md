@@ -1,1 +1,0 @@
-Kakuro: the blanks field lists the non-white cells, so white cells come from the union of run cells, not from blanks. Clue cells output 0. Runs are [clue, cell, ...] with 1-based (row, col). One-hot binaries per cell give all-different per run cheaply. Quick check with blanks as white cells raised KeyError, so field semantics need reading from the instance.

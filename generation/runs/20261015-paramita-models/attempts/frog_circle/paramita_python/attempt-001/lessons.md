@@ -1,2 +1,0 @@
-- frog_circle: card 1 fixed at position 0 (rotation symmetry) is a valid convention; the jump is a step chain y[i][p] over n jumps, with one-hot card values and If(y & card, next).
-- The evaluator accepted it on all 5 instances with the 1-based position convention (card v jumps to (p+v) mod n).

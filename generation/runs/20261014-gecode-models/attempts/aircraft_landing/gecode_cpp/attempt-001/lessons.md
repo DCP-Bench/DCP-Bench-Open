@@ -1,2 +1,0 @@
-- Linear bounds with IntArgs({1, c}) over (penalty, landing) model a two-sided penalty exactly when the penalty has positive weight in the minimised sum; no MAX global is needed.
-- The fallback branching only covers outputs and the objective, so auxiliaries such as per-aircraft penalties need their own branch call.

@@ -1,3 +1,0 @@
-- Essence' Savile Row: max() and min() take a one-dimensional matrix only; use `max(flatten(board))` for a 2-D given in a letting.
-- Savile Row grid models: a border-padded copy of the grid (index 0 and n+1 fixed to colour 0) removes the boundary cases for neighbour indices, which an out-of-range index would otherwise make false inside a sum.
-- Flow Free: a path is encoded by degree (clue cells 1, other cells 2 same-colour neighbours) plus a distance label along the pipe (clue cells 0, each other cell has a same-colour neighbour one step closer). Loops away from the clue cells are then impossible.

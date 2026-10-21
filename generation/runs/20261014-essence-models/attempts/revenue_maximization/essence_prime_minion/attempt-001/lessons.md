@@ -1,1 +1,0 @@
-Revenue maximisation: delta is packages by legs, and the seat constraint sums delta[p, l] over packages per leg. The revenue output is an expression, so it is a find with its own equality. Accepted on the first full evaluation (5 instances).

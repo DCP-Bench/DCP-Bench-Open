@@ -1,2 +1,0 @@
-- Bits in {-1,+1} as m.intVar(name, new int[]{-1,1}); m.times on two such IntVars keeps the product in {-1,1} without extra bounds.
-- Periodic autocorrelation: m.sum(products, "=", C_k) then m.square(Q_k, C_k); objective is the sum of the Q_k.

@@ -1,2 +1,0 @@
-- The 21-square instance (base 112) timed out with plain diffN and default search (attempt-001). Adding redundant int[]-form cumulatives on x and y (heights = sides, capacity = base) plus domOverWDegSearch with Luby restarts solved it in 75 s.
-- cumulative(IntVar[] starts, int[] durations, int[] heights, int capacity) is the form to use for the projection of squares onto an axis.

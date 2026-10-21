@@ -1,2 +1,0 @@
-- A symbol must be named as the instance field it binds: `adj` was not bound from `adjacency_list` and failed with "Expected an interpretation for type Row"; renaming the symbol to `adjacency_list` fixed it.
-- Node ids are 1-based and the adjacency rows are 0-based; the constraint shifts with `r + 1 = u` and keeps `Node := {1..${n}}` for the output.

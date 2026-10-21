@@ -1,2 +1,0 @@
-- Joint TupleSet (type, option Booleans) with extensional per slot plus one count with IntVar cards (IPL_DOM) pruned far more than one element per option: 13 of 14 quick-check instances solved in under 15 s, where element-based attempt-002 timed out.
-- Renumbering types by option utilisation (most used option first, lexicographic) is a better static value order than summed at_most/per_slots.

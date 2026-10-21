@@ -1,2 +1,0 @@
-- clock_triplets has no instance fields; the 1..12 range and the 21 bound come from the description, and the wraparound uses modular indexing.
-- The description calls 21 the smallest achievable maximum, so the hard bound <= 21 yields the intended set without an optimisation objective.

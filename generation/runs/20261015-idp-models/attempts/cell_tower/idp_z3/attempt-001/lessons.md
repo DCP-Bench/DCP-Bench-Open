@@ -1,2 +1,0 @@
-- The reach relation `delta` is sized as `S * R` with two `<: Int` types, one from the cost list and one from the population list; all five instances bound without change.
-- A Boolean auxiliary `covered: R -> Bool` defined by `<=>` over an existential (`?s in S: ...`) is fully determined and did not multiply models; the evaluator accepted 5/5.

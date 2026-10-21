@@ -1,3 +1,0 @@
-- Three-dimensional data fields size three separate `type X <: Int` index types, one per axis, and the 2-D fields reuse them; all five instances bound with no size conflict.
-- The brief note lists the lane limit, but the description does not mention it; the instance data is what decides it. The reference optimum (235, 279, ...) matched with `limit` as a lane cap over all products.
-- `total_cost: () -> Int` as the declared output plus `minimize() = total_cost()` is accepted; the objective read back equals the output.

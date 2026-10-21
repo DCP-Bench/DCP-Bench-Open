@@ -1,3 +1,0 @@
-- Use a second type Step := {0..${stage-2}} for transitions, so wolf_pos(t+1) stays inside Stage and needs no guard.
-- ${stage-1} and ${stage-2} in a type range and as theory arguments both substituted correctly.
-- Outputs are Stage -> Bool (true = destination shore); the per-item move rule (move only from the boat's shore) plus one-item-per-step covers the boat constraints.

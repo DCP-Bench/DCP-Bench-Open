@@ -1,3 +1,0 @@
-- The first graceful model used abs() for the edge labels and timed out on the 8-node example at 60 s in the quick check.
-- Replacing abs() with a sign binary and two indicator constraints per direction let the same model pass the quick check.
-- Indicator equalities need both <= and >= indicators on the same binary; activeone=False covers the other sign.

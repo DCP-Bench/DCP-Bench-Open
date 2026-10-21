@@ -1,3 +1,0 @@
-- `${n_teams-2}` and `${n_teams//2-1}` work as range placeholders for weeks and periods (0-based, sized from data).
-- Per-team and per-pair conditions written as counts (`#{ ... } = 1`, `>= 1`) avoid existential quantifiers under implication.
-- Both instances (8 and 6 teams) were accepted on the first attempt; the 6-team instance has n/2 = 3 periods, so the placeholders are not tied to the example.

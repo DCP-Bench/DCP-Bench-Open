@@ -1,2 +1,0 @@
-Full-round-robin SCIP models with pairwise day-by-day binaries stall at 60 s in the quick check. Adding the redundant counts (one bye per date, two byes per team) made the first instance solve in 120 s on the real run.
-The brief lists `where` values as 0 home, 1 bye, 2 away; a bye has no opponent, so this model lists the team against itself in `config`. The description does not say what a bye looks like in `config`.

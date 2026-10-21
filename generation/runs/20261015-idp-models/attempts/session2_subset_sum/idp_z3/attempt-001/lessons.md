@@ -1,3 +1,0 @@
-- Bounds on a -> Int output: the explicit theory bound 0 =< bags(b) & bags(b) =< ${total_coins_lost} was accepted on all 5 instances, with no range type needed.
-- Instance-sized index type (type B <: Int) handled a bag-kind count that differs between instances (4 to 8 kinds) with no change to the model.
-- Interpreted data symbols (A, coin_numbers) plus sum{{ (f(x) * g(x)) | ... }} with parentheses parsed without error.
