@@ -1,0 +1,16 @@
+vocabulary {
+    type I <: Int                      // one index per item, sized from weights
+    type Range_num_bins <: Int         // {1..num_bins}, shifted to 0-based bins below
+    capacity: () -> Int
+    num_bins: () -> Int
+    weights: I -> Int
+    bins: I -> Int                     // declared output: bin of each item, 0-indexed
+}
+
+theory {
+    // every item is assigned to a bin
+    ! i in I: 0 =< bins(i) & bins(i) =< num_bins() - 1.
+
+    // the total weight of the items in each bin does not exceed the capacity
+    ! b in Range_num_bins: sum{{ weights(i) | i in I: bins(i) + 1 = b }} =< capacity().
+}

@@ -1,0 +1,23 @@
+vocabulary {
+    type Range_num_items <: Int
+    num_items: () -> Int
+    total_price: () -> Int
+    prices: Range_num_items -> Int      // declared output, in cents
+    partial: Range_num_items -> Int     // running product of the prices
+    scale: Range_num_items -> Int       // 100^(i-1): cents-to-dollars correction
+}
+theory {
+    // each item has a positive price in cents, at most the total
+    ! i in Range_num_items: 1 =< prices(i) & prices(i) =< total_price().
+
+    // the prices added come to the total price
+    sum{{ prices(i) | i in Range_num_items }} = total_price().
+
+    // the prices multiplied (in dollars) come to the same total: in cents the
+    // product is total * 100^(n-1)
+    { partial(1) = prices(1).
+      ! i in Range_num_items: i > 1 => partial(i) = partial(i - 1) * prices(i). }
+    { scale(1) = 1.
+      ! i in Range_num_items: i > 1 => scale(i) = scale(i - 1) * 100. }
+    partial(num_items()) = total_price() * scale(num_items()).
+}

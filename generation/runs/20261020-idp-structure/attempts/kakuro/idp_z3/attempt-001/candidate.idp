@@ -1,0 +1,36 @@
+// Kakuro: insert a digit from 1 to 9 into each white cell so that the entries match their clues,
+// with no digit duplicated in any entry. Black cells hold 0 in the solution matrix x.
+vocabulary {
+    type Range_n <: Int                 // rows of the grid
+    type Val := {0..9}                    // 0 for a blank (black) cell, 1 to 9 for a digit
+    type Digit := {1..9}                  // digits an entry may use
+    type Seg <: Int                       // the entries (across and down clues), sized from the instance
+    type Cell <: Int                      // cells of an entry, padded to the longest entry
+    type Blk <: Int                       // the black cells, sized from the instance
+    type Coord <: Int                     // 0 = row, 1 = column of a cell
+
+    blanks: Blk * Coord -> Int            // the black cells, as (row, column)
+    problem_1: Seg -> Int                 // clue: the sum of each entry
+    problem_2: Seg * Cell * Coord -> Int  // the cells of each entry, as (row, column)
+    problem_2_len: Seg -> Int             // number of cells of each entry
+
+    black: Range_n * Range_n -> Bool              // the cell is a black cell
+    inseg: Seg * Range_n * Range_n -> Bool        // the cell belongs to the entry
+    x: Range_n * Range_n -> Val                   // declared output: the solution matrix
+}
+theory {
+    // a cell is black when it is listed among the blanks
+    { ! r in Range_n, c in Range_n: black(r, c) <- ? b in Blk: blanks(b, 0) = r & blanks(b, 1) = c. }
+    // a cell belongs to an entry when it is one of the entry's listed cells
+    { ! s in Seg, r in Range_n, c in Range_n: inseg(s, r, c) <- ? j in Cell: j =< problem_2_len(s) - 1 & problem_2(s, j, 0) = r & problem_2(s, j, 1) = c. }
+
+    // Each black cell is 0; each white cell holds a digit from 1 to 9, and every white cell lies in an entry.
+    ! r in Range_n, c in Range_n: black(r, c) <=> x(r, c) = 0.
+    ! r in Range_n, c in Range_n: ~black(r, c) => ? s in Seg: inseg(s, r, c).
+
+    // the sum of the numbers in each entry matches the clue associated with it
+    ! s in Seg: sum{{ x(r, c) | r in Range_n, c in Range_n: inseg(s, r, c) }} = problem_1(s).
+
+    // no digit is duplicated in any entry
+    ! s in Seg, d in Digit: #{ r in Range_n, c in Range_n: inseg(s, r, c) & x(r, c) = d } =< 1.
+}

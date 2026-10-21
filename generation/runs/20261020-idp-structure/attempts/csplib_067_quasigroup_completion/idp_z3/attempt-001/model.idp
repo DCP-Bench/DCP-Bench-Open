@@ -1,0 +1,18 @@
+// Quasigroup completion: complete a partially filled order m Latin square (m x m, symbols 1..m)
+vocabulary {
+    type Row <: Int                // rows of the square, sized from the start grid
+    type Col <: Int                // columns of the square, sized from the start grid
+    type Range_N <: Int          // the symbols 1 to m
+    start: Row * Col -> Int        // given cells; 0 marks an empty cell
+    puzzle: Row * Col -> Range_N       // the completed quasigroup
+}
+theory {
+    // each element from 1 to m occurs once in every row
+    ! r in Row, c1 in Col, c2 in Col: c1 ~= c2 => puzzle(r, c1) ~= puzzle(r, c2).
+
+    // each element from 1 to m occurs once in every column
+    ! c in Col, r1 in Row, r2 in Row: r1 ~= r2 => puzzle(r1, c) ~= puzzle(r2, c).
+
+    // the given cells keep their symbols
+    ! r in Row, c in Col: start(r, c) ~= 0 => puzzle(r, c) = start(r, c).
+}

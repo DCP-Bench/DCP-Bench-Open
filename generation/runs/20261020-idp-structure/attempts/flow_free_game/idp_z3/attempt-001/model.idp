@@ -1,0 +1,52 @@
+vocabulary {
+    // the board: 0 for an empty cell, otherwise the color of an endpoint
+    type Row <: Int
+    type Col <: Int
+    board: Row * Col -> Int
+
+    // one color per pair of endpoints
+    type Color <: Int
+    Color_size: () -> Int
+
+    // number of cells on the board
+    ncells: () -> Int
+
+    // the output: the color of every cell
+    B: Row * Col -> Int
+
+    // number of same-colored neighbours of each cell
+    deg: Row * Col -> Int
+    // position of each cell along its pipe, the root has rank 0
+    rank: Row * Col -> Int
+    // the root cell of each pipe, one endpoint per color
+    root: Row * Col -> Bool
+}
+theory {
+    // there are two endpoints per color
+    Color_size() = #{ r in Row, c in Col: board(r, c) ~= 0 } / 2.
+
+    // the board has one cell for each (row, column) pair
+    ncells() = #{ r in Row, c in Col: true }.
+
+    // every cell has a color between 1 and the number of colors
+    ! r in Row: ! c in Col: 1 =< B(r, c) & B(r, c) =< Color_size().
+
+    // a numbered cell keeps its color
+    ! r in Row: ! c in Col: board(r, c) ~= 0 => B(r, c) = board(r, c).
+
+    // each cell has exactly two same-colored neighbours, endpoints have one
+    ! r in Row: ! c in Col: board(r, c) ~= 0 => deg(r, c) = 1.
+    ! r in Row: ! c in Col: board(r, c) = 0 => deg(r, c) = 2.
+    ! r in Row: ! c in Col: deg(r, c) = #{ s in Row, t in Col: ((r = s & c + 1 = t) | (r = s & t + 1 = c) | (c = t & r + 1 = s) | (c = t & s + 1 = r)) & B(s, t) = B(r, c) }.
+
+    // each pipe starts at one endpoint, which has rank 0
+    ! r in Row: ! c in Col: root(r, c) => board(r, c) ~= 0 & rank(r, c) = 0.
+    ! k in Color: #{ r in Row, c in Col: root(r, c) & B(r, c) = k } = 1.
+
+    // ranks are bounded by the number of cells
+    ! r in Row: ! c in Col: 0 =< rank(r, c) & rank(r, c) =< ncells().
+
+    // every cell that is not a root has a neighbour of its color with a lower rank,
+    // so each pipe reaches its root without a cycle
+    ! r in Row: ! c in Col: ~root(r, c) => ? s in Row: ? t in Col: ((r = s & c + 1 = t) | (r = s & t + 1 = c) | (c = t & r + 1 = s) | (c = t & s + 1 = r)) & B(s, t) = B(r, c) & rank(s, t) < rank(r, c).
+}

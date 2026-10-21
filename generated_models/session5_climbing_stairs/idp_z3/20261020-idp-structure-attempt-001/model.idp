@@ -1,0 +1,22 @@
+// Climb a stair of n steps, taking between m1 and m2 steps at a time.
+// Print the number of steps taken at each move, as a list of n integers, each between m1 and m2,
+// or 0 if no steps are taken at that move (after reaching the top of the stair).
+vocabulary {
+    n: () -> Int
+    m1: () -> Int
+    m2: () -> Int
+    // one entry per move; there are at most n moves
+    type Range_n <: Int
+    // steps[k] is the number of steps taken at move k
+    steps: Range_n -> Int
+}
+theory {
+    // each move takes either 0 steps, or between m1 and m2 steps
+    ! k in Range_n: steps(k) = 0 | (m1() =< steps(k) & steps(k) =< m2()).
+
+    // the moves together climb exactly the n steps of the stair
+    sum{{ steps(k) | k in Range_n }} = n().
+
+    // once the top is reached (a move of 0 steps), every later move is also 0
+    ! k, l in Range_n: k < l & steps(k) = 0 => steps(l) = 0.
+}

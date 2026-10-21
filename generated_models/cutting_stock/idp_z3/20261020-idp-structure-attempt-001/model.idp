@@ -1,0 +1,22 @@
+vocabulary {
+    type Pat <: Int                       // one index per cutting pattern
+    type Wid <: Int                       // one index per width to be cut
+    orders: Wid -> Int                    // orders[w]: number of rolls ordered of width w
+    num_rolls_width: Pat * Wid -> Int     // num_rolls_width(p, w): rolls of width w cut by pattern p
+    patterns_used: Pat -> Int             // declared output: times each pattern is used
+    minimize: () -> Int                   // objective: total number of raw rolls cut
+    min_rolls_cut: () -> Int              // declared output: same value as minimize
+}
+
+theory {
+    // each pattern is used a non-negative number of times, at most the total number of orders
+    ! p in Pat: patterns_used(p) >= 0.
+    ! p in Pat: patterns_used(p) =< sum{{ orders(w) | w in Wid }}.
+
+    // for each width, the rolls cut meet the orders for that width
+    ! w in Wid: sum{{ (patterns_used(p) * num_rolls_width(p, w)) | p in Pat }} >= orders(w).
+
+    // the objective is the total number of raw rolls cut
+    minimize() = sum{{ patterns_used(p) | p in Pat }}.
+    min_rolls_cut() = minimize().
+}

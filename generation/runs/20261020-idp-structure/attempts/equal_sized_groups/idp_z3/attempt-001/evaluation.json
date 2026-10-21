@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "Domain error: Grp(10) is not a tautology. Please add appropriate guards.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ba3ca18d5318a81c9939c52247b0f765e352e061a02646e39742ba1e19f87d3b",
+    "tag": "dcp-eval/idp_z3:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.9830185920000076e-06,
+      "detail": "Domain error: Grp(10) is not a tautology. Please add appropriate guards.",
+      "execution_wall_seconds": 1.59028719807975,
+      "id": "example",
+      "instance_hash": "eb0f8c4c0cadcb0482941cdf94e41affb7ba5e7a5d3dc95e4c4ba7d1fbd59760",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 26,
+      "outputs": [
+        "x"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 2.6976668359711766,
+      "runner_status": {
+        "detail": "Domain error: Grp(10) is not a tautology. Please add appropriate guards.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 524, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 456, in solve\n    theory, vocab, goal = load(request)\n                          ^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 448, in load\n    full = IDP.from_str(source + \"\\n\" + sized(idp, source, bind(idp, instance)))\n                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 308, in sized\n    theory = Theory(*full.theories.values(), *full.structures.values())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Theory.py\", line 227, in __init__\n    self.add(*theories)\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Theory.py\", line 372, in add\n    check_WDFs(self, self.WDFs)\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/WDF.py\", line 111, in check_WDFs\n    raise IDPZ3Error(\nidp_engine.utils.IDPZ3Error: Domain error: Grp(10) is not a tautology. Please add appropriate guards.\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "104d6d976c43d7b573c47a5b4581c0ae29b1ca94a9895e8f68265540806cccbc",
+  "problem_id": "equal_sized_groups",
+  "reason": "execution_error",
+  "reference_hash": "b71dd80429b7177f5e9b30bcd094ab24fac241dc3b5e73e59bac4e54979e7409",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.13.2"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "idp_z3",
+  "total_wall_seconds": 4.460823513916694,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

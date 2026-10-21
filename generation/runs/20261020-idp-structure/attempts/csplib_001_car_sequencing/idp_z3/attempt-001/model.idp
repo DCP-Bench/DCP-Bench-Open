@@ -1,0 +1,19 @@
+vocabulary {
+    type Car <: Int                 // car types, sized by demand (0-based)
+    type Opt <: Int                 // options, sized by at_most (0-based)
+    type Pos := {0..9}              // assembly positions, one per car
+    demand: Car -> Int
+    requires: Car * Opt -> Int      // 1 when the car type needs the option
+    at_most: Opt -> Int             // station capacity: cars per window
+    per_slots: Opt -> Int           // window length
+    sequence: Pos -> Car            // declared output: car type at each position
+    has: Pos * Opt -> Bool          // helper: position p carries option o
+}
+theory {
+    // every car type appears as many times as its demand
+    ! c in Car: #{ p in Pos: sequence(p) = c } = demand(c).
+    // the requirement flags tell which options each position carries
+    ! p in Pos, o in Opt: has(p, o) <=> ? c in Car: sequence(p) = c & requires(c, o) = 1.
+    // no window of per_slots positions holds more than at_most cars needing the option
+    ! p in Pos, o in Opt: #{ q in Pos: q >= p & q < p + per_slots(o) & has(q, o) } =< at_most(o).
+}

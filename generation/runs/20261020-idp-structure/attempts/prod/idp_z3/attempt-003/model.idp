@@ -1,0 +1,26 @@
+vocabulary {
+    type P <: Int
+    a: P -> Int
+    c: P -> Int
+    u: P -> Int
+    b: () -> Int
+    x: P -> Int
+    total_profit: () -> Int
+    q: P -> Real
+    maximize: () -> Int
+}
+theory {
+    // X[j] should be between 0 and u[j] for all j in P
+    ! j in P: 0 =< x(j) & x(j) =< u(j).
+
+    // the maximized total profit is the sum of c[j] * X[j]
+    total_profit() = sum{{ (c(j) * x(j)) | j in P }}.
+    maximize() = total_profit().
+
+    // q[j] is the exact value X[j] / a[j], valid for any sign of a[j]
+    ! j in P: a(j) ~= 0 => q(j) * a(j) = x(j).
+    ! j in P: a(j) = 0 => q(j) = 0.
+
+    // the sum of (1/a[j]) * X[j] should be at most b
+    sum{{ q(j) | j in P }} =< b().
+}

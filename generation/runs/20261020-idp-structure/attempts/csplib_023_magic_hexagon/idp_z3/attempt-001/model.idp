@@ -1,0 +1,45 @@
+// Magic hexagon (CSPLib 023): place the numbers 1 to NUM_CELLS in the 19 cells A..S
+// so that the sum on each of the 15 lines equals the magic constant MAGIC_SUM.
+// Range_NUM_CELLS letters map to positions: A=1, B=2, ..., S=19. LD(i) is the number in cell i.
+vocabulary {
+    MAGIC_SUM: () -> Int
+    type Range_NUM_CELLS <: Int
+    LD: Range_NUM_CELLS -> Range_NUM_CELLS
+}
+theory {
+    // the numbers placed in the cells are all different
+    ! i, j in Range_NUM_CELLS: i ~= j => LD(i) ~= LD(j).
+
+    // the first row A B C sums to the magic constant
+    LD(1) + LD(2) + LD(3) = MAGIC_SUM().
+    // the second row D E F G
+    LD(4) + LD(5) + LD(6) + LD(7) = MAGIC_SUM().
+    // the middle row H I J K L
+    LD(8) + LD(9) + LD(10) + LD(11) + LD(12) = MAGIC_SUM().
+    // the fourth row M N O P
+    LD(13) + LD(14) + LD(15) + LD(16) = MAGIC_SUM().
+    // the bottom row Q R S
+    LD(17) + LD(18) + LD(19) = MAGIC_SUM().
+
+    // the line A E J O S running down and to the right sums to the magic constant
+    LD(1) + LD(5) + LD(10) + LD(15) + LD(19) = MAGIC_SUM().
+    // the line B F K P running down and to the right
+    LD(2) + LD(6) + LD(11) + LD(16) = MAGIC_SUM().
+    // the line C G L running down and to the right
+    LD(3) + LD(7) + LD(12) = MAGIC_SUM().
+    // the line D I N R running down and to the right
+    LD(4) + LD(9) + LD(14) + LD(18) = MAGIC_SUM().
+    // the line H M Q running down and to the right
+    LD(8) + LD(13) + LD(17) = MAGIC_SUM().
+
+    // the line C F J N Q running down and to the left sums to the magic constant
+    LD(3) + LD(6) + LD(10) + LD(14) + LD(17) = MAGIC_SUM().
+    // the line B E I M running down and to the left
+    LD(2) + LD(5) + LD(9) + LD(13) = MAGIC_SUM().
+    // the line A D H running down and to the left
+    LD(1) + LD(4) + LD(8) = MAGIC_SUM().
+    // the line G K O R running down and to the left
+    LD(7) + LD(11) + LD(15) + LD(18) = MAGIC_SUM().
+    // the line L P S running down and to the left
+    LD(12) + LD(16) + LD(19) = MAGIC_SUM().
+}

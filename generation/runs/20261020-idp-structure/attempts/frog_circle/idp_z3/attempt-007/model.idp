@@ -1,0 +1,20 @@
+vocabulary {
+    type Range_n <: Int
+    n: () -> Int
+    x: Range_n -> Int                // declared output: card at each place of the circle
+    nxt: Range_n -> Range_n          // place reached by one jump from a place
+    visit: Range_n -> Range_n        // place of the frog at each step
+}
+theory {
+    // Cards numbered 1 to n: n different integers each from 1 to n.
+    ! p in Range_n: 1 =< x(p) & x(p) =< n().
+    ! p, q in Range_n: p ~= q => x(p) ~= x(q).
+    // A frog jumps on card 1; card 1 is placed first in the list (rotation fixed).
+    x(1) = 1.
+    visit(1) = 1.
+    // From card k, he jumps directly to the card k places clockwise around the circle.
+    ! p in Range_n: nxt(p) = (p - 1 + x(p)) % n() + 1.
+    ! i in Range_n: i < n() => visit(i + 1) = nxt(visit(i)).
+    // The frog jumps on every card.
+    ! i, j in Range_n: i ~= j => visit(i) ~= visit(j).
+}

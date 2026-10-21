@@ -1,0 +1,44 @@
+vocabulary {
+    type Range_N <: Int
+    N: () -> Int
+    matrix: Range_N * Range_N -> Bool
+    deg: Range_N -> Int
+}
+
+theory {
+    // the graph has N vertices (the instance is read through Range_N)
+    // the graph is simple: no loop edges
+    ! i in Range_N: ~matrix(i, i).
+    // the graph is undirected
+    ! i, j in Range_N: matrix(i, j) <=> matrix(j, i).
+
+    // the degree of a vertex is the number of its neighbours
+    ! i in Range_N: deg(i) = #{ j in Range_N: matrix(i, j) }.
+    // each degree is greater than zero
+    ! i in Range_N: deg(i) > 0.
+    // each degree is modulo 3
+    ! i in Range_N: deg(i) % 3 = 0.
+    // the sum of the degrees is modulo 12
+    sum{{ (deg(i)) | i in Range_N }} % 12 = 0.
+    // the degree sequence is non-increasing
+    ! i, j in Range_N: i < j => deg(i) >= deg(j).
+
+    // diamond-free: every set of four vertices has at least two non-edges
+    // (a diamond has at least five edges among four vertices)
+    ! a, b, c, d in Range_N: (a < b & b < c & c < d) =>
+        (~matrix(a,b) & ~matrix(a,c)) |
+        (~matrix(a,b) & ~matrix(a,d)) |
+        (~matrix(a,b) & ~matrix(b,c)) |
+        (~matrix(a,b) & ~matrix(b,d)) |
+        (~matrix(a,b) & ~matrix(c,d)) |
+        (~matrix(a,c) & ~matrix(a,d)) |
+        (~matrix(a,c) & ~matrix(b,c)) |
+        (~matrix(a,c) & ~matrix(b,d)) |
+        (~matrix(a,c) & ~matrix(c,d)) |
+        (~matrix(a,d) & ~matrix(b,c)) |
+        (~matrix(a,d) & ~matrix(b,d)) |
+        (~matrix(a,d) & ~matrix(c,d)) |
+        (~matrix(b,c) & ~matrix(b,d)) |
+        (~matrix(b,c) & ~matrix(c,d)) |
+        (~matrix(b,d) & ~matrix(c,d)).
+}

@@ -1,0 +1,23 @@
+vocabulary {
+    type Range_n <: Int
+    n: () -> Int
+    gap: Range_n -> Bool
+    x: Range_n -> Int
+    diffs: Range_n -> Int (domain: gap)
+}
+theory {
+    // the series has one pitch-class per position, each in 0..n-1
+    ! i in Range_n: 0 =< x(i) & x(i) =< n() - 1.
+    // each pitch-class occurs exactly once
+    ! i in Range_n: ! j in Range_n: i ~= j => x(i) ~= x(j).
+
+    // there are n-1 neighbouring pairs
+    { ! i in Range_n: gap(i) <- i < n(). }
+
+    // each interval is the absolute difference of neighbouring pitch-classes
+    ! i in Range_n: gap(i) & i < n() => diffs(i) = abs(x(i + 1) - x(i)).
+
+    // the intervals are all different, so they cover 1..n-1
+    ! i in Range_n: ! j in Range_n: gap(i) & gap(j) & i ~= j => diffs(i) ~= diffs(j).
+    ! i in Range_n: gap(i) => 1 =< diffs(i) & diffs(i) =< n() - 1.
+}

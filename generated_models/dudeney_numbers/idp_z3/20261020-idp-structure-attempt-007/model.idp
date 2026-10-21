@@ -1,0 +1,24 @@
+vocabulary {
+    type Range_n <: Int
+    type Digit := {0..9}
+    type Cr <: Int
+    Cr_size: () -> Int
+    n: () -> Int
+    d: Range_n -> Digit
+    w: Range_n -> Int
+    c: () -> Int
+    number: () -> Int
+}
+theory {
+    Cr_size() = 9 * n().
+    // positional weights 1, 10, 100, ...
+    w(1) = 1.
+    ! i in Range_n: i > 1 => w(i) = 10 * w(i - 1).
+    // the number is built from its digits (at most n digits)
+    number() = sum{{ (d(i) * w(i)) | i in Range_n }}.
+    // the sum of its digits is the cube root of the number
+    c() = sum{{ d(i) | i in Range_n }}.
+    // a perfect cube, larger than 1
+    ! k in Cr: c() = k => number() = k * k * k.
+    number() > 1.
+}

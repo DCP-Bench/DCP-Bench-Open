@@ -1,0 +1,33 @@
+vocabulary {
+    // one row per border, two columns per row (0-based)
+    type I <: Int
+    type J <: Int
+    graph: I * J -> Int
+
+    // a country id is one of the values in graph
+    type Country <: Int
+    Country_size: () -> Int
+    country: Country -> Bool
+
+    // declared output: colour per country, partial over the countries present
+    colors: Country -> Int (domain: country)
+
+    // declared objective: largest colour used
+    minimize: () -> Int
+}
+theory {
+    // the country count is the largest value in graph, bounded above by the sum of all values
+    Country_size() = sum{{ graph(i, j) | i in I, j in J }}.
+
+    // the countries are 1 to the largest value in graph
+    { ! c in Country: country(c) <- c =< max{ graph(i, j) | i in I, j in J }. }
+
+    // every country gets a colour from 1 to the number of countries
+    ! c in Country: country(c) => 1 =< colors(c) & colors(c) =< Country_size().
+
+    // two neighbouring countries cannot have the same colour
+    ! i in I: country(graph(i, 0)) & country(graph(i, 1)) => colors(graph(i, 0)) ~= colors(graph(i, 1)).
+
+    // minimize the number of colours used: the largest colour value
+    minimize() = max{ colors(c) | c in Country: country(c) }.
+}

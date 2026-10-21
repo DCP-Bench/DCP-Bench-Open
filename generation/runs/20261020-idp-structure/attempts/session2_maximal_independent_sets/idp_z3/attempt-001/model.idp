@@ -1,0 +1,24 @@
+// Maximal independent set: choose nodes so that no two chosen nodes are adjacent, and every node not chosen has a chosen neighbour.
+vocabulary {
+    // the number of nodes of the graph
+    n: () -> Int
+    // the nodes, numbered 1..n as in the adjacency list
+    type Range_n <: Int
+    // the rows of the adjacency list, one per node (0-based), node of row r is r + 1
+    type Row <: Int
+    // the neighbour slots of a row (0-based)
+    type Slot <: Int
+
+    // for each node, the set of adjacent nodes (node ids are 1-based)
+    adjacency_list: Row * Slot -> Int
+
+    // whether each node is included in the maximal independent set
+    nodes: Range_n -> Bool
+}
+theory {
+    // no two adjacent nodes are both in the set
+    ! u in Range_n, r in Row, s in Slot: r + 1 = u => ! v in Range_n: adjacency_list(r, s) = v => ~(nodes(u) & nodes(v)).
+
+    // every node not in the set is adjacent to a node in the set, so the set is maximal
+    ! u in Range_n: ~nodes(u) => ? r in Row, s in Slot, v in Range_n: r + 1 = u & adjacency_list(r, s) = v & nodes(v).
+}

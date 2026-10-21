@@ -1,0 +1,53 @@
+vocabulary {
+    type Row <: Int
+    type Col <: Int
+    type Step <: Int
+    type Tile := {0..15}
+    Step_size: () -> Int
+    N_STEPS: () -> Int
+    puzzle_start: Row * Col -> Int
+    puzzle_end: Row * Col -> Int
+    steps: Step * Row * Col -> Tile
+    blank_r: Step -> Row
+    blank_c: Step -> Col
+    next_step: Step * Step -> Bool
+    first: Step -> Bool
+    last: Step -> Bool
+    adjacent: Row * Col * Row * Col -> Bool
+}
+
+theory {
+    // the step list has exactly N_STEPS entries, one per step
+    Step_size() = N_STEPS().
+
+    // two cells are adjacent when they share an edge
+    { ! r1, r2 in Row: ! c1, c2 in Col: adjacent(r1, c1, r2, c2) <- abs(r1 - r2) + abs(c1 - c2) = 1. }
+
+    // step u follows step t
+    { ! t, u in Step: next_step(t, u) <- u = t + 1. }
+
+    // the first and last steps
+    { ! t in Step: first(t) <- t = 1. }
+    { ! t in Step: last(t) <- t = Step_size(). }
+
+    // every state holds each tile exactly once
+    ! t in Step: ! r1 in Row: ! c1 in Col: ! r2 in Row: ! c2 in Col: (r1 ~= r2 | c1 ~= c2) => steps(t, r1, c1) ~= steps(t, r2, c2).
+
+    // the empty cell is tile 0 in every state
+    ! t in Step: steps(t, blank_r(t), blank_c(t)) = 0.
+
+    // a move slides the empty cell into an adjacent cell
+    ! t in Step: ! u in Step: next_step(t, u) => adjacent(blank_r(t), blank_c(t), blank_r(u), blank_c(u)).
+
+    // the tile in the new empty cell moves into the old empty cell
+    ! t in Step: ! u in Step: ! r in Row: ! c in Col: (next_step(t, u) & r = blank_r(t) & c = blank_c(t)) => steps(u, r, c) = steps(t, blank_r(u), blank_c(u)).
+
+    // every other cell keeps its tile, so each step changes the state
+    ! t in Step: ! u in Step: ! r in Row: ! c in Col: (next_step(t, u) & ~(r = blank_r(t) & c = blank_c(t)) & ~(r = blank_r(u) & c = blank_c(u))) => steps(u, r, c) = steps(t, r, c).
+
+    // the first state is the start picture
+    ! t in Step: first(t) => ! r in Row: ! c in Col: steps(t, r, c) = puzzle_start(r, c).
+
+    // the last state is the end picture
+    ! t in Step: last(t) => ! r in Row: ! c in Col: steps(t, r, c) = puzzle_end(r, c).
+}

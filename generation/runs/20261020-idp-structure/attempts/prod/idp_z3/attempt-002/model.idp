@@ -1,0 +1,26 @@
+vocabulary {
+    type I <: Int
+    a: I -> Int
+    b: () -> Int
+    c: I -> Int
+    u: I -> Int
+    x: I -> Int
+    total_profit: () -> Int
+    maximize: () -> Int
+}
+theory {
+    // X[j] is between 0 and u[j] for all j in P
+    ! j in I: 0 =< x(j) & x(j) =< u(j).
+
+    // the sum of (1/a[j]) * X[j] is at most b. Multiplying by D = a(0)*a(1)*a(2) gives an integer
+    // form: the inequality keeps its direction when D is positive and flips when D is negative.
+    // (the brief fixes P at three elements, so the product of the other two a's is written out)
+    a(0) * a(1) * a(2) > 0 => (x(0) * (a(1) * a(2))) + (x(1) * (a(0) * a(2))) + (x(2) * (a(0) * a(1))) =< b() * (a(0) * a(1) * a(2)).
+    a(0) * a(1) * a(2) < 0 => (x(0) * (a(1) * a(2))) + (x(1) * (a(0) * a(2))) + (x(2) * (a(0) * a(1))) >= b() * (a(0) * a(1) * a(2)).
+
+    // total profit is the sum of c[j] * X[j] over P
+    total_profit() = sum{{ (c(j) * x(j)) | j in I }}.
+
+    // the goal is to maximize the total profit
+    maximize() = total_profit().
+}

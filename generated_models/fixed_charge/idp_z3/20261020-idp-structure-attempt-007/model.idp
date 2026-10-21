@@ -1,0 +1,22 @@
+vocabulary {
+    type P <: Int
+    type R <: Int
+    max_production: () -> Int
+    capacity: R -> Int
+    renting_cost: P -> Int
+    product: P * R -> Int
+    use: P * R -> Int
+    qty: P -> Int
+    z: () -> Int
+    maximize: () -> Int
+}
+theory {
+    // Each product needs labor and cloth, and capacity of both is limited.
+    ! r in R: sum{{ (use(p, r) * qty(p)) | p in P }} =< capacity(r).
+    // Production is bounded.
+    ! p in P: 0 =< qty(p) & qty(p) =< max_production().
+    // Profit per unit (column 0) excludes machine rent; renting is paid only for products made.
+    z() = sum{{ (product(p, 0) * qty(p)) | p in P }} - sum{{ renting_cost(p) | p in P: qty(p) > 0 }}.
+    // Maximize profit.
+    maximize() = z().
+}

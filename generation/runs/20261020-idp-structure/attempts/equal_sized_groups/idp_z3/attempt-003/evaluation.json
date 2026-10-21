@@ -1,0 +1,115 @@
+{
+  "accepted": false,
+  "detail": "maximum recursion depth exceeded",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ba3ca18d5318a81c9939c52247b0f765e352e061a02646e39742ba1e19f87d3b",
+    "tag": "dcp-eval/idp_z3:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "detail": "The kernel killed a process at the 2048 MB memory limit and the runner exited 137 (OOMKilled was true at exit): ",
+      "id": "example",
+      "instance_hash": "eb0f8c4c0cadcb0482941cdf94e41affb7ba5e7a5d3dc95e4c4ba7d1fbd59760",
+      "is_optimization": true,
+      "optimum": 26,
+      "outputs": [
+        "x"
+      ],
+      "reason": "memory_limit",
+      "reference_setup_seconds": 1.8943579219048843,
+      "skipped": true,
+      "solutions_checked": 0
+    },
+    {
+      "accepted": true,
+      "checking_seconds": 0.0174227460520342,
+      "execution_wall_seconds": 7.769256044062786,
+      "first_solution": {
+        "x": [
+          6,
+          14,
+          23
+        ]
+      },
+      "id": "json:1",
+      "instance_hash": "dd6d591654de5285b604ea8011766798ba0a865a34ad543a909537c64897f65b",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 4,
+      "outputs": [
+        "x"
+      ],
+      "reason": "accepted",
+      "reference_setup_seconds": 0.9483602759428322,
+      "runner_status": {
+        "detail": "",
+        "status": "complete",
+        "type": "status"
+      },
+      "solutions_checked": 1,
+      "solutions_received": 1,
+      "stderr": ""
+    },
+    {
+      "accepted": false,
+      "checking_seconds": 1.3490207493305206e-06,
+      "detail": "maximum recursion depth exceeded",
+      "execution_wall_seconds": 8.472009258926846,
+      "id": "json:2",
+      "instance_hash": "2e2823144a5453606267dfbfbda5cc396411d5b94f323b634c4184ca42de60e7",
+      "is_optimization": true,
+      "oom_killed": false,
+      "optimum": 4,
+      "outputs": [
+        "x"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 0.7643025489524007,
+      "runner_status": {
+        "detail": "maximum recursion depth exceeded",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Simplify.py\", line 103, in update_exprs_aifexpr\n    sub_exprs = list(new_exprs)\n                ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 543, in <genexpr>\n    out = self.update_exprs(e._interpret(problem, subs) for e in self.sub_exprs)\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 518, in inner_function\n    out = func(self, problem, subs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 543, in _interpret_expression\n    out = self.update_exprs(e._interpret(problem, subs) for e in self.sub_exprs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Simplify.py\", line 103, in update_exprs_aifexpr\n    sub_exprs = list(new_exprs)\n                ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 543, in <genexpr>\n    out = self.update_exprs(e._interpret(problem, subs) for e in self.sub_exprs)\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 518, in inner_function\n    out = func(self, problem, subs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 543, in _interpret_expression\n    out = self.update_exprs(e._interpret(problem, subs) for e in self.sub_exprs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Simplify.py\", line 103, in update_exprs_aifexpr\n    sub_exprs = list(new_exprs)\n                ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 543, in <genexpr>\n    out = self.update_exprs(e._interpret(problem, subs) for e in self.sub_exprs)\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 518, in inner_function\n    out = func(self, problem, subs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 543, in _interpret_expression\n    out = self.update_exprs(e._interpret(problem, subs) for e in self.sub_exprs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Simplify.py\", line 238, in update_exprs_acomparison\n    operands = list(new_exprs)\n               ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 543, in <genexpr>\n    out = self.update_exprs(e._interpret(problem, subs) for e in self.sub_exprs)\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 518, in inner_function\n    out = func(self, problem, subs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Interpret.py\", line 789, in _interpret_appliedsymbol\n    out = self.update_exprs(e for e in sub_exprs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Simplify.py\", line 447, in update_exprs_appliedsymbol\n    return self._change(sub_exprs=new_exprs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Simplify.py\", line 70, in _change_expression\n    self.str = sys.intern(str(self))\n                          ^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Expression.py\", line 1565, in __str__\n    out = f\"{self.symbol}({', '.join([x.str for x in self.sub_exprs])})\"\n            ^^^^^^^^^^^^^\nRecursionError: maximum recursion depth exceeded\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 1,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "dd6e81bce8d525d8c933c317349456403b1cc8d220b53162ca3910a5bd61b0c1",
+  "problem_id": "equal_sized_groups",
+  "reason": "execution_error",
+  "reference_hash": "b71dd80429b7177f5e9b30bcd094ab24fac241dc3b5e73e59bac4e54979e7409",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.13.2"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [
+    "example"
+  ],
+  "solutions_checked": 1,
+  "solver_id": "idp_z3",
+  "total_wall_seconds": 32.86710840999149,
+  "unperformed_instances": [
+    "json:3",
+    "json:4"
+  ]
+}

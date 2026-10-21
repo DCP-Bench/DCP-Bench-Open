@@ -1,0 +1,32 @@
+vocabulary {
+    type Cow <: Int
+    Cow_size: () -> Int
+    num_cows: () -> Int
+    type Son <: Int
+    cows_per_son: Son -> Int
+    num_sons: () -> Int
+    own: Cow * Son -> Bool
+    cnt: Son -> Int
+    milk: Son -> Int
+    cow_assignments: Cow -> Son
+}
+theory {
+    // each cow numbered from 1 up to the total number of cows
+    Cow_size() = num_cows().
+
+    // each cow goes to exactly one son
+    ! c in Cow: ?=1 s in Son: own(c, s).
+
+    // the number of cows given to each son follows the given distribution; sons past num_sons get none
+    ! s in Son: cnt(s) = sum{{ 1 | c in Cow: own(c, s) }}.
+    ! s in Son: cnt(s) = if s < num_sons() then cows_per_son(s) else 0.
+
+    // each cow gives milk equal to its number; milk(s) is the total milk of son s
+    ! s in Son: milk(s) = sum{{ c | c in Cow: own(c, s) }}.
+
+    // the total milk is the same for each son
+    ! s in Son: milk(s) = if s < num_sons() then milk(0) else milk(s).
+
+    // the output lists the son that each cow goes to
+    ! c in Cow: ! s in Son: own(c, s) => cow_assignments(c) = s.
+}

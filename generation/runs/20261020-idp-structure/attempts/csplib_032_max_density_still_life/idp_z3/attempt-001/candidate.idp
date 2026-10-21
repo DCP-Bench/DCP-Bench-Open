@@ -1,0 +1,35 @@
+// Max-density still life: place live cells on an n x m grid (cells outside are dead) so the pattern is stable and has as many live cells as possible
+vocabulary {
+    type Range_n <: Int
+    type Range_m <: Int
+    n: () -> Int
+    m: () -> Int
+    grid: Range_n * Range_m -> Bool
+    nb: Range_n * Range_m -> Int
+    maximize: () -> Int
+}
+theory {
+    // the number of live neighbours of a cell in the active grid (cells outside the grid are dead)
+    ! i in Range_n, j in Range_m: nb(i,j) = #{ p in Range_n, q in Range_m: abs(p - i) =< 1 & abs(q - j) =< 1 & ~(p = i & q = j) & grid(p,q) }.
+
+    // a live cell must have exactly 2 or 3 live neighbours to remain alive
+    ! i in Range_n, j in Range_m: grid(i,j) => (2 =< nb(i,j) & nb(i,j) =< 3).
+
+    // a dead cell in the active grid must not have exactly 3 live neighbours
+    ! i in Range_n, j in Range_m: ~grid(i,j) => nb(i,j) ~= 3.
+
+    // a dead cell just above the grid (row 0) must not have exactly 3 live neighbours
+    ! j in Range_m: #{ p in Range_n, q in Range_m: p =< 1 & abs(q - j) =< 1 & grid(p,q) } ~= 3.
+
+    // a dead cell just below the grid (row n+1) must not have exactly 3 live neighbours
+    ! j in Range_m: #{ p in Range_n, q in Range_m: n() =< p & abs(q - j) =< 1 & grid(p,q) } ~= 3.
+
+    // a dead cell just left of the grid (column 0) must not have exactly 3 live neighbours
+    ! i in Range_n: #{ p in Range_n, q in Range_m: abs(p - i) =< 1 & q =< 1 & grid(p,q) } ~= 3.
+
+    // a dead cell just right of the grid (column m+1) must not have exactly 3 live neighbours
+    ! i in Range_n: #{ p in Range_n, q in Range_m: abs(p - i) =< 1 & m() =< q & grid(p,q) } ~= 3.
+
+    // maximize the number of live cells in the active grid
+    maximize() = #{ i in Range_n, j in Range_m: grid(i,j) }.
+}

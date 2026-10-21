@@ -1,0 +1,31 @@
+vocabulary {
+    n: () -> Int
+    m: () -> Int
+    type Node <: Int                   // the n graph nodes
+    Node_size: () -> Int
+    type Edge <: Int                   // the m edges, sized from graph
+    type End <: Int                    // the two endpoints of an edge
+    graph: Edge * End -> Int           // endpoints of each edge
+    nodes: Node -> Int                 // node labels f(v)
+    edges: Edge -> Int                 // edge labels |f(x) - f(y)|
+}
+
+theory {
+    // the graph has n nodes
+    Node_size() = n().
+
+    // each node gets a label from {0, ..., q} where q is the number of edges
+    ! v in Node: 0 =< nodes(v) & nodes(v) =< m().
+
+    // node labels are unique
+    ! v1, v2 in Node: v1 ~= v2 => nodes(v1) ~= nodes(v2).
+
+    // each edge xy is labelled with |f(x) - f(y)|
+    ! e in Edge: edges(e) = abs(nodes(graph(e, 1)) - nodes(graph(e, 2))).
+
+    // edge labels lie in {1, ..., q}
+    ! e in Edge: 1 =< edges(e) & edges(e) =< m().
+
+    // all edge labels are different
+    ! e1, e2 in Edge: e1 ~= e2 => edges(e1) ~= edges(e2).
+}

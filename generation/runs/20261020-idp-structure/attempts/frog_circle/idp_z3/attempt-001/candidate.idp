@@ -1,0 +1,17 @@
+vocabulary {
+    type Range_n <: Int
+    n: () -> Int
+    x: Range_n -> Range_n
+    t: Range_n -> Range_n
+}
+theory {
+    // the cards 1..n are arranged in a circle, each card once
+    ! i, j in Range_n: i ~= j => x(i) ~= x(j).
+
+    // the frog starts on card 1, and its visit order is a numbering of the cards
+    ! p in Range_n: x(p) = 1 <=> t(p) = 1.
+    ! p, q in Range_n: t(p) = t(q) => p = q.
+
+    // from card p the frog jumps x(p) places clockwise around the circle
+    ! p, q in Range_n: (t(p) < n() & ((p + x(p) =< n() & q = p + x(p)) | (p + x(p) > n() & q = p + x(p) - n()))) => t(q) = t(p) + 1.
+}

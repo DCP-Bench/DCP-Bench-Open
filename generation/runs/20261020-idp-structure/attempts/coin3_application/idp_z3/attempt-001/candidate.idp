@@ -1,0 +1,20 @@
+vocabulary {
+    type I <: Int                              // one entry per coin type, sized from denominations
+    type Range_max_amount_to_pay <: Int        // amounts 1..max_amount_to_pay
+    max_amount_to_pay: () -> Int
+    denominations: I -> Int
+    x: I -> Int                                // declared output: coins of each type used
+    y: Range_max_amount_to_pay * I -> Int      // coins of type i used to pay amount v
+    minimize: () -> Int
+}
+theory {
+    // the number of coins of each type is nonnegative
+    ! i in I: 0 =< x(i).
+    // a coin count never needs to exceed what amounts below the maximum can use
+    ! i in I: x(i) * denominations(i) =< max_amount_to_pay() - 1.
+    // every amount smaller than the maximum is paid exactly from the coins available
+    ! v in Range_max_amount_to_pay: v =< max_amount_to_pay() - 1 => (! i in I: (0 =< y(v, i) & y(v, i) =< x(i))).
+    ! v in Range_max_amount_to_pay: v =< max_amount_to_pay() - 1 => sum{{ (y(v, i) * denominations(i)) | i in I }} = v.
+    // the objective is the total number of coins used
+    minimize() = sum{{ x(i) | i in I }}.
+}

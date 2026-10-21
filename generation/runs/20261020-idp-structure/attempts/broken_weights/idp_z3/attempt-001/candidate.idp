@@ -1,0 +1,26 @@
+// Broken weights: a weight of m pounds broke into n pieces, each a whole number of pounds.
+// The pieces must weigh every whole number from 1 to m on a balance scale, with the
+// pieces on both pans and the object on one pan.
+vocabulary {
+    m: () -> Int
+    type Range_n <: Int      // one entry per piece, sized from the instance field n
+    type Range_m <: Int         // a piece weighs at most the total weight m
+    weights: Range_n -> Range_m         // declared output: the weight of each piece, ascending
+    on_left: Range_n * Range_m -> Bool   // piece p is on the object's pan when weighing k
+    on_right: Range_n * Range_m -> Bool  // piece p is on the other pan when weighing k
+}
+theory {
+    // the pieces weigh the total weight of the merchant's weight, m pounds
+    sum{{ weights(p) | p in Range_n }} = m().
+
+    // the pieces are listed in ascending order and all weights are different
+    ! p, q in Range_n: p < q => weights(p) < weights(q).
+
+    // each piece is on the object's pan, on the other pan, or off the scale
+    ! p in Range_n, k in Range_m: ~(on_left(p, k) & on_right(p, k)).
+
+    // every integral weight k from 1 to m can be weighed:
+    // the object k and the pieces on its pan balance the pieces on the other pan
+    ! k in Range_m: sum{{ (if on_right(p, k) then weights(p) else 0) | p in Range_n }}
+        = k + sum{{ (if on_left(p, k) then weights(p) else 0) | p in Range_n }}.
+}

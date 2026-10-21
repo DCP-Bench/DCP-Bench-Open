@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "type Pos is sized by Pos_size, which the theory must define from instance data alone, as `Pos_size() = <expression>.`",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ba3ca18d5318a81c9939c52247b0f765e352e061a02646e39742ba1e19f87d3b",
+    "tag": "dcp-eval/idp_z3:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 9.860377758741379e-07,
+      "detail": "type Pos is sized by Pos_size, which the theory must define from instance data alone, as `Pos_size() = <expression>.`",
+      "execution_wall_seconds": 0.9366837980924174,
+      "id": "example",
+      "instance_hash": "80fe254bd898227743d7f608264391d4a4e55afe69f6d213f35b124773b21498",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "de_bruijn"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 0.960259436047636,
+      "runner_status": {
+        "detail": "type Pos is sized by Pos_size, which the theory must define from instance data alone, as `Pos_size() = <expression>.`",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 524, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 456, in solve\n    theory, vocab, goal = load(request)\n                          ^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 448, in load\n    full = IDP.from_str(source + \"\\n\" + sized(idp, source, bind(idp, instance)))\n                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 328, in sized\n    raise ValueError(f\"type {sort} is sized by {sort}{SIZE}, which the theory must define \"\nValueError: type Pos is sized by Pos_size, which the theory must define from instance data alone, as `Pos_size() = <expression>.`\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "f0843dc8016b0732842dd2f1a3c7bb34a0662a08b3f7ac7d11338caf91dc12db",
+  "problem_id": "de_bruijn_sequence",
+  "reason": "execution_error",
+  "reference_hash": "e18902d2bfe7e7e7d1fe9ad044b8b84ba5de06ed8088a2fe9baebc76d2229004",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.13.2"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "idp_z3",
+  "total_wall_seconds": 2.0472714849747717,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

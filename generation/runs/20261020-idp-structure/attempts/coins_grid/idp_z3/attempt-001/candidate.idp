@@ -1,0 +1,30 @@
+// Coins grid: place coins on an n by n grid, with exactly c coins in each row and each column,
+// minimizing the sum of the quadratic horizontal distance from the main diagonal of all cells holding a coin.
+vocabulary {
+    type Range_n <: Int
+    type Range_c <: Int
+    type Bit := {0..1}
+    c: () -> Int
+    x: Range_n * Range_n -> Bit
+    pos: Range_n * Range_c -> Range_n
+    sq: Range_n * Range_n -> Int
+    z: () -> Int
+    minimize: () -> Int
+}
+theory {
+    // squared horizontal distance of each cell from the main diagonal
+    ! r in Range_n, k in Range_n: sq(r, k) = (k - r) * (k - r).
+
+    // In each row exactly c coins must be placed: the c columns of a row are distinct and listed in increasing order.
+    ! r in Range_n, j1, j2 in Range_c: j1 < j2 => pos(r, j1) < pos(r, j2).
+
+    // In each column exactly c coins must be placed.
+    ! k in Range_n: #{ r in Range_n, j in Range_c: pos(r, j) = k } = c().
+
+    // In each cell at most one coin can be placed.
+    ! r in Range_n, k in Range_n: (x(r, k) = 1 <=> ?j in Range_c: pos(r, j) = k).
+
+    // The sum of the quadratic horizontal distance from the main diagonal of all cells containing a coin must be as small as possible.
+    z() = sum{{ sq(r, pos(r, j)) | r in Range_n, j in Range_c }}.
+    minimize() = z().
+}

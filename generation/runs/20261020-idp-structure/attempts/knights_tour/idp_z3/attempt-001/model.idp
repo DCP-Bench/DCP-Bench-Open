@@ -1,0 +1,21 @@
+vocabulary {
+    type Range_n <: Int
+    n: () -> Int
+    x: Range_n * Range_n -> Int
+}
+theory {
+    // the chessboard is n by n
+    // every square holds a move number from 0 to n*n-1
+    ! r, c in Range_n: 0 =< x(r, c) & x(r, c) =< n() * n() - 1.
+
+    // every square is visited exactly once
+    ! r1, c1, r2, c2 in Range_n: (r1 = r2 & c1 = c2) | x(r1, c1) ~= x(r2, c2).
+
+    // the move numbers run without gaps, so each move after the first is a knight move
+    // from the square holding the previous move number
+    ! r, c in Range_n: x(r, c) < n() * n() - 1 => ? r2 in Range_n: ? c2 in Range_n:
+        x(r2, c2) = x(r, c) + 1 & ((abs(r - r2) = 1 & abs(c - c2) = 2) | (abs(r - r2) = 2 & abs(c - c2) = 1)).
+
+    // the tour starts at move number 0
+    ? r, c in Range_n: x(r, c) = 0.
+}

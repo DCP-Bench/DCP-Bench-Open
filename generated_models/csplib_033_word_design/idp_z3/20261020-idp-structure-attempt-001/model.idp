@@ -1,0 +1,41 @@
+// Range_num_words design: find num_words words of length n over the alphabet {A,C,G,T}, coded 1,2,3,4.
+vocabulary {
+    // word length and number of words, from the instance
+    n: () -> Int
+
+    // word positions 1..n and word indices 1..num_words
+    type Range_n <: Int
+    type Range_num_words <: Int
+
+    // letters: 1 = A, 2 = C, 3 = G, 4 = T
+    type Letter := {1..4}
+
+    // declared output: words[w][p] is the letter at position p of word w
+    words: Range_num_words * Range_n -> Letter
+
+    // a letter is strong (C or G) when it is 2 or 3
+    is_cg: Letter -> Bool
+
+    // Watson-Crick complement: A<->T, C<->G
+    comp: Letter -> Letter
+}
+theory {
+    // the Watson-Crick complement: each A is replaced by a T and vice versa, each C by a G and vice versa
+    comp(1) = 4.
+    comp(2) = 3.
+    comp(3) = 2.
+    comp(4) = 1.
+
+    // the letters C and G are the strong symbols
+    ! l in Letter: is_cg(l) <=> (l = 2 | l = 3).
+
+    // each word has 4 symbols from {C,G}
+    ! w in Range_num_words: #{ p in Range_n: is_cg(words(w, p)) } = 4.
+
+    // each pair of distinct words differ in at least 4 positions
+    ! w1, w2 in Range_num_words: w1 < w2 => #{ p in Range_n: words(w1, p) ~= words(w2, p) } >= 4.
+
+    // for each pair of words x and y (x may equal y), the reverse of x and the complement of y differ in at least 4 positions
+    // the reverse of x at position i is the letter of x at position n+1-i
+    ! x, y in Range_num_words: #{ i in Range_n, j in Range_n: i + j = n() + 1 & words(x, j) ~= comp(words(y, i)) } >= 4.
+}

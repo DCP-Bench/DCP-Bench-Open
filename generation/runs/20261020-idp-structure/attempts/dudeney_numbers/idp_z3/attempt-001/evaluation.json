@@ -1,0 +1,67 @@
+{
+  "accepted": false,
+  "detail": "Domain error: Dig(1) is not a tautology. Please add appropriate guards.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ba3ca18d5318a81c9939c52247b0f765e352e061a02646e39742ba1e19f87d3b",
+    "tag": "dcp-eval/idp_z3:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.2419186532497406e-06,
+      "detail": "Domain error: Dig(1) is not a tautology. Please add appropriate guards.",
+      "execution_wall_seconds": 0.9845996869262308,
+      "id": "example",
+      "instance_hash": "ade0bebbcdd770e830221a9ea5ea03aa975a54ba2b90f7077c3b5e0754faf3c8",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "number"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 0.9315600210102275,
+      "runner_status": {
+        "detail": "Domain error: Dig(1) is not a tautology. Please add appropriate guards.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 524, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 456, in solve\n    theory, vocab, goal = load(request)\n                          ^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 448, in load\n    full = IDP.from_str(source + \"\\n\" + sized(idp, source, bind(idp, instance)))\n                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 308, in sized\n    theory = Theory(*full.theories.values(), *full.structures.values())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Theory.py\", line 227, in __init__\n    self.add(*theories)\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Theory.py\", line 372, in add\n    check_WDFs(self, self.WDFs)\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/WDF.py\", line 111, in check_WDFs\n    raise IDPZ3Error(\nidp_engine.utils.IDPZ3Error: Domain error: Dig(1) is not a tautology. Please add appropriate guards.\n"
+    }
+  ],
+  "instances_available": 2,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "2a8df26a4e8a30d9146e1f90b8b6e15dda0d867b2cb9d1f8544b612d416f9a95",
+  "problem_id": "dudeney_numbers",
+  "reason": "execution_error",
+  "reference_hash": "00d4f94b6fffa2fefd424c21bb84bbafe05c29f8725b9c0c9b960c5ac29857af",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.13.2"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "idp_z3",
+  "total_wall_seconds": 2.086318790097721,
+  "unperformed_instances": [
+    "json:1"
+  ]
+}

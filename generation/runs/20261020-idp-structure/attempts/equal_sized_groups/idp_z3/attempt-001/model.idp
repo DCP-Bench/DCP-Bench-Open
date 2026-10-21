@@ -1,0 +1,49 @@
+vocabulary {
+    type I <: Int                        // 0-based indexes of the sorted list a
+    a: I -> Int                          // the sorted list of N elements
+    k: () -> Int                         // number of groups K
+    nelem: () -> Int                     // N, the number of elements
+    type Adj <: Int                      // cut positions 1..N-1 (1-based, after element p)
+    Adj_size: () -> Int
+    type Brk <: Int                      // break point indexes 1..K-1
+    Brk_size: () -> Int
+    x: Brk -> Adj                        // declared output: 1-based break points
+    type Grp <: Int                      // groups 1..K
+    Grp_size: () -> Int
+    bp: Grp -> Int                       // end position of each group, bp(K) = N
+    tgt: () -> Int                       // round(N/K)
+    err: Grp -> Int                      // error of each group
+    boundary_ok: Adj -> Bool             // a cut after p is allowed only if the values differ
+    minimize: () -> Int                  // total error
+}
+
+theory {
+    // N is the length of the list
+    nelem() = sum{{ 1 | i in I }}.
+
+    // cut positions run over 1..N-1, and there are K-1 break points
+    Adj_size() = nelem() - 1.
+    Brk_size() = k() - 1.
+    Grp_size() = k().
+
+    // the target size of a group is round(N/K)
+    tgt() = (2 * nelem() + k()) / (2 * k()).
+
+    // equal values must stay in the same group: a cut after p needs a(p-1) ~= a(p)
+    { ! p in Adj: boundary_ok(p) <- a(p - 1) ~= a(p). }
+    ! i in Brk: boundary_ok(x(i)).
+
+    // break points are strictly increasing
+    ! i in Brk: ! j in Brk: i < j => x(i) < x(j).
+
+    // the end position of group i is its break point, and the last group ends at N
+    ! i in Brk: bp(i) = x(i).
+    bp(k()) = nelem().
+
+    // the error of a group is |size - round(N/K)|; the size of group g is bp(g) - bp(g-1)
+    ! g in Grp: g = 1 => err(g) = abs(bp(g) - tgt()).
+    ! g in Grp: g > 1 => err(g) = abs(bp(g) - bp(g - 1) - tgt()).
+
+    // minimize the total error
+    minimize() = sum{{ err(g) | g in Grp }}.
+}

@@ -1,0 +1,19 @@
+vocabulary {
+    // the two pack sizes, indexed 0..1
+    type I <: Int
+    packs: I -> Int
+    target: () -> Int
+    // declared output: how many packs of each size are used
+    counts: I -> Int
+    minimize: () -> Int
+}
+theory {
+    // each pack count is non-negative and never exceeds the target
+    ! i in I: 0 =< counts(i) & counts(i) =< target().
+
+    // the total number of items meets or exceeds the target
+    target() =< sum{{ (packs(i) * counts(i)) | i in I }}.
+
+    // the objective is the total number of items, to be minimized
+    minimize() = sum{{ (packs(i) * counts(i)) | i in I }}.
+}

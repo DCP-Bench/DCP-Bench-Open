@@ -1,0 +1,13 @@
+vocabulary {
+    type Range_group_size <: Int
+    type Range_n_groups <: Int
+    type Range_n_weeks <: Int
+    group_size: () -> Int
+    n_groups: () -> Int
+    n_weeks: () -> Int
+    assign: Range_n_groups * Range_n_weeks -> Int
+}
+theory {
+    // each golfer plays in one group per week (groups are numbered 0..n_groups-1)
+    ! g in Range_n_groups: ! w in Range_n_weeks: assign(g, w) >= 0 & assign(g, w) =< n_groups() - 1.
+}

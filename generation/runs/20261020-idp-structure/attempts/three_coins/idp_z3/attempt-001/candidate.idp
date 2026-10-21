@@ -1,0 +1,24 @@
+vocabulary {
+    type Coin <: Int                  // one index per coin, sized from init
+    init: Coin -> Int                 // instance: initial face of each coin (1 = tails)
+    num_moves: () -> Int              // instance: number of moves
+
+    type Step <: Int                  // states 1..num_moves+1
+    Step_size: () -> Int
+
+    steps: Step * Coin -> Bool        // declared output: True means tails
+}
+
+theory {
+    // the number of states is one more than the number of moves
+    Step_size() = num_moves() + 1.
+
+    // the first state is the initial configuration
+    ! c in Coin: steps(1, c) <=> init(c) = 1.
+
+    // each move flips exactly one coin
+    ! t in Step: ! u in Step: u = t + 1 => #{ c in Coin: steps(t, c) ~= steps(u, c) } = 1.
+
+    // the final state has all coins showing the same face
+    ! t in Step: t = num_moves() + 1 => ! c1, c2 in Coin: steps(t, c1) <=> steps(t, c2).
+}

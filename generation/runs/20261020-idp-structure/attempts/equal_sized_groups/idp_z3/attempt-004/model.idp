@@ -1,0 +1,50 @@
+vocabulary {
+    type I <: Int                        // 0-based indexes of the sorted list a
+    a: I -> Int                          // the sorted list of N elements
+    k: () -> Int                         // number of groups K
+    nelem: () -> Int                     // N, the number of elements
+    type Adj <: Int                      // cut positions 1..N-1 (1-based, after element p)
+    Adj_size: () -> Int
+    type Grp <: Int                      // groups 1..K
+    Grp_size: () -> Int
+    brk_ok: Grp -> Bool                  // group index g is a break point when g < K
+    x: Grp -> Adj (domain: brk_ok)       // declared output: 1-based break points
+    bp: Grp -> Int                       // end position of each group, bp(K) = N
+    tgt: () -> Int                       // round(N/K)
+    err: Grp -> Int                      // error of each group
+    boundary_ok: Adj -> Bool             // a cut after p is allowed only if the values differ
+    minimize: () -> Int                  // total error
+}
+
+theory {
+    // N is the length of the list
+    nelem() = sum{{ 1 | i in I }}.
+
+    // cut positions run over 1..N-1, and there are K groups
+    Adj_size() = sum{{ 1 | i in I }} - 1.
+    Grp_size() = k().
+
+    // the K-1 break points are the groups 1..K-1
+    { ! g in Grp: brk_ok(g) <- g < k(). }
+
+    // the target size of a group is round(N/K)
+    tgt() = (2 * nelem() + k()) / (2 * k()).
+
+    // equal values must stay in the same group: a cut after p needs a(p-1) ~= a(p)
+    { ! p in Adj: boundary_ok(p) <- a(p - 1) ~= a(p). }
+    ! g in Grp: brk_ok(g) => boundary_ok(x(g)).
+
+    // break points are strictly increasing, consecutive break points suffice
+    ! g in Grp: g > 1 & brk_ok(g - 1) & brk_ok(g) => x(g - 1) < x(g).
+
+    // the end position of group g is its break point, and the last group ends at N
+    ! g in Grp: brk_ok(g) => bp(g) = x(g).
+    ! g in Grp: g = k() => bp(g) = nelem().
+
+    // the error of a group is |size - round(N/K)|; the size of group g is bp(g) - bp(g-1)
+    ! g in Grp: g = 1 => err(g) = abs(bp(g) - tgt()).
+    ! g in Grp: g > 1 => err(g) = abs(bp(g) - bp(g - 1) - tgt()).
+
+    // minimize the total error
+    minimize() = sum{{ err(g) | g in Grp }}.
+}

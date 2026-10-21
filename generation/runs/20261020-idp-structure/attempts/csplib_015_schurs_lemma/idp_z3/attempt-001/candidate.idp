@@ -1,0 +1,13 @@
+// Schur's lemma: put the balls 1..n into c boxes so that no triple x + y = z has all three balls in the same box.
+vocabulary {
+    // the balls 1..n, and the boxes 1..c, both from the instance
+    type Range_n <: Int
+    type Range_c <: Int
+
+    // balls[x] is the box holding ball x
+    balls: Range_n -> Range_c
+}
+theory {
+    // for any triple of balls (x, y, z) with x + y = z, not all three are in the same box
+    ! x in Range_n, y in Range_n, z in Range_n: x + y = z => ~(balls(x) = balls(y) & balls(y) = balls(z)).
+}

@@ -1,0 +1,22 @@
+vocabulary {
+    // the sequence length n, sizes the range 1..n
+    n: () -> Int
+    type Range_n <: Int
+    // one bit per position, +1 or -1
+    sequence: Range_n -> Int
+    // periodic position (i + k) mod n, 1-based
+    sh: Range_n * Range_n -> Range_n
+    // k-th periodic autocorrelation
+    C: Range_n -> Int
+    minimize: () -> Int
+}
+theory {
+    // each bit takes the value +1 or -1
+    ! i in Range_n: sequence(i) = 1 | sequence(i) = -1.
+    // cyclic index (i + k) mod n, shifted to 1-based
+    ! i, k in Range_n: sh(i, k) = ((i + k - 2) % n()) + 1.
+    // C_k = sum_i S_i * S_((i+k) mod n)
+    ! k in Range_n: C(k) = sum{{ (sequence(i) * sequence(sh(i, k))) | i in Range_n }}.
+    // E = sum over k = 1..n-1 of C_k^2
+    minimize() = sum{{ (C(k) * C(k)) | k in Range_n: k ~= n() }}.
+}

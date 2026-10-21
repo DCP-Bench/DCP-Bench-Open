@@ -1,0 +1,27 @@
+vocabulary {
+    // instance field k
+    k: () -> Int
+    // values 1..k
+    type Range_k <: Int
+    // positions 1..2k
+    type Pos <: Int
+    Pos_size: () -> Int
+    // declared output: the sequence
+    sol: Pos -> Range_k
+    // auxiliary: the two positions of each value
+    pos1: Range_k -> Pos
+    pos2: Range_k -> Pos
+}
+theory {
+    // the sequence has 2k positions
+    Pos_size() = 2 * k().
+
+    // each number from 1 to k appears exactly twice
+    ! v in Range_k: #{p in Pos: sol(p) = v} = 2.
+
+    // the two occurrences of v are pos1(v) and pos2(v)
+    ! v in Range_k: sol(pos1(v)) = v & sol(pos2(v)) = v.
+
+    // the two k's appear k numbers apart: the two v's have v numbers between them
+    ! v in Range_k: pos2(v) = pos1(v) + v + 1.
+}

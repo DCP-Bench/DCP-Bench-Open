@@ -1,0 +1,162 @@
+{
+  "attempt": {
+    "agent": "claude-code (claude-haiku-5-5)",
+    "attempt_id": "attempt-004",
+    "created_at": 1792529063.452821,
+    "problem_id": "csplib_002_template_design",
+    "profile": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "instance_count": 99,
+      "memory_mb": 2048,
+      "reference_timeout": 180,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "readiness_hash": "c3a705132180ff2c1865cabce3653b73edfeac524ce06663e267a1c6526782ed",
+    "run_id": "20261020-idp-structure",
+    "schema": 2,
+    "skill_bundle_hash": "55f7122bd74fbb64436a1850d3f66355094c049f030db32609f76a478357f622",
+    "skill_source": "solvers/idp_z3/skills/idp-z3",
+    "skill_version": {
+      "commit": "1836f35b34a6610c89d5a49908c55648b7fe6139",
+      "modified": false,
+      "path": "solvers/idp_z3/skills/idp-z3"
+    },
+    "solver_id": "idp_z3"
+  },
+  "evaluation": {
+    "accepted": true,
+    "evaluator_version": 1,
+    "image": {
+      "id": "sha256:ba3ca18d5318a81c9939c52247b0f765e352e061a02646e39742ba1e19f87d3b",
+      "tag": "dcp-eval/idp_z3:v1"
+    },
+    "instances": [
+      {
+        "accepted": true,
+        "checking_seconds": 0.012901258072815835,
+        "execution_wall_seconds": 14.94249280297663,
+        "first_solution": {
+          "layout": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              7
+            ],
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              2,
+              0
+            ]
+          ],
+          "production": [
+            158,
+            260
+          ]
+        },
+        "id": "example",
+        "instance_hash": "8b885ec6a3a9dd29161b80284eeffaacac4c6e371911d761bad4368b3998ac05",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 418,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "accepted",
+        "reference_setup_seconds": 0.8163472639862448,
+        "runner_status": {
+          "detail": "",
+          "status": "limit",
+          "type": "status"
+        },
+        "solutions_checked": 2,
+        "solutions_received": 2,
+        "stderr": ""
+      },
+      {
+        "accepted": false,
+        "checking_seconds": 1.2100208550691605e-06,
+        "detail": "Candidate optimum was not proven",
+        "execution_wall_seconds": 181.00094189401716,
+        "id": "json:2",
+        "instance_hash": "aa569d28922003810909e38cc5be3666c8a18c2b1e5a48a67772432c92e9c39e",
+        "is_optimization": true,
+        "oom_killed": false,
+        "optimum": 408,
+        "outputs": [
+          "production",
+          "layout"
+        ],
+        "reason": "execution_timeout",
+        "reference_setup_seconds": 4.360973196919076,
+        "runner_status": {
+          "detail": "Candidate optimum was not proven",
+          "status": "timeout",
+          "type": "status"
+        },
+        "skipped": true,
+        "solutions_checked": 0,
+        "solutions_received": 0,
+        "stderr": ""
+      }
+    ],
+    "instances_available": 2,
+    "instances_checked": 1,
+    "limits": {
+      "compilation_timeout": 120,
+      "cpus": 1,
+      "execution_timeout": 180,
+      "memory_mb": 2048,
+      "reference_timeout": 180
+    },
+    "model_hash": "c48d44af50f056e346f1ef2ffccf7626b955bf3ee640e3d0706838def3e6970a",
+    "problem_id": "csplib_002_template_design",
+    "reason": "accepted",
+    "reference_hash": "2172807619c4014a048fda33778c15a14d17623f89de78e250bcb275ade93f9e",
+    "reference_runtime": {
+      "cpmpy": "1.0.0",
+      "numpy": "2.4.6",
+      "ortools": "9.15.6755",
+      "python": "3.13.2"
+    },
+    "requested": {
+      "instance_count": 99,
+      "instance_ids": null,
+      "solution_limit": 2,
+      "tolerate_inconclusive": true
+    },
+    "skipped_instances": [
+      "json:2"
+    ],
+    "solutions_checked": 2,
+    "solver_id": "idp_z3",
+    "total_wall_seconds": 201.27813143399544,
+    "unperformed_instances": []
+  },
+  "generated_by": {
+    "base_llm": "claude-code (claude-haiku-5-5)"
+  },
+  "is_optimization": true,
+  "model_file": "model.idp",
+  "problem": "csplib_002_template_design",
+  "schema": 2,
+  "solver": "idp_z3",
+  "verdict": {
+    "badge": "solution_valid_and_optimal",
+    "evaluation": "performed",
+    "execution": "success",
+    "objective": "passed"
+  },
+  "verdict_source": "container_evaluator"
+}

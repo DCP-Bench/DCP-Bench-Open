@@ -1,0 +1,23 @@
+vocabulary {
+    group_size: () -> Int
+    n_groups: () -> Int
+    n_weeks: () -> Int
+    type Golfer <: Int
+    Golfer_size: () -> Int
+    type Range_n_weeks <: Int
+    assign: Golfer * Range_n_weeks -> Int
+}
+
+theory {
+    // there are groups of a specific number of golfers, n_groups groups of group_size each
+    Golfer_size() = group_size() * n_groups().
+
+    // assign[i][j] is the group number of golfer i in week j, 0-indexed
+    ! p in Golfer, w in Range_n_weeks: 0 =< assign(p, w) & assign(p, w) =< n_groups() - 1.
+
+    // each group in each week holds exactly group_size golfers
+    ! p in Golfer, w in Range_n_weeks: #{ q in Golfer: assign(q, w) = assign(p, w) } = group_size().
+
+    // no golfer plays in the same group as any other golfer on more than one occasion
+    ! p, q in Golfer: p ~= q => #{ w in Range_n_weeks: assign(p, w) = assign(q, w) } =< 1.
+}

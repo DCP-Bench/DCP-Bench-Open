@@ -1,0 +1,36 @@
+vocabulary {
+    // instance field n
+    n: () -> Int
+    // digit positions 1..Dig_size
+    type Dig <: Int
+    Dig_size: () -> Int
+    // decimal digits
+    type Digit := {0..9}
+    d: Dig -> Digit
+    // place values 10^(i-1)
+    pw: Dig -> Int
+    // cube root of the number
+    c: () -> Int
+    // declared output
+    number: () -> Int
+}
+theory {
+    // the number of digit positions is six times n
+    Dig_size() = 6 * n().
+
+    // the digit sum is at most 9 per digit position, so the cube root is at most 9 * Dig_size
+    2 =< c() & c() =< 9 * Dig_size().
+
+    // the number is a perfect cube
+    number() = c() * c() * c().
+
+    // place values are powers of ten
+    ! i in Dig: i = 1 => pw(i) = 1.
+    ! i in Dig: i < 6 * n() => pw(i + 1) = 10 * pw(i).
+
+    // the digits of the number give its value
+    c() * c() * c() = sum{{ (d(i) * pw(i)) | i in Dig }}.
+
+    // the digit sum equals the cube root
+    sum{{ d(i) | i in Dig }} = c().
+}

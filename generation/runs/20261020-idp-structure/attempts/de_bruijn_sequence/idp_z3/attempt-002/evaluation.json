@@ -1,0 +1,70 @@
+{
+  "accepted": false,
+  "detail": "None:15:25: error: Expected '(' at position (15, 25) => 'ange_n: j *+ 1 =< n()'.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ba3ca18d5318a81c9939c52247b0f765e352e061a02646e39742ba1e19f87d3b",
+    "tag": "dcp-eval/idp_z3:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 8.93021933734417e-07,
+      "detail": "None:15:25: error: Expected '(' at position (15, 25) => 'ange_n: j *+ 1 =< n()'.",
+      "execution_wall_seconds": 1.0842934650136158,
+      "id": "example",
+      "instance_hash": "80fe254bd898227743d7f608264391d4a4e55afe69f6d213f35b124773b21498",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "de_bruijn"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 1.6300052149454132,
+      "runner_status": {
+        "detail": "None:15:25: error: Expected '(' at position (15, 25) => 'ange_n: j *+ 1 =< n()'.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "ackages/arpeggio/__init__.py\", line 494, in _parse\n    result = p(parser)\n             ^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 300, in parse\n    result = self._parse(parser)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 379, in _parse\n    result = e.parse(parser)\n             ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 300, in parse\n    result = self._parse(parser)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 379, in _parse\n    result = e.parse(parser)\n             ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 798, in parse\n    result = self._parse(parser)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 907, in _parse\n    parser._nm_raise(self, c_pos, parser)\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 1731, in _nm_raise\n    raise self.nm\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 494, in _parse\n    result = p(parser)\n             ^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 300, in parse\n    result = self._parse(parser)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 379, in _parse\n    result = e.parse(parser)\n             ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 300, in parse\n    result = self._parse(parser)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 379, in _parse\n    result = e.parse(parser)\n             ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 300, in parse\n    result = self._parse(parser)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 379, in _parse\n    result = e.parse(parser)\n             ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 798, in parse\n    result = self._parse(parser)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 907, in _parse\n    parser._nm_raise(self, c_pos, parser)\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 1731, in _nm_raise\n    raise self.nm\narpeggio.NoMatch: Expected '(' at position (15, 25) => 'ange_n: j *+ 1 =< n()'.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/opt/runner/run.py\", line 524, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 456, in solve\n    theory, vocab, goal = load(request)\n                          ^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 447, in load\n    idp = IDP.from_str(source)\n          ^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Parse.py\", line 317, in from_str\n    out = idpparser.model_from_str(code)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/textx/metamodel.py\", line 615, in model_from_str\n    model = self._parser_blueprint.clone().get_model_from_str(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/textx/model.py\", line 332, in get_model_from_str\n    self.parse(model_str, file_name=file_name)\n  File \"/usr/local/lib/python3.12/site-packages/arpeggio/__init__.py\", line 1525, in parse\n    self.parse_tree = self._parse()\n                      ^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/textx/model.py\", line 294, in _parse\n    raise TextXSyntaxError(message=text(e),\ntextx.exceptions.TextXSyntaxError: None:15:25: error: Expected '(' at position (15, 25) => 'ange_n: j *+ 1 =< n()'.\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "191e40455741a541c2859f0e0ec119e008769cccbf130f3d9b91e7f90032670b",
+  "problem_id": "de_bruijn_sequence",
+  "reason": "execution_error",
+  "reference_hash": "e18902d2bfe7e7e7d1fe9ad044b8b84ba5de06ed8088a2fe9baebc76d2229004",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.13.2"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "idp_z3",
+  "total_wall_seconds": 2.9033327910583466,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

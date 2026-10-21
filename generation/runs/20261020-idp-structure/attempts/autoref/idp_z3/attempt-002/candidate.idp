@@ -1,0 +1,22 @@
+vocabulary {
+    n: () -> Int
+    m: () -> Int
+    // the series has n+2 entries: s0 .. s(n+1)
+    type Pos <: Int
+    Pos_size: () -> Int
+    // s(k) is the entry s(k-1) of the series, for k in 1..n+2
+    s: Pos -> Int
+}
+theory {
+    // the series has n+2 entries
+    Pos_size() = n() + 2.
+
+    // every entry is a count, bounded by the largest index n+1
+    ! k in Pos: 0 =< s(k) & s(k) =< n() + 1.
+
+    // for each i from 0 to n, s_i is the number of occurrences of i in S
+    ! i in Pos: i =< n() + 1 => s(i) = #{k in Pos: s(k) = i - 1}.
+
+    // the last entry s_(n+1) equals m
+    s(n() + 2) = m().
+}

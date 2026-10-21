@@ -1,0 +1,25 @@
+vocabulary {
+    // six countries; the number of countries is the largest country number in the graph
+    type Country <: Int
+    Country_size: () -> Int
+    // at most one colour per country
+    type Color <: Int
+    Color_size: () -> Int
+    // the edge list: 9 rows of two country numbers
+    type I <: Int
+    type J <: Int
+    graph: I * J -> Int
+    adj: Country * Country -> Bool
+    colors: Country -> Color
+    minimize: () -> Int
+}
+theory {
+    // Two neighbouring countries cannot have the same colour.
+    Country_size() = max{ graph(i, j) | i in I, j in J }.
+    Color_size() = Country_size().
+    // A pair of countries is adjacent when it appears as an edge, in either order.
+    { ! a, b in Country: adj(a, b) <- ? i in I: (graph(i, 0) = a & graph(i, 1) = b) | (graph(i, 1) = a & graph(i, 0) = b). }
+    ! a, b in Country: adj(a, b) => colors(a) ~= colors(b).
+    // Find a colouring that minimizes the number of colours used.
+    minimize() = max{ colors(c) | c in Country }.
+}

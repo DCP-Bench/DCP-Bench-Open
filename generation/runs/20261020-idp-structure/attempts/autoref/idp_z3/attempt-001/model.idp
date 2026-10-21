@@ -1,0 +1,16 @@
+vocabulary {
+    type Range_n <: Int
+    n: () -> Int
+    m: () -> Int
+    s: Range_n -> Int
+}
+theory {
+    // n is an integer greater than 0
+    n() > 0.
+    // m is an integer greater than or equal to 0
+    m() >= 0.
+    // every entry of the series is a value in 0..n+1
+    ! j in Range_n: s(j) >= 0 & s(j) =< n() + 1.
+    // there are s_i occurrences of i in S, for each i from 0 to n
+    ! i in Range_n: s(i) = #{ j in Range_n: s(j) = i }.
+}

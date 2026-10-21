@@ -1,0 +1,73 @@
+{
+  "accepted": false,
+  "detail": "Domain error: (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1) \u2227 cabbage_pos(1) \u2228 Pos(1)) is not a tautology. Please add appropriate guards.",
+  "evaluator_version": 1,
+  "image": {
+    "id": "sha256:ba3ca18d5318a81c9939c52247b0f765e352e061a02646e39742ba1e19f87d3b",
+    "tag": "dcp-eval/idp_z3:v1"
+  },
+  "instances": [
+    {
+      "accepted": false,
+      "checking_seconds": 1.1309748515486717e-06,
+      "detail": "Domain error: (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1) \u2227 cabbage_pos(1) \u2228 Pos(1)) is not a tautology. Please add appropriate guards.",
+      "execution_wall_seconds": 1.383488065097481,
+      "id": "example",
+      "instance_hash": "a58f553306a7b2b83590de529f459ca90edf07da693bfdbee785b36d4bcbf5ab",
+      "is_optimization": false,
+      "oom_killed": false,
+      "optimum": null,
+      "outputs": [
+        "wolf_pos",
+        "goat_pos",
+        "cabbage_pos",
+        "boat_pos"
+      ],
+      "reason": "execution_error",
+      "reference_setup_seconds": 0.7342867569532245,
+      "runner_status": {
+        "detail": "Domain error: (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1) \u2227 cabbage_pos(1) \u2228 Pos(1)) is not a tautology. Please add appropriate guards.",
+        "status": "error",
+        "type": "status"
+      },
+      "solutions_checked": 0,
+      "solutions_received": 0,
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/runner/run.py\", line 524, in main\n    solve(request)\n  File \"/opt/runner/run.py\", line 456, in solve\n    theory, vocab, goal = load(request)\n                          ^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 448, in load\n    full = IDP.from_str(source + \"\\n\" + sized(idp, source, bind(idp, instance)))\n                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/runner/run.py\", line 308, in sized\n    theory = Theory(*full.theories.values(), *full.structures.values())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Theory.py\", line 227, in __init__\n    self.add(*theories)\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/Theory.py\", line 372, in add\n    check_WDFs(self, self.WDFs)\n  File \"/usr/local/lib/python3.12/site-packages/idp_engine/WDF.py\", line 111, in check_WDFs\n    raise IDPZ3Error(\nidp_engine.utils.IDPZ3Error: Domain error: (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1)) \u2227 (Pos(1) \u2227 wolf_pos(1) \u2228 Pos(1) \u2227 goat_pos(1) \u2228 Pos(1) \u2227 cabbage_pos(1) \u2228 Pos(1)) is not a tautology. Please add appropriate guards.\n"
+    }
+  ],
+  "instances_available": 5,
+  "instances_checked": 0,
+  "limits": {
+    "compilation_timeout": 120,
+    "cpus": 1,
+    "execution_timeout": 180,
+    "memory_mb": 2048,
+    "reference_timeout": 180
+  },
+  "model_hash": "a34091b3eb78b2e9011d3d87f2d6c8dc3709c9510addd9ba40280c0e2b1a1796",
+  "problem_id": "wolf_goat_cabbage",
+  "reason": "execution_error",
+  "reference_hash": "2b7745de3a71d7ed7a0503b4fba73928e8f548de7e62cc882dffa1c4e0360b6c",
+  "reference_runtime": {
+    "cpmpy": "1.0.0",
+    "numpy": "2.4.6",
+    "ortools": "9.15.6755",
+    "python": "3.13.2"
+  },
+  "requested": {
+    "instance_count": 99,
+    "instance_ids": null,
+    "solution_limit": 2,
+    "tolerate_inconclusive": true
+  },
+  "skipped_instances": [],
+  "solutions_checked": 0,
+  "solver_id": "idp_z3",
+  "total_wall_seconds": 2.25310063699726,
+  "unperformed_instances": [
+    "json:1",
+    "json:2",
+    "json:3",
+    "json:4"
+  ]
+}

@@ -1,0 +1,27 @@
+vocabulary {
+    type Range_N <: Int
+    matrix: Range_N * Range_N -> Bool
+    deg: Range_N -> Int
+}
+
+theory {
+    // the graph is simple: no loop edges
+    ! i in Range_N: ~matrix(i, i).
+    // the graph is undirected
+    ! i, j in Range_N: matrix(i, j) <=> matrix(j, i).
+
+    // the degree of a vertex is the number of its neighbours
+    ! i in Range_N: deg(i) = #{ j in Range_N: matrix(i, j) }.
+    // each degree is greater than zero
+    ! i in Range_N: deg(i) > 0.
+    // each degree is modulo 3
+    ! i in Range_N: deg(i) % 3 = 0.
+    // the sum of the degrees is modulo 12
+    sum{{ (deg(i)) | i in Range_N }} % 12 = 0.
+    // the degree sequence is non-increasing
+    ! i, j in Range_N: i < j => deg(i) >= deg(j).
+
+    // diamond-free: two triangles sharing an edge form a diamond, so every edge
+    // lies in at most one triangle (at most one common neighbour per adjacent pair)
+    ! a, b in Range_N: matrix(a, b) => #{ c in Range_N: matrix(a, c) & matrix(b, c) } =< 1.
+}
