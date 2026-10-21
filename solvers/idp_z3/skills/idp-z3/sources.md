@@ -127,6 +127,10 @@ by reading the installed library's source. Each entry says which.
   as `Pos_size() = 10`, even with `Pos := {}` interpreted provisionally and other
   sentences quantifying over `Pos`. That is how the runner sizes a `T_size` type.
 
+- `max{ e | ... }` over data is not folded: `Pos_size() = max{ demand(i) | i in I }`
+  stays as an auxiliary symbol `__max{...}()`, so it cannot size a type. `base() ^ n()`
+  with two data constants fails with "Can't determine the type of base() ^ n()".
+
 ## Arithmetic (each value observed directly)
 
 - Constants are folded in Python, symbols go to z3, and the two disagree for a

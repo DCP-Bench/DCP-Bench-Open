@@ -97,6 +97,10 @@ interprets the types the data sizes:
    Use it for a length that is no single field: `n() + 2`, `2 * k()`,
    `n_groups() * group_size()`, a total over an array. The definition must be an
    equation over data symbols only; anything else is an error naming the type.
+   `sum{{ }}`, `#{ }` and `+ - * /` fold; `max{ }`, `min{ }` and `^` do not
+   (`base() ^ n()` is a type error in 0.12.1). For a length set by the largest
+   value, size the type by a sum that bounds it and make the output partial with
+   a domain predicate defined by `max{ }`.
 
 **An output shorter than its argument type is a partial function.** Declare it
 with a domain predicate that you define from the data, and the runner reads the
