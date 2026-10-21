@@ -8,14 +8,14 @@
   generated model on its own, and say in the message what the batch carries.
 - After coding is done, the user and the agent review whether the request is done.
 
-## Writing models for this benchmark
+## This repository
 
-Follow `skills/model-generator`, which runs a
-campaign end to end, and `skills/solver-setup` for adding a framework/solver.
-Follow `skills/instance-curator` to add instances to existing problems. A generated model should be kept only when the evaluator accepts it.
+It holds the problems only: `dataset/`, their sources in `SOURCES.md`, and the tooling
+that reads them. New problems follow `CONTRIBUTING.md`, and `python -m unittest
+tests.test_dataset` is the audit CI runs.
 
-`python -m generation.brief PROBLEM` prints what a model has to satisfy: the declared
-output names with their shapes, the objective direction, and every instance field with
-its shape. `python -m generation.next_work` says what is left, and withholds pairs whose
-instance shape an integration cannot bind at all.
+Generated models, the evaluator, the solver integrations, the agent skills and the
+catalogue live in [DCP Rosetta](https://github.com/DCP-Bench/DCP-Rosetta), which checks
+this repository out as its `bench/` submodule. Model generation and instance curation
+run from there: follow its `skills/model-generator` and `skills/instance-curator`.
 

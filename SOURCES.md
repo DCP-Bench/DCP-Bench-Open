@@ -16,27 +16,11 @@ The dataset contains problems gathered from different sources.
     - Those that contain `solveAll` (counting solutions).
     - Global constraints tests, e.g. http://www.hakank.org/cpmpy/atmost_test.py
 
-## Generated models
-
-`generated_models/<problem>/<framework>/<submission>/` holds models produced by
-generative systems, not ground truth. Every one was generated in this repository
-by the `model-generator` skill against an integration under `solvers/`, and kept
-only because the evaluator accepted it.
-
-Each model directory holds the model and one `record.json`. Its `verdict_source`
-is `container_evaluator`, and the evaluator's full result is embedded in the
-record. `generation/runs/` holds how each model was made.
-
-Two other corpora used to live here: one imported from the CP-Bench leaderboard,
-and a set of abbots-puzzle demo models written across frameworks that have no
-integration here. Neither was judged by the evaluator in this repository, so
-neither counted as coverage, and both have been removed.
-
 ## Instances not added
 
 Problems judged unable to take another instance, one line each as
-`` - `problem`: reason ``. `python -m generation.instances status` reads this
-list and stops offering them. See `skills/instance-curator`.
+`` - `problem`: reason ``. DCP Rosetta's `python -m generation.instances status`
+reads this list and stops offering them. See its `skills/instance-curator`.
 
 - `session2_color_simple`: the description names the six countries, so geography fixes the graph.
 - `who_killed_agatha`: the description fixes the whole scenario, and the reference never reads its only field.
