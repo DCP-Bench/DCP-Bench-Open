@@ -166,20 +166,23 @@ def extract_cpmpy_code_no_data(content: str) -> str:
     return content_no_data
 
 
-def extract_example_solution(content: str, timeout: int = 60) -> dict:
+def extract_example_solution(content: str, timeout: int = 60) -> tuple[dict, bool]:
     # Run the script up to its solve, solve the way the evaluator's reference does,
     # then build the script's own solution dictionary. One CP-SAT worker makes the
-    # solution the same on every machine and every run.
+    # solution the same on every machine and every run. The model itself says whether
+    # it optimises: an objective may be set by minimize()/maximize() or by a keyword
+    # of Model, so the source text alone does not tell.
     tree, _, cut, output = parse_source(content)
     namespace = {}
     exec(compile(ast.Module(body=tree.body[:cut], type_ignores=[]), "<reference>", "exec"), namespace)
     model = namespace["model"]
+    is_optimization = bool(model.has_objective())
     if not model.solve(solver="ortools", time_limit=timeout, **SOLVER_OPTIONS):
         raise AssertionError(f"No solution within {timeout} seconds: {model.status()}")
-    if model.has_objective() and model.status().exitstatus != ExitStatus.OPTIMAL:
+    if is_optimization and model.status().exitstatus != ExitStatus.OPTIMAL:
         raise AssertionError(f"Optimum not proven within {timeout} seconds")
     solution = eval(compile(ast.Expression(output), "<solution>", "eval"), namespace)
-    return json.loads(json.dumps(solution))
+    return json.loads(json.dumps(solution)), is_optimization
 
 
 def extract_all_instances(filepath):
@@ -236,7 +239,7 @@ def process_file(filepath: Path) -> dict | None:
         m = re.match(r'#\s*Timeout:\s*(\d+)', line, re.IGNORECASE)
         if m:
             exec_timeout = int(m.group(1))
-    example_solution = extract_example_solution(content, timeout=exec_timeout)
+    example_solution, is_optimization = extract_example_solution(content, timeout=exec_timeout)
     all_instances = extract_all_instances(filepath)
 
     # Check if the keys in example solution and decision variables match exactly
@@ -265,6 +268,7 @@ def process_file(filepath: Path) -> dict | None:
         "framework": extract_framework(filepath),
         "example_solution": example_solution,
         "decision_variables": decision_variables,
+        "is_optimization": is_optimization,
     }
 
 
