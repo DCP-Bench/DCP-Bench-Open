@@ -12,7 +12,7 @@ number abcd, you need the number a to be divisible by 1, the number ab to be
 divisible by 2, the number abc to be divisible by 3, and the entire number abcd
 to be divisible by 4.
 
-Print the number (number).
+Print the digits of the number from left to right (digits) as a list of 10 integers.
 """
 
 # Import libraries
@@ -20,17 +20,16 @@ from cpmpy import *
 import json
 
 # Decision Variables
-x = intvar(0, 9, shape=10)  # The 10 digits
+digits = intvar(0, 9, shape=10)  # The 10 digits
 t = intvar(0, 10**10, shape=10)  # The 10 numbers formed by the first n digits
-number = t[9]
 
 model = Model()
 
 # Constraints
-model += AllDifferent(x)
+model += AllDifferent(digits)
 for i in range(10):
     # find current number at position i
-    cur_num = sum([x[j] * (10 ** (i-j))   for j in range(i+1)])
+    cur_num = sum([digits[j] * (10 ** (i-j))   for j in range(i+1)])
     model += t[i] == cur_num
 
     # current number must be divisible by i+1
@@ -40,6 +39,6 @@ for i in range(10):
 model.solve()
 
 # print
-solution = {"number": number.value()}
+solution = {"digits": digits.value().tolist()}
 print(json.dumps(solution, indent=4))
 # End of CPMPy script
