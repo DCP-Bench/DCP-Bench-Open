@@ -1,5 +1,5 @@
 The problem is to put \( n \) balls labelled \( 1, \ldots, n \) into 3 boxes so that for any triple of balls
-\( (x, y, z) \) with \( x + y = z \), not all are in the same box. This has a solution iff \( n < 14 \). The problem can
+\( (x, y, z) \) with \( x + y = z \), where \( x \) and \( y \) may be equal, not all are in the same box. This has a solution iff \( n < 14 \). The problem can
 be formulated as a 0-1 problem using the variables \( M_{ij} \) for \( i \in \{1, \ldots, n\}, j \in \{1, 2, 3\} \) with
 \( M_{ij} \) true if ball \( i \) is in box \( j \). The constraints are that a ball must be in exactly one box,
 \( M_{i1} + M_{i2} + M_{i3} = 1 \) for all \( i \in \{1, \ldots, n\} \). And for each \( x + y = z \) and

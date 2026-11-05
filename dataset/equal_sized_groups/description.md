@@ -22,9 +22,10 @@ One solution would be these 3 break points:
 3 3 3 3 3 3 3 3     = 8 elements,  error = abs(8-8)=0
 4 4 4 4 5 5 5 5 5     = 9 elements,  error = abs(8-9)=1
 6 6 6 6 7 8 9 10 10 = 9 elements,  error = abs(8-9)=1
-```
 
 total error = 4 (2+0+1+1)
 break points = [6, 14, 23]
+```
 
-Print - for the data given below - the 1-based indexes of the break points (x) such that the total error is minimized.
+Each group holds at least one element. Print, for the given list `a` and number of groups `k`, the `k`-1 break points (x),
+where a break point is the number of elements before it, such that the total error is minimized.

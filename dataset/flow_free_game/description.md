@@ -11,6 +11,7 @@ following configuration:
 0, 1, 5, 0, 0
 ```
 
-The cells with a value of 0 are empty and need to be filled with a color.
+The cells with a value of 0 are empty and need to be filled with a color. Cells are connected horizontally and
+vertically: a numbered cell has exactly one neighbour of its own color, and a filled cell has exactly two.
 
 Print the board (B) as a list of lists, where each cell value is the color of the cell as an integer from 1 to 5.

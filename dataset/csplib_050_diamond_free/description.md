@@ -7,14 +7,12 @@ vertices. Conversely, a graph is diamond-free if it has no diamond as an induced
 the number of edges between those vertices is at most four.
 
 In our problem, we have additional properties required of the degree sequences of the graphs, in particular, that the degree
-of each vertex is greater than zero (i.e., isolated vertices are disallowed), the degree of each vertex is modulo 3, and the
-sum of the degrees is modulo 12 (i.e., \(|E|\) is modulo 6).
+of each vertex is greater than zero (i.e., isolated vertices are disallowed), the degree of each vertex is divisible by 3, and the
+sum of the degrees is divisible by 12 (i.e., \(|E|\) is divisible by 6).
 
-The problem is then for a given value of \( n \), produce all unique degree sequences \( d_1, \ldots, d_n \) such that
+The problem is then, for a given number of vertices, to find a simple diamond-free graph such that
 
-- \( d_i \geq d_{i+1} \)
-- Each degree \( d_i > 0 \) and \( d_i \) is modulo 3
-- The sum of the degrees is modulo 12
-- There exists a simple diamond-free graph with that degree sequence
+- Each degree \( d_i > 0 \) and \( d_i \) is divisible by 3
+- The sum of the degrees is divisible by 12
 
 Print the adjacency matrix of the graph (matrix) as a list of lists of booleans.

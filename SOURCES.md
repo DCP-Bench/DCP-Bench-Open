@@ -53,6 +53,10 @@ automaton to CPMpy's `Regular` constraint. Equivalence was established by
 solving all 14 listed instances and re-checking each board against the
 row/column block rules — by testing, not by proof.
 
+**Clarified.** Descriptions state rules their references already enforced, such as
+bowls being numbered from 1 or the hanging weights being all different, so that a
+model written from the description alone can meet them. No reference changed.
+
 **Corrected.** The bin-packing reference applied the capacity limit to one bin
 per item (`range(n)`) rather than to every bin (`range(num_bins)`), so with more
 bins than items the extra bins were unbounded. No listed instance has more bins

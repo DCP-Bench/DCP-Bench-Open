@@ -1,3 +1,3 @@
-Requires exactly m values in x to take one of the values in v. All other values may be anything larger than or equal to 0 and less than or equal to 7.
+Find an array x of n integers between 0 and 7, inclusive, such that exactly m of them take one of the values in v. The other elements may take any other value in that range.
 
 Print the array x (x).

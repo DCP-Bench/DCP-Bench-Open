@@ -9,7 +9,7 @@ fixtures. There are nine other sets of constraints.
 
 1. Mirroring. The dates are grouped into pairs (r1, r2), such that each team will get to play against the same team
 in dates r1 and r2. Such a grouping is called a mirroring scheme. Nemhauser and Trick use the mirroring scheme {(1,
-8), (2, 9), (3, 12), (4, 13), (5, 14), (6, 15), (7, 16), (10, 17), (11, 18)}
+8), (2, 9), (3, 12), (4, 13), (5, 14), (6, 15), (7, 16), (10, 17), (11, 18)}. A team playing at home on one date of a pair plays away on the other.
 
 2. No Two Final Aways. No team can play away on both last dates.
 
@@ -36,5 +36,5 @@ UMD and Wake do not play away in the last date. Clem, FSU, GT and Wake do not pl
 FSU nor NCSt have a bye in the last date. UNC does not have a bye in the first date.
 
 Print the match configuration (config) as a list of lists, where each inner list represents a day and contains the
-teams playing on that day; config[d,i] == j means that team i plays against team j on day d. Also print whether each
+teams playing on that day; config[d,i] == j means that team i plays against team j on day d, and config[d,i] == i means that team i has a bye. Teams are numbered from 0 in the order listed above. Also print whether each
 team is playing home -0-, away -2-, or has a bye -1- (where); e.g. where[d,i] == 0 means that team i plays at home on day d.

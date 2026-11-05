@@ -8,6 +8,7 @@ want your purchases to add up to as close to that figure as possible
 Here are the groups of players available, their price (in GBP
 millions) and the numbers of each type you are obliged to buy:
 
+```text
 Goalkeepers (must buy 1 exactly):
 g1: 0.73
 g2: 1.28
@@ -41,7 +42,8 @@ s2: 6.47
 s3: 7.78
 s4: 8.39
 s5: 9.5
+```
 
 Also, you must buy at least eleven players in total.
 
-Print out the total price of the players you have selected (z) in GBP thousands; e.g. if the total is GBP 12,345 million, the output should be 12345.
+Print out the total price of the players you have selected (z) in GBP thousands; e.g. if the total is GBP 12.345 million, the output should be 12345.

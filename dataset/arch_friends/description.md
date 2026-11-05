@@ -11,8 +11,8 @@ which Harriet bought each pair of shoes, and where she bought each?
 2. The store she visited just after buying her purple pumps was not
   Tootsies.
 3. The Foot Farm was Harriet's second stop.
-4. Two stops after leaving The Shoe Place, Harriet bought her suede
+4. Two stops after leaving The Shoe Palace, Harriet bought her suede
   sandals.
 
 Print the values of each shoe (ecruespadrilles, fuchsiaflats, purplepumps, suedesandals) and store (footfarm,
-heelsinahandcart, theshoepalace, tootsies), such that the same value denotes the same shoe or store; values are integers from 1 to 4.
+heelsinahandcart, theshoepalace, tootsies), where each value is the number of the stop, from 1 to 4, at which that shoe was bought or that store was visited.

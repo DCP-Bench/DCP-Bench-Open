@@ -20,5 +20,5 @@ We are to complete the puzzle
 
 We need to select 8 words from the list of 15 words above, such that the above crossword puzzle can be completed.
 
-Print the selected words (E) as a list of 8 integers starting from 0. Assume that the words are first sorted starting
+Print the selected words (E) as a list of 8 integers starting from 0, where E[i] is the word that starts at number i+1. Assume that the words are first sorted starting
 from the longest word and then alphabetically. So, word 0 corresponds to HOSES, word 1 to LASER, ..., word 14 to TIE.

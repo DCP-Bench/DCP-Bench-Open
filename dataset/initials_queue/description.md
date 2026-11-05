@@ -1,6 +1,5 @@
 I noticed something weird about names of the first 10 people in
-the queue for a Maths lecture:
-[Image of 10 people in a queue.]
+the queue for a Maths lecture.
 
 Each of them had initials which were an alphabetically ordered
 pair of distinct letters from the first five letters of the

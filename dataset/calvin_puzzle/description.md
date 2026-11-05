@@ -1,7 +1,7 @@
 The Purpose of the Game
 
-To take an n by n grid, representing n^2 squares, and completely fill every square
-based on two types of movements.
+To take an n by n grid, representing n^2 squares, and completely fill every square with
+the numbers 1 to n^2 in sequence, each used once, starting from any square, based on two types of movements.
 
 Movement Type I)  If the next number in the sequence is going to be placed vertically
 or horizontally, then it must be placed exactly three squares away from the previous

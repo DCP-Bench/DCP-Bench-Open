@@ -1,4 +1,4 @@
-You have a number of bowls, all placed in a line at exact intervals of
+You have a number of bowls, numbered from 1 and all placed in a line at exact intervals of
 1 meter. You also have a number of oranges. You wish to place all the oranges
 in the bowls, no more than one orange in each bowl, so that there are
 no three oranges A, B, and C such that the distance between A and B is

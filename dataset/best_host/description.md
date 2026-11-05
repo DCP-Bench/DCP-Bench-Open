@@ -15,16 +15,13 @@ Dave will only sit next to Andrew and Erica;
 Erica will only sit next to Betty and Dave;
 Frank will only sit next to Andrew and Cara.
 
-```text
-[
-  Figure 1 shows the following arrangement:
+Figure 1 shows the following arrangement:
 
+```text
               Andrew
        Frank         Betty
        Erica         Cara
               Dave
-
-]
 ```
 
 In the example seating arrangement above, there are three conflicts
@@ -32,6 +29,7 @@ In the example seating arrangement above, there are three conflicts
 
 Question:
 
-What seating arrangement will minimize the conflict at dinner?
+What seating arrangement will minimize the conflict at dinner? An arrangement without any conflict
+exists, so every guest must sit only next to the two guests they will sit next to.
 
-Print the list of guests (x) in the seating order, where 0 represents Andrew, 1 represents Betty, 2 represents Cara, 3 represents Dave, 4 represents Erica, and 5 represents Frank.
+Print the list of guests (x) in the seating order going around the table, where 0 represents Andrew, 1 represents Betty, 2 represents Cara, 3 represents Dave, 4 represents Erica, and 5 represents Frank.
