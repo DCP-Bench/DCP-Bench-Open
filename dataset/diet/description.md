@@ -11,4 +11,7 @@ Cola (1 bottle)                150           0            4      1
 Pineapple cheesecake (1 piece) 500           0            4      5
 ```
 
+`price` holds the price of one unit of each food, in the order of the table, and `limits` holds the minimum required of
+each nutrition type: calories, chocolate, sugar and fat. Each food is bought in a whole number of units.
+
 Print the optimal cost of the diet (cost).

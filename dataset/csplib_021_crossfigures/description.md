@@ -63,4 +63,4 @@ Down
  28 21 down plus twenty-seven
 ```
 
-Print the solved crossfigure as a list of lists of integers (M), where 0 represents an empty or invalid cell.
+Print the solved crossfigure as a list of lists of integers (M), where each cell marked X in the grid holds 0. Every other cell holds a digit of an answer, and that digit may also be 0.

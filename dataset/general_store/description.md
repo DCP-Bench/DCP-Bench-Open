@@ -26,4 +26,6 @@ correct digits.
    A L L W O O L
 ```
 
+Leading zeros are allowed: a word may start with the digit 0.
+
 Print the values (C, H, E, S, A, B, O, W, P, L) that satisfy the above conditions.
