@@ -3,15 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/capital_budget.py
 # Source description: Winston 'Operations Research', page 478: Capital budgeting
 
-"""
-A company is considering a number of investments. Each investment will yield a net present value (NPV). Each investment requires a
-certain cash outflow at the present time. There is a total budget available for investment. How to maximize the NPV obtained from
-the investments?
-
-Print whether each investment is chosen (x) as a list of booleans,
-and the total NPV (z) as an integer.
-"""
-
 # Data
 budget = 14000
 npv = [16000, 22000, 12000, 8000]

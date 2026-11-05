@@ -2,13 +2,6 @@
 # Category: aplai_course
 # Source: http://www.hakank.org/minizinc/money_change.mzn
 
-"""
-Alice has to give Bob some change. She has different types of coins of different values and she has a certain number of coins of each value available. How can the change be
-composed with the available coins minimizing the number of coins used?
-
-Print the number of coins of each type to give to Bob (coin_counts) as a list of integers.
-"""
-
 # Data
 amount = 199  # amount of money to give to Bob
 types_of_coins = [1, 2, 5, 10, 25, 50]  # value of each type of coin

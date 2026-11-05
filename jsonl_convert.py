@@ -9,6 +9,7 @@ import sys
 
 from cpmpy.solvers.solver_interface import ExitStatus
 
+from dcp_bench.problems import read_description, read_metadata, reference_body
 from dcp_bench.reference import SOLVER_OPTIONS, parse_source
 
 
@@ -49,39 +50,6 @@ def extract_framework(filepath: Path) -> str:
     return DEFAULT_FRAMEWORK
 
 
-def extract_metadata(content: str) -> list[str]:
-    # extract metadata: all non-empty lines until the first multi-line comment
-    metadata = []
-    i = 0
-    lines = content.splitlines()
-    # A description with backslashes (e.g. LaTeX \( n \)) is a raw docstring, r"""
-    while i < len(lines) and not re.match(r'[rR]?"""', lines[i]):
-        metadata.append(lines[i].strip())
-        i += 1
-    # Remove any leading/trailing whitespace and empty lines
-    metadata = [line for line in metadata if line]
-    return metadata
-
-def extract_description(content: str, filepath: Path) -> str:
-    # extract problem description: In the first multi-line comment.
-    # Use regex to find the first multi-line comment
-    multi_line_comment_pattern = re.compile(r'"""(.*?)\s*"""|\'\'\'(.*?)\s*\'\'\'', re.DOTALL)
-    lines = content.splitlines()
-    match = multi_line_comment_pattern.search(" ".join(lines))
-
-    if match:
-        # Extract the comment content
-        problem_description = match.group(0).strip('"""').strip("'''").strip()
-    else:
-        raise ValueError("Problem description not found in the script content")
-
-    # Check if the description is empty or contains only whitespace
-    if not problem_description or problem_description.isspace():
-        logging.warning(f"[{filepath.name}] Extracted description is empty or contains only whitespace.")
-        return ""
-
-    return problem_description
-
 def extract_dec_vars(description: str) -> list[str]:
     # Extract decision variables from the description
     # They are in parentheses of the last line of the description (after the word "Print" is mentioned)
@@ -96,7 +64,7 @@ def extract_dec_vars(description: str) -> list[str]:
     # Extract the substring after the last Print statement
     decision_vars_str = description[print_index + len("Print"):].strip()
     # Find all parentheses in the substring
-    parentheses_pattern = re.compile(r'\((.*?)\)')
+    parentheses_pattern = re.compile(r'\((.*?)\)', re.DOTALL)
     matches = parentheses_pattern.findall(decision_vars_str)
     decision_vars = []
     for match in matches:
@@ -144,26 +112,10 @@ def extract_input_data(content: str):
     return input_data, input_data_json
 
 
-def extract_cpmpy_code(content: str) -> str:
-    multi_line_comment_pattern = re.compile(r'"""(.*?)\s*"""|\'\'\'(.*?)\s*\'\'\'', re.DOTALL)
-    match = multi_line_comment_pattern.search(content)
-
-    if match:
-        # Extract the comment content
-        content_after_description = content[match.end():].strip()
-    else:
-        raise ValueError("Content after description not found in the script content")
-    return content_after_description
-
-
 def extract_cpmpy_code_no_data(content: str) -> str:
-    # return everything after the first import
-
-    content_no_data = extract_cpmpy_code(content)
-    # remove everything between # Data and # End of data
+    # The reference without its origin comments and its data section
     input_data_pattern = re.compile(r'# Data(.*?)# End of data', re.DOTALL | re.IGNORECASE)
-    content_no_data = input_data_pattern.sub('', content_no_data).strip()
-    return content_no_data
+    return input_data_pattern.sub('', reference_body(content)).strip()
 
 
 def extract_example_solution(content: str, timeout: int = 60) -> tuple[dict, bool]:
@@ -228,18 +180,13 @@ def process_file(filepath: Path) -> dict | None:
     instance_id = filepath.stem.replace('.cpmpy', '')
 
     # Extract all components
-    metadata = extract_metadata(content)
-    description = extract_description(content, filepath)
+    metadata = read_metadata(filepath.parent)
+    description = read_description(filepath.parent)
     decision_variables = extract_dec_vars(description)
     input_data, input_data_json = extract_input_data(content)
-    cp_model = extract_cpmpy_code(content)
-    # Optional "# Timeout: N" metadata header overrides the execution timeout (seconds)
-    exec_timeout = 60
-    for line in metadata:
-        m = re.match(r'#\s*Timeout:\s*(\d+)', line, re.IGNORECASE)
-        if m:
-            exec_timeout = int(m.group(1))
-    example_solution, is_optimization = extract_example_solution(content, timeout=exec_timeout)
+    cp_model = extract_cpmpy_code_no_data(content)
+    # An optional `timeout` overrides the execution timeout (seconds)
+    example_solution, is_optimization = extract_example_solution(content, timeout=metadata.get("timeout", 60))
     all_instances = extract_all_instances(filepath)
 
     # Check if the keys in example solution and decision variables match exactly
@@ -263,8 +210,7 @@ def process_file(filepath: Path) -> dict | None:
         "example_instance": input_data,
         # "instances": [input_data_json],
         "instances": all_instances,
-        "model": extract_cpmpy_code_no_data(content),
-        # "model": cp_model,
+        "model": cp_model,
         "framework": extract_framework(filepath),
         "example_solution": example_solution,
         "decision_variables": decision_variables,

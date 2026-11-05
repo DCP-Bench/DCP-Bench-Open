@@ -3,15 +3,6 @@
 # Source and problem instances: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob012_nonogram.py
 # Source description: https://www.csplib.org/Problems/prob012/
 
-"""
-Nonograms are a popular puzzle, which goes by different names in different countries. Solvers have to shade in squares
-in a grid so that blocks of consecutive shaded squares satisfy constraints given for each row and column. Constraints
-typically indicate the sequence of shaded blocks (e.g. 3,1,2 means that there is a block of 3, then a gap of unspecified
-size, a block of length 1, another gap, and then a block of length 2).
-
-Print the solution board (board) as a list of lists of integers, where 1 represents a shaded square and 0 represents an unshaded square.
-"""
-
 # Data
 rows = 8  # Number of rows
 row_rule_len = 2  # Maximum length of row rules

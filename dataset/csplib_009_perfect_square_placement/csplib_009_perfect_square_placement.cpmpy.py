@@ -4,16 +4,6 @@
 # Source description: https://www.csplib.org/Problems/prob009/
 # Problem instances: https://github.com/CPMpy/cpmpy/blob/master/examples/csplib/prob009_perfect_squares.json
 
-"""
-The perfect square placement problem (also called the squared square problem) is to pack a set of squares with given
-integer sizes into a bigger square in such a way that no squares overlap each other and all square borders are
-parallel to the border of the big square. The sum of the square surfaces is equal to the surface of the packing square, so that there is no spare capacity. A simple
-perfect square placement problem is a perfect square placement problem in which no subset of the squares (greater than
-one) are placed in a rectangle.
-
-Print the coordinates of the squares (x_coords, y_coords) as lists of integers - starting from 0.
-"""
-
 # Data
 base = 6  # Side length of the large square
 sides = [3, 3, 3, 2, 1, 1, 1, 1, 1]  # Side lengths of the smaller squares

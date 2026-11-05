@@ -2,12 +2,6 @@
 # Category: aplai_course
 # Source: http://www.hakank.org/minizinc/farmer_and_cows.mzn
 
-"""
-A farmer has a number of cows, with each cow numbered from 1 up to the total number of cows. Each cow gives a quantity of milk equal to its number. The farmer has a number of sons and wants to distribute his cows to them according to a given distribution. The total quantity of milk produced should be the same for each son. How can he distribute the cows?
-
-Print the assignment of cows to sons (cow_assignments), as a list of integers, where the index of the list corresponds to the cow and the value to the son, e.g., [0, 1, 0, 2] means that cow 1 goes to son 0, cow 2 to son 1, cow 3 to son 0, and cow 4 to son 2.
-"""
-
 # Data
 num_cows = 25
 num_sons = 5

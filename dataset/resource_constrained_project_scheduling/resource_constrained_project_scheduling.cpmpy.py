@@ -3,19 +3,6 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/rcpsp.py
 # Description: https://python-mip.readthedocs.io/en/latest/examples.html#resource-constrained-project-scheduling
 
-"""
-The resource-constrained project scheduling problem involves scheduling a set of jobs, each with a specific
-duration and resource requirement, such that the total project duration (makespan) is minimized. Each job may have
-precedence constraints, meaning certain jobs must be completed before others can start. Additionally,
-there are multiple types of resources, each with a limited capacity that must not be exceeded at any time.
-
-Given the durations of the jobs, their resource requirements, the capacities of the resources, and the precedence
-constraints between the jobs, determine the start times of the jobs that minimize the makespan while satisfying all
-constraints.
-
-Print the start times of the jobs (start_time) as a list of integers starting from 0.
-"""
-
 # Data
 durations_data = [0, 3, 2, 5, 4, 2, 3, 4, 2, 4, 6, 0]
 resource_needs_data = [[0, 0], [5, 1], [0, 4], [1, 4], [1, 3], [3, 2], [3, 1], [2, 4], [4, 0], [5, 2], [2, 5], [0, 0]]

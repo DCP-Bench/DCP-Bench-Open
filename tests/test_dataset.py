@@ -1,7 +1,9 @@
 from pathlib import Path
+import ast
 import os
 from concurrent.futures import ProcessPoolExecutor
 import unittest
+from dcp_bench.problems import OBJECTIVES, derived_metadata, origin, problems, read_description, read_metadata, reference_body
 from dcp_bench.reference import Reference, embedded_instance, load_reference, select_instances
 from dcp_bench.results import canonical, EvaluationError, strict_json
 from dcp_bench.reference import ReferenceSession
@@ -248,6 +250,61 @@ solution = {"t": t.value().tolist(), "cost": int(model.objective_value())}
                 standard[path.parent.name] = "; ".join(problems)
         self.assertFalse(unsupported, unsupported)
         self.assertFalse(standard, standard)
+
+    def test_descriptions_are_files(self):
+        """The description lives in description.md alone, not in the reference."""
+        problems_found = {}
+        for path in sorted((ROOT / "dataset").rglob("*.cpmpy.py")):
+            try:
+                if not read_description(path.parent):
+                    problems_found[path.parent.name] = "empty description.md"
+            except OSError:
+                problems_found[path.parent.name] = "missing description.md"
+            if ast.get_docstring(ast.parse(path.read_text(encoding="utf-8-sig"))) is not None:
+                problems_found[path.parent.name] = "description in the reference's docstring"
+        self.assertFalse(problems_found, problems_found)
+
+    def test_metadata_is_current(self):
+        """metadata.json says what the reference says. Fix: python -m dcp_bench.problems sync PROBLEM"""
+        stale = {}
+        for path in sorted((ROOT / "dataset").rglob("*.cpmpy.py")):
+            problem = path.parent.name
+            try:
+                metadata = read_metadata(path.parent)
+            except (OSError, ValueError) as error:
+                stale[problem] = str(error)
+                continue
+            derived = derived_metadata(path.parent)
+            wrong = [key for key, value in derived.items() if metadata.get(key) != value]
+            wrong += [key for key in ("name", "timeout") if key in metadata and key not in derived]
+            if wrong:
+                stale[problem] = wrong
+            elif metadata["objective"] not in OBJECTIVES or not metadata.get("category"):
+                stale[problem] = "objective or category"
+        self.assertFalse(stale, stale)
+
+    def test_origin_comments(self):
+        source = ("#!/usr/bin/python3\n# Category: csplib\n# Source: https://example.org/a\n"
+                  "# Source description: Winston, page 3\n# Source and problem instances: https://example.org/b\n"
+                  "# Timeout: 120\n\n# Data\nn = 1\n# End of data\nimport cpmpy\n")
+        self.assertEqual(origin(source), {
+            "category": "csplib", "timeout": 120,
+            "sources": [{"kind": "origin", "url": "https://example.org/a"},
+                        {"kind": "description", "text": "Winston, page 3"},
+                        {"kind": "origin", "url": "https://example.org/b"},
+                        {"kind": "instances", "url": "https://example.org/b"}]})
+        self.assertEqual(reference_body(source), "# Data\nn = 1\n# End of data\nimport cpmpy\n")
+        self.assertEqual(reference_body("# Data\nn = 1\n# End of data\n"), "# Data\nn = 1\n# End of data\n")
+        with self.assertRaisesRegex(ValueError, "Unknown origin comment"):
+            origin("# Sauce: https://example.org\n")
+
+    def test_filtering(self):
+        everything = problems()
+        self.assertEqual(len(everything), len(list((ROOT / "dataset").rglob("*.cpmpy.py"))))
+        chosen = problems(category="csplib", objective="minimize")
+        self.assertTrue(chosen)
+        self.assertLess(len(chosen), len(everything))
+        self.assertTrue(all(m["category"] == "csplib" and m["objective"] == "minimize" for m in chosen))
 
     def test_fixed_references(self):
         """The two previously unsupported references load, solve, and check."""

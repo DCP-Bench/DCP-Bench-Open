@@ -2,14 +2,6 @@
 # Category: hakan_examples
 # Source: http://www.hakank.org/cpmpy/3_coins.py
 
-"""
-Three coins lie on a table in the order tails, heads, tails. In precisely three moves
-make them face either all heads or all tails. Each move consists of choosing one coin
-and flipping it over.
-
-Print the steps (steps) to make all coins face either all heads or all tails, as a list of lists of booleans, where True means tails -1- and False means heads -0-.
-"""
-
 # Data
 num_moves = 3  # Number of moves to make all coins face either all heads or all tails
 init = [1, 0, 1]  # Initial configuration of the coins, 1 means tails and 0 means heads

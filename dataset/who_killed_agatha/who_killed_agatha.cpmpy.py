@@ -3,18 +3,6 @@
 # Source: https://github.com/CPMpy/cpmpy/blob/master/examples/who_killed_agatha.py
 # Source description: http://www.hakank.org/constraint_programming_blog/2014/11/decision_management_community_november_2014_challenge_who_killed_agath.html
 
-"""
-Someone in Dreadsbury Mansion killed Aunt Agatha.
-Agatha, the butler, and Charles live in Dreadsbury Mansion, and
-are the only ones to live there. A killer always hates, and is
-no richer than his victim. Charles hates noone that Agatha hates.
-Agatha hates everybody except the butler. The butler hates everyone
-not richer than Aunt Agatha. The butler hates everyone whom Agatha hates.
-Noone hates everyone. Who killed Agatha?
-
-Print the 0-based index of the killer (killer).
-"""
-
 # Data
 names = ["Agatha herself", "the butler", "Charles"]
 # End of data

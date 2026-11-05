@@ -1,0 +1,5 @@
+A kid goes into a grocery store and buys a number of items. The cashier charges a total price, the kid pays and is about to leave
+when the cashier calls the kid back, and says "Hold on, I multiplied the items instead of adding them; I’ll try
+again; Hah, with adding them the price still comes to the same total price". What were the prices of the items?
+
+Print the prices of the items (prices) in cents, as a list of integers.

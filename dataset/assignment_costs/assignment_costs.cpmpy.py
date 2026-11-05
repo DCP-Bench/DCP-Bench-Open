@@ -3,13 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/assignment.py
 # Source description: Winston 'Operations Research', Assignment Problems, page 393f
 
-"""
-Assign people to 4 tasks with different costs, so that the total cost is minimized.
-Each task must be assigned to exactly one person, but it is not necessary to assign all people to a task.
-
-Print whether each task is assigned to a person (x) as a list of lists of booleans, where x[i][j] is True if task i is assigned to person j, and False otherwise.
-"""
-
 # Data
 cost = [  # Cost matrix, rows are tasks, columns are people
     [14, 5, 8, 7, 15],

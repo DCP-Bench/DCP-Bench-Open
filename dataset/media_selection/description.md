@@ -1,0 +1,6 @@
+The main media selection problem is a problem of allocating advertising budgets between possible advertising outlets.
+Given a set of media options, it aims to determine which media should be selected so that all audiences are reached with
+minimum campaign cost. It does not matter if an audience is covered more than once, as long as it is covered at least once.
+Moreover, the company does not wish to spend more money on the campaign than necessary.
+
+Print the binary decision of whether each media is selected (is_selected) as a list of booleans, and the total cost (min_total_cost).
