@@ -5,6 +5,7 @@ words above the horizontal line represent numbers that add to the
 total of 'ALL WOOL'. The problem is to change all the letters to the
 correct digits.
 
+```text
        C H E S S
  +       C A S H
  +   B O W W O W
@@ -23,5 +24,6 @@ correct digits.
  +     S H E E P
  _______________
    A L L W O O L
+```
 
 Print the values (C, H, E, S, A, B, O, W, P, L) that satisfy the above conditions.

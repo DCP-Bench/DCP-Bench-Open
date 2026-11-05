@@ -1,11 +1,13 @@
 If you start with my age, in years, and apply the four operations:
 
+```text
 [
    +2  /8
 
    -3  *7
 
 ]
+```
 
 in some order, then the final answer you get is my husband's age.
 

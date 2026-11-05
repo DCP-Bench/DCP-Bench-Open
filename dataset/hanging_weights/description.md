@@ -4,6 +4,7 @@ Each weight has an integer value between 1 and 13, and the goal is
 to figure out what each weight must be for the the diagram below to
 balance correctly as shown:
 
+```text
                        |
                        |
            +--+--+--+--+--+--+--+
@@ -20,6 +21,7 @@ H              |  I     |  J        K  |
                        |                    |
            +--+--+--+--+--+  +--+--+--+--+--+--+
            A              B  C                 D
+```
 
 The rules for this kind of puzzle are:
 (1) The weights on either side of a given pivot point must be equal,

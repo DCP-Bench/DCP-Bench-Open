@@ -3,11 +3,13 @@ entire board to solve each puzzle in Flow Free. But watch out, pipes will break 
 they cross or overlap! For this problem instance, we have a 5x5 board with the
 following configuration:
 
+```text
 1, 0, 0, 2, 3
 0, 0, 0, 4, 0
 0, 0, 4, 0, 0
 0, 2, 3, 0, 5
 0, 1, 5, 0, 0
+```
 
 The cells with a value of 0 are empty and need to be filled with a color.
 

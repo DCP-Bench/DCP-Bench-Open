@@ -5,18 +5,24 @@ the same group. Find K groups as close in size to round(N/K) as possible.
 
 For example, divide these 32 elements into 4 groups, as close to 8 elements in each group as possible (32/4=8):
 
+```text
 1 1 1 1 2 2 3 3 3 3 3 3 3 3 4 4 4 4 5 5 5 5 5 6 6 6 6 7 8 9 10 10
+```
 
 One solution would be these 3 break points:
 
+```text
 1 1 1 1 2 2 | 3 3 3 3 3 3 3 3 | 4 4 4 4 5 5 5 5 5 | 6 6 6 6 7 8 9 10 10
 [            6                 14                 23                    ]
 [6 elements     8 elements          9 elements         9 elements       ]
+```
 
+```text
 1 1 1 1 2 2         = 6 elements,  error = abs(8-6)=2
 3 3 3 3 3 3 3 3     = 8 elements,  error = abs(8-8)=0
 4 4 4 4 5 5 5 5 5     = 9 elements,  error = abs(8-9)=1
 6 6 6 6 7 8 9 10 10 = 9 elements,  error = abs(8-9)=1
+```
 
 total error = 4 (2+0+1+1)
 break points = [6, 14, 23]

@@ -15,6 +15,7 @@ Dave will only sit next to Andrew and Erica;
 Erica will only sit next to Betty and Dave;
 Frank will only sit next to Andrew and Cara.
 
+```text
 [
   Figure 1 shows the following arrangement:
 
@@ -24,6 +25,7 @@ Frank will only sit next to Andrew and Cara.
               Dave
 
 ]
+```
 
 In the example seating arrangement above, there are three conflicts
 (Andrew and Betty, Cara and Dave, Erica and Frank).

@@ -5,6 +5,7 @@ forms (for example: Across 1. 25 across times two, 2. five dozen, 5. a square nu
 
 Here is the specific problem:
 
+```text
   1  2  3  4  5  6  7  8  9
   ---------------------------
   1  2  _  3  X  4  _  5  6    1
@@ -16,9 +17,11 @@ Here is the specific problem:
   _  X  23 _  X  24 _  X  _    7
   25 26 X  27 _  _  X  28 _    8
   29 _  _  _  X  30 _  _  _    9
+```
 
 Here are the clues:
 
+```text
     #  Across
     #  1 27 across times two
     #  4 4 down plus seventy-one
@@ -59,6 +62,7 @@ Here are the clues:
     # 22 20 down times six
     # 26 Five times 24 across
     # 28 21 down plus twenty-seven
+```
 
 
 Print the solved crossfigure as a list of lists of integers (M), where 0 represents an empty or invalid cell.

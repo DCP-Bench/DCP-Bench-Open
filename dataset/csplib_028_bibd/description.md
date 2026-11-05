@@ -9,6 +9,7 @@ exactly \( r \) ones per row, \( k \) ones per column, and with a scalar product
 distinct rows. A BIBD is therefore specified by its parameters \( (v, b, r, k, \lambda) \). An example of a solution
 for \( (7, 7, 3, 3, 1) \) is:
 
+```text
 0 1 1 0 0 1 0
 1 0 1 0 1 0 0
 0 0 1 1 0 0 1
@@ -16,5 +17,6 @@ for \( (7, 7, 3, 3, 1) \) is:
 0 0 0 0 1 1 1
 1 0 0 1 0 1 0
 0 1 0 1 1 0 0
+```
 
 Print the incidence matrix of the BIBD (matrix) as a list of lists of integers - 0s and 1s.

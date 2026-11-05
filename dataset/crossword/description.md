@@ -1,5 +1,6 @@
 We are to complete the puzzle
 
+```text
      1   2   3   4   5
    +---+---+---+---+---+       Given the list of words:
  1 | 1 |   | 2 |   | 3 |             AFT     LASER
@@ -15,6 +16,7 @@ We are to complete the puzzle
  6 |   | # | # |   | # |       The numbers 1,2,3,4,5,6,7,8 in the crossword
    +---+---+---+---+---+       puzzle correspond to the words
                                that will start at those locations.
+```
 
 We need to select 8 words from the list of 15 words above, such that the above crossword puzzle can be completed.
 

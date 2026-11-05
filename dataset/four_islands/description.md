@@ -7,10 +7,12 @@ attraction of each island on the map?
 
 A, B, C, D are the islands, this is the map showing the bridges and the orientation of the islands:
 
+```text
 (A) -- (B)
  |      |
  |      |
 (C) -- (D)
+```
 
 This means that A is north of C, C is west of D, etc.
 
