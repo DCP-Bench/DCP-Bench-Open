@@ -51,7 +51,7 @@ Use it to select problems, for example `python -m dcp_bench.problems list --cate
 
 Please follow the structure of existing problems. We use `dataset/csplib_054_n_queens/csplib_054_n_queens.cpmpy.py` as an example.
 
-1.  **Origin:** Include the category and source links as `# Key: value` comments at the top of the file, followed by a blank line. `metadata.json` is generated from them. The keys are `Category`, `Source`, `Source description`, `Source model`, `Problem instances`, `Misc`, `Name` and `Timeout`, and a source may be a URL or a citation.
+1.  **Origin:** Include the category and source links as `# Key: value` comments at the top of the file, followed by a blank line. `metadata.json` is generated from them. The keys are `Category`, `Source`, `Source description`, `Source model`, `Problem instances`, `Misc`, `Name` and `Timeout`, and a source may be a URL or a citation. Older problems also use `Description`, `Model source`, `Example model`, `Source and problem instances` and `Source description and problem instances`, which `dcp_bench/problems.py` reads as well; any other key fails the audit.
 
     ```python
     # Category: csplib
