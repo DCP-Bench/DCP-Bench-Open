@@ -18,7 +18,8 @@ More complex KenKen problems are formed using the principles described
 above but omitting the symbols +, -, x and /, thus leaving them as
 yet another unknown to be determined. This is such a problem: `problem` lists
 each cage as its result and its cells, each cell being a 1-based [row, column].
-A cage of two cells may use any of the four operations, and a larger cage
-either addition or multiplication.
+A cage of one cell holds its result. A cage of two cells may use any of the
+four operations, and a division must be exact. A larger cage uses either
+addition or multiplication.
 
 Print the solved grid (x) as a list of lists of integers ranging from 1 to 6.

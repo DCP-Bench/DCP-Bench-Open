@@ -18,6 +18,6 @@ differ (different on all three cards) may break down as: all 4 features differin
 differing; or 2 constant and 2 differing; or 3 constant and 1 differing. (All 4 features being constant would imply
 that the three cards in the set are identical, which is impossible since no cards in the Set deck are identical.)
 
-Given a list of cards, each written as [number, fill, color, shape], find three different cards that form a set.
+Given a list of cards, each written as [number, shading, color, shape], find three different cards that form a set.
 
 Print the 0-based indices of the winning set of cards (winning_cards).

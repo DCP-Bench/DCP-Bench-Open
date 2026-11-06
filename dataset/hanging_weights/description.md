@@ -1,5 +1,4 @@
-Here's a puzzle similar to the one in the puzzle hunt.  The diagram
-below is a bunch of weights (A-M) hanging from a system of bars.
+The diagram below is a bunch of weights (A-M) hanging from a system of bars.
 The weights have different integer values between 1 and 13, and the goal is
 to figure out what each weight must be for the diagram below to
 balance correctly as shown. Each three characters along a bar are one unit of distance:
