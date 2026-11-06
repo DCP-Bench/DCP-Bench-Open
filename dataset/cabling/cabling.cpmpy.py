@@ -4,21 +4,6 @@
 # Source description: https://yurichev.com/blog/cabling_Z3/
 # Misc: http://www.hakank.org/cpmpy/cpmpy_hakank.py
 
-"""
-Take a rack cabinet, like this one:
-  [ an image ]
-
-Let's say, there are a number of 1U devices, maybe servers, routers and whatnot.
-Devices must be connected by cables: probably
-twisted pair or whatever network engineers using today. Some devices must be
-connected by several cables.
-
-The problem: how we can place these devices in such an order, so that sum
-of all cable lengths would be as short as possible?
-
-Print the optimal sum of all cable lengths (final_sum).
-"""
-
 # Data
 n = 8
 devices = ["A", "B", "C", "D", "E", "F", "G", "H"]

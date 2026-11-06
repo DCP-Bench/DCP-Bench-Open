@@ -3,13 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/2012_CMO_problem.py
 # Timeout: 120
 
-"""
-Given two positive integers a and b, where a - b is a prime number and a × b is a perfect square n^2,
-find the smallest value of a no less than a given minimum. Also, b should be larger than 0.
-
-Print the values of a, b, n, and p (a, b, n, p).
-"""
-
 # Data
 min_a = 2012
 max_val = 10000

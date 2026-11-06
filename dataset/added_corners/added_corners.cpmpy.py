@@ -2,17 +2,6 @@
 # Category: hakan_examples
 # Source: http://www.hakank.org/cpmpy/added_corner.py
 
-"""
-Enter the digits 1 through 8 in the circles and squares such that the number in each square is equal to the sum of the numbers in the adjoining circles.
-...
-  C F C
-  F   F
-  C F C
-'''
-
-Print the values for each position (positions), starting from the top left corner and moving like reading a book, i.e., left to right, top to bottom.
-"""
-
 # Import libraries
 from cpmpy import *
 import json

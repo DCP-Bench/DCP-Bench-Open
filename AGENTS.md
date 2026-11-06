@@ -11,7 +11,9 @@
 ## This repository
 
 It holds the problems only: `dataset/`, their sources in `SOURCES.md`, and the tooling
-that reads them. New problems follow `CONTRIBUTING.md`, and `python -m unittest
+that reads them. A problem's description is its `description.md`, never a docstring in
+the reference, and its `metadata.json` is generated (`python -m dcp_bench.problems sync`).
+New problems follow `CONTRIBUTING.md`, and `python -m unittest
 tests.test_dataset` is the audit CI runs.
 
 Generated models, the evaluator, the solver integrations, the agent skills and the

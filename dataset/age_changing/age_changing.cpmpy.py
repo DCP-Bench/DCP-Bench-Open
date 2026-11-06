@@ -3,26 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/age_changing.py
 # Source description: https://enigmaticcode.wordpress.com/2015/06/20/enigma-1224-age-changing/
 
-"""
-If you start with my age, in years, and apply the four operations:
-
-[
-   +2  /8
-
-   -3  *7
-
-]
-
-in some order, then the final answer you get is my husband's age.
-
-Funnily enough, if you start with his age and apply the same four operations in a
-different order, then you get my age.
-
-What are our two ages?
-
-Print my age and my husband's age (m, h).
-"""
-
 # Import libraries
 from cpmpy import *
 import json

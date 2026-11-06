@@ -2,14 +2,6 @@
 # Category: hakan_examples
 # Source: http://www.hakank.org/cpmpy/devils_word.py
 
-"""
-Given an array of integers, insert '+' or '-' operators before each integer in the array so that summing them up will
-result in 666.
-
-Print the array with the correct signs (result). For example, if the given array is [1, 2, 3], and the total is 4,
-then the result array should be [-1, 2, 3].
-"""
-
 # Data
 arr = [72, 229, 107, 97, 110, 32, 75, 106, 101, 108, 108, 101, 114, 115, 116, 114, 97, 110, 100]
 total = 666

@@ -2,18 +2,6 @@
 # Category: complex_or
 # Source: https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/flowshop_scheduling
 
-"""
-A set of jobs `Jobs` need to be processed on a set of machines `Machines` in series. All jobs have the same processing
-order through all the machines from machine 1 to machine M. Each machine can work in parallel. The workflow is the
-following: the first job of the sequence goes to the first machine to be processed; meanwhile, other jobs wait; when
-the first machine has processed the first job, the first job goes to the second machine and the second job of the
-sequence starts to be processed by the first machine; and so on. The time required to process job `j` on machine `m`
-is `ProcesTime_{j, m}`. The problem aims to minimize the total makespan. The goal is to find a sequence of jobs that
-minimize the makespan: the time when all jobs have been processed.
-
-Print the optimal makespan (makespan) as an integer.
-"""
-
 # Data
 jobs = [1, 2, 3]  # List of jobs
 schedules = [1, 2, 3]  # List of schedules (same as jobs)

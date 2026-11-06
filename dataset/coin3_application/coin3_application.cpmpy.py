@@ -3,13 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/coins3.py
 # Source description: From 'Constraint Logic Programming using ECLiPSe' pages 99f and 234 ff. The solution in ECLiPSe is at page 236.
 
-"""
-Find the minimum number of coins that allows one to pay exactly any amount smaller than a given maximum amount using a given set of
-denominations.
-
-Print the number of each type of coin used (x) as a list of integers.
-"""
-
 # Data
 denominations = [1, 2, 5, 10, 20, 50]  # Euro cent denominations
 max_amount_to_pay = 100  # maximum amount to pay in cents

@@ -3,18 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/fixed_charge.py
 # Misc: From the OPL documentation, and example model fixed.mod: Fixed-charge problems are another classic application of integer programs (see Applications and Algorithms by W. Winston in the Bibliography). They resemble some of the production problems seen previously but differ in two respects: the production is an integer value (e.g., a factory must produce bikes or toys), and the factories need to rent (or acquire) some tools to produce some of the products.
 
-"""
-A company manufactures shirts, shorts, and pants. Each
-product requires a number of hours of labor and a certain amount of
-cloth, and the company has a limited capacity of both. In addition,
-all of these products can be manufactured only by renting an appropriate
-machine. The profit on the products (excluding the cost of renting
-the equipment) are also known. The company would like to maximize
-its profit.
-
-Print the maximum profit that the company can make (z) taking into account the input data below.
-"""
-
 # Data
 shirtM = 0
 shortM = 1

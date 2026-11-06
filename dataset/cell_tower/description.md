@@ -1,0 +1,8 @@
+A telecom company needs to build a set of cell towers to provide signal coverage for the inhabitants of a given city.
+A number of potential locations where the towers could be built have been identified. The towers have a fixed range,
+and due to budget constraints only a limited number of them can be built. Given these restrictions, the company wishes
+to provide coverage to the largest percentage of the population possible. To simplify the problem, the company has split
+the area it wishes to cover into a set of regions, each of which has a known population. The goal is then to choose which
+of the potential locations the company should build cell towers on in order to provide coverage to as many people as possible.
+
+Print the binary decision of whether to build a tower at each site (build_tower) as a list of booleans, and the total population covered (total_population_covered) as an integer.

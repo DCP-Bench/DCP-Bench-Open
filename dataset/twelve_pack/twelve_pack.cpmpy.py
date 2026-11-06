@@ -2,12 +2,6 @@
 # Category: hakan_examples
 # Source: http://www.hakank.org/cpmpy/12_pack_problem.py
 
-"""
-Given a target number of items, find the closest combination of packs of different sizes that meets or exceeds the target.
-
-Print the counts of each pack size used (counts) as a list of integers.
-"""
-
 # Data
 target = 94  # Target number of items
 packs = [7, 13]  # Pack sizes

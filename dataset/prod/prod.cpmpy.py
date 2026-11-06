@@ -2,16 +2,6 @@
 # Category: complex_or
 # Source: https://github.com/xzymustbexzy/Chain-of-Experts/blob/main/dataset/ComplexOR/prod
 
-"""
-Consider a problem where we have a set `P`. For each element `j` in `P`, we have a parameter `a[j]`, a parameter `c[j]`, and a parameter `u[j]`.
-We also have a global parameter `b`. We have a variable `X[j]` for each `j` in `P`.
-The goal is to maximize the total profit, which is the sum of `c[j] * X[j]` for all `j` in `P`.
-The constraints are that the sum of `(1/a[j]) * X[j]` for all `j` in `P` should be less than or equal to `b`,
-and `X[j]` should be between 0 and `u[j]` for all `j` in `P`.
-
-Print the production quantities (x) as a list of integers, and the total profit (total_profit) as an integer.
-"""
-
 # Data
 a = [3, 1, 2]
 c = [5, 10, 8]

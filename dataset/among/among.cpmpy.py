@@ -3,12 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/among.py
 # Misc: http://www.hakank.org/cpmpy/cpmpy_hakank.py
 
-"""
-Requires exactly m values in x to take one of the values in v. All other values may be anything larger than or equal to 0 and less than or equal to 7.
-
-Print the array x (x).
-"""
-
 # Data
 n = 7  # Length of x
 m = 4  # Number of values

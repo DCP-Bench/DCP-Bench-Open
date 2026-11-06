@@ -3,13 +3,6 @@
 # Source: http://www.hakank.org/cpmpy/autoref.py
 # Misc: http://www.hakank.org/cpmpy/cpmpy_hakank.py
 
-"""
-Given an integer n > 0 and an integer m >= 0, find a non-empty finite series S=(s0, s1, ..., sn, sn+1) such that (
-1) there are si occurrences of i in S for each integer i ranging from 0 to n, and (2) sn+1=m.
-
-Print the series S (s).
-"""
-
 # Data
 n = 27
 m = 5

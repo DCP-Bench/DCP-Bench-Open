@@ -38,8 +38,8 @@ statistics from it.
 
 | Path | What it holds |
 | --- | --- |
-| `dataset/` | The problems. Per problem, `<name>.cpmpy.py` with the natural language description, a sample instance and the ground-truth CPMpy model, plus `<name>.json` with one or more instances. |
-| `dcp_bench/` | The reference loader: reads a problem's data section, declared outputs and instances without running its solve tail. |
+| `dataset/` | The problems. Per problem, `description.md` with the natural language description, `metadata.json` with its category, sources, objective, outputs and instance fields, `<name>.cpmpy.py` with a sample instance and the ground-truth CPMpy model, and `<name>.json` with one or more instances. |
+| `dcp_bench/` | The reference loader, which reads a problem's data section, declared outputs and instances without running its solve tail, and `problems.py`, which reads descriptions and metadata and filters the problems (`python -m dcp_bench.problems list --category csplib --objective minimize`). |
 | `jsonl_convert.py` | Builds `dcp-bench-open.jsonl` from `dataset/`. |
 | `self_consistency.py` | Checks that each problem's example solution satisfies its own model. |
 | `tests/` | The dataset audit that CI runs. |

@@ -2,12 +2,6 @@
 # Category: hakan_examples
 # Source: http://www.hakank.org/cpmpy/3sum.py
 
-"""
-Given a collection of integers, find a number of elements that sum to zero.
-
-Print whether each element is selected (indices) as a list of booleans.
-"""
-
 # Data
 nums = [-1, 6, 8, 9, 10, -100, 78, 0, 1]  # Collection of integers
 m = 3  # The number of elements that should sum to 0

@@ -2,18 +2,6 @@
 # Category: hakan_examples
 # Source: http://www.hakank.org/cpmpy/facility_location_problem.py
 
-"""
-A company is considering opening warehouses in four cities to meet regional demands at minimal costs. The potential
-cities for these warehouses are New York, Los Angeles, Chicago, and Atlanta. The company needs to decide which
-warehouses to open based on several constraints: 1. If the New York warehouse is opened, then the Los Angeles
-warehouse must also be opened. 2. No more than three warehouses can be operational in any given week. 3. Either the 
-Atlanta or the Los Angeles warehouse must be opened. The objective is to determine the optimal set of warehouses to open
-and the distribution of shipments to various regions to minimize total costs.
-
-Print the total cost (total_cost) as an integer, whether the warehouses are open (open_warehouse) as a list of booleans, and the shipping details for each
-region per warehouse (ships) as a list of lists where ships[i][j] indicates the number of units shipped from warehouse i to region j - including the non-opened warehouses as 0s.
-"""
-
 # Data
 warehouse_s = ["New York", "Los Angeles", "Chicago", "Atlanta"]
 fixed_costs = [400, 500, 300, 150]  # Weekly fixed costs per warehouse
