@@ -2,8 +2,8 @@ Mr. Greenfan wants to give a dress party where the male guests
 must wear green dresses. The following rules are given:
 
 1. If someone wears a green tie he has to wear a green shirt.
-2. A guest may only wear green socks and a green shirt
-   if he wears a green tie or a green hat.
+2. A guest who wears green socks or a green shirt
+   must also wear a green tie or a green hat.
 3. A guest wearing a green shirt or a green hat or who does
    not wear green socks must wear a green tie.
 4. A guest who is not dressed according to rules 1-3 must
