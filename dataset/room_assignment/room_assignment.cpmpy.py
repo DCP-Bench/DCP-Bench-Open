@@ -33,6 +33,9 @@ def model_rooms(df, max_rooms):
 
     m = Model()
 
+    # Every request is part of the model, also one that overlaps no other and has no pre-assigned room
+    m += requestvars >= 0
+
     # Some requests already have a room pre-assigned
     for idx, row in df.iterrows():
         if not pd.isna(row['room']):
