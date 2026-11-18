@@ -8,6 +8,7 @@ The dataset contains problems gathered from different sources.
   - Those already modelled in other folders (e.g. knapsack) and those with heavy float parameters/objective values are excluded.
 - `cpmpy_examples`: Problems from the cpmpy examples folder, https://github.com/CPMpy/cpmpy/tree/master/examples
   - All included, except for the ones that require enumeration of all solutions (e.g. `solveAll`).
+- `cube_sudoku_benchmark`: Five instances selected from the training split of Patrick Schibli / Dream Factory's [Cube Sudoku Benchmark v1.0.0](https://doi.org/10.5281/zenodo.24342566), one per app difficulty tier. The instance data are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See the [methodology](https://www.dream-factory.app/cubesudoku/en/datasets) for the topology and validation procedure.
 - `csplib`: Problems from the csplib, https://www.csplib.org/Problems/
   - For now, only the ones modelled in the cpmpy repository are included (https://github.com/CPMpy/cpmpy/tree/master/examples/csplib), and the ones modelled by Hakan Kjellerstrand (http://www.hakank.org/cpmpy/).
 - `hakan_examples`: Models created by Hakan Kjellerstrand, http://www.hakank.org/cpmpy/ (also on GitHub: https://github.com/hakank/hakank/tree/master/cpmpy, which the website links to since hakank.org stopped answering)
