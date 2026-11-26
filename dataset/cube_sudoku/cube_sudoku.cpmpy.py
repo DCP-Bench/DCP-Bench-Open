@@ -5,14 +5,25 @@
 # Problem instances: https://doi.org/10.5281/zenodo.24342566
 
 # Data
-givens = (
-    "0613000004091020008320590160700350000132040606280070001000006902060700"
-    "3004500070100000070300600540907203056070040090606000010850000600002406"
-    "0010030051000600948007900046802689000370102210058308193003480010000205"
-    "0009060009510007005000000006080000500070405090253000930000000020200030"
-    "6300608920018038006024500000009173001762509083000606702001692000206340"
-    "800050670210635000401068090419480156"
-)
+givens = [
+    0, 6, 1, 3, 0, 0, 0, 0, 0, 4, 0, 9, 1, 0, 2, 0, 0, 0, 8, 3, 2, 0, 5, 9,
+    0, 1, 6, 0, 7, 0, 0, 3, 5, 0, 0, 0, 0, 1, 3, 2, 0, 4, 0, 6, 0, 6, 2, 8,
+    0, 0, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 6, 9, 0, 2, 0, 6, 0, 7, 0, 0, 3, 0,
+    0, 4, 5, 0, 0, 0, 7, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 3, 0, 0, 6, 0, 0, 5,
+    4, 0, 9, 0, 7, 2, 0, 3, 0, 5, 6, 0, 7, 0, 0, 4, 0, 0, 9, 0, 6, 0, 6, 0,
+    0, 0, 0, 1, 0, 8, 5, 0, 0, 0, 0, 6, 0, 0, 0, 0, 2, 4, 0, 6, 0, 0, 1, 0,
+    0, 3, 0, 0, 5, 1, 0, 0, 0, 6, 0, 0, 9, 4, 8, 0, 0, 7, 9, 0, 0, 0, 4, 6,
+    8, 0, 2, 6, 8, 9, 0, 0, 0, 3, 7, 0, 1, 0, 2, 2, 1, 0, 0, 5, 8, 3, 0, 8,
+    1, 9, 3, 0, 0, 3, 4, 8, 0, 0, 1, 0, 0, 0, 0, 2, 0, 5, 0, 0, 0, 9, 0, 6,
+    0, 0, 0, 9, 5, 1, 0, 0, 0, 7, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 8,
+    0, 0, 0, 0, 5, 0, 0, 0, 7, 0, 4, 0, 5, 0, 9, 0, 2, 5, 3, 0, 0, 0, 9, 3,
+    0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 3, 0, 6, 3, 0, 0, 6, 0, 8, 9,
+    2, 0, 0, 1, 8, 0, 3, 8, 0, 0, 6, 0, 2, 4, 5, 0, 0, 0, 0, 0, 0, 0, 9, 1,
+    7, 3, 0, 0, 1, 7, 6, 2, 5, 0, 9, 0, 8, 3, 0, 0, 0, 6, 0, 6, 7, 0, 2, 0,
+    0, 1, 6, 9, 2, 0, 0, 0, 2, 0, 6, 3, 4, 0, 8, 0, 0, 0, 5, 0, 6, 7, 0, 2,
+    1, 0, 6, 3, 5, 0, 0, 0, 4, 0, 1, 0, 6, 8, 0, 9, 0, 4, 1, 9, 4, 8, 0, 1,
+    5, 6,
+]
 # End of data
 
 import json
@@ -44,20 +55,18 @@ def cube_topology():
 
 
 def build_model(clues):
-    """Build the satisfaction model and its output variables for a 386-digit puzzle."""
+    """Build the satisfaction model and its output variables for a 386-cell puzzle."""
     coordinates, units = cube_topology()
-    if len(clues) != len(coordinates) or any(digit not in "0123456789" for digit in clues):
-        raise ValueError("givens must contain 386 ASCII digits, with 0 marking empty cells")
+    if len(clues) != len(coordinates) or any(type(digit) is not int or not 0 <= digit <= 9 for digit in clues):
+        raise ValueError("givens must contain 386 integers from 0 to 9, with 0 marking empty cells")
 
     cells = cp.intvar(1, 9, shape=len(coordinates), name="cells")
     model = cp.Model([cp.AllDifferent([cells[i] for i in unit]) for unit in units])
-    model += [cells[i] == int(digit) for i, digit in enumerate(clues) if digit != "0"]
+    model += [cells[i] == digit for i, digit in enumerate(clues) if digit != 0]
     return model, cells
 
 
 model, cells = build_model(givens)
-if __name__ == "__main__":
-    if not model.solve(solver="ortools"):
-        raise RuntimeError("No solution found for the embedded example")
-    solution = {"cells": cells.value().tolist()}
-    print(json.dumps(solution))
+model.solve()
+solution = {"cells": cells.value().tolist()}
+print(json.dumps(solution))
